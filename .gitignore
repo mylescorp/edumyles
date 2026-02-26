@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+
+# Convex
+.convex/
+convex/_generated/
+
+# Env files — NEVER commit these
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Expo / React Native
+.expo/
+ios/Pods/
+android/.gradle/
+android/build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Misc
+*.tgz
+*.tar.gz
