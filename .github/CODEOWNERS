@@ -1,0 +1,30 @@
+# =============================================================================
+# CODEOWNERS — EduMyles Monorepo
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# =============================================================================
+
+# Default owner for everything
+*                                   @mylesoft-technologies/core-engineers
+
+# Frontend
+apps/web/                           @mylesoft-technologies/frontend
+apps/mobile/                        @mylesoft-technologies/frontend
+
+# Backend
+convex/                             @mylesoft-technologies/backend
+
+# Shared packages (requires both teams)
+packages/shared/                    @mylesoft-technologies/frontend @mylesoft-technologies/backend
+
+# Infrastructure & CI — DevOps must review
+.github/                            @mylesoft-technologies/devops
+vercel.json                         @mylesoft-technologies/devops
+
+# Security-sensitive files — core-engineers only
+convex/helpers/auth.ts              @mylesoft-technologies/core-engineers
+convex/platform/                    @mylesoft-technologies/core-engineers
+apps/web/src/middleware.ts          @mylesoft-technologies/core-engineers
+
+# Finance module — senior engineers only
+convex/modules/finance/             @mylesoft-technologies/core-engineers
+convex/modules/ewallet/             @mylesoft-technologies/core-engineers
