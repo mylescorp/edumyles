@@ -1,7 +1,10 @@
 ## Summary
 <!-- What does this PR do? Link to the related issue or task. -->
 
+<!-- REQUIRED: use one of these exact patterns on its own line -->
 Closes #
+<!-- or -->
+Refs #
 
 ## Type of Change
 - [ ] 🐛 Bug fix
