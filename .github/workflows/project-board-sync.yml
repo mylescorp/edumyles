@@ -79,7 +79,7 @@ jobs:
 
                 local pr_body ref_issue
                 pr_body=$(gh pr view "$num" -R "$OWNER/$REPO" --json body -q .body || true)
-                ref_issue=$(echo "$pr_body" | rg -o '#[0-9]+' -m 1 | tr -d '#' || true)
+                ref_issue=$(printf "%s" "$pr_body" | grep -Eo '#[0-9]+' | head -n 1 | tr -d '#' || true)
                 if [ -n "${ref_issue:-}" ]; then
                   labels_json=$(gh issue view "$ref_issue" -R "$OWNER/$REPO" --json labels -q '.labels | map(.name)' | jq -c '.')
                 else
