@@ -1,0 +1,138 @@
+name: Project Board Sync
+
+on:
+  issues:
+    types: [opened, reopened, closed]
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  repository-projects: write
+
+jobs:
+  sync-project-status:
+    name: Sync Issue/PR Status To Project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync board item
+        uses: actions/github-script@v7
+        env:
+          ORG_LOGIN: Mylesoft-Technologies
+          PROJECT_NUMBER: "5"
+          STATUS_FIELD_ID: PVTSSF_lADODSjJ2c4BQRKgzg-cAU8
+          TODO_OPTION_ID: f75ad846
+          IN_PROGRESS_OPTION_ID: 47fc9ee4
+          DONE_OPTION_ID: 98236657
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const orgLogin = process.env.ORG_LOGIN;
+            const projectNumber = Number(process.env.PROJECT_NUMBER);
+            const statusFieldId = process.env.STATUS_FIELD_ID;
+            const todoOptionId = process.env.TODO_OPTION_ID;
+            const inProgressOptionId = process.env.IN_PROGRESS_OPTION_ID;
+            const doneOptionId = process.env.DONE_OPTION_ID;
+
+            const issue = context.payload.issue;
+            const pr = context.payload.pull_request;
+            const contentNodeId = issue?.node_id ?? pr?.node_id;
+            if (!contentNodeId) {
+              core.info("No issue/pull request payload; skipping.");
+              return;
+            }
+
+            const getProject = await github.graphql(
+              `query($org: String!, $number: Int!) {
+                organization(login: $org) {
+                  projectV2(number: $number) { id }
+                }
+              }`,
+              { org: orgLogin, number: projectNumber }
+            );
+            const projectId = getProject.organization.projectV2.id;
+
+            let itemId = null;
+            const itemsResp = await github.graphql(
+              `query($projectId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 200) {
+                      nodes {
+                        id
+                        content {
+                          __typename
+                          ... on Issue { id }
+                          ... on PullRequest { id }
+                        }
+                      }
+                    }
+                  }
+                }
+              }`,
+              { projectId }
+            );
+
+            for (const node of itemsResp.node.items.nodes) {
+              const id = node?.content?.id;
+              if (id && id === contentNodeId) {
+                itemId = node.id;
+                break;
+              }
+            }
+
+            if (!itemId) {
+              const addResp = await github.graphql(
+                `mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                    item { id }
+                  }
+                }`,
+                { projectId, contentId: contentNodeId }
+              );
+              itemId = addResp.addProjectV2ItemById.item.id;
+              core.info(`Added item ${itemId} to project.`);
+            }
+
+            let optionId = todoOptionId;
+            if (issue) {
+              if (context.payload.action === "closed" || issue.state === "closed") {
+                optionId = doneOptionId;
+              } else {
+                optionId = todoOptionId;
+              }
+            } else if (pr) {
+              if (context.payload.action === "closed") {
+                optionId = pr.merged ? doneOptionId : todoOptionId;
+              } else {
+                optionId = inProgressOptionId;
+              }
+            }
+
+            await github.graphql(
+              `mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(
+                  input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { singleSelectOptionId: $optionId }
+                  }
+                ) {
+                  projectV2Item { id }
+                }
+              }`,
+              {
+                projectId,
+                itemId,
+                fieldId: statusFieldId,
+                optionId,
+              }
+            );
+
+            core.info(`Updated item ${itemId} status.`);
