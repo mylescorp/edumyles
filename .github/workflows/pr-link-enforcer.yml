@@ -1,0 +1,30 @@
+name: PR Link Enforcer
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  enforce-linked-issue:
+    name: Enforce Issue Link In PR Body
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR body issue link
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+          if printf "%s" "${BODY:-}" | grep -Eiq '(^|\n)\s*(Closes|Fixes|Resolves|Refs)\s+#[0-9]+'; then
+            echo "PR body has a valid issue link keyword."
+            exit 0
+          fi
+
+          echo "PR body must include an issue link using one of:"
+          echo "  Closes #123"
+          echo "  Fixes #123"
+          echo "  Resolves #123"
+          echo "  Refs #123"
+          exit 1
