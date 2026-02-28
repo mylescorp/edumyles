@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "autoprefixer": "^10.4.27",
     "prettier": "^3.2.5",
     "turbo": "^2.0.0",
     "typescript": "^5.4.0"
@@ -42,5 +43,9 @@
     "trailingComma": "es5",
     "printWidth": 100
   },
-  "packageManager": "npm@10.8.2"
+  "packageManager": "npm@10.8.2",
+  "dependencies": {
+    "@workos-inc/node": "^8.7.0",
+    "convex": "^1.32.0"
+  }
 }
