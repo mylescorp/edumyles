@@ -66,3 +66,4 @@ coverage/
 # ------ Docs ------
 # PDFs are stored externally, not in git
 docs/**/*.pdf
+.env.local
