@@ -1,21 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  images: {
-    domains: ["edumyles.com"],
+  experimental: {
+    serverActions: { allowedOrigins: ["localhost:3000"] },
   },
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: [
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-        ],
-      },
-    ];
+  env: {
+    NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL ?? "",
+    NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "edumyles.com",
+  },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**.convex.cloud" },
+      { protocol: "https", hostname: "**.cloudinary.com" },
+    ],
   },
 };
 
