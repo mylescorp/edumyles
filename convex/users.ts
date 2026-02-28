@@ -1,4 +1,3 @@
-
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -24,7 +23,6 @@ export const upsertUser = mutation({
       .first();
 
     if (existing) {
-      // Enforce tenantId isolation — never update across tenants
       if (existing.tenantId !== args.tenantId) {
         throw new Error("Tenant mismatch — access denied");
       }
@@ -32,7 +30,7 @@ export const upsertUser = mutation({
         email: args.email,
         firstName: args.firstName,
         lastName: args.lastName,
-        role: args.role as any,
+        role: args.role,
         permissions: args.permissions,
       });
       return existing._id;
@@ -45,7 +43,7 @@ export const upsertUser = mutation({
       email: args.email,
       firstName: args.firstName,
       lastName: args.lastName,
-      role: args.role as any,
+      role: args.role,
       permissions: args.permissions,
       organizationId: args.organizationId,
       isActive: true,
@@ -68,8 +66,76 @@ export const getUserByWorkosId = query({
       )
       .first();
 
-    // Enforce tenant isolation
     if (!user || user.tenantId !== args.tenantId) return null;
     return user;
+  },
+});
+
+// Get current user by session token — used by useAuth hook
+export const getCurrentUser = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) return null;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_email", (q) =>
+        q.eq("tenantId", session.tenantId).eq("email", session.email)
+      )
+      .first();
+
+    if (!user) {
+      return {
+        _id: session.userId,
+        tenantId: session.tenantId,
+        email: session.email,
+        role: session.role,
+        firstName: undefined,
+        lastName: undefined,
+        avatarUrl: undefined,
+        isActive: true,
+      };
+    }
+
+    return {
+      _id: user._id,
+      tenantId: user.tenantId,
+      eduMylesUserId: user.eduMylesUserId,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatarUrl: user.avatarUrl,
+      phone: user.phone,
+      isActive: user.isActive,
+    };
+  },
+});
+
+// List users within a tenant
+export const listTenantUsers = query({
+  args: {
+    tenantId: v.string(),
+    role: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (args.role) {
+      return await ctx.db
+        .query("users")
+        .withIndex("by_tenant_role", (q) =>
+          q.eq("tenantId", args.tenantId).eq("role", args.role!)
+        )
+        .collect();
+    }
+
+    return await ctx.db
+      .query("users")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
   },
 });

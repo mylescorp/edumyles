@@ -214,4 +214,18 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_teacher", ["tenantId", "teacherId"]),
+
+  notifications: defineTable({
+    tenantId: v.string(),
+    userId: v.string(),
+    title: v.string(),
+    message: v.string(),
+    type: v.string(),
+    isRead: v.boolean(),
+    link: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId", "createdAt"])
+    .index("by_user_unread", ["userId", "isRead"])
+    .index("by_tenant", ["tenantId", "createdAt"]),
 });
