@@ -17,7 +17,9 @@ export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
   teacher:          { label: "Teacher",            level: 40 },
   receptionist:     { label: "Receptionist",      level: 30 },
   parent:           { label: "Parent",             level: 20 },
+  alumni:           { label: "Alumni",             level: 15 },
   student:          { label: "Student",            level: 10 },
+  partner:          { label: "Partner",            level: 25 },
 };
 
 // ----------------------------------------------------------
