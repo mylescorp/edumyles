@@ -19,7 +19,7 @@ export function DashboardLayout({
   isImpersonating = false,
 }: DashboardLayoutProps) {
   return (
-    <div className="flex min-h-screen bg-gray-950">
+    <div className="flex min-h-screen bg-cream">
       <Sidebar role={role} schoolName={schoolName} />
       <div className="flex-1 flex flex-col">
         <Header title={title} subtitle={subtitle} isImpersonating={isImpersonating} />

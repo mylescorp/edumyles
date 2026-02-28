@@ -40,11 +40,11 @@ export function Sidebar({ role = "school_admin", schoolName = "EduMyles" }: Side
   const navItems = role === "master_admin" ? MASTER_ADMIN_NAV : SCHOOL_ADMIN_NAV;
 
   return (
-    <aside className="w-64 min-h-screen bg-gray-900 border-r border-gray-800 flex flex-col">
+    <aside className="w-64 min-h-screen bg-forest-800 flex flex-col">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-gray-800">
-        <p className="text-blue-400 font-bold text-lg">EduMyles</p>
-        <p className="text-gray-400 text-xs mt-1 truncate">{schoolName}</p>
+      <div className="px-6 py-5 border-b border-forest-700/50">
+        <p className="text-amber-500 font-bold text-lg tracking-tight">EduMyles</p>
+        <p className="text-forest-200/60 text-xs mt-1 truncate">{schoolName}</p>
       </div>
 
       {/* Nav */}
@@ -55,10 +55,10 @@ export function Sidebar({ role = "school_admin", schoolName = "EduMyles" }: Side
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                  ? "bg-forest-500 text-white shadow-sm"
+                  : "text-forest-100/70 hover:bg-forest-700/50 hover:text-white"
               }`}
             >
               <span>{item.icon}</span>
@@ -69,16 +69,16 @@ export function Sidebar({ role = "school_admin", schoolName = "EduMyles" }: Side
       </nav>
 
       {/* User */}
-      <div className="px-4 py-4 border-t border-gray-800">
+      <div className="px-4 py-4 border-t border-forest-700/50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">
+          <div className="w-8 h-8 rounded-full bg-forest-500 flex items-center justify-center text-xs font-bold text-white">
             A
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-white truncate">Admin</p>
-            <p className="text-xs text-gray-400 truncate capitalize">{role.replace("_", " ")}</p>
+            <p className="text-xs text-forest-200/50 truncate capitalize">{role.replace("_", " ")}</p>
           </div>
-          <Link href="/auth/logout" className="text-gray-400 hover:text-red-400 text-xs">
+          <Link href="/auth/logout" className="text-forest-200/50 hover:text-crimson-400 text-xs transition-colors">
             Exit
           </Link>
         </div>

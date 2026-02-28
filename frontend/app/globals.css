@@ -2,26 +2,103 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
+
 :root {
+  /* Zoho One — Primary */
+  --forest-green: #056C40;
+  --crimson-red: #E42527;
+  --amber-yellow: #FFD731;
+
+  /* Zoho One — Neutrals */
+  --charcoal: #101010;
+  --off-white: #F8F8F8;
+  --white: #ffffff;
+  --black: #000000;
+  --zoho-blue: #056CB8;
+
+  /* Semantic mapping */
   --background: #ffffff;
-  --foreground: #171717;
-}
+  --foreground: #101010;
+  --surface: #F8F8F8;
+  --border: #E8E8E8;
+  --muted: #808080;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  /* Sidebar */
+  --sidebar-bg: #023c24;
+  --sidebar-active: #056C40;
+  --sidebar-text: rgba(255, 255, 255, 0.75);
+  --sidebar-text-active: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+@layer components {
+  /* Zoho One CTA button */
+  .btn-cta {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-crimson-500 text-white font-semibold rounded-lg
+      hover:bg-crimson-600 transition-colors duration-200 text-sm tracking-wide uppercase;
+  }
+
+  .btn-cta-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-charcoal text-white font-semibold rounded-lg
+      hover:bg-charcoal-400 transition-colors duration-200 text-sm;
+  }
+
+  .btn-forest {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-forest-500 text-white font-semibold rounded-lg
+      hover:bg-forest-600 transition-colors duration-200 text-sm;
+  }
+
+  /* Zoho One card */
+  .card-zoho {
+    @apply bg-white border border-cream-400 rounded-2xl p-6 shadow-sm;
+  }
+
+  /* Section containers */
+  .section-white {
+    @apply bg-white;
+  }
+
+  .section-cream {
+    @apply bg-cream;
+  }
+
+  .section-forest {
+    @apply bg-forest-500 text-white;
+  }
+
+  .section-amber {
+    @apply bg-amber-500;
+  }
+
+  .section-dark {
+    @apply bg-charcoal text-white;
+  }
 }
