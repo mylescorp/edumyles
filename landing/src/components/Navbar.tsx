@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://edumyles.vercel.app";
+
 
 const navItems = [
   {
@@ -115,12 +115,12 @@ export default function Navbar() {
         </ul>
 
         <div className="navbar-actions">
-          <a className="navbar-login" href={`${APP_URL}/auth/login`}>
+          <Link className="navbar-login" href="/auth/login">
             Log In
-          </a>
-          <a className="navbar-signup" href={`${APP_URL}/auth/signup`}>
+          </Link>
+          <Link className="navbar-signup" href="/auth/signup">
             Sign Up Free
-          </a>
+          </Link>
           <button
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -151,12 +151,12 @@ export default function Navbar() {
             </div>
           ))}
           <div className="mobile-auth-actions">
-            <a href={`${APP_URL}/auth/login`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+            <Link href="/auth/login" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
               Log In
-            </a>
-            <a href={`${APP_URL}/auth/signup`} className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
+            </Link>
+            <Link href="/auth/signup" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
               Sign Up Free
-            </a>
+            </Link>
           </div>
         </div>
       )}
