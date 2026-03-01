@@ -2,27 +2,28 @@
 
 import { useState } from "react";
 
-export default function LoginForm() {
+export default function SignUpForm() {
   const [email, setEmail] = useState("");
+  const [schoolName, setSchoolName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleEmailLogin(e: React.FormEvent) {
+  async function handleEmailSignUp(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      const res = await fetch("/auth/login/api", {
+      const res = await fetch("/auth/signup/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, schoolName }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to initiate sign in");
+        throw new Error(data.error || "Failed to create account");
       }
 
       window.location.href = data.authUrl;
@@ -32,7 +33,7 @@ export default function LoginForm() {
     }
   }
 
-  function handleSSOLogin(provider: "GoogleOAuth" | "MicrosoftOAuth") {
+  function handleSSOSignUp(provider: "GoogleOAuth" | "MicrosoftOAuth") {
     const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
     const redirectUri =
       process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ?? "https://edumyles.vercel.app/auth/callback";
@@ -47,7 +48,7 @@ export default function LoginForm() {
       redirect_uri: redirectUri,
       response_type: "code",
       provider: provider,
-      screen_hint: "sign-in",
+      screen_hint: "sign-up",
     });
 
     window.location.href = `https://api.workos.com/user-management/authorize?${params.toString()}`;
@@ -55,9 +56,9 @@ export default function LoginForm() {
 
   return (
     <div className="rounded-lg border bg-card p-8 shadow-sm">
-      <h2 className="text-xl font-semibold">Sign in to your account</h2>
+      <h2 className="text-xl font-semibold">Create your account</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Choose your preferred sign-in method
+        Get started with a free 30-day trial
       </p>
 
       {error && (
@@ -70,7 +71,7 @@ export default function LoginForm() {
       <div className="mt-6 space-y-3">
         <button
           type="button"
-          onClick={() => handleSSOLogin("GoogleOAuth")}
+          onClick={() => handleSSOSignUp("GoogleOAuth")}
           className="flex w-full items-center justify-center gap-3 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -91,12 +92,12 @@ export default function LoginForm() {
               fill="#EA4335"
             />
           </svg>
-          Continue with Google
+          Sign up with Google
         </button>
 
         <button
           type="button"
-          onClick={() => handleSSOLogin("MicrosoftOAuth")}
+          onClick={() => handleSSOSignUp("MicrosoftOAuth")}
           className="flex w-full items-center justify-center gap-3 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -105,7 +106,7 @@ export default function LoginForm() {
             <path d="M11.4 11.4H0V0h11.4v11.4z" fill="#F25022" />
             <path d="M24 11.4H12.6V0H24v11.4z" fill="#7FBA00" />
           </svg>
-          Continue with Microsoft
+          Sign up with Microsoft
         </button>
       </div>
 
@@ -119,13 +120,31 @@ export default function LoginForm() {
       </div>
 
       {/* Email form */}
-      <form onSubmit={handleEmailLogin} className="space-y-4">
+      <form onSubmit={handleEmailSignUp} className="space-y-4">
+        <div>
+          <label
+            htmlFor="schoolName"
+            className="block text-sm font-medium text-foreground"
+          >
+            School name
+          </label>
+          <input
+            id="schoolName"
+            type="text"
+            required
+            value={schoolName}
+            onChange={(e) => setSchoolName(e.target.value)}
+            placeholder="Greenfield Academy"
+            className="mt-1.5 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </div>
+
         <div>
           <label
             htmlFor="email"
             className="block text-sm font-medium text-foreground"
           >
-            Email address
+            Work email
           </label>
           <input
             id="email"
@@ -143,13 +162,30 @@ export default function LoginForm() {
           disabled={isLoading}
           className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50"
         >
-          {isLoading ? "Redirecting..." : "Continue with Email"}
+          {isLoading ? "Creating account..." : "Create Account"}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-muted-foreground">
-        By signing in, you agree to our Terms of Service and Privacy Policy
-      </p>
+      <div className="mt-6 space-y-2">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Free for 30 days, no credit card required
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Free onboarding support and training
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Cancel anytime
+        </div>
+      </div>
     </div>
   );
 }

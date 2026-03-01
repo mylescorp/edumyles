@@ -1,7 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// ── Route Classification ──────────────────────────────────────
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform"];
-const PUBLIC_ROUTES = ["/auth/login", "/auth/callback"];
+const PUBLIC_ROUTES = ["/auth/login", "/auth/signup", "/auth/callback"];
+
+// ── RBAC: Which roles can access which route prefixes ─────────
+const ROUTE_ROLE_MAP: Record<string, string[]> = {
+  "/platform": ["master_admin", "super_admin"],
+  "/admin": [
+    "school_admin",
+    "principal",
+    "bursar",
+    "hr_manager",
+    "librarian",
+    "transport_manager",
+    // Platform admins can also access admin panel
+    "master_admin",
+    "super_admin",
+  ],
+  "/portal/teacher": [
+    "teacher",
+    "master_admin",
+    "super_admin",
+    "school_admin",
+    "principal",
+  ],
+  "/portal/student": [
+    "student",
+    "master_admin",
+    "super_admin",
+    "school_admin",
+    "principal",
+    "teacher",
+  ],
+  "/portal/parent": [
+    "parent",
+    "master_admin",
+    "super_admin",
+    "school_admin",
+    "principal",
+  ],
+  "/portal/alumni": [
+    "alumni",
+    "master_admin",
+    "super_admin",
+    "school_admin",
+  ],
+  "/portal/partner": [
+    "partner",
+    "master_admin",
+    "super_admin",
+    "school_admin",
+  ],
+};
 
 function getRoleDashboard(role: string): string {
   switch (role) {
@@ -30,6 +81,23 @@ function getRoleDashboard(role: string): string {
   }
 }
 
+function isRoleAllowedForPath(pathname: string, role: string): boolean {
+  // Check route prefixes from most specific to least specific
+  const sortedPrefixes = Object.keys(ROUTE_ROLE_MAP).sort(
+    (a, b) => b.length - a.length
+  );
+
+  for (const prefix of sortedPrefixes) {
+    if (pathname.startsWith(prefix)) {
+      const allowedRoles = ROUTE_ROLE_MAP[prefix];
+      return allowedRoles ? allowedRoles.includes(role) : true;
+    }
+  }
+
+  // If no matching route found in RBAC map, allow access
+  return true;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const session = request.cookies.get("edumyles_session");
@@ -38,34 +106,47 @@ export function middleware(request: NextRequest) {
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
 
-  // Redirect unauthenticated users from protected routes to login
+  // ── 1. Redirect unauthenticated users from protected routes ──
   if (isProtected && !session) {
     const loginUrl = new URL("/auth/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect authenticated users from login to their role dashboard
-  if (isPublic && session && pathname === "/auth/login") {
+  // ── 2. Redirect authenticated users from auth pages to dashboard ──
+  if (isPublic && session && (pathname === "/auth/login" || pathname === "/auth/signup")) {
     const dashboard = getRoleDashboard(role ?? "school_admin");
     return NextResponse.redirect(new URL(dashboard, request.url));
   }
 
-  // Redirect root to role-based dashboard for authenticated users
+  // ── 3. Redirect root to role-based dashboard ──
   if (pathname === "/" && session) {
     const dashboard = getRoleDashboard(role ?? "school_admin");
     return NextResponse.redirect(new URL(dashboard, request.url));
   }
 
-  // Extract tenant slug from subdomain and inject as header
+  // ── 4. RBAC enforcement: check role against route access map ──
+  if (isProtected && session && role) {
+    if (!isRoleAllowedForPath(pathname, role)) {
+      // Redirect unauthorized users to their own dashboard
+      const correctDashboard = getRoleDashboard(role);
+      if (!pathname.startsWith(correctDashboard)) {
+        const redirectUrl = new URL(correctDashboard, request.url);
+        redirectUrl.searchParams.set("error", "unauthorized");
+        return NextResponse.redirect(redirectUrl);
+      }
+    }
+  }
+
+  // ── 5. Extract tenant slug from subdomain ──
   const host = request.headers.get("host") ?? "";
   const parts = host.split(".");
   const response = NextResponse.next();
 
-  if (parts.length >= 3 || (parts.length === 2 && !parts[0].includes("localhost"))) {
-    const tenantSlug = parts[0];
-    if (tenantSlug !== "www" && tenantSlug !== "app") {
-      response.headers.set("x-tenant-slug", tenantSlug);
+  const firstPart = parts[0] ?? "";
+  if (parts.length >= 3 || (parts.length === 2 && !firstPart.includes("localhost"))) {
+    if (firstPart !== "www" && firstPart !== "app" && firstPart !== "") {
+      response.headers.set("x-tenant-slug", firstPart);
     }
   }
 

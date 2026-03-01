@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://edumyles.vercel.app";
+
 // ── Data ────────────────────────────────────────────────────
 
 const stats = [
@@ -237,8 +239,11 @@ export default function LandingPage() {
         </ul>
 
         <div className="navbar-actions">
-          <a className="navbar-cta" href="/auth/login">
-            Get Started
+          <a className="navbar-login" href={`${APP_URL}/auth/login`}>
+            Log In
+          </a>
+          <a className="navbar-signup" href={`${APP_URL}/auth/signup`}>
+            Sign Up Free
           </a>
           <button
             className="mobile-menu-toggle"
@@ -258,9 +263,14 @@ export default function LandingPage() {
           <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
           <a href="#stories" onClick={() => setMobileMenuOpen(false)}>Success Stories</a>
           <a href="#concierge" onClick={() => setMobileMenuOpen(false)}>Concierge</a>
-          <a href="/auth/login" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
-            Get Started
-          </a>
+          <div className="mobile-auth-actions">
+            <a href={`${APP_URL}/auth/login`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+              Log In
+            </a>
+            <a href={`${APP_URL}/auth/signup`} className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
+              Sign Up Free
+            </a>
+          </div>
         </div>
       )}
 
@@ -278,8 +288,8 @@ export default function LandingPage() {
               academics, HR, and communication.
             </p>
             <div className="actions">
-              <a className="btn btn-primary" href="/auth/login">
-                Activate Free Trial
+              <a className="btn btn-primary" href={`${APP_URL}/auth/signup`}>
+                Sign Up Free
               </a>
               <a className="btn btn-secondary" href="#concierge">
                 Contact Sales
@@ -424,7 +434,7 @@ export default function LandingPage() {
             <div className="module-tab-text">
               <h3>{activeCategory.label}</h3>
               <p>{activeCategory.description}</p>
-              <a className="btn btn-primary" href="/auth/login">
+              <a className="btn btn-primary" href={`${APP_URL}/auth/signup`}>
                 Try It Free
               </a>
             </div>
@@ -550,7 +560,7 @@ export default function LandingPage() {
               Join 50+ schools across East Africa already running smarter with
               one unified platform.
             </p>
-            <a className="btn btn-primary" href="/auth/login">
+            <a className="btn btn-primary" href={`${APP_URL}/auth/signup`}>
               Activate Free Trial
             </a>
           </div>
