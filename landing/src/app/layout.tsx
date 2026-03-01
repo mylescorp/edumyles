@@ -1,13 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "EduMyles — School Management for East Africa",
-  description: "Multi-tenant school management platform for East Africa.",
-  themeColor: "#056C40",
+  description:
+    "Replace disconnected spreadsheets and messaging groups with one unified platform for admissions, billing, academics, HR, and communication across East Africa.",
   other: {
     "msapplication-TileColor": "#056C40",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#056C40",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
