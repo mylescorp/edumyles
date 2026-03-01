@@ -111,10 +111,14 @@ const MODULE_CATALOG = [
 /**
  * Seed the module registry with all 11 EduMyles modules.
  * Idempotent — skips modules that already exist.
+ * Platform admin only.
  */
 export const seedModuleRegistry = mutation({
   args: {},
   handler: async (ctx) => {
+    const tenantCtx = await requireTenantContext(ctx);
+    requireRole(tenantCtx, "master_admin", "super_admin");
+
     let seeded = 0;
 
     for (const mod of MODULE_CATALOG) {
@@ -203,10 +207,14 @@ export const updateModuleVersion = mutation({
 
 /**
  * Get full registry listing for platform admins (includes all statuses).
+ * Platform admin only.
  */
 export const getFullRegistry = query({
   args: {},
   handler: async (ctx) => {
+    const tenantCtx = await requireTenantContext(ctx);
+    requireRole(tenantCtx, "master_admin", "super_admin");
+
     return await ctx.db.query("moduleRegistry").collect();
   },
 });
