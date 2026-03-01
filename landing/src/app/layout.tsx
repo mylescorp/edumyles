@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "EduMyles — School Management for East Africa",
   description: "Multi-tenant school management platform for East Africa.",
+  themeColor: "#056C40",
+  other: {
+    "msapplication-TileColor": "#056C40",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -17,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

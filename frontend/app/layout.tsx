@@ -5,6 +5,10 @@ import { ConvexClientProvider } from "./providers";
 export const metadata: Metadata = {
   title: "EduMyles — School Management Platform",
   description: "Multi-tenant school management platform for East Africa",
+  themeColor: "#056C40",
+  other: {
+    "msapplication-TileColor": "#056C40",
+  },
 };
 
 export default function RootLayout({
