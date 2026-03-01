@@ -1,14 +1,18 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireRole } from "../../helpers/authorize";
+import { TIER_MODULES } from "./tierModules";
 
 /**
  * List all modules in the registry (public catalog).
- * Only returns active/beta modules.
+ * Only returns active/beta modules. Requires authentication.
  */
 export const getModuleRegistry = query({
   args: {},
   handler: async (ctx) => {
+    await requireTenantContext(ctx);
+
     const modules = await ctx.db
       .query("moduleRegistry")
       .withIndex("by_status", (q) => q.eq("status", "active"))
@@ -24,105 +28,66 @@ export const getModuleRegistry = query({
 });
 
 /**
- * Get all installed modules for the current tenant.
+ * Get all installed modules for the caller's tenant.
+ * TenantId is derived from the session — never from client args.
  */
 export const getInstalledModules = query({
-  args: { tenantId: v.string() },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const { tenantId } = await requireTenantContext(ctx);
+
     return await ctx.db
       .query("installedModules")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .collect();
   },
 });
 
 /**
- * Get modules available for the tenant's subscription tier.
- * Returns registry modules filtered by tier access.
+ * Get modules available for the caller's subscription tier.
+ * Returns registry modules annotated with tier availability.
  */
 export const getAvailableForTier = query({
-  args: { tenantId: v.string() },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const { tenantId } = await requireTenantContext(ctx);
+
     const tenant = await ctx.db
       .query("tenants")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
       .first();
 
     if (!tenant) {
       throw new Error("TENANT_NOT_FOUND");
     }
 
-    // Also check organization tier
     const org = await ctx.db
       .query("organizations")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .first();
 
     const tier = org?.tier ?? tenant.plan ?? "free";
 
-    const TIER_MODULES: Record<string, string[]> = {
-      free: ["sis", "communications"],
-      starter: ["sis", "admissions", "finance", "communications"],
-      standard: [
-        "sis",
-        "admissions",
-        "finance",
-        "timetable",
-        "academics",
-        "communications",
-      ],
-      growth: [
-        "sis",
-        "admissions",
-        "finance",
-        "timetable",
-        "academics",
-        "communications",
-      ],
-      pro: [
-        "sis",
-        "admissions",
-        "finance",
-        "timetable",
-        "academics",
-        "hr",
-        "library",
-        "transport",
-        "communications",
-      ],
-      enterprise: [
-        "sis",
-        "admissions",
-        "finance",
-        "timetable",
-        "academics",
-        "hr",
-        "library",
-        "transport",
-        "communications",
-        "ewallet",
-        "ecommerce",
-      ],
-    };
-
     const allowedModuleIds = TIER_MODULES[tier] ?? TIER_MODULES["free"];
 
-    // Get all registry modules
     const allModules = await ctx.db.query("moduleRegistry").collect();
 
     return allModules.map((mod) => ({
       ...mod,
-      availableForTier: allowedModuleIds.includes(mod.moduleId),
+      availableForTier: allowedModuleIds!.includes(mod.moduleId),
     }));
   },
 });
 
 /**
  * Get details for a single module including install status.
+ * TenantId is derived from the session.
  */
 export const getModuleDetails = query({
-  args: { tenantId: v.string(), moduleId: v.string() },
+  args: { moduleId: v.string() },
   handler: async (ctx, args) => {
+    const { tenantId } = await requireTenantContext(ctx);
+
     const registryModule = await ctx.db
       .query("moduleRegistry")
       .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
@@ -135,68 +100,21 @@ export const getModuleDetails = query({
     const installed = await ctx.db
       .query("installedModules")
       .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
       )
       .first();
 
-    // Check tier access
     const tenant = await ctx.db
       .query("tenants")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
       .first();
 
     const org = await ctx.db
       .query("organizations")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .first();
 
     const tier = org?.tier ?? tenant?.plan ?? "free";
-
-    const TIER_MODULES: Record<string, string[]> = {
-      free: ["sis", "communications"],
-      starter: ["sis", "admissions", "finance", "communications"],
-      standard: [
-        "sis",
-        "admissions",
-        "finance",
-        "timetable",
-        "academics",
-        "communications",
-      ],
-      growth: [
-        "sis",
-        "admissions",
-        "finance",
-        "timetable",
-        "academics",
-        "communications",
-      ],
-      pro: [
-        "sis",
-        "admissions",
-        "finance",
-        "timetable",
-        "academics",
-        "hr",
-        "library",
-        "transport",
-        "communications",
-      ],
-      enterprise: [
-        "sis",
-        "admissions",
-        "finance",
-        "timetable",
-        "academics",
-        "hr",
-        "library",
-        "transport",
-        "communications",
-        "ewallet",
-        "ecommerce",
-      ],
-    };
-
     const allowedModuleIds = TIER_MODULES[tier] ?? TIER_MODULES["free"];
 
     return {
@@ -209,30 +127,36 @@ export const getModuleDetails = query({
             config: installed.config,
           }
         : null,
-      availableForTier: allowedModuleIds.includes(args.moduleId),
+      availableForTier: allowedModuleIds!.includes(args.moduleId),
       currentTier: tier,
     };
   },
 });
 
 /**
- * Get module access requests for the current tenant.
+ * Get module access requests for the caller's tenant.
+ * Only school_admin / master_admin / super_admin can view requests.
  */
 export const getModuleRequests = query({
-  args: { tenantId: v.string(), status: v.optional(v.string()) },
+  args: { status: v.optional(v.string()) },
   handler: async (ctx, args) => {
+    const tenantCtx = await requireTenantContext(ctx);
+    requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
+
+    const { tenantId } = tenantCtx;
+
     if (args.status) {
       return await ctx.db
         .query("moduleRequests")
         .withIndex("by_tenant_status", (q) =>
-          q.eq("tenantId", args.tenantId).eq("status", args.status!)
+          q.eq("tenantId", tenantId).eq("status", args.status!)
         )
         .collect();
     }
 
     return await ctx.db
       .query("moduleRequests")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .collect();
   },
 });

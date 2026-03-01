@@ -142,7 +142,7 @@ export default function ModuleDetailPage() {
 
   const moduleDetails = useQuery(
     api.modules.marketplace.queries.getModuleDetails,
-    tenantId ? { tenantId, moduleId } : "skip"
+    { moduleId }
   );
 
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);

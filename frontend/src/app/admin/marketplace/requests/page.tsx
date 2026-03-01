@@ -14,12 +14,12 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 export default function ModuleRequestsPage() {
   const { isLoading: authLoading } = useAuth();
-  const { tenantId, isLoading: tenantLoading } = useTenant();
+  const { isLoading: tenantLoading } = useTenant();
   const [activeTab, setActiveTab] = useState("pending");
 
   const requests = useQuery(
     api.modules.marketplace.queries.getModuleRequests,
-    tenantId ? { tenantId } : "skip"
+    {}
   );
 
   const reviewRequest = useMutation(api.modules.marketplace.mutations.reviewModuleRequest);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -30,17 +30,21 @@ export default function PlatformModuleEditPage() {
   const registry = useQuery(api.modules.marketplace.platform.getFullRegistry);
   const updateStatus = useMutation(api.modules.marketplace.platform.updateModuleStatus);
   const updateVersion = useMutation(api.modules.marketplace.platform.updateModuleVersion);
-  const updateMetadata = useMutation(api.modules.marketplace.platform.updateModuleMetadata);
-
   const [isSaving, setIsSaving] = useState(false);
   const [editVersion, setEditVersion] = useState("");
-  const [versionInitialized, setVersionInitialized] = useState(false);
+
+  const mod = registry?.find((m) => m.moduleId === moduleId);
+
+  // Sync version input with server data when module first loads or moduleId changes
+  useEffect(() => {
+    if (mod?.version) {
+      setEditVersion(mod.version);
+    }
+  }, [mod?.version]);
 
   if (authLoading || registry === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
-
-  const mod = registry.find((m) => m.moduleId === moduleId);
 
   if (!mod) {
     return (
@@ -48,12 +52,6 @@ export default function PlatformModuleEditPage() {
         <p className="text-muted-foreground">Module not found in registry.</p>
       </div>
     );
-  }
-
-  // Initialize version field once
-  if (!versionInitialized && mod.version) {
-    setEditVersion(mod.version);
-    setVersionInitialized(true);
   }
 
   const handleStatusChange = async (newStatus: string) => {

@@ -51,8 +51,7 @@ export default function ModuleSettingsPage() {
   const { tenantId, isLoading: tenantLoading } = useTenant();
 
   const installedModules = useQuery(
-    api.modules.marketplace.queries.getInstalledModules,
-    tenantId ? { tenantId } : "skip"
+    api.modules.marketplace.queries.getInstalledModules
   );
 
   const toggleStatus = useMutation(api.modules.marketplace.mutations.toggleModuleStatus);
