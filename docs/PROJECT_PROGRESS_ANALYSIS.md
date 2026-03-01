@@ -54,18 +54,22 @@
 
 ## What Has NOT Been Achieved
 
-### Phase 1 — Remaining Gaps
+### Phase 1 — Complete
 
-| Area | Status | What's Missing |
-|------|--------|----------------|
-| Frontend pages/routes | Empty stubs | `(admin)/`, `(auth)/`, `(dashboard)/` — only `.gitkeep` files |
-| shadcn/ui components | Not installed | `components/ui/` is empty |
-| Form components | Not built | `components/forms/` empty |
-| Table components | Not built | `components/tables/` empty |
-| Custom hooks | Not built | `hooks/` empty |
-| Utility functions | Not built | `lib/` empty |
-| Auth UI flow | Not built | No login page, callback handler, or logout UI |
-| Dashboard page | Placeholder | Shows "School portal loading…" text only |
+| Area | Status | Details |
+|------|--------|---------|
+| **shadcn/ui components** | Done | 20 components: Button, Card, Dialog, DropdownMenu, Input, Label, Select, Table, Tabs, Badge, Avatar, Separator, Sheet, Skeleton, Toast, Tooltip, ScrollArea, Switch, Checkbox, Popover |
+| **Layout components** | Done | AppShell, Sidebar (collapsible, role-based), Header (user dropdown, notifications), ImpersonationBanner, MobileNav (sheet-based) |
+| **Shared components** | Done | DataTable (sort, search, pagination), StatCard, EmptyState, LoadingSkeleton, PageHeader (breadcrumbs), ConfirmDialog, SearchInput |
+| **Custom hooks** | Done | useAuth, useTenant, usePermissions, useModules, useNotifications, usePagination |
+| **Utility functions** | Done | formatters.ts (date, currency KES, phone), routes.ts (role-based nav items, dashboard routing) |
+| **Auth UI flow** | Done | Login page (magic link), callback handler (WorkOS SSO), logout route, session cookies |
+| **Middleware** | Done | Role-based routing, tenant slug extraction from subdomain, protected route guards |
+| **ConvexProvider** | Done | Root layout wraps app in ConvexProvider for real-time queries |
+| **Route layouts** | Done | Admin, Platform, Teacher, Student, Parent, Alumni, Partner — each with AppShell + sidebar |
+| **Dashboard pages** | Done | 7 dashboards (admin, platform, teacher, student, parent, alumni, partner) with stat cards |
+| **Convex queries** | Done | getCurrentUser, getTenantContext, notifications CRUD, moduleGuard helper, listTenantUsers |
+| **Notifications table** | Done | Schema + queries/mutations for real-time notifications |
 
 ### Phase 2 — Core Business Logic (Not Started)
 
@@ -137,7 +141,7 @@ All 11 backend modules are completely empty (`.gitkeep` files only):
 | Phase | Description | Progress |
 |-------|-------------|----------|
 | Phase 0 | Project Setup & DevOps | **100%** |
-| Phase 1 | Foundation (schema, auth, infra) | **~70%** |
+| Phase 1 | Foundation (schema, auth, infra, UI) | **100%** |
 | Phase 2 | Core Business Logic (11 modules) | **0%** |
 | Phase 3 | Financial Systems (payments) | **0%** |
 | Phase 4 | Communication & Portals | **0%** |
@@ -146,7 +150,7 @@ All 11 backend modules are completely empty (`.gitkeep` files only):
 | Phase 7 | Offline & Mobile | **0%** |
 | Phase 8 | Testing & Documentation | **0%** |
 
-**Overall estimated completion: ~15-20%**
+**Overall estimated completion: ~25-30%**
 
 ---
 

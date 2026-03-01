@@ -1,22 +1,8 @@
-import { TenantContext } from "./tenantGuard";
+"use client";
 
-export type Role =
-  | "master_admin"
-  | "super_admin"
-  | "school_admin"
-  | "principal"
-  | "teacher"
-  | "parent"
-  | "student"
-  | "bursar"
-  | "hr_manager"
-  | "librarian"
-  | "transport_manager"
-  | "board_member"
-  | "alumni"
-  | "partner";
+import { useAuth } from "./useAuth";
 
-export type Permission =
+type Permission =
   | "students:read" | "students:write" | "students:delete"
   | "finance:read" | "finance:write" | "finance:approve"
   | "staff:read" | "staff:write"
@@ -30,7 +16,7 @@ export type Permission =
   | "users:manage"
   | "platform:admin";
 
-const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
+const ROLE_PERMISSIONS: Record<string, Permission[]> = {
   master_admin: ["platform:admin", "users:manage", "settings:write", "students:read", "students:write", "students:delete", "finance:read", "finance:write", "finance:approve", "staff:read", "staff:write", "grades:read", "grades:write", "attendance:read", "attendance:write", "payroll:read", "payroll:write", "payroll:approve", "library:read", "library:write", "transport:read", "transport:write", "reports:read", "settings:read"],
   super_admin: ["platform:admin", "users:manage", "settings:write", "settings:read", "reports:read"],
   school_admin: ["users:manage", "settings:write", "settings:read", "students:read", "students:write", "staff:read", "staff:write", "finance:read", "reports:read", "attendance:read", "grades:read"],
@@ -47,29 +33,39 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   partner: ["students:read", "finance:read", "reports:read"],
 };
 
-export function requirePermission(
-  ctx: TenantContext,
-  permission: Permission
-): void {
-  const permissions = ROLE_PERMISSIONS[ctx.role as Role] ?? [];
-  if (!permissions.includes(permission)) {
-    throw new Error(
-      `FORBIDDEN: Role '${ctx.role}' lacks permission '${permission}'`
-    );
-  }
-}
+export function usePermissions() {
+  const { role } = useAuth();
 
-export function requireRole(
-  ctx: TenantContext,
-  ...roles: Role[]
-): void {
-  if (!roles.includes(ctx.role as Role)) {
-    throw new Error(
-      `FORBIDDEN: Required role(s) [${roles.join(", ")}], got '${ctx.role}'`
-    );
-  }
-}
+  const permissions = role ? (ROLE_PERMISSIONS[role] ?? []) : [];
 
-export function getPermissions(role: Role): Permission[] {
-  return ROLE_PERMISSIONS[role] ?? [];
+  function hasPermission(permission: Permission): boolean {
+    return permissions.includes(permission);
+  }
+
+  function hasAnyPermission(...perms: Permission[]): boolean {
+    return perms.some((p) => permissions.includes(p));
+  }
+
+  function hasAllPermissions(...perms: Permission[]): boolean {
+    return perms.every((p) => permissions.includes(p));
+  }
+
+  function hasRole(...roles: string[]): boolean {
+    return role ? roles.includes(role) : false;
+  }
+
+  const isPlatformAdmin = hasRole("master_admin", "super_admin");
+  const isSchoolAdmin = hasRole("school_admin", "principal");
+  const isStaff = hasRole("school_admin", "principal", "teacher", "bursar", "hr_manager", "librarian", "transport_manager");
+
+  return {
+    permissions,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    hasRole,
+    isPlatformAdmin,
+    isSchoolAdmin,
+    isStaff,
+  };
 }

@@ -39,7 +39,9 @@ export type UserRole =
   | "librarian"
   | "transport_officer"
   | "hr_officer"
-  | "receptionist";
+  | "receptionist"
+  | "alumni"
+  | "partner";
 
 export interface User {
   _id: string;
