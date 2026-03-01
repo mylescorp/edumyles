@@ -236,6 +236,14 @@ export const updateModuleConfig = mutation({
       updatedAt: Date.now(),
     });
 
+    await logAction(ctx, {
+      tenantId,
+      userId: tenantCtx.userId,
+      action: "module.config_updated",
+      targetId: args.moduleId,
+      details: { config: args.config },
+    });
+
     return { success: true };
   },
 });
@@ -266,19 +274,20 @@ export const requestModuleAccess = mutation({
     }
 
     // Check for existing pending request
-    const existingRequests = await ctx.db
+    const existingRequest = await ctx.db
       .query("moduleRequests")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
-      .collect();
+      .withIndex("by_tenant_status", (q) =>
+        q.eq("tenantId", tenantId).eq("status", "pending")
+      )
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), tenantCtx.userId),
+          q.eq(q.field("moduleId"), args.moduleId)
+        )
+      )
+      .first();
 
-    const hasPending = existingRequests.some(
-      (r) =>
-        r.userId === tenantCtx.userId &&
-        r.moduleId === args.moduleId &&
-        r.status === "pending"
-    );
-
-    if (hasPending) {
+    if (existingRequest) {
       throw new Error("REQUEST_EXISTS: You already have a pending request for this module");
     }
 
@@ -289,6 +298,14 @@ export const requestModuleAccess = mutation({
       reason: args.reason,
       requestedAt: Date.now(),
       status: "pending",
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      userId: tenantCtx.userId,
+      action: "module.access_requested",
+      targetId: args.moduleId,
+      details: { reason: args.reason },
     });
 
     return { success: true };
@@ -380,6 +397,14 @@ export const toggleModuleStatus = mutation({
     await ctx.db.patch(installed._id, {
       status: args.status,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      userId: tenantCtx.userId,
+      action: "module.status_toggled",
+      targetId: args.moduleId,
+      details: { status: args.status },
     });
 
     return { success: true };

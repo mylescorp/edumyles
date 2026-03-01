@@ -9,7 +9,7 @@ export type AuditAction =
   | "payroll.processed" | "payroll.approved"
   | "impersonation.started" | "impersonation.ended"
   | "settings.updated"
-  | "module.installed" | "module.uninstalled"
+  | "module.installed" | "module.uninstalled" | "module.config_updated" | "module.access_requested" | "module.status_toggled"
   | "tenant.created" | "tenant.suspended";
 
 export async function logAction(

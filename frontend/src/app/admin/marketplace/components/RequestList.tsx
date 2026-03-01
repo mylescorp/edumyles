@@ -23,6 +23,7 @@ interface ModuleRequest {
   reviewedBy?: string;
   reviewedAt?: number;
   notes?: string;
+  reason?: string;
 }
 
 interface RequestListProps {
@@ -62,7 +63,7 @@ export function RequestList({
           <TableHead>Module</TableHead>
           <TableHead>Requested</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Notes</TableHead>
+          <TableHead>Reason</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -84,7 +85,7 @@ export function RequestList({
                 <Badge variant={badge.variant}>{badge.label}</Badge>
               </TableCell>
               <TableCell className="max-w-[200px] truncate text-sm text-muted-foreground">
-                {request.notes ?? "-"}
+                {request.reason ?? "-"}
               </TableCell>
               <TableCell className="text-right">
                 {request.status === "pending" && (
