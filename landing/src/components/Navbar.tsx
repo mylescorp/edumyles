@@ -37,10 +37,18 @@ const navItems = [
     label: "Resources",
     href: "/resources",
     dropdown: [
+      { label: "Blog", href: "/blog", desc: "Articles, guides & insights" },
       { label: "Product Videos", href: "/resources#videos", desc: "Walkthrough & tutorial videos" },
       { label: "Webinars", href: "/resources#webinars", desc: "Live & recorded sessions" },
       { label: "Guides", href: "/resources#guides", desc: "Implementation & best practices" },
-      { label: "Newsletter", href: "/resources#newsletter", desc: "Into the Zone — monthly insights" },
+    ],
+  },
+  {
+    label: "About",
+    href: "/about",
+    dropdown: [
+      { label: "Our Story", href: "/about", desc: "Mission, values & journey" },
+      { label: "Team", href: "/team", desc: "Meet the people behind EduMyles" },
     ],
   },
   {

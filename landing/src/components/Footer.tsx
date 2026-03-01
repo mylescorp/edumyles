@@ -14,13 +14,13 @@ const quickLinks = [
 ];
 
 const exploreLinks = [
-  { label: "School Management Software", href: "/features" },
+  { label: "About Us", href: "/about" },
+  { label: "Our Team", href: "/team" },
+  { label: "Blog", href: "/blog" },
   { label: "Why EduMyles?", href: "/features#platform" },
   { label: "EduMyles for Small Schools", href: "/solutions#primary" },
   { label: "Concierge", href: "/concierge" },
   { label: "Support Plans", href: "/pricing#support" },
-  { label: "Press", href: "/resources#press" },
-  { label: "Analyst Reports", href: "/resources#reports" },
   { label: "Newsletter", href: "/resources#newsletter" },
 ];
 
