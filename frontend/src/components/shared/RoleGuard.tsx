@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { getRoleDashboard, getRoleLabel } from "@/lib/routes";
 import { LoadingSkeleton } from "./LoadingSkeleton";
@@ -12,15 +14,19 @@ interface RoleGuardProps {
 
 export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   const { role, isLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push(`/auth/login?next=${encodeURIComponent(window.location.pathname)}`);
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
     return <LoadingSkeleton variant="page" />;
   }
 
   if (!isAuthenticated) {
-    if (typeof window !== "undefined") {
-      window.location.href = `/auth/login?next=${encodeURIComponent(window.location.pathname)}`;
-    }
     return <LoadingSkeleton variant="page" />;
   }
 
@@ -36,12 +42,12 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
           Your role ({getRoleLabel(role)}) does not have permission to access this area.
           You will be redirected to your dashboard.
         </p>
-        <a
-          href={correctDashboard}
+        <button
+          onClick={() => router.push(correctDashboard)}
           className="mt-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           Go to My Dashboard
-        </a>
+        </button>
       </div>
     );
   }

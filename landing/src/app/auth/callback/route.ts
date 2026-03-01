@@ -20,11 +20,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/?auth_error=no_code`);
   }
 
-  const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
+  const clientId =
+    process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
   const apiKey = process.env.WORKOS_API_KEY;
 
   if (!clientId || !apiKey) {
-    console.error("WorkOS credentials not configured");
+    console.error(
+      "WorkOS credentials not configured. Ensure NEXT_PUBLIC_WORKOS_CLIENT_ID and WORKOS_API_KEY are set.",
+    );
     return NextResponse.redirect(`${baseUrl}/?auth_error=config`);
   }
 

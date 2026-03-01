@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
+  const clientId =
+    process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
   const redirectUri =
     process.env.WORKOS_REDIRECT_URI ||
+    process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
     "https://edumyles.vercel.app/auth/callback";
 
   if (!clientId) {
-    return NextResponse.json(
-      { error: "WorkOS client ID not configured" },
-      { status: 500 },
+    console.error(
+      "WorkOS client ID not configured. Set NEXT_PUBLIC_WORKOS_CLIENT_ID in environment variables.",
+    );
+    return NextResponse.redirect(
+      new URL("/?auth_error=config", "https://edumyles.vercel.app"),
     );
   }
 

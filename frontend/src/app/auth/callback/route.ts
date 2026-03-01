@@ -141,7 +141,7 @@ async function handleAuthResult(
       tenantId = org.tenantId;
     } else {
       // Generate a new tenant ID for signup or unrecognized users
-      tenantId = `TENANT-${Math.floor(100000 + Math.random() * 900000)}`;
+      tenantId = crypto.randomUUID();
     }
   }
 
