@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import ConditionalLayout from "../components/ConditionalLayout";
 
 export const metadata: Metadata = {
   title: "EduMyles — School Management for East Africa",
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <ConditionalLayout>{children}</ConditionalLayout>
+      </body>
     </html>
   );
 }

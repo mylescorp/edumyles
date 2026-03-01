@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import LoginForm from "./LoginForm";
+import Link from "next/link";
 
 export const metadata = {
-  title: "Sign In",
+  title: "Sign In — EduMyles",
 };
 
 export default async function LoginPage() {
@@ -21,10 +22,16 @@ export default async function LoginPage() {
             EduMyles
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Multi-tenant school management platform for East Africa
+            Sign in to your school management platform
           </p>
         </div>
         <LoginForm />
+        <p className="text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link href="/auth/signup" className="font-medium text-primary hover:underline">
+            Sign up free
+          </Link>
+        </p>
       </div>
     </div>
   );

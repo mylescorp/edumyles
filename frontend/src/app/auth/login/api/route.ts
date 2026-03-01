@@ -11,28 +11,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.WORKOS_API_KEY;
     const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
     const redirectUri =
-      process.env.WORKOS_REDIRECT_URI ?? "http://localhost:3000/auth/callback";
+      process.env.WORKOS_REDIRECT_URI ?? "https://edumyles.vercel.app/auth/callback";
 
-    if (!apiKey || !clientId) {
+    if (!clientId) {
       return NextResponse.json(
         { error: "Authentication service not configured" },
         { status: 500 }
       );
     }
 
-    // Build the WorkOS authorization URL for magic link
+    // Build the WorkOS AuthKit authorization URL
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: "code",
       provider: "authkit",
       login_hint: email,
+      screen_hint: "sign-in",
     });
 
-    const authUrl = `https://api.workos.com/sso/authorize?${params.toString()}`;
+    const authUrl = `https://api.workos.com/user-management/authorize?${params.toString()}`;
 
     return NextResponse.json({ authUrl });
   } catch {
