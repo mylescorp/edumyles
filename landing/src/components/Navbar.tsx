@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+
 const navItems = [
   {
     label: "Features",
@@ -77,11 +78,13 @@ function getUserFromCookie(): UserInfo | null {
   }
 }
 
+
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
+
   const pathname = usePathname();
 
   useEffect(() => {
@@ -95,6 +98,7 @@ export default function Navbar() {
     setUser(getUserFromCookie());
   }, []);
 
+
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -104,6 +108,7 @@ export default function Navbar() {
   const initials = user
     ? (`${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() || (user.email?.[0] ?? "").toUpperCase())
     : "";
+
 
   return (
     <>
@@ -163,6 +168,7 @@ export default function Navbar() {
               </a>
             </>
           )}
+
           <button
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -213,6 +219,7 @@ export default function Navbar() {
                 </a>
               </>
             )}
+
           </div>
         </div>
       )}

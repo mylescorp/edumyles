@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const error = request.nextUrl.searchParams.get("error");
@@ -111,4 +112,5 @@ export async function GET(request: NextRequest) {
     console.error("Auth callback error:", err);
     return NextResponse.redirect(`${baseUrl}/?auth_error=unknown`);
   }
+
 }

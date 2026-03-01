@@ -1,8 +1,9 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole, requirePermission } from "../../helpers/authorize";
+import { requireRole } from "../../helpers/authorize";
 import { logAction } from "../../helpers/auditLog";
+import { TIER_MODULES } from "./tierModules";
 
 // Module dependency map — some modules require others to be installed first
 const MODULE_DEPENDENCIES: Record<string, string[]> = {
@@ -26,14 +27,15 @@ const REVERSE_DEPENDENCIES: Record<string, string[]> = {
   ewallet: ["ecommerce"],
 };
 
-const TIER_MODULES: Record<string, string[]> = {
-  free: ["sis", "communications"],
-  starter: ["sis", "admissions", "finance", "communications"],
-  standard: ["sis", "admissions", "finance", "timetable", "academics", "communications"],
-  growth: ["sis", "admissions", "finance", "timetable", "academics", "communications"],
-  pro: ["sis", "admissions", "finance", "timetable", "academics", "hr", "library", "transport", "communications"],
-  enterprise: ["sis", "admissions", "finance", "timetable", "academics", "hr", "library", "transport", "communications", "ewallet", "ecommerce"],
-};
+/**
+ * Validate args.tenantId matches the authenticated session's tenantId.
+ * Prevents cross-tenant spoofing via client-sent tenantId.
+ */
+function assertTenantMatch(sessionTenantId: string, argsTenantId: string) {
+  if (argsTenantId !== sessionTenantId) {
+    throw new Error("UNAUTHORIZED: Cross-tenant access denied");
+  }
+}
 
 /**
  * Install a module for a tenant.
@@ -47,6 +49,9 @@ export const installModule = mutation({
   handler: async (ctx, args) => {
     const tenantCtx = await requireTenantContext(ctx);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
+    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+
+    const { tenantId } = tenantCtx;
 
     // Verify the module exists in registry
     const registryModule = await ctx.db
@@ -66,7 +71,7 @@ export const installModule = mutation({
     const existing = await ctx.db
       .query("installedModules")
       .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
       )
       .first();
 
@@ -77,18 +82,18 @@ export const installModule = mutation({
     // Check tier access
     const tenant = await ctx.db
       .query("tenants")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
       .first();
 
     const org = await ctx.db
       .query("organizations")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .first();
 
     const tier = org?.tier ?? tenant?.plan ?? "free";
     const allowedModules = TIER_MODULES[tier] ?? TIER_MODULES["free"];
 
-    if (!allowedModules.includes(args.moduleId)) {
+    if (!allowedModules!.includes(args.moduleId)) {
       throw new Error(
         `TIER_RESTRICTED: Module '${args.moduleId}' is not available on '${tier}' tier. Upgrade required.`
       );
@@ -100,7 +105,7 @@ export const installModule = mutation({
       const depInstalled = await ctx.db
         .query("installedModules")
         .withIndex("by_tenant_module", (q) =>
-          q.eq("tenantId", args.tenantId).eq("moduleId", dep)
+          q.eq("tenantId", tenantId).eq("moduleId", dep)
         )
         .first();
 
@@ -114,7 +119,7 @@ export const installModule = mutation({
     // Install the module
     const now = Date.now();
     await ctx.db.insert("installedModules", {
-      tenantId: args.tenantId,
+      tenantId,
       moduleId: args.moduleId,
       installedAt: now,
       installedBy: tenantCtx.userId,
@@ -125,7 +130,7 @@ export const installModule = mutation({
 
     // Audit log
     await logAction(ctx, {
-      tenantId: args.tenantId,
+      tenantId,
       userId: tenantCtx.userId,
       action: "module.installed",
       targetId: args.moduleId,
@@ -149,12 +154,15 @@ export const uninstallModule = mutation({
   handler: async (ctx, args) => {
     const tenantCtx = await requireTenantContext(ctx);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
+    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+
+    const { tenantId } = tenantCtx;
 
     // Check if installed
     const installed = await ctx.db
       .query("installedModules")
       .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
       )
       .first();
 
@@ -168,7 +176,7 @@ export const uninstallModule = mutation({
       const depInstalled = await ctx.db
         .query("installedModules")
         .withIndex("by_tenant_module", (q) =>
-          q.eq("tenantId", args.tenantId).eq("moduleId", dep)
+          q.eq("tenantId", tenantId).eq("moduleId", dep)
         )
         .first();
 
@@ -184,7 +192,7 @@ export const uninstallModule = mutation({
 
     // Audit log
     await logAction(ctx, {
-      tenantId: args.tenantId,
+      tenantId,
       userId: tenantCtx.userId,
       action: "module.uninstalled",
       targetId: args.moduleId,
@@ -208,11 +216,14 @@ export const updateModuleConfig = mutation({
   handler: async (ctx, args) => {
     const tenantCtx = await requireTenantContext(ctx);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
+    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+
+    const { tenantId } = tenantCtx;
 
     const installed = await ctx.db
       .query("installedModules")
       .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
       )
       .first();
 
@@ -223,6 +234,14 @@ export const updateModuleConfig = mutation({
     await ctx.db.patch(installed._id, {
       config: args.config,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      userId: tenantCtx.userId,
+      action: "module.config_updated",
+      targetId: args.moduleId,
+      details: { config: args.config },
     });
 
     return { success: true };
@@ -240,6 +259,9 @@ export const requestModuleAccess = mutation({
   },
   handler: async (ctx, args) => {
     const tenantCtx = await requireTenantContext(ctx);
+    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+
+    const { tenantId } = tenantCtx;
 
     // Check if module exists
     const registryModule = await ctx.db
@@ -252,28 +274,38 @@ export const requestModuleAccess = mutation({
     }
 
     // Check for existing pending request
-    const existingRequests = await ctx.db
+    const existingRequest = await ctx.db
       .query("moduleRequests")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect();
+      .withIndex("by_tenant_status", (q) =>
+        q.eq("tenantId", tenantId).eq("status", "pending")
+      )
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("userId"), tenantCtx.userId),
+          q.eq(q.field("moduleId"), args.moduleId)
+        )
+      )
+      .first();
 
-    const hasPending = existingRequests.some(
-      (r) =>
-        r.userId === tenantCtx.userId &&
-        r.moduleId === args.moduleId &&
-        r.status === "pending"
-    );
-
-    if (hasPending) {
+    if (existingRequest) {
       throw new Error("REQUEST_EXISTS: You already have a pending request for this module");
     }
 
     await ctx.db.insert("moduleRequests", {
-      tenantId: args.tenantId,
+      tenantId,
       userId: tenantCtx.userId,
       moduleId: args.moduleId,
+      reason: args.reason,
       requestedAt: Date.now(),
       status: "pending",
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      userId: tenantCtx.userId,
+      action: "module.access_requested",
+      targetId: args.moduleId,
+      details: { reason: args.reason },
     });
 
     return { success: true };
@@ -297,6 +329,9 @@ export const reviewModuleRequest = mutation({
     if (!request) {
       throw new Error("REQUEST_NOT_FOUND");
     }
+
+    // Ensure the request belongs to the caller's tenant
+    assertTenantMatch(tenantCtx.tenantId, request.tenantId);
 
     if (request.status !== "pending") {
       throw new Error("REQUEST_ALREADY_REVIEWED");
@@ -325,11 +360,14 @@ export const toggleModuleStatus = mutation({
   handler: async (ctx, args) => {
     const tenantCtx = await requireTenantContext(ctx);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
+    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+
+    const { tenantId } = tenantCtx;
 
     const installed = await ctx.db
       .query("installedModules")
       .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
       )
       .first();
 
@@ -337,7 +375,6 @@ export const toggleModuleStatus = mutation({
       throw new Error("MODULE_NOT_INSTALLED");
     }
 
-    // If activating, check reverse deps aren't broken
     // If deactivating, check that no active module depends on this one
     if (args.status === "inactive") {
       const reverseDeps = REVERSE_DEPENDENCIES[args.moduleId] ?? [];
@@ -345,7 +382,7 @@ export const toggleModuleStatus = mutation({
         const depInstalled = await ctx.db
           .query("installedModules")
           .withIndex("by_tenant_module", (q) =>
-            q.eq("tenantId", args.tenantId).eq("moduleId", dep)
+            q.eq("tenantId", tenantId).eq("moduleId", dep)
           )
           .first();
 
@@ -360,6 +397,14 @@ export const toggleModuleStatus = mutation({
     await ctx.db.patch(installed._id, {
       status: args.status,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      userId: tenantCtx.userId,
+      action: "module.status_toggled",
+      targetId: args.moduleId,
+      details: { status: args.status },
     });
 
     return { success: true };

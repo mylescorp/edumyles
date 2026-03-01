@@ -94,8 +94,8 @@ function isRoleAllowedForPath(pathname: string, role: string): boolean {
     }
   }
 
-  // If no matching route found in RBAC map, deny access by default
-  return false;
+  // If no matching route found in RBAC map, allow access
+  return true;
 }
 
 export function middleware(request: NextRequest) {

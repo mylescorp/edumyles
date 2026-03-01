@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "./globals.css";
+import ConditionalLayout from "../components/ConditionalLayout";
 
 export const metadata: Metadata = {
   title: "EduMyles — School Management for East Africa",
@@ -28,9 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );

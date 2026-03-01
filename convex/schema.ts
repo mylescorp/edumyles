@@ -3,13 +3,17 @@ import { v } from "convex/values";
 
 export default defineSchema({
   sessions: defineTable({
-    sessionToken: v.string(),
+    sessionToken: v.optional(v.string()),
     tenantId: v.string(),
     userId: v.string(),
-    email: v.string(),
+    email: v.optional(v.string()),
     role: v.string(),
     expiresAt: v.number(),
     createdAt: v.number(),
+    deviceInfo: v.optional(v.string()),
+    isActive: v.optional(v.boolean()),
+    permissions: v.optional(v.array(v.string())),
+    workosUserId: v.optional(v.string()),
   })
     .index("by_token", ["sessionToken"])
     .index("by_userId", ["userId"]),
@@ -125,6 +129,7 @@ export default defineSchema({
     reviewedBy: v.optional(v.string()),
     reviewedAt: v.optional(v.number()),
     notes: v.optional(v.string()),
+    reason: v.optional(v.string()),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_status", ["tenantId", "status"])

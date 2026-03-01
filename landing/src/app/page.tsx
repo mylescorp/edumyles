@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+
+
 // ── Data ────────────────────────────────────────────────────
 
 const stats = [
@@ -248,6 +250,7 @@ export default function LandingPage() {
           2. SOCIAL PROOF / STATS — Off-White
       ════════════════════════════════════════════════════ */}
       <section className="social-proof-section" id="features">
+        {/* Review Ratings */}
         <div className="review-bar">
           <div className="review-overall">
             <span className="review-score">4.5/5</span>
@@ -264,6 +267,7 @@ export default function LandingPage() {
           </div>
         </div>
 
+        {/* Stats */}
         <div className="stats-grid">
           {stats.map((item) => (
             <div key={item.label} className="stat-item">
@@ -273,6 +277,7 @@ export default function LandingPage() {
           ))}
         </div>
 
+        {/* Trusted By */}
         <div className="trusted-by">
           <p className="trusted-label">Trusted by schools across East Africa</p>
           <div className="trusted-logos">
@@ -298,7 +303,7 @@ export default function LandingPage() {
             <article key={item.title} className="panel">
               <h3>{item.title}</h3>
               <p>{item.description}</p>
-              <a href="/features#modules" className="panel-link">
+              <a href="/features" className="panel-link">
                 Learn more &rarr;
               </a>
             </article>

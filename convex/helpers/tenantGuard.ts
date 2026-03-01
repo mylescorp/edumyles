@@ -38,6 +38,6 @@ export async function requireTenantContext(
     tenantId: session.tenantId,
     userId: session.userId,
     role: session.role,
-    email: session.email,
+    email: session.email || "",
   };
 }

@@ -18,8 +18,7 @@ export default function MarketplacePage() {
   const { tenantId, installedModules, tier, isLoading: tenantLoading } = useTenant();
 
   const availableModules = useQuery(
-    api.modules.marketplace.queries.getAvailableForTier,
-    tenantId ? { tenantId } : "skip"
+    api.modules.marketplace.queries.getAvailableForTier
   );
 
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
