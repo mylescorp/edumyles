@@ -35,7 +35,7 @@ export default function LoginForm() {
   function handleSSOLogin(provider: "GoogleOAuth" | "MicrosoftOAuth") {
     const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
     const redirectUri =
-      process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ?? "http://localhost:3000/auth/callback";
+      process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ?? "https://edumyles.vercel.app/auth/callback";
 
     if (!clientId) {
       setError("Authentication service not configured");

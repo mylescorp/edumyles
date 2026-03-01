@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
     const redirectUri =
-      process.env.WORKOS_REDIRECT_URI ?? "http://localhost:3000/auth/callback";
+      process.env.WORKOS_REDIRECT_URI ?? "https://edumyles.vercel.app/auth/callback";
 
     if (!clientId) {
       return NextResponse.json(
