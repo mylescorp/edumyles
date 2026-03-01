@@ -85,7 +85,7 @@ export const getCurrentUser = query({
     const user = await ctx.db
       .query("users")
       .withIndex("by_tenant_email", (q) =>
-        q.eq("tenantId", session.tenantId).eq("email", session.email)
+        q.eq("tenantId", session.tenantId).eq("email", session.email || "")
       )
       .first();
 
@@ -93,7 +93,7 @@ export const getCurrentUser = query({
       return {
         _id: session.userId,
         tenantId: session.tenantId,
-        email: session.email,
+        email: session.email || "",
         role: session.role,
         firstName: undefined,
         lastName: undefined,

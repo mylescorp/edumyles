@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useAuth } from "@/hooks/useAuth";
 import { getRoleDashboard, getRoleLabel } from "@/lib/routes";
 import { LoadingSkeleton } from "./LoadingSkeleton";
@@ -12,6 +13,7 @@ interface RoleGuardProps {
 
 export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   const { role, isLoading, isAuthenticated } = useAuth();
+
 
   if (isLoading) {
     return <LoadingSkeleton variant="page" />;

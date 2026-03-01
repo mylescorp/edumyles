@@ -177,6 +177,61 @@ button {
   color: var(--forest);
 }
 
+/* Nav items with dropdowns */
+.nav-item {
+  position: relative;
+}
+
+.nav-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  min-width: 260px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 200;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nav-dropdown.open {
+  display: flex;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  transition: background 150ms ease;
+}
+
+.dropdown-item:hover {
+  background: var(--off-white);
+}
+
+.dropdown-item-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--charcoal);
+  display: block;
+}
+
+.dropdown-item-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+  display: block;
+}
+
+.navbar.scrolled {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -234,6 +289,41 @@ button {
   background: var(--crimson-dark);
   transform: translateY(-1px);
 }
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.navbar-username {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
 
 /* Mobile menu toggle */
 .mobile-menu-toggle {
@@ -335,6 +425,38 @@ button {
 .mobile-auth-actions .btn {
   text-align: center;
 }
+
+/* Mobile nav groups */
+.mobile-nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-nav-group>a {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--charcoal);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-dropdown {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1rem;
+}
+
+.mobile-dropdown a {
+  font-size: 0.9rem;
+  color: var(--muted);
+  padding: 0.35rem 0;
+  border-bottom: none;
+}
+
+.mobile-dropdown a:hover {
+  color: var(--forest);
+}
+
 
 /* ================================================================
    BUTTONS
@@ -1283,6 +1405,74 @@ h1 {
   color: var(--white);
 }
 
+/* Contact Info Section */
+.footer-contact-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: var(--max-width);
+  margin: 0 auto 2rem;
+  padding: 2rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contact-block h4 {
+  color: var(--white);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.85rem;
+}
+
+.contact-item svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.contact-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.contact-item a {
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 180ms ease;
+}
+
+.contact-item a:hover {
+  color: var(--white);
+}
+
+.contact-emails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.contact-emails a {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.85rem;
+  transition: color 180ms ease;
+}
+
+.contact-emails a:hover {
+  color: var(--white);
+}
+
 /* Contact & Social */
 .footer-contact {
   display: flex;
@@ -1398,7 +1588,8 @@ h1 {
   }
 
   .navbar-login,
-  .navbar-signup {
+  .navbar-signup,
+  .navbar-user {
     display: none;
   }
 
@@ -1464,6 +1655,10 @@ h1 {
   }
 
   .footer-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-contact-info {
     grid-template-columns: 1fr;
   }
 
