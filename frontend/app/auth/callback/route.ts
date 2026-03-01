@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { user, accessToken } = await workos.userManagement.authenticateWithCode({
+    const { user } = await workos.userManagement.authenticateWithCode({
       clientId: process.env.WORKOS_CLIENT_ID!,
       code,
     });
