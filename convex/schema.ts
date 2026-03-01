@@ -125,6 +125,7 @@ export default defineSchema({
     reviewedBy: v.optional(v.string()),
     reviewedAt: v.optional(v.number()),
     notes: v.optional(v.string()),
+    reason: v.optional(v.string()),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_status", ["tenantId", "status"])

@@ -15,11 +15,11 @@ export default function ModuleConfigPage() {
   const params = useParams();
   const moduleId = params.moduleId as string;
   const { isLoading: authLoading } = useAuth();
-  const { tenantId, isLoading: tenantLoading } = useTenant();
+  const { isLoading: tenantLoading } = useTenant();
 
   const moduleDetails = useQuery(
     api.modules.marketplace.queries.getModuleDetails,
-    tenantId ? { tenantId, moduleId } : "skip"
+    { moduleId }
   );
 
   if (authLoading || tenantLoading || moduleDetails === undefined) {
