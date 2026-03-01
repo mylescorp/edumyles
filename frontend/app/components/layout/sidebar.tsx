@@ -86,7 +86,9 @@ export function Sidebar({ role = "school_admin", schoolName = "EduMyles" }: Side
       {/* User */}
       <div className="px-4 py-4 border-t border-forest-700/50">
         <div className="flex items-center gap-3">
-          <div className="avatar">A</div>
+          <div className="w-8 h-8 rounded-full bg-forest-500 flex items-center justify-center text-xs font-bold text-white">
+            A
+          </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-white truncate">Admin</p>
             <p className="text-xs text-forest-200/50 truncate capitalize">{role.replace("_", " ")}</p>
