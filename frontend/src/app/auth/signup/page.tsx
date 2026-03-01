@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import LoginForm from "./LoginForm";
+import SignUpForm from "./SignUpForm";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Sign In — EduMyles",
+  title: "Sign Up — EduMyles",
 };
 
-export default async function LoginPage() {
+export default async function SignUpPage() {
   const cookieStore = await cookies();
   const session = cookieStore.get("edumyles_session");
   if (session?.value) {
@@ -22,14 +22,14 @@ export default async function LoginPage() {
             EduMyles
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sign in to your school management platform
+            Create your account and start managing your school
           </p>
         </div>
-        <LoginForm />
+        <SignUpForm />
         <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link href="/auth/signup" className="font-medium text-primary hover:underline">
-            Sign up free
+          Already have an account?{" "}
+          <Link href="/auth/login" className="font-medium text-primary hover:underline">
+            Sign in
           </Link>
         </p>
       </div>

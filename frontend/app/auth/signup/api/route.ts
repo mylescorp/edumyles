@@ -2,11 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json();
+    const { email, schoolName } = await req.json();
 
     if (!email || typeof email !== "string") {
       return NextResponse.json(
         { error: "Email is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!schoolName || typeof schoolName !== "string") {
+      return NextResponse.json(
+        { error: "School name is required" },
         { status: 400 }
       );
     }
@@ -22,15 +29,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Build the WorkOS AuthKit authorization URL
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: "code",
       provider: "authkit",
       login_hint: email,
-      screen_hint: "sign-in",
+      screen_hint: "sign-up",
     });
+
+    // Store school name in state parameter so the callback can use it
+    const state = Buffer.from(JSON.stringify({ schoolName })).toString("base64url");
+    params.set("state", state);
 
     const authUrl = `https://api.workos.com/user-management/authorize?${params.toString()}`;
 

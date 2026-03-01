@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
 const navItems = [
   {
     label: "Features",
@@ -113,9 +115,12 @@ export default function Navbar() {
         </ul>
 
         <div className="navbar-actions">
-          <Link className="navbar-cta" href="/contact">
-            Get Started
-          </Link>
+          <a className="navbar-login" href={`${APP_URL}/auth/login`}>
+            Log In
+          </a>
+          <a className="navbar-signup" href={`${APP_URL}/auth/signup`}>
+            Sign Up Free
+          </a>
           <button
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -145,9 +150,14 @@ export default function Navbar() {
               )}
             </div>
           ))}
-          <Link href="/contact" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
-            Get Started
-          </Link>
+          <div className="mobile-auth-actions">
+            <a href={`${APP_URL}/auth/login`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+              Log In
+            </a>
+            <a href={`${APP_URL}/auth/signup`} className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
+              Sign Up Free
+            </a>
+          </div>
         </div>
       )}
     </>

@@ -150,19 +150,27 @@ img { max-width: 100%; display: block; }
 .dropdown-item-label { font-weight: 600; font-size: 0.9rem; color: var(--charcoal); }
 .dropdown-item-desc { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
 
-.navbar-actions { display: flex; align-items: center; gap: 1rem; }
-.navbar-cta {
+.navbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+.navbar-login {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--forest);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background 180ms ease, color 180ms ease;
+}
+.navbar-login:hover { background: var(--off-white); color: var(--forest-dark); }
+.navbar-signup {
   background: var(--crimson);
   color: var(--white);
   font-weight: 700;
   font-size: 0.85rem;
   padding: 0.55rem 1.2rem;
   border-radius: 8px;
-  text-transform: uppercase;
   letter-spacing: 0.04em;
   transition: background 180ms ease, transform 180ms ease;
 }
-.navbar-cta:hover { background: var(--crimson-dark); transform: translateY(-1px); }
+.navbar-signup:hover { background: var(--crimson-dark); transform: translateY(-1px); }
 
 /* Mobile toggle */
 .mobile-menu-toggle {
@@ -208,6 +216,15 @@ img { max-width: 100%; display: block; }
   display: block; font-size: 0.9rem; color: var(--muted); padding: 0.4rem 0;
 }
 .mobile-menu .btn { text-align: center; margin-top: 1.5rem; }
+.mobile-auth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.mobile-auth-actions .btn { text-align: center; }
 
 /* ================================================================
    BUTTONS
@@ -975,6 +992,7 @@ h1.light-heading { color: var(--white); }
 @media (max-width: 900px) {
   :root { --section-padding: 3rem 1.5rem; }
   .navbar-links { display: none; }
+  .navbar-login, .navbar-signup { display: none; }
   .mobile-menu-toggle { display: block; }
   .mobile-menu { display: flex; }
   .hero { grid-template-columns: 1fr; padding: var(--section-padding-mobile); }

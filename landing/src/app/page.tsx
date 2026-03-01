@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
 /* ── Data ─────────────────────────────────────────────────── */
 
 const stats = [
@@ -167,9 +169,9 @@ export default function HomePage() {
             communication — built for East Africa.
           </p>
           <div className="actions">
-            <Link className="btn btn-primary" href="/contact">
-              Activate Free Trial
-            </Link>
+            <a className="btn btn-primary" href={`${APP_URL}/auth/signup`}>
+              Sign Up Free
+            </a>
             <Link className="btn btn-secondary" href="/concierge">
               Contact Sales
             </Link>
@@ -373,9 +375,9 @@ export default function HomePage() {
           <div className="module-tab-text">
             <h3>{activeCategory.label}</h3>
             <p>{activeCategory.description}</p>
-            <Link className="btn btn-primary" href="/contact">
+            <a className="btn btn-primary" href={`${APP_URL}/auth/signup`}>
               Try It Free
-            </Link>
+            </a>
           </div>
           <div className="module-tab-apps">
             {activeCategory.apps.map((app) => (
@@ -468,9 +470,9 @@ export default function HomePage() {
             Join 50+ schools across East Africa already running smarter with one
             unified platform.
           </p>
-          <Link className="btn btn-primary" href="/contact">
+          <a className="btn btn-primary" href={`${APP_URL}/auth/signup`}>
             Activate Free Trial
-          </Link>
+          </a>
         </div>
       </section>
     </>
