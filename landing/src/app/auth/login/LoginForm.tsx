@@ -33,27 +33,22 @@ export default function LoginForm() {
         }
     }
 
-    function handleSSOLogin(provider: "GoogleOAuth" | "MicrosoftOAuth") {
-        const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
-        const redirectUri =
-            process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
-            (typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : "");
-
-        if (!clientId) {
-            console.error("NEXT_PUBLIC_WORKOS_CLIENT_ID is missing");
-            setError("Authentication service not configured");
-            return;
+    async function handleSSOLogin(provider: "GoogleOAuth" | "MicrosoftOAuth") {
+        setIsLoading(true);
+        setError("");
+        try {
+            const res = await fetch("/auth/login/api", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ provider }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to initiate sign in");
+            window.location.href = data.authUrl;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Something went wrong");
+            setIsLoading(false);
         }
-
-        const params = new URLSearchParams({
-            client_id: clientId,
-            redirect_uri: redirectUri,
-            response_type: "code",
-            provider: provider,
-            screen_hint: "sign-in",
-        });
-
-        window.location.href = `https://api.workos.com/user-management/authorize?${params.toString()}`;
     }
 
     return (

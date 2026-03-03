@@ -2,55 +2,40 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, schoolName } = await req.json();
-
-        if (!email || typeof email !== "string") {
-            return NextResponse.json(
-                { error: "Email is required" },
-                { status: 400 }
-            );
-        }
-
-        if (!schoolName || typeof schoolName !== "string") {
-            return NextResponse.json(
-                { error: "School name is required" },
-                { status: 400 }
-            );
-        }
-
+        const { email, schoolName, provider } = await req.json();
         const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
         const redirectUri =
             process.env.WORKOS_REDIRECT_URI ||
             process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
-            `${req.nextUrl.origin}/auth/callback`;
+            req.nextUrl.origin + "/auth/callback";
 
         if (!clientId) {
-            return NextResponse.json(
-                { error: "Authentication service not configured" },
-                { status: 500 }
-            );
+            return NextResponse.json({ error: "Authentication service not configured" }, { status: 500 });
         }
 
-        // Build the WorkOS AuthKit authorization URL for sign-up
         const params = new URLSearchParams({
             client_id: clientId,
             redirect_uri: redirectUri,
             response_type: "code",
-            login_hint: email,
-            screen_hint: "sign-up",
         });
 
-        // Store school name in state parameter so the callback can use it
-        const state = Buffer.from(JSON.stringify({ schoolName })).toString("base64url");
-        params.set("state", state);
+        if (provider) {
+            params.set("provider", provider);
+            params.set("screen_hint", "sign-up");
+        } else if (email) {
+            params.set("login_hint", email);
+            params.set("screen_hint", "sign-up");
+            if (schoolName) {
+                const state = Buffer.from(JSON.stringify({ schoolName })).toString("base64url");
+                params.set("state", state);
+            }
+        } else {
+            return NextResponse.json({ error: "Email or provider is required" }, { status: 400 });
+        }
 
-        const authUrl = `https://api.workos.com/user-management/authorize?${params.toString()}`;
-
+        const authUrl = "https://api.workos.com/user-management/authorize?" + params.toString();
         return NextResponse.json({ authUrl });
     } catch {
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
