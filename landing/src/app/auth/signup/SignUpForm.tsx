@@ -37,9 +37,11 @@ export default function SignUpForm() {
     function handleSSOSignUp(provider: "GoogleOAuth" | "MicrosoftOAuth") {
         const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
         const redirectUri =
-            process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ?? "https://edumyles.vercel.app/auth/callback";
+            process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
+            (typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : "");
 
         if (!clientId) {
+            console.error("NEXT_PUBLIC_WORKOS_CLIENT_ID is missing");
             setError("Authentication service not configured");
             return;
         }
