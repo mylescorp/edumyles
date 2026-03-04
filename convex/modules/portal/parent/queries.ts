@@ -33,6 +33,36 @@ async function resolveParentChildren(ctx: any, tenant: any) {
   return children;
 }
 
+async function assertChildOwnership(
+  ctx: any,
+  tenant: any,
+  studentId: string
+) {
+  const children = await resolveParentChildren(ctx, tenant);
+  const allowedIds = new Set(
+    children.map((c: any) => c._id.toString())
+  );
+
+  if (!allowedIds.has(studentId)) {
+    throw new Error("FORBIDDEN: Child not linked to parent");
+  }
+}
+
+async function assertClassOwnership(
+  ctx: any,
+  tenant: any,
+  classId: string
+) {
+  const children = await resolveParentChildren(ctx, tenant);
+  const ownsClass = children.some(
+    (c: any) => c.classId && c.classId === classId
+  );
+
+  if (!ownsClass) {
+    throw new Error("FORBIDDEN: Class not linked to any child");
+  }
+}
+
 export const getChildren = query({
   args: {},
   handler: async (ctx) => {
@@ -53,6 +83,8 @@ export const getChildGrades = query({
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:read");
 
+    await assertChildOwnership(ctx, tenant, args.studentId);
+
     return await ctx.db
       .query("grades")
       .withIndex("by_student", (q) =>
@@ -71,6 +103,8 @@ export const getChildAttendance = query({
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "attendance:read");
+
+    await assertChildOwnership(ctx, tenant, args.studentId);
 
     return await ctx.db
       .query("attendance")
@@ -91,6 +125,8 @@ export const getChildTimetable = query({
     await requireModule(ctx, tenant.tenantId, "timetable");
     requirePermission(tenant, "students:read");
 
+    await assertClassOwnership(ctx, tenant, args.classId);
+
     return await ctx.db
       .query("timetables")
       .withIndex("by_class", (q) => q.eq("classId", args.classId))
@@ -107,6 +143,8 @@ export const getFeeBalance = query({
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "finance");
     requirePermission(tenant, "finance:read");
+
+    await assertChildOwnership(ctx, tenant, args.studentId);
 
     const invoices = await ctx.db
       .query("invoices")
@@ -183,6 +221,10 @@ export const getChildAssignments = query({
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:read");
+
+    // Ensure both the student and class belong to this parent
+    await assertChildOwnership(ctx, tenant, args.studentId);
+    await assertClassOwnership(ctx, tenant, args.classId);
 
     const assignments = await ctx.db
       .query("assignments")
@@ -282,6 +324,8 @@ export const getOutstandingInvoicesForChild = query({
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "finance");
     requirePermission(tenant, "finance:read");
+
+    await assertChildOwnership(ctx, tenant, args.studentId);
 
     const invoices = await ctx.db
       .query("invoices")

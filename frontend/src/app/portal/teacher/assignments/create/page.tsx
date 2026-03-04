@@ -19,11 +19,9 @@ export default function CreateAssignmentPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
-    const classes = useQuery(api.modules.academics.queries.getTeacherClasses,
-        user?.tenantId && user?.eduMylesUserId ? {
-            tenantId: user.tenantId,
-            teacherId: user.eduMylesUserId
-        } : "skip"
+    const classes = useQuery(
+        api.modules.academics.queries.getTeacherClasses,
+        {}
     );
 
     const createAssignmentMutation = useMutation(api.modules.academics.mutations.createAssignment);
@@ -36,14 +34,12 @@ export default function CreateAssignmentPage() {
 
         const formData = new FormData(e.currentTarget);
         const data = {
-            tenantId: user?.tenantId || "",
             classId: formData.get("classId") as string,
             subjectId: formData.get("subjectId") as string,
-            teacherId: user?.eduMylesUserId || "",
             title: formData.get("title") as string,
             description: formData.get("description") as string,
             dueDate: formData.get("dueDate") as string,
-            maxPoints: parseInt(formData.get("maxPoints") as string),
+            maxPoints: parseInt(formData.get("maxPoints") as string, 10),
             status: "active",
         };
 

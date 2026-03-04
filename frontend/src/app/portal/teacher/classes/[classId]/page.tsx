@@ -17,9 +17,9 @@ export default function ClassDetailsPage({ params }: { params: Promise<{ classId
     const { classId } = use(params);
     const { user, isLoading: authLoading } = useAuth();
 
-    const classData = useQuery(api.modules.sis.queries.listClasses, { tenantId: user?.tenantId || "" })?.find(c => c._id === classId);
-    const students = useQuery(api.modules.academics.queries.getClassStudents, { tenantId: user?.tenantId || "", classId });
-    const assignments = useQuery(api.modules.academics.queries.getAssignments, { tenantId: user?.tenantId || "", classId });
+    const classData = useQuery(api.modules.sis.queries.listClasses, {})?.find(c => c._id === classId);
+    const students = useQuery(api.modules.academics.queries.getClassStudents, { classId });
+    const assignments = useQuery(api.modules.academics.queries.getAssignments, { classId });
 
     if (authLoading || classData === undefined || students === undefined) return <LoadingSkeleton variant="page" />;
 

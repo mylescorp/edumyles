@@ -4,6 +4,36 @@ import { requireTenantContext } from "../../../helpers/tenantGuard";
 import { requirePermission } from "../../../helpers/authorize";
 import { requireModule } from "../../../helpers/moduleGuard";
 import { logAction } from "../../../helpers/auditLog";
+import { getChildren as _unused } from "./queries"; // for type linkage only
+
+// Reuse the helper from queries via a local definition to avoid circular imports
+async function resolveParentChildren(ctx: any, tenant: any) {
+  const guardians = await ctx.db
+    .query("guardians")
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+    .filter((q: any) => q.eq(q.field("userId"), tenant.userId))
+    .collect();
+
+  const guardianStudentIds = new Set<string>();
+  for (const g of guardians) {
+    for (const sid of g.studentIds) {
+      guardianStudentIds.add(sid);
+    }
+  }
+
+  const allStudents = await ctx.db
+    .query("students")
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+    .collect();
+
+  const children = allStudents.filter(
+    (s: any) =>
+      s.guardianUserId === tenant.userId ||
+      guardianStudentIds.has(s._id.toString())
+  );
+
+  return children;
+}
 
 export const initiatePayment = mutation({
   args: {
@@ -18,6 +48,16 @@ export const initiatePayment = mutation({
     const invoice = await ctx.db.get(args.invoiceId as any);
     if (!invoice || (invoice as any).tenantId !== tenant.tenantId) {
       throw new Error("Invoice not found");
+    }
+
+    // Ensure this invoice belongs to one of the parent's children
+    const children = await resolveParentChildren(ctx, tenant);
+    const allowedIds = new Set(
+      children.map((c: any) => c._id.toString())
+    );
+
+    if (!allowedIds.has((invoice as any).studentId)) {
+      throw new Error("FORBIDDEN: Invoice not linked to your child");
     }
 
     // For now we simply log the intent; actual payment actions (M-Pesa, Stripe)
