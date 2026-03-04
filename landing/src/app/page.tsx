@@ -315,7 +315,7 @@ function LandingPageContent() {
           <div className="module-tab-text">
             <h3>{activeCategory.label}</h3>
             <p>{activeCategory.description}</p>
-            <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
+            <a className="btn btn-primary" href="/user-panels">
               {user ? "Explore in Dashboard" : "Try It Free"}
             </a>
           </div>
@@ -504,7 +504,7 @@ function LandingPageContent() {
                   <li key={i}>{feature}</li>
                 ))}
               </ul>
-              <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
+              <a className="btn btn-primary" href="/user-panels">
                 Get Started
               </a>
             </div>
@@ -527,7 +527,7 @@ function LandingPageContent() {
             Join 50+ schools across East Africa already running smarter with
             one unified platform.
           </p>
-          <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
+          <a className="btn btn-primary" href="/user-panels">
             {user ? "Go to Dashboard" : "Activate Free Trial"}
           </a>
         </div>
