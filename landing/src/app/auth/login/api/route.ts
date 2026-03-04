@@ -17,21 +17,21 @@ export async function POST(req: NextRequest) {
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: "code",
+      screen_hint: "sign-in",
     });
 
+    // Pass provider for direct social login (requires provider enabled in WorkOS dashboard)
     if (provider) {
       params.set("provider", provider);
-      params.set("screen_hint", "sign-in");
-    } else if (email) {
-      params.set("login_hint", email);
-      params.set("screen_hint", "sign-in");
-    } else {
-      return NextResponse.json({ error: "Email or provider is required" }, { status: 400 });
     }
 
-    // Use WorkOS AuthKit (User Management) endpoint for individual user auth
+    // Pre-fill email on the AuthKit hosted UI
+    if (email) {
+      params.set("login_hint", email);
+    }
+
+    // WorkOS AuthKit (User Management) hosted UI
     const authUrl = "https://api.workos.com/user_management/authorize?" + params.toString();
-    console.log("Generated WorkOS auth URL:", authUrl);
     return NextResponse.json({ authUrl });
   } catch (error) {
     console.error("Login API error:", error);

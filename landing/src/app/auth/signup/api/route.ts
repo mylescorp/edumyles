@@ -17,25 +17,25 @@ export async function POST(req: NextRequest) {
             client_id: clientId,
             redirect_uri: redirectUri,
             response_type: "code",
+            screen_hint: "sign-up",
         });
 
+        // Pass provider for direct social login (requires provider enabled in WorkOS dashboard)
         if (provider) {
             params.set("provider", provider);
-            params.set("screen_hint", "sign-up");
-        } else if (email) {
-            params.set("login_hint", email);
-            params.set("screen_hint", "sign-up");
-            if (schoolName) {
-                const state = Buffer.from(JSON.stringify({ schoolName })).toString("base64url");
-                params.set("state", state);
-            }
-        } else {
-            return NextResponse.json({ error: "Email or provider is required" }, { status: 400 });
         }
 
-        // Use WorkOS AuthKit (User Management) endpoint for individual user auth
+        // Pre-fill email and pass school name as state
+        if (email) {
+            params.set("login_hint", email);
+        }
+        if (schoolName) {
+            const state = Buffer.from(JSON.stringify({ schoolName })).toString("base64url");
+            params.set("state", state);
+        }
+
+        // WorkOS AuthKit (User Management) hosted UI
         const authUrl = "https://api.workos.com/user_management/authorize?" + params.toString();
-        console.log("Generated WorkOS signup URL:", authUrl);
         return NextResponse.json({ authUrl });
     } catch {
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
