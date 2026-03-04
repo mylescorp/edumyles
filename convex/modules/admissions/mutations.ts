@@ -47,7 +47,7 @@ export const updateApplicationStatus = mutation({
 export const enrollFromApplication = mutation({
     args: {
         applicationId: v.id("admissionApplications"),
-        admissionNumber: v.string(),
+        admissionNo: v.string(),
         classId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
@@ -68,11 +68,11 @@ export const enrollFromApplication = mutation({
         // 1. Create Student record
         const studentId = await ctx.db.insert("students", {
             tenantId: tenant.tenantId,
-            admissionNumber: args.admissionNumber,
-            firstName: application.firstName,
-            lastName: application.lastName,
-            dateOfBirth: application.dateOfBirth,
-            gender: application.gender,
+            admissionNo: args.admissionNo,
+            firstName: application.studentInfo.firstName,
+            lastName: application.studentInfo.lastName,
+            dateOfBirth: application.studentInfo.dateOfBirth,
+            gender: application.studentInfo.gender,
             classId: args.classId,
             status: "active",
             enrolledAt: Date.now(),
@@ -83,11 +83,11 @@ export const enrollFromApplication = mutation({
         // 2. Create Guardian record
         const guardianId = await ctx.db.insert("guardians", {
             tenantId: tenant.tenantId,
-            firstName: application.guardianName.split(" ")[0] || "Guardian",
-            lastName: application.guardianName.split(" ").slice(1).join(" ") || "",
-            phone: application.guardianPhone,
-            email: application.guardianEmail,
-            relationship: "guardian",
+            firstName: application.guardianInfo.firstName,
+            lastName: application.guardianInfo.lastName,
+            phone: application.guardianInfo.phone,
+            email: application.guardianInfo.email || "",
+            relationship: application.guardianInfo.relationship as any,
             studentIds: [studentId.toString()],
             createdAt: Date.now(),
             updatedAt: Date.now(),

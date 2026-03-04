@@ -7,7 +7,7 @@ import { logAction } from "../../helpers/auditLog";
 
 export const createStudent = mutation({
     args: {
-        admissionNumber: v.optional(v.string()),
+        admissionNo: v.optional(v.string()),
         firstName: v.string(),
         lastName: v.string(),
         dateOfBirth: v.string(),
@@ -24,11 +24,11 @@ export const createStudent = mutation({
         await requireModule(ctx, tenant.tenantId, "sis");
         requirePermission(tenant, "students:write");
 
-        const admNo = args.admissionNumber || `ADM-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+        const admNo = args.admissionNo || `ADM-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
 
         const studentId = await ctx.db.insert("students", {
             tenantId: tenant.tenantId,
-            admissionNumber: admNo,
+            admissionNo: admNo,
             firstName: args.firstName,
             lastName: args.lastName,
             dateOfBirth: args.dateOfBirth,

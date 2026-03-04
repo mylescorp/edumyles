@@ -76,10 +76,10 @@ export default defineSchema({
     tenantId: v.string(), admissionNo: v.string(), firstName: v.string(), lastName: v.string(),
     dateOfBirth: v.string(), gender: v.union(v.literal("male"), v.literal("female"), v.literal("other")),
     photo: v.optional(v.string()), curriculum: v.string(), classId: v.optional(v.string()),
-    guardianIds: v.array(v.string()),
+    guardianIds: v.array(v.string()), userId: v.optional(v.string()),
     status: v.union(v.literal("active"), v.literal("graduated"), v.literal("transferred"), v.literal("suspended"), v.literal("expelled")),
     createdAt: v.number(), updatedAt: v.number(),
-  }).index("by_tenant", ["tenantId"]).index("by_tenant_admission", ["tenantId", "admissionNo"]).index("by_tenant_class", ["tenantId", "classId"]).index("by_tenant_status", ["tenantId", "status"]),
+  }).index("by_tenant", ["tenantId"]).index("by_tenant_admission", ["tenantId", "admissionNo"]).index("by_tenant_class", ["tenantId", "classId"]).index("by_tenant_status", ["tenantId", "status"]).index("by_user", ["userId"]),
 
   guardians: defineTable({
     tenantId: v.string(), firstName: v.string(), lastName: v.string(), phone: v.string(),
