@@ -15,9 +15,7 @@ export default function ParentMessagesPage() {
   const [message, setMessage] = useState("");
   const notifications = useQuery(
     api.notifications.getNotifications,
-    user?.eduMylesUserId
-      ? { userId: user.eduMylesUserId, limit: 20 }
-      : "skip"
+    user?._id ? { userId: String(user._id), limit: 20 } : "skip"
   );
   const sendMessage = useMutation(
     api.modules.portal.parent.mutations.sendMessage

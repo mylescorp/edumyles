@@ -56,7 +56,7 @@ export default function GradeEntryPage({ params }: { params: Promise<{ classId: 
             classId,
             subjectId: selectedSubject,
             term,
-            academicYear: "2026", // Dynamic year in production
+            academicYear: new Date().getFullYear().toString(),
             score: parseFloat(data.score),
             grade: calculateGrade(parseFloat(data.score)),
             remarks: data.remarks,

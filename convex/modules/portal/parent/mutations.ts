@@ -66,7 +66,7 @@ export const sendMessage = mutation({
         throw new Error("Recipient not found for given role");
       }
 
-      recipientUserId = targetUser.eduMylesUserId;
+      recipientUserId = targetUser._id.toString();
     }
 
     if (!recipientUserId) {

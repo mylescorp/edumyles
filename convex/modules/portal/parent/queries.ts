@@ -274,4 +274,28 @@ export const getChildrenFeeOverview = query({
   },
 });
 
+export const getOutstandingInvoicesForChild = query({
+  args: {
+    studentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "finance");
+    requirePermission(tenant, "finance:read");
+
+    const invoices = await ctx.db
+      .query("invoices")
+      .withIndex("by_tenant_student", (q) =>
+        q.eq("tenantId", tenant.tenantId).eq("studentId", args.studentId)
+      )
+      .collect();
+
+    return invoices.filter(
+      (inv: any) =>
+        inv.status === "pending" || inv.status === "partially_paid"
+    );
+  },
+});
+
+
 

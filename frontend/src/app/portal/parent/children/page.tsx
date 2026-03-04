@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function ParentChildrenPage() {
   const { isLoading } = useAuth();
@@ -41,6 +43,11 @@ export default function ParentChildrenPage() {
               <CardContent className="text-sm text-muted-foreground">
                 <p>Admission No: {child.admissionNumber}</p>
                 <p>Status: {child.status}</p>
+                <Button asChild size="sm" className="mt-3">
+                  <Link href={`/portal/parent/children/${child._id}`}>
+                    View details
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
           ))}
