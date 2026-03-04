@@ -53,12 +53,13 @@ export const getSponsoredStudents = query({
     const studentIds = [...new Set(sponsorships.map((s: any) => s.studentId))];
     if (studentIds.length === 0) return [];
 
-    const students = await ctx.db
-      .query("students")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
-      .collect();
+    // Optimize: Fetch only sponsored students directly by ID
+    const students = await Promise.all(
+      studentIds.map(id => ctx.db.get(id as Id<"students">))
+    );
 
-    const sponsored = students.filter((s: any) => studentIds.includes(s._id.toString()));
+    const sponsored = students.filter((s: any) => s !== null && s.tenantId === tenant.tenantId);
+
     return sponsored.map((s: any) => {
       const sponsorship = sponsorships.find((sp: any) => sp.studentId === s._id.toString());
       return {
@@ -102,62 +103,65 @@ export const getSponsorshipReport = query({
       return { students: [], totalInvestedCents, summary: {} };
     }
 
-    const grades = await ctx.db
-      .query("grades")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
-      .collect();
+    // Optimize: Fetch grades, attendance, and student info ONLY for sponsored students
+    const studentsWithReport = await Promise.all(
+      sponsorships.map(async (s: any) => {
+        const studentId = s.studentId;
+        const student = await ctx.db.get(studentId as Id<"students">);
+        if (!student || student.tenantId !== tenant.tenantId) return null;
 
-    const attendance = await ctx.db
-      .query("attendance")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
-      .collect();
+        const termGrades = await ctx.db
+          .query("grades")
+          .withIndex("by_student", (q: any) => q.eq("studentId", studentId))
+          .filter((q: any) => {
+            const filters = [q.eq(q.field("tenantId"), tenant.tenantId)];
+            if (args.term) filters.push(q.eq(q.field("term"), args.term));
+            if (args.academicYear) filters.push(q.eq(q.field("academicYear"), args.academicYear));
+            return q.and(...filters);
+          })
+          .collect();
 
-    const students = await ctx.db
-      .query("students")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
-      .collect();
+        const avgScore = termGrades.length
+          ? termGrades.reduce((a: number, g: any) => a + g.score, 0) / termGrades.length
+          : null;
 
-    const sponsoredStudents = students.filter((s: any) => studentIds.includes(s._id.toString()));
+        const termAttendance = await ctx.db
+          .query("attendance")
+          .withIndex("by_student_date", (q: any) => q.eq("studentId", studentId))
+          .filter((q: any) => q.eq(q.field("tenantId"), tenant.tenantId))
+          .collect();
 
-    const studentsWithReport = sponsoredStudents.map((s: any) => {
-      const sid = s._id.toString();
-      const termGrades = grades.filter(
-        (g: any) => g.studentId === sid && (!args.term || g.term === args.term) && (!args.academicYear || g.academicYear === args.academicYear)
-      );
-      const avgScore = termGrades.length
-        ? termGrades.reduce((a: number, g: any) => a + g.score, 0) / termGrades.length
-        : null;
-      const termAttendance = attendance.filter(
-        (a: any) => a.studentId === sid
-      );
-      const presentCount = termAttendance.filter((a: any) => a.status === "present").length;
-      const totalSessions = termAttendance.length;
-      const attendanceRate = totalSessions ? (presentCount / totalSessions) * 100 : null;
+        const presentCount = termAttendance.filter((a: any) => a.status === "present").length;
+        const totalSessions = termAttendance.length;
+        const attendanceRate = totalSessions ? (presentCount / totalSessions) * 100 : null;
 
-      return {
-        studentId: sid,
-        firstName: s.firstName,
-        lastName: s.lastName,
-        admissionNumber: s.admissionNumber,
-        classId: s.classId,
-        status: s.status,
-        averageScore: avgScore,
-        attendanceRate,
-        gradesCount: termGrades.length,
-      };
-    });
+        return {
+          studentId,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          admissionNumber: student.admissionNumber,
+          classId: student.classId,
+          status: student.status,
+          averageScore: avgScore,
+          attendanceRate,
+          gradesCount: termGrades.length,
+        };
+      })
+    );
+
+    const validReports = studentsWithReport.filter((r: any) => r !== null);
 
     const summary = {
-      totalStudents: studentsWithReport.length,
+      totalStudents: validReports.length,
       totalInvestedCents,
-      averageScore: studentsWithReport.filter((r: any) => r.averageScore != null).length
-        ? studentsWithReport.reduce((a: number, r: any) => a + (r.averageScore ?? 0), 0) /
-          studentsWithReport.filter((r: any) => r.averageScore != null).length
+      averageScore: validReports.filter((r: any) => r.averageScore != null).length
+        ? validReports.reduce((a: number, r: any) => a + (r.averageScore ?? 0), 0) /
+        validReports.filter((r: any) => r.averageScore != null).length
         : null,
     };
 
     return {
-      students: studentsWithReport,
+      students: validReports,
       totalInvestedCents,
       summary,
     };
@@ -186,26 +190,38 @@ export const getPartnerPayments = query({
     const studentIds = new Set(sponsorships.map((s: any) => s.studentId));
     if (studentIds.size === 0) return { payments: [], upcomingDues: [] };
 
-    const invoices = await ctx.db
-      .query("invoices")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
-      .collect();
+    // Optimize: Fetch only relevant invoices and their payments
+    const invoices = await Promise.all(
+      [...studentIds].map(sid =>
+        ctx.db
+          .query("invoices")
+          .withIndex("by_tenant_student", (q: any) =>
+            q.eq("tenantId", tenant.tenantId).eq("studentId", sid)
+          )
+          .collect()
+      )
+    );
 
-    const sponsoredInvoices = invoices.filter((i: any) => studentIds.has(i.studentId));
-    const invoiceIds = new Set(sponsoredInvoices.map((i: any) => i._id.toString()));
+    const sponsoredInvoices = invoices.flat();
+    const invoiceIds = sponsoredInvoices.map((i: any) => i._id.toString());
 
-    const allPayments = await ctx.db
-      .query("payments")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
-      .collect();
+    const payments = await Promise.all(
+      invoiceIds.map(iid =>
+        ctx.db
+          .query("payments")
+          .withIndex("by_invoice", (q: any) => q.eq("invoiceId", iid))
+          .filter((q: any) => q.eq(q.field("tenantId"), tenant.tenantId))
+          .collect()
+      )
+    );
 
-    const payments = allPayments.filter((p: any) => invoiceIds.has(p.invoiceId));
+    const allPayments = payments.flat();
     const upcomingDues = sponsoredInvoices.filter(
       (i: any) => i.status === "pending" || i.status === "partially_paid"
     );
 
     return {
-      payments: payments.sort((a: any, b: any) => b.processedAt - a.processedAt),
+      payments: allPayments.sort((a: any, b: any) => b.processedAt - a.processedAt),
       upcomingDues,
     };
   },
@@ -221,8 +237,16 @@ export const getPartnerAnnouncements = query({
     requirePermission(tenant, "students:read");
 
     return await ctx.db
-      .query("notifications")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .query("announcements")
+      .withIndex("by_tenant_status", (q: any) =>
+        q.eq("tenantId", tenant.tenantId).eq("status", "published")
+      )
+      .filter((q: any) =>
+        q.or(
+          q.eq(q.field("audience"), "all"),
+          q.eq(q.field("audience"), "partners")
+        )
+      )
       .order("desc")
       .take(50);
   },
@@ -255,11 +279,11 @@ export const getSponsoredStudentReport = query({
     const student = await ctx.db.get(args.studentId as Id<"students">);
     if (!student || student.tenantId !== tenant.tenantId) return null;
 
-    const allGrades = await ctx.db
+    const grades = await ctx.db
       .query("grades")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .withIndex("by_student", (q: any) => q.eq("studentId", args.studentId))
+      .filter((q: any) => q.eq(q.field("tenantId"), tenant.tenantId))
       .collect();
-    const grades = allGrades.filter((g: any) => g.studentId === args.studentId);
 
     const attendanceRecords = await ctx.db
       .query("attendance")

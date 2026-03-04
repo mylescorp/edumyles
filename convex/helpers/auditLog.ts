@@ -14,6 +14,7 @@ export type AuditAction =
   | "admission.submitted" | "admission.status_updated" | "admission.enrolled"
   | "staff.created" | "staff.updated" | "staff.role_assigned"
   | "class.created" | "class.updated"
+  | "assignment.submitted" | "assignment.graded"
   | "alumni.profile_updated" | "alumni.transcript_requested" | "alumni.event_rsvp"
   | "timetable.slot_created" | "timetable.slot_updated" | "timetable.slot_deleted" | "timetable.substitute_assigned";
 
@@ -32,12 +33,14 @@ export async function logAction(
 ): Promise<void> {
   await ctx.db.insert("auditLogs", {
     tenantId: params.tenantId,
-    userId: params.actorId,
+    actorId: params.actorId,
+    actorEmail: params.actorEmail,
     action: params.action,
-    targetId: params.entityId,
-    targetType: params.entityType,
-    details: { actorEmail: params.actorEmail, before: params.before, after: params.after },
-    createdAt: Date.now(),
+    entityType: params.entityType,
+    entityId: params.entityId,
+    before: params.before,
+    after: params.after,
+    timestamp: Date.now(),
   });
 }
 

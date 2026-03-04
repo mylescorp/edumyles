@@ -10,6 +10,9 @@ export const submitAssignment = mutation({
         attachments: v.array(v.string()),
     },
     handler: async (ctx, args) => {
+        if (args.attachments.length === 0) {
+            throw new Error("At least one attachment is required");
+        }
         const tenant = await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "academics");
 
@@ -29,13 +32,15 @@ export const submitAssignment = mutation({
 
         const existingSubmission = await ctx.db
             .query("submissions")
-            .withIndex("by_tenant_student", (q) =>
-                q.eq("tenantId", tenant.tenantId).eq("studentId", student._id)
+            .withIndex("by_student", (q) =>
+                q.eq("studentId", student._id.toString())
             )
             .filter(q => q.eq(q.field("assignmentId"), args.assignmentId))
             .first();
 
-        const status = assignment.dueDate < Date.now() ? "late" : "submitted";
+        // Convert dueDate string (YYYY-MM-DD) to epoch for comparison if needed, 
+        // but schema says dueDate is v.string(). If it's ISO, string comparison works.
+        const status = (assignment.dueDate < new Date().toISOString().split('T')[0]) ? "late" : "submitted";
 
         let submissionId;
         if (existingSubmission) {
@@ -44,21 +49,19 @@ export const submitAssignment = mutation({
             }
             submissionId = existingSubmission._id;
             await ctx.db.patch(submissionId, {
-                attachments: args.attachments,
+                fileUrl: args.attachments[0],
                 status,
                 submittedAt: Date.now(),
-                updatedAt: Date.now(),
             });
         } else {
             submissionId = await ctx.db.insert("submissions", {
                 tenantId: tenant.tenantId,
                 assignmentId: args.assignmentId,
-                studentId: student._id,
+                studentId: student._id.toString(),
                 status,
-                attachments: args.attachments,
+                fileUrl: args.attachments[0],
                 submittedAt: Date.now(),
                 createdAt: Date.now(),
-                updatedAt: Date.now(),
             });
         }
 

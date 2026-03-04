@@ -20,16 +20,18 @@ export default defineSchema({
 
   auditLogs: defineTable({
     tenantId: v.string(),
-    userId: v.string(),
+    actorId: v.string(),
+    actorEmail: v.string(),
     action: v.string(),
-    targetId: v.optional(v.string()),
-    targetType: v.optional(v.string()),
-    details: v.any(),
-    ipAddress: v.optional(v.string()),
-    createdAt: v.number(),
+    entityId: v.string(),
+    entityType: v.string(),
+    before: v.optional(v.any()),
+    after: v.optional(v.any()),
+    timestamp: v.number(),
   })
-    .index("by_tenant", ["tenantId", "createdAt"])
-    .index("by_user", ["userId", "createdAt"]),
+    .index("by_tenant", ["tenantId", "timestamp"])
+    .index("by_actor", ["actorId", "timestamp"])
+    .index("by_entity", ["entityType", "entityId", "timestamp"]),
 
   tenants: defineTable({
     tenantId: v.string(),
@@ -231,6 +233,7 @@ export default defineSchema({
     classId: v.optional(v.string()),
     streamId: v.optional(v.string()),
     status: v.string(),
+    userId: v.optional(v.string()),
     guardianUserId: v.optional(v.string()),
     enrolledAt: v.number(),
     createdAt: v.number(),
@@ -239,7 +242,8 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_status", ["tenantId", "status"])
     .index("by_tenant_class", ["tenantId", "classId"])
-    .index("by_admission", ["tenantId", "admissionNumber"]),
+    .index("by_admission", ["tenantId", "admissionNumber"])
+    .index("by_user", ["userId"]),
 
   classes: defineTable({
     tenantId: v.string(),
@@ -722,4 +726,20 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_student_term", ["studentId", "term", "academicYear"]),
+
+  announcements: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    body: v.string(),
+    audience: v.string(), // all | staff | students | parents | class:<classId>
+    priority: v.string(), // normal | high | emergency
+    status: v.string(), // draft | published | archived
+    publishedAt: v.optional(v.number()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_created", ["tenantId", "createdAt"]),
 });
