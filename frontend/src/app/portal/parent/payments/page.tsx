@@ -255,6 +255,7 @@ export default function ParentPaymentsPage() {
                         </Button>
                       </div>
                     </div>
+                  </div>
                 ))}
               </div>
             )}

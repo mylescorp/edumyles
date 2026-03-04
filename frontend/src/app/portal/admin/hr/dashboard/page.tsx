@@ -344,15 +344,16 @@ export default function HRDashboardPage() {
                         {contract.status}
                       </Badge>
                     </div>
-                  ))}
-                  {contracts?.length > 3 && (
-                    <Button variant="outline" className="w-full mt-4">
-                      View All Contracts ({contracts?.length - 3} more)
-                    </Button>
-                  )}
-                </div>
+                  </div>
+                ))}
+                {contracts?.length > 3 && (
+                  <Button variant="outline" className="w-full mt-4">
+                    View All Contracts ({contracts?.length - 3} more)
+                  </Button>
+                )}
+              </div>
               </CardContent>
-          </Card>
+            </Card>
         </div>
 
         {/* Payroll Management */}

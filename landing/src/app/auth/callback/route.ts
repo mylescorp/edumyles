@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { WorkOS } from "@workos-inc/node";
 import crypto from "crypto";
 
 export async function GET(request: NextRequest) {
@@ -34,51 +35,27 @@ export async function GET(request: NextRequest) {
 
   try {
     const apiKey = process.env.WORKOS_API_KEY;
-    const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
+    const clientId =
+      process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID ||
+      process.env.WORKOS_CLIENT_ID;
 
     if (!apiKey || !clientId) {
-      console.error("Missing WorkOS configuration");
+      console.error("Missing WorkOS configuration — WORKOS_API_KEY or WORKOS_CLIENT_ID not set");
       return NextResponse.redirect(
         new URL("/auth/login?error=config_error", request.url)
       );
     }
 
-    // Exchange code for user profile via WorkOS User Management (AuthKit) API
-    const tokenRes = await fetch(
-      "https://api.workos.com/user_management/authenticate",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          client_id: clientId,
-          client_secret: apiKey,
-          grant_type: "authorization_code",
-          code,
-        }),
-      }
-    );
+    // Use the official WorkOS SDK to exchange code for user profile
+    const workos = new WorkOS(apiKey);
+    const authResponse = await workos.userManagement.authenticateWithCode({
+      code,
+      clientId,
+    });
 
-    if (!tokenRes.ok) {
-      const errBody = await tokenRes.text();
-      console.error(
-        "Token exchange failed:",
-        tokenRes.status,
-        tokenRes.statusText,
-        errBody
-      );
-      return NextResponse.redirect(
-        new URL("/auth/login?error=token_exchange_failed", request.url)
-      );
-    }
-
-    const authData = await tokenRes.json();
-
-    // WorkOS User Management returns a `user` object
-    const user = authData.user;
+    const user = authResponse.user;
     if (!user) {
-      console.error("No user in auth response:", authData);
+      console.error("No user in auth response:", authResponse);
       return NextResponse.redirect(
         new URL("/auth/login?error=no_profile", request.url)
       );
@@ -90,16 +67,16 @@ export async function GET(request: NextRequest) {
     const sessionToken = generateSessionToken();
     const userData = {
       email: user.email,
-      firstName: user.first_name || "",
-      lastName: user.last_name || "",
-      avatar: user.profile_picture_url || "",
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      avatar: user.profilePictureUrl || "",
       role: "school_admin", // Default role for new users
       tenantId: `TENANT-${Math.floor(100000 + Math.random() * 900000)}`,
       ...(signupState.schoolName ? { schoolName: signupState.schoolName } : {}),
     };
 
-    // Redirect to user-panels dashboard (exists in landing app)
-    const dashboardUrl = "/user-panels";
+    // Redirect to home after successful authentication
+    const dashboardUrl = "/";
     console.log("Redirecting to:", dashboardUrl);
 
     const response = NextResponse.redirect(new URL(dashboardUrl, request.url));
@@ -132,10 +109,12 @@ export async function GET(request: NextRequest) {
     });
 
     return response;
-  } catch (error) {
-    console.error("Auth callback error:", error);
+  } catch (err) {
+    console.error("Auth callback error:", err);
+    const message =
+      err instanceof Error ? err.message : "callback_failed";
     return NextResponse.redirect(
-      new URL("/auth/login?error=callback_failed", request.url)
+      new URL(`/auth/login?error=${encodeURIComponent(message)}`, request.url)
     );
   }
 }

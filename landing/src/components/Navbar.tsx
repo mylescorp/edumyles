@@ -86,7 +86,6 @@ export default function Navbar() {
   const [user, setUser] = useState<UserInfo | null>(null);
 
   const pathname = usePathname();
-  const isUserPanelsPage = pathname === "/user-panels";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -110,7 +109,6 @@ export default function Navbar() {
     ? (`${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() || (user.email?.[0] ?? "").toUpperCase())
     : "";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  const directMasterAdminUrl = "/user-panels";
 
   const handleLogout = () => {
     document.cookie = "edumyles_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
@@ -181,19 +179,15 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              {!isUserPanelsPage && (
-                <>
-                  <a className="navbar-login" href="/auth/login">
-                    Log In
-                  </a>
-                  <a className="navbar-get-started" href={directMasterAdminUrl}>
-                    Get Started
-                  </a>
-                  <a className="navbar-signup" href="/auth/signup">
-                    Sign Up Free
-                  </a>
-                </>
-              )}
+              <a className="navbar-login" href="/auth/login">
+                Log In
+              </a>
+              <a className="navbar-get-started" href="/auth/signup">
+                Get Started
+              </a>
+              <a className="navbar-signup" href="/auth/signup">
+                Sign Up Free
+              </a>
             </>
           )}
 
@@ -243,19 +237,15 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                {!isUserPanelsPage && (
-                  <>
-                    <a href="/auth/login" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
-                      Log In
-                    </a>
-                    <a href={directMasterAdminUrl} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
-                      Get Started
-                    </a>
-                    <a href="/auth/signup" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
-                      Sign Up Free
-                    </a>
-                  </>
-                )}
+                <a href="/auth/login" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+                  Log In
+                </a>
+                <a href="/auth/signup" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+                  Get Started
+                </a>
+                <a href="/auth/signup" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
+                  Sign Up Free
+                </a>
               </>
             )}
 

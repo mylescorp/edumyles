@@ -1,36 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
+import { WorkOS } from "@workos-inc/node";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, provider } = await req.json();
-    const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
+    const { email } = await req.json();
+    const apiKey = process.env.WORKOS_API_KEY;
+    const clientId =
+      process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID ||
+      process.env.WORKOS_CLIENT_ID;
     const redirectUri =
       process.env.WORKOS_REDIRECT_URI ||
       process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
       req.nextUrl.origin + "/auth/callback";
 
-    if (!clientId) {
-      return NextResponse.json({ error: "Authentication service not configured" }, { status: 500 });
+    if (!clientId || !apiKey) {
+      return NextResponse.json(
+        { error: "Authentication service not configured" },
+        { status: 500 }
+      );
     }
 
-    const params = new URLSearchParams({
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      response_type: "code",
+    const workos = new WorkOS(apiKey);
+    const authUrl = workos.userManagement.getAuthorizationUrl({
+      clientId,
+      redirectUri,
       provider: "authkit",
-      screen_hint: "sign-in",
+      screenHint: "sign-in",
+      ...(email ? { loginHint: email } : {}),
     });
 
-    // Pre-fill email on the AuthKit hosted UI
-    if (email) {
-      params.set("login_hint", email);
-    }
-
-    // WorkOS AuthKit (User Management) hosted UI
-    const authUrl = "https://api.workos.com/user_management/authorize?" + params.toString();
     return NextResponse.json({ authUrl });
   } catch (error) {
     console.error("Login API error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
