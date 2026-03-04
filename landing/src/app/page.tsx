@@ -199,8 +199,8 @@ function LandingPageContent() {
                 Go to Dashboard
               </a>
             ) : (
-              <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
-                Sign Up Free
+              <a className="btn btn-primary" href="/user-panels">
+                Get Started
               </a>
             )}
             <a className="btn btn-secondary" href="/concierge">
