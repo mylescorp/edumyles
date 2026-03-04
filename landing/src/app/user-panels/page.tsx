@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
 const userPanels = [
   {
@@ -10,7 +9,7 @@ const userPanels = [
     description: "Platform-level administration for all tenants and system management",
     icon: "👑",
     color: "bg-purple-500",
-    href: "/auth/bypass/platform",
+    href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://edumyles.vercel.app'}/auth/bypass/platform`,
     features: [
       "Multi-tenant management",
       "Platform analytics", 
@@ -24,7 +23,7 @@ const userPanels = [
     description: "School-level administration for students, staff, and operations",
     icon: "🏫",
     color: "bg-blue-500", 
-    href: "/auth/bypass/admin",
+    href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://edumyles.vercel.app'}/auth/bypass/admin`,
     features: [
       "Student management",
       "Staff administration",
@@ -38,7 +37,7 @@ const userPanels = [
     description: "Classroom management, grading, and student engagement tools",
     icon: "👨‍🏫",
     color: "bg-green-500",
-    href: "/auth/bypass/teacher",
+    href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://edumyles.vercel.app'}/auth/bypass/teacher`,
     features: [
       "Class management",
       "Gradebook & assignments",
@@ -52,7 +51,7 @@ const userPanels = [
     description: "Personal dashboard for academics, assignments, and school life",
     icon: "🎓",
     color: "bg-indigo-500",
-    href: "/auth/bypass/student", 
+    href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://edumyles.vercel.app'}/auth/bypass/student`, 
     features: [
       "View grades & assignments",
       "Track attendance",
@@ -66,7 +65,7 @@ const userPanels = [
     description: "Monitor children's progress, fees, and school communications",
     icon: "👨‍👩‍👧‍👦",
     color: "bg-orange-500",
-    href: "/auth/bypass/parent",
+    href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://edumyles.vercel.app'}/auth/bypass/parent`,
     features: [
       "Children's academic progress",
       "Fee management",
@@ -80,7 +79,7 @@ const userPanels = [
     description: "Stay connected with alma mater and access alumni services",
     icon: "🎓",
     color: "bg-pink-500",
-    href: "/auth/bypass/alumni",
+    href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://edumyles.vercel.app'}/auth/bypass/alumni`,
     features: [
       "Alumni directory",
       "Transcript requests",
@@ -94,7 +93,7 @@ const userPanels = [
     description: "External partner collaboration and resource management",
     icon: "🤝",
     color: "bg-teal-500",
-    href: "/auth/bypass/partner",
+    href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://edumyles.vercel.app'}/auth/bypass/partner`,
     features: [
       "Resource sharing",
       "Collaboration tools",
@@ -119,12 +118,12 @@ export default function UserPanelsPage() {
                 Explore all user dashboards and their capabilities
               </p>
             </div>
-            <Link 
+            <a 
               href="/"
               className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
             >
               ← Back to Landing
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -144,12 +143,14 @@ export default function UserPanelsPage() {
         {/* Panels Grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {userPanels.map((panel) => (
-            <Link
+            <a
               key={panel.id}
               href={panel.href}
               className="group"
               onMouseEnter={() => setHoveredPanel(panel.id)}
               onMouseLeave={() => setHoveredPanel(null)}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200">
                 {/* Header */}
@@ -189,7 +190,7 @@ export default function UserPanelsPage() {
                   </div>
                 </div>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
 
