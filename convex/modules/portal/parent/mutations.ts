@@ -112,7 +112,6 @@ export const sendMessage = mutation({
       message: args.message,
       type: "message",
       isRead: false,
-      link: undefined,
       createdAt: Date.now(),
     });
 
@@ -120,7 +119,7 @@ export const sendMessage = mutation({
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
       actorEmail: tenant.email,
-      action: "message.sent",
+      action: "communication.email_sent",
       entityType: "notification",
       entityId: notificationId,
       after: {
