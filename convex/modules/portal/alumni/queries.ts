@@ -112,32 +112,35 @@ export const getAlumniDirectory = query({
                 .collect();
         }
 
-        // Apply in-memory filters
+        // Apply in-memory program filter
         let filtered = alumni;
-
         if (args.program) {
             filtered = filtered.filter(a => a.program === args.program);
         }
 
+        // Fetch all alumni users ONCE to avoid N+1 queries in the enrichment loop
+        const allAlumniUsers = await ctx.db
+            .query("users")
+            .withIndex("by_tenant_role", (q) =>
+                q.eq("tenantId", tenant.tenantId).eq("role", "alumni")
+            )
+            .collect();
+
+        const userMap = new Map(allAlumniUsers.map(u => [u.eduMylesUserId, u]));
+
+        // Enrich alumni with user name info
+        const enriched = filtered.map((a) => {
+            const matchedUser = userMap.get(a.userId);
+            return {
+                ...a,
+                firstName: matchedUser?.firstName ?? "",
+                lastName: matchedUser?.lastName ?? "",
+            };
+        });
+
+        // Apply search filter if provided
         if (args.search) {
             const searchLower = args.search.toLowerCase();
-            // Fetch user info for name searching
-            const enriched = await Promise.all(
-                filtered.map(async (a) => {
-                    const user = await ctx.db
-                        .query("users")
-                        .withIndex("by_tenant_role", (q) =>
-                            q.eq("tenantId", tenant.tenantId).eq("role", "alumni")
-                        )
-                        .collect();
-                    const matchedUser = user.find(u => u.eduMylesUserId === a.userId);
-                    return {
-                        ...a,
-                        firstName: matchedUser?.firstName ?? "",
-                        lastName: matchedUser?.lastName ?? "",
-                    };
-                })
-            );
             return enriched.filter(
                 a =>
                     a.firstName.toLowerCase().includes(searchLower) ||
@@ -146,24 +149,6 @@ export const getAlumniDirectory = query({
                     (a.program?.toLowerCase().includes(searchLower))
             );
         }
-
-        // Enrich with user names
-        const enriched = await Promise.all(
-            filtered.map(async (a) => {
-                const user = await ctx.db
-                    .query("users")
-                    .withIndex("by_tenant_role", (q) =>
-                        q.eq("tenantId", tenant.tenantId).eq("role", "alumni")
-                    )
-                    .collect();
-                const matchedUser = user.find(u => u.eduMylesUserId === a.userId);
-                return {
-                    ...a,
-                    firstName: matchedUser?.firstName ?? "",
-                    lastName: matchedUser?.lastName ?? "",
-                };
-            })
-        );
 
         return enriched;
     },
