@@ -1,0 +1,764 @@
+openapi: 3.0.3
+info:
+  title: EduMyles API
+  description: |
+    Comprehensive API documentation for EduMyles School Management System.
+    
+    EduMyles is a multi-tenant school management platform that provides:
+    - Student information management
+    - Academic records and grading
+    - Financial management and payments
+    - Communication systems
+    - Library management
+    - HR and payroll
+    - Alumni and partner portals
+    
+    ## Authentication
+    All API endpoints require authentication using JWT tokens. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+    
+    ## Multi-Tenancy
+    This is a multi-tenant system. All requests are automatically scoped to the user's tenant.
+    
+    ## Rate Limiting
+    API requests are rate-limited to prevent abuse. Standard limits:
+    - 1000 requests per minute per user
+    - 5000 requests per minute per tenant
+    - 10000 requests per minute globally
+    
+  version: 1.0.0
+  contact:
+    name: EduMyles API Support
+    email: api-support@edumyles.com
+    url: https://edumyles.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.edumyles.com/v1
+    description: Production server
+  - url: https://staging-api.edumyles.com/v1
+    description: Staging server
+  - url: http://localhost:3000/api/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique user identifier
+        email:
+          type: string
+          format: email
+          description: User email address
+        firstName:
+          type: string
+          description: User first name
+        lastName:
+          type: string
+          description: User last name
+        role:
+          type: string
+          enum: [admin, teacher, student, parent, partner, alumni]
+          description: User role
+        tenantId:
+          type: string
+          description: Tenant identifier
+        isActive:
+          type: boolean
+          description: Whether the user is active
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    Student:
+      allOf:
+        - $ref: '#/components/schemas/User'
+      type: object
+      properties:
+        studentId:
+          type: string
+          description: Unique student identifier
+        grade:
+          type: string
+          description: Student grade level
+        class:
+          type: string
+          description: Student class
+        enrollmentDate:
+          type: string
+          format: date
+          description: Enrollment date
+        parentIds:
+          type: array
+          items:
+            type: string
+          description: List of parent IDs
+        emergencyContact:
+          $ref: '#/components/schemas/EmergencyContact'
+
+    Teacher:
+      allOf:
+        - $ref: '#/components/schemas/User'
+      type: object
+      properties:
+        teacherId:
+          type: string
+          description: Unique teacher identifier
+        employeeId:
+          type: string
+          description: Employee ID
+        department:
+          type: string
+          description: Department
+        subjects:
+          type: array
+          items:
+            type: string
+          description: List of subjects taught
+        qualification:
+          type: string
+          description: Teacher qualification
+        experience:
+          type: number
+          description: Years of experience
+
+    Assignment:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique assignment identifier
+        title:
+          type: string
+          description: Assignment title
+        description:
+          type: string
+          description: Assignment description
+        classId:
+          type: string
+          description: Class identifier
+        teacherId:
+          type: string
+          description: Teacher identifier
+        dueDate:
+          type: string
+          format: date-time
+          description: Due date
+        maxScore:
+          type: number
+          description: Maximum possible score
+        attachments:
+          type: array
+          items:
+            type: string
+          description: List of attachment URLs
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    Grade:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique grade identifier
+        studentId:
+          type: string
+          description: Student identifier
+        assignmentId:
+          type: string
+          description: Assignment identifier
+        score:
+          type: number
+          description: Score achieved
+        maxScore:
+          type: number
+          description: Maximum possible score
+        percentage:
+          type: number
+          description: Percentage score
+        grade:
+          type: string
+          description: Letter grade
+        comments:
+          type: string
+          description: Teacher comments
+        gradedAt:
+          type: string
+          format: date-time
+          description: Grading timestamp
+        gradedBy:
+          type: string
+          description: Teacher identifier
+
+    Payment:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique payment identifier
+        studentId:
+          type: string
+          description: Student identifier
+        invoiceId:
+          type: string
+          description: Invoice identifier
+        amount:
+          type: number
+          description: Payment amount
+        currency:
+          type: string
+          description: Currency code
+        status:
+          type: string
+          enum: [pending, completed, failed, refunded]
+          description: Payment status
+        method:
+          type: string
+          description: Payment method
+        transactionId:
+          type: string
+          description: External transaction ID
+        paidAt:
+          type: string
+          format: date-time
+          description: Payment timestamp
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+
+    EmergencyContact:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Contact name
+        relationship:
+          type: string
+          description: Relationship to student
+        phone:
+          type: string
+          description: Contact phone number
+        email:
+          type: string
+          format: email
+          description: Contact email
+        address:
+          type: string
+          description: Contact address
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Request success status
+        data:
+          type: object
+          description: Response data
+        message:
+          type: string
+          description: Response message
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and return JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User email
+                password:
+                  type: string
+                  description: User password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    description: JWT authentication token
+                  user:
+                    $ref: '#/components/schemas/User'
+                  expiresIn:
+                    type: number
+                    description: Token expiration time in seconds
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many login attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Invalidate user session
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /students:
+    get:
+      tags:
+        - Students
+      summary: Get students list
+      description: Retrieve list of students with optional filtering
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Number of items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term
+        - name: grade
+          in: query
+          schema:
+            type: string
+          description: Filter by grade
+        - name: class
+          in: query
+          schema:
+            type: string
+          description: Filter by class
+      responses:
+        '200':
+          description: Students retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Student'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Students
+      summary: Create new student
+      description: Create a new student record
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '201':
+          description: Student created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /students/{studentId}:
+    get:
+      tags:
+        - Students
+      summary: Get student by ID
+      description: Retrieve specific student information
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Student identifier
+      responses:
+        '200':
+          description: Student retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Student'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Students
+      summary: Update student
+      description: Update student information
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Student identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '200':
+          description: Student updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Students
+      summary: Delete student
+      description: Delete student record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Student identifier
+      responses:
+        '200':
+          description: Student deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /assignments:
+    get:
+      tags:
+        - Assignments
+      summary: Get assignments list
+      description: Retrieve list of assignments with optional filtering
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: classId
+          in: query
+          schema:
+            type: string
+          description: Filter by class
+        - name: teacherId
+          in: query
+          schema:
+            type: string
+          description: Filter by teacher
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published, closed]
+          description: Filter by status
+      responses:
+        '200':
+          description: Assignments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Assignment'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+
+  /payments:
+    get:
+      tags:
+        - Payments
+      summary: Get payments list
+      description: Retrieve list of payments with optional filtering
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: studentId
+          in: query
+          schema:
+            type: string
+          description: Filter by student
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, completed, failed, refunded]
+          description: Filter by status
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by start date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by end date
+      responses:
+        '200':
+          description: Payments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+
+tags:
+  - name: Authentication
+    description: Authentication and authorization endpoints
+  - name: Students
+    description: Student management endpoints
+  - name: Teachers
+    description: Teacher management endpoints
+  - name: Assignments
+    description: Assignment management endpoints
+  - name: Grades
+    description: Grade management endpoints
+  - name: Payments
+    description: Payment management endpoints
+  - name: Communications
+    description: Communication system endpoints
+  - name: Library
+    description: Library management endpoints
+  - name: HR
+    description: Human resources endpoints
+  - name: Finance
+    description: Financial management endpoints
