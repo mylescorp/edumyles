@@ -12,11 +12,9 @@ import { api } from "../../../../../convex/_generated/api";
 export default function TeacherDashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
 
-  const classes = useQuery(api.modules.academics.queries.getTeacherClasses,
-    user?.tenantId && user?.eduMylesUserId ? {
-      tenantId: user.tenantId,
-      teacherId: user.eduMylesUserId
-    } : "skip"
+  const classes = useQuery(
+    api.modules.academics.queries.getTeacherClasses,
+    {}
   );
 
   if (authLoading || classes === undefined) return <LoadingSkeleton variant="page" />;

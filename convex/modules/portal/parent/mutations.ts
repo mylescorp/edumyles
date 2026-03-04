@@ -4,6 +4,39 @@ import { requireTenantContext } from "../../../helpers/tenantGuard";
 import { requirePermission } from "../../../helpers/authorize";
 import { requireModule } from "../../../helpers/moduleGuard";
 import { logAction } from "../../../helpers/auditLog";
+<<<<<<< HEAD
+import { getChildren as _unused } from "./queries"; // for type linkage only
+
+// Reuse the helper from queries via a local definition to avoid circular imports
+async function resolveParentChildren(ctx: any, tenant: any) {
+  const guardians = await ctx.db
+    .query("guardians")
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+    .filter((q: any) => q.eq(q.field("userId"), tenant.userId))
+    .collect();
+
+  const guardianStudentIds = new Set<string>();
+  for (const g of guardians) {
+    for (const sid of g.studentIds) {
+      guardianStudentIds.add(sid);
+    }
+  }
+
+  const allStudents = await ctx.db
+    .query("students")
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+    .collect();
+
+  const children = allStudents.filter(
+    (s: any) =>
+      s.guardianUserId === tenant.userId ||
+      guardianStudentIds.has(s._id.toString())
+  );
+
+  return children;
+}
+=======
+>>>>>>> main
 
 export const initiatePayment = mutation({
   args: {
@@ -20,8 +53,23 @@ export const initiatePayment = mutation({
       throw new Error("Invoice not found");
     }
 
+<<<<<<< HEAD
+    // Ensure this invoice belongs to one of the parent's children
+    const children = await resolveParentChildren(ctx, tenant);
+    const allowedIds = new Set(
+      children.map((c: any) => c._id.toString())
+    );
+
+    if (!allowedIds.has((invoice as any).studentId)) {
+      throw new Error("FORBIDDEN: Invoice not linked to your child");
+    }
+
+    // For now we simply log the intent; actual payment actions (M-Pesa, Stripe)
+    // will be wired in Phase 11.
+=======
     // M-Pesa: use action api.actions.payments.mpesa.initiateStkPush from the client.
     // Other methods (card, cash, etc.): log only for now or wire Stripe/other gateways.
+>>>>>>> main
     await logAction(ctx, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,

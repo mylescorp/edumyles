@@ -21,8 +21,8 @@ export default function GradeEntryPage({ params }: { params: Promise<{ classId: 
     const [term, setTerm] = useState<string>("Term 1");
     const [grades, setGrades] = useState<Record<string, { score: string; remarks: string }>>({});
 
-    const classData = useQuery(api.modules.sis.queries.listClasses, { tenantId: user?.tenantId || "" })?.find(c => c._id === classId);
-    const students = useQuery(api.modules.academics.queries.getClassStudents, { tenantId: user?.tenantId || "", classId });
+    const classData = useQuery(api.modules.sis.queries.listClasses, {})?.find(c => c._id === classId);
+    const students = useQuery(api.modules.academics.queries.getClassStudents, { classId });
     const enterGradesMutation = useMutation(api.modules.academics.mutations.enterGrades);
 
     if (authLoading || classData === undefined || students === undefined) return <LoadingSkeleton variant="page" />;
@@ -64,10 +64,7 @@ export default function GradeEntryPage({ params }: { params: Promise<{ classId: 
         }));
 
         try {
-            await enterGradesMutation({
-                tenantId: user?.tenantId || "",
-                grades: payload,
-            });
+            await enterGradesMutation({ grades: payload });
             toast({ title: "Success", description: "Grades saved successfully." });
         } catch (error) {
             toast({ title: "Error", description: "Failed to save grades.", variant: "destructive" });

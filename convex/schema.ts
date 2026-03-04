@@ -235,6 +235,7 @@ export default defineSchema({
     status: v.string(),
     userId: v.optional(v.string()),
     guardianUserId: v.optional(v.string()),
+    userId: v.optional(v.string()),
     enrolledAt: v.number(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -452,7 +453,8 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_student", ["studentId", "term"])
-    .index("by_class_subject", ["classId", "subjectId", "term"]),
+    .index("by_class_subject", ["classId", "subjectId", "term"])
+    .index("by_tenant_student", ["tenantId", "studentId"]),
 
   attendance: defineTable({
     tenantId: v.string(),

@@ -21,15 +21,14 @@ export default function AttendancePage() {
     const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0]);
     const [attendance, setAttendance] = useState<Record<string, string>>({});
 
-    const classes = useQuery(api.modules.academics.queries.getTeacherClasses,
-        user?.tenantId && user?.eduMylesUserId ? {
-            tenantId: user.tenantId,
-            teacherId: user.eduMylesUserId
-        } : "skip"
+    const classes = useQuery(
+        api.modules.academics.queries.getTeacherClasses,
+        {}
     );
 
-    const students = useQuery(api.modules.academics.queries.getClassStudents,
-        selectedClassId ? { tenantId: user?.tenantId || "", classId: selectedClassId } : "skip"
+    const students = useQuery(
+        api.modules.academics.queries.getClassStudents,
+        selectedClassId ? { classId: selectedClassId } : "skip"
     );
 
     const markAttendanceMutation = useMutation(api.modules.academics.mutations.markAttendance);
@@ -52,10 +51,7 @@ export default function AttendancePage() {
         }));
 
         try {
-            await markAttendanceMutation({
-                tenantId: user?.tenantId || "",
-                records,
-            });
+            await markAttendanceMutation({ records });
             toast({ title: "Success", description: "Attendance marked successfully." });
         } catch (error) {
             toast({ title: "Error", description: "Failed to mark attendance.", variant: "destructive" });

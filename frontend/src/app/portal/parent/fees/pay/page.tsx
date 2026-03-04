@@ -64,7 +64,7 @@ export default function ParentPayFeesPage() {
       setPayDialog((d) => ({ ...d, open: false }));
       toast({
         title: "Payment initiated",
-        description: result.message ?? "Enter your M-Pesa PIN on your phone to complete the payment.",
+        description: result.message ?? "Enter your M-Pesa PIN on your phone to complete payment.",
       });
     } catch (error) {
       toast({
@@ -80,7 +80,6 @@ export default function ParentPayFeesPage() {
   if (isLoading || children === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
-
   return (
     <div className="space-y-4">
       <PageHeader
