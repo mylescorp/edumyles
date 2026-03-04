@@ -1,0 +1,115 @@
+"use node";
+
+import { action } from "../../_generated/server";
+import { v } from "convex/values";
+import { api, internal } from "../../_generated/api";
+
+const DARAJA_OAUTH = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
+const DARAJA_STK_PUSH = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+
+export const initiateStkPush = action({
+  args: {
+    invoiceId: v.id("invoices"),
+    phone: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("UNAUTHENTICATED");
+
+    const session = await ctx.runQuery(api.sessions.getSession, {
+      sessionToken: identity.tokenIdentifier,
+    });
+    if (!session) throw new Error("UNAUTHENTICATED: Session not found");
+
+    const invoice = await ctx.runQuery(api.modules.finance.queries.getInvoice, {
+      invoiceId: args.invoiceId,
+    });
+    if (!invoice || invoice.tenantId !== session.tenantId) {
+      throw new Error("Invoice not found");
+    }
+    if (invoice.status !== "pending" && invoice.status !== "partially_paid") {
+      throw new Error("Invoice not eligible for payment");
+    }
+
+    const consumerKey = process.env.CONVEX_MPESA_CONSUMER_KEY;
+    const consumerSecret = process.env.CONVEX_MPESA_CONSUMER_SECRET;
+    const passkey = process.env.CONVEX_MPESA_PASSKEY;
+    const shortcode = process.env.CONVEX_MPESA_SHORTCODE;
+    const callbackUrl = process.env.CONVEX_MPESA_CALLBACK_URL;
+
+    if (!consumerKey || !consumerSecret || !passkey || !shortcode || !callbackUrl) {
+      throw new Error("M-Pesa configuration missing. Set CONVEX_MPESA_* env vars.");
+    }
+
+    const authRes = await fetch(DARAJA_OAUTH, {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${consumerKey}:${consumerSecret}`).toString("base64")}`,
+      },
+    });
+    if (!authRes.ok) {
+      const text = await authRes.text();
+      throw new Error(`M-Pesa OAuth failed: ${authRes.status} ${text}`);
+    }
+    const authJson = (await authRes.json()) as { access_token?: string };
+    const accessToken = authJson.access_token;
+    if (!accessToken) throw new Error("M-Pesa OAuth: no access_token");
+
+    const timestamp = new Date().toISOString().replace(/[-:.]/g, "").slice(0, 14);
+    const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString("base64");
+    const phoneNorm = args.phone.replace(/\D/g, "").replace(/^0/, "254");
+
+    const stkBody = {
+      BusinessShortCode: shortcode,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: "CustomerPayBillOnline",
+      Amount: Math.round(invoice.amount),
+      PartyA: phoneNorm,
+      PartyB: shortcode,
+      PhoneNumber: phoneNorm,
+      CallBackURL: callbackUrl,
+      AccountReference: `INV-${args.invoiceId}`,
+      TransactionDesc: "EduMyles fee payment",
+    };
+
+    const stkRes = await fetch(DARAJA_STK_PUSH, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(stkBody),
+    });
+
+    const stkJson = (await stkRes.json()) as {
+      CheckoutRequestID?: string;
+      ResponseCode?: string;
+      errorMessage?: string;
+    };
+
+    if (!stkRes.ok) {
+      throw new Error(stkJson.errorMessage ?? `STK push failed: ${stkRes.status}`);
+    }
+
+    const checkoutRequestId = stkJson.CheckoutRequestID;
+    if (!checkoutRequestId) {
+      throw new Error(stkJson.errorMessage ?? "No CheckoutRequestID in response");
+    }
+
+    await ctx.runMutation(internal.modules.finance.mutations.savePaymentCallback, {
+      tenantId: session.tenantId,
+      gateway: "mpesa",
+      externalId: checkoutRequestId,
+      invoiceId: String(args.invoiceId),
+      amount: invoice.amount,
+      status: "pending",
+    });
+
+    return {
+      success: true,
+      checkoutRequestId,
+      message: "Enter your M-Pesa PIN on your phone to complete the payment.",
+    };
+  },
+});

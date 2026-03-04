@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "../../_generated/server";
+import { mutation, internalMutation } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
@@ -147,5 +147,104 @@ export const recordPayment = mutation({
 
         await logAction(ctx, { tenantId: tenant.tenantId, actorId: tenant.userId, actorEmail: tenant.email, action: "payment.recorded", entityType: "payment", entityId: paymentId, after: { invoiceId: args.invoiceId, amount: args.amount } });
         return paymentId;
+    },
+});
+
+// Used by payment actions to store pending callback (e.g. M-Pesa CheckoutRequestID)
+export const savePaymentCallback = internalMutation({
+    args: {
+        tenantId: v.string(),
+        gateway: v.string(),
+        externalId: v.string(),
+        invoiceId: v.string(),
+        amount: v.number(),
+        status: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const now = Date.now();
+        await ctx.db.insert("paymentCallbacks", {
+            tenantId: args.tenantId,
+            gateway: args.gateway,
+            externalId: args.externalId,
+            invoiceId: args.invoiceId,
+            amount: args.amount,
+            status: args.status,
+            createdAt: now,
+            updatedAt: now,
+        });
+    },
+});
+
+// Called from Next.js webhook routes with shared secret; reconciles gateway callback and records payment
+export const recordPaymentFromGateway = mutation({
+    args: {
+        webhookSecret: v.string(),
+        gateway: v.string(),
+        externalId: v.string(),
+        resultCode: v.number(), // 0 = success for M-Pesa
+        reference: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const expectedSecret = process.env.CONVEX_WEBHOOK_SECRET;
+        if (!expectedSecret || args.webhookSecret !== expectedSecret) {
+            throw new Error("Unauthorized: invalid webhook secret");
+        }
+
+        const existing = await ctx.db
+            .query("paymentCallbacks")
+            .withIndex("by_external_id", (q) =>
+                q.eq("gateway", args.gateway).eq("externalId", args.externalId)
+            )
+            .first();
+
+        if (!existing) {
+            throw new Error("Payment callback not found");
+        }
+        if (existing.status !== "pending") {
+            return { success: true, alreadyProcessed: true };
+        }
+
+        const now = Date.now();
+        if (args.resultCode !== 0) {
+            await ctx.db.patch(existing._id, { status: "failed", updatedAt: now, payload: { resultCode: args.resultCode } });
+            return { success: false, reason: "result_code_non_zero" };
+        }
+
+        const invoiceId = existing.invoiceId;
+        if (!invoiceId) {
+            await ctx.db.patch(existing._id, { status: "failed", updatedAt: now });
+            throw new Error("Callback missing invoiceId");
+        }
+
+        const invoice = await ctx.db.get(invoiceId as any);
+        if (!invoice || (invoice as any).tenantId !== existing.tenantId) {
+            await ctx.db.patch(existing._id, { status: "failed", updatedAt: now });
+            throw new Error("Invoice not found");
+        }
+        if ((invoice as any).status === "cancelled") {
+            await ctx.db.patch(existing._id, { status: "failed", updatedAt: now });
+            throw new Error("Invoice cancelled");
+        }
+
+        const amount = existing.amount ?? (invoice as any).amount;
+        const reference = args.reference ?? existing.externalId;
+
+        await ctx.db.insert("payments", {
+            tenantId: existing.tenantId,
+            invoiceId: invoiceId as any,
+            amount,
+            method: args.gateway,
+            reference,
+            status: "completed",
+            processedAt: now,
+        });
+
+        const paidSoFar = (await ctx.db.query("payments").withIndex("by_invoice", (q) => q.eq("invoiceId", invoiceId as any)).collect()).reduce((s: number, p: any) => s + p.amount, 0);
+        const newStatus = paidSoFar >= (invoice as any).amount ? "paid" : "partially_paid";
+        await ctx.db.patch(invoiceId as any, { status: newStatus, updatedAt: now });
+
+        await ctx.db.patch(existing._id, { status: "completed", reference, updatedAt: now });
+
+        return { success: true, alreadyProcessed: false };
     },
 });

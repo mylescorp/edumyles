@@ -360,6 +360,22 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_invoice", ["invoiceId"]),
 
+  paymentCallbacks: defineTable({
+    tenantId: v.string(),
+    gateway: v.string(), // mpesa | stripe | airtel
+    externalId: v.string(), // CheckoutRequestID, Stripe payment intent id, etc.
+    invoiceId: v.optional(v.string()),
+    amount: v.optional(v.number()),
+    reference: v.optional(v.string()), // M-Pesa TransID, Stripe charge id
+    payload: v.optional(v.any()),
+    status: v.string(), // pending | completed | failed
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_external_id", ["gateway", "externalId"])
+    .index("by_tenant_gateway", ["tenantId", "gateway"]),
+
   notifications: defineTable({
     tenantId: v.string(),
     userId: v.string(),
@@ -727,19 +743,4 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_student_term", ["studentId", "term", "academicYear"]),
 
-  announcements: defineTable({
-    tenantId: v.string(),
-    title: v.string(),
-    body: v.string(),
-    audience: v.string(), // all | staff | students | parents | class:<classId>
-    priority: v.string(), // normal | high | emergency
-    status: v.string(), // draft | published | archived
-    publishedAt: v.optional(v.number()),
-    createdBy: v.string(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"])
-    .index("by_tenant_status", ["tenantId", "status"])
-    .index("by_tenant_created", ["tenantId", "createdAt"]),
 });

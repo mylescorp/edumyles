@@ -20,8 +20,8 @@ export const initiatePayment = mutation({
       throw new Error("Invoice not found");
     }
 
-    // For now we simply log the intent; actual payment actions (M-Pesa, Stripe)
-    // will be wired in Phase 11.
+    // M-Pesa: use action api.actions.payments.mpesa.initiateStkPush from the client.
+    // Other methods (card, cash, etc.): log only for now or wire Stripe/other gateways.
     await logAction(ctx, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
