@@ -16,37 +16,24 @@ function resolveRole(email: string, _orgId?: string): string {
   return "school_admin";
 }
 
-function getRoleDashboard(role: string): string {
+/** Returns the dashboard path for the role (e.g. /platform, /admin). */
+function getRoleDashboardPath(role: string): string {
   switch (role) {
     case "master_admin":
     case "super_admin":
-      return process.env.NEXT_PUBLIC_APP_URL
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/platform`
-        : "/";
+      return "/platform";
     case "teacher":
-      return process.env.NEXT_PUBLIC_APP_URL
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/portal/teacher`
-        : "/";
+      return "/portal/teacher";
     case "parent":
-      return process.env.NEXT_PUBLIC_APP_URL
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/portal/parent`
-        : "/";
+      return "/portal/parent";
     case "student":
-      return process.env.NEXT_PUBLIC_APP_URL
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/portal/student`
-        : "/";
+      return "/portal/student";
     case "alumni":
-      return process.env.NEXT_PUBLIC_APP_URL
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/portal/alumni`
-        : "/";
+      return "/portal/alumni";
     case "partner":
-      return process.env.NEXT_PUBLIC_APP_URL
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/portal/partner`
-        : "/";
+      return "/portal/partner";
     default:
-      return process.env.NEXT_PUBLIC_APP_URL
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/admin`
-        : "/";
+      return "/admin";
   }
 }
 
@@ -121,10 +108,10 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const dashboard = getRoleDashboard(role);
-    const redirectTarget = dashboard.startsWith("http")
-      ? dashboard
-      : `${baseUrl}${dashboard === "/" ? "" : dashboard}`;
+    const dashboardPath = getRoleDashboardPath(role);
+    const appOrigin =
+      process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || baseUrl;
+    const redirectTarget = `${appOrigin}${dashboardPath}`;
     const response = NextResponse.redirect(redirectTarget);
 
     response.cookies.set("edumyles_session", sessionToken, {
@@ -163,7 +150,7 @@ export async function GET(request: NextRequest) {
       path: "/",
     });
 
-    console.log(`[auth/callback] ${email} → ${role} → ${dashboard}`);
+    console.log(`[auth/callback] ${email} → ${role} → ${redirectTarget}`);
     return response;
   } catch (err) {
     console.error("[auth/callback]", err);
