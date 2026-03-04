@@ -50,9 +50,9 @@ export default function PartnerMessagesPage() {
               <Label htmlFor="message">Your message</Label>
               <Textarea
                 id="message"
-                placeholder="Type your message to the school administration…”
+                placeholder="Type your message to the school administration..."
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                 rows={4}
                 className="mt-2"
               />
