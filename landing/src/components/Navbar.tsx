@@ -174,15 +174,15 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <a className="navbar-login" href="/auth/login">
+              <Link className="navbar-login" href="/auth/login">
                 Log In
-              </a>
-              <a className="navbar-get-started" href="/auth/signup">
+              </Link>
+              <Link className="navbar-get-started" href="/auth/signup">
                 Get Started
-              </a>
-              <a className="navbar-signup" href="/auth/signup">
+              </Link>
+              <Link className="navbar-signup" href="/auth/signup">
                 Sign Up Free
-              </a>
+              </Link>
             </>
           )}
 
@@ -232,15 +232,15 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <a href="/auth/login" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/auth/login" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
                   Log In
-                </a>
-                <a href="/auth/signup" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+                </Link>
+                <Link href="/auth/signup" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
                   Get Started
-                </a>
-                <a href="/auth/signup" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
+                </Link>
+                <Link href="/auth/signup" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
                   Sign Up Free
-                </a>
+                </Link>
               </>
             )}
 

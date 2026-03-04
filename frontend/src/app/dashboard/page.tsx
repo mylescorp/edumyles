@@ -44,8 +44,12 @@ export default function DashboardRedirectPage() {
           router.push("/admin");
       }
     } else if (!isLoading && !role) {
-      // No role, redirect to login
-      router.push("/auth/login");
+      const authBase = process.env.NEXT_PUBLIC_AUTH_BASE_URL;
+      if (authBase) {
+        window.location.href = `${authBase}/auth/login`;
+      } else {
+        router.push("/auth/login");
+      }
     }
   }, [isLoading, role, router]);
 

@@ -8,27 +8,47 @@ This document provides the complete checklist for configuring WorkOS authenticat
 
 ## 📋 Environment Variables Configuration
 
-### Required Environment Variables for Vercel
+### Required Environment Variables for Vercel (Landing app — edumyles.vercel.app)
+
+The **landing** app is the auth entrypoint. Set these on the Vercel project that serves **edumyles.vercel.app** (root `vercel.json` builds `landing`):
 
 ```bash
-# WorkOS Authentication
+# WorkOS (required for login/signup/callback)
 WORKOS_API_KEY=sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 NEXT_PUBLIC_WORKOS_CLIENT_ID=client_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 WORKOS_REDIRECT_URI=https://edumyles.vercel.app/auth/callback
-NEXT_PUBLIC_WORKOS_REDIRECT_URI=https://edumyles.vercel.app/auth/callback
-WORKOS_COOKIE_PASSWORD=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-WORKOS_ORGANIZATION_ID=org_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-MASTER_ADMIN_EMAIL=admin@edumyles.com
+# Optional: NEXT_PUBLIC_WORKOS_REDIRECT_URI same as above if needed by client
 
-# Application URLs
-NEXT_PUBLIC_APP_URL=https://edumyles.vercel.app
-NEXT_PUBLIC_LANDING_URL=https://edumyles.vercel.app
-
-# Convex Configuration
+# Convex (required for session creation in callback)
 NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
-CONVEX_DEPLOY_KEY=prod:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-CONVEX_ADMIN_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Optional: where to send users after login (if app is on another domain)
+# NEXT_PUBLIC_APP_URL=https://app.edumyles.vercel.app
+MASTER_ADMIN_EMAIL=admin@edumyles.com
 ```
+
+### If you also deploy the frontend app (e.g. app.edumyles.vercel.app)
+
+On the **frontend** Vercel project, set:
+
+```bash
+# Redirect unauthenticated users to landing auth
+NEXT_PUBLIC_AUTH_BASE_URL=https://edumyles.vercel.app
+# Plus your existing Convex and app env vars
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+```
+
+### Auth routing summary
+
+| Action              | Route / behavior |
+|---------------------|------------------|
+| Get Started button  | `/auth/signup` (landing) |
+| Sign in / Log in    | `/auth/login` (landing) |
+| Sign up             | `/auth/signup` (landing) |
+| WorkOS callback     | `/auth/callback` (landing) — creates Convex session, sets cookies, redirects by role |
+| Logout              | `/auth/logout` (landing) — clears cookies, redirects to `/` |
+
+All auth uses the **WorkOS SDK** (`@workos-inc/node`): `getAuthorizationUrl` and `authenticateWithCode`. Redirect URI in WorkOS Dashboard must be exactly `https://edumyles.vercel.app/auth/callback`.
 
 ---
 

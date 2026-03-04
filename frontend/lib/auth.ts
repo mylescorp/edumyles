@@ -8,7 +8,11 @@ const SESSION_COOKIE_NAME = "edumyles_session";
 
 function redirectToLogin(nextPath: string): never {
   const next = encodeURIComponent(nextPath);
-  redirect(`/auth/login?next=${next}`);
+  const authBase = process.env.NEXT_PUBLIC_AUTH_BASE_URL;
+  const url = authBase
+    ? `${authBase}/auth/login?next=${next}`
+    : `/auth/login?next=${next}`;
+  redirect(url);
 }
 
 export async function requireSession(nextPath: string) {

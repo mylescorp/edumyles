@@ -3,7 +3,8 @@ import { WorkOS } from "@workos-inc/node";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const email = body?.email;
     const apiKey = process.env.WORKOS_API_KEY;
     const clientId =
       process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID ||

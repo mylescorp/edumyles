@@ -115,7 +115,7 @@ export const createNotification = mutation({
             message: args.message,
             type: args.type,
             isRead: false,
-            link: args.link,
+            ...(args.link ? { link: args.link } : {}),
             createdAt: Date.now(),
         });
     },

@@ -1,12 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverActions: {
-    allowedOrigins: [
-      "localhost:3000",
-      "edumyles.vercel.app",
-      "edumyles-app.vercel.app",
-    ],
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        "localhost:3000",
+        "edumyles.vercel.app",
+        "edumyles-app.vercel.app",
+      ],
+    },
   },
   env: {
     NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL ?? "",

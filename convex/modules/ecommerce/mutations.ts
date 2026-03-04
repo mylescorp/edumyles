@@ -93,7 +93,7 @@ export const addToCart = mutation({
         if (existing) {
             const items = [...existing.items];
             const idx = items.findIndex((i) => i.productId === args.productId);
-            if (idx >= 0) {
+            if (idx >= 0 && items[idx]) {
                 items[idx] = { ...items[idx], quantity: items[idx].quantity + args.quantity };
             } else {
                 items.push(item);
