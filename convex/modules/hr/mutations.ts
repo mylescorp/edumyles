@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
+import type { Id } from "../../_generated/dataModel";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
@@ -136,7 +137,7 @@ export const createContract = mutation({
         await requireModule(ctx, tenant.tenantId, "hr");
         requirePermission(tenant, "staff:write");
 
-        const staff = await ctx.db.get(args.staffId as any);
+        const staff = await ctx.db.get(args.staffId as unknown as Id<"staff">);
         if (!staff || staff.tenantId !== tenant.tenantId) throw new Error("Staff not found");
 
         const id = await ctx.db.insert("staffContracts", {
@@ -144,12 +145,12 @@ export const createContract = mutation({
             staffId: args.staffId,
             type: args.type,
             startDate: args.startDate,
-            endDate: args.endDate,
-            salaryCents: args.salaryCents,
             currency: args.currency,
             status: "active",
             createdAt: Date.now(),
             updatedAt: Date.now(),
+            ...(args.endDate ? { endDate: args.endDate } : {}),
+            ...(args.salaryCents !== undefined ? { salaryCents: args.salaryCents } : {}),
         });
         await logAction(ctx, {
             tenantId: tenant.tenantId,

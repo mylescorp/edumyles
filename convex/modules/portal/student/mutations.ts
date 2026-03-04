@@ -5,104 +5,77 @@ import { requireModule } from "../../../helpers/moduleGuard";
 import { logAction } from "../../../helpers/auditLog";
 
 export const submitAssignment = mutation({
-    args: {
-        assignmentId: v.id("assignments"),
-        attachments: v.array(v.string()),
-    },
-    handler: async (ctx, args) => {
-<<<<<<< HEAD
-=======
-        if (args.attachments.length === 0) {
-            throw new Error("At least one attachment is required");
-        }
->>>>>>> main
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "academics");
+  args: {
+    assignmentId: v.id("assignments"),
+    attachments: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (args.attachments.length === 0) {
+      throw new Error("At least one attachment is required");
+    }
+    const fileUrl = args.attachments[0]!;
 
-        const student = await ctx.db
-            .query("students")
-            .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
-            .first();
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
 
-        if (!student) {
-            throw new Error("Student profile not found");
-        }
+    const student = await ctx.db
+      .query("students")
+      .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
+      .first();
 
-        const assignment = await ctx.db.get(args.assignmentId);
-        if (!assignment || assignment.tenantId !== tenant.tenantId) {
-            throw new Error("Assignment not found");
-        }
+    if (!student) {
+      throw new Error("Student profile not found");
+    }
 
-        const existingSubmission = await ctx.db
-            .query("submissions")
-<<<<<<< HEAD
-            .withIndex("by_tenant_student", (q) =>
-                q.eq("tenantId", tenant.tenantId).eq("studentId", student._id)
-=======
-            .withIndex("by_student", (q) =>
-                q.eq("studentId", student._id.toString())
->>>>>>> main
-            )
-            .filter(q => q.eq(q.field("assignmentId"), args.assignmentId))
-            .first();
+    const assignment = await ctx.db.get(args.assignmentId);
+    if (!assignment || assignment.tenantId !== tenant.tenantId) {
+      throw new Error("Assignment not found");
+    }
 
-<<<<<<< HEAD
-        const status = assignment.dueDate < Date.now() ? "late" : "submitted";
-=======
-        // Convert dueDate string (YYYY-MM-DD) to epoch for comparison if needed, 
-        // but schema says dueDate is v.string(). If it's ISO, string comparison works.
-        const status = (assignment.dueDate < new Date().toISOString().split('T')[0]) ? "late" : "submitted";
->>>>>>> main
+    const existingSubmission = await ctx.db
+      .query("submissions")
+      .withIndex("by_student", (q) => q.eq("studentId", student._id.toString()))
+      .filter((q) => q.eq(q.field("tenantId"), tenant.tenantId))
+      .filter((q) => q.eq(q.field("assignmentId"), args.assignmentId))
+      .first();
 
-        let submissionId;
-        if (existingSubmission) {
-            if (existingSubmission.status === "graded") {
-                throw new Error("Cannot resubmit a graded assignment");
-            }
-            submissionId = existingSubmission._id;
-            await ctx.db.patch(submissionId, {
-<<<<<<< HEAD
-                attachments: args.attachments,
-                status,
-                submittedAt: Date.now(),
-                updatedAt: Date.now(),
-=======
-                fileUrl: args.attachments[0],
-                status,
-                submittedAt: Date.now(),
->>>>>>> main
-            });
-        } else {
-            submissionId = await ctx.db.insert("submissions", {
-                tenantId: tenant.tenantId,
-                assignmentId: args.assignmentId,
-<<<<<<< HEAD
-                studentId: student._id,
-                status,
-                attachments: args.attachments,
-                submittedAt: Date.now(),
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-=======
-                studentId: student._id.toString(),
-                status,
-                fileUrl: args.attachments[0],
-                submittedAt: Date.now(),
-                createdAt: Date.now(),
->>>>>>> main
-            });
-        }
+    const today = new Date().toISOString().split("T")[0] ?? "";
+    const status = assignment.dueDate < today ? "late" : "submitted";
 
-        await logAction(ctx, {
-            tenantId: tenant.tenantId,
-            actorId: tenant.userId,
-            actorEmail: tenant.email,
-            action: "assignment.submitted",
-            entityType: "submission",
-            entityId: submissionId,
-            after: { assignmentId: args.assignmentId, status },
-        });
+    let submissionId;
+    if (existingSubmission) {
+      if (existingSubmission.status === "graded") {
+        throw new Error("Cannot resubmit a graded assignment");
+      }
+      submissionId = existingSubmission._id;
+      await ctx.db.patch(submissionId, {
+        fileUrl,
+        status,
+        submittedAt: Date.now(),
+      });
+    } else {
+      submissionId = await ctx.db.insert("submissions", {
+        tenantId: tenant.tenantId,
+        assignmentId: args.assignmentId,
+        studentId: student._id.toString(),
+        status,
+        fileUrl,
+        submittedAt: Date.now(),
+        createdAt: Date.now(),
+      });
+    }
 
-        return submissionId;
-    },
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "assignment.submitted",
+      entityType: "submission",
+      entityId: submissionId,
+      after: { assignmentId: args.assignmentId, status },
+    });
+
+    return submissionId;
+  },
 });
+

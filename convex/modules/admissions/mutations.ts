@@ -68,26 +68,28 @@ export const enrollFromApplication = mutation({
         // 1. Create Student record
         const studentId = await ctx.db.insert("students", {
             tenantId: tenant.tenantId,
-            admissionNo: args.admissionNo,
-            firstName: application.studentInfo.firstName,
-            lastName: application.studentInfo.lastName,
-            dateOfBirth: application.studentInfo.dateOfBirth,
-            gender: application.studentInfo.gender,
-            classId: args.classId,
+            admissionNumber: args.admissionNo,
+            firstName: application.firstName,
+            lastName: application.lastName,
+            dateOfBirth: application.dateOfBirth,
+            gender: application.gender,
             status: "active",
             enrolledAt: Date.now(),
             createdAt: Date.now(),
             updatedAt: Date.now(),
+            ...(args.classId ? { classId: args.classId } : {}),
         });
 
         // 2. Create Guardian record
+        const [guardianFirstName, ...guardianRest] = application.guardianName.split(" ").filter(Boolean);
+        const guardianLastName = guardianRest.join(" ") || "Guardian";
         const guardianId = await ctx.db.insert("guardians", {
             tenantId: tenant.tenantId,
-            firstName: application.guardianInfo.firstName,
-            lastName: application.guardianInfo.lastName,
-            phone: application.guardianInfo.phone,
-            email: application.guardianInfo.email || "",
-            relationship: application.guardianInfo.relationship as any,
+            firstName: guardianFirstName || "Guardian",
+            lastName: guardianLastName,
+            phone: application.guardianPhone,
+            email: application.guardianEmail || "",
+            relationship: "guardian",
             studentIds: [studentId.toString()],
             createdAt: Date.now(),
             updatedAt: Date.now(),

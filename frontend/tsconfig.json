@@ -13,25 +13,22 @@
     ],
     "paths": {
       "@/*": [
-        "./src/*"
+        "./frontend/src/*"
       ],
       "@/convex/*": [
-        "./convex/*"
+        "./frontend/convex/*"
       ],
       "@shared/*": [
-        "../shared/src/*"
+        "./shared/src/*"
       ],
       "@shared/types": [
-        "../shared/src/types/index.ts"
+        "./shared/src/types/index.ts"
       ],
       "@shared/constants": [
-        "../shared/src/constants/index.ts"
+        "./shared/src/constants/index.ts"
       ],
       "@shared/validators": [
-        "../shared/src/validators/index.ts"
-      ],
-      "../../convex/_generated/api": [
-        "../convex/_generated/api"
+        "./shared/src/validators/index.ts"
       ]
     },
     "allowJs": true

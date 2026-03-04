@@ -46,8 +46,8 @@ export const topUp = mutation({
             walletId: walletId,
             type: "top_up",
             amountCents: args.amountCents,
-            reference: args.reference,
             createdAt: now,
+            ...(args.reference ? { reference: args.reference } : {}),
         });
         await ctx.db.patch(walletId, {
             balanceCents: wallet.balanceCents + args.amountCents,
@@ -86,9 +86,9 @@ export const spend = mutation({
             walletId: wallet._id,
             type: "spend",
             amountCents: -args.amountCents,
-            reference: args.reference,
-            orderId: args.orderId,
             createdAt: now,
+            ...(args.reference ? { reference: args.reference } : {}),
+            ...(args.orderId ? { orderId: args.orderId } : {}),
         });
         await ctx.db.patch(wallet._id, {
             balanceCents: wallet.balanceCents - args.amountCents,

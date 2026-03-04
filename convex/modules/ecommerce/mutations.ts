@@ -25,13 +25,13 @@ export const createProduct = mutation({
         return await ctx.db.insert("products", {
             tenantId: tenant.tenantId,
             name: args.name,
-            description: args.description,
             priceCents: args.priceCents,
             stock: Math.max(0, args.stock),
-            category: args.category,
             status: "active",
             createdAt: now,
             updatedAt: now,
+            ...(args.description ? { description: args.description } : {}),
+            ...(args.category ? { category: args.category } : {}),
         });
     },
 });
@@ -55,7 +55,11 @@ export const updateProduct = mutation({
         if (!product || product.tenantId !== tenant.tenantId) throw new Error("Product not found");
 
         const { productId, ...updates } = args;
-        await ctx.db.patch(productId, { ...updates, updatedAt: Date.now() });
+        const patch: Record<string, unknown> = { updatedAt: Date.now() };
+        for (const [key, value] of Object.entries(updates)) {
+            if (value !== undefined) patch[key] = value;
+        }
+        await ctx.db.patch(productId, patch);
         return productId;
     },
 });
@@ -94,7 +98,7 @@ export const addToCart = mutation({
             const items = [...existing.items];
             const idx = items.findIndex((i) => i.productId === args.productId);
             if (idx >= 0) {
-                items[idx] = { ...items[idx], quantity: items[idx].quantity + args.quantity };
+                items[idx] = { ...items[idx]!, quantity: items[idx]!.quantity + args.quantity };
             } else {
                 items.push(item);
             }

@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
+import type { Id } from "../../_generated/dataModel";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
@@ -119,9 +120,9 @@ export const getReceiptData = query({
 
         const payment = await ctx.db.get(args.paymentId);
         if (!payment || payment.tenantId !== tenant.tenantId) return null;
-        const invoice = await ctx.db.get(payment.invoiceId as any);
+        const invoice = await ctx.db.get(payment.invoiceId as unknown as Id<"invoices">);
         if (!invoice || invoice.tenantId !== tenant.tenantId) return { payment, invoice: null };
-        const student = await ctx.db.get(invoice.studentId as any);
+        const student = await ctx.db.get(invoice.studentId as unknown as Id<"students">);
         return { payment, invoice, student: student ?? undefined };
     },
 });

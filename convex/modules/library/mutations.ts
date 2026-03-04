@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
+import type { Id } from "../../_generated/dataModel";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
@@ -23,7 +24,6 @@ export const createBook = mutation({
         const q = Math.max(0, args.quantity);
         const id = await ctx.db.insert("books", {
             tenantId: tenant.tenantId,
-            isbn: args.isbn,
             title: args.title,
             author: args.author,
             category: args.category,
@@ -31,6 +31,7 @@ export const createBook = mutation({
             availableQuantity: q,
             createdAt: Date.now(),
             updatedAt: Date.now(),
+            ...(args.isbn ? { isbn: args.isbn } : {}),
         });
         return id;
     },
@@ -129,9 +130,10 @@ export const returnBook = mutation({
             updatedAt: now,
         });
 
-        const book = await ctx.db.get(borrow.bookId as any);
+        const bookId = borrow.bookId as unknown as Id<"books">;
+        const book = await ctx.db.get(bookId);
         if (book) {
-            await ctx.db.patch(borrow.bookId as any, {
+            await ctx.db.patch(bookId, {
                 availableQuantity: book.availableQuantity + 1,
                 updatedAt: now,
             });

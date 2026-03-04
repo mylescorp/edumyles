@@ -77,9 +77,9 @@ export const requestTranscript = mutation({
             userId: tenant.userId,
             type: args.type,
             status: "pending",
-            notes: args.notes,
             createdAt: Date.now(),
             updatedAt: Date.now(),
+            ...(args.notes ? { notes: args.notes } : {}),
         });
 
         await logAction(ctx, {

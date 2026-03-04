@@ -28,7 +28,7 @@ export const listAuditLogs = query({
         } else if (args.userId) {
             logs = await ctx.db
                 .query("auditLogs")
-                .withIndex("by_user", (q) => q.eq("userId", args.userId!))
+                .withIndex("by_actor", (q) => q.eq("actorId", args.userId!))
                 .order("desc")
                 .take(limit);
         } else {
@@ -52,7 +52,7 @@ export const listAuditLogs = query({
 
                 const user = await ctx.db
                     .query("users")
-                    .filter((q) => q.eq(q.field("eduMylesUserId"), log.userId))
+                    .filter((q) => q.eq(q.field("eduMylesUserId"), log.actorId))
                     .first();
 
                 return {
@@ -60,8 +60,8 @@ export const listAuditLogs = query({
                     tenantName: tenant?.name ?? log.tenantId,
                     userName: user
                         ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
-                        : log.userId,
-                    userEmail: user?.email ?? "",
+                        : log.actorId,
+                    userEmail: user?.email ?? log.actorEmail,
                 };
             })
         );
