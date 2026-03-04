@@ -42,14 +42,63 @@ export function createMockTenantContext(tenantId: string, role: string) {
 
 function getMockPermissions(role: string): string[] {
   const permissions: Record<string, string[]> = {
-    master_admin: ['platform:admin', 'users:manage', 'settings:write', 'students:read', 'students:write'],
-    super_admin: ['platform:admin', 'users:manage', 'settings:write', 'reports:read'],
-    school_admin: ['users:manage', 'settings:write', 'students:read', 'students:write'],
-    teacher: ['students:read', 'grades:read', 'grades:write'],
-    parent: ['students:read', 'grades:read'],
-    student: ['grades:read'],
-    alumni: ['grades:read', 'reports:read'],
-    partner: ['students:read', 'finance:read', 'reports:read'],
+    master_admin: [
+      'platform:admin', 'users:manage', 'settings:write', 'settings:read',
+      'students:read', 'students:write', 'students:delete',
+      'finance:read', 'finance:write', 'finance:approve',
+      'staff:read', 'staff:write',
+      'grades:read', 'grades:write',
+      'attendance:read', 'attendance:write',
+      'payroll:read', 'payroll:write', 'payroll:approve',
+      'library:read', 'library:write',
+      'transport:read', 'transport:write',
+      'reports:read'
+    ],
+    super_admin: [
+      'platform:admin', 'users:manage', 'settings:write', 'settings:read', 'reports:read'
+    ],
+    school_admin: [
+      'users:manage', 'settings:write', 'settings:read',
+      'students:read', 'students:write',
+      'staff:read', 'staff:write',
+      'finance:read', 'reports:read',
+      'attendance:read', 'grades:read'
+    ],
+    teacher: [
+      'students:read', 'grades:read', 'grades:write',
+      'attendance:read', 'attendance:write'
+    ],
+    parent: [
+      'students:read', 'grades:read', 'attendance:read', 'finance:read'
+    ],
+    student: [
+      'grades:read', 'attendance:read'
+    ],
+    alumni: [
+      'grades:read', 'reports:read', 'attendance:read'
+    ],
+    partner: [
+      'students:read', 'finance:read', 'reports:read', 'communications:read'
+    ],
+    principal: [
+      'students:read', 'staff:read', 'grades:read', 'grades:write',
+      'attendance:read', 'attendance:write', 'reports:read', 'settings:read', 'finance:read'
+    ],
+    bursar: [
+      'finance:read', 'finance:write', 'finance:approve', 'reports:read'
+    ],
+    hr_manager: [
+      'staff:read', 'staff:write', 'payroll:read', 'payroll:write', 'reports:read'
+    ],
+    librarian: [
+      'library:read', 'library:write', 'students:read'
+    ],
+    transport_manager: [
+      'transport:read', 'transport:write', 'students:read'
+    ],
+    board_member: [
+      'reports:read', 'finance:read', 'students:read'
+    ]
   };
   return permissions[role] || [];
 }
@@ -82,7 +131,7 @@ export function createMockUser(overrides: Partial<DataModel['users']> = {}) {
     lastName: 'User',
     role: 'school_admin',
     permissions: ['users:manage', 'settings:write'],
-    organizationId: 'org-id' as any,
+    organizationId: 'org-id' as string,
     isActive: true,
     createdAt: Date.now(),
     ...overrides,

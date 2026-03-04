@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
-
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 // ── Data ────────────────────────────────────────────────────
 
@@ -48,135 +47,91 @@ const moduleCategories = [
     key: "finance",
     label: "Finance & Billing",
     description:
-      "Streamline fee collection with M-Pesa, Airtel Money, Stripe, and bank transfers. Auto-generate invoices, track payments, and manage bursaries.",
+      "Streamline fee collection, invoicing, and financial reporting with support for local payment methods and automated reminders.",
     apps: [
-      { name: "Finance & Fees", desc: "Fee collection, invoices, receipts" },
-      { name: "eWallet", desc: "Digital wallet for students & parents" },
-      { name: "School Shop", desc: "Uniform, books, supplies store" },
+      { name: "Fee Management", desc: "Tuition, billing, payment plans" },
+      { name: "M-Pesa Integration", desc: "Mobile money payments" },
+      { name: "Financial Reports", desc: "Revenue, expenses, analytics" },
+      { name: "Payment Reminders", desc: "Automated notifications" },
     ],
   },
   {
     key: "operations",
-    label: "Operations",
+    label: "Operations & HR",
     description:
-      "Schedule timetables, manage transport routes, organise library resources, and run HR & payroll — all from one dashboard.",
+      "Manage staff, payroll, inventory, and facilities with comprehensive tools for school administration and resource management.",
     apps: [
-      { name: "Timetable & Scheduling", desc: "Scheduling, substitutions, room bookings" },
-      { name: "HR & Payroll", desc: "Staff records, attendance, payroll" },
-      { name: "Transport", desc: "Routes, vehicles, student tracking" },
-      { name: "Library", desc: "Book catalog, borrowing, fines" },
+      { name: "HR Management", desc: "Staff records, payroll, attendance" },
+      { name: "Inventory", desc: "Assets, supplies, tracking" },
+      { name: "Facilities", desc: "Classroom scheduling, maintenance" },
+      { name: "Transport", desc: "Bus routes, fleet management" },
     ],
   },
-];
-
-const successStories = [
-  {
-    school: "Greenfield Academy",
-    location: "Nairobi, Kenya",
-    quote:
-      "EduMyles replaced 5 different tools we were using. Our admin team now spends 60% less time on manual data entry.",
-    person: "Sarah Mwangi",
-    role: "Principal",
-    metric: "60%",
-    metricLabel: "less admin time",
-  },
-  {
-    school: "Kampala International School",
-    location: "Kampala, Uganda",
-    quote:
-      "Fee collection used to be our biggest headache. With M-Pesa integration, parents pay on time and we have full visibility.",
-    person: "David Okello",
-    role: "Bursar",
-    metric: "85%",
-    metricLabel: "on-time payments",
-  },
-  {
-    school: "Dar es Salaam Prep",
-    location: "Dar es Salaam, Tanzania",
-    quote:
-      "Rolling out across 3 campuses was seamless. Each campus has its own setup but we see everything from one dashboard.",
-    person: "Amina Hassan",
-    role: "School Administrator",
-    metric: "3",
-    metricLabel: "campuses unified",
-  },
-];
-
-const pricingTiers = [
-  {
-    name: "Starter",
-    price: "Free",
-    period: "",
-    description: "For small schools getting started",
-    modules: ["Student Information", "Admissions", "Finance & Fees", "Communications"],
-    cta: "Get Started Free",
-    highlight: false,
-  },
-  {
-    name: "Standard",
-    price: "$3",
-    period: "/student/month",
-    description: "For growing schools that need more",
-    modules: [
-      "Everything in Starter",
-      "Timetable & Scheduling",
-      "Academics & Gradebook",
-    ],
-    cta: "Start Free Trial",
-    highlight: true,
-  },
-  {
-    name: "Pro",
-    price: "$5",
-    period: "/student/month",
-    description: "For established institutions",
-    modules: [
-      "Everything in Standard",
-      "HR & Payroll",
-      "Library",
-      "Transport",
-    ],
-    cta: "Start Free Trial",
-    highlight: false,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "For multi-campus networks & partners",
-    modules: [
-      "Everything in Pro",
-      "eWallet",
-      "School Shop",
-      "White-label & API access",
-      "Dedicated support",
-    ],
-    cta: "Contact Sales",
-    highlight: false,
-  },
-];
-
-const reviewPlatforms = [
-  { name: "G2", rating: "4.6" },
-  { name: "Capterra", rating: "4.5" },
-  { name: "GetApp", rating: "4.5" },
 ];
 
 const trustedSchools = [
-  "Greenfield Academy",
+  "Nairobi Academy",
   "Kampala International",
+  "Dar es Salaam School",
+  "Addis Ababa Academy",
+  "Kigali Heights School",
+  "Mombasa Scholars",
+  "Entebbe Prep",
+  "Arusha International",
+  "Bujumbura School",
   "Dar Prep",
   "Kigali Heights School",
   "Addis Scholars",
   "Accra Montessori",
 ];
 
-// ── Component ───────────────────────────────────────────────
-
-export default function LandingPage() {
+function LandingPageContent() {
   const [activeTab, setActiveTab] = useState("student");
+  const [authError, setAuthError] = useState("");
+  const [user, setUser] = useState<any>(null);
+  const searchParams = useSearchParams();
 
   const activeCategory = moduleCategories.find((c) => c.key === activeTab)!;
+
+  // Handle auth errors from URL parameters
+  useEffect(() => {
+    const error = searchParams.get("auth_error");
+    if (error) {
+      const decoded = decodeURIComponent(error);
+      // Basic sanitization to avoid rendering raw HTML-like characters
+      const safeError = decoded.replace(/[<>]/g, "");
+      setAuthError(safeError);
+      // Clear error from URL
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete("auth_error");
+      window.history.replaceState({}, "", newUrl.toString());
+    }
+  }, [searchParams]);
+
+  // Check for user session on mount
+  useEffect(() => {
+    const userCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("edumyles_user="));
+    
+    if (userCookie) {
+      try {
+        const cookieValue = userCookie.split("=")[1];
+        if (cookieValue) {
+          const userData = JSON.parse(decodeURIComponent(cookieValue));
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Failed to parse user cookie:", error);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    document.cookie = "edumyles_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "edumyles_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setUser(null);
+  };
 
   return (
     <>
@@ -186,16 +141,68 @@ export default function LandingPage() {
       <section className="hero">
         <div className="hero-content">
           <p className="eyebrow">EduMyles</p>
-          <h1>The operating system for schools in East Africa.</h1>
+          <h1>Transforming schools, one mile at a time.</h1>
+          
+          {/* Auth Error Display */}
+          {authError && (
+            <div className="auth-error-banner" style={{
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fecaca',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              marginBottom: '20px',
+              color: '#dc2626'
+            }}>
+              <strong>Authentication Error:</strong> {authError}
+            </div>
+          )}
+
+          {/* User Info Display */}
+          {user && (
+            <div className="user-welcome" style={{
+              backgroundColor: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              marginBottom: '20px',
+              color: '#166534'
+            }}>
+              <strong>Welcome back, {user.firstName || user.email.split('@')[0]}!</strong>
+              <br />
+              <span style={{ fontSize: '14px' }}>You are logged in as {user.email}</span>
+              <button 
+                onClick={handleLogout}
+                style={{
+                  marginLeft: '12px',
+                  padding: '4px 12px',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px'
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          )}
+
           <p className="subtext">
-            Replace disconnected spreadsheets, WhatsApp groups, and siloed
-            tools with one unified platform for admissions, billing,
-            academics, HR, and communication.
+            EduMyles is the operating system for schools across Africa — intuitive, affordable technology
+            that simplifies administration, enhances learning outcomes, and connects every stakeholder in
+            the education journey.
           </p>
           <div className="actions">
-            <a className="btn btn-primary" href="http://localhost:3000/dashboard">
-              Sign Up Free
-            </a>
+            {user ? (
+              <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
+                Go to Dashboard
+              </a>
+            ) : (
+              <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
+                Sign Up Free
+              </a>
+            )}
             <a className="btn btn-secondary" href="/concierge">
               Contact Sales
             </a>
@@ -239,6 +246,7 @@ export default function LandingPage() {
                   <div className="mockup-table-row" />
                   <div className="mockup-table-row" />
                   <div className="mockup-table-row" />
+                  <div className="mockup-table-row" />
                 </div>
               </div>
             </div>
@@ -247,44 +255,16 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════════════════════════════════════════════
-          2. SOCIAL PROOF / STATS — Off-White
+          2. STATS — Dark Green Section
       ════════════════════════════════════════════════════ */}
-      <section className="social-proof-section" id="features">
-        {/* Review Ratings */}
-        <div className="review-bar">
-          <div className="review-overall">
-            <span className="review-score">4.5/5</span>
-            <span className="review-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span>
-            <span className="review-count">Based on 500+ reviews</span>
-          </div>
-          <div className="review-platforms">
-            {reviewPlatforms.map((p) => (
-              <div key={p.name} className="review-platform">
-                <span className="platform-name">{p.name}</span>
-                <span className="platform-rating">{p.rating}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats */}
+      <section className="stats-section">
         <div className="stats-grid">
-          {stats.map((item) => (
-            <div key={item.label} className="stat-item">
-              <div className="stat-value">{item.value}</div>
-              <div className="stat-label">{item.label}</div>
+          {stats.map((stat, index) => (
+            <div key={index} className="stat-card">
+              <div className="stat-value">{stat.value}</div>
+              <div className="stat-label">{stat.label}</div>
             </div>
           ))}
-        </div>
-
-        {/* Trusted By */}
-        <div className="trusted-by">
-          <p className="trusted-label">Trusted by schools across East Africa</p>
-          <div className="trusted-logos">
-            {trustedSchools.map((school) => (
-              <span key={school} className="school-logo">{school}</span>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -295,34 +275,30 @@ export default function LandingPage() {
         <div className="section-header centered">
           <h2>Why schools choose EduMyles</h2>
           <p className="section-subtitle">
-            Built from the ground up for how schools in East Africa actually operate.
+            Built specifically for East African schools with local payment methods,
+            curricula support, and multi-language capabilities.
           </p>
         </div>
-        <div className="highlights" aria-label="Platform highlights">
-          {highlights.map((item) => (
-            <article key={item.title} className="panel">
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-              <a href="/features" className="panel-link">
-                Learn more &rarr;
-              </a>
-            </article>
+        <div className="highlights-grid">
+          {highlights.map((highlight, index) => (
+            <div key={index} className="highlight-card">
+              <h3>{highlight.title}</h3>
+              <p>{highlight.description}</p>
+            </div>
           ))}
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════════
-          4. MODULE CATEGORIES — Tab-Based (White)
+          4. MODULES — Interactive Tabs
       ════════════════════════════════════════════════════ */}
-      <section className="modules-section" id="modules">
+      <section className="modules-section">
         <div className="section-header centered">
           <h2>11 modules. One platform.</h2>
           <p className="section-subtitle">
-            Every tool your school needs — student management, finance,
-            operations — working together seamlessly.
+            Everything you need to run your school efficiently — from admissions to alumni.
           </p>
         </div>
-
         <div className="module-tabs">
           {moduleCategories.map((cat) => (
             <button
@@ -339,8 +315,8 @@ export default function LandingPage() {
           <div className="module-tab-text">
             <h3>{activeCategory.label}</h3>
             <p>{activeCategory.description}</p>
-            <a className="btn btn-primary" href="http://localhost:3000/dashboard">
-              Try It Free
+            <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
+              {user ? "Explore in Dashboard" : "Try It Free"}
             </a>
           </div>
           <div className="module-tab-apps">
@@ -383,67 +359,153 @@ export default function LandingPage() {
           </p>
         </div>
         <div className="stories-grid">
-          {successStories.map((story) => (
-            <div key={story.school} className="story-card">
-              <div className="story-metric">
-                <span className="story-metric-value">{story.metric}</span>
-                <span className="story-metric-label">{story.metricLabel}</span>
-              </div>
-              <blockquote className="story-quote">
-                &ldquo;{story.quote}&rdquo;
-              </blockquote>
-              <div className="story-author">
-                <div className="story-avatar">
-                  {story.person.split(" ").map((n) => n[0]).join("")}
-                </div>
-                <div>
-                  <div className="story-name">{story.person}</div>
-                  <div className="story-role">
-                    {story.role}, {story.school}
-                  </div>
-                  <div className="story-location">{story.location}</div>
-                </div>
-              </div>
+          {[
+            {
+              name: "Nairobi Academy",
+              location: "Kenya",
+              result: "40% faster enrollment",
+              quote: "EduMyles transformed our admissions process from weeks to days.",
+            },
+            {
+              name: "Kampala International",
+              location: "Uganda", 
+              result: "25% fee collection improvement",
+              quote: "Mobile money integration has been a game-changer for parents.",
+            },
+            {
+              name: "Dar es Salaam School",
+              location: "Tanzania",
+              result: "50% reduction in admin work",
+              quote: "Everything we need is in one place. It's been revolutionary.",
+            },
+          ].map((story, index) => (
+            <div key={index} className="story-card">
+              <h3>{story.name}</h3>
+              <p className="story-location">{story.location}</p>
+              <div className="story-result">{story.result}</div>
+              <p className="story-quote">"{story.quote}"</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════════
-          7. PRICING PREVIEW — Forest Green
+          7b. BRAND FRAMEWORK — White
+      ════════════════════════════════════════════════════ */}
+      <section className="brand-section">
+        <div className="section-header centered">
+          <h2>EduMyles — Brand Identity & Foundation</h2>
+          <p className="section-subtitle">
+            Built on a clear mission, bold vision, and the M.Y.L.E.S. principle — our core values framework.
+          </p>
+        </div>
+
+        <div className="brand-grid">
+          <div className="brand-column">
+            <h3>Mission</h3>
+            <p>
+              To empower schools across Africa with intuitive, affordable technology that simplifies
+              administration, enhances learning outcomes, and connects every stakeholder in the education
+              journey — transforming schools, one mile at a time.
+            </p>
+
+            <h3>Vision</h3>
+            <p>
+              A world where every school, regardless of size or location, has access to world-class
+              technology to deliver transformative education.
+            </p>
+          </div>
+
+          <div className="brand-column">
+            <h3>The M.Y.L.E.S. Principle</h3>
+            <ul className="brand-values-list">
+              <li>
+                <strong>M — Mastery:</strong> Pursue excellence relentlessly in how we build, ship, and serve.
+              </li>
+              <li>
+                <strong>Y — Youth Empowerment:</strong> Design every decision to unlock the potential of Africa&apos;s young people.
+              </li>
+              <li>
+                <strong>L — Leadership:</strong> Lead with integrity, courage, and accountability to every stakeholder.
+              </li>
+              <li>
+                <strong>E — Entrepreneurship:</strong> Think like founders — innovate boldly, own outcomes fully.
+              </li>
+              <li>
+                <strong>S — Service:</strong> Serve schools, students, and communities with purpose, humility, and heart.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════
+          8. PRICING — Amber
       ════════════════════════════════════════════════════ */}
       <section className="pricing-section" id="pricing">
         <div className="section-header centered">
           <h2>Simple, transparent pricing</h2>
-          <p className="section-subtitle light">
-            Start free. Scale as you grow. Every plan includes onboarding support.
+          <p className="section-subtitle">
+            No hidden fees. Pay per student per month. Cancel anytime.
           </p>
         </div>
         <div className="pricing-grid">
-          {pricingTiers.map((tier) => (
-            <div
-              key={tier.name}
-              className={`pricing-card ${tier.highlight ? "featured" : ""}`}
-            >
-              {tier.highlight && <span className="pricing-badge">Most Popular</span>}
-              <h3>{tier.name}</h3>
-              <div className="pricing-price">
-                <span className="price-amount">{tier.price}</span>
-                {tier.period && <span className="price-period">{tier.period}</span>}
+          {[
+            {
+              name: "Starter",
+              price: "Free",
+              description: "Perfect for small schools getting started",
+              features: [
+                "Up to 100 students",
+                "Basic student management",
+                "Simple fee tracking",
+                "Email support",
+              ],
+            },
+            {
+              name: "Standard",
+              price: "8",
+              description: "For growing schools needing more features",
+              features: [
+                "Up to 500 students",
+                "Advanced academics",
+                "Mobile money integration",
+                "Priority support",
+              ],
+            },
+            {
+              name: "Pro",
+              price: "15",
+              description: "Comprehensive solution for established schools",
+              features: [
+                "Unlimited students",
+                "All modules included",
+                "Advanced reporting",
+                "Dedicated support",
+              ],
+            },
+          ].map((plan, index) => (
+            <div key={index} className="pricing-card">
+              <h3>{plan.name}</h3>
+              <div className="price">
+                {plan.price === "Free" ? (
+                  <span className="amount">Free</span>
+                ) : (
+                  <>
+                    <span className="currency">$</span>
+                    <span className="amount">{plan.price}</span>
+                  </>
+                )}
+                <span className="period">/student/month</span>
               </div>
-              <p className="pricing-desc">{tier.description}</p>
-              <ul className="pricing-modules">
-                {tier.modules.map((m) => (
-                  <li key={m}>
-                    <span className="check-icon">&#10003;</span> {m}
-                  </li>
+              <p>{plan.description}</p>
+              <ul className="features">
+                {plan.features.map((feature, i) => (
+                  <li key={i}>{feature}</li>
                 ))}
               </ul>
-              <a
-                className={`btn ${tier.highlight ? "btn-primary" : "btn-outline"}`}
-                href={tier.name === "Enterprise" ? "mailto:hello@edumyles.com?subject=Enterprise%20Inquiry" : "/auth/signup"}
-              >
-                {tier.cta}
+              <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
+                Get Started
               </a>
             </div>
           ))}
@@ -465,11 +527,19 @@ export default function LandingPage() {
             Join 50+ schools across East Africa already running smarter with
             one unified platform.
           </p>
-          <a className="btn btn-primary" href="http://localhost:3000/dashboard">
-            Activate Free Trial
+          <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
+            {user ? "Go to Dashboard" : "Activate Free Trial"}
           </a>
         </div>
       </section>
     </>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LandingPageContent />
+    </Suspense>
   );
 }

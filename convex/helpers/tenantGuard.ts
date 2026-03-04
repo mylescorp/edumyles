@@ -64,7 +64,7 @@ export async function requireTenantContext(
   };
 }
 
-/** Gaurd for Actions to verify session and tenant */
+/** Guard for Actions to verify session and tenant */
 export async function requireActionTenantContext(
   ctx: ActionCtx
 ): Promise<TenantContext> {

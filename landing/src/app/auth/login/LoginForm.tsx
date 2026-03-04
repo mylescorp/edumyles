@@ -106,7 +106,7 @@ export default function LoginForm() {
 
             <p className="auth-footer-text">
                 Don&apos;t have an account?{" "}
-                <Link href="http://localhost:3000/dashboard" className="auth-link">Sign up free</Link>
+                <Link href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`} className="auth-link">Sign up free</Link>
             </p>
 
             <p className="auth-legal">

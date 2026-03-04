@@ -131,7 +131,7 @@ export default function SignUpForm() {
 
             <p className="auth-footer-text">
                 Already have an account?{" "}
-                <Link href="http://localhost:3000/dashboard" className="auth-link">Sign in</Link>
+                <Link href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`} className="auth-link">Sign in</Link>
             </p>
 
             <p className="auth-legal">
