@@ -154,6 +154,40 @@ export default defineSchema({
     .index("by_tenant_year", ["tenantId", "graduationYear"])
     .index("by_user", ["userId"]),
 
+  alumniEvents: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    date: v.number(), // timestamp
+    endDate: v.optional(v.number()),
+    location: v.string(),
+    capacity: v.optional(v.number()),
+    rsvps: v.array(v.string()), // array of alumni user IDs
+    status: v.string(), // upcoming | ongoing | completed | cancelled
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_date", ["tenantId", "date"]),
+
+  transcriptRequests: defineTable({
+    tenantId: v.string(),
+    alumniId: v.string(), // ID from alumni table
+    userId: v.string(),
+    type: v.string(), // official | unofficial
+    status: v.string(), // pending | processing | ready | rejected
+    notes: v.optional(v.string()),
+    issuedDate: v.optional(v.number()),
+    fileUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_alumni", ["alumniId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
   partners: defineTable({
     tenantId: v.string(),
     userId: v.string(),

@@ -13,7 +13,8 @@ export type AuditAction =
   | "tenant.created" | "tenant.suspended"
   | "admission.submitted" | "admission.status_updated" | "admission.enrolled"
   | "staff.created" | "staff.updated" | "staff.role_assigned"
-  | "class.created" | "class.updated";
+  | "class.created" | "class.updated"
+  | "alumni.profile_updated" | "alumni.transcript_requested" | "alumni.event_rsvp";
 
 export async function logAction(
   ctx: MutationCtx,
