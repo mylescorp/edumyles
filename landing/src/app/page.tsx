@@ -97,7 +97,10 @@ function LandingPageContent() {
   useEffect(() => {
     const error = searchParams.get("auth_error");
     if (error) {
-      setAuthError(decodeURIComponent(error));
+      const decoded = decodeURIComponent(error);
+      // Basic sanitization to avoid rendering raw HTML-like characters
+      const safeError = decoded.replace(/[<>]/g, "");
+      setAuthError(safeError);
       // Clear error from URL
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.delete("auth_error");
