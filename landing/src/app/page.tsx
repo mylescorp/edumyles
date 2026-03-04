@@ -193,6 +193,7 @@ function LandingPageContent() {
             that simplifies administration, enhances learning outcomes, and connects every stakeholder in
             the education journey.
           </p>
+          {/* Deployment trigger: 2026-03-04-12:02 */}
           <div className="actions">
             {user ? (
               <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
