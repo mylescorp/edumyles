@@ -416,7 +416,8 @@ describe('Module Guard Tests', () => {
         const module = await ctx.db
           .query('installedModules')
           .withIndex('by_tenant_module', (q: any) => q.eq('tenantId', tenantId).eq('moduleId', moduleId))
-          .first();
+          .collect()
+          .then(modules => modules[0]);
 
         if (module && module.status === 'inactive') {
           await ctx.db.patch(module._id, { status: 'active' });
@@ -463,7 +464,8 @@ describe('Module Guard Tests', () => {
         const module = await ctx.db
           .query('installedModules')
           .withIndex('by_tenant_module', (q: any) => q.eq('tenantId', tenantId).eq('moduleId', moduleId))
-          .first();
+          .collect()
+          .then((modules: any[]) => modules[0]);
 
         if (module && module.status === 'active') {
           await ctx.db.patch(module._id, { status: 'inactive' });

@@ -11,15 +11,52 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useState, useRef } from "react";
+import { ArrowLeft, Upload, User, Mail, Phone, Calendar } from "lucide-react";
 import Link from "next/link";
+import { toast } from "@/components/ui/use-toast";
+
+// Form validation schema
+const validateStudentForm = (form: any) => {
+  const errors: string[] = [];
+  
+  if (!form.firstName?.trim()) errors.push("First name is required");
+  if (!form.lastName?.trim()) errors.push("Last name is required");
+  if (!form.dateOfBirth) errors.push("Date of birth is required");
+  else {
+    const dob = new Date(form.dateOfBirth);
+    const today = new Date();
+    const age = today.getFullYear() - dob.getFullYear();
+    if (age < 4 || age > 25) errors.push("Student age should be between 4 and 25 years");
+  }
+  
+  if (form.guardianEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.guardianEmail)) {
+    errors.push("Invalid guardian email format");
+  }
+  
+  if (form.guardianPhone && !/^\+?[1-9]\d{1,14}$/.test(form.guardianPhone.replace(/\s/g, ""))) {
+    errors.push("Invalid phone number format");
+  }
+  
+  return errors;
+};
+
+// Generate admission number
+const generateAdmissionNumber = (classId?: string) => {
+  const year = new Date().getFullYear();
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  const classCode = classId ? classId.slice(-2).toUpperCase() : 'ST';
+  return `${year}/${classCode}/${random}`;
+};
 
 export default function CreateStudentPage() {
     const { isLoading, sessionToken } = useAuth();
     const router = useRouter();
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const classes = useQuery(
         api.modules.sis.queries.listClasses,
@@ -41,8 +78,46 @@ export default function CreateStudentPage() {
         guardianRelationship: "guardian",
     });
 
-    const updateField = (field: string, value: string) =>
+    const updateField = (field: string, value: string) => {
         setForm((prev) => ({ ...prev, [field]: value }));
+        
+        // Auto-generate admission number when class is selected and admission number is empty
+        if (field === 'classId' && value && !form.admissionNumber) {
+            setForm((prev) => ({ 
+                ...prev, 
+                [field]: value,
+                admissionNumber: generateAdmissionNumber(value)
+            }));
+        }
+    };
+
+    const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast({
+                    title: "Error",
+                    description: "Photo size should be less than 5MB",
+                    variant: "destructive"
+                });
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                toast({
+                    title: "Error", 
+                    description: "Please upload an image file",
+                    variant: "destructive"
+                });
+                return;
+            }
+            
+            setPhotoFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => setPhotoPreview(e.target?.result as string);
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -50,26 +125,45 @@ export default function CreateStudentPage() {
         setError(null);
 
         try {
-            if (!form.firstName || !form.lastName || !form.dateOfBirth) {
-                throw new Error("Please fill in all required fields.");
+            // Validate form
+            const validationErrors = validateStudentForm(form);
+            if (validationErrors.length > 0) {
+                throw new Error(validationErrors.join(', '));
             }
 
-            await createStudent({
-                firstName: form.firstName,
-                lastName: form.lastName,
+            // Generate admission number if not provided
+            const admissionNumber = form.admissionNumber || generateAdmissionNumber(form.classId);
+
+            const studentData = {
+                firstName: form.firstName.trim(),
+                lastName: form.lastName.trim(),
                 dateOfBirth: form.dateOfBirth,
                 gender: form.gender,
                 classId: form.classId || undefined,
-                admissionNumber: form.admissionNumber || undefined,
-                guardianName: form.guardianName || undefined,
-                guardianEmail: form.guardianEmail || undefined,
-                guardianPhone: form.guardianPhone || undefined,
+                admissionNumber,
+                guardianName: form.guardianName?.trim() || undefined,
+                guardianEmail: form.guardianEmail?.trim() || undefined,
+                guardianPhone: form.guardianPhone?.trim() || undefined,
                 guardianRelationship: form.guardianRelationship || undefined,
+                photoUrl: photoPreview || undefined,
+            };
+
+            await createStudent(studentData);
+            
+            toast({
+                title: "Success",
+                description: "Student enrolled successfully!",
             });
 
             router.push("/admin/students");
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to create student");
+            const errorMessage = err instanceof Error ? err.message : "Failed to create student";
+            setError(errorMessage);
+            toast({
+                title: "Error",
+                description: errorMessage,
+                variant: "destructive"
+            });
         } finally {
             setSubmitting(false);
         }
@@ -96,6 +190,53 @@ export default function CreateStudentPage() {
                         {error}
                     </div>
                 )}
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            Student Photo
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-4">
+                            <div className="relative">
+                                {photoPreview ? (
+                                    <img 
+                                        src={photoPreview} 
+                                        alt="Student photo" 
+                                        className="w-20 h-20 rounded-full object-cover border-2 border-border"
+                                    />
+                                ) : (
+                                    <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-border">
+                                        <User className="h-8 w-8 text-muted-foreground" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handlePhotoUpload}
+                                    className="hidden"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full"
+                                >
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    {photoPreview ? 'Change Photo' : 'Upload Photo'}
+                                </Button>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    JPG, PNG up to 5MB
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <Card>
                     <CardHeader>

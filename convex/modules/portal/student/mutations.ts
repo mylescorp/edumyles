@@ -10,12 +10,9 @@ export const submitAssignment = mutation({
         attachments: v.array(v.string()),
     },
     handler: async (ctx, args) => {
-<<<<<<< HEAD
-=======
         if (args.attachments.length === 0) {
             throw new Error("At least one attachment is required");
         }
->>>>>>> main
         const tenant = await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "academics");
 
@@ -35,24 +32,15 @@ export const submitAssignment = mutation({
 
         const existingSubmission = await ctx.db
             .query("submissions")
-<<<<<<< HEAD
-            .withIndex("by_tenant_student", (q) =>
-                q.eq("tenantId", tenant.tenantId).eq("studentId", student._id)
-=======
             .withIndex("by_student", (q) =>
                 q.eq("studentId", student._id.toString())
->>>>>>> main
             )
             .filter(q => q.eq(q.field("assignmentId"), args.assignmentId))
             .first();
 
-<<<<<<< HEAD
-        const status = assignment.dueDate < Date.now() ? "late" : "submitted";
-=======
         // Convert dueDate string (YYYY-MM-DD) to epoch for comparison if needed, 
         // but schema says dueDate is v.string(). If it's ISO, string comparison works.
         const status = (assignment.dueDate < new Date().toISOString().split('T')[0]) ? "late" : "submitted";
->>>>>>> main
 
         let submissionId;
         if (existingSubmission) {
@@ -61,35 +49,19 @@ export const submitAssignment = mutation({
             }
             submissionId = existingSubmission._id;
             await ctx.db.patch(submissionId, {
-<<<<<<< HEAD
-                attachments: args.attachments,
-                status,
-                submittedAt: Date.now(),
-                updatedAt: Date.now(),
-=======
                 fileUrl: args.attachments[0],
                 status,
                 submittedAt: Date.now(),
->>>>>>> main
             });
         } else {
             submissionId = await ctx.db.insert("submissions", {
                 tenantId: tenant.tenantId,
                 assignmentId: args.assignmentId,
-<<<<<<< HEAD
-                studentId: student._id,
-                status,
-                attachments: args.attachments,
-                submittedAt: Date.now(),
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-=======
                 studentId: student._id.toString(),
                 status,
                 fileUrl: args.attachments[0],
                 submittedAt: Date.now(),
                 createdAt: Date.now(),
->>>>>>> main
             });
         }
 

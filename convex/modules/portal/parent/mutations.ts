@@ -4,7 +4,6 @@ import { requireTenantContext } from "../../../helpers/tenantGuard";
 import { requirePermission } from "../../../helpers/authorize";
 import { requireModule } from "../../../helpers/moduleGuard";
 import { logAction } from "../../../helpers/auditLog";
-<<<<<<< HEAD
 import { getChildren as _unused } from "./queries"; // for type linkage only
 
 // Reuse the helper from queries via a local definition to avoid circular imports
@@ -35,8 +34,6 @@ async function resolveParentChildren(ctx: any, tenant: any) {
 
   return children;
 }
-=======
->>>>>>> main
 
 export const initiatePayment = mutation({
   args: {
@@ -53,7 +50,6 @@ export const initiatePayment = mutation({
       throw new Error("Invoice not found");
     }
 
-<<<<<<< HEAD
     // Ensure this invoice belongs to one of the parent's children
     const children = await resolveParentChildren(ctx, tenant);
     const allowedIds = new Set(
@@ -66,10 +62,8 @@ export const initiatePayment = mutation({
 
     // For now we simply log the intent; actual payment actions (M-Pesa, Stripe)
     // will be wired in Phase 11.
-=======
     // M-Pesa: use action api.actions.payments.mpesa.initiateStkPush from the client.
     // Other methods (card, cash, etc.): log only for now or wire Stripe/other gateways.
->>>>>>> main
     await logAction(ctx, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,

@@ -55,7 +55,7 @@ describe('Authentication Flow Tests', () => {
       };
 
       const validateSession = (user: any) => {
-        return user && user.eduMylesUserId && user.role && user.tenantId;
+        return !!(user && user.eduMylesUserId && user.role && user.tenantId);
       };
 
       const isValid = validateSession(mockUser);
@@ -216,7 +216,7 @@ describe('Authentication Flow Tests', () => {
       };
 
       const validateUser = (user: any) => {
-        return user && user.eduMylesUserId && user.role && user.tenantId;
+        return !!(user && user.eduMylesUserId && user.role && user.tenantId);
       };
 
       const isValid = validateUser(malformedUser);
