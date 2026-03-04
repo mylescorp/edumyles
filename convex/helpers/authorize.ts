@@ -25,8 +25,11 @@ export type Permission =
   | "payroll:read" | "payroll:write" | "payroll:approve"
   | "library:read" | "library:write"
   | "transport:read" | "transport:write"
+  | "timetable:read" | "timetable:write"
+  | "communications:read" | "communications:write"
+  | "ewallet:read" | "ewallet:write"
+  | "ecommerce:read" | "ecommerce:write"
   | "reports:read"
-  | "communications:read"
   | "settings:read" | "settings:write"
   | "users:manage"
   | "platform:admin";

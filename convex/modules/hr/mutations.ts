@@ -121,3 +121,168 @@ export const assignRole = mutation({
         return args.staffId;
     },
 });
+
+export const createContract = mutation({
+    args: {
+        staffId: v.string(),
+        type: v.string(),
+        startDate: v.string(),
+        endDate: v.optional(v.string()),
+        salaryCents: v.optional(v.number()),
+        currency: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "staff:write");
+
+        const staff = await ctx.db.get(args.staffId as any);
+        if (!staff || staff.tenantId !== tenant.tenantId) throw new Error("Staff not found");
+
+        const id = await ctx.db.insert("staffContracts", {
+            tenantId: tenant.tenantId,
+            staffId: args.staffId,
+            type: args.type,
+            startDate: args.startDate,
+            endDate: args.endDate,
+            salaryCents: args.salaryCents,
+            currency: args.currency,
+            status: "active",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "staff.created",
+            entityType: "staffContract",
+            entityId: id,
+            after: args,
+        });
+        return id;
+    },
+});
+
+export const createLeaveRequest = mutation({
+    args: {
+        staffId: v.string(),
+        type: v.string(),
+        startDate: v.string(),
+        endDate: v.string(),
+        days: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "staff:write");
+
+        const id = await ctx.db.insert("staffLeave", {
+            tenantId: tenant.tenantId,
+            staffId: args.staffId,
+            type: args.type,
+            startDate: args.startDate,
+            endDate: args.endDate,
+            days: args.days,
+            status: "pending",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+        return id;
+    },
+});
+
+export const approveLeaveRequest = mutation({
+    args: { leaveId: v.id("staffLeave"), approved: v.boolean() },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "staff:write");
+
+        const leave = await ctx.db.get(args.leaveId);
+        if (!leave || leave.tenantId !== tenant.tenantId) throw new Error("Leave request not found");
+        await ctx.db.patch(args.leaveId, {
+            status: args.approved ? "approved" : "rejected",
+            approvedBy: tenant.userId,
+            approvedAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+        return args.leaveId;
+    },
+});
+
+export const createPayrollRun = mutation({
+    args: {
+        periodLabel: v.string(),
+        startDate: v.string(),
+        endDate: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "payroll:write");
+
+        const id = await ctx.db.insert("payrollRuns", {
+            tenantId: tenant.tenantId,
+            periodLabel: args.periodLabel,
+            startDate: args.startDate,
+            endDate: args.endDate,
+            status: "draft",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+        return id;
+    },
+});
+
+export const addPayslip = mutation({
+    args: {
+        payrollRunId: v.string(),
+        staffId: v.string(),
+        basicCents: v.number(),
+        allowancesCents: v.number(),
+        deductionsCents: v.number(),
+        currency: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "payroll:write");
+
+        const netCents =
+            args.basicCents + args.allowancesCents - args.deductionsCents;
+        const id = await ctx.db.insert("payslips", {
+            tenantId: tenant.tenantId,
+            payrollRunId: args.payrollRunId,
+            staffId: args.staffId,
+            basicCents: args.basicCents,
+            allowancesCents: args.allowancesCents,
+            deductionsCents: args.deductionsCents,
+            netCents,
+            currency: args.currency,
+            status: "draft",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+        return id;
+    },
+});
+
+export const approvePayrollRun = mutation({
+    args: { payrollRunId: v.id("payrollRuns") },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "payroll:approve");
+
+        const run = await ctx.db.get(args.payrollRunId);
+        if (!run || run.tenantId !== tenant.tenantId) throw new Error("Payroll run not found");
+        await ctx.db.patch(args.payrollRunId, {
+            status: "approved",
+            approvedBy: tenant.userId,
+            approvedAt: Date.now(),
+            updatedAt: Date.now(),
+        });
+        return args.payrollRunId;
+    },
+});

@@ -453,15 +453,260 @@ export default defineSchema({
     classId: v.string(),
     subjectId: v.string(),
     teacherId: v.string(),
+    substituteTeacherId: v.optional(v.string()),
     dayOfWeek: v.number(), // 1-7
     startTime: v.string(), // HH:mm
     endTime: v.string(), // HH:mm
     room: v.optional(v.string()),
+    academicYear: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_class", ["classId"])
-    .index("by_teacher", ["teacherId"]),
+    .index("by_teacher", ["teacherId"])
+    .index("by_room", ["tenantId", "room", "dayOfWeek"])
+    .index("by_tenant_day", ["tenantId", "dayOfWeek"]),
+
+  announcements: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    body: v.string(),
+    audience: v.string(),
+    priority: v.string(),
+    status: v.string(),
+    publishedAt: v.optional(v.number()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_created", ["tenantId", "createdAt"]),
+
+  staffContracts: defineTable({
+    tenantId: v.string(),
+    staffId: v.string(),
+    type: v.string(),
+    startDate: v.string(),
+    endDate: v.optional(v.string()),
+    salaryCents: v.optional(v.number()),
+    currency: v.string(),
+    status: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_staff", ["staffId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  staffLeave: defineTable({
+    tenantId: v.string(),
+    staffId: v.string(),
+    type: v.string(),
+    startDate: v.string(),
+    endDate: v.string(),
+    days: v.number(),
+    status: v.string(),
+    approvedBy: v.optional(v.string()),
+    approvedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_staff", ["staffId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  payrollRuns: defineTable({
+    tenantId: v.string(),
+    periodLabel: v.string(),
+    startDate: v.string(),
+    endDate: v.string(),
+    status: v.string(),
+    approvedBy: v.optional(v.string()),
+    approvedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  payslips: defineTable({
+    tenantId: v.string(),
+    payrollRunId: v.string(),
+    staffId: v.string(),
+    basicCents: v.number(),
+    allowancesCents: v.number(),
+    deductionsCents: v.number(),
+    netCents: v.number(),
+    currency: v.string(),
+    status: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_payroll", ["payrollRunId"])
+    .index("by_staff", ["staffId"]),
+
+  books: defineTable({
+    tenantId: v.string(),
+    isbn: v.optional(v.string()),
+    title: v.string(),
+    author: v.string(),
+    category: v.string(),
+    quantity: v.number(),
+    availableQuantity: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_isbn", ["tenantId", "isbn"])
+    .index("by_tenant_category", ["tenantId", "category"]),
+
+  bookBorrows: defineTable({
+    tenantId: v.string(),
+    bookId: v.string(),
+    borrowerId: v.string(),
+    borrowerType: v.string(),
+    borrowedAt: v.number(),
+    dueDate: v.number(),
+    returnedAt: v.optional(v.number()),
+    fineCents: v.optional(v.number()),
+    status: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_book", ["bookId"])
+    .index("by_borrower", ["borrowerId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  transportRoutes: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    stops: v.array(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"]),
+
+  vehicles: defineTable({
+    tenantId: v.string(),
+    plateNumber: v.string(),
+    capacity: v.number(),
+    routeId: v.optional(v.string()),
+    driverId: v.optional(v.string()),
+    status: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  transportAssignments: defineTable({
+    tenantId: v.string(),
+    studentId: v.string(),
+    routeId: v.string(),
+    stopIndex: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_student", ["studentId"])
+    .index("by_route", ["routeId"]),
+
+  drivers: defineTable({
+    tenantId: v.string(),
+    userId: v.optional(v.string()),
+    firstName: v.string(),
+    lastName: v.string(),
+    phone: v.string(),
+    vehicleId: v.optional(v.string()),
+    status: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  wallets: defineTable({
+    tenantId: v.string(),
+    ownerId: v.string(),
+    ownerType: v.string(),
+    balanceCents: v.number(),
+    currency: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_owner", ["tenantId", "ownerId"]),
+
+  walletTransactions: defineTable({
+    tenantId: v.string(),
+    walletId: v.string(),
+    type: v.string(),
+    amountCents: v.number(),
+    reference: v.optional(v.string()),
+    orderId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_wallet", ["walletId", "createdAt"]),
+
+  products: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    description: v.optional(v.string()),
+    priceCents: v.number(),
+    stock: v.number(),
+    category: v.optional(v.string()),
+    status: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  orders: defineTable({
+    tenantId: v.string(),
+    orderNumber: v.string(),
+    customerId: v.string(),
+    customerType: v.string(),
+    totalCents: v.number(),
+    status: v.string(),
+    paymentMethod: v.optional(v.string()),
+    walletTransactionId: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_customer", ["customerId"])
+    .index("by_order_number", ["tenantId", "orderNumber"]),
+
+  orderItems: defineTable({
+    tenantId: v.string(),
+    orderId: v.string(),
+    productId: v.string(),
+    quantity: v.number(),
+    unitPriceCents: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_order", ["orderId"]),
+
+  carts: defineTable({
+    tenantId: v.string(),
+    customerId: v.string(),
+    customerType: v.string(),
+    items: v.array(v.object({
+      productId: v.string(),
+      quantity: v.number(),
+      unitPriceCents: v.number(),
+    })),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_customer", ["tenantId", "customerId"]),
 
   reportCards: defineTable({
     tenantId: v.string(),
