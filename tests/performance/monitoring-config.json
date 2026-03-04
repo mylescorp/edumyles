@@ -1,0 +1,230 @@
+{
+  "performanceTesting": {
+    "targetConcurrentUsers": 1000,
+    "maxConcurrentUsers": 1500,
+    "testDuration": "30m",
+    "rampUpTime": "10m",
+    "sustainedLoadTime": "20m",
+    "rampDownTime": "5m"
+  },
+  "thresholds": {
+    "responseTime": {
+      "p50": "<200ms",
+      "p90": "<500ms",
+      "p95": "<1000ms",
+      "p99": "<2000ms"
+    },
+    "errorRate": {
+      "critical": "<1%",
+      "warning": "<5%"
+    },
+    "throughput": {
+      "minimum": "100 req/s",
+      "target": "500 req/s",
+      "maximum": "1000 req/s"
+    },
+    "resourceUsage": {
+      "cpu": "<80%",
+      "memory": "<85%",
+      "diskIO": "<70%"
+    }
+  },
+  "endpoints": {
+    "authentication": {
+      "path": "/api/auth/login",
+      "method": "POST",
+      "expectedResponseTime": "<300ms",
+      "maxConcurrent": 100
+    },
+    "studentPortal": {
+      "path": "/api/student/*",
+      "expectedResponseTime": "<500ms",
+      "maxConcurrent": 500
+    },
+    "teacherPortal": {
+      "path": "/api/teacher/*", 
+      "expectedResponseTime": "<600ms",
+      "maxConcurrent": 200
+    },
+    "parentPortal": {
+      "path": "/api/parent/*",
+      "expectedResponseTime": "<700ms",
+      "maxConcurrent": 300
+    },
+    "adminPortal": {
+      "path": "/api/admin/*",
+      "expectedResponseTime": "<800ms",
+      "maxConcurrent": 50
+    },
+    "fileUpload": {
+      "path": "/api/upload",
+      "method": "POST",
+      "expectedResponseTime": "<5000ms",
+      "maxFileSize": "10MB",
+      "maxConcurrent": 50
+    },
+    "realTime": {
+      "path": "/api/realtime/*",
+      "expectedResponseTime": "<200ms",
+      "maxConcurrent": 1000
+    }
+  },
+  "scenarios": {
+    "normalLoad": {
+      "users": 500,
+      "duration": "10m",
+      "rampUp": "2m",
+      "description": "Normal daily load simulation"
+    },
+    "peakLoad": {
+      "users": 1000,
+      "duration": "15m", 
+      "rampUp": "5m",
+      "description": "Peak hours load simulation"
+    },
+    "stressTest": {
+      "users": 1500,
+      "duration": "5m",
+      "rampUp": "1m",
+      "description": "Maximum system capacity test"
+    },
+    "enduranceTest": {
+      "users": 800,
+      "duration": "2h",
+      "rampUp": "10m",
+      "description": "Sustained load endurance test"
+    },
+    "spikeTest": {
+      "users": [100, 1200, 100],
+      "durations": ["2m", "5m", "2m"],
+      "description": "Traffic spike simulation"
+    }
+  },
+  "monitoring": {
+    "metrics": [
+      "http_req_duration",
+      "http_req_failed",
+      "http_reqs",
+      "http_req_waiting",
+      "http_req_connecting",
+      "http_req_tls_handshaking",
+      "http_req_sending",
+      "http_req_receiving",
+      "http_req_blocked",
+      "vus",
+      "vus_max",
+      "data_received",
+      "data_sent"
+    ],
+    "customMetrics": [
+      "authentication_success_rate",
+      "database_query_time",
+      "cache_hit_rate",
+      "file_upload_time",
+      "realtime_connection_count",
+      "error_rate_by_endpoint",
+      "response_time_by_user_type"
+    ],
+    "alerts": {
+      "highErrorRate": {
+        "condition": "error_rate > 5%",
+        "severity": "critical",
+        "action": "immediate_notification"
+      },
+      "slowResponse": {
+        "condition": "p95_response_time > 1000ms",
+        "severity": "warning",
+        "action": "log_and_notify"
+      },
+      "resourceExhaustion": {
+        "condition": "cpu > 90% OR memory > 95%",
+        "severity": "critical",
+        "action": "immediate_notification"
+      }
+    }
+  },
+  "database": {
+    "connectionPool": {
+      "maxConnections": 100,
+      "minConnections": 10,
+      "connectionTimeout": "30s"
+    },
+    "queryPerformance": {
+      "slowQueryThreshold": "100ms",
+      "maxConcurrentQueries": 50,
+      "indexUsageOptimization": true
+    },
+    "loadTesting": {
+      "concurrentReads": 100,
+      "concurrentWrites": 50,
+      "transactionIsolation": "READ_COMMITTED"
+    }
+  },
+  "cache": {
+    "redis": {
+      "maxConnections": 100,
+      "connectionTimeout": "5s",
+      "commandTimeout": "1s"
+    },
+    "performance": {
+      "hitRateTarget": ">90%",
+      "missRateThreshold": "<10%",
+      "evictionPolicy": "LRU"
+    }
+  },
+  "fileStorage": {
+    "uploadLimits": {
+      "maxFileSize": "10MB",
+      "maxConcurrentUploads": 50,
+      "uploadTimeout": "30s"
+    },
+    "performance": {
+      "throughputTarget": ">10MB/s",
+      "concurrentUploadsTarget": 50
+    }
+  },
+  "realTime": {
+    "websockets": {
+      "maxConnections": 1000,
+      "connectionTimeout": "10s",
+      "heartbeatInterval": "30s"
+    },
+    "performance": {
+      "messageLatency": "<100ms",
+      "connectionSetupTime": "<200ms",
+      "maxMessageSize": "1MB"
+    }
+  },
+  "reporting": {
+    "formats": ["html", "json", "csv"],
+    "includeMetrics": [
+      "response_times",
+      "error_rates", 
+      "throughput",
+      "resource_usage",
+      "user_experience"
+    ],
+    "alerts": {
+      "email": ["devops@edumyles.com"],
+      "slack": "#performance-alerts",
+      "pagerduty": "integration_key"
+    }
+  },
+  "environment": {
+    "test": {
+      "baseUrl": "http://localhost:3000",
+      "database": "mongodb://localhost:27017/edumyles_test",
+      "redis": "redis://localhost:6379/0"
+    },
+    "staging": {
+      "baseUrl": "https://staging.edumyles.com",
+      "database": "mongodb://staging-db:27017/edumyles_staging",
+      "redis": "redis://staging-redis:6379/0"
+    },
+    "production": {
+      "baseUrl": "https://app.edumyles.com",
+      "database": "mongodb://prod-db:27017/edumyles",
+      "redis": "redis://prod-redis:6379/0"
+    }
+  }
+}
