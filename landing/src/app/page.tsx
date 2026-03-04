@@ -195,15 +195,9 @@ function LandingPageContent() {
           </p>
           {/* Deployment trigger: 2026-03-04-12:02 */}
           <div className="actions">
-            {user ? (
-              <a className="btn btn-primary" href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`}>
-                Go to Dashboard
-              </a>
-            ) : (
-              <a className="btn btn-primary" href="/user-panels">
-                Get Started
-              </a>
-            )}
+            <a className="btn btn-primary" href="/user-panels">
+              Get Started
+            </a>
             <a className="btn btn-secondary" href="/concierge">
               Contact Sales
             </a>
