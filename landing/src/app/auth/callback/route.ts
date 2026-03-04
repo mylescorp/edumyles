@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
+  const state = request.nextUrl.searchParams.get("state");
   const error = request.nextUrl.searchParams.get("error");
-  const errorDescription = request.nextUrl.searchParams.get(
-    "error_description",
-  );
+  const errorDescription = request.nextUrl.searchParams.get("error_description");
   const baseUrl = request.nextUrl.origin;
 
   // Handle errors from WorkOS
@@ -20,9 +19,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/?auth_error=no_code`);
   }
 
-  // Redirect to frontend callback with the same code
-  const frontendUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  // Redirect to frontend callback with the same code and state
+  const frontendUrl = "https://edumyles.vercel.app";
   const callbackUrl = `${frontendUrl}/auth/callback${request.nextUrl.search}`;
   
+  console.log("Redirecting to frontend callback:", callbackUrl);
   return NextResponse.redirect(callbackUrl);
 }

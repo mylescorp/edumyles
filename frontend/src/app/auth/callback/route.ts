@@ -39,8 +39,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Exchange code for user profile via WorkOS User Management API
-    const tokenRes = await fetch("https://api.workos.com/user_management/authenticate", {
+    // Exchange code for user profile via WorkOS SSO API
+    const tokenRes = await fetch("https://api.workos.com/sso/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,46 +54,21 @@ export async function GET(req: NextRequest) {
     });
 
     if (!tokenRes.ok) {
-      // Fallback to SSO token endpoint for backward compatibility
-      const ssoTokenRes = await fetch("https://api.workos.com/sso/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          client_id: clientId,
-          client_secret: apiKey,
-          grant_type: "authorization_code",
-          code,
-        }),
-      });
-
-      if (!ssoTokenRes.ok) {
-        return NextResponse.redirect(
-          new URL("/auth/login?error=token_exchange_failed", req.url)
-        );
-      }
-
-      const ssoData = await ssoTokenRes.json();
-      return handleAuthResult(req, ssoData.profile, signupState);
+      console.error("Token exchange failed:", tokenRes.status, tokenRes.statusText);
+      return NextResponse.redirect(
+        new URL("/auth/login?error=token_exchange_failed", req.url)
+      );
     }
 
     const authData = await tokenRes.json();
 
-    // WorkOS User Management returns user object directly
-    const user = authData.user;
-    if (!user) {
+    // WorkOS SSO returns profile directly
+    const profile = authData.profile;
+    if (!profile) {
       return NextResponse.redirect(
         new URL("/auth/login?error=no_profile", req.url)
       );
     }
-
-    // Normalize to a common profile shape
-    const profile = {
-      id: user.id,
-      email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      organization_id: authData.organization_id,
-    };
 
     return handleAuthResult(req, profile, signupState);
   } catch {

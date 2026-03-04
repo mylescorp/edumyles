@@ -183,13 +183,13 @@ export default function Navbar() {
             <>
               {!isUserPanelsPage && (
                 <>
-                  <a className="navbar-login" href={`${appUrl || 'http://localhost:3000'}/dashboard`}>
+                  <a className="navbar-login" href="/auth/login">
                     Log In
                   </a>
                   <a className="navbar-get-started" href={directMasterAdminUrl}>
                     Get Started
                   </a>
-                  <a className="navbar-signup" href={`${appUrl || 'http://localhost:3000'}/dashboard`}>
+                  <a className="navbar-signup" href="/auth/signup">
                     Sign Up Free
                   </a>
                 </>
@@ -245,13 +245,13 @@ export default function Navbar() {
               <>
                 {!isUserPanelsPage && (
                   <>
-                    <a href={`${appUrl || 'http://localhost:3000'}/dashboard`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+                    <a href="/auth/login" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
                       Log In
                     </a>
                     <a href={directMasterAdminUrl} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
                       Get Started
                     </a>
-                    <a href={`${appUrl || 'http://localhost:3000'}/dashboard`} className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
+                    <a href="/auth/signup" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
                       Sign Up Free
                     </a>
                   </>
