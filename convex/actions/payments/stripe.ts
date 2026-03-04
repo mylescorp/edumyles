@@ -47,7 +47,7 @@ export const createCheckoutSession = action({
       body: new URLSearchParams({
         "payment_method_types[]": "card",
         "line_items[0][price_data][currency]": "kes",
-        "line_items[0][price_data][unit_amount]": String(Math.round(invoice.amount)), // KES is zero-decimal
+        "line_items[0][price_data][unit_amount]": String(Math.round(invoice.amount * 100)), // Stripe expects minor units (KES cents)
         "line_items[0][price_data][product_data][name]": `Fee payment - Invoice ${args.invoiceId}`,
         "line_items[0][quantity]": "1",
         "mode": "payment",

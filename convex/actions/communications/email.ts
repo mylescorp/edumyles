@@ -2,6 +2,8 @@
 
 import { action } from "../../_generated/server";
 import { v } from "convex/values";
+import { requireActionTenantContext } from "../../helpers/tenantGuard";
+import { requirePermission } from "../../helpers/authorize";
 
 /**
  * Send an email via Resend API.
@@ -16,7 +18,11 @@ export const sendEmail = action({
     template: v.optional(v.string()),
     data: v.optional(v.any()),
   },
-  handler: async (_ctx, args) => {
+  handler: async (ctx, args) => {
+    // 1. Authenticate and authorize
+    const tenant = await requireActionTenantContext(ctx);
+    requirePermission(tenant, "communications:write");
+
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
       throw new Error("Resend not configured. Set RESEND_API_KEY.");
@@ -65,6 +71,18 @@ export const sendEmail = action({
     }
 
     const data = (await res.json()) as { id?: string };
+
+    // 2. Log action using internal mutation
+    await ctx.runMutation((ctx as any).internal.helpers.auditLog.internalLogAction, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.email_sent",
+      entityType: "email",
+      entityId: data.id ?? "unknown",
+      after: { to: args.to, subject: args.subject, template: args.template },
+    });
+
     return { success: true, id: data.id };
   },
 });

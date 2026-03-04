@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     const checkoutRequestId = stk.CheckoutRequestID;
-    const resultCode = Number(stk.ResultCode) ?? 1;
+    const resultCode = stk.ResultCode != null ? Number(stk.ResultCode) : 1;
     let reference: string | undefined;
     if (stk.CallbackMetadata?.Item) {
       const receipt = stk.CallbackMetadata.Item.find((i) => i.Name === "MpesaReceiptNumber");

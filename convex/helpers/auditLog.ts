@@ -1,4 +1,5 @@
-import { MutationCtx } from "../_generated/server";
+import { MutationCtx, internalMutation } from "../_generated/server";
+import { v } from "convex/values";
 
 export type AuditAction =
   | "user.created" | "user.updated" | "user.deleted" | "user.login" | "user.logout"
@@ -15,6 +16,7 @@ export type AuditAction =
   | "staff.created" | "staff.updated" | "staff.role_assigned"
   | "class.created" | "class.updated"
   | "assignment.submitted" | "assignment.graded"
+  | "communication.email_sent" | "communication.sms_sent"
   | "alumni.profile_updated" | "alumni.transcript_requested" | "alumni.event_rsvp"
   | "timetable.slot_created" | "timetable.slot_updated" | "timetable.slot_deleted" | "timetable.substitute_assigned";
 
@@ -43,6 +45,23 @@ export async function logAction(
     timestamp: Date.now(),
   });
 }
+
+/** Internal mutation to log actions from Convex actions */
+export const internalLogAction = internalMutation({
+  args: {
+    tenantId: v.string(),
+    actorId: v.string(),
+    actorEmail: v.string(),
+    action: v.string(), // Use string to avoid strict type issues across internal calls if needed, but we cast to AuditAction
+    entityType: v.string(),
+    entityId: v.string(),
+    before: v.optional(v.any()),
+    after: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    await logAction(ctx, args as any);
+  },
+});
 
 export async function logImpersonation(
   ctx: MutationCtx,
