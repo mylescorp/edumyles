@@ -88,7 +88,6 @@ const trustedSchools = [
 function LandingPageContent() {
   const [activeTab, setActiveTab] = useState("student");
   const [authError, setAuthError] = useState("");
-  const [user, setUser] = useState<any>(null);
   const searchParams = useSearchParams();
 
   const activeCategory = moduleCategories.find((c) => c.key === activeTab)!;
@@ -98,39 +97,13 @@ function LandingPageContent() {
     const error = searchParams.get("auth_error");
     if (error) {
       const decoded = decodeURIComponent(error);
-      // Basic sanitization to avoid rendering raw HTML-like characters
       const safeError = decoded.replace(/[<>]/g, "");
       setAuthError(safeError);
-      // Clear error from URL
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.delete("auth_error");
       window.history.replaceState({}, "", newUrl.toString());
     }
   }, [searchParams]);
-
-  // Check for user session on mount
-  useEffect(() => {
-    const userCookie = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("edumyles_user="));
-
-    if (userCookie) {
-      try {
-        const cookieValue = userCookie.split("=").slice(1).join("=");
-        if (cookieValue) {
-          const userData = JSON.parse(decodeURIComponent(cookieValue));
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error("Failed to parse user cookie:", error);
-      }
-    }
-  }, []);
-
-  const handleLogout = () => {
-    // Use server-side logout to properly clear httpOnly cookies
-    window.location.href = "/auth/logout";
-  };
 
   return (
     <>
@@ -153,37 +126,6 @@ function LandingPageContent() {
               color: '#dc2626'
             }}>
               <strong>Authentication Error:</strong> {authError}
-            </div>
-          )}
-
-          {/* User Info Display */}
-          {user && (
-            <div className="user-welcome" style={{
-              backgroundColor: '#f0fdf4',
-              border: '1px solid #bbf7d0',
-              borderRadius: '8px',
-              padding: '12px 16px',
-              marginBottom: '20px',
-              color: '#166534'
-            }}>
-              <strong>Welcome back, {user.firstName || user.email.split('@')[0]}!</strong>
-              <br />
-              <span style={{ fontSize: '14px' }}>You are logged in as {user.email}</span>
-              <button
-                onClick={handleLogout}
-                style={{
-                  marginLeft: '12px',
-                  padding: '4px 12px',
-                  backgroundColor: '#dc2626',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '12px'
-                }}
-              >
-                Logout
-              </button>
             </div>
           )}
 
@@ -310,7 +252,7 @@ function LandingPageContent() {
             <h3>{activeCategory.label}</h3>
             <p>{activeCategory.description}</p>
             <a className="btn btn-primary" href="/auth/login">
-              {user ? "Explore in Dashboard" : "Try It Free"}
+              Try It Free
             </a>
           </div>
           <div className="module-tab-apps">
@@ -522,7 +464,7 @@ function LandingPageContent() {
             one unified platform.
           </p>
           <a className="btn btn-primary" href="/auth/login">
-            {user ? "Go to Dashboard" : "Activate Free Trial"}
+            Activate Free Trial
           </a>
         </div>
       </section>
