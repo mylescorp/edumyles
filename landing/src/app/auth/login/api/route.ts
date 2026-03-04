@@ -17,13 +17,9 @@ export async function POST(req: NextRequest) {
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: "code",
+      provider: "authkit",
       screen_hint: "sign-in",
     });
-
-    // Pass provider for direct social login (requires provider enabled in WorkOS dashboard)
-    if (provider) {
-      params.set("provider", provider);
-    }
 
     // Pre-fill email on the AuthKit hosted UI
     if (email) {
