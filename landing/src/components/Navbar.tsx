@@ -113,6 +113,20 @@ export default function Navbar() {
     ? `${appUrl.replace(/\/$/, "")}/auth/direct-master-admin`
     : "/auth/signup";
 
+  const handleLogout = () => {
+    document.cookie = "edumyles_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "edumyles_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setUser(null);
+    window.location.href = "/";
+  };
+
+  const handleMobileLogout = () => {
+    document.cookie = "edumyles_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "edumyles_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setUser(null);
+    setMobileMenuOpen(false);
+    window.location.href = "/";
+  };
 
   return (
     <>
@@ -158,9 +172,13 @@ export default function Navbar() {
                 <div className="navbar-avatar">{initials}</div>
                 <span className="navbar-username">{user.firstName || user.email.split("@")[0]}</span>
               </div>
-              <a className="navbar-login" href={`${appUrl || 'http://localhost:3000'}/dashboard`}>
+              <button
+                type="button"
+                className="navbar-login"
+                onClick={handleLogout}
+              >
                 Log Out
-              </a>
+              </button>
             </>
           ) : (
             <>
@@ -212,9 +230,13 @@ export default function Navbar() {
                   <div className="navbar-avatar">{initials}</div>
                   <span>{user.firstName || user.email.split("@")[0]}</span>
                 </div>
-                <a href={`${appUrl || 'http://localhost:3000'}/dashboard`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleMobileLogout}
+                >
                   Log Out
-                </a>
+                </button>
               </>
             ) : (
               <>

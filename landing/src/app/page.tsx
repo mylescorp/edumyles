@@ -464,7 +464,7 @@ function LandingPageContent() {
             },
             {
               name: "Standard",
-              price: "$8",
+              price: "8",
               description: "For growing schools needing more features",
               features: [
                 "Up to 500 students",
@@ -475,7 +475,7 @@ function LandingPageContent() {
             },
             {
               name: "Pro",
-              price: "$15",
+              price: "15",
               description: "Comprehensive solution for established schools",
               features: [
                 "Unlimited students",
@@ -488,8 +488,14 @@ function LandingPageContent() {
             <div key={index} className="pricing-card">
               <h3>{plan.name}</h3>
               <div className="price">
-                <span className="currency">$</span>
-                <span className="amount">{plan.price}</span>
+                {plan.price === "Free" ? (
+                  <span className="amount">Free</span>
+                ) : (
+                  <>
+                    <span className="currency">$</span>
+                    <span className="amount">{plan.price}</span>
+                  </>
+                )}
                 <span className="period">/student/month</span>
               </div>
               <p>{plan.description}</p>
