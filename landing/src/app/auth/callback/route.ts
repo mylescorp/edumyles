@@ -50,10 +50,10 @@ export async function GET(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           client_id: clientId,
+          client_secret: apiKey,
           grant_type: "authorization_code",
           code,
         }),
