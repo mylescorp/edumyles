@@ -121,7 +121,7 @@ export default function ClassDetailsPage({ params }: { params: Promise<{ classId
                     <DataTable
                         columns={studentColumns}
                         data={students}
-                        searchKey="firstName"
+                        searchKey={(row: any) => row.firstName}
                     />
                 </TabsContent>
 
