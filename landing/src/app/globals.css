@@ -3377,7 +3377,7 @@ details[open] .faq-question::after {
   margin-top: 1.5rem;
 }
 
-.sso-button {
+.btn-sso {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3394,9 +3394,28 @@ details[open] .faq-question::after {
   transition: background 180ms ease, border-color 180ms ease;
 }
 
-.sso-button:hover {
+.btn-sso:hover {
   background: var(--off-white);
   border-color: var(--charcoal);
+}
+
+.btn-sso:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sso-icon {
+  flex-shrink: 0;
+}
+
+.btn-google:hover {
+  border-color: #4285f4;
+  background: #f8f9ff;
+}
+
+.btn-microsoft:hover {
+  border-color: #0078d4;
+  background: #f0f8ff;
 }
 
 /* Divider */
