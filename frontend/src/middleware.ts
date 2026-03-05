@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform"];
-const PUBLIC_ROUTES = ["/auth/login", "/auth/signup", "/auth/callback"];
+const PUBLIC_ROUTES = ["/auth/login", "/auth/callback"];
 
 // ── RBAC: Which roles can access which route prefixes ─────────
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
