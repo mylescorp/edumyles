@@ -67,28 +67,32 @@ export default function PlatformDashboardPage() {
       type: "user_created",
       description: "New tenant registered: Nairobi Academy",
       timestamp: Date.now() - 3600000,
-      user: "system@edumyles.com"
+      user: "system@edumyles.com",
+      tenantName: "Nairobi Academy"
     },
     {
       id: "2", 
       type: "user_suspended",
       description: "Suspended tenant: Mombasa High School",
       timestamp: Date.now() - 7200000,
-      user: "system@edumyles.com"
+      user: "system@edumyles.com",
+      tenantName: "Mombasa High School"
     },
     {
       id: "3",
       type: "payment_processed",
       description: "Monthly payment processed: KES 45,000",
       timestamp: Date.now() - 1800000,
-      user: "system@edumyles.com"
+      user: "system@edumyles.com",
+      tenantName: "Nairobi Academy"
     },
     {
       id: "4",
       type: "system_backup",
       description: "Automated backup completed successfully",
       timestamp: Date.now() - 900000,
-      user: "system@edumyles.com"
+      user: "system@edumyles.com",
+      tenantName: "Nairobi Academy"
     }
   ];
 
@@ -270,11 +274,11 @@ export default function PlatformDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {activity ? (
-                activity.length > 0 ? (
+              {mockActivity ? (
+                mockActivity.length > 0 ? (
                   <div className="space-y-3">
-                    {(activity as any[]).map((item) => (
-                      <div key={item._id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    {mockActivity.map((item) => (
+                      <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                         <div className="flex-shrink-0">
                           <CheckCircle2 className="h-5 w-5 text-green-500" />
                         </div>
