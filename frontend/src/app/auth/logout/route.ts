@@ -1,39 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ConvexHttpClient } from "convex/browser";
-import { api } from "@/convex/_generated/api";
 
-const convex = new ConvexHttpClient(
-  process.env.NEXT_PUBLIC_CONVEX_URL ?? ""
-);
+export async function POST(request: NextRequest) {
+  try {
+    // Clear session cookie
+    const response = NextResponse.json({ success: true, message: "Logged out successfully" });
+    
+    // Clear the session cookie
+    response.cookies.set("edumyles_session", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0, // Immediately expire
+      expires: new Date(0) // Set to past date to ensure deletion
+    });
 
-export async function GET(req: NextRequest) {
-  const sessionToken = req.cookies.get("edumyles_session")?.value;
+    // Clear any other auth cookies
+    response.cookies.set("edumyles_user", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+      expires: new Date(0)
+    });
 
-  if (sessionToken) {
-    try {
-      await convex.mutation(api.sessions.deleteSession, { sessionToken });
-    } catch {
-      // Session may already be expired/deleted — continue with logout
-    }
+    return response;
+  } catch (error) {
+    console.error("Logout error:", error);
+    return NextResponse.json(
+      { success: false, message: "Logout failed" },
+      { status: 500 }
+    );
   }
+}
 
-  const response = NextResponse.redirect(new URL("/", req.url));
-
-  response.cookies.set("edumyles_session", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
-
-  response.cookies.set("edumyles_role", "", {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
-
-  return response;
+export async function GET(request: NextRequest) {
+  // Handle GET requests for logout as well (for direct navigation)
+  return POST(request);
 }
