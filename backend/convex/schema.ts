@@ -66,6 +66,10 @@ export default defineSchema({
     role: v.union(v.literal("school_admin"), v.literal("principal"), v.literal("teacher"), v.literal("student"), v.literal("parent"), v.literal("finance_officer"), v.literal("librarian"), v.literal("transport_officer"), v.literal("hr_officer"), v.literal("receptionist")),
     email: v.string(), phone: v.optional(v.string()), firstName: v.string(), lastName: v.optional(v.string()),
     photo: v.optional(v.string()), isActive: v.boolean(), createdAt: v.number(), updatedAt: v.optional(v.number()),
+    // Optional fields for backward compatibility
+    eduMylesUserId: v.optional(v.string()),
+    organizationId: v.optional(v.string()),
+    permissions: v.optional(v.array(v.string())),
   }).index("by_tenant", ["tenantId"]).index("by_tenant_role", ["tenantId", "role"]).index("by_tenant_email", ["tenantId", "email"]).index("by_workos_user", ["workosUserId"]),
 
   auditLogs: defineTable({
