@@ -395,7 +395,7 @@ function LandingPageContent() {
           </div>
 
           <div className="brand-values-card">
-            <h3>The M.Y.L.E.S Core Values</h3>
+            <h3>Core Values</h3>
 
             <ul className="brand-values-list">
               <li>
