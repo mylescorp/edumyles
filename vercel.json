@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "cd landing && npm run build",
+  "buildCommand": "cd frontend && npm run build",
   "installCommand": "npm install",
-  "outputDirectory": "landing/.next",
+  "outputDirectory": "frontend/.next",
   "headers": [
     {
       "source": "/(.*)",
