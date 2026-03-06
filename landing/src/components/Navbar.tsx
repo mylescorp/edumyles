@@ -75,7 +75,8 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<UserInfo | null>(null);
+  // ALWAYS null user on landing page - never show logged-in state
+  const user = null;
 
   const pathname = usePathname();
 
@@ -85,21 +86,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Landing page should always show login/signup buttons, not logged-in state
-  useEffect(() => {
-    setUser(null); // Always force null user state on landing page
-  }, []);
-
-
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
     setOpenDropdown(null);
   }, [pathname]);
 
-  const initials = user
-    ? (`${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() || (user.email?.[0] ?? "").toUpperCase())
-    : "";
+  const initials = ""; // No user on landing page, so no initials
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
   const handleLogout = () => {
@@ -150,11 +143,11 @@ export default function Navbar() {
         </ul>
 
         <div className="navbar-actions">
-          {user ? (
+          {false ? ( // ALWAYS false on landing page - never show logged-in state
             <>
               <div className="navbar-user">
                 <div className="navbar-avatar">{initials}</div>
-                <span className="navbar-username">{user.firstName || user.email.split("@")[0]}</span>
+                <span className="navbar-username">User</span>
               </div>
               <button
                 type="button"
@@ -208,11 +201,11 @@ export default function Navbar() {
             </div>
           ))}
           <div className="mobile-auth-actions">
-            {user ? (
+            {false ? ( // ALWAYS false on landing page - never show logged-in state
               <>
                 <div className="mobile-user-info">
                   <div className="navbar-avatar">{initials}</div>
-                  <span>{user.firstName || user.email.split("@")[0]}</span>
+                  <span>User</span>
                 </div>
                 <button
                   type="button"
