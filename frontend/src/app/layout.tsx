@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ConvexProvider } from "convex/react";
-import { convexClient } from "@/lib/convex";
 import { Toaster } from "@/components/ui/toaster";
 import ConditionalLayout from "@/components/landing/ConditionalLayout";
+import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
 
 // Force rebuild 2025-03-06 - All merge conflicts resolved
 
@@ -32,9 +31,10 @@ export default function RootLayout({
                 />
             </head>
             <body className="font-sans antialiased">
-                <ConvexProvider client={convexClient}>
+                <ConvexClientProvider>
                     <ConditionalLayout>{children}</ConditionalLayout>
-                </ConvexProvider>
+                </ConvexClientProvider>
+                <Toaster />
             </body>
         </html>
     );
