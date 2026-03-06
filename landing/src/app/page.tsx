@@ -127,36 +127,42 @@ function LandingPageContent() {
 
           {/* Auth Error Display */}
           {authError && (
-            <div className="auth-error-banner" style={{
-              backgroundColor: '#fee2e2',
-              border: '1px solid #fecaca',
-              borderRadius: '8px',
-              padding: '12px 16px',
-              marginBottom: '20px',
-              color: '#dc2626'
-            }}>
+            <div
+              className="auth-error-banner"
+              style={{
+                backgroundColor: "#fee2e2",
+                border: "1px solid #fecaca",
+                borderRadius: "8px",
+                padding: "12px 16px",
+                marginBottom: "20px",
+                color: "#dc2626",
+              }}
+            >
               <strong>Authentication Error:</strong> {authError}
             </div>
           )}
 
           {/* Auth Success Display */}
           {authSuccess && (
-            <div className="auth-success-banner" style={{
-              backgroundColor: '#dcfce7',
-              border: '1px solid #bbf7d0',
-              borderRadius: '8px',
-              padding: '12px 16px',
-              marginBottom: '20px',
-              color: '#166534'
-            }}>
+            <div
+              className="auth-success-banner"
+              style={{
+                backgroundColor: "#dcfce7",
+                border: "1px solid #bbf7d0",
+                borderRadius: "8px",
+                padding: "12px 16px",
+                marginBottom: "20px",
+                color: "#166534",
+              }}
+            >
               <strong>Success:</strong> {authSuccess}
             </div>
           )}
 
           <p className="subtext">
-            EduMyles is the operating system for schools across Africa — intuitive, affordable technology
-            that simplifies administration, enhances learning outcomes, and connects every stakeholder in
-            the education journey.
+            EduMyles is the operating system for schools across Africa — intuitive, affordable
+            technology that simplifies administration, enhances learning outcomes, and connects
+            every stakeholder in the education journey.
           </p>
           {/* Deployment trigger: 2026-03-04-12:02 */}
           <div className="actions">
@@ -183,7 +189,9 @@ function LandingPageContent() {
           <div className="dashboard-mockup">
             <div className="mockup-header">
               <div className="mockup-dots">
-                <span /><span /><span />
+                <span />
+                <span />
+                <span />
               </div>
               <span className="mockup-title">EduMyles Dashboard</span>
             </div>
@@ -235,13 +243,19 @@ function LandingPageContent() {
         <div className="section-header centered">
           <h2>Why schools choose EduMyles</h2>
           <p className="section-subtitle">
-            Built specifically for East African schools with local payment methods,
-            curricula support, and multi-language capabilities.
+            Built specifically for East African schools with local payment methods, curricula
+            support, and multi-language capabilities.
           </p>
         </div>
-        <div className="highlights-grid">
+        
+        {/* //changes made here to rename highlights-grid to highlights and 
+        // highlight-card to panel, also updated the css file to reflect 
+        // these changes. */}
+        {/*  was highlights-grid */}
+        <div className="highlights">
           {highlights.map((highlight, index) => (
-            <div key={index} className="highlight-card">
+            // was highlight-card
+            <div key={index} className="panel">
               <h3>{highlight.title}</h3>
               <p>{highlight.description}</p>
             </div>
@@ -298,9 +312,8 @@ function LandingPageContent() {
           <span className="concierge-label">EduMyles Concierge</span>
           <h2>Speak to a school-tech expert — free.</h2>
           <p>
-            Get a personalized walkthrough of EduMyles tailored to your
-            school&apos;s structure, curriculum, and workflows. Not a sales call —
-            a genuine consultation.
+            Get a personalized walkthrough of EduMyles tailored to your school&apos;s structure,
+            curriculum, and workflows. Not a sales call — a genuine consultation.
           </p>
           <a className="btn btn-amber" href="/concierge">
             Book Free Consultation
@@ -356,7 +369,8 @@ function LandingPageContent() {
         <div className="section-header centered">
           <h2>EduMyles — Brand Identity & Foundation</h2>
           <p className="section-subtitle">
-            Built on a clear mission, bold vision, and the M.Y.L.E.S. principle — our core values framework.
+            Built on a clear mission, bold vision, and the M.Y.L.E.S. Core Values — our core values
+            framework.
           </p>
         </div>
 
@@ -365,8 +379,8 @@ function LandingPageContent() {
             <h3>Mission</h3>
             <p>
               To empower schools across Africa with intuitive, affordable technology that simplifies
-              administration, enhances learning outcomes, and connects every stakeholder in the education
-              journey — transforming schools, one mile at a time.
+              administration, enhances learning outcomes, and connects every stakeholder in the
+              education journey — transforming schools, one mile at a time.
             </p>
 
             <h3>Vision</h3>
@@ -377,22 +391,27 @@ function LandingPageContent() {
           </div>
 
           <div className="brand-column">
-            <h3>The M.Y.L.E.S. Principle</h3>
+            <h3>The M.Y.L.E.S. Core Values</h3>
             <ul className="brand-values-list">
               <li>
-                <strong>M — Mastery:</strong> Pursue excellence relentlessly in how we build, ship, and serve.
+                <strong>M — Mastery:</strong> Pursue excellence relentlessly in how we build, ship,
+                and serve.
               </li>
               <li>
-                <strong>Y — Youth Empowerment:</strong> Design every decision to unlock the potential of Africa&apos;s young people.
+                <strong>Y — Youth Empowerment:</strong> Design every decision to unlock the
+                potential of Africa&apos;s young people.
               </li>
               <li>
-                <strong>L — Leadership:</strong> Lead with integrity, courage, and accountability to every stakeholder.
+                <strong>L — Leadership:</strong> Lead with integrity, courage, and accountability to
+                every stakeholder.
               </li>
               <li>
-                <strong>E — Entrepreneurship:</strong> Think like founders — innovate boldly, own outcomes fully.
+                <strong>E — Entrepreneurship:</strong> Think like founders — innovate boldly, own
+                outcomes fully.
               </li>
               <li>
-                <strong>S — Service:</strong> Serve schools, students, and communities with purpose, humility, and heart.
+                <strong>S — Service:</strong> Serve schools, students, and communities with purpose,
+                humility, and heart.
               </li>
             </ul>
           </div>
@@ -484,8 +503,7 @@ function LandingPageContent() {
         <div className="final-cta-card">
           <h2>Choose EduMyles. Transform your school.</h2>
           <p>
-            Join 50+ schools across East Africa already running smarter with
-            one unified platform.
+            Join 50+ schools across East Africa already running smarter with one unified platform.
           </p>
           <a className="btn btn-primary" href="/auth/login">
             Activate Free Trial

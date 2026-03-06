@@ -596,7 +596,7 @@ button {
 
 .eyebrow {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 1.25rem;
   letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--forest);
@@ -974,6 +974,7 @@ h1 {
   color: var(--forest-dark);
 }
 
+
 /* ================================================================
    4. MODULE CATEGORIES — TAB-BASED
    ================================================================ */
@@ -1078,7 +1079,7 @@ h1 {
 
 .concierge-label {
   display: inline-block;
-  font-size: 0.8rem;
+  font-size: 1.25rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
