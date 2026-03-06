@@ -4,9 +4,6 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
 
-const workos = new WorkOS(process.env.WORKOS_API_KEY!);
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL ?? "");
-
 const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL ?? "";
 
 /**
@@ -61,10 +58,29 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const apiKey = process.env.WORKOS_API_KEY;
+    const clientId =
+      process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+
+    if (!apiKey || !clientId || !convexUrl) {
+      console.error("[auth/callback] Missing required auth environment variables", {
+        hasApiKey: !!apiKey,
+        hasClientId: !!clientId,
+        hasConvexUrl: !!convexUrl,
+      });
+      return NextResponse.redirect(
+        new URL("/auth/login?error=config_error", req.url)
+      );
+    }
+
+    const workos = new WorkOS(apiKey);
+    const convex = new ConvexHttpClient(convexUrl);
+
     // --- Exchange authorization code for user profile ----------------------
     const { user, organizationId } =
       await workos.userManagement.authenticateWithCode({
-        clientId: process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID!,
+        clientId,
         code,
       });
 
