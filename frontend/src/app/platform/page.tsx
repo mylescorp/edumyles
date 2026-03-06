@@ -49,8 +49,48 @@ function ActionLabel({ action }: { action: string }) {
 export default function PlatformDashboardPage() {
   const { isLoading } = useAuth();
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("30d");
-  const stats = useQuery(api.platform.tenants.queries.getPlatformStats);
-  const activity = useQuery(api.platform.tenants.queries.getRecentActivity, { limit: 10 });
+  // Mock data for demonstration since Convex API doesn't exist yet
+  const mockStats = {
+    totalTenants: 12,
+    activeTenants: 8,
+    suspendedTenants: 4,
+    totalUsers: 2847,
+    activeUsers: 2234,
+    newUsersThisMonth: 127,
+    systemHealth: "99.9%",
+    monthlyRevenue: "$124,580"
+  };
+
+  const mockActivity = [
+    {
+      id: "1",
+      type: "user_created",
+      description: "New tenant registered: Nairobi Academy",
+      timestamp: Date.now() - 3600000,
+      user: "system@edumyles.com"
+    },
+    {
+      id: "2", 
+      type: "user_suspended",
+      description: "Suspended tenant: Mombasa High School",
+      timestamp: Date.now() - 7200000,
+      user: "system@edumyles.com"
+    },
+    {
+      id: "3",
+      type: "payment_processed",
+      description: "Monthly payment processed: KES 45,000",
+      timestamp: Date.now() - 1800000,
+      user: "system@edumyles.com"
+    },
+    {
+      id: "4",
+      type: "system_backup",
+      description: "Automated backup completed successfully",
+      timestamp: Date.now() - 900000,
+      user: "system@edumyles.com"
+    }
+  ];
 
   // Enhanced stats with mock data for demonstration
   const enhancedStats = {
@@ -112,7 +152,7 @@ export default function PlatformDashboardPage() {
             <Building2 className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalTenants ?? "--"}</div>
+            <div className="text-2xl font-bold">{mockStats.totalTenants}</div>
             <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
               <span>Active school organizations</span>
               <div className="flex items-center space-x-1">
@@ -131,7 +171,7 @@ export default function PlatformDashboardPage() {
             <Users className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.activeUsers ?? "--"}</div>
+            <div className="text-2xl font-bold">{mockStats.activeUsers}</div>
             <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
               <span>Across all tenants</span>
               <div className="flex items-center space-x-1">
@@ -150,9 +190,9 @@ export default function PlatformDashboardPage() {
             <DollarSign className="h-5 w-5 text-amber-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{enhancedStats.monthlyRevenue}</div>
+            <div className="text-2xl font-bold">{mockStats.monthlyRevenue}</div>
             <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-              <span>From all subscriptions</span>
+              <span>From all active tenants</span>
               <div className="flex items-center space-x-1">
                 <ArrowUpRight className="h-3 w-3 text-green-500" />
                 <span className="text-green-500">15.3%</span>
@@ -161,58 +201,22 @@ export default function PlatformDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-emerald-500">
+        <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-purple-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               System Health
             </CardTitle>
-            <Activity className="h-5 w-5 text-emerald-600" />
+            <Activity className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{enhancedStats.systemHealth}</div>
+            <div className="text-2xl font-bold">{mockStats.systemHealth}</div>
             <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-              <span>Uptime this month</span>
-              <Badge className="bg-green-100 text-green-800 text-xs">Operational</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Secondary Stats */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Students
-            </CardTitle>
-            <GraduationCap className="h-5 w-5 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalStudents ?? "--"}</div>
-            <div className="text-xs text-muted-foreground mt-1">Enrolled students</div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Sessions
-            </CardTitle>
-            <Globe className="h-5 w-5 text-indigo-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{enhancedStats.activeSessions}</div>
-            <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-              <span>Current active users</span>
-              <div className="flex items-center space-x-1">
-                <ArrowDownRight className="h-3 w-3 text-red-500" />
-                <span className="text-red-500">2.1%</span>
-              </div>
+              <span>Platform uptime</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-red-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Security Events
@@ -220,38 +224,16 @@ export default function PlatformDashboardPage() {
             <Shield className="h-5 w-5 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{enhancedStats.securityEvents}</div>
+            <div className="text-2xl font-bold">{mockStats.securityEvents}</div>
             <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-              <span>Security alerts this week</span>
-              <div className="flex items-center space-x-1">
-                <ArrowDownRight className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">18.5%</span>
-              </div>
+              <span>Last 30 days</span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Trial Tenants
-            </CardTitle>
-            <Clock className="h-5 w-5 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.trialTenants ?? "--"}</div>
-            <div className="text-xs text-muted-foreground mt-1">On trial period</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Plan Distribution, Recent Activity & Quick Actions */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Plan Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
+      {/* Secondary Content */}
+      <div className="grid gap-6 md:grid-cols-2">
               Plan Distribution
             </CardTitle>
           </CardHeader>
