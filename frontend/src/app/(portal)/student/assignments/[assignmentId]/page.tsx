@@ -2,20 +2,22 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { useParams, useRouter } from "next/navigation";
-import { api } from "../../../../../../convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { FileText, Calendar, Upload, CheckCircle2, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function AssignmentDetail() {
     const { assignmentId } = useParams();
     const router = useRouter();
+    const { toast } = useToast();
     const assignments = useQuery(api.modules.portal.student.queries.getMyAssignments, {});
     const submitAssignment = useMutation(api.modules.portal.student.mutations.submitAssignment);
 
@@ -59,7 +61,10 @@ export default function AssignmentDetail() {
             <PageHeader
                 title={assignment.title}
                 description={`Subject: ${assignment.subjectId}`}
-                backHref="/portal/student/assignments"
+                breadcrumbs={[
+                    { label: "Assignments", href: "/portal/student/assignments" },
+                    { label: assignment.title }
+                ]}
             />
 
             <div className="grid gap-6 lg:grid-cols-3">
