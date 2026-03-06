@@ -108,10 +108,20 @@ export async function GET(req: NextRequest) {
     const sessionToken = crypto.randomBytes(32).toString("hex");
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
-    // Skip session creation for now due to schema conflicts
-    // TODO: Fix backend schema and enable session creation
-    console.log("[auth/callback] Session creation skipped due to schema conflicts");
-    console.log("[auth/callback] Generated token:", sessionToken);
+    try {
+      await convex.mutation(api.platform.createSession, {
+        sessionToken,
+        tenantId,
+        userId: workosUserId,
+        email,
+        role,
+        expiresAt: Date.now() + thirtyDays,
+      });
+      console.log("[auth/callback] ✅ Session created successfully");
+    } catch (error) {
+      console.error("[auth/callback] ❌ Session creation failed:", error);
+      // Continue anyway - user can still login but session won't be validated
+    }
 
     // --- Set cookies & redirect -------------------------------------------
     const dashboard = getRoleDashboard(role);

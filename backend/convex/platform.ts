@@ -11,7 +11,7 @@ export const createSession = mutation({
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("sessions", {
+    const sessionId = await ctx.db.insert("sessions", {
       token: args.sessionToken,
       userId: args.userId,
       role: args.role,
@@ -19,8 +19,10 @@ export const createSession = mutation({
       expiresAt: args.expiresAt,
       createdAt: Date.now(),
       tenantId: args.tenantId,
+      email: args.email,
+      workosUserId: args.userId,
     });
-    return { success: true };
+    return { success: true, sessionId };
   },
 });
 

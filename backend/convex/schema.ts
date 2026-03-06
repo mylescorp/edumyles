@@ -17,26 +17,17 @@ export default defineSchema({
     isActive: v.boolean(), createdAt: v.number(),
   }).index("by_workos_user", ["workosUserId"]).index("by_email", ["email"]),
 
-  // Legacy sessions table for backward compatibility
+  // Unified sessions table
   sessions: defineTable({
-    tenantId: v.string(), token: v.optional(v.string()), userId: v.string(), role: v.string(),
+    token: v.optional(v.string()), userId: v.string(), role: v.string(),
     permissions: v.optional(v.array(v.string())), expiresAt: v.number(), createdAt: v.number(),
-    isActive: v.optional(v.boolean()),
-    deviceInfo: v.optional(v.string()),
-    workosUserId: v.optional(v.string()),
-    email: v.optional(v.string()),
-    sessionToken: v.optional(v.string()),
-  }).index("by_tenant", ["tenantId"]).index("by_token", ["token"]).index("by_tenant_user", ["tenantId", "userId"]),
-
-  platformSessions: defineTable({
-    token: v.string(), userId: v.string(), role: v.string(),
-    permissions: v.array(v.string()), expiresAt: v.number(), createdAt: v.number(),
+    tenantId: v.string(), email: v.optional(v.string()),
     // Optional fields for backward compatibility
     isActive: v.optional(v.boolean()),
     deviceInfo: v.optional(v.string()),
     workosUserId: v.optional(v.string()),
-    tenantId: v.optional(v.string()),
-  }).index("by_token", ["token"]).index("by_user", ["userId"]),
+    sessionToken: v.optional(v.string()),
+  }).index("by_token", ["token"]).index("by_user", ["userId"]).index("by_tenant", ["tenantId"]),
 
   platformAuditLogs: defineTable({
     actorId: v.string(), actorEmail: v.string(), action: v.string(),
@@ -73,8 +64,8 @@ export default defineSchema({
   users: defineTable({
     tenantId: v.string(), workosUserId: v.string(),
     role: v.union(v.literal("school_admin"), v.literal("principal"), v.literal("teacher"), v.literal("student"), v.literal("parent"), v.literal("finance_officer"), v.literal("librarian"), v.literal("transport_officer"), v.literal("hr_officer"), v.literal("receptionist")),
-    email: v.string(), phone: v.optional(v.string()), firstName: v.string(), lastName: v.string(),
-    photo: v.optional(v.string()), isActive: v.boolean(), createdAt: v.number(), updatedAt: v.number(),
+    email: v.string(), phone: v.optional(v.string()), firstName: v.string(), lastName: v.optional(v.string()),
+    photo: v.optional(v.string()), isActive: v.boolean(), createdAt: v.number(), updatedAt: v.optional(v.number()),
   }).index("by_tenant", ["tenantId"]).index("by_tenant_role", ["tenantId", "role"]).index("by_tenant_email", ["tenantId", "email"]).index("by_workos_user", ["workosUserId"]),
 
   auditLogs: defineTable({

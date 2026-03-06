@@ -1,13 +1,47 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Settings, Globe, Shield, Database, Bell } from "lucide-react";
+import { 
+  Settings, 
+  Database, 
+  Shield, 
+  Bell, 
+  Mail,
+  Globe,
+  Users,
+  Building2,
+  Save,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle2,
+  Upload,
+  Download,
+  Key,
+  Lock,
+  Eye,
+  EyeOff
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function PlatformSettingsPage() {
     const { isLoading } = useAuth();

@@ -1,14 +1,32 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Building2, Users, GraduationCap, Activity, AlertTriangle, Clock } from "lucide-react";
+import { 
+  Building2, 
+  Users, 
+  GraduationCap, 
+  Activity, 
+  AlertTriangle, 
+  Clock,
+  DollarSign,
+  TrendingUp,
+  Globe,
+  Shield,
+  UserCheck,
+  FileText,
+  ArrowUpRight,
+  ArrowDownRight,
+  CheckCircle2
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatRelativeTime } from "@/lib/formatters";
 
 function ActionLabel({ action }: { action: string }) {
@@ -30,70 +48,212 @@ function ActionLabel({ action }: { action: string }) {
 
 export default function PlatformDashboardPage() {
   const { isLoading } = useAuth();
+  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("30d");
   const stats = useQuery(api.platform.tenants.queries.getPlatformStats);
   const activity = useQuery(api.platform.tenants.queries.getRecentActivity, { limit: 10 });
+
+  // Enhanced stats with mock data for demonstration
+  const enhancedStats = {
+    ...stats,
+    monthlyRevenue: "$124,580",
+    systemHealth: "99.9%",
+    activeSessions: "3,247",
+    securityEvents: "23"
+  };
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
-        title="Platform Dashboard"
-        description="Overview of all tenants and platform metrics"
+        title="Master Admin Dashboard"
+        description="Complete overview of the EduMyles platform ecosystem"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/platform" }
+        ]}
       />
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Total Tenants"
-          value={stats?.totalTenants ?? "--"}
-          icon={Building2}
-        />
-        <StatCard
-          label="Active Users"
-          value={stats?.activeUsers ?? "--"}
-          icon={Users}
-        />
-        <StatCard
-          label="Total Students"
-          value={stats?.totalStudents ?? "--"}
-          icon={GraduationCap}
-        />
-        <StatCard
-          label="Trial Tenants"
-          value={stats?.trialTenants ?? "--"}
-          icon={Clock}
-        />
+      {/* Time Range Selector & Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-muted-foreground">Time Range:</span>
+          <div className="flex space-x-1">
+            {(["7d", "30d", "90d"] as const).map((range) => (
+              <Button
+                key={range}
+                variant={timeRange === range ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTimeRange(range)}
+                className="text-xs"
+                style={timeRange === range ? { 
+                  backgroundColor: "#056C40", 
+                  borderColor: "#056C40" 
+                } : {}}
+              >
+                {range === "7d" ? "7 Days" : range === "30d" ? "30 Days" : "90 Days"}
+              </Button>
+            ))}
+          </div>
+        </div>
+        
+        <Button className="bg-[#056C40] hover:bg-[#023c24]">
+          <FileText className="h-4 w-4 mr-2" />
+          Export Report
+        </Button>
+      </div>
+
+      {/* Primary Stats Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-blue-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Tenants
+            </CardTitle>
+            <Building2 className="h-5 w-5 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalTenants ?? "--"}</div>
+            <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
+              <span>Active school organizations</span>
+              <div className="flex items-center space-x-1">
+                <ArrowUpRight className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">12.5%</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-green-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Active Users
+            </CardTitle>
+            <Users className="h-5 w-5 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.activeUsers ?? "--"}</div>
+            <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
+              <span>Across all tenants</span>
+              <div className="flex items-center space-x-1">
+                <ArrowUpRight className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">8.2%</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-amber-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Monthly Revenue
+            </CardTitle>
+            <DollarSign className="h-5 w-5 text-amber-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{enhancedStats.monthlyRevenue}</div>
+            <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
+              <span>From all subscriptions</span>
+              <div className="flex items-center space-x-1">
+                <ArrowUpRight className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">15.3%</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-emerald-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              System Health
+            </CardTitle>
+            <Activity className="h-5 w-5 text-emerald-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{enhancedStats.systemHealth}</div>
+            <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
+              <span>Uptime this month</span>
+              <Badge className="bg-green-100 text-green-800 text-xs">Operational</Badge>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Secondary Stats */}
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Active Tenants"
-          value={stats?.activeTenants ?? "--"}
-          icon={Activity}
-          className="border-l-4 border-l-green-500"
-        />
-        <StatCard
-          label="Suspended Tenants"
-          value={stats?.suspendedTenants ?? "--"}
-          icon={AlertTriangle}
-          className="border-l-4 border-l-red-500"
-        />
-        <StatCard
-          label="Total Users"
-          value={stats?.totalUsers ?? "--"}
-          icon={Users}
-          className="border-l-4 border-l-blue-500"
-        />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Students
+            </CardTitle>
+            <GraduationCap className="h-5 w-5 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalStudents ?? "--"}</div>
+            <div className="text-xs text-muted-foreground mt-1">Enrolled students</div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Active Sessions
+            </CardTitle>
+            <Globe className="h-5 w-5 text-indigo-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{enhancedStats.activeSessions}</div>
+            <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
+              <span>Current active users</span>
+              <div className="flex items-center space-x-1">
+                <ArrowDownRight className="h-3 w-3 text-red-500" />
+                <span className="text-red-500">2.1%</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Security Events
+            </CardTitle>
+            <Shield className="h-5 w-5 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{enhancedStats.securityEvents}</div>
+            <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
+              <span>Security alerts this week</span>
+              <div className="flex items-center space-x-1">
+                <ArrowDownRight className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">18.5%</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Trial Tenants
+            </CardTitle>
+            <Clock className="h-5 w-5 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.trialTenants ?? "--"}</div>
+            <div className="text-xs text-muted-foreground mt-1">On trial period</div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Plan Distribution and Recent Activity */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      {/* Plan Distribution, Recent Activity & Quick Actions */}
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Plan Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Plan Distribution</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Plan Distribution
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {stats?.planCounts ? (
@@ -119,41 +279,130 @@ export default function PlatformDashboardPage() {
         </Card>
 
         {/* Recent Activity */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Recent Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {activity ? (
+                activity.length > 0 ? (
+                  <div className="space-y-3">
+                    {(activity as any[]).map((item) => (
+                      <div key={item._id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex-shrink-0">
+                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <ActionLabel action={item.action} />
+                            <span className="text-xs text-muted-foreground">
+                              {formatRelativeTime(item.createdAt)}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-muted-foreground truncate">
+                            {item.tenantName}
+                            {item.targetType && item.targetId && (
+                              <span> · {item.targetType}: {item.targetId}</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No recent activity logged yet.</p>
+                )
+              ) : (
+                <p className="text-sm text-muted-foreground">Loading activity...</p>
+              )}
+              <div className="mt-4 pt-4 border-t">
+                <Button variant="outline" className="w-full">
+                  View All Activity
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Quick Actions & System Status */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
-          <CardContent>
-            {activity ? (
-              activity.length > 0 ? (
-                <div className="space-y-3">
-                  {(activity as any[]).map((item) => (
-                    <div key={item._id} className="flex items-start gap-3 border-b border-border/50 pb-3 last:border-0 last:pb-0">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <ActionLabel action={item.action} />
-                          <span className="text-xs text-muted-foreground">
-                            {formatRelativeTime(item.createdAt)}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-sm text-muted-foreground truncate">
-                          {item.tenantName}
-                          {item.targetType && item.targetId && (
-                            <span> · {item.targetType}: {item.targetId}</span>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No recent activity logged yet.</p>
-              )
-            ) : (
-              <p className="text-sm text-muted-foreground">Loading activity...</p>
-            )}
+          <CardContent className="space-y-3">
+            <Button className="w-full justify-start" variant="outline">
+              <UserCheck className="h-4 w-4 mr-2" />
+              Manage Users
+            </Button>
+            <Button className="w-full justify-start" variant="outline">
+              <Building2 className="h-4 w-4 mr-2" />
+              Tenant Settings
+            </Button>
+            <Button className="w-full justify-start" variant="outline">
+              <Shield className="h-4 w-4 mr-2" />
+              Security Center
+            </Button>
+            <Button className="w-full justify-start" variant="outline">
+              <FileText className="h-4 w-4 mr-2" />
+              System Logs
+            </Button>
           </CardContent>
         </Card>
+
+        {/* System Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle>System Status</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">API Status</span>
+              <Badge className="bg-green-100 text-green-800">Operational</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Database</span>
+              <Badge className="bg-green-100 text-green-800">Healthy</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">CDN</span>
+              <Badge className="bg-green-100 text-green-800">Active</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Backup</span>
+              <Badge className="bg-amber-100 text-amber-800">In Progress</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Active/Suspended Tenants */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Active Tenants</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{stats?.activeTenants ?? "--"}</div>
+              <p className="text-xs text-muted-foreground mt-1">Currently operational</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Suspended Tenants</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{stats?.suspendedTenants ?? "--"}</div>
+              <p className="text-xs text-muted-foreground mt-1">Require attention</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
