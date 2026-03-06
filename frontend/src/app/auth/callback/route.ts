@@ -92,10 +92,14 @@ export async function GET(req: NextRequest) {
     let _stateData: Record<string, string> = {};
     if (stateParam) {
       try {
+        // Fix base64url decoding - replace URL-safe chars first
+        const base64 = stateParam.replace(/-/g, '+').replace(/_/g, '/');
+        const paddedBase64 = base64 + '='.repeat((4 - base64.length % 4) % 4);
         _stateData = JSON.parse(
-          Buffer.from(stateParam, "base64url").toString()
+          Buffer.from(paddedBase64, 'base64').toString()
         );
-      } catch {
+      } catch (err) {
+        console.log("[auth/callback] Failed to decode state:", err);
         // non-critical — ignore bad state
       }
     }
@@ -104,7 +108,7 @@ export async function GET(req: NextRequest) {
     const sessionToken = crypto.randomBytes(32).toString("hex");
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
-    await convex.mutation(api.sessions.createSession, {
+    await convex.mutation(api.platform.createPlatformSession, {
       sessionToken,
       tenantId,
       userId: workosUserId,
