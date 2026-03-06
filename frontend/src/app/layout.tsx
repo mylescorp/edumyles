@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ConvexClientProvider } from "./providers";
-import ConditionalLayout from "@/components/landing/ConditionalLayout";
+import { ConvexProvider } from "convex/react";
+import { convexClient } from "@/lib/convex";
+import { Toaster } from "@/components/ui/toaster";
+import "./globals.css";
+
+// Force rebuild 2025-03-06 - All merge conflicts resolved
 
 export const metadata: Metadata = {
     title: "EduMyles — School Management for East Africa",
