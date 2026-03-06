@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
     try {
-      await convex.mutation(api.platform.createSession, {
+      await convex.mutation(api.sessions.createSession, {
         sessionToken,
         tenantId,
         userId: workosUserId,
