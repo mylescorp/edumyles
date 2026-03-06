@@ -247,7 +247,7 @@ function LandingPageContent() {
             support, and multi-language capabilities.
           </p>
         </div>
-        
+
         {/* //changes made here to rename highlights-grid to highlights and 
         // highlight-card to panel, also updated the css file to reflect 
         // these changes. */}
@@ -363,61 +363,86 @@ function LandingPageContent() {
       </section>
 
       {/* ════════════════════════════════════════════════════
-          7b. BRAND FRAMEWORK — White
-      ════════════════════════════════════════════════════ */}
+    7b. BRAND FRAMEWORK — White
+════════════════════════════════════════════════════ */}
       <section className="brand-section">
         <div className="section-header centered">
           <h2>EduMyles — Brand Identity & Foundation</h2>
           <p className="section-subtitle">
-            Built on a clear mission, bold vision, and the M.Y.L.E.S. Core Values — our core values
-            framework.
+            Built on a clear mission, bold vision, and a values framework that guides how we build,
+            serve, and grow.
           </p>
         </div>
 
         <div className="brand-grid">
-          <div className="brand-column">
-            <h3>Mission</h3>
-            <p>
-              To empower schools across Africa with intuitive, affordable technology that simplifies
-              administration, enhances learning outcomes, and connects every stakeholder in the
-              education journey — transforming schools, one mile at a time.
-            </p>
+          <div className="brand-left">
+            <div className="brand-card">
+              <h3>Mission</h3>
+              <p>
+                To empower schools across Africa with intuitive, affordable technology that
+                simplifies administration, enhances learning outcomes, and connects every
+                stakeholder in the education journey — transforming schools, one mile at a time.
+              </p>
+            </div>
 
-            <h3>Vision</h3>
-            <p>
-              A world where every school, regardless of size or location, has access to world-class
-              technology to deliver transformative education.
-            </p>
+            <div className="brand-card">
+              <h3>Vision</h3>
+              <p>
+                A world where every school, regardless of size or location, has access to
+                world-class technology to deliver transformative education.
+              </p>
+            </div>
           </div>
 
-          <div className="brand-column">
-            <h3>The M.Y.L.E.S. Core Values</h3>
+          <div className="brand-values-card">
+            <h3>The M.Y.L.E.S Core Values</h3>
+
             <ul className="brand-values-list">
               <li>
-                <strong>M — Mastery:</strong> Pursue excellence relentlessly in how we build, ship,
-                and serve.
+                <span className="brand-value-letter">M</span>
+                <div className="brand-value-content">
+                  <strong>Mastery</strong>
+                  <p>Pursue excellence relentlessly in how we build, ship, and serve.</p>
+                </div>
               </li>
+
               <li>
-                <strong>Y — Youth Empowerment:</strong> Design every decision to unlock the
-                potential of Africa&apos;s young people.
+                <span className="brand-value-letter">Y</span>
+                <div className="brand-value-content">
+                  <strong>Youth Empowerment</strong>
+                  <p>
+                    Design every decision to unlock the potential of Africa&apos;s young people.
+                  </p>
+                </div>
               </li>
+
               <li>
-                <strong>L — Leadership:</strong> Lead with integrity, courage, and accountability to
-                every stakeholder.
+                <span className="brand-value-letter">L</span>
+                <div className="brand-value-content">
+                  <strong>Leadership</strong>
+                  <p>Lead with integrity, courage, and accountability to every stakeholder.</p>
+                </div>
               </li>
+
               <li>
-                <strong>E — Entrepreneurship:</strong> Think like founders — innovate boldly, own
-                outcomes fully.
+                <span className="brand-value-letter">E</span>
+                <div className="brand-value-content">
+                  <strong>Entrepreneurship</strong>
+                  <p>Think like founders — innovate boldly and own outcomes fully.</p>
+                </div>
               </li>
+
               <li>
-                <strong>S — Service:</strong> Serve schools, students, and communities with purpose,
-                humility, and heart.
+                <span className="brand-value-letter">S</span>
+                <div className="brand-value-content">
+                  <strong>Service</strong>
+                  <p>Serve schools, students, and communities with purpose, humility, and heart.</p>
+                </div>
               </li>
             </ul>
           </div>
         </div>
       </section>
-
       {/* ════════════════════════════════════════════════════
           8. PRICING — Amber
       ════════════════════════════════════════════════════ */}
