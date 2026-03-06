@@ -109,6 +109,14 @@ export async function GET(req: NextRequest) {
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
     try {
+      console.log("[auth/callback] Attempting to create session with:", {
+        sessionToken,
+        tenantId,
+        userId: workosUserId,
+        email,
+        role,
+        expiresAt: Date.now() + thirtyDays,
+      });
       await convex.mutation(api.sessions.createSession, {
         sessionToken,
         tenantId,
@@ -120,6 +128,11 @@ export async function GET(req: NextRequest) {
       console.log("[auth/callback] ✅ Session created successfully");
     } catch (error) {
       console.error("[auth/callback] ❌ Session creation failed:", error);
+      console.error("[auth/callback] ❌ Error details:", {
+        message: error?.message,
+        stack: error?.stack,
+        name: error?.name,
+      });
       // Continue anyway - user can still login but session won't be validated
     }
 

@@ -50,6 +50,9 @@ export function useAuth() {
           sessionToken: token,
         });
 
+        console.log("[useAuth] Session query result:", result);
+        console.log("[useAuth] Token from cookie:", token);
+
         if (!cancelled) {
           setSession(result as Session | null);
           setIsLoading(false);
