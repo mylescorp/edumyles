@@ -1357,11 +1357,10 @@ h1 {
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
   max-width: var(--max-width);
-  margin: 0 auto;
-  align-items: stretch;
+  margin: 0 auto 2rem;
 }
 
 .pricing-card {
