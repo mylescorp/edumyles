@@ -1,191 +1,170 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { useState } from "react";
+import { use } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "convex/react";
-<<<<<<< HEAD
-import { api } from "../../../../../../../convex/_generated/api";
-=======
 import { api } from "@/convex/_generated/api";
->>>>>>> main
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
 
-export default function GradeEntryPage({ params }: { params: Promise<{ classId: string }> }) {
-    const { classId } = use(params);
-    const { user, isLoading: authLoading } = useAuth();
+export default function ClassGradesPage({
+  params,
+}: {
+  params: Promise<{ classId: string }>;
+}) {
+  const { classId } = use(params);
+  const { user, isLoading: authLoading } = useAuth();
+  const [term, setTerm] = useState<string>("Term 1");
+  const [grades, setGrades] = useState<Record<string, { score: string; remarks: string }>>({});
 
-    const [selectedSubject, setSelectedSubject] = useState<string>("");
-    const [term, setTerm] = useState<string>("Term 1");
-    const [grades, setGrades] = useState<Record<string, { score: string; remarks: string }>>({});
+  const classData = useQuery(api.modules.sis.queries.listClasses, {})?.find(c => c._id === classId);
+  const students = useQuery(api.modules.academics.queries.getClassStudents, { classId });
 
-<<<<<<< HEAD
-    const classData = useQuery(api.modules.sis.queries.listClasses, { tenantId: user?.tenantId || "" })?.find(c => c._id === classId);
-    const students = useQuery(api.modules.academics.queries.getClassStudents, { tenantId: user?.tenantId || "", classId });
-=======
-    const classData = useQuery(api.modules.sis.queries.listClasses, {})?.find(c => c._id === classId);
-    const students = useQuery(api.modules.academics.queries.getClassStudents, { classId });
->>>>>>> main
-    const enterGradesMutation = useMutation(api.modules.academics.mutations.enterGrades);
+  const enterGradesMutation = useMutation(api.modules.academics.mutations.enterGrades);
 
-    if (authLoading || classData === undefined || students === undefined) return <LoadingSkeleton variant="page" />;
+  if (authLoading || classData === undefined || students === undefined) return <LoadingSkeleton variant="page" />;
 
-    const handleGradeChange = (studentId: string, field: "score" | "remarks", value: string) => {
-        setGrades(prev => ({
-            ...prev,
-            [studentId]: {
-                ...(prev[studentId] || { score: "", remarks: "" }),
-                [field]: value
-            }
-        }));
-    };
+  const handleGradeChange = (studentId: string, field: "score" | "remarks", value: string) => {
+    setGrades(prev => ({
+      ...prev,
+      [studentId]: { ...prev[studentId], [field]: value }
+    }));
+  };
 
-    const calculateGrade = (score: number) => {
-        if (score >= 80) return "A";
-        if (score >= 70) return "B";
-        if (score >= 60) return "C";
-        if (score >= 50) return "D";
-        return "E";
-    };
+  const calculateGrade = (score: number): string => {
+    if (score >= 90) return "A";
+    if (score >= 80) return "B";
+    if (score >= 70) return "C";
+    if (score >= 60) return "D";
+    return "F";
+  };
 
-    const handleSave = async () => {
-        if (!selectedSubject) {
-            toast({ title: "Error", description: "Please select a subject.", variant: "destructive" });
-            return;
-        }
+  const handleSubmit = async () => {
+    if (!classData) return;
 
-        const payload = Object.entries(grades).map(([studentId, data]) => ({
-            studentId,
-            classId,
-            subjectId: selectedSubject,
-            term,
-<<<<<<< HEAD
-            academicYear: new Date().getFullYear().toString(),
-            score: parseFloat(data.score),
-            grade: calculateGrade(parseFloat(data.score)),
-            remarks: data.remarks,
-            recordedBy: user?.eduMylesUserId || "",
-        }));
+    try {
+      const payload = students.map(student => ({
+        studentId: student._id,
+        score: parseFloat(grades[student._id]?.score || "0"),
+        grade: calculateGrade(parseFloat(grades[student._id]?.score || "0")),
+        remarks: grades[student._id]?.remarks || "",
+      }));
 
-        try {
-            await enterGradesMutation({
-                tenantId: user?.tenantId || "",
-                grades: payload,
-            });
-=======
-            academicYear: "2024", // Dynamic year in production
-            score: parseFloat(data.score),
-            grade: calculateGrade(parseFloat(data.score)),
-            remarks: data.remarks,
-            recordedBy: user?._id || "",
-        }));
+      await enterGradesMutation({
+        tenantId: user?.tenantId || "",
+        classId,
+        subjectId: "general", // This should be dynamic based on subject selection
+        term,
+        academicYear: "2024", // Dynamic year in production
+        grades: payload,
+      });
 
-        try {
-            await enterGradesMutation({ grades: payload });
->>>>>>> main
-            toast({ title: "Success", description: "Grades saved successfully." });
-        } catch (error) {
-            toast({ title: "Error", description: "Failed to save grades.", variant: "destructive" });
-        }
-    };
+      toast({
+        title: "Success",
+        description: "Grades entered successfully",
+      });
+      setGrades({});
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to enter grades",
+        variant: "destructive",
+      });
+    }
+  };
 
-    return (
-        <div className="space-y-6">
-            <PageHeader
-<<<<<<< HEAD
-                title="Enter Grades"
-                description={`${classData.name} • ${term}`}
-                backHref={`/portal/teacher/classes/${classId}`}
-=======
-                title="Grade Entry"
-                description="Record student grades and performance"
-                breadcrumbs={[
-                    { label: "Class Details", href: `/portal/teacher/classes/${classId}` },
-                    { label: "Grade Entry" }
-                ]}
->>>>>>> main
-            />
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title={`${classData.name} - Grades`}
+        description="Enter and manage student grades"
+        breadcrumbs={[
+          { label: "Teacher Portal", href: "/portal/teacher" },
+          { label: "Classes", href: "/portal/teacher/classes" },
+          { label: classData.name, href: `/portal/teacher/classes/${classId}` },
+          { label: "Grades" }
+        ]}
+      />
 
-            <Card>
-                <CardContent className="pt-6">
-                    <div className="grid gap-4 md:grid-cols-3 mb-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Subject</label>
-                            <Select onValueChange={setSelectedSubject} value={selectedSubject}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select subject" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="math">Mathematics</SelectItem>
-                                    <SelectItem value="eng">English</SelectItem>
-                                    <SelectItem value="sci">Science</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Term</label>
-                            <Select onValueChange={setTerm} value={term}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select term" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Term 1">Term 1</SelectItem>
-                                    <SelectItem value="Term 2">Term 2</SelectItem>
-                                    <SelectItem value="Term 3">Term 3</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div className="flex gap-4 items-end">
+              <div>
+                <Label>Term</Label>
+                <Select value={term} onValueChange={setTerm}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Term 1">Term 1</SelectItem>
+                    <SelectItem value="Term 2">Term 2</SelectItem>
+                    <SelectItem value="Term 3">Term 3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={handleSubmit}>
+                Submit Grades
+              </Button>
+            </div>
 
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Student Name</TableHead>
-                                <TableHead className="w-[100px]">Score</TableHead>
-                                <TableHead className="w-[80px]">Grade</TableHead>
-                                <TableHead>Remarks</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {students.map((student) => (
-                                <TableRow key={student._id}>
-                                    <TableCell className="font-medium">
-                                        {student.firstName} {student.lastName}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Input
-                                            type="number"
-                                            placeholder="0-100"
-                                            value={grades[student._id]?.score || ""}
-                                            onChange={(e) => handleGradeChange(student._id, "score", e.target.value)}
-                                        />
-                                    </TableCell>
-                                    <TableCell className="font-bold">
-                                        {grades[student._id]?.score ? calculateGrade(parseFloat(grades[student._id].score)) : "-"}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Input
-                                            placeholder="Add remarks..."
-                                            value={grades[student._id]?.remarks || ""}
-                                            onChange={(e) => handleGradeChange(student._id, "remarks", e.target.value)}
-                                        />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-
-                    <div className="mt-6 flex justify-end">
-                        <Button onClick={handleSave}>Save Grades</Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    );
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Score</TableHead>
+                  <TableHead>Grade</TableHead>
+                  <TableHead>Remarks</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {students.map((student: any) => {
+                  const score = parseFloat(grades[student._id]?.score || "0");
+                  const grade = score > 0 ? calculateGrade(score) : "";
+                  
+                  return (
+                    <TableRow key={student._id}>
+                      <TableCell>
+                        {student.firstName} {student.lastName}
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          placeholder="0-100"
+                          value={grades[student._id]?.score || ""}
+                          onChange={(e) => handleGradeChange(student._id, "score", e.target.value)}
+                          className="w-20"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-medium">{grade}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          placeholder="Optional remarks"
+                          value={grades[student._id]?.remarks || ""}
+                          onChange={(e) => handleGradeChange(student._id, "remarks", e.target.value)}
+                          className="w-48"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

@@ -5,79 +5,72 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "convex/react";
-<<<<<<< HEAD
-import { api } from "../../../../../convex/_generated/api";
-=======
 import { api } from "@/convex/_generated/api";
->>>>>>> main
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 
-export default function AttendancePage() {
+export default function TeacherAttendancePage() {
     const { user, isLoading: authLoading } = useAuth();
-    const [selectedClassId, setSelectedClassId] = useState<string>("");
     const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0]);
     const [attendance, setAttendance] = useState<Record<string, string>>({});
 
-<<<<<<< HEAD
-    const classes = useQuery(api.modules.academics.queries.getTeacherClasses,
-        user?.tenantId && user?.eduMylesUserId ? {
-            tenantId: user.tenantId,
-            teacherId: user.eduMylesUserId
-        } : "skip"
-    );
-
-    const students = useQuery(api.modules.academics.queries.getClassStudents,
-        selectedClassId ? { tenantId: user?.tenantId || "", classId: selectedClassId } : "skip"
-=======
     const classes = useQuery(
         api.modules.academics.queries.getTeacherClasses,
         {}
     );
 
-    const students = useQuery(
-        api.modules.academics.queries.getClassStudents,
-        selectedClassId ? { classId: selectedClassId } : "skip"
->>>>>>> main
+    const [selectedClassId, setSelectedClassId] = useState<string>("");
+
+    const students = useQuery(api.modules.academics.queries.getClassStudents,
+        selectedClassId ? { tenantId: user?.tenantId || "", classId: selectedClassId } : "skip"
     );
 
-    const markAttendanceMutation = useMutation(api.modules.academics.mutations.markAttendance);
+    const submitAttendanceMutation = useMutation(api.modules.academics.mutations.recordAttendance);
 
-    if (authLoading || classes === undefined) return <LoadingSkeleton variant="page" />;
+    if (authLoading || classes === undefined || students === undefined) {
+        return <LoadingSkeleton variant="page" />;
+    }
 
-    const handleStatusChange = (studentId: string, status: string) => {
+    const handleAttendanceChange = (studentId: string, status: string) => {
         setAttendance(prev => ({ ...prev, [studentId]: status }));
     };
 
-    const handleSave = async () => {
-        if (!selectedClassId || !students) return;
-
-        const records = students.map(student => ({
-            classId: selectedClassId,
-            studentId: student._id,
-            date,
-            status: attendance[student._id] || "present",
-            recordedBy: user?.eduMylesUserId || "",
-        }));
+    const handleSubmit = async () => {
+        if (!selectedClassId) {
+            toast({
+                title: "Error",
+                description: "Please select a class",
+                variant: "destructive",
+            });
+            return;
+        }
 
         try {
-<<<<<<< HEAD
-            await markAttendanceMutation({
+            const attendanceData = Object.entries(attendance).map(([studentId, status]) => ({
+                studentId,
+                status,
+                date,
+                classId: selectedClassId,
                 tenantId: user?.tenantId || "",
-                records,
+                recordedBy: user?._id || "",
+            }));
+
+            await submitAttendanceMutation({ attendance: attendanceData });
+            toast({
+                title: "Success",
+                description: "Attendance recorded successfully",
             });
-=======
-            await markAttendanceMutation({ records });
->>>>>>> main
-            toast({ title: "Success", description: "Attendance marked successfully." });
+            setAttendance({});
         } catch (error) {
-            toast({ title: "Error", description: "Failed to mark attendance.", variant: "destructive" });
+            toast({
+                title: "Error",
+                description: "Failed to record attendance",
+                variant: "destructive",
+            });
         }
     };
 
@@ -85,84 +78,105 @@ export default function AttendancePage() {
         <div className="space-y-6">
             <PageHeader
                 title="Attendance"
-                description="Mark and track student attendance for your classes."
+                description="Record daily attendance for your classes"
+                breadcrumbs={[
+                    { label: "Teacher Portal", href: "/portal/teacher" },
+                    { label: "Attendance" }
+                ]}
             />
 
-            <Card>
-                <CardContent className="pt-6">
-                    <div className="grid gap-4 md:grid-cols-3 mb-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Class</label>
-                            <Select onValueChange={setSelectedClassId} value={selectedClassId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {classes.map(cls => (
-                                        <SelectItem key={cls._id} value={cls._id}>{cls.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Date</label>
-                            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                        </div>
-                    </div>
+            <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                    <label className="block text-sm font-medium mb-2">Class</label>
+                    <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a class" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {classes.map((cls: any) => (
+                                <SelectItem key={cls._id} value={cls._id}>
+                                    {cls.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-2">Date</label>
+                    <Input
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                    />
+                </div>
+            </div>
 
-                    {!selectedClassId ? (
-                        <div className="text-center p-12 text-muted-foreground border rounded-lg border-dashed">
-                            Select a class to mark attendance
-                        </div>
-                    ) : students === undefined ? (
-                        <div className="text-center p-12">Loading students...</div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Student Name</TableHead>
-                                    <TableHead className="text-right">Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {students.map((student) => (
-                                    <TableRow key={student._id}>
-                                        <TableCell className="font-medium">
-                                            {student.firstName} {student.lastName}
-                                        </TableCell>
-                                        <TableCell>
-                                            <RadioGroup
-                                                defaultValue="present"
-                                                className="flex justify-end gap-4"
-                                                onValueChange={(val) => handleStatusChange(student._id, val)}
-                                            >
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="present" id={`p-${student._id}`} />
-                                                    <Label htmlFor={`p-${student._id}`}>P</Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="absent" id={`a-${student._id}`} />
-                                                    <Label htmlFor={`a-${student._id}`}>A</Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="late" id={`l-${student._id}`} />
-                                                    <Label htmlFor={`l-${student._id}`}>L</Label>
-                                                </div>
-                                            </RadioGroup>
-                                        </TableCell>
+            {selectedClassId && students.length > 0 && (
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-lg font-semibold">
+                                    {classes.find((c: any) => c._id === selectedClassId)?.name}
+                                </h3>
+                                <Button onClick={handleSubmit}>
+                                    Submit Attendance
+                                </Button>
+                            </div>
+
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Student</TableHead>
+                                        <TableHead>Status</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-
-                    {selectedClassId && (
-                        <div className="mt-6 flex justify-end">
-                            <Button onClick={handleSave}>Submit Attendance</Button>
+                                </TableHeader>
+                                <TableBody>
+                                    {students.map((student: any) => (
+                                        <TableRow key={student._id}>
+                                            <TableCell>
+                                                {student.firstName} {student.lastName}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Select
+                                                    value={attendance[student._id] || ""}
+                                                    onValueChange={(value) => handleAttendanceChange(student._id, value)}
+                                                >
+                                                    <SelectTrigger className="w-32">
+                                                        <SelectValue placeholder="Select" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="present">Present</SelectItem>
+                                                        <SelectItem value="absent">Absent</SelectItem>
+                                                        <SelectItem value="late">Late</SelectItem>
+                                                        <SelectItem value="excused">Excused</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </div>
-                    )}
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            )}
+
+            {selectedClassId && students.length === 0 && (
+                <Card>
+                    <CardContent className="p-6 text-center">
+                        <p className="text-muted-foreground">No students found in this class</p>
+                    </CardContent>
+                </Card>
+            )}
+
+            {!selectedClassId && (
+                <Card>
+                    <CardContent className="p-6 text-center">
+                        <p className="text-muted-foreground">Select a class to record attendance</p>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 }
