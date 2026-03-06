@@ -112,12 +112,12 @@ export default function Navbar() {
 
   const handleLogout = () => {
     // Use server-side logout to properly clear httpOnly cookies
-    window.location.href = "/auth/logout";
+    window.location.href = `${appUrl}/auth/logout`;
   };
 
   const handleMobileLogout = () => {
     setMobileMenuOpen(false);
-    window.location.href = "/auth/logout";
+    window.location.href = `${appUrl}/auth/logout`;
   };
 
   return (
@@ -174,13 +174,13 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link className="navbar-login" href="/auth/login">
+              <Link className="navbar-login" href={`${appUrl}/auth/login`}>
                 Log In
               </Link>
-              <Link className="navbar-get-started" href="/auth/signup">
+              <Link className="navbar-get-started" href={`${appUrl}/auth/login`}>
                 Get Started
               </Link>
-              <Link className="navbar-signup" href="/auth/signup">
+              <Link className="navbar-signup" href={`${appUrl}/auth/login`}>
                 Sign Up Free
               </Link>
             </>
@@ -232,13 +232,13 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+                <Link href={`${appUrl}/auth/login`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
                   Log In
                 </Link>
-                <Link href="/auth/signup" className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
+                <Link href={`${appUrl}/auth/login`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
                   Get Started
                 </Link>
-                <Link href="/auth/signup" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
+                <Link href={`${appUrl}/auth/login`} className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
                   Sign Up Free
                 </Link>
               </>

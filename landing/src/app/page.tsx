@@ -3,6 +3,9 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
+// Frontend app URL for authentication
+const FRONTEND_URL = process.env.NEXT_PUBLIC_APP_URL || "https://edumyles.vercel.app";
+
 // ── Data ────────────────────────────────────────────────────
 
 const stats = [
@@ -160,7 +163,7 @@ function LandingPageContent() {
           </p>
           {/* Deployment trigger: 2026-03-04-12:02 */}
           <div className="actions">
-            <a className="btn btn-primary" href="/auth/login">
+            <a className="btn btn-primary" href={`${FRONTEND_URL}/auth/login`}>
               Get Started
             </a>
             <a className="btn btn-secondary" href="/concierge">
@@ -275,7 +278,7 @@ function LandingPageContent() {
           <div className="module-tab-text">
             <h3>{activeCategory.label}</h3>
             <p>{activeCategory.description}</p>
-            <a className="btn btn-primary" href="/auth/login">
+            <a className="btn btn-primary" href={`${FRONTEND_URL}/auth/login`}>
               Try It Free
             </a>
           </div>
@@ -464,7 +467,7 @@ function LandingPageContent() {
                   <li key={i}>{feature}</li>
                 ))}
               </ul>
-              <a className="btn btn-primary" href="/auth/login">
+              <a className="btn btn-primary" href={`${FRONTEND_URL}/auth/login`}>
                 Get Started
               </a>
             </div>
@@ -487,7 +490,7 @@ function LandingPageContent() {
             Join 50+ schools across East Africa already running smarter with
             one unified platform.
           </p>
-          <a className="btn btn-primary" href="/auth/login">
+          <a className="btn btn-primary" href={`${FRONTEND_URL}/auth/login`}>
             Activate Free Trial
           </a>
         </div>

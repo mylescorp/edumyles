@@ -58,52 +58,45 @@ export default function PlatformDashboardPage() {
     activeUsers: 2234,
     newUsersThisMonth: 127,
     systemHealth: "99.9%",
-    monthlyRevenue: "$124,580"
+    monthlyRevenue: "$124,580",
+    securityEvents: "23"
   };
 
   const mockActivity = [
     {
       id: "1",
-      type: "user_created",
+      action: "tenant.created",
       description: "New tenant registered: Nairobi Academy",
-      timestamp: Date.now() - 3600000,
+      createdAt: Date.now() - 3600000,
       user: "system@edumyles.com",
       tenantName: "Nairobi Academy"
     },
     {
       id: "2", 
-      type: "user_suspended",
+      action: "tenant.suspended",
       description: "Suspended tenant: Mombasa High School",
-      timestamp: Date.now() - 7200000,
+      createdAt: Date.now() - 7200000,
       user: "system@edumyles.com",
       tenantName: "Mombasa High School"
     },
     {
       id: "3",
-      type: "payment_processed",
+      action: "settings.updated",
       description: "Monthly payment processed: KES 45,000",
-      timestamp: Date.now() - 1800000,
+      createdAt: Date.now() - 1800000,
       user: "system@edumyles.com",
       tenantName: "Nairobi Academy"
     },
     {
       id: "4",
-      type: "system_backup",
+      action: "user.created",
       description: "Automated backup completed successfully",
-      timestamp: Date.now() - 900000,
+      createdAt: Date.now() - 900000,
       user: "system@edumyles.com",
       tenantName: "Nairobi Academy"
     }
   ];
 
-  // Enhanced stats with mock data for demonstration
-  const enhancedStats = {
-    ...stats,
-    monthlyRevenue: "$124,580",
-    systemHealth: "99.9%",
-    activeSessions: "3,247",
-    securityEvents: "23"
-  };
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -362,9 +355,6 @@ export default function PlatformDashboardPage() {
                           </div>
                           <p className="mt-1 text-sm text-muted-foreground truncate">
                             {item.tenantName}
-                            {item.targetType && item.targetId && (
-                              <span> · {item.targetType}: {item.targetId}</span>
-                            )}
                           </p>
                         </div>
                       </div>
@@ -445,7 +435,7 @@ export default function PlatformDashboardPage() {
               <CardTitle className="text-base">Active Tenants</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats?.activeTenants ?? "--"}</div>
+              <div className="text-2xl font-bold text-green-600">{mockStats.activeTenants}</div>
               <p className="text-xs text-muted-foreground mt-1">Currently operational</p>
             </CardContent>
           </Card>
@@ -455,7 +445,7 @@ export default function PlatformDashboardPage() {
               <CardTitle className="text-base">Suspended Tenants</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats?.suspendedTenants ?? "--"}</div>
+              <div className="text-2xl font-bold text-red-600">{mockStats.suspendedTenants}</div>
               <p className="text-xs text-muted-foreground mt-1">Require attention</p>
             </CardContent>
           </Card>
