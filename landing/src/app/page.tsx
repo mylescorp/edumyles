@@ -239,7 +239,7 @@ function LandingPageContent() {
             curricula support, and multi-language capabilities.
           </p>
         </div>
-        <div className="highlights-grid">
+        <div className="highlights">
           {highlights.map((highlight, index) => (
             <div key={index} className="highlight-card">
               <h3>{highlight.title}</h3>

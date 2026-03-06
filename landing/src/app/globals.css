@@ -1038,6 +1038,78 @@ h1 {
   gap: 0.75rem;
 }
 
+/* ================================================================
+   2. STATS — FOREST GREEN SECTION
+   ================================================================ */
+.stats-section {
+  background: var(--forest-dark);
+  padding: var(--section-padding);
+  color: var(--white);
+}
+
+.stats-section .section-header h2 {
+  color: var(--white);
+}
+
+.stats-section .section-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* Stats Cards */
+.stat-card {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--crimson);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Highlight Cards */
+.highlight-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.highlight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.highlight-card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 0.8rem;
+}
+
+.highlight-card p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
 .module-app-card {
   background: var(--off-white);
   border-radius: 12px;
@@ -1618,6 +1690,132 @@ h1 {
 }
 
 /* ================================================================
+   ENHANCED UI/UX IMPROVEMENTS
+   ================================================================ */
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better focus states */
+.btn:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: 2px;
+}
+
+/* Enhanced button hover effects */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+/* Card hover enhancements */
+.highlight-card,
+.module-app-card,
+.story-card,
+.pricing-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.highlight-card::before,
+.module-app-card::before,
+.story-card::before,
+.pricing-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--crimson), var(--amber));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: left;
+}
+
+.highlight-card:hover::before,
+.module-app-card::before,
+.story-card:hover::before,
+.pricing-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Stats animation */
+.stat-card {
+  position: relative;
+}
+
+.stat-value {
+  background: linear-gradient(135deg, var(--crimson), var(--amber));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Enhanced navbar dropdown */
+.navbar-dropdown {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading states */
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Better transitions for all interactive elements */
+a,
+button,
+.btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile touch improvements */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover {
+    transform: none;
+  }
+  
+  .highlight-card:hover,
+  .module-app-card:hover,
+  .story-card:hover,
+  .pricing-card:hover {
+    transform: none;
+  }
+}
+
+/* ================================================================
    ANIMATIONS
    ================================================================ */
 @keyframes rise {
@@ -1689,8 +1887,17 @@ h1 {
   }
 
   /* Stats */
+  .stats-section {
+    padding: 3rem 1.5rem;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
   }
 
   .review-bar {
@@ -1699,11 +1906,24 @@ h1 {
   }
 
   /* Highlights */
+  .highlights-zone {
+    padding: 3rem 1.5rem;
+  }
+
   .highlights {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .highlight-card {
+    padding: 1.5rem;
   }
 
   /* Modules */
+  .modules-section {
+    padding: 3rem 1.5rem;
+  }
+
   .module-tab-content {
     grid-template-columns: 1fr;
   }
@@ -1713,6 +1933,10 @@ h1 {
   }
 
   /* Stories */
+  .stories-section {
+    padding: 3rem 1.5rem;
+  }
+
   .stories-grid {
     grid-template-columns: 1fr;
   }
@@ -1722,8 +1946,25 @@ h1 {
   }
 
   /* Pricing */
+  .pricing-section {
+    padding: 3rem 1.5rem;
+  }
+
   .pricing-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Final CTA */
+  .final-cta {
+    padding: 3rem 1.5rem;
+  }
+
+  .final-cta-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .final-cta-card h2 {
+    font-size: 1.5rem;
   }
 
   /* Footer */
