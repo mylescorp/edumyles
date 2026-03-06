@@ -238,6 +238,55 @@ export default function PlatformDashboardPage() {
 
       {/* Secondary Content */}
       <div className="grid gap-6 md:grid-cols-2">
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button className="w-full justify-start" variant="outline">
+              <UserCheck className="h-4 w-4 mr-2" />
+              View All Users
+            </Button>
+            <Button className="w-full justify-start" variant="outline">
+              <Building2 className="h-4 w-4 mr-2" />
+              Manage Tenants
+            </Button>
+            <Button className="w-full justify-start" variant="outline">
+              <FileText className="h-4 w-4 mr-2" />
+              System Logs
+            </Button>
+            <Button className="w-full justify-start" variant="outline">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Security Center
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* System Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle>System Status</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">API Status</span>
+              <Badge className="bg-green-100 text-green-800">Operational</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Database</span>
+              <Badge className="bg-green-100 text-green-800">Healthy</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">CDN</span>
+              <Badge className="bg-green-100 text-green-800">Active</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Backup</span>
+              <Badge className="bg-amber-100 text-amber-800">In Progress</Badge>
+            </div>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
