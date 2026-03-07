@@ -1,10 +1,9 @@
 "use client";
 
 import { ReactNode } from "react";
+import { ConvexProvider } from "@/hooks/useSSRSafeConvex";
+import { convexClient } from "@/lib/convex";
 
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
-  // Temporarily disable Convex to prevent build errors
-  // TODO: Re-enable once Convex backend is properly deployed
-  console.warn("Convex temporarily disabled to prevent build errors");
-  return <>{children}</>;
+  return <ConvexProvider client={convexClient}>{children}</ConvexProvider>;
 }

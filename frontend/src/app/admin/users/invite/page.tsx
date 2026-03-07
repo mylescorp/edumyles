@@ -12,12 +12,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function InviteUserPage() {
     const { isLoading } = useAuth();
     const router = useRouter();
+    const { toast } = useToast();
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const inviteUser = useMutation((api as any).users.inviteTenantUser);
 
     const [form, setForm] = useState({
         email: "",
@@ -36,8 +41,16 @@ export default function InviteUserPage() {
 
         try {
             if (!form.email) throw new Error("Email is required.");
-            // TODO: Wire to actual user invitation mutation (WorkOS magic link)
-            // For now, just redirect back
+            await inviteUser({
+                email: form.email.trim().toLowerCase(),
+                firstName: form.firstName.trim() || undefined,
+                lastName: form.lastName.trim() || undefined,
+                role: form.role,
+            });
+            toast({
+                title: "User invited",
+                description: "The user was added with a pending invitation profile.",
+            });
             router.push("/admin/users");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to invite user");

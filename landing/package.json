@@ -8,7 +8,7 @@
     "start": "next start --port 3001",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "type-check": "tsc --noEmit",
+    "type-check": "node ../node_modules/typescript/bin/tsc --noEmit",
     "clean": "rm -rf .next out tsconfig.tsbuildinfo"
   },
   "dependencies": {

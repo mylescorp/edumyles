@@ -8,11 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "type-check": "tsc --noEmit",
+    "type-check": "node ../node_modules/typescript/bin/tsc --noEmit",
     "clean": "rm -rf .next out tsconfig.tsbuildinfo",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test": "node ../node_modules/vitest/vitest.mjs",
+    "test:ui": "node ../node_modules/vitest/vitest.mjs --ui",
+    "test:run": "node ../node_modules/vitest/vitest.mjs run"
   },
   "dependencies": {
     "@convex-dev/react-query": "^0.1.0",

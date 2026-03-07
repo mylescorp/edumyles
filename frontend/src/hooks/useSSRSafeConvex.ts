@@ -1,42 +1,32 @@
 "use client";
 
-import { useQuery as useConvexQuery, useMutation as useConvexMutation } from "convex/react";
-import { isSSREnvironment, mockUseQuery, mockUseMutation } from "@/lib/convex-mock";
+import {
+  ConvexProvider as ReactConvexProvider,
+  useAction as useConvexAction,
+  useMutation as useConvexMutation,
+  useQuery as useConvexQuery,
+} from "convex/react";
 
-// Safe wrapper that uses mocks during SSR
-export function useQuery(query: any, args: any) {
-  if (isSSREnvironment()) {
-    return mockUseQuery();
-  }
-  return useConvexQuery(query, args);
+export const ConvexProvider = ReactConvexProvider;
+
+export function useQuery(query: any, args?: any) {
+  return args === undefined ? useConvexQuery(query) : useConvexQuery(query, args);
 }
 
-// Safe wrapper that uses mocks during SSR  
 export function useMutation(mutation: any) {
-  if (isSSREnvironment()) {
-    return mockUseMutation();
-  }
   return useConvexMutation(mutation);
 }
 
-// Export useNotifications for components that need it
-export function useNotifications() {
-  if (isSSREnvironment()) {
-    return {
-      notifications: [],
-      unreadCount: 0,
-      isLoading: false,
-      markAsRead: () => {},
-      markAllAsRead: () => {},
-    };
-  }
+export function useAction(action: any) {
+  return useConvexAction(action);
+}
 
-  // Return mock data for now to avoid import issues
+export function useNotifications() {
   return {
     notifications: [],
     unreadCount: 0,
     isLoading: false,
-    markAsRead: () => {},
-    markAllAsRead: () => {},
+    markAsRead: async () => {},
+    markAllAsRead: async () => {},
   };
 }
