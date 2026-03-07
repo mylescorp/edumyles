@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
+import crypto from "crypto";
 
-function buildAuthUrl(req: NextRequest, email?: string) {
+function generateState(): string {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+function buildAuthUrl(req: NextRequest, email?: string, state?: string) {
   const apiKey = process.env.WORKOS_API_KEY;
-  const clientId =
-    process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
+  const clientId = process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
   const redirectUri =
     process.env.WORKOS_REDIRECT_URI ||
     process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
@@ -20,6 +24,7 @@ function buildAuthUrl(req: NextRequest, email?: string) {
     redirectUri,
     provider: "authkit",
     screenHint: "sign-in",
+    state: state,
     ...(email ? { loginHint: email } : {}),
   });
 }
@@ -28,12 +33,22 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const email = body?.email;
-    const authUrl = buildAuthUrl(req, email);
-    return NextResponse.json({ authUrl });
+    const state = generateState();
+    const authUrl = buildAuthUrl(req, email, state);
+
+    const response = NextResponse.json({ authUrl, state });
+    response.cookies.set("workos_state", state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600,
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Login API error:", error);
-    const message =
-      error instanceof Error ? error.message : "Internal server error";
+    const message = error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -41,12 +56,26 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const email = req.nextUrl.searchParams.get("email") ?? undefined;
-    const authUrl = buildAuthUrl(req, email);
-    return NextResponse.redirect(authUrl);
+    const state = generateState();
+    const authUrl = buildAuthUrl(req, email, state);
+
+    const response = NextResponse.redirect(authUrl);
+    response.cookies.set("workos_state", state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600,
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Login redirect error:", error);
     const fallback = new URL("/", req.url);
-    fallback.searchParams.set("auth_error", "Login service is temporarily unavailable. Please try again later.");
+    fallback.searchParams.set(
+      "auth_error",
+      "Login service is temporarily unavailable. Please try again later."
+    );
     return NextResponse.redirect(fallback);
   }
 }

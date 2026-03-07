@@ -37,7 +37,7 @@ function getRoleDashboard(role: string): string {
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const error = req.nextUrl.searchParams.get("error");
-  const stateParam = req.nextUrl.searchParams.get("state");
+  const returnedState = req.nextUrl.searchParams.get("state");
 
   if (error) {
     console.error("[auth/callback] WorkOS returned error:", error);
@@ -47,15 +47,23 @@ export async function GET(req: NextRequest) {
   }
 
   if (!code) {
-    return NextResponse.redirect(
-      new URL("/auth/login?error=no_code", req.url)
-    );
+    return NextResponse.redirect(new URL("/auth/login?error=no_code", req.url));
+  }
+
+  const savedState = req.cookies.get("workos_state")?.value;
+  if (savedState && returnedState !== savedState) {
+    console.error("[auth/callback] Invalid state - mismatch:", { savedState, returnedState });
+    return NextResponse.redirect(new URL("/auth/login?error=invalid_state", req.url));
+  }
+  
+  // If no saved state, continue without state validation (fallback for edge cases)
+  if (!savedState && returnedState) {
+    console.log("[auth/callback] No saved state found, continuing without state validation");
   }
 
   try {
     const apiKey = process.env.WORKOS_API_KEY;
-    const clientId =
-      process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
+    const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
     if (!apiKey || !clientId || !convexUrl) {
@@ -64,20 +72,17 @@ export async function GET(req: NextRequest) {
         hasClientId: !!clientId,
         hasConvexUrl: !!convexUrl,
       });
-      return NextResponse.redirect(
-        new URL("/auth/login?error=config_error", req.url)
-      );
+      return NextResponse.redirect(new URL("/auth/login?error=config_error", req.url));
     }
 
     const workos = new WorkOS(apiKey);
     const convex = new ConvexHttpClient(convexUrl);
 
     // --- Exchange authorization code for user profile ----------------------
-    const { user, organizationId } =
-      await workos.userManagement.authenticateWithCode({
-        clientId,
-        code,
-      });
+    const { user, organizationId } = await workos.userManagement.authenticateWithCode({
+      clientId,
+      code,
+    });
 
     const email = user.email;
     const firstName = user.firstName ?? "";
@@ -90,14 +95,12 @@ export async function GET(req: NextRequest) {
 
     // --- Decode optional state (e.g. schoolName from signup) --------------
     let _stateData: Record<string, string> = {};
-    if (stateParam) {
+    if (returnedState) {
       try {
         // Fix base64url decoding - replace URL-safe chars first
-        const base64 = stateParam.replace(/-/g, '+').replace(/_/g, '/');
-        const paddedBase64 = base64 + '='.repeat((4 - base64.length % 4) % 4);
-        _stateData = JSON.parse(
-          Buffer.from(paddedBase64, 'base64').toString()
-        );
+        const base64 = returnedState.replace(/-/g, "+").replace(/_/g, "/");
+        const paddedBase64 = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+        _stateData = JSON.parse(Buffer.from(paddedBase64, "base64").toString());
       } catch (err) {
         console.log("[auth/callback] Failed to decode state:", err);
         // non-critical — ignore bad state
@@ -134,12 +137,12 @@ export async function GET(req: NextRequest) {
 
     // --- Set cookies & redirect -------------------------------------------
     const dashboard = getRoleDashboard(role);
-    
+
     // Debug logging
     console.log(`[auth/callback] Redirecting to: ${dashboard}`);
     console.log(`[auth/callback] Full URL: ${req.url}`);
     console.log(`[auth/callback] Base URL: ${req.nextUrl.origin}`);
-    
+
     const response = NextResponse.redirect(new URL(dashboard, req.url));
     const isProduction = process.env.NODE_ENV === "production";
 
@@ -172,8 +175,6 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (err) {
     console.error("[auth/callback] ❌ Token exchange failed:", err);
-    return NextResponse.redirect(
-      new URL("/auth/login?error=callback_failed", req.url)
-    );
+    return NextResponse.redirect(new URL("/auth/login?error=callback_failed", req.url));
   }
 }
