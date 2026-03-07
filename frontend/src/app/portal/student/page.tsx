@@ -8,6 +8,7 @@ import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { GraduationCap, FileText, CalendarCheck, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function StudentDashboardPage() {
@@ -95,11 +96,11 @@ export default function StudentDashboardPage() {
                       <p className="font-medium text-sm">{assignment.title}</p>
                       <p className="text-xs text-muted-foreground">{assignment.subject}</p>
                     </div>
-                    <Link href={`/portal/student/assignments/${assignment._id}`}>
-                      <button className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90">
+                    <Button size="sm" asChild>
+                      <Link href={`/portal/student/assignments/${assignment._id}`}>
                         View
-                      </button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 ))}
                 {myAssignments.length > 3 && (
@@ -155,28 +156,22 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Link href="/portal/student/assignments">
-              <button className="w-full text-left p-3 bg-muted rounded hover:bg-muted/80 transition-colors">
-                <div className="flex items-center space-x-2">
-                  <FileText className="h-4 w-4" />
-                  <span>View All Assignments</span>
-                </div>
-              </button>
+              <Button variant="outline" className="w-full justify-start">
+                <FileText className="h-4 w-4 mr-2" />
+                View All Assignments
+              </Button>
             </Link>
-            <Link href="/portal/student/grades">
-              <button className="w-full text-left p-3 bg-muted rounded hover:bg-muted/80 transition-colors">
-                <div className="flex items-center space-x-2">
-                  <GraduationCap className="h-4 w-4" />
-                  <span>View Grades</span>
-                </div>
-              </button>
+            <Link href="/portal/student/wallet/transactions">
+              <Button variant="outline" className="w-full justify-start">
+                <GraduationCap className="h-4 w-4 mr-2" />
+                View Transactions
+              </Button>
             </Link>
-            <Link href="/portal/student/timetable">
-              <button className="w-full text-left p-3 bg-muted rounded hover:bg-muted/80 transition-colors">
-                <div className="flex items-center space-x-2">
-                  <CalendarCheck className="h-4 w-4" />
-                  <span>View Timetable</span>
-                </div>
-              </button>
+            <Link href="/portal/student/wallet">
+              <Button variant="outline" className="w-full justify-start">
+                <CalendarCheck className="h-4 w-4 mr-2" />
+                Open Wallet
+              </Button>
             </Link>
           </CardContent>
         </Card>

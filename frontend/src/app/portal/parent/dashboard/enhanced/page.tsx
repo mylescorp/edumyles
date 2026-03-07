@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Link from "next/link";
 import {
   DollarSign,
   BookOpen,
@@ -239,17 +240,35 @@ export default function EnhancedParentDashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <Button className="w-full justify-start" variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Download Report Card
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link
+                href={
+                  selectedChild
+                    ? `/portal/parent/children/${String(selectedChild._id)}/grades`
+                    : "/portal/parent/children"
+                }
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download Report Card
+              </Link>
             </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <Eye className="h-4 w-4 mr-2" />
-              View Detailed Progress
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link
+                href={
+                  selectedChild
+                    ? `/portal/parent/children/${String(selectedChild._id)}`
+                    : "/portal/parent/children"
+                }
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                View Detailed Progress
+              </Link>
             </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <Calendar className="h-4 w-4 mr-2" />
-              Schedule Meeting
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/portal/parent/messages">
+                <Calendar className="h-4 w-4 mr-2" />
+                Schedule Meeting
+              </Link>
             </Button>
           </div>
         </CardContent>

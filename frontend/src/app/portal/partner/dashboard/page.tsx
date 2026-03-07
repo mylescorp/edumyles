@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
 import { 
   TrendingUp, 
   Users, 
@@ -178,8 +179,10 @@ export default function PartnerDashboardPage() {
                     </div>
                     
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">
-                        <Eye className="h-4 w-4" />
+                      <Button size="sm" variant="outline" asChild>
+                        <Link href={`/portal/partner/students/${sponsorship._id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
                       </Button>
                     </div>
                   </div>
@@ -199,17 +202,23 @@ export default function PartnerDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
-              <Button className="w-full justify-start" variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                New Sponsorship
+              <Button className="w-full justify-start" variant="outline" asChild>
+                <Link href="/portal/partner/students">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Sponsorship
+                </Link>
               </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Generate Report
+              <Button className="w-full justify-start" variant="outline" asChild>
+                <Link href="/portal/partner/reports">
+                  <Download className="h-4 w-4 mr-2" />
+                  Generate Report
+                </Link>
               </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                View Analytics
+              <Button className="w-full justify-start" variant="outline" asChild>
+                <Link href="/portal/partner/reports">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  View Analytics
+                </Link>
               </Button>
             </div>
           </CardContent>
@@ -248,9 +257,11 @@ export default function PartnerDashboardPage() {
                       </div>
                     </div>
                     
-                    <Button size="sm">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      RSVP
+                    <Button size="sm" asChild>
+                      <Link href="/portal/partner/messages">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        RSVP
+                      </Link>
                     </Button>
                   </div>
                 </div>

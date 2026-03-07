@@ -28,6 +28,7 @@ import {
 import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import Link from "next/link";
 
 export default function ParentPaymentsPage() {
   const { user, isLoading } = useAuth();
@@ -69,6 +70,40 @@ export default function ParentPaymentsPage() {
         variant: "destructive"
       });
     }
+  };
+
+  const handleExportReport = () => {
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      filters: {
+        searchTerm,
+        statusFilter,
+        dateFilter,
+      },
+      summary: {
+        totalBilled: payments?.totalBilled ?? 0,
+        totalPaid: payments?.totalPaid ?? 0,
+        outstanding: payments?.outstanding ?? 0,
+      },
+      invoices: dateFilteredInvoices?.map((invoice: any) => ({
+        invoiceNumber: invoice.invoiceNumber,
+        dueDate: invoice.dueDate,
+        amount: invoice.amount,
+        status: invoice.status,
+      })),
+    };
+
+    const dataStr = JSON.stringify(payload, null, 2);
+    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
+    const linkElement = document.createElement("a");
+    linkElement.href = dataUri;
+    linkElement.download = `parent-payments-report-${new Date().toISOString().split("T")[0]}.json`;
+    linkElement.click();
+
+    toast({
+      title: "Report generated",
+      description: "Payment report downloaded as JSON.",
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -246,12 +281,11 @@ export default function ParentPaymentsPage() {
                           <Download className="h-4 w-4 mr-1" />
                           Receipt
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href="/portal/parent/fees">
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Link>
                         </Button>
                       </div>
                     </div>
@@ -311,17 +345,21 @@ export default function ParentPaymentsPage() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start">
-                <DollarSign className="h-4 w-4 mr-2" />
-                Make Payment
+              <Button className="w-full justify-start" asChild>
+                <Link href="/portal/parent/fees/pay">
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Make Payment
+                </Link>
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={handleExportReport}>
                 <FileText className="h-4 w-4 mr-2" />
                 Generate Report
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Reminders
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link href="/portal/parent/messages">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Schedule Reminders
+                </Link>
               </Button>
             </CardContent>
           </Card>

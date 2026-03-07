@@ -58,6 +58,27 @@ export default function FeeStructuresPage() {
   const [selectedGrade, setSelectedGrade] = useState("all");
   const [selectedYear, setSelectedYear] = useState("2024");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [hiddenStructureIds, setHiddenStructureIds] = useState<string[]>([]);
+  const [discountRules, setDiscountRules] = useState<DiscountRule[]>([
+    {
+      _id: "rule-early-bird",
+      name: "Early Bird Discount",
+      type: "percentage",
+      value: 10,
+      conditions: "Payment made 30 days before due date",
+      status: "active",
+      createdAt: Date.now(),
+    },
+    {
+      _id: "rule-sibling",
+      name: "Sibling Discount",
+      type: "percentage",
+      value: 15,
+      conditions: "2+ siblings enrolled",
+      status: "active",
+      createdAt: Date.now(),
+    },
+  ]);
 
   const feeStructures = useQuery(
     api.modules.finance.queries.listFeeStructures,
@@ -120,6 +141,79 @@ export default function FeeStructuresPage() {
     }
   };
 
+  const handleEditFeeStructure = (id: string) => {
+    const target = (feeStructures as any[])?.find((structure) => structure._id === id);
+    if (!target) {
+      toast({
+        title: "Structure not found",
+        description: "Refresh and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSearchTerm(target.name);
+    setSelectedGrade(target.grade ?? "all");
+    setSelectedYear(target.academicYear ?? "all");
+    setSelectedStatus(target.status ?? "all");
+    document.getElementById("fee-structures-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    toast({
+      title: "Structure ready for update",
+      description: `Filters were set to ${target.name}.`,
+    });
+  };
+
+  const handleDeleteFeeStructure = (id: string) => {
+    setHiddenStructureIds((current) => (current.includes(id) ? current : [...current, id]));
+    toast({
+      title: "Removed from this view",
+      description: `Structure ${id.slice(-6)} was hidden from the list.`,
+    });
+  };
+
+  const handleEditDiscountRule = (ruleId: string) => {
+    setDiscountRules((current) =>
+      current.map((rule) =>
+        rule._id === ruleId
+          ? {
+              ...rule,
+              status: rule.status === "active" ? "inactive" : "active",
+            }
+          : rule
+      )
+    );
+    const target = discountRules.find((rule) => rule._id === ruleId);
+    toast({
+      title: "Rule updated",
+      description: `${target?.name ?? "Discount rule"} is now ${target?.status === "active" ? "inactive" : "active"}.`,
+    });
+  };
+
+  const handleAddDiscountRule = () => {
+    const count = discountRules.length + 1;
+    const newRule: DiscountRule = {
+      _id: `rule-${Date.now()}`,
+      name: `Custom Discount ${count}`,
+      type: "percentage",
+      value: 5,
+      conditions: "Define conditions in finance policy",
+      status: "inactive",
+      createdAt: Date.now(),
+    };
+
+    setDiscountRules((current) => [newRule, ...current]);
+    document.getElementById("discount-rules-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    toast({
+      title: "Discount rule added",
+      description: `${newRule.name} created in inactive state.`,
+    });
+  };
+
+  const scrollToDiscountRules = () => {
+    document.getElementById("discount-rules-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const calculateStats = () => {
     const totalStructures = feeStructures?.length || 0;
     const activeStructures = (feeStructures as any[])?.filter(f => f.status === "active").length || 0;
@@ -136,11 +230,15 @@ export default function FeeStructuresPage() {
 
   const stats = calculateStats();
 
-  const filteredStructures = (feeStructures as any[])?.filter(structure =>
-    structure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    structure.grade.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    structure.academicYear.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredStructures = (feeStructures as any[])?.filter((structure) => {
+    const matchesSearch =
+      structure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      structure.grade.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      structure.academicYear.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === "all" || structure.status === selectedStatus;
+    const visible = !hiddenStructureIds.includes(structure._id);
+    return matchesSearch && matchesStatus && visible;
+  }) || [];
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -204,7 +302,7 @@ export default function FeeStructuresPage() {
         </div>
 
         {/* Quick Actions */}
-        <Card>
+        <Card id="fee-structures-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
@@ -217,7 +315,7 @@ export default function FeeStructuresPage() {
                 <Plus className="h-4 w-4 mr-2" />
                 New Fee Structure
               </Button>
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start" variant="outline" onClick={scrollToDiscountRules}>
                 <Percent className="h-4 w-4 mr-2" />
                 Discount Rules
               </Button>
@@ -365,10 +463,10 @@ export default function FeeStructuresPage() {
                       </div>
 
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => handleEditFeeStructure(structure._id)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => handleDeleteFeeStructure(structure._id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -381,7 +479,7 @@ export default function FeeStructuresPage() {
         </Card>
 
         {/* Discount Rules Section */}
-        <Card>
+        <Card id="discount-rules-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Percent className="h-5 w-5" />
@@ -390,74 +488,48 @@ export default function FeeStructuresPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Sample discount rules - in real app, this would come from backend */}
-              <div className="border rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold">Early Bird Discount</h4>
-                      <Badge variant="default">Active</Badge>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Type</p>
-                        <p className="font-medium">Percentage</p>
+              {discountRules.map((rule) => (
+                <div key={rule._id} className="border rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">{rule.name}</h4>
+                        <Badge variant={rule.status === "active" ? "default" : "secondary"}>
+                          {rule.status === "active" ? "Active" : "Inactive"}
+                        </Badge>
                       </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Value</p>
-                        <p className="font-medium">10%</p>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Type</p>
+                          <p className="font-medium capitalize">{rule.type}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Value</p>
+                          <p className="font-medium">{rule.value}%</p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <p className="text-sm text-muted-foreground">Conditions</p>
-                      <p className="font-medium">Payment made 30 days before due date</p>
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold">Sibling Discount</h4>
-                      <Badge variant="default">Active</Badge>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <p className="text-sm text-muted-foreground">Type</p>
-                        <p className="font-medium">Percentage</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Value</p>
-                        <p className="font-medium">15%</p>
+                        <p className="text-sm text-muted-foreground">Conditions</p>
+                        <p className="font-medium">{rule.conditions}</p>
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-sm text-muted-foreground">Conditions</p>
-                      <p className="font-medium">2+ siblings enrolled</p>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline" onClick={() => handleEditDiscountRule(rule._id)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline">
-                      <Edit className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
-              </div>
+              ))}
 
-              <Button variant="outline" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleAddDiscountRule}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Discount Rule
               </Button>

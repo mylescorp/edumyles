@@ -29,6 +29,7 @@ import {
 import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import Link from "next/link";
 
 interface PayrollStats {
   totalStaff: number;
@@ -113,6 +114,30 @@ export default function HRDashboardPage() {
         variant: "destructive"
       });
     }
+  };
+
+  const handleExportHrReport = () => {
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      selectedPeriod,
+      selectedDepartment,
+      stats: payrollStats,
+      staffCount: staff?.length ?? 0,
+      contractsCount: contracts?.length ?? 0,
+      payrollRunsCount: payrollRuns?.length ?? 0,
+    };
+
+    const dataStr = JSON.stringify(payload, null, 2);
+    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
+    const linkElement = document.createElement("a");
+    linkElement.href = dataUri;
+    linkElement.download = `hr-dashboard-report-${new Date().toISOString().split("T")[0]}.json`;
+    linkElement.click();
+
+    toast({
+      title: "HR report exported",
+      description: "Downloaded current HR dashboard snapshot as JSON.",
+    });
   };
 
   const calculatePayrollStats = (): PayrollStats => {
@@ -218,15 +243,19 @@ export default function HRDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
-              <Button className="w-full justify-start" variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                New Contract
+              <Button className="w-full justify-start" variant="outline" asChild>
+                <Link href="/portal/admin/hr/contracts">
+                  <FileText className="h-4 w-4 mr-2" />
+                  New Contract
+                </Link>
               </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Calculator className="h-4 w-4 mr-2" />
-                Run Payroll
+              <Button className="w-full justify-start" variant="outline" asChild>
+                <Link href="/portal/admin/hr/payroll">
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Run Payroll
+                </Link>
               </Button>
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start" variant="outline" onClick={handleExportHrReport}>
                 <Download className="h-4 w-4 mr-2" />
                 Export Reports
               </Button>
@@ -300,15 +329,19 @@ export default function HRDashboardPage() {
                         >
                           {staffMember.status}
                         </Badge>
-                        <Button size="sm" variant="outline">
-                          <Eye className="h-4 w-4" />
+                        <Button size="sm" variant="outline" asChild>
+                          <Link href="/portal/admin/hr/contracts">
+                            <Eye className="h-4 w-4" />
+                          </Link>
                         </Button>
                       </div>
                     </div>
                   ))}
                   {staff?.length > 5 && (
-                    <Button variant="outline" className="w-full">
-                      View All Staff ({staff?.length - 5} more)
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link href="/portal/admin/hr/contracts">
+                        View All Staff ({staff?.length - 5} more)
+                      </Link>
                     </Button>
                   )}
                 </div>
@@ -347,8 +380,10 @@ export default function HRDashboardPage() {
                   </div>
                 ))}
                 {contracts?.length > 3 && (
-                  <Button variant="outline" className="w-full mt-4">
-                    View All Contracts ({contracts?.length - 3} more)
+                  <Button variant="outline" className="w-full mt-4" asChild>
+                    <Link href="/portal/admin/hr/contracts">
+                      View All Contracts ({contracts?.length - 3} more)
+                    </Link>
                   </Button>
                 )}
               </div>
@@ -420,7 +455,7 @@ export default function HRDashboardPage() {
                   <Calculator className="h-4 w-4 mr-2" />
                   Create New Payroll Run
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={handleExportHrReport}>
                   <Download className="h-4 w-4 mr-2" />
                   Export Payroll Report
                 </Button>

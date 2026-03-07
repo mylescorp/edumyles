@@ -28,6 +28,7 @@ import {
 import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import Link from "next/link";
 
 interface LibraryStats {
   totalBooks: number;
@@ -42,6 +43,14 @@ export default function LibraryDashboardPage() {
   const { user, isLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [focusedBookId, setFocusedBookId] = useState<string | null>(null);
+  const [editingBookId, setEditingBookId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState({
+    title: "",
+    author: "",
+    category: "",
+    quantity: "0",
+  });
 
   const books = useQuery(
     api.modules.library.queries.listBooks,
@@ -64,8 +73,7 @@ export default function LibraryDashboardPage() {
   );
 
   const createBook = useMutation(api.modules.library.mutations.createBook);
-  const borrowBook = useMutation(api.modules.library.mutations.borrowBook);
-  const returnBook = useMutation(api.modules.library.mutations.returnBook);
+  const updateBook = useMutation(api.modules.library.mutations.updateBook);
 
   const handleCreateBook = async () => {
     try {
@@ -86,6 +94,83 @@ export default function LibraryDashboardPage() {
         title: "Error",
         description: "Failed to create book",
         variant: "destructive"
+      });
+    }
+  };
+
+  const handleExportLibraryReport = () => {
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      selectedCategory,
+      searchTerm,
+      stats: libraryStats,
+      totalBooks: filteredBooks.length,
+      activeBorrows: activeBorrows?.length ?? 0,
+      overdueBorrows: overdueBorrows?.length ?? 0,
+    };
+
+    const dataStr = JSON.stringify(payload, null, 2);
+    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
+    const linkElement = document.createElement("a");
+    linkElement.href = dataUri;
+    linkElement.download = `library-report-${new Date().toISOString().split("T")[0]}.json`;
+    linkElement.click();
+
+    toast({
+      title: "Library report exported",
+      description: "Downloaded current library dashboard snapshot as JSON.",
+    });
+  };
+
+  const handleViewBook = (book: any) => {
+    setSearchTerm(book.title);
+    setFocusedBookId(book._id);
+    document.getElementById(`book-${book._id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const handleStartEdit = (book: any) => {
+    setEditingBookId(book._id);
+    setEditDraft({
+      title: book.title ?? "",
+      author: book.author ?? "",
+      category: book.category ?? "",
+      quantity: String(book.quantity ?? 0),
+    });
+    document.getElementById(`book-${book._id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingBookId) return;
+
+    const parsedQuantity = Number.parseInt(editDraft.quantity, 10);
+    if (Number.isNaN(parsedQuantity) || parsedQuantity < 0) {
+      toast({
+        title: "Invalid quantity",
+        description: "Quantity must be a zero or positive whole number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await updateBook({
+        bookId: editingBookId as any,
+        title: editDraft.title.trim(),
+        author: editDraft.author.trim(),
+        category: editDraft.category.trim().toLowerCase(),
+        quantity: parsedQuantity,
+      });
+
+      toast({
+        title: "Book updated",
+        description: "Catalog details were saved.",
+      });
+      setEditingBookId(null);
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: "Could not save book changes.",
+        variant: "destructive",
       });
     }
   };
@@ -193,13 +278,15 @@ export default function LibraryDashboardPage() {
                 <Book className="h-4 w-4 mr-2" />
                 Add New Book
               </Button>
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start" variant="outline" onClick={handleExportLibraryReport}>
                 <Download className="h-4 w-4 mr-2" />
                 Generate Report
               </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <DollarSign className="h-4 w-4 mr-2" />
-                Collect Fines
+              <Button className="w-full justify-start" variant="outline" asChild>
+                <Link href="/portal/admin/library/circulation">
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Collect Fines
+                </Link>
               </Button>
             </div>
           </CardContent>
@@ -288,7 +375,11 @@ export default function LibraryDashboardPage() {
             {/* Books List */}
             <div className="space-y-4">
               {(filteredBooks as any[]).slice(0, 10).map((book) => (
-                <div key={book._id} className="border rounded-lg p-4">
+                <div
+                  key={book._id}
+                  id={`book-${book._id}`}
+                  className={`border rounded-lg p-4 ${focusedBookId === book._id ? "ring-2 ring-primary/40" : ""}`}
+                >
                   <div className="flex items-start justify-between">
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
@@ -322,20 +413,72 @@ export default function LibraryDashboardPage() {
                     </div>
 
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleViewBook(book)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleStartEdit(book)}>
                         <Edit className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
+                  {editingBookId === book._id && (
+                    <div className="mt-4 border-t pt-4 space-y-3">
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label htmlFor={`title-${book._id}`}>Title</Label>
+                          <Input
+                            id={`title-${book._id}`}
+                            value={editDraft.title}
+                            onChange={(e) => setEditDraft((current) => ({ ...current, title: e.target.value }))}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor={`author-${book._id}`}>Author</Label>
+                          <Input
+                            id={`author-${book._id}`}
+                            value={editDraft.author}
+                            onChange={(e) => setEditDraft((current) => ({ ...current, author: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label htmlFor={`category-${book._id}`}>Category</Label>
+                          <Input
+                            id={`category-${book._id}`}
+                            value={editDraft.category}
+                            onChange={(e) => setEditDraft((current) => ({ ...current, category: e.target.value }))}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor={`quantity-${book._id}`}>Quantity</Label>
+                          <Input
+                            id={`quantity-${book._id}`}
+                            type="number"
+                            min={0}
+                            value={editDraft.quantity}
+                            onChange={(e) => setEditDraft((current) => ({ ...current, quantity: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <Button size="sm" variant="outline" onClick={() => setEditingBookId(null)}>
+                          Cancel
+                        </Button>
+                        <Button size="sm" onClick={handleSaveEdit}>
+                          Save Changes
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
 
               {filteredBooks.length > 10 && (
-                <Button variant="outline" className="w-full">
-                  View All Books ({filteredBooks.length - 10} more)
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/portal/admin/library/circulation">
+                    View All Books ({filteredBooks.length - 10} more)
+                  </Link>
                 </Button>
               )}
             </div>

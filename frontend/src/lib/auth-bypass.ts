@@ -11,15 +11,19 @@ export const BYPASS_USER = {
 };
 
 export function isBypassAllowed() {
-  return process.env.NODE_ENV !== "production" || process.env.ALLOW_BYPASS === "true";
+  // Never allow bypass routes in production.
+  if (process.env.NODE_ENV === "production") return false;
+
+  // Non-production still requires explicit opt-in.
+  return process.env.ALLOW_BYPASS === "true";
 }
 
 export function isBypassRequestAllowed(request?: Request) {
   if (!isBypassAllowed()) return false;
 
-  // Optional hardening: if BYPASS_TOKEN is set, every bypass request must present it.
+  // In non-production, every bypass request must present BYPASS_TOKEN.
   const bypassToken = process.env.BYPASS_TOKEN;
-  if (!bypassToken) return true;
+  if (!bypassToken) return false;
   if (!request) return false;
 
   const urlToken = new URL(request.url).searchParams.get("token");
