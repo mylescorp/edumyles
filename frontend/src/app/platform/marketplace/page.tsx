@@ -112,14 +112,14 @@ export default function PlatformMarketplacePage() {
         </Card>
       ) : (
         <Card>
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Module</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Required Tier</TableHead>
-                  <TableHead>Version</TableHead>
+                  <TableHead className="hidden sm:table-cell">Category</TableHead>
+                  <TableHead className="hidden md:table-cell">Required Tier</TableHead>
+                  <TableHead className="hidden lg:table-cell">Version</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -134,19 +134,19 @@ export default function PlatformMarketplacePage() {
                       >
                         {mod.name}
                       </Link>
-                      <p className="max-w-[300px] truncate text-xs text-muted-foreground">
+                      <p className="max-w-[200px] sm:max-w-[300px] truncate text-xs text-muted-foreground">
                         {mod.description}
                       </p>
                     </TableCell>
-                    <TableCell className="capitalize text-sm">
+                    <TableCell className="capitalize text-sm hidden sm:table-cell">
                       {mod.category}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Badge variant="outline" className="text-xs capitalize">
                         {TIER_LABELS[mod.tier] ?? mod.tier}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
+                    <TableCell className="font-mono text-xs hidden lg:table-cell">
                       {mod.version}
                     </TableCell>
                     <TableCell>
@@ -157,7 +157,7 @@ export default function PlatformMarketplacePage() {
                         }
                         disabled={updatingModule === mod.moduleId}
                       >
-                        <SelectTrigger className="w-[120px]">
+                        <SelectTrigger className="w-[110px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

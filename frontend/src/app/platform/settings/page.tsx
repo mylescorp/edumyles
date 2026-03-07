@@ -261,29 +261,30 @@ export default function PlatformSettingsPage() {
                     { label: "Settings", href: "/platform/settings" }
                 ]}
                 actions={
-                    <div className="flex items-center space-x-2">
-                        <Button variant="outline" onClick={handleExportSettings}>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={handleExportSettings}>
                             <Download className="h-4 w-4 mr-2" />
                             Export
                         </Button>
-                        <Button variant="outline" onClick={handleReset}>
+                        <Button variant="outline" size="sm" onClick={handleReset}>
                             <RefreshCw className="h-4 w-4 mr-2" />
-                            Reset to Default
+                            Reset
                         </Button>
-                        <Button 
-                            className="bg-[#056C40] hover:bg-[#023c24]" 
+                        <Button
+                            size="sm"
+                            className="bg-[#056C40] hover:bg-[#023c24]"
                             onClick={handleSave}
                             disabled={isSaving}
                         >
                             <Save className="h-4 w-4 mr-2" />
-                            {isSaving ? "Saving..." : "Save Changes"}
+                            {isSaving ? "Saving..." : "Save"}
                         </Button>
                     </div>
                 }
             />
 
             <Tabs defaultValue="general" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="security">Security</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
@@ -405,7 +406,7 @@ export default function PlatformSettingsPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="grid gap-4 md:grid-cols-3">
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 <div className="space-y-2">
                                     <Label htmlFor="passwordMinLength">Min Password Length</Label>
                                     <Input
@@ -567,12 +568,12 @@ export default function PlatformSettingsPage() {
                                 />
                             </div>
 
-                            <div className="flex space-x-2">
-                                <Button variant="outline">
+                            <div className="flex flex-wrap gap-2">
+                                <Button variant="outline" size="sm">
                                     <RefreshCw className="h-4 w-4 mr-2" />
                                     Test Connection
                                 </Button>
-                                <Button variant="outline">
+                                <Button variant="outline" size="sm">
                                     <Mail className="h-4 w-4 mr-2" />
                                     Send Test Email
                                 </Button>
@@ -655,14 +656,14 @@ export default function PlatformSettingsPage() {
                                 </div>
                             </div>
 
-                            <div className="flex space-x-2">
-                                <Button variant="outline">
+                            <div className="flex flex-wrap gap-2">
+                                <Button variant="outline" size="sm">
                                     <Upload className="h-4 w-4 mr-2" />
                                     Create Backup Now
                                 </Button>
-                                <Button variant="outline">
+                                <Button variant="outline" size="sm">
                                     <Download className="h-4 w-4 mr-2" />
-                                    Download Latest Backup
+                                    Download Latest
                                 </Button>
                             </div>
                         </CardContent>

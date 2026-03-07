@@ -370,15 +370,17 @@ export default function PlatformUsersPage() {
                 ]}
                 actions={
                     isMasterAdmin && (
-                        <div className="flex items-center space-x-2">
-                            <Button 
-                                variant="outline" 
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => setShowAllUsers(!showAllUsers)}
+                                className="w-full sm:w-auto"
                             >
                                 {showAllUsers ? "Platform Admins" : "All System Users"}
                             </Button>
                             <Link href="/platform/users/invite">
-                                <Button className="bg-[#056C40] hover:bg-[#023c24]">
+                                <Button size="sm" className="bg-[#056C40] hover:bg-[#023c24] w-full sm:w-auto">
                                     <UserPlus className="mr-2 h-4 w-4" />
                                     Invite User
                                 </Button>
@@ -449,14 +451,12 @@ export default function PlatformUsersPage() {
             {isMasterAdmin && showAllUsers ? (
                 <Card>
                     <CardHeader>
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <CardTitle>All System Users</CardTitle>
-                            <div className="flex items-center space-x-2">
-                                <Button variant="outline" size="sm">
-                                    <Download className="h-4 w-4 mr-2" />
-                                    Export
-                                </Button>
-                            </div>
+                            <Button variant="outline" size="sm">
+                                <Download className="h-4 w-4 mr-2" />
+                                Export
+                            </Button>
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -501,17 +501,17 @@ export default function PlatformUsersPage() {
                             </div>
 
                             {/* Users Table */}
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
+                            <div className="overflow-x-auto -mx-1">
+                                <table className="w-full min-w-[600px]">
                                     <thead>
                                         <tr className="border-b">
                                             <th className="text-left p-3 font-medium">User</th>
                                             <th className="text-left p-3 font-medium">Role</th>
-                                            <th className="text-left p-3 font-medium">Tenant</th>
+                                            <th className="text-left p-3 font-medium hidden md:table-cell">Tenant</th>
                                             <th className="text-left p-3 font-medium">Status</th>
-                                            <th className="text-left p-3 font-medium">Last Login</th>
-                                            <th className="text-left p-3 font-medium">Joined</th>
-                                            <th className="text-left p-3 font-medium w-[100px]">Actions</th>
+                                            <th className="text-left p-3 font-medium hidden lg:table-cell">Last Login</th>
+                                            <th className="text-left p-3 font-medium hidden lg:table-cell">Joined</th>
+                                            <th className="text-left p-3 font-medium w-[80px]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -544,7 +544,7 @@ export default function PlatformUsersPage() {
                                                 <td className="p-3">
                                                     {getRoleBadge(user.role)}
                                                 </td>
-                                                <td className="p-3">
+                                                <td className="p-3 hidden md:table-cell">
                                                     <div className="flex items-center space-x-1">
                                                         <Building2 className="h-4 w-4 text-muted-foreground" />
                                                         <span className="text-sm">{user.tenantName || "Platform"}</span>
@@ -553,12 +553,12 @@ export default function PlatformUsersPage() {
                                                 <td className="p-3">
                                                     {getStatusBadge(user.status)}
                                                 </td>
-                                                <td className="p-3">
+                                                <td className="p-3 hidden lg:table-cell">
                                                     <div className="text-sm">
                                                         {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "Never"}
                                                     </div>
                                                 </td>
-                                                <td className="p-3">
+                                                <td className="p-3 hidden lg:table-cell">
                                                     <div className="text-sm">
                                                         {new Date(user.createdAt).toLocaleDateString()}
                                                     </div>

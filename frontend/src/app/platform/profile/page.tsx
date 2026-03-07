@@ -287,8 +287,8 @@ export default function ProfilePage() {
         {/* Detailed Information */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="personal" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="personal">Personal Info</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+              <TabsTrigger value="personal">Personal</TabsTrigger>
               <TabsTrigger value="preferences">Preferences</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>

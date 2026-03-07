@@ -17,6 +17,8 @@ import {
   Shield,
   UserCog,
   Bell,
+  BarChart3,
+  Eye,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,8 +34,10 @@ export const platformNavItems: NavItem[] = [
   { label: "Dashboard", href: "/platform", icon: LayoutDashboard },
   { label: "Tenants", href: "/platform/tenants", icon: Building2 },
   { label: "Users", href: "/platform/users", icon: Users },
+  { label: "Analytics", href: "/platform/analytics", icon: BarChart3 },
   { label: "Marketplace", href: "/platform/marketplace", icon: ShoppingCart },
   { label: "Billing", href: "/platform/billing", icon: DollarSign },
+  { label: "Impersonation", href: "/platform/impersonation", icon: Eye },
   { label: "Audit Log", href: "/platform/audit", icon: FileText },
   { label: "Settings", href: "/platform/settings", icon: Settings },
 ];

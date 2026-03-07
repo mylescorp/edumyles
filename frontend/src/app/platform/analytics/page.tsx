@@ -208,11 +208,11 @@ export default function AnalyticsPage() {
       />
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="users">User Metrics</TabsTrigger>
-          <TabsTrigger value="system">System Health</TabsTrigger>
-          <TabsTrigger value="traffic">Traffic Analysis</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="system">System</TabsTrigger>
+          <TabsTrigger value="traffic">Traffic</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}

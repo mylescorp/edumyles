@@ -99,6 +99,7 @@ export function DataTable<T>({
         <EmptyState icon={Inbox} title={emptyTitle} description={emptyDescription} />
       ) : (
         <>
+          <div className="overflow-x-auto -mx-1">
           <Table>
             <TableHeader>
               <TableRow>
@@ -130,10 +131,11 @@ export function DataTable<T>({
               ))}
             </TableBody>
           </Table>
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
               <span>
                 Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, sorted.length)} of{" "}
                 {sorted.length}

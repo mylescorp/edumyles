@@ -173,7 +173,7 @@ export default function AuditLogPage() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All actions</SelectItem>
-                        {(actionTypes as any[]).map((action) => (
+                        {((actionTypes as any[]) ?? []).map((action) => (
                             <SelectItem key={action} value={action}>
                                 {action}
                             </SelectItem>
