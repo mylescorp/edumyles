@@ -100,6 +100,11 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get("edumyles_session");
   const role = request.cookies.get("edumyles_role")?.value;
 
+  // Development bypass - skip middleware for admin routes in development
+  if (process.env.NODE_ENV === "development" && pathname.startsWith("/admin")) {
+    return NextResponse.next();
+  }
+
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
 
