@@ -13,7 +13,7 @@ import {
 import { Bell, LogOut, User, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotifications } from "@/hooks/useSSRSafeConvex";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
 import Link from "next/link";

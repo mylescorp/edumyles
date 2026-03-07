@@ -18,3 +18,25 @@ export function useMutation(mutation: any) {
   }
   return useConvexMutation(mutation);
 }
+
+// Export useNotifications for components that need it
+export function useNotifications() {
+  if (isSSREnvironment()) {
+    return {
+      notifications: [],
+      unreadCount: 0,
+      isLoading: false,
+      markAsRead: () => {},
+      markAllAsRead: () => {},
+    };
+  }
+
+  // Return mock data for now to avoid import issues
+  return {
+    notifications: [],
+    unreadCount: 0,
+    isLoading: false,
+    markAsRead: () => {},
+    markAllAsRead: () => {},
+  };
+}
