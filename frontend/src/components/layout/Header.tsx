@@ -18,7 +18,6 @@ import { useNotifications } from "@/hooks/useSSRSafeConvex";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
 import Link from "next/link";
-import { useState } from "react";
 
 interface HeaderProps {
   onMobileMenuToggle?: () => void;

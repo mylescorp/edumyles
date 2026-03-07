@@ -31,6 +31,8 @@ export default function HRDashboardPage() {
         sessionToken ? {} : "skip"
     );
 
+    if (isLoading || !stats) return <LoadingSkeleton variant="page" />;
+
     // Mock data for enhanced features
     const recentActivities = [
         {
@@ -78,8 +80,6 @@ export default function HRDashboardPage() {
             type: "review",
         },
     ];
-
-    if (isLoading || !stats) return <LoadingSkeleton variant="page" />;
 
     const getActivityIcon = (type: string) => {
         switch (type) {

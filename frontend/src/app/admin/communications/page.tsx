@@ -45,7 +45,7 @@ export default function CommunicationsPage() {
         openRate: 78,
     };
 
-    if (isLoading) return <LoadingSkeleton variant="page" />;
+    if (isLoading || !announcements) return <LoadingSkeleton variant="page" />;
 
     const columns: Column<Announcement>[] = [
         {
