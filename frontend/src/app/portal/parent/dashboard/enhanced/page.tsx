@@ -1,317 +1,259 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Users, 
-  Calendar,
-  Award,
-  AlertTriangle,
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DollarSign,
   BookOpen,
-  Target,
+  AlertTriangle,
   Activity,
   Download,
-  Eye
+  Eye,
+  Calendar,
+  Target,
 } from "lucide-react";
-import { format } from "date-fns";
-import { useState } from "react";
-import { toast } from "@/components/ui/use-toast";
+import { formatDate } from "@/lib/formatters";
+
+type Child = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  classId?: string;
+  status?: string;
+};
 
 export default function EnhancedParentDashboardPage() {
   const { user, isLoading } = useAuth();
-  const [selectedPeriod, setSelectedPeriod] = useState("current");
+  const [selectedChildId, setSelectedChildId] = useState<string>("all");
 
-  // Mock data - in real app, these would come from queries
-  const studentPerformance = {
-    averageGrade: "B+",
-    attendanceRate: 92,
-    assignmentsCompleted: 45,
-    totalAssignments: 48,
-    behaviorScore: "Excellent",
-    recentActivity: [
-      { type: "assignment", subject: "Math", grade: "A", date: "2024-03-01" },
-      { type: "test", subject: "Science", grade: "B+", date: "2024-02-28" },
-      { type: "attendance", subject: "English", status: "Present", date: "2024-02-27" }
-    ]
-  };
+  const children = useQuery(api.modules.portal.parent.queries.getChildren, {});
+  const feeOverview = useQuery(api.modules.portal.parent.queries.getChildrenFeeOverview, {});
+  const paymentHistory = useQuery(api.modules.portal.parent.queries.getPaymentHistory, {});
+  const announcements = useQuery(api.modules.portal.parent.queries.getAnnouncements, {});
+  const unreadCount = useQuery(
+    api.notifications.getUnreadCount,
+    user?._id ? { userId: String(user._id) } : "skip"
+  );
 
-  const financialOverview = {
-    totalFees: 150000,
-    paidAmount: 120000,
-    outstandingBalance: 30000,
-    nextPaymentDue: "2024-03-15",
-    paymentHistory: [
-      { date: "2024-02-15", amount: 25000, method: "M-Pesa", status: "completed" },
-      { date: "2024-01-15", amount: 25000, method: "Bank Transfer", status: "completed" }
-    ]
-  };
+  const selectedChild = useMemo(() => {
+    if (!children || selectedChildId === "all") return null;
+    return (children as Child[]).find((c) => String(c._id) === selectedChildId) ?? null;
+  }, [children, selectedChildId]);
 
-  const communicationStats = {
-    totalMessages: 24,
-    unreadMessages: 3,
-    lastCommunication: "2024-03-01",
-    upcomingEvents: 2,
-    recentAnnouncements: [
-      { title: "Parent-Teacher Meeting", date: "2024-03-10", type: "meeting" },
-      { title: "School Holiday Notice", date: "2024-03-05", type: "announcement" }
-    ]
-  };
+  const childGrades = useQuery(
+    api.modules.portal.parent.queries.getChildGrades,
+    selectedChild ? { studentId: String(selectedChild._id) } : "skip"
+  );
+  const childAttendance = useQuery(
+    api.modules.portal.parent.queries.getChildAttendance,
+    selectedChild ? { studentId: String(selectedChild._id) } : "skip"
+  );
+  const childAssignments = useQuery(
+    api.modules.portal.parent.queries.getChildAssignments,
+    selectedChild?.classId ? { studentId: String(selectedChild._id), classId: String(selectedChild.classId) } : "skip"
+  );
 
-  if (isLoading) return <LoadingSkeleton variant="page" />;
+  if (
+    isLoading ||
+    children === undefined ||
+    feeOverview === undefined ||
+    paymentHistory === undefined ||
+    announcements === undefined ||
+    unreadCount === undefined
+  ) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  const childrenList = children as Child[];
+  const totalBalance = (feeOverview as any[]).reduce((sum, child) => sum + (child.balance || 0), 0);
+  const totalInvoiced = (feeOverview as any[]).reduce((sum, child) => sum + (child.totalInvoiced || 0), 0);
+  const totalPaid = (feeOverview as any[]).reduce((sum, child) => sum + (child.totalPaid || 0), 0);
+  const paymentProgress = totalInvoiced > 0 ? Math.round((totalPaid / totalInvoiced) * 100) : 0;
+
+  const computedAverage = useMemo(() => {
+    if (!childGrades || childGrades.length === 0) return null;
+    const total = childGrades.reduce((sum: number, g: any) => sum + (g.score ?? 0), 0);
+    return Math.round((total / childGrades.length) * 10) / 10;
+  }, [childGrades]);
+
+  const attendanceRate = useMemo(() => {
+    if (!childAttendance || childAttendance.length === 0) return null;
+    const present = childAttendance.filter((a: any) => a.status === "present").length;
+    return Math.round((present / childAttendance.length) * 100);
+  }, [childAttendance]);
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Enhanced Parent Dashboard"
-        description="Comprehensive overview of student performance and activities"
+        description="Live overview of academics, fees, and communication activity"
       />
 
-      <div className="space-y-6">
-        {/* Performance Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Child Context</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Select child for academic details</Label>
+            <Select value={selectedChildId} onValueChange={setSelectedChildId}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All children (financial + comms)</SelectItem>
+                {childrenList.map((child) => (
+                  <SelectItem key={String(child._id)} value={String(child._id)}>
+                    {child.firstName} {child.lastName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="rounded-md border p-3 text-sm">
+            <p className="font-medium">Notifications</p>
+            <p className="text-muted-foreground">Unread: {unreadCount}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Academic Performance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {studentPerformance.averageGrade}
-                </div>
-                <p className="text-sm text-muted-foreground">Average Grade</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {studentPerformance.attendanceRate}%
-                </div>
-                <p className="text-sm text-muted-foreground">Attendance Rate</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">
-                  {studentPerformance.assignmentsCompleted}/{studentPerformance.totalAssignments}
-                </div>
-                <p className="text-sm text-muted-foreground">Assignments</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">
-                  {studentPerformance.behaviorScore}
-                </div>
-                <p className="text-sm text-muted-foreground">Behavior Score</p>
-              </div>
-            </div>
-
-            {/* Performance Progress Bars */}
-            <div className="grid gap-4 md:grid-cols-2 mt-6">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Grade Progress</span>
-                  <span className="text-sm text-muted-foreground">B+</span>
-                </div>
-                <Progress value={85} className="h-2" />
-              </div>
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Attendance</span>
-                  <span className="text-sm text-muted-foreground">92%</span>
-                </div>
-                <Progress value={92} className="h-2" />
-              </div>
-            </div>
-          </CardContent>
+          <CardHeader><CardTitle className="text-sm">Average Score</CardTitle></CardHeader>
+          <CardContent className="text-2xl font-bold">{computedAverage ?? "--"}</CardContent>
         </Card>
-
-        {/* Financial Overview */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Financial Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6 md:grid-cols-3">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Fees</p>
-                <p className="text-2xl font-bold">
-                  KES {(financialOverview.totalFees / 100).toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Paid Amount</p>
-                <p className="text-2xl font-bold text-green-600">
-                  KES {(financialOverview.paidAmount / 100).toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Outstanding</p>
-                <p className="text-2xl font-bold text-red-600">
-                  KES {(financialOverview.outstandingBalance / 100).toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            {/* Payment Progress */}
-            <div className="mt-6">
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium">Payment Progress</span>
-                <span className="text-sm text-muted-foreground">80%</span>
-              </div>
-              <Progress value={80} className="h-3" />
-            </div>
-
-            <div className="flex items-center gap-2 mt-4 p-3 bg-yellow-50 rounded">
-              <AlertTriangle className="h-4 w-4 text-yellow-600" />
-              <span className="text-sm text-yellow-700">
-                Next payment due: {format(new Date(financialOverview.nextPaymentDue), "PPP")}
-              </span>
-            </div>
-          </CardContent>
+          <CardHeader><CardTitle className="text-sm">Attendance Rate</CardTitle></CardHeader>
+          <CardContent className="text-2xl font-bold">{attendanceRate !== null ? `${attendanceRate}%` : "--"}</CardContent>
         </Card>
+        <Card>
+          <CardHeader><CardTitle className="text-sm">Assignments</CardTitle></CardHeader>
+          <CardContent className="text-2xl font-bold">{childAssignments ? childAssignments.length : "--"}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle className="text-sm">Outstanding Fees</CardTitle></CardHeader>
+          <CardContent className="text-2xl font-bold text-red-600">KES {totalBalance.toLocaleString()}</CardContent>
+        </Card>
+      </div>
 
-        {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Financial Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <p className="text-sm text-muted-foreground">Total Invoiced</p>
+              <p className="text-xl font-semibold">KES {totalInvoiced.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Paid</p>
+              <p className="text-xl font-semibold text-green-600">KES {totalPaid.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Balance</p>
+              <p className="text-xl font-semibold text-red-600">KES {totalBalance.toLocaleString()}</p>
+            </div>
+          </div>
+          <div>
+            <div className="mb-1 flex items-center justify-between text-sm">
+              <span>Payment Progress</span>
+              <span>{paymentProgress}%</span>
+            </div>
+            <Progress value={paymentProgress} className="h-3" />
+          </div>
+          {totalBalance > 0 && (
+            <div className="flex items-center gap-2 rounded bg-yellow-50 p-3 text-sm text-yellow-700">
+              <AlertTriangle className="h-4 w-4" />
+              <span>There is an outstanding fee balance.</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
-              Recent Activity
+              Recent Payments
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {studentPerformance.recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${
-                      activity.type === 'assignment' ? 'bg-blue-500' :
-                      activity.type === 'test' ? 'bg-green-500' :
-                      'bg-purple-500'
-                    }`} />
-                    <div>
-                      <p className="font-medium capitalize">{activity.type}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.subject} • {format(new Date(activity.date), "PPP")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    {activity.grade && (
-                      <Badge variant="default">{activity.grade}</Badge>
-                    )}
-                    {activity.status && (
-                      <Badge variant="outline">{activity.status}</Badge>
-                    )}
-                  </div>
+          <CardContent className="space-y-3">
+            {(paymentHistory as any[]).slice(0, 8).map((payment: any) => (
+              <div key={String(payment._id)} className="rounded-lg border p-3">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">KES {(payment.amount ?? 0).toLocaleString()}</p>
+                  <Badge variant={payment.status === "completed" ? "default" : "secondary"}>{payment.status}</Badge>
                 </div>
-              ))}
-            </div>
+                <p className="text-xs text-muted-foreground">{payment.method} • {formatDate(payment.processedAt)}</p>
+              </div>
+            ))}
+            {(paymentHistory as any[]).length === 0 && (
+              <p className="text-sm text-muted-foreground">No payments recorded yet.</p>
+            )}
           </CardContent>
         </Card>
 
-        {/* Communication & Events */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                Communications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Total Messages</span>
-                  <Badge variant="default">{communicationStats.totalMessages}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Unread</span>
-                  <Badge variant="destructive">{communicationStats.unreadMessages}</Badge>
-                </div>
-                
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Recent Announcements</p>
-                  {communicationStats.recentAnnouncements.map((announcement, index) => (
-                    <div key={index} className="p-2 bg-muted rounded text-sm">
-                      <p className="font-medium">{announcement.title}</p>
-                      <p className="text-muted-foreground">
-                        {format(new Date(announcement.date), "PPP")}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Upcoming Events
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Upcoming Events</span>
-                  <Badge variant="default">{communicationStats.upcomingEvents}</Badge>
-                </div>
-                
-                <div className="space-y-2">
-                  {communicationStats.recentAnnouncements
-                    .filter(a => a.type === 'meeting')
-                    .map((event, index) => (
-                      <div key={index} className="p-2 bg-blue-50 rounded text-sm">
-                        <p className="font-medium">{event.title}</p>
-                        <p className="text-blue-600">
-                          {format(new Date(event.date), "PPP")}
-                        </p>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Quick Actions
+              <BookOpen className="h-5 w-5" />
+              Recent Announcements
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Button className="w-full justify-start" variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Download Report Card
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Eye className="h-4 w-4 mr-2" />
-                View Detailed Progress
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Meeting
-              </Button>
-            </div>
+          <CardContent className="space-y-3">
+            {(announcements as any[]).slice(0, 8).map((item: any) => (
+              <div key={String(item._id)} className="rounded-lg border p-3">
+                <p className="font-medium">{item.title}</p>
+                <p className="text-sm text-muted-foreground">{item.message}</p>
+                <p className="text-xs text-muted-foreground">{formatDate(item.createdAt)}</p>
+              </div>
+            ))}
+            {(announcements as any[]).length === 0 && (
+              <p className="text-sm text-muted-foreground">No announcements available.</p>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Quick Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Button className="w-full justify-start" variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Download Report Card
+            </Button>
+            <Button className="w-full justify-start" variant="outline">
+              <Eye className="h-4 w-4 mr-2" />
+              View Detailed Progress
+            </Button>
+            <Button className="w-full justify-start" variant="outline">
+              <Calendar className="h-4 w-4 mr-2" />
+              Schedule Meeting
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
