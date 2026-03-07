@@ -43,7 +43,7 @@ type AuditLog = {
 };
 
 export default function AnalyticsPage() {
-  const { isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
   const { hasRole } = usePermissions();
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "1y">("30d");
   const isPlatformAdmin = hasRole("master_admin", "super_admin");
@@ -51,19 +51,19 @@ export default function AnalyticsPage() {
 
   const stats = useQuery(
     api.platform.tenants.queries.getPlatformStats,
-    isPlatformAdmin ? {} : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
   ) as PlatformStats | undefined;
   const subscriptions = useQuery(
     api.platform.billing.queries.listSubscriptions,
-    isPlatformAdmin ? {} : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
   ) as Subscription[] | undefined;
   const auditLogs = useQuery(
     api.platform.audit.queries.listAuditLogs,
-    isPlatformAdmin ? { limit: 500 } : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken, limit: 500 } : "skip"
   ) as AuditLog[] | undefined;
   const allUsers = useQuery(
     api.platform.users.queries.listAllUsers,
-    isMasterAdmin ? {} : "skip"
+    isMasterAdmin && sessionToken ? { sessionToken } : "skip"
   ) as Array<{ createdAt?: number; tenantId?: string }> | undefined;
 
   const rangeStart = useMemo(() => {

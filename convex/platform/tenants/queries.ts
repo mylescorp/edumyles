@@ -1,10 +1,10 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const listAllTenants = query({
   args: {
+    sessionToken: v.string(),
     status: v.optional(v.union(
       v.literal("active"),
       v.literal("suspended"),
@@ -12,8 +12,7 @@ export const listAllTenants = query({
     )),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    await requirePlatformSession(ctx, args);
 
     const tenants = await ctx.db.query("tenants").collect();
 
@@ -26,10 +25,12 @@ export const listAllTenants = query({
 });
 
 export const getTenantById = query({
-  args: { tenantId: v.string() },
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+  },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    await requirePlatformSession(ctx, args);
 
     return await ctx.db
       .query("tenants")
@@ -39,10 +40,9 @@ export const getTenantById = query({
 });
 
 export const getPlatformStats = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
 
     const tenants = await ctx.db.query("tenants").collect();
     const activeTenants = tenants.filter((t) => t.status === "active");
@@ -74,11 +74,11 @@ export const getPlatformStats = query({
 
 export const getRecentActivity = query({
   args: {
+    sessionToken: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    await requirePlatformSession(ctx, args);
 
     const limit = args.limit ?? 20;
 
@@ -104,10 +104,12 @@ export const getRecentActivity = query({
 });
 
 export const getTenantUsers = query({
-  args: { tenantId: v.string() },
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+  },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    await requirePlatformSession(ctx, args);
 
     return await ctx.db
       .query("users")
@@ -117,10 +119,12 @@ export const getTenantUsers = query({
 });
 
 export const getTenantModules = query({
-  args: { tenantId: v.string() },
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+  },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    await requirePlatformSession(ctx, args);
 
     return await ctx.db
       .query("installedModules")

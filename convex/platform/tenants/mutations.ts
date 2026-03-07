@@ -1,12 +1,12 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 import { generateTenantId } from "../../helpers/idGenerator";
 
 export const createTenant = mutation({
   args: {
+    sessionToken: v.string(),
     name: v.string(),
     subdomain: v.string(),
     email: v.string(),
@@ -21,8 +21,7 @@ export const createTenant = mutation({
     country: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    const tenantCtx = await requirePlatformSession(ctx, args);
 
     const existing = await ctx.db
       .query("tenants")
@@ -52,7 +51,7 @@ export const createTenant = mutation({
     await logAction(ctx, {
       tenantId: tenantCtx.tenantId,
       actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email!,
+      actorEmail: tenantCtx.email,
       action: "tenant.created",
       entityType: "tenant",
       entityId: tenantId,
@@ -65,12 +64,12 @@ export const createTenant = mutation({
 
 export const suspendTenant = mutation({
   args: {
+    sessionToken: v.string(),
     tenantId: v.string(),
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin");
+    const tenantCtx = await requirePlatformSession(ctx, args);
 
     const tenant = await ctx.db
       .query("tenants")
@@ -89,7 +88,7 @@ export const suspendTenant = mutation({
     await logAction(ctx, {
       tenantId: tenantCtx.tenantId,
       actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email!,
+      actorEmail: tenantCtx.email,
       action: "tenant.suspended",
       entityType: "tenant",
       entityId: args.tenantId,
@@ -99,10 +98,12 @@ export const suspendTenant = mutation({
 });
 
 export const activateTenant = mutation({
-  args: { tenantId: v.string() },
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+  },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    const tenantCtx = await requirePlatformSession(ctx, args);
 
     const tenant = await ctx.db
       .query("tenants")
@@ -119,8 +120,8 @@ export const activateTenant = mutation({
     await logAction(ctx, {
       tenantId: tenantCtx.tenantId,
       actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email!,
-      action: "tenant.created",
+      actorEmail: tenantCtx.email,
+      action: "tenant.activated",
       entityType: "tenant",
       entityId: args.tenantId,
       after: { status: "active" },

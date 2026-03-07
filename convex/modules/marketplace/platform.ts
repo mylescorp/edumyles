@@ -1,7 +1,6 @@
 import { mutation, query } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 /**
  * All 11 EduMyles modules with metadata.
@@ -114,10 +113,9 @@ const MODULE_CATALOG = [
  * Platform admin only.
  */
 export const seedModuleRegistry = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
 
     let seeded = 0;
 
@@ -151,6 +149,7 @@ export const seedModuleRegistry = mutation({
  */
 export const updateModuleStatus = mutation({
   args: {
+    sessionToken: v.string(),
     moduleId: v.string(),
     status: v.union(
       v.literal("active"),
@@ -159,8 +158,7 @@ export const updateModuleStatus = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    await requirePlatformSession(ctx, args);
 
     const mod = await ctx.db
       .query("moduleRegistry")
@@ -183,12 +181,12 @@ export const updateModuleStatus = mutation({
  */
 export const updateModuleVersion = mutation({
   args: {
+    sessionToken: v.string(),
     moduleId: v.string(),
     version: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    await requirePlatformSession(ctx, args);
 
     const mod = await ctx.db
       .query("moduleRegistry")
@@ -210,10 +208,9 @@ export const updateModuleVersion = mutation({
  * Platform admin only.
  */
 export const getFullRegistry = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
 
     return await ctx.db.query("moduleRegistry").collect();
   },
@@ -225,6 +222,7 @@ export const getFullRegistry = query({
  */
 export const updateModuleMetadata = mutation({
   args: {
+    sessionToken: v.string(),
     moduleId: v.string(),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
@@ -232,8 +230,7 @@ export const updateModuleMetadata = mutation({
     category: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin", "super_admin");
+    await requirePlatformSession(ctx, args);
 
     const mod = await ctx.db
       .query("moduleRegistry")

@@ -42,7 +42,7 @@ function getActionBadgeClass(action: string) {
 }
 
 export default function PlatformDashboardPage() {
-  const { isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
   const { hasRole } = usePermissions();
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("30d");
   const isPlatformAdmin = hasRole("master_admin", "super_admin");
@@ -50,23 +50,23 @@ export default function PlatformDashboardPage() {
 
   const stats = useQuery(
     api.platform.tenants.queries.getPlatformStats,
-    isPlatformAdmin ? {} : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
   );
   const activityRaw = useQuery(
     api.platform.tenants.queries.getRecentActivity,
-    isPlatformAdmin ? { limit: 30 } : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken, limit: 30 } : "skip"
   );
   const subscriptions = useQuery(
     api.platform.billing.queries.listSubscriptions,
-    isPlatformAdmin ? {} : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
   );
   const auditLogs = useQuery(
     api.platform.audit.queries.listAuditLogs,
-    isPlatformAdmin ? { limit: 200 } : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken, limit: 200 } : "skip"
   );
   const allUsers = useQuery(
     api.platform.users.queries.listAllUsers,
-    isMasterAdmin ? {} : "skip"
+    isMasterAdmin && sessionToken ? { sessionToken } : "skip"
   ) as Array<{ createdAt?: number }> | undefined;
 
   const rangeStart = useMemo(() => {

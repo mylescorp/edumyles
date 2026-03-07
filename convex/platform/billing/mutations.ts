@@ -1,12 +1,12 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
 // Update a tenant's subscription tier/plan
 export const updateTenantTier = mutation({
     args: {
+        sessionToken: v.string(),
         tenantId: v.string(),
         plan: v.union(
             v.literal("free"),
@@ -16,8 +16,7 @@ export const updateTenantTier = mutation({
         ),
     },
     handler: async (ctx, args) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin");
+        const tenantCtx = await requirePlatformSession(ctx, args);
 
         const tenant = await ctx.db
             .query("tenants")
@@ -46,7 +45,7 @@ export const updateTenantTier = mutation({
         await logAction(ctx, {
             tenantId: tenantCtx.tenantId,
             actorId: tenantCtx.userId,
-            actorEmail: tenantCtx.email!,
+            actorEmail: tenantCtx.email,
             action: "settings.updated",
             entityType: "tenant",
             entityId: args.tenantId,

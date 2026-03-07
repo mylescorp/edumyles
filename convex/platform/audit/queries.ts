@@ -1,19 +1,18 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 // List platform-wide audit logs with filtering
 export const listAuditLogs = query({
     args: {
+        sessionToken: v.string(),
         action: v.optional(v.string()),
         tenantId: v.optional(v.string()),
         userId: v.optional(v.string()),
         limit: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin", "super_admin");
+        await requirePlatformSession(ctx, args);
 
         const limit = args.limit ?? 100;
 
@@ -72,10 +71,9 @@ export const listAuditLogs = query({
 
 // Get distinct action types for filter dropdown
 export const getAuditActionTypes = query({
-    args: {},
-    handler: async (ctx) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin", "super_admin");
+    args: { sessionToken: v.string() },
+    handler: async (ctx, args) => {
+        await requirePlatformSession(ctx, args);
 
         const logs = await ctx.db.query("auditLogs").take(500);
         const actions = [...new Set(logs.map((l) => l.action))];

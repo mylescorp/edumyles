@@ -17,7 +17,11 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.replace(`/auth/login?returnTo=${encodeURIComponent(pathname)}`);
+      // Clear stale session cookies first to prevent middleware redirect loop,
+      // then navigate to login.
+      fetch("/auth/logout", { method: "POST" }).finally(() => {
+        router.replace(`/auth/login?returnTo=${encodeURIComponent(pathname)}`);
+      });
     }
   }, [isLoading, user, router, pathname]);
 

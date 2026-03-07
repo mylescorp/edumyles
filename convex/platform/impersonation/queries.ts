@@ -1,16 +1,15 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 // List all impersonation sessions (active and completed)
 export const listImpersonationSessions = query({
     args: {
+        sessionToken: v.string(),
         activeOnly: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin", "super_admin");
+        await requirePlatformSession(ctx, args);
 
         let sessions = await ctx.db.query("impersonationSessions").order("desc").collect();
 

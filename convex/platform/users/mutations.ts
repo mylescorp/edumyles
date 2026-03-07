@@ -1,28 +1,21 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
-import { generateTenantId } from "../../helpers/idGenerator";
 
 // Create a new platform admin
 export const createPlatformAdmin = mutation({
     args: {
+        sessionToken: v.string(),
         email: v.string(),
         firstName: v.string(),
         lastName: v.string(),
         role: v.union(v.literal("master_admin"), v.literal("super_admin")),
     },
     handler: async (ctx, args) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin");
+        const tenantCtx = await requirePlatformSession(ctx, args);
 
-        // Only master_admin can create other master_admins
-        if (args.role === "master_admin") {
-            requireRole(tenantCtx, "master_admin");
-        }
-
-        // Check for existing user with same email in same tenant
+        // Check for existing user with same email
         const existing = await ctx.db
             .query("users")
             .withIndex("by_tenant_email", (q) =>
@@ -63,7 +56,7 @@ export const createPlatformAdmin = mutation({
         await logAction(ctx, {
             tenantId: tenantCtx.tenantId,
             actorId: tenantCtx.userId,
-            actorEmail: tenantCtx.email!,
+            actorEmail: tenantCtx.email,
             action: "user.created",
             entityType: "user",
             entityId: userId,
@@ -77,12 +70,12 @@ export const createPlatformAdmin = mutation({
 // Update platform admin role
 export const updatePlatformAdminRole = mutation({
     args: {
+        sessionToken: v.string(),
         userId: v.id("users"),
         role: v.union(v.literal("master_admin"), v.literal("super_admin")),
     },
     handler: async (ctx, args) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin");
+        const tenantCtx = await requirePlatformSession(ctx, args);
 
         const user = await ctx.db.get(args.userId);
         if (!user) throw new Error("NOT_FOUND: User not found");
@@ -96,7 +89,7 @@ export const updatePlatformAdminRole = mutation({
         await logAction(ctx, {
             tenantId: tenantCtx.tenantId,
             actorId: tenantCtx.userId,
-            actorEmail: tenantCtx.email!,
+            actorEmail: tenantCtx.email,
             action: "user.updated",
             entityType: "user",
             entityId: user.eduMylesUserId,
@@ -109,16 +102,15 @@ export const updatePlatformAdminRole = mutation({
 // Deactivate platform admin
 export const deactivatePlatformAdmin = mutation({
     args: {
+        sessionToken: v.string(),
         userId: v.id("users"),
     },
     handler: async (ctx, args) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin");
+        const tenantCtx = await requirePlatformSession(ctx, args);
 
         const user = await ctx.db.get(args.userId);
         if (!user) throw new Error("NOT_FOUND: User not found");
 
-        // Cannot deactivate yourself
         if (user.eduMylesUserId === tenantCtx.userId) {
             throw new Error("FORBIDDEN: Cannot deactivate your own account");
         }
@@ -128,7 +120,7 @@ export const deactivatePlatformAdmin = mutation({
         await logAction(ctx, {
             tenantId: tenantCtx.tenantId,
             actorId: tenantCtx.userId,
-            actorEmail: tenantCtx.email!,
+            actorEmail: tenantCtx.email,
             action: "user.deleted",
             entityType: "user",
             entityId: user.eduMylesUserId,

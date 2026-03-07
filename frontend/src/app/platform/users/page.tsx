@@ -69,7 +69,7 @@ interface UserStats {
 }
 
 export default function PlatformUsersPage() {
-    const { isLoading, user } = useAuth();
+    const { isLoading, user, sessionToken } = useAuth();
     const { hasRole } = usePermissions();
     const isMasterAdmin = hasRole("master_admin");
     const { toast } = useToast();
@@ -81,7 +81,10 @@ export default function PlatformUsersPage() {
     const [sortBy, setSortBy] = useState<string>("createdAt");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-    const admins = useQuery(api.platform.users.queries.listPlatformAdmins);
+    const admins = useQuery(
+        api.platform.users.queries.listPlatformAdmins,
+        isMasterAdmin && sessionToken ? { sessionToken } : "skip"
+    );
     const updateRole = useMutation(api.platform.users.mutations.updatePlatformAdminRole);
     const deactivate = useMutation(api.platform.users.mutations.deactivatePlatformAdmin);
 
@@ -91,7 +94,7 @@ export default function PlatformUsersPage() {
 
     const allUsersRaw = useQuery(
         api.platform.users.queries.listAllUsers,
-        isMasterAdmin ? {} : "skip"
+        isMasterAdmin && sessionToken ? { sessionToken } : "skip"
     ) as any[] | undefined;
 
     const systemUsers = useMemo<SystemUser[]>(

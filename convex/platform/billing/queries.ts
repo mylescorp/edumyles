@@ -1,17 +1,16 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 // List all tenant subscriptions
 export const listSubscriptions = query({
     args: {
+        sessionToken: v.string(),
         plan: v.optional(v.string()),
         status: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin", "super_admin");
+        await requirePlatformSession(ctx, args);
 
         let tenants = await ctx.db.query("tenants").collect();
 
@@ -39,10 +38,12 @@ export const listSubscriptions = query({
 
 // Get subscription details for a single tenant
 export const getSubscriptionDetails = query({
-    args: { tenantId: v.string() },
+    args: {
+        sessionToken: v.string(),
+        tenantId: v.string(),
+    },
     handler: async (ctx, args) => {
-        const tenantCtx = await requireTenantContext(ctx);
-        requireRole(tenantCtx, "master_admin", "super_admin");
+        await requirePlatformSession(ctx, args);
 
         const tenant = await ctx.db
             .query("tenants")

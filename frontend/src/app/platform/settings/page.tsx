@@ -82,25 +82,26 @@ const DEFAULT_DRAFT: SettingsDraft = {
 };
 
 export default function PlatformSettingsPage() {
-  const { isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
   const { hasRole } = usePermissions();
   const { toast } = useToast();
   const isMasterAdmin = hasRole("master_admin");
+  const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
   const [draft, setDraft] = useState<SettingsDraft>(DEFAULT_DRAFT);
   const [dirty, setDirty] = useState(false);
 
   const platformStats = useQuery(
     api.platform.tenants.queries.getPlatformStats,
-    hasRole("master_admin", "super_admin") ? {} : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
   );
   const subscriptions = useQuery(
     api.platform.billing.queries.listSubscriptions,
-    hasRole("master_admin", "super_admin") ? {} : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
   );
   const auditLogs = useQuery(
     api.platform.audit.queries.listAuditLogs,
-    hasRole("master_admin", "super_admin") ? { limit: 300 } : "skip"
+    isPlatformAdmin && sessionToken ? { sessionToken, limit: 300 } : "skip"
   );
 
   const derived = useMemo(() => {

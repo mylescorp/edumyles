@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,9 +44,14 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 export default function PlatformMarketplacePage() {
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, sessionToken } = useAuth();
+  const { hasRole } = usePermissions();
+  const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
-  const registry = useQuery(api.modules.marketplace.platform.getFullRegistry);
+  const registry = useQuery(
+    api.modules.marketplace.platform.getFullRegistry,
+    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+  );
   const seedRegistry = useMutation(api.modules.marketplace.platform.seedModuleRegistry);
   const updateStatus = useMutation(api.modules.marketplace.platform.updateModuleStatus);
 
@@ -57,9 +63,10 @@ export default function PlatformMarketplacePage() {
   }
 
   const handleSeed = async () => {
+    if (!sessionToken) return;
     setIsSeeding(true);
     try {
-      const result = await seedRegistry();
+      const result = await seedRegistry({ sessionToken });
       console.log(`Seeded ${result.seeded} of ${result.total} modules`);
     } catch (error) {
       console.error("Seed failed:", error);
@@ -69,9 +76,11 @@ export default function PlatformMarketplacePage() {
   };
 
   const handleStatusChange = async (moduleId: string, newStatus: string) => {
+    if (!sessionToken) return;
     setUpdatingModule(moduleId);
     try {
       await updateStatus({
+        sessionToken,
         moduleId,
         status: newStatus as "active" | "beta" | "deprecated",
       });

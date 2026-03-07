@@ -1,18 +1,17 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { requireRole } from "../../helpers/authorize";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logImpersonation } from "../../helpers/auditLog";
 
 export const startImpersonation = mutation({
   args: {
+    sessionToken: v.string(),
     targetUserId: v.string(),
     targetTenantId: v.string(),
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin");
+    const tenantCtx = await requirePlatformSession(ctx, args);
 
     await ctx.db.insert("impersonationSessions", {
       adminId: tenantCtx.userId,
@@ -25,7 +24,7 @@ export const startImpersonation = mutation({
 
     await logImpersonation(ctx, {
       adminId: tenantCtx.userId,
-      adminEmail: tenantCtx.email!,
+      adminEmail: tenantCtx.email,
       targetUserId: args.targetUserId,
       tenantId: tenantCtx.tenantId,
       action: "impersonation.started",
@@ -36,10 +35,12 @@ export const startImpersonation = mutation({
 });
 
 export const endImpersonation = mutation({
-  args: { targetUserId: v.string() },
+  args: {
+    sessionToken: v.string(),
+    targetUserId: v.string(),
+  },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
-    requireRole(tenantCtx, "master_admin");
+    const tenantCtx = await requirePlatformSession(ctx, args);
 
     const session = await ctx.db
       .query("impersonationSessions")
@@ -56,7 +57,7 @@ export const endImpersonation = mutation({
 
     await logImpersonation(ctx, {
       adminId: tenantCtx.userId,
-      adminEmail: tenantCtx.email!,
+      adminEmail: tenantCtx.email,
       targetUserId: args.targetUserId,
       tenantId: tenantCtx.tenantId,
       action: "impersonation.ended",

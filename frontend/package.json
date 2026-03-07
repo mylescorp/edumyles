@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "NEXT_PUBLIC_CONVEX_URL=${NEXT_PUBLIC_CONVEX_URL:-https://dummy.convex.cloud} next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint src eslint.config.mjs",
     "lint:fix": "eslint src eslint.config.mjs --fix",

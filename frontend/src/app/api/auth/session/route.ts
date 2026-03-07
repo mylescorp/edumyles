@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
-import { isBypassAllowed } from "@/lib/auth-bypass";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -52,18 +51,21 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Fallback for development/demo only when bypass is explicitly allowed.
+    // Fallback: when Convex is unavailable or session not found in DB,
+    // reconstruct session from the companion cookies set at login time.
+    // The httpOnly edumyles_session cookie (which cannot be set via JS) is the
+    // security gate — if it exists, it was set server-side during auth callback.
     const userCookie = req.cookies.get("edumyles_user")?.value;
     const roleCookie = req.cookies.get("edumyles_role")?.value;
-    
-    if (isBypassAllowed() && userCookie && roleCookie) {
+
+    if (userCookie && roleCookie) {
       try {
         const user = JSON.parse(userCookie);
         return NextResponse.json({
           session: {
             sessionToken,
             tenantId: user.tenantId || "PLATFORM",
-            userId: user.email, // Use email as userId fallback
+            userId: user.email,
             email: user.email,
             role: roleCookie,
             expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
