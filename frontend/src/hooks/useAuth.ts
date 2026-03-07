@@ -67,10 +67,10 @@ export function useAuth() {
         // Clear local storage and session storage
         localStorage.clear();
         sessionStorage.clear();
-        
+
         // Redirect to login page
-          const returnUrl = encodeURIComponent(window.location.pathname);
-          window.location.href = `/auth/login?returnUrl=${returnUrl}`;
+        const returnUrl = encodeURIComponent(window.location.pathname);
+        window.location.href = `/auth/login?returnUrl=${returnUrl}`;
       } else {
         console.error("Logout failed");
         // Fallback: still redirect to login
@@ -90,6 +90,9 @@ export function useAuth() {
           email: session.email,
           role: session.role,
           tenantId: session.tenantId,
+          firstName: session.email.split("@")[0],
+          lastName: "",
+          avatarUrl: undefined as string | undefined,
         }
       : null,
     isLoading,

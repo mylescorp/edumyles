@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL ?? "");
+function getConvexClient() {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) {
+    throw new Error("NEXT_PUBLIC_CONVEX_URL is not configured");
+  }
+  return new ConvexHttpClient(convexUrl);
+}
 
 interface MpesaCallbackBody {
   Body?: {
@@ -19,11 +25,15 @@ interface MpesaCallbackBody {
 
 export async function POST(req: NextRequest) {
   try {
+    const convex = getConvexClient();
     const raw = await req.json();
     const body = raw as MpesaCallbackBody;
     const stk = body.Body?.stkCallback;
     if (!stk?.CheckoutRequestID) {
-      return NextResponse.json({ ResultCode: 1, ResultDesc: "Missing CheckoutRequestID" }, { status: 400 });
+      return NextResponse.json(
+        { ResultCode: 1, ResultDesc: "Missing CheckoutRequestID" },
+        { status: 400 }
+      );
     }
 
     const checkoutRequestId = stk.CheckoutRequestID;
@@ -36,7 +46,10 @@ export async function POST(req: NextRequest) {
 
     const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
     if (!webhookSecret) {
-      return NextResponse.json({ ResultCode: 1, ResultDesc: "Server config error" }, { status: 500 });
+      return NextResponse.json(
+        { ResultCode: 1, ResultDesc: "Server config error" },
+        { status: 500 }
+      );
     }
 
     await convex.mutation(api.modules.finance.mutations.recordPaymentFromGateway, {
