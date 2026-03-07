@@ -28,14 +28,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "automation:generate-issues": "node scripts/generate-issues.js",
-    "automation:board:init": "node scripts/project-board-automation.js init",
-    "automation:board:process-pr": "node scripts/project-board-automation.js process-pr",
-    "automation:board:report": "node scripts/project-board-automation.js report",
-    "automation:board:move": "node scripts/project-board-automation.js move",
-    "automation:progress:report": "node scripts/progress-tracker.js report",
-    "automation:progress:update-docs": "node scripts/progress-tracker.js update-docs",
-    "automation:progress:analyze": "node scripts/progress-tracker.js analyze",
-    "automation:weekly-summary": "node scripts/progress-tracker.js report && node scripts/project-board-automation.js report"
+    "automation:board:report": "node scripts/project-board-automation.js report"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

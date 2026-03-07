@@ -785,6 +785,10 @@ h1 {
   font-weight: 700;
 }
 
+.hero-content {
+  animation: slideInLeft 800ms ease-out;
+}
+
 /* Enhanced dashboard mockup with better animations */
 .hero-visual {
   display: flex;

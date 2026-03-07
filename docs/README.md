@@ -1,53 +1,63 @@
-# EduMyles — Project Documentation
+# EduMyles Documentation
 
-This folder contains all core project documentation for the EduMyles platform.
-
----
-
-## 📄 Documents
-
-### Root
-| File | Description |
-|------|-------------|
-| [`01_PRD.pdf`](./01_PRD.pdf) | Product Requirements Document — full feature requirements, user stories, and success metrics |
-| [`05_Feature_Specification.pdf`](./05_Feature_Specification.pdf) | Detailed feature specifications for all 12 modules |
-
-### `/architecture`
-| File | Description |
-|------|-------------|
-| [`02_System_Architecture.pdf`](./architecture/02_System_Architecture.pdf) | System architecture — tech stack, multi-tenancy, offline strategy, payment flows, CI/CD |
-| [`03_Database_Design.pdf`](./architecture/03_Database_Design.pdf) | Full Convex database schema — all tables, indexes, relationships |
-
-### `/api`
-| File | Description |
-|------|-------------|
-| [`04_API_Specification.pdf`](./api/04_API_Specification.pdf) | Complete API specification — all Convex queries, mutations, actions, and HTTP endpoints |
-
-### `/guides`
-| File | Description |
-|------|-------------|
-| [`User_Flows.pdf`](./guides/User_Flows.pdf) | End-to-end user flow diagrams for all 12 roles |
-| [`Agent_Build_Prompt.md`](./guides/Agent_Build_Prompt.md) | AI agent build prompt — full platform context for LLM-assisted development |
-| [`Agent_Action_Plan.md`](./guides/Agent_Action_Plan.md) | Prioritised implementation action plan with file-level task breakdown |
-
-### `/compliance`
-| File | Description |
-|------|-------------|
-| [`Pricing_Guide.pdf`](./compliance/Pricing_Guide.pdf) | Subscription tiers, pricing model, and feature access matrix |
+Complete documentation for the EduMyles multi-tenant school management platform.
 
 ---
 
-## 🗂️ Reading Order
+## � Documentation Structure
 
-If you're new to the project, read in this order:
+### **Getting Started**
+- **Main README**: [`../README.md`](../README.md) - Project overview and quick start
+- **Setup Guides**: [`setup/`](setup/) - Development and production setup
 
-1. **PRD** — understand what we're building and why
-2. **System Architecture** — understand how it's built
-3. **Database Design** — understand the data model
-4. **API Specification** — understand the backend surface area
-5. **Feature Specification** — understand module-level detail
-6. **User Flows** — understand how users move through the system
-7. **Agent Action Plan** — understand what to build next and in what order
+### **Technical Documentation**
+- **Architecture**: [`technical/IMPLEMENTATION_PLAN.md`](technical/IMPLEMENTATION_PLAN.md) - System architecture and design
+- **API Reference**: [`api/README.md`](api/README.md) - Backend API documentation
+- **Database**: [`technical/tech_spec.md`](technical/tech_spec.md) - Database schema and design
+- **Implementation**: [`technical/implementation-tasks.md`](technical/implementation-tasks.md) - Current development tasks
+
+### **User Documentation**
+- **User Guides**: [`user-guides/`](user-guides/) - End-to-end user workflows
+- **Agent Guides**: [`guides/`](guides/) - Development and AI assistance guides
+
+### **Project Management**
+- **Automation**: [`technical/automation-guide.md`](technical/automation-guide.md) - Project automation systems
+- **Progress**: [`reports/`](reports/) - Progress reports and analysis
+- **Project Board**: https://github.com/orgs/Mylesoft-Technologies/projects/6
+
+---
+
+## 🚀 Quick Start
+
+1. **New Developers**: Start with [`../README.md`](../README.md)
+2. **Setup Instructions**: See [`setup/`](setup/) directory
+3. **API Development**: See [`api/README.md`](api/README.md)
+4. **Current Tasks**: See [`technical/implementation-tasks.md`](technical/implementation-tasks.md)
+
+---
+
+## � Reading Order
+
+For new team members:
+
+1. **Project Overview** - [`../README.md`](../README.md)
+2. **Development Setup** - [`setup/`](setup/)
+3. **Architecture** - [`technical/IMPLEMENTATION_PLAN.md`](technical/IMPLEMENTATION_PLAN.md)
+4. **API Reference** - [`api/README.md`](api/README.md)
+5. **Current Tasks** - [`technical/implementation-tasks.md`](technical/implementation-tasks.md)
+6. **User Workflows** - [`user-guides/`](user-guides/)
+
+---
+
+## 🔄 Documentation Updates
+
+Documentation is automatically updated through:
+- Progress tracking automation
+- API documentation generation
+- Weekly progress reports
+- Implementation task updates
+
+For questions, see the project board or automation guides.
 
 ---
 

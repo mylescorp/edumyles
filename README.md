@@ -258,22 +258,19 @@ Production environment variables are managed through:
 ## 📚 Documentation
 
 ### Project Documentation
-See [`docs/README.md`](docs/README.md) for the full index of project documents.
-
-> 📌 **Important:** Documentation PDFs are stored securely and referenced via links, not committed to git.
+See [`docs/README.md`](docs/README.md) for the complete documentation index.
 
 ### Key Documents
-- **Product Requirements Document** - Complete feature specifications
-- **System Architecture** - Technical architecture and infrastructure
-- **Database Design** - Convex schema and data relationships
-- **API Specification** - All backend endpoints and data structures
-- **Implementation Plan** - Development roadmap and priorities
-- **User Flows** - End-to-end user journey diagrams
+- **Getting Started**: [`docs/README.md`](docs/README.md) - Setup and development guide
+- **Technical Specs**: [`docs/technical/`](docs/technical/) - Architecture and implementation details
+- **Setup Guides**: [`docs/setup/`](docs/setup/) - Production deployment and configuration
+- **API Documentation**: [`docs/api/README.md`](docs/api/README.md) - Backend endpoints and data structures
+- **User Guides**: [`docs/user-guides/`](docs/user-guides/) - End-to-end user workflows
 
-### API Documentation
-- **Convex Functions:** Auto-generated documentation in Convex dashboard
-- **REST Endpoints:** Available in `docs/api/` directory
-- **Mobile API:** Shared with web backend for consistency
+### Automation & Project Management
+- **Project Board**: https://github.com/orgs/Mylesoft-Technologies/projects/6
+- **Automation Guide**: [`docs/technical/automation-guide.md`](docs/technical/automation-guide.md)
+- **Implementation Tasks**: [`docs/technical/implementation-tasks.md`](docs/technical/implementation-tasks.md)
 
 ## 🤝 Contributing
 
