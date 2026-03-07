@@ -10,15 +10,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, User, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Bell, LogOut, User, Settings, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
 import { useNotifications } from "@/hooks/useSSRSafeConvex";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
 import Link from "next/link";
+import { useState } from "react";
 
-export function Header() {
+interface HeaderProps {
+  onMobileMenuToggle?: () => void;
+}
+
+export function Header({ onMobileMenuToggle }: HeaderProps) {
   const { user, role, logout } = useAuth();
   const { tenant } = useTenant();
   const { unreadCount } = useNotifications();
@@ -28,8 +34,16 @@ export function Header() {
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-background px-6">
-      {/* Left: tenant name */}
+      {/* Left: Mobile menu toggle + tenant name */}
       <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="md:hidden h-8 w-8 p-0"
+          onClick={onMobileMenuToggle}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
         <h2 className="text-lg font-semibold text-foreground">
           {tenant?.name ?? "EduMyles"}
         </h2>
@@ -44,7 +58,7 @@ export function Header() {
       <div className="flex items-center gap-4">
         {/* Notifications */}
         <Link
-          href="#"
+          href="/admin/notifications"
           className="relative rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <Bell className="h-5 w-5" />

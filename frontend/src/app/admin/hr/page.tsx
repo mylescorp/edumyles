@@ -1,15 +1,27 @@
 "use client";
 
 import { PageHeader } from "@/components/shared/PageHeader";
-import { StatCard } from "@/components/shared/StatCard";
+import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Calendar, Banknote, ArrowRight, UserPlus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Users, 
+  Calendar, 
+  Banknote, 
+  ArrowRight, 
+  UserPlus,
+  TrendingUp,
+  Clock,
+  Award,
+  UserCheck
+} from "lucide-react";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 export default function HRDashboardPage() {
     const { isLoading, sessionToken } = useAuth();
@@ -19,7 +31,81 @@ export default function HRDashboardPage() {
         sessionToken ? {} : "skip"
     );
 
+    // Mock data for enhanced features
+    const recentActivities = [
+        {
+            id: "1",
+            type: "leave_request",
+            title: "Leave Request Submitted",
+            employee: "John Doe",
+            department: "Mathematics",
+            date: Date.now() - 1000 * 60 * 30, // 30 minutes ago
+            status: "pending",
+        },
+        {
+            id: "2",
+            type: "new_hire",
+            title: "New Teacher Onboarded",
+            employee: "Jane Smith",
+            department: "Science",
+            date: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
+            status: "completed",
+        },
+        {
+            id: "3",
+            type: "payroll_processed",
+            title: "Monthly Payroll Processed",
+            employee: "HR System",
+            department: "Finance",
+            date: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
+            status: "completed",
+        },
+    ];
+
+    const upcomingEvents = [
+        {
+            id: "1",
+            title: "Staff Meeting",
+            date: "2024-03-25",
+            time: "3:00 PM",
+            type: "meeting",
+        },
+        {
+            id: "2",
+            title: "Performance Reviews",
+            date: "2024-03-28",
+            time: "9:00 AM",
+            type: "review",
+        },
+    ];
+
     if (isLoading || !stats) return <LoadingSkeleton variant="page" />;
+
+    const getActivityIcon = (type: string) => {
+        switch (type) {
+            case "leave_request":
+                return Calendar;
+            case "new_hire":
+                return UserCheck;
+            case "payroll_processed":
+                return Banknote;
+            default:
+                return Clock;
+        }
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "completed":
+                return "default";
+            case "pending":
+                return "secondary";
+            case "failed":
+                return "destructive";
+            default:
+                return "outline";
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -27,31 +113,48 @@ export default function HRDashboardPage() {
                 title="HR & Payroll"
                 description="Manage school staff, payroll, and leave"
                 actions={
-                    <Link href="/admin/staff/create">
-                        <Button className="gap-2">
+                    <div className="flex gap-2">
+                        <Button variant="outline" className="gap-2">
                             <UserPlus className="h-4 w-4" />
                             Add Staff
                         </Button>
-                    </Link>
+                        <Button className="gap-2">
+                            <Banknote className="h-4 w-4" />
+                            Process Payroll
+                        </Button>
+                    </div>
                 }
             />
 
-            <div className="grid gap-4 md:grid-cols-3">
-                <StatCard
-                    label="Total Staff"
+            {/* Enhanced Stats Overview */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <AdminStatsCard
+                    title="Total Staff"
                     value={stats.total}
+                    description="All employees"
                     icon={Users}
+                    trend={{ value: 5, isPositive: true }}
                 />
-                <StatCard
-                    label="Active Staff"
+                <AdminStatsCard
+                    title="Active Staff"
                     value={stats.active}
-                    icon={Users}
+                    description="Currently working"
+                    icon={UserCheck}
+                    trend={{ value: 8, isPositive: true }}
                 />
-                <StatCard
-                    label="On Leave"
+                <AdminStatsCard
+                    title="On Leave"
                     value={stats.on_leave}
+                    description="Currently on leave"
                     icon={Calendar}
-                    className={stats.on_leave > 0 ? "border-amber-200 bg-amber-50/50" : ""}
+                    variant={stats.on_leave > 0 ? "warning" : "default"}
+                />
+                <AdminStatsCard
+                    title="Open Positions"
+                    value={3}
+                    description="Vacancies"
+                    icon={TrendingUp}
+                    variant="warning"
                 />
             </div>
 
@@ -82,6 +185,13 @@ export default function HRDashboardPage() {
                                 <ArrowRight className="ml-auto h-4 w-4" />
                             </Button>
                         </Link>
+                        <Link href="/admin/hr/performance">
+                            <Button className="w-full justify-start gap-2" variant="outline">
+                                <Award className="h-4 w-4" />
+                                Performance Reviews
+                                <ArrowRight className="ml-auto h-4 w-4" />
+                            </Button>
+                        </Link>
                     </CardContent>
                 </Card>
 
@@ -90,9 +200,61 @@ export default function HRDashboardPage() {
                         <CardTitle>Recent Activity</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-sm text-muted-foreground text-center py-8">
-                            Staff activity and updates will appear here.
-                        </p>
+                        <div className="space-y-4">
+                            {recentActivities.map((activity) => {
+                                const Icon = getActivityIcon(activity.type);
+                                return (
+                                    <div key={activity.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                                        <div className="p-2 bg-muted rounded-full">
+                                            <Icon className="h-4 w-4" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <h4 className="font-medium text-sm">{activity.title}</h4>
+                                                <Badge variant={getStatusColor(activity.status)}>
+                                                    {activity.status}
+                                                </Badge>
+                                            </div>
+                                            <div className="text-xs text-muted-foreground">
+                                                <div>{activity.employee} • {activity.department}</div>
+                                                <div>
+                                                    {formatDistanceToNow(new Date(activity.date), {
+                                                        addSuffix: true,
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Clock className="h-5 w-5" />
+                            Upcoming Events
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            {upcomingEvents.map((event) => (
+                                <div key={event.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                                    <div className="p-2 bg-forest-100 rounded-full">
+                                        <Clock className="h-4 w-4 text-forest-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-medium text-sm">{event.title}</h4>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            <div>{event.date}</div>
+                                            <div>{event.time}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </CardContent>
                 </Card>
             </div>

@@ -18,6 +18,10 @@ import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
+import { AdminQuickActions } from "@/components/admin/AdminQuickActions";
+import { AdminRecentActivity } from "@/components/admin/AdminRecentActivity";
+import { AdminCharts } from "@/components/admin/AdminCharts";
 
 export default function AdminDashboardPage() {
   const { isLoading, sessionToken } = useAuth();
@@ -41,6 +45,62 @@ export default function AdminDashboardPage() {
 
   const recentAdmissions = applications.slice(0, 5);
 
+  // Mock data for charts - in real app, this would come from API
+  const admissionsData = [
+    { name: "Jan", value: 12, color: "#056C40" },
+    { name: "Feb", value: 19, color: "#056C40" },
+    { name: "Mar", value: 15, color: "#056C40" },
+    { name: "Apr", value: 25, color: "#056C40" },
+    { name: "May", value: 22, color: "#056C40" },
+    { name: "Jun", value: 30, color: "#056C40" },
+  ];
+
+  const revenueData = [
+    { name: "Tuition", value: 450000, color: "#056CB8" },
+    { name: "Fees", value: 125000, color: "#056CB8" },
+    { name: "Transport", value: 45000, color: "#056CB8" },
+    { name: "Library", value: 15000, color: "#056CB8" },
+  ];
+
+  const enrollmentData = [
+    { name: "Grade 1", value: 45, color: "#FFD731" },
+    { name: "Grade 2", value: 42, color: "#FFD731" },
+    { name: "Grade 3", value: 38, color: "#FFD731" },
+    { name: "Grade 4", value: 40, color: "#FFD731" },
+    { name: "Grade 5", value: 35, color: "#FFD731" },
+  ];
+
+  // Mock recent activity data
+  const recentActivity = [
+    {
+      id: "1",
+      type: "student_enrolled" as const,
+      title: "New Student Enrolled",
+      description: "John Doe was successfully enrolled in Grade 3",
+      user: { name: "Admin User" },
+      timestamp: Date.now() - 1000 * 60 * 30, // 30 minutes ago
+      href: "/admin/students/123",
+    },
+    {
+      id: "2",
+      type: "invoice_paid" as const,
+      title: "Invoice Payment Received",
+      description: "KES 15,000 payment received for tuition fees",
+      user: { name: "Finance Team" },
+      timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
+      href: "/admin/finance/invoices/456",
+    },
+    {
+      id: "3",
+      type: "application_submitted" as const,
+      title: "New Admission Application",
+      description: "Application received for Grade 1 admission",
+      user: { name: "Parent Portal" },
+      timestamp: Date.now() - 1000 * 60 * 60 * 5, // 5 hours ago
+      href: "/admin/admissions/789",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <section className="rounded-xl border bg-gradient-to-r from-forest-800 to-forest-600 p-6 text-white">
@@ -63,108 +123,88 @@ export default function AdminDashboardPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm">Students</CardTitle>
-            <GraduationCap className="h-4 w-4 text-forest-600" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{studentCount}</p>
-            <p className="text-xs text-muted-foreground">Active records in SIS</p>
-          </CardContent>
-        </Card>
+        <AdminStatsCard
+          title="Students"
+          value={studentCount}
+          description="Active records in SIS"
+          icon={GraduationCap}
+          trend={{ value: 12, isPositive: true }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm">Staff</CardTitle>
-            <Users className="h-4 w-4 text-zoho-blue" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{staffCount}</p>
-            <p className="text-xs text-muted-foreground">Total team members</p>
-          </CardContent>
-        </Card>
+        <AdminStatsCard
+          title="Staff"
+          value={staffCount}
+          description="Total team members"
+          icon={Users}
+          trend={{ value: 5, isPositive: true }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm">Pending Admissions</CardTitle>
-            <FileClock className="h-4 w-4 text-amber-600" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{pendingAdmissions}</p>
-            <p className="text-xs text-muted-foreground">Require review and decisions</p>
-          </CardContent>
-        </Card>
+        <AdminStatsCard
+          title="Pending Admissions"
+          value={pendingAdmissions}
+          description="Require review and decisions"
+          icon={FileClock}
+          variant="warning"
+          trend={{ value: -8, isPositive: false }}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm">Outstanding Invoices</CardTitle>
-            <DollarSign className="h-4 w-4 text-crimson-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{outstandingInvoices}</p>
-            <p className="text-xs text-muted-foreground">KES {(totalReceivables / 100).toLocaleString()} receivable</p>
-          </CardContent>
-        </Card>
+        <AdminStatsCard
+          title="Outstanding Invoices"
+          value={outstandingInvoices}
+          description={`KES ${(totalReceivables / 100).toLocaleString()} receivable`}
+          icon={DollarSign}
+          variant="danger"
+          trend={{ value: 3, isPositive: false }}
+        />
       </section>
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Recent Admissions Queue</CardTitle>
-            <Button asChild size="sm" variant="ghost">
-              <Link href="/admin/admissions" className="inline-flex items-center gap-1">
-                View all <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {recentAdmissions.length === 0 ? (
-              <div className="rounded-md border border-dashed p-6 text-sm text-muted-foreground">
-                No admission applications yet.
-              </div>
-            ) : (
-              recentAdmissions.map((app: any) => (
-                <div key={app._id} className="flex items-center justify-between rounded-md border p-3">
-                  <div>
-                    <p className="font-medium">{app.firstName} {app.lastName}</p>
-                    <p className="text-xs text-muted-foreground">{app.requestedGrade} • {app.guardianName}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{String(app.status).replaceAll("_", " ")}</Badge>
-                    <Button asChild size="sm" variant="outline">
-                      <Link href={`/admin/admissions/${app._id}`}>Review</Link>
-                    </Button>
-                  </div>
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Recent Admissions Queue</CardTitle>
+              <Button asChild size="sm" variant="ghost">
+                <Link href="/admin/admissions" className="inline-flex items-center gap-1">
+                  View all <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {recentAdmissions.length === 0 ? (
+                <div className="rounded-md border border-dashed p-6 text-sm text-muted-foreground">
+                  No admission applications yet.
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+              ) : (
+                recentAdmissions.map((app: any) => (
+                  <div key={app._id} className="flex items-center justify-between rounded-md border p-3">
+                    <div>
+                      <p className="font-medium">{app.firstName} {app.lastName}</p>
+                      <p className="text-xs text-muted-foreground">{app.requestedGrade} • {app.guardianName}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{String(app.status).replaceAll("_", " ")}</Badge>
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={`/admin/admissions/${app._id}`}>Review</Link>
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild variant="outline" className="w-full justify-start">
-              <Link href="/admin/students/create"><UserCheck className="mr-2 h-4 w-4" /> Enroll New Student</Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full justify-start">
-              <Link href="/admin/staff/create"><Users className="mr-2 h-4 w-4" /> Add Staff Member</Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full justify-start">
-              <Link href="/admin/communications"><Megaphone className="mr-2 h-4 w-4" /> Send Announcement</Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full justify-start">
-              <Link href="/admin/finance/invoices"><DollarSign className="mr-2 h-4 w-4" /> Manage Invoices</Link>
-            </Button>
-            <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-              <p className="flex items-center gap-1 font-medium"><AlertCircle className="h-3.5 w-3.5" /> Operations tip</p>
-              <p className="mt-1">Review pending admissions daily before finance posting to keep class rosters accurate.</p>
-            </div>
-          </CardContent>
-        </Card>
+          <AdminCharts 
+            admissionsData={admissionsData}
+            revenueData={revenueData}
+            enrollmentData={enrollmentData}
+          />
+        </div>
+
+        <div className="space-y-6">
+          <AdminQuickActions />
+          
+          <AdminRecentActivity activities={recentActivity} />
+        </div>
       </section>
     </div>
   );
