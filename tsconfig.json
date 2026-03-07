@@ -32,8 +32,7 @@
       "@shared/*": ["./shared/src/*"],
       "@shared/types": ["./shared/src/types/index.ts"],
       "@shared/constants": ["./shared/src/constants/index.ts"],
-      "@shared/validators": ["./shared/src/validators/index.ts"],
-      "@backend/*": ["./backend/*"]
+      "@shared/validators": ["./shared/src/validators/index.ts"]
     },
 
     /* Interop */

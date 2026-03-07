@@ -5,7 +5,6 @@
   "description": "EduMyles — Multi-tenant school management platform for East Africa",
   "workspaces": [
     "frontend",
-    "backend",
     "mobile",
     "shared",
     "landing"
