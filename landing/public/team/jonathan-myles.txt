@@ -1,6 +1,11 @@
-This is a placeholder for Jonathan Myles' photo.
-Please add the actual photo at: /team/jonathan-myles.jpg
+REPLACE THIS WITH YOUR ACTUAL PHOTO
 
-Recommended dimensions: 400x400px
-Format: JPG or PNG
-Style: Professional headshot with neutral background
+Save your image as: jonathan-myles.jpg in this folder
+Recommended: 400x400px, professional headshot
+
+Once you add your photo, update the image paths in:
+- landing/src/app/team/page.tsx (line 27)
+- landing/src/app/about/FounderImage.tsx (line 14)
+
+Change from: https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face
+To: /team/jonathan-myles.jpg
