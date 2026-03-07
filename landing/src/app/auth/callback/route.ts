@@ -105,16 +105,22 @@ export async function GET(request: NextRequest) {
     const isProduction = process.env.NODE_ENV === "production";
 
     if (convexUrl) {
-      const convex = new ConvexHttpClient(convexUrl);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await convex.mutation((api as any).sessions.createSession, {
-        sessionToken,
-        tenantId,
-        userId: workosUserId,
-        email,
-        role,
-        expiresAt: Date.now() + thirtyDays,
-      });
+      try {
+        const convex = new ConvexHttpClient(convexUrl);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await convex.mutation((api as any).sessions.createSession, {
+          sessionToken,
+          tenantId,
+          userId: workosUserId,
+          email,
+          role,
+          expiresAt: Date.now() + thirtyDays,
+        });
+        console.log("[auth/callback] ✅ Session created in Convex");
+      } catch (convexErr) {
+        console.error("[auth/callback] Convex session creation failed (non-fatal):", convexErr);
+        // Continue — cookies will still be set for the cookie-based fallback
+      }
     }
 
     const dashboard = getRoleDashboardPath(role);
