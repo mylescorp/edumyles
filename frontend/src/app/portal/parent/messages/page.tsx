@@ -8,38 +8,17 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function ParentMessagesPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [message, setMessage] = useState("");
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Don't run Convex queries during SSR
-  if (!isMounted || typeof window === 'undefined') {
-    return <LoadingSkeleton variant="page" />;
-  }
-
-  // Handle missing Convex functions gracefully
-  let notifications = [];
-  let notificationsLoading = false;
-
-  try {
-    const notificationsResult = useQuery(
-      api.notifications.getNotifications,
-      user?._id ? { userId: String(user._id), limit: 20 } : "skip"
-    );
-    notifications = notificationsResult ?? [];
-    notificationsLoading = notificationsResult === undefined;
-  } catch (error) {
-    console.warn("Notifications not available in messages:", error);
-    notifications = [];
-    notificationsLoading = false;
-  }
+  const notificationsResult = useQuery(
+    api.notifications.getNotifications,
+    user?._id ? { userId: String(user._id), limit: 20 } : "skip"
+  );
+  const notifications = notificationsResult ?? [];
+  const notificationsLoading = user?._id ? notificationsResult === undefined : false;
 
   const sendMessage = useMutation(
     api.modules.portal.parent.mutations.sendMessage

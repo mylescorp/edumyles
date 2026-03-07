@@ -120,7 +120,7 @@ export default function AssignmentDetail() {
                                                     <Badge className="bg-green-100 text-green-800">Graded</Badge>
                                                 </div>
                                                 <p className="text-sm text-muted-foreground italic">
-                                                    "{assignment.submission?.feedback || "No feedback provided."}"
+                                                    &ldquo;{assignment.submission?.feedback || "No feedback provided."}&rdquo;
                                                 </p>
                                             </div>
                                         </div>

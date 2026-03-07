@@ -37,7 +37,7 @@ export default function MyClassesPage() {
                         <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                         <h3 className="text-lg font-semibold mb-2">No classes assigned</h3>
                         <p className="text-muted-foreground mb-4">
-                            You don't have any classes assigned to you yet.
+                            You do not have any classes assigned to you yet.
                         </p>
                     </CardContent>
                 </Card>
@@ -89,3 +89,4 @@ export default function MyClassesPage() {
         </div>
     );
 }
+

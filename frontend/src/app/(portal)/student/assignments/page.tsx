@@ -3,9 +3,8 @@
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "../../../../../convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FileText, Calendar, ChevronRight } from "lucide-react";
 

@@ -3582,3 +3582,22 @@ details[open] .faq-question::after {
   margin-top: 1rem;
   opacity: 0.7;
 }
+
+/* Landing page fixes */
+.auth-error-banner {
+  margin-top: 1rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+}
+
+.loading-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.95rem;
+}

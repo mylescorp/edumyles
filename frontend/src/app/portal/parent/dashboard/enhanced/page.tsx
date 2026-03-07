@@ -64,6 +64,18 @@ export default function EnhancedParentDashboardPage() {
     selectedChild?.classId ? { studentId: String(selectedChild._id), classId: String(selectedChild.classId) } : "skip"
   );
 
+  const computedAverage = useMemo(() => {
+    if (!childGrades || childGrades.length === 0) return null;
+    const total = childGrades.reduce((sum: number, g: any) => sum + (g.score ?? 0), 0);
+    return Math.round((total / childGrades.length) * 10) / 10;
+  }, [childGrades]);
+
+  const attendanceRate = useMemo(() => {
+    if (!childAttendance || childAttendance.length === 0) return null;
+    const present = childAttendance.filter((a: any) => a.status === "present").length;
+    return Math.round((present / childAttendance.length) * 100);
+  }, [childAttendance]);
+
   if (
     isLoading ||
     children === undefined ||
@@ -80,18 +92,6 @@ export default function EnhancedParentDashboardPage() {
   const totalInvoiced = (feeOverview as any[]).reduce((sum, child) => sum + (child.totalInvoiced || 0), 0);
   const totalPaid = (feeOverview as any[]).reduce((sum, child) => sum + (child.totalPaid || 0), 0);
   const paymentProgress = totalInvoiced > 0 ? Math.round((totalPaid / totalInvoiced) * 100) : 0;
-
-  const computedAverage = useMemo(() => {
-    if (!childGrades || childGrades.length === 0) return null;
-    const total = childGrades.reduce((sum: number, g: any) => sum + (g.score ?? 0), 0);
-    return Math.round((total / childGrades.length) * 10) / 10;
-  }, [childGrades]);
-
-  const attendanceRate = useMemo(() => {
-    if (!childAttendance || childAttendance.length === 0) return null;
-    const present = childAttendance.filter((a: any) => a.status === "present").length;
-    return Math.round((present / childAttendance.length) * 100);
-  }, [childAttendance]);
 
   return (
     <div className="space-y-6">

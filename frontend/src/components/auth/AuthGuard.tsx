@@ -123,7 +123,7 @@ export function AuthGuard({
               <div className="space-y-2">
                 <h1 className="text-2xl font-semibold">Access Denied</h1>
                 <p className="text-muted-foreground">
-                  You don't have permission to access this page.
+                  You do not have permission to access this page.
                 </p>
               </div>
 

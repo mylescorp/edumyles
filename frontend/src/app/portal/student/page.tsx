@@ -155,24 +155,24 @@ export default function StudentDashboardPage() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Link href="/portal/student/assignments">
-              <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link href="/portal/student/assignments">
                 <FileText className="h-4 w-4 mr-2" />
                 View All Assignments
-              </Button>
-            </Link>
-            <Link href="/portal/student/wallet/transactions">
-              <Button variant="outline" className="w-full justify-start">
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link href="/portal/student/wallet/transactions">
                 <GraduationCap className="h-4 w-4 mr-2" />
                 View Transactions
-              </Button>
-            </Link>
-            <Link href="/portal/student/wallet">
-              <Button variant="outline" className="w-full justify-start">
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link href="/portal/student/wallet">
                 <CalendarCheck className="h-4 w-4 mr-2" />
                 Open Wallet
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardContent>
         </Card>
 
