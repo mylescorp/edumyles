@@ -110,7 +110,7 @@ function LandingPageContent() {
             <Link className="btn btn-primary" href="/auth/login">
               Get Started
             </Link>
-            <Link className="btn btn-secondary" href="/concierge">
+            <Link className="btn btn-secondary" href="/#concierge">
               Contact Sales
             </Link>
           </div>
@@ -245,7 +245,7 @@ function LandingPageContent() {
             Get a personalized walkthrough of EduMyles tailored to your school&apos;s structure,
             curriculum, and workflows. Not a sales call - a genuine consultation.
           </p>
-          <Link className="btn btn-amber" href="/concierge">
+          <Link className="btn btn-amber" href="/#concierge">
             Book Free Consultation
           </Link>
         </div>
@@ -290,7 +290,7 @@ function LandingPageContent() {
         </div>
       </section>
 
-      <section className="brand-section">
+      <section className="brand-section" id="brand">
         <div className="section-header centered">
           <h2>EduMyles - Brand Identity &amp; Foundation</h2>
           <p className="section-subtitle">
@@ -410,9 +410,9 @@ function LandingPageContent() {
         </div>
 
         <div className="pricing-links">
-          <Link href="/pricing">View Plan Details</Link>
+          <Link href="/#pricing">View Plan Details</Link>
           <span className="divider">|</span>
-          <Link href="/pricing#faq">Pricing FAQs</Link>
+          <Link href="/#pricing">Pricing FAQs</Link>
         </div>
       </section>
 
