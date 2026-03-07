@@ -1,29 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Users, 
-  DollarSign, 
-  Activity,
-  Eye,
-  MousePointer,
-  Clock,
-  Server,
-  AlertTriangle,
-  CheckCircle2,
-  BarChart3,
-  PieChart,
-  LineChart,
-  Download,
-  Calendar,
-  Filter
-} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -31,148 +16,137 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Activity, Building2, DollarSign, Download, Shield, Users } from "lucide-react";
 
-interface AnalyticsData {
-  overview: {
-    totalUsers: number;
-    activeUsers: number;
-    totalRevenue: number;
-    conversionRate: number;
-    avgSessionDuration: number;
-    bounceRate: number;
-  };
-  userMetrics: {
-    dailyActive: number;
-    weeklyActive: number;
-    monthlyActive: number;
-    newSignups: number;
-    userRetention: number;
-    churnRate: number;
-  };
-  systemMetrics: {
-    uptime: number;
-    responseTime: number;
-    errorRate: number;
-    activeConnections: number;
-    serverLoad: number;
-    databasePerformance: number;
-  };
-  trafficMetrics: {
-    pageViews: number;
-    uniqueVisitors: number;
-    avgPagesPerSession: number;
-    topPages: Array<{ page: string; views: number; percentage: number }>;
-    referralSources: Array<{ source: string; visitors: number; percentage: number }>;
-  };
-}
+const PLAN_PRICES_USD: Record<string, number> = {
+  starter: 49,
+  growth: 129,
+  premium: 249,
+  enterprise: 499,
+};
+
+type PlatformStats = {
+  totalTenants: number;
+  totalUsers: number;
+  planCounts: Record<string, number>;
+};
+
+type Subscription = {
+  status?: string;
+  plan?: string;
+  createdAt?: number;
+};
+
+type AuditLog = {
+  action?: string;
+  timestamp?: number;
+};
 
 export default function AnalyticsPage() {
+  const { isLoading } = useAuth();
+  const { hasRole } = usePermissions();
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "1y">("30d");
-  const [isLoading, setIsLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const isPlatformAdmin = hasRole("master_admin", "super_admin");
+  const isMasterAdmin = hasRole("master_admin");
 
-  // Mock analytics data
-  const mockAnalyticsData: AnalyticsData = {
-    overview: {
-      totalUsers: 48392,
-      activeUsers: 12456,
-      totalRevenue: 124580,
-      conversionRate: 3.2,
-      avgSessionDuration: 847, // seconds
-      bounceRate: 32.5
-    },
-    userMetrics: {
-      dailyActive: 3247,
-      weeklyActive: 12456,
-      monthlyActive: 28934,
-      newSignups: 234,
-      userRetention: 87.3,
-      churnRate: 2.1
-    },
-    systemMetrics: {
-      uptime: 99.9,
-      responseTime: 245, // milliseconds
-      errorRate: 0.12,
-      activeConnections: 1847,
-      serverLoad: 67,
-      databasePerformance: 94
-    },
-    trafficMetrics: {
-      pageViews: 284756,
-      uniqueVisitors: 45623,
-      avgPagesPerSession: 4.2,
-      topPages: [
-        { page: "/dashboard", views: 45678, percentage: 16.0 },
-        { page: "/students", views: 34234, percentage: 12.0 },
-        { page: "/assignments", views: 28567, percentage: 10.0 },
-        { page: "/grades", views: 22856, percentage: 8.0 },
-        { page: "/communications", views: 19945, percentage: 7.0 }
-      ],
-      referralSources: [
-        { source: "Direct", visitors: 18234, percentage: 40.0 },
-        { source: "Google", visitors: 13787, percentage: 30.2 },
-        { source: "Email", visitors: 6849, percentage: 15.0 },
-        { source: "Social Media", visitors: 4523, percentage: 9.9 },
-        { source: "Referrals", visitors: 2230, percentage: 4.9 }
-      ]
-    }
-  };
+  const stats = useQuery(
+    api.platform.tenants.queries.getPlatformStats,
+    isPlatformAdmin ? {} : "skip"
+  ) as PlatformStats | undefined;
+  const subscriptions = useQuery(
+    api.platform.billing.queries.listSubscriptions,
+    isPlatformAdmin ? {} : "skip"
+  ) as Subscription[] | undefined;
+  const auditLogs = useQuery(
+    api.platform.audit.queries.listAuditLogs,
+    isPlatformAdmin ? { limit: 500 } : "skip"
+  ) as AuditLog[] | undefined;
+  const allUsers = useQuery(
+    api.platform.users.queries.listAllUsers,
+    isMasterAdmin ? {} : "skip"
+  ) as Array<{ createdAt?: number; tenantId?: string }> | undefined;
 
-  useEffect(() => {
-    const loadAnalytics = async () => {
-      setIsLoading(true);
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setAnalyticsData(mockAnalyticsData);
-      setIsLoading(false);
-    };
-
-    loadAnalytics();
+  const rangeStart = useMemo(() => {
+    const now = Date.now();
+    const ms =
+      timeRange === "7d"
+        ? 7 * 24 * 60 * 60 * 1000
+        : timeRange === "30d"
+          ? 30 * 24 * 60 * 60 * 1000
+          : timeRange === "90d"
+            ? 90 * 24 * 60 * 60 * 1000
+            : 365 * 24 * 60 * 60 * 1000;
+    return now - ms;
   }, [timeRange]);
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat().format(num);
-  };
+  const derived = useMemo(() => {
+    const activeSubscriptions = (subscriptions ?? []).filter((s) => s.status === "active" || s.status === "trial");
+    const estimatedRevenue = activeSubscriptions.reduce((sum, s) => {
+      const key = String(s.plan || "").toLowerCase();
+      return sum + (PLAN_PRICES_USD[key] ?? 0);
+    }, 0);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
+    const logsInRange = (auditLogs ?? []).filter((l) => (l.timestamp ?? 0) >= rangeStart);
+    const usersInRange = (allUsers ?? []).filter((u) => (u.createdAt ?? 0) >= rangeStart);
+    const tenantGrowth = (subscriptions ?? []).filter((s) => (s.createdAt ?? 0) >= rangeStart).length;
 
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
-  };
+    const actionCounts: Record<string, number> = {};
+    for (const log of logsInRange) {
+      const action = log.action || "unknown";
+      actionCounts[action] = (actionCounts[action] ?? 0) + 1;
+    }
+    const topActions = Object.entries(actionCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
 
-  const getChangeIndicator = (current: number, previous: number) => {
-    const change = ((current - previous) / previous) * 100;
-    const isPositive = change >= 0;
-    
+    const tenantUserCounts: Record<string, number> = {};
+    for (const user of allUsers ?? []) {
+      const tenantKey = user.tenantId || "platform";
+      tenantUserCounts[tenantKey] = (tenantUserCounts[tenantKey] ?? 0) + 1;
+    }
+    const usersByTenant = Object.entries(tenantUserCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
+
+    const securityEvents = logsInRange.filter((l) =>
+      /(suspend|deleted|impersonation|unauthorized|failed)/i.test(String(l.action))
+    ).length;
+
+    return {
+      estimatedRevenue,
+      logsInRange,
+      usersInRange,
+      tenantGrowth,
+      topActions,
+      usersByTenant,
+      securityEvents,
+    };
+  }, [subscriptions, auditLogs, allUsers, rangeStart]);
+
+  if (isLoading) {
     return (
-      <div className="flex items-center space-x-1">
-        {isPositive ? (
-          <TrendingUp className="h-4 w-4 text-green-500" />
-        ) : (
-          <TrendingDown className="h-4 w-4 text-red-500" />
-        )}
-        <span className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-          {Math.abs(change).toFixed(1)}%
-        </span>
+      <div className="flex h-64 items-center justify-center">
+        <span className="text-muted-foreground">Loading analytics...</span>
       </div>
     );
-  };
+  }
 
-  if (isLoading || !analyticsData) {
+  if (!isPlatformAdmin) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#056C40]"></div>
-          <span className="text-muted-foreground">Loading analytics...</span>
-        </div>
+      <div className="space-y-6">
+        <PageHeader
+          title="Analytics & Monitoring"
+          description="Platform performance and tenant analytics"
+          breadcrumbs={[
+            { label: "Dashboard", href: "/platform" },
+            { label: "Analytics", href: "/platform/analytics" },
+          ]}
+        />
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">You do not have permission to view platform analytics.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -181,14 +155,14 @@ export default function AnalyticsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Analytics & Monitoring"
-        description="Comprehensive insights into platform performance and user behavior"
+        description="Live analytics from platform tenants, users, and audit events"
         breadcrumbs={[
           { label: "Dashboard", href: "/platform" },
-          { label: "Analytics", href: "/platform/analytics" }
+          { label: "Analytics", href: "/platform/analytics" },
         ]}
         actions={
           <div className="flex items-center space-x-2">
-            <Select value={timeRange} onValueChange={(value: any) => setTimeRange(value)}>
+            <Select value={timeRange} onValueChange={(value: "7d" | "30d" | "90d" | "1y") => setTimeRange(value)}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue />
               </SelectTrigger>
@@ -201,349 +175,133 @@ export default function AnalyticsPage() {
             </Select>
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Export Report
+              Export
             </Button>
           </div>
         }
       />
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="users">User Metrics</TabsTrigger>
-          <TabsTrigger value="system">System Health</TabsTrigger>
-          <TabsTrigger value="traffic">Traffic Analysis</TabsTrigger>
-        </TabsList>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-l-4 border-l-blue-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Total Tenants</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between">
+            <div className="text-2xl font-bold">{stats?.totalTenants ?? 0}</div>
+            <Building2 className="h-5 w-5 text-blue-600" />
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-green-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Total Users</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between">
+            <div className="text-2xl font-bold">{(stats?.totalUsers ?? 0).toLocaleString()}</div>
+            <Users className="h-5 w-5 text-green-600" />
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-amber-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Estimated MRR</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between">
+            <div className="text-2xl font-bold">${derived.estimatedRevenue.toLocaleString()}</div>
+            <DollarSign className="h-5 w-5 text-amber-600" />
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-red-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Security Events</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between">
+            <div className="text-2xl font-bold">{derived.securityEvents}</div>
+            <Shield className="h-5 w-5 text-red-600" />
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          {/* Key Metrics */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="border-l-4 border-l-blue-500">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Users
-                </CardTitle>
-                <Users className="h-5 w-5 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(analyticsData.overview.totalUsers)}</div>
-                <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-                  <span>All registered users</span>
-                  {getChangeIndicator(analyticsData.overview.totalUsers, 45000)}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Growth Snapshot
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">New users ({timeRange})</span>
+              <Badge variant="secondary">{derived.usersInRange.length}</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">New tenants ({timeRange})</span>
+              <Badge variant="secondary">{derived.tenantGrowth}</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Audit events ({timeRange})</span>
+              <Badge variant="secondary">{derived.logsInRange.length}</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Plan Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries((stats?.planCounts ?? {}) as Record<string, number>).length === 0 ? (
+              <p className="text-sm text-muted-foreground">No plan distribution data available.</p>
+            ) : (
+              Object.entries((stats?.planCounts ?? {}) as Record<string, number>)
+                .sort((a, b) => b[1] - a[1])
+                .map(([plan, count]) => (
+                  <div key={plan} className="flex items-center justify-between">
+                    <span className="text-sm font-medium capitalize">{plan}</span>
+                    <Badge variant="outline">{count}</Badge>
+                  </div>
+                ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Audit Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {derived.topActions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No audit actions in selected range.</p>
+            ) : (
+              derived.topActions.map(([action, count]) => (
+                <div key={action} className="flex items-center justify-between">
+                  <span className="text-sm">{action}</span>
+                  <Badge variant="secondary">{count}</Badge>
                 </div>
-              </CardContent>
-            </Card>
+              ))
+            )}
+          </CardContent>
+        </Card>
 
-            <Card className="border-l-4 border-l-green-500">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Active Users
-                </CardTitle>
-                <Activity className="h-5 w-5 text-green-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(analyticsData.overview.activeUsers)}</div>
-                <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-                  <span>Currently active</span>
-                  {getChangeIndicator(analyticsData.overview.activeUsers, 11000)}
+        <Card>
+          <CardHeader>
+            <CardTitle>Users By Tenant</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {derived.usersByTenant.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No user distribution data available.</p>
+            ) : (
+              derived.usersByTenant.map(([tenantId, count]) => (
+                <div key={tenantId} className="flex items-center justify-between">
+                  <span className="text-sm">{tenantId}</span>
+                  <Badge variant="secondary">{count}</Badge>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-l-4 border-l-amber-500">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Revenue
-                </CardTitle>
-                <DollarSign className="h-5 w-5 text-amber-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(analyticsData.overview.totalRevenue)}</div>
-                <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-                  <span>This month</span>
-                  {getChangeIndicator(analyticsData.overview.totalRevenue, 115000)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-l-4 border-l-purple-500">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Conversion Rate
-                </CardTitle>
-                <TrendingUp className="h-5 w-5 text-purple-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{analyticsData.overview.conversionRate}%</div>
-                <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-                  <span>Sign-up to active</span>
-                  {getChangeIndicator(analyticsData.overview.conversionRate, 2.8)}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Engagement Metrics */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Avg Session Duration
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {formatDuration(analyticsData.overview.avgSessionDuration)}
-                </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Time users spend on platform per session
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MousePointer className="h-5 w-5" />
-                  Bounce Rate
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{analyticsData.overview.bounceRate}%</div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Percentage of single-page sessions
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* User Metrics Tab */}
-        <TabsContent value="users" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Daily Active Users</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(analyticsData.userMetrics.dailyActive)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Last 24 hours</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Weekly Active Users</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(analyticsData.userMetrics.weeklyActive)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Monthly Active Users</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(analyticsData.userMetrics.monthlyActive)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">New Signups</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(analyticsData.userMetrics.newSignups)}</div>
-                <p className="text-xs text-muted-foreground mt-1">This month</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">User Retention</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{analyticsData.userMetrics.userRetention}%</div>
-                <p className="text-xs text-muted-foreground mt-1">Month-over-month</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Churn Rate</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-red-600">{analyticsData.userMetrics.churnRate}%</div>
-                <p className="text-xs text-muted-foreground mt-1">Users lost this month</p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* System Health Tab */}
-        <TabsContent value="system" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Server className="h-5 w-5" />
-                  Uptime
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">{analyticsData.systemMetrics.uptime}%</div>
-                <Badge className="bg-green-100 text-green-800 mt-2">Operational</Badge>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Response Time
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{analyticsData.systemMetrics.responseTime}ms</div>
-                <p className="text-xs text-muted-foreground mt-1">Average API response</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" />
-                  Error Rate
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{analyticsData.systemMetrics.errorRate}%</div>
-                <Badge className="bg-green-100 text-green-800 mt-2">Healthy</Badge>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Active Connections</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(analyticsData.systemMetrics.activeConnections)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Current connections</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Server Load</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{analyticsData.systemMetrics.serverLoad}%</div>
-                <p className="text-xs text-muted-foreground mt-1">CPU utilization</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Database Performance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{analyticsData.systemMetrics.databasePerformance}%</div>
-                <p className="text-xs text-muted-foreground mt-1">Query efficiency</p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Traffic Analysis Tab */}
-        <TabsContent value="traffic" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
-                  Page Views
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{formatNumber(analyticsData.trafficMetrics.pageViews)}</div>
-                <p className="text-sm text-muted-foreground mt-2">Total page views</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Unique Visitors
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{formatNumber(analyticsData.trafficMetrics.uniqueVisitors)}</div>
-                <p className="text-sm text-muted-foreground mt-2">Unique visitors</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* Top Pages */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Top Pages
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {analyticsData.trafficMetrics.topPages.map((page, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">{page.page}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatNumber(page.views)} views
-                        </span>
-                      </div>
-                      <Badge variant="secondary">{page.percentage}%</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Referral Sources */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5" />
-                  Referral Sources
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {analyticsData.trafficMetrics.referralSources.map((source, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">{source.source}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatNumber(source.visitors)} visitors
-                        </span>
-                      </div>
-                      <Badge variant="secondary">{source.percentage}%</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

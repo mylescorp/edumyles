@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -87,105 +87,54 @@ export default function PlatformUsersPage() {
 
     const [deactivateDialog, setDeactivateDialog] = useState<PlatformAdmin | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
-    const [systemUsers, setSystemUsers] = useState<SystemUser[]>([]);
-    const [userStats, setUserStats] = useState<UserStats | null>(null);
     const [showAllUsers, setShowAllUsers] = useState(false);
 
-    // Mock data for all system users
-    const mockSystemUsers: SystemUser[] = [
-        {
-            _id: "1",
-            email: "admin@edumyles.com",
-            firstName: "Super",
-            lastName: "Admin",
-            role: "master_admin",
-            status: "active",
-            lastLogin: "2024-01-15T10:30:00Z",
-            createdAt: "2023-01-01T00:00:00Z"
-        },
-        {
-            _id: "2",
-            email: "john@nairobi-intl.edu",
-            firstName: "John",
-            lastName: "Mwangi",
-            role: "school_admin",
-            tenantId: "tenant1",
-            tenantName: "Nairobi International School",
-            status: "active",
-            lastLogin: "2024-01-15T09:15:00Z",
-            createdAt: "2023-03-15T00:00:00Z"
-        },
-        {
-            _id: "3",
-            email: "mary@st-marys.edu",
-            firstName: "Mary",
-            lastName: "Wanjiku",
-            role: "teacher",
-            tenantId: "tenant2",
-            tenantName: "St. Mary's Academy",
-            status: "active",
-            lastLogin: "2024-01-14T16:45:00Z",
-            createdAt: "2023-06-20T00:00:00Z"
-        },
-        {
-            _id: "4",
-            email: "student1@nairobi-intl.edu",
-            firstName: "James",
-            lastName: "Kamau",
-            role: "student",
-            tenantId: "tenant1",
-            tenantName: "Nairobi International School",
-            status: "active",
-            lastLogin: "2024-01-15T08:00:00Z",
-            createdAt: "2023-09-01T00:00:00Z"
-        },
-        {
-            _id: "5",
-            email: "parent1@st-marys.edu",
-            firstName: "David",
-            lastName: "Ochieng",
-            role: "parent",
-            tenantId: "tenant2",
-            tenantName: "St. Mary's Academy",
-            status: "inactive",
-            lastLogin: "2024-01-10T14:30:00Z",
-            createdAt: "2023-08-15T00:00:00Z"
-        }
-    ];
+    const allUsersRaw = useQuery(
+        api.platform.users.queries.listAllUsers,
+        isMasterAdmin ? {} : "skip"
+    ) as any[] | undefined;
 
-    const mockUserStats: UserStats = {
-        total: 48392,
-        active: 42156,
-        inactive: 5234,
-        suspended: 1002,
-        byRole: {
-            master_admin: 2,
-            super_admin: 5,
-            school_admin: 127,
-            teacher: 3456,
-            student: 41234,
-            parent: 3568
-        },
-        byTenant: {
-            "Nairobi International School": 1234,
-            "St. Mary's Academy": 987,
-            "Eastland High School": 756,
-            "Rift Valley Academy": 543
-        }
-    };
+    const systemUsers = useMemo<SystemUser[]>(
+        () =>
+            (allUsersRaw ?? []).map((u: any) => ({
+                _id: String(u._id),
+                email: u.email,
+                firstName: u.firstName ?? "",
+                lastName: u.lastName ?? "",
+                role: u.role,
+                tenantId: u.tenantId,
+                tenantName: u.tenantId ?? "Platform",
+                status: u.isActive ? "active" : "inactive",
+                createdAt: new Date(u.createdAt ?? Date.now()).toISOString(),
+            })),
+        [allUsersRaw]
+    );
 
-    useEffect(() => {
-        const loadSystemUsers = async () => {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 800));
-            setSystemUsers(mockSystemUsers);
-            setUserStats(mockUserStats);
+    const userStats = useMemo<UserStats>(() => {
+        const byRole: Record<string, number> = {};
+        const byTenant: Record<string, number> = {};
+        let active = 0;
+        let inactive = 0;
+        let suspended = 0;
+
+        for (const u of systemUsers) {
+            byRole[u.role] = (byRole[u.role] ?? 0) + 1;
+            const tenantKey = u.tenantName ?? "Platform";
+            byTenant[tenantKey] = (byTenant[tenantKey] ?? 0) + 1;
+            if (u.status === "active") active += 1;
+            else if (u.status === "inactive") inactive += 1;
+            else suspended += 1;
+        }
+
+        return {
+            total: systemUsers.length,
+            active,
+            inactive,
+            suspended,
+            byRole,
+            byTenant,
         };
-
-        if (isMasterAdmin) {
-            loadSystemUsers();
-        }
-    }, [isMasterAdmin]);
+    }, [systemUsers]);
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -389,7 +338,7 @@ export default function PlatformUsersPage() {
             />
 
             {/* Stats Cards - Only show for all users view */}
-            {isMasterAdmin && showAllUsers && userStats && (
+            {isMasterAdmin && showAllUsers && (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card className="border-l-4 border-l-blue-500">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
