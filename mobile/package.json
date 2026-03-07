@@ -5,10 +5,10 @@
   "main": "expo-router/entry",
   "scripts": {
     "dev": "expo start",
-    "build": "tsc --noEmit",
+    "build": "node ../node_modules/typescript/bin/tsc --noEmit",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "type-check": "tsc --noEmit",
+    "type-check": "node ../node_modules/typescript/bin/tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
     "clean": "rm -rf dist .expo tsconfig.tsbuildinfo"
   },

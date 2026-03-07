@@ -68,7 +68,7 @@ edumyles/
 │   │   └── lib/           # Mobile utilities and helpers
 │   └── package.json       # Mobile dependencies and Expo config
 │
-├── backend/               # Convex — real-time serverless backend
+├── convex/                # Convex — real-time serverless backend
 │   ├── modules/           # Domain modules (one folder per module)
 │   │   ├── sis/           # Student Information System
 │   │   ├── admissions/    # Admissions & Enrollment
@@ -155,7 +155,7 @@ npm run dev
 # Frontend (port 3000)
 npm run dev:frontend
 
-# Backend/Convex (port 3002)
+# Convex backend
 npm run dev:backend
 
 # Landing page (port 3001)
@@ -169,7 +169,7 @@ npm run dev:mobile
 
 1. **Convex Backend**
    ```bash
-   cd backend
+   cd convex
    npx convex dev
    # This will create a new Convex deployment and update your .env.local
    ```
@@ -237,7 +237,7 @@ npm run build
 vercel --prod
 
 # Deploy Convex backend
-cd backend
+cd convex
 npx convex deploy
 ```
 
@@ -318,7 +318,7 @@ git push origin feature/your-feature-name
 **Convex Connection Issues**
 ```bash
 # Restart Convex development server
-cd backend
+cd convex
 npx convex dev --force
 ```
 

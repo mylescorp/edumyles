@@ -1,5 +1,8 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireTenantContext } from "./helpers/tenantGuard";
+import { requirePermission } from "./helpers/authorize";
+import { logAction } from "./helpers/auditLog";
 
 // Upsert user after WorkOS authentication
 export const upsertUser = mutation({
@@ -160,5 +163,66 @@ export const listAuditLogs = query({
 
     // Limit to 200 most recent entries
     return logs.slice(0, 200);
+  },
+});
+
+// Invite/create a tenant user with a pending WorkOS identity.
+export const inviteTenantUser = mutation({
+  args: {
+    email: v.string(),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    requirePermission(tenant, "users:manage");
+
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_email", (q) =>
+        q.eq("tenantId", tenant.tenantId).eq("email", args.email)
+      )
+      .first();
+
+    if (existing) {
+      throw new Error(`CONFLICT: User with email '${args.email}' already exists`);
+    }
+
+    const org = await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .first();
+
+    if (!org) {
+      throw new Error("NOT_FOUND: Organization not found for tenant");
+    }
+
+    const eduMylesUserId = `USR-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const id = await ctx.db.insert("users", {
+      tenantId: tenant.tenantId,
+      eduMylesUserId,
+      workosUserId: `pending-${eduMylesUserId}`,
+      email: args.email,
+      firstName: args.firstName,
+      lastName: args.lastName,
+      role: args.role,
+      permissions: [],
+      organizationId: org._id,
+      isActive: true,
+      createdAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "user.created",
+      entityType: "user",
+      entityId: eduMylesUserId,
+      after: { email: args.email, role: args.role },
+    });
+
+    return { id, eduMylesUserId };
   },
 });
