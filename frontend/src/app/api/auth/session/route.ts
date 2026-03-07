@@ -25,30 +25,55 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ session: null }, { status: 200 });
     }
 
+    // Try Convex first
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-    if (!convexUrl) {
-      return NextResponse.json({ session: null }, { status: 200 });
+    if (convexUrl) {
+      try {
+        const convex = getConvexClient();
+        const session = await convex.query(api.sessions.getSession, {
+          sessionToken,
+        });
+
+        if (session) {
+          return NextResponse.json({
+            session: {
+              sessionToken: session.sessionToken,
+              tenantId: session.tenantId,
+              userId: session.userId,
+              email: session.email,
+              role: session.role,
+              expiresAt: session.expiresAt,
+            },
+          });
+        }
+      } catch (convexError) {
+        console.log("[api/auth/session] Convex unavailable, trying fallback:", convexError);
+      }
     }
 
-    const convex = getConvexClient();
-    const session = await convex.query(api.sessions.getSession, {
-      sessionToken,
-    });
-
-    if (!session) {
-      return NextResponse.json({ session: null }, { status: 200 });
+    // Fallback: Use user cookie if Convex is not available
+    const userCookie = req.cookies.get("edumyles_user")?.value;
+    const roleCookie = req.cookies.get("edumyles_role")?.value;
+    
+    if (userCookie && roleCookie) {
+      try {
+        const user = JSON.parse(userCookie);
+        return NextResponse.json({
+          session: {
+            sessionToken,
+            tenantId: user.tenantId || "PLATFORM",
+            userId: user.email, // Use email as userId fallback
+            email: user.email,
+            role: roleCookie,
+            expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
+          },
+        });
+      } catch (parseError) {
+        console.error("[api/auth/session] Failed to parse user cookie:", parseError);
+      }
     }
 
-    return NextResponse.json({
-      session: {
-        sessionToken: session.sessionToken,
-        tenantId: session.tenantId,
-        userId: session.userId,
-        email: session.email,
-        role: session.role,
-        expiresAt: session.expiresAt,
-      },
-    });
+    return NextResponse.json({ session: null }, { status: 200 });
   } catch (err) {
     console.error("[api/auth/session] Session validation failed:", err);
     return NextResponse.json({ session: null }, { status: 200 });
