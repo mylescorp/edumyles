@@ -3,7 +3,13 @@ import { cookies } from "next/headers";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL ?? "");
+function getConvexClient() {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) {
+    throw new Error("NEXT_PUBLIC_CONVEX_URL is not configured");
+  }
+  return new ConvexHttpClient(convexUrl);
+}
 
 /**
  * Server-side M-Pesa initiate: validates session and returns success.
@@ -13,8 +19,10 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL ?? "");
  */
 export async function POST(req: NextRequest) {
   try {
+    const convex = getConvexClient();
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("edumyles_session")?.value ?? cookieStore.get("edumyles-session")?.value;
+    const sessionToken =
+      cookieStore.get("edumyles_session")?.value ?? cookieStore.get("edumyles-session")?.value;
     if (!sessionToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -40,7 +48,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Use the Convex action api.actions.payments.mpesa.initiateStkPush from the client with invoiceId and phone to trigger the STK push.",
+      message:
+        "Use the Convex action api.actions.payments.mpesa.initiateStkPush from the client with invoiceId and phone to trigger the STK push.",
     });
   } catch (e) {
     console.error("M-Pesa initiate error:", e);

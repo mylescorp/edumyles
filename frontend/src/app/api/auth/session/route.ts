@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
-const convex = new ConvexHttpClient(
-  process.env.NEXT_PUBLIC_CONVEX_URL ?? ""
-);
+function getConvexClient() {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) {
+    throw new Error("NEXT_PUBLIC_CONVEX_URL is not configured");
+  }
+  return new ConvexHttpClient(convexUrl);
+}
 
 /**
  * GET /api/auth/session
@@ -26,6 +30,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ session: null }, { status: 200 });
     }
 
+    const convex = getConvexClient();
     const session = await convex.query(api.sessions.getSession, {
       sessionToken,
     });
