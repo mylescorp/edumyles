@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import {
@@ -128,7 +128,7 @@ export default function AdminDashboardPage() {
                 <div key={app._id} className="flex items-center justify-between rounded-md border p-3">
                   <div>
                     <p className="font-medium">{app.firstName} {app.lastName}</p>
-                    <p className="text-xs text-muted-foreground">{app.requestedGrade} � {app.guardianName}</p>
+                    <p className="text-xs text-muted-foreground">{app.requestedGrade} • {app.guardianName}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">{String(app.status).replaceAll("_", " ")}</Badge>
@@ -169,3 +169,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
