@@ -90,19 +90,50 @@ export default function ParentPayFeesPage() {
       
       switch (payDialog.paymentMethod) {
         case "mpesa":
-          result = await initiateStkPush({
-            invoiceId: payDialog.invoiceId,
-            phone: phone.trim(),
-          });
+          try {
+            result = await initiateStkPush({
+              invoiceId: payDialog.invoiceId,
+              phone: phone.trim(),
+            });
+          } catch (_actionError) {
+            // Fallback to server route for environments where Convex auth identity is unavailable.
+            const res = await fetch("/api/payments/mpesa/initiate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                invoiceId: payDialog.invoiceId,
+                phone: phone.trim(),
+              }),
+            });
+            const payload = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              throw new Error(payload.error ?? "Unable to initiate M-Pesa payment");
+            }
+            result = payload;
+          }
           break;
           
         case "card":
-          // For now, log card payment intent (Stripe integration in Phase 11)
-          result = { message: "Card payment processing will be available soon" };
-          toast({
-            title: "Info",
-            description: "Card payments will be available in Phase 11",
-          });
+          {
+            const res = await fetch("/api/payments/stripe/checkout", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                invoiceId: payDialog.invoiceId,
+                successUrl: "/portal/parent/fees?payment=success",
+                cancelUrl: "/portal/parent/fees/pay?payment=cancelled",
+              }),
+            });
+            const payload = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              throw new Error(payload.error ?? "Unable to create Stripe checkout session");
+            }
+            if (payload.url) {
+              window.location.href = payload.url;
+              return;
+            }
+            result = payload;
+          }
           break;
           
         case "bank_transfer":

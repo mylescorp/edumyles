@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { isBypassAllowed } from "@/lib/auth-bypass";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -51,11 +52,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Fallback: Use user cookie if Convex is not available
+    // Fallback for development/demo only when bypass is explicitly allowed.
     const userCookie = req.cookies.get("edumyles_user")?.value;
     const roleCookie = req.cookies.get("edumyles_role")?.value;
     
-    if (userCookie && roleCookie) {
+    if (isBypassAllowed() && userCookie && roleCookie) {
       try {
         const user = JSON.parse(userCookie);
         return NextResponse.json({

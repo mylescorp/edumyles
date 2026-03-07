@@ -292,6 +292,37 @@ export const savePaymentCallback = internalMutation({
   },
 });
 
+// Used by Next.js server routes to store pending callbacks before gateway confirmation.
+export const savePaymentCallbackFromServer = mutation({
+  args: {
+    webhookSecret: v.string(),
+    tenantId: v.string(),
+    gateway: v.string(),
+    externalId: v.string(),
+    invoiceId: v.string(),
+    amount: v.number(),
+    status: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const expectedSecret = process.env.CONVEX_WEBHOOK_SECRET;
+    if (!expectedSecret || args.webhookSecret !== expectedSecret) {
+      throw new Error("Unauthorized: invalid webhook secret");
+    }
+
+    const now = Date.now();
+    await ctx.db.insert("paymentCallbacks", {
+      tenantId: args.tenantId,
+      gateway: args.gateway,
+      externalId: args.externalId,
+      invoiceId: args.invoiceId,
+      amount: args.amount,
+      status: args.status,
+      createdAt: now,
+      updatedAt: now,
+    });
+  },
+});
+
 // Called from Next.js webhook routes with shared secret; reconciles gateway callback and records payment
 export const recordPaymentFromGateway = mutation({
   args: {
