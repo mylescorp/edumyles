@@ -7,6 +7,7 @@ import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -60,15 +61,15 @@ export default function AuditLogPage() {
     const isPlatformAdmin = hasRole("master_admin", "super_admin");
     const [actionFilter, setActionFilter] = useState<string | undefined>(undefined);
 
-    const logs = useQuery(
+    const logs = usePlatformQuery(
         api.platform.audit.queries.listAuditLogs,
-        isPlatformAdmin && sessionToken
-            ? (actionFilter ? { sessionToken, action: actionFilter } : { sessionToken })
-            : "skip"
+        actionFilter ? { sessionToken, action: actionFilter } : { sessionToken },
+        isPlatformAdmin && !!sessionToken
     );
-    const actionTypes = useQuery(
+    const actionTypes = usePlatformQuery(
         api.platform.audit.queries.getAuditActionTypes,
-        isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+        { sessionToken },
+        isPlatformAdmin && !!sessionToken
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;

@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,17 +52,20 @@ export default function TenantDetailPage() {
     const isMasterAdmin = hasRole("master_admin");
     const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
-    const tenant = useQuery(
+    const tenant = usePlatformQuery(
         api.platform.tenants.queries.getTenantById,
-        isPlatformAdmin && sessionToken ? { sessionToken, tenantId } : "skip"
+        { sessionToken, tenantId },
+        isPlatformAdmin && !!sessionToken
     );
-    const tenantUsers = useQuery(
+    const tenantUsers = usePlatformQuery(
         api.platform.tenants.queries.getTenantUsers,
-        isPlatformAdmin && sessionToken ? { sessionToken, tenantId } : "skip"
+        { sessionToken, tenantId },
+        isPlatformAdmin && !!sessionToken
     );
-    const tenantModules = useQuery(
+    const tenantModules = usePlatformQuery(
         api.platform.tenants.queries.getTenantModules,
-        isPlatformAdmin && sessionToken ? { sessionToken, tenantId } : "skip"
+        { sessionToken, tenantId },
+        isPlatformAdmin && !!sessionToken
     );
 
     const suspendTenant = useMutation(api.platform.tenants.mutations.suspendTenant);

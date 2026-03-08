@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,11 +54,10 @@ export default function BillingPage() {
     const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
     const [planFilter, setPlanFilter] = useState<string | undefined>(undefined);
-    const subscriptions = useQuery(
+    const subscriptions = usePlatformQuery(
         api.platform.billing.queries.listSubscriptions,
-        isPlatformAdmin && sessionToken
-            ? (planFilter ? { sessionToken, plan: planFilter } : { sessionToken })
-            : "skip"
+        planFilter ? { sessionToken, plan: planFilter } : { sessionToken },
+        isPlatformAdmin && !!sessionToken
     );
 
     const updateTier = useMutation(api.platform.billing.mutations.updateTenantTier);

@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -81,9 +82,10 @@ export default function PlatformUsersPage() {
     const [sortBy, setSortBy] = useState<string>("createdAt");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-    const admins = useQuery(
+    const admins = usePlatformQuery(
         api.platform.users.queries.listPlatformAdmins,
-        isMasterAdmin && sessionToken ? { sessionToken } : "skip"
+        { sessionToken },
+        isMasterAdmin && !!sessionToken
     );
     const updateRole = useMutation(api.platform.users.mutations.updatePlatformAdminRole);
     const deactivate = useMutation(api.platform.users.mutations.deactivatePlatformAdmin);
@@ -92,9 +94,10 @@ export default function PlatformUsersPage() {
     const [actionLoading, setActionLoading] = useState(false);
     const [showAllUsers, setShowAllUsers] = useState(false);
 
-    const allUsersRaw = useQuery(
+    const allUsersRaw = usePlatformQuery(
         api.platform.users.queries.listAllUsers,
-        isMasterAdmin && sessionToken ? { sessionToken } : "skip"
+        { sessionToken },
+        isMasterAdmin && !!sessionToken
     ) as any[] | undefined;
 
     const systemUsers = useMemo<SystemUser[]>(
