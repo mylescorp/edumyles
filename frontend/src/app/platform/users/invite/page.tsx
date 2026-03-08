@@ -64,45 +64,39 @@ export default function InviteAdminPage() {
 
   if (successEmail) {
     return (
-      <div>
-        <PageHeader
-          title="Invite Platform Admin"
-          description="Add a new administrator to the platform"
-          breadcrumbs={[
-            { label: "Platform", href: "/platform" },
-            { label: "Users", href: "/platform/users" },
-            { label: "Invite" },
-          ]}
-        />
-        <Card className="max-w-lg">
-          <CardContent className="pt-6 space-y-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <CheckCircle2 className="h-12 w-12 text-green-500" />
-              <div>
-                <h3 className="text-lg font-semibold">Admin Account Created</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Account created for{" "}
-                  <span className="font-medium text-foreground">{successEmail}</span>
-                </p>
-              </div>
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
+        <Card className="w-full max-w-md overflow-hidden shadow-lg">
+          {/* Green success banner */}
+          <div className="bg-gradient-to-br from-[#056C40] to-[#023c24] px-8 py-10 flex flex-col items-center text-center">
+            <div className="h-20 w-20 rounded-full bg-white/20 flex items-center justify-center mb-4">
+              <CheckCircle2 className="h-12 w-12 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">Account Created!</h2>
+            <p className="text-green-100 text-sm mt-1">The admin has been added to the platform</p>
+          </div>
+
+          <CardContent className="pt-6 space-y-5">
+            {/* Email highlight box */}
+            <div className="rounded-lg border bg-muted/40 p-4 text-center">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Admin email</p>
+              <p className="font-mono font-semibold text-foreground break-all">{successEmail}</p>
             </div>
 
+            {/* Warning notice */}
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                 <div className="text-sm text-amber-800">
-                  <p className="font-medium">No invitation email was sent</p>
-                  <p className="mt-1">
-                    Email invitations require WorkOS integration (not yet configured). The new
-                    admin can log in directly at{" "}
-                    <span className="font-mono text-xs bg-amber-100 px-1 rounded">/auth/login</span>{" "}
-                    using their email address.
+                  <p className="font-semibold">No invitation email sent</p>
+                  <p className="mt-1 text-amber-700">
+                    WorkOS integration is not yet configured. Share the login link manually:{" "}
+                    <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">/auth/login</span>
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-1">
               <Button variant="outline" className="flex-1" onClick={handleInviteAnother}>
                 <UserPlus className="h-4 w-4 mr-2" />
                 Invite Another

@@ -239,17 +239,22 @@ export default function PlatformUsersPage() {
             key: "name",
             header: "Name",
             sortable: true,
-            cell: (row) => (
-                <span className="font-medium">
-                    {[row.firstName, row.lastName].filter(Boolean).join(" ") || "—"}
-                </span>
-            ),
-        },
-        {
-            key: "email",
-            header: "Email",
-            sortable: true,
-            cell: (row) => <span className="text-sm">{row.email}</span>,
+            cell: (row) => {
+                const name = [row.firstName, row.lastName].filter(Boolean).join(" ") || "—";
+                const initials = `${row.firstName?.[0] ?? ""}${row.lastName?.[0] ?? ""}`.toUpperCase() || row.email[0]?.toUpperCase() || "?";
+                const colorClass = row.role === "master_admin" ? "bg-purple-600" : "bg-[#056C40]";
+                return (
+                    <div className="flex items-center space-x-3">
+                        <div className={`h-8 w-8 rounded-full ${colorClass} text-white flex items-center justify-center text-xs font-semibold shrink-0`}>
+                            {initials}
+                        </div>
+                        <div>
+                            <p className="font-medium text-sm">{name}</p>
+                            <p className="text-xs text-muted-foreground">{row.email}</p>
+                        </div>
+                    </div>
+                );
+            },
         },
         {
             key: "role",
@@ -358,8 +363,8 @@ export default function PlatformUsersPage() {
                 }
             />
 
-            {/* Stats Cards - Only show for all users view */}
-            {isMasterAdmin && showAllUsers && (
+            {/* Stats Cards - Always visible for master admins */}
+            {isMasterAdmin && (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card className="border-l-4 border-l-blue-500">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -470,16 +475,30 @@ export default function PlatformUsersPage() {
 
                             {/* Users Table */}
                             <div className="overflow-x-auto -mx-1">
+                                {filteredUsers.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                                        <Search className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                                        <p className="text-sm font-medium text-muted-foreground">No users match your filters</p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {searchTerm && <span>Search: &ldquo;{searchTerm}&rdquo; · </span>}
+                                            {roleFilter !== "all" && <span>Role: {roleFilter} · </span>}
+                                            {statusFilter !== "all" && <span>Status: {statusFilter}</span>}
+                                        </p>
+                                        <Button variant="outline" size="sm" className="mt-4" onClick={() => { setSearchTerm(""); setRoleFilter("all"); setStatusFilter("all"); }}>
+                                            Clear Filters
+                                        </Button>
+                                    </div>
+                                ) : (
                                 <table className="w-full min-w-[600px]">
                                     <thead>
-                                        <tr className="border-b">
-                                            <th className="text-left p-3 font-medium">User</th>
-                                            <th className="text-left p-3 font-medium">Role</th>
-                                            <th className="text-left p-3 font-medium hidden md:table-cell">Tenant</th>
-                                            <th className="text-left p-3 font-medium">Status</th>
-                                            <th className="text-left p-3 font-medium hidden lg:table-cell">Last Login</th>
-                                            <th className="text-left p-3 font-medium hidden lg:table-cell">Joined</th>
-                                            <th className="text-left p-3 font-medium w-[80px]">Actions</th>
+                                        <tr className="border-b bg-muted/30">
+                                            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide text-muted-foreground">User</th>
+                                            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide text-muted-foreground">Role</th>
+                                            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide text-muted-foreground hidden md:table-cell">Tenant</th>
+                                            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide text-muted-foreground">Status</th>
+                                            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide text-muted-foreground hidden lg:table-cell">Last Login</th>
+                                            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide text-muted-foreground hidden lg:table-cell">Joined</th>
+                                            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide text-muted-foreground w-[80px]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -565,6 +584,7 @@ export default function PlatformUsersPage() {
                                         ))}
                                     </tbody>
                                 </table>
+                                )}
                             </div>
                         </div>
                     </CardContent>

@@ -20,6 +20,8 @@ import {
   Shield,
   UserCheck,
   Users,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,11 +44,10 @@ function getActionBadgeClass(action: string) {
 }
 
 export default function PlatformDashboardPage() {
-  const { isLoading, sessionToken } = useAuth();
+  const { isLoading } = useAuth();
   const { hasRole } = usePermissions();
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("30d");
   const isPlatformAdmin = hasRole("master_admin", "super_admin");
-  const isMasterAdmin = hasRole("master_admin");
 
   const { data: stats, isConnected, addActivity } = usePlatformMetrics();
   const { announceToScreenReader } = useAccessibility();
@@ -102,10 +103,80 @@ export default function PlatformDashboardPage() {
 
   return (
     <div className="space-y-6">
-        <PageHeader
-          title="Master Admin Dashboard"
-          description="Live platform metrics and cross-tenant activity"
-          breadcrumbs={[{ label: "Dashboard", href: "/platform" }]}
+      <PageHeader
+        title="Master Admin Dashboard"
+        description="Live platform metrics and cross-tenant activity"
+        breadcrumbs={[{ label: "Dashboard", href: "/platform" }]}
+      />
+
+      {/* Toolbar: time range + connection status + analytics link */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1">
+            {(["7d", "30d", "90d"] as const).map((range) => (
+              <Button
+                key={range}
+                variant={timeRange === range ? "default" : "outline"}
+                size="sm"
+                onClick={() => { setTimeRange(range); announceToScreenReader(`Showing ${range === "7d" ? "7 days" : range === "30d" ? "30 days" : "90 days"} of data`); }}
+                className="text-xs"
+              >
+                {range === "7d" ? "7D" : range === "30d" ? "30D" : "90D"}
+              </Button>
+            ))}
+          </div>
+
+          {/* Connection status pill */}
+          <div className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
+            isConnected
+              ? "bg-green-50 text-green-700 border-green-200"
+              : "bg-amber-50 text-amber-700 border-amber-200"
+          }`}>
+            {isConnected ? (
+              <>
+                <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                <Wifi className="h-3 w-3" />
+                <span>Live</span>
+              </>
+            ) : (
+              <>
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                <WifiOff className="h-3 w-3" />
+                <span>Reconnecting…</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        <Link href="/platform/analytics">
+          <Button className="bg-[#056C40] hover:bg-[#023c24]">
+            <FileText className="h-4 w-4 mr-2" />
+            Open Analytics
+          </Button>
+        </Link>
+      </div>
+
+      {/* 4 key stat cards (consolidated from 8) */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Total Tenants" value={stats?.totalTenants ?? 0} icon={Building2} />
+        <StatCard label="Estimated MRR (USD)" value={`$${derived.estimatedMrr.toLocaleString()}`} icon={DollarSign} />
+        <StatCard label="Security Events" value={derived.securityEvents} icon={Shield} />
+        <StatCard label="New Users (Range)" value={derived.newUsers.toLocaleString()} icon={UserCheck} />
+      </div>
+
+      {/* Charts */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <InteractiveChart
+          data={derived.recentActivity.map((item, index) => ({
+            x: index,
+            y: item.action.includes('created') ? 1 : item.action.includes('updated') ? 0.5 : 0.2,
+            value: item
+          }))}
+          title="Activity Trend"
+          type="line"
+          onDrillDown={(point) => {
+            console.log('Drill down to:', point.value);
+          }}
         />
 
         <div className="flex items-center justify-between">
@@ -172,6 +243,45 @@ export default function PlatformDashboardPage() {
             title="User Activity Heatmap"
           />
         </div>
+
+        {/* Recent Activity Feed */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Activity className="h-5 w-5 text-[#056C40]" />
+                <span>Recent Activity</span>
+              </CardTitle>
+              <div className="flex items-center space-x-2">
+                <Badge variant="secondary" className="text-xs">
+                  {derived.recentActivity.length} events
+                </Badge>
+                <Link href="/platform/audit">
+                  <Button variant="outline" size="sm" className="text-xs">
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {derived.recentActivity.slice(0, 5).map((item, index) => (
+                <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+                  <div className={`h-2 w-2 rounded-full mt-2 ${getActionBadgeClass(item.action).split(' ')[0]}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">{item.action}</p>
+                    <p className="text-xs text-gray-500">{formatRelativeTime(item.timestamp ?? 0)}</p>
+                  </div>
+                </div>
+              ))}
+              {derived.recentActivity.length === 0 && (
+                <p className="text-center text-gray-500 py-4">No recent activity</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
