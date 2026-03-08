@@ -6,7 +6,8 @@ import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,13 +37,15 @@ export default function ImpersonationPage() {
     const isMasterAdmin = hasRole("master_admin");
     const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
-const allSessions = useQuery(
+const allSessions = usePlatformQuery(
         api.platform.impersonation.queries.listImpersonationSessions,
-        isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+        { sessionToken },
+        isPlatformAdmin && !!sessionToken
     );
-    const activeSessions = useQuery(
+    const activeSessions = usePlatformQuery(
         api.platform.impersonation.queries.listImpersonationSessions,
-        isPlatformAdmin && sessionToken ? { sessionToken, activeOnly: true } : "skip"
+        { sessionToken, activeOnly: true },
+        isPlatformAdmin && !!sessionToken
     );
 
     const endImpersonation = useMutation(api.platform.impersonation.mutations.endImpersonation);

@@ -6,6 +6,7 @@ import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -91,17 +92,20 @@ export default function PlatformSettingsPage() {
   const [draft, setDraft] = useState<SettingsDraft>(DEFAULT_DRAFT);
   const [dirty, setDirty] = useState(false);
 
-  const platformStats = useQuery(
+  const platformStats = usePlatformQuery(
     api.platform.tenants.queries.getPlatformStats,
-    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+    { sessionToken },
+    isPlatformAdmin && !!sessionToken
   );
-  const subscriptions = useQuery(
+  const subscriptions = usePlatformQuery(
     api.platform.billing.queries.listSubscriptions,
-    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+    { sessionToken },
+    isPlatformAdmin && !!sessionToken
   );
-  const auditLogs = useQuery(
+  const auditLogs = usePlatformQuery(
     api.platform.audit.queries.listAuditLogs,
-    isPlatformAdmin && sessionToken ? { sessionToken, limit: 300 } : "skip"
+    { sessionToken, limit: 300 },
+    isPlatformAdmin && !!sessionToken
   );
 
   const derived = useMemo(() => {

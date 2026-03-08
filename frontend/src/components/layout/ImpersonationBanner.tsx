@@ -1,39 +1,21 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
-import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 
 export function ImpersonationBanner() {
   const { sessionToken } = useAuth();
-  const [queryError, setQueryError] = useState(false);
   
-  const activeSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, 
-    sessionToken && !queryError ? { sessionToken, activeOnly: true } : "skip"
+  const activeSessions = usePlatformQuery(
+    api.platform.impersonation.queries.listImpersonationSessions,
+    { sessionToken, activeOnly: true },
+    !!sessionToken
   ) as Array<{ _id: string; targetUserId: string; targetUserName?: string }> | undefined;
   
   const endImpersonation = useMutation(api.platform.impersonation.mutations.endImpersonation);
-
-  // Handle query errors gracefully
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    
-    if (activeSessions === undefined && sessionToken) {
-      // If we have a sessionToken but get undefined, it might be an auth error
-      // Set error state to prevent repeated failed queries
-      timer = setTimeout(() => {
-        setQueryError(true);
-      }, 1000);
-    } else if (activeSessions !== undefined) {
-      setQueryError(false);
-    }
-    
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [activeSessions, sessionToken]);
 
   const firstSession = activeSessions?.[0];
   const isImpersonating = Boolean(firstSession);

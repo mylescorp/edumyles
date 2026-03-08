@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,21 +50,25 @@ export default function AnalyticsPage() {
   const isPlatformAdmin = hasRole("master_admin", "super_admin");
   const isMasterAdmin = hasRole("master_admin");
 
-  const stats = useQuery(
+  const stats = usePlatformQuery(
     api.platform.tenants.queries.getPlatformStats,
-    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+    { sessionToken },
+    isPlatformAdmin && !!sessionToken
   ) as PlatformStats | undefined;
-  const subscriptions = useQuery(
+  const subscriptions = usePlatformQuery(
     api.platform.billing.queries.listSubscriptions,
-    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+    { sessionToken },
+    isPlatformAdmin && !!sessionToken
   ) as Subscription[] | undefined;
-  const auditLogs = useQuery(
+  const auditLogs = usePlatformQuery(
     api.platform.audit.queries.listAuditLogs,
-    isPlatformAdmin && sessionToken ? { sessionToken, limit: 500 } : "skip"
+    { sessionToken, limit: 500 },
+    isPlatformAdmin && !!sessionToken
   ) as AuditLog[] | undefined;
-  const allUsers = useQuery(
+  const allUsers = usePlatformQuery(
     api.platform.users.queries.listAllUsers,
-    isMasterAdmin && sessionToken ? { sessionToken } : "skip"
+    { sessionToken },
+    isMasterAdmin && !!sessionToken
   ) as Array<{ createdAt?: number; tenantId?: string }> | undefined;
 
   const rangeStart = useMemo(() => {

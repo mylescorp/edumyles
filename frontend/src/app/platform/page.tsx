@@ -8,6 +8,7 @@ import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import {
   Activity,
@@ -48,25 +49,30 @@ export default function PlatformDashboardPage() {
   const isPlatformAdmin = hasRole("master_admin", "super_admin");
   const isMasterAdmin = hasRole("master_admin");
 
-  const stats = useQuery(
+  const stats = usePlatformQuery(
     api.platform.tenants.queries.getPlatformStats,
-    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+    { sessionToken },
+    isPlatformAdmin && !!sessionToken
   );
-  const activityRaw = useQuery(
+  const activityRaw = usePlatformQuery(
     api.platform.tenants.queries.getRecentActivity,
-    isPlatformAdmin && sessionToken ? { sessionToken, limit: 30 } : "skip"
+    { sessionToken, limit: 30 },
+    isPlatformAdmin && !!sessionToken
   );
-  const subscriptions = useQuery(
+  const subscriptions = usePlatformQuery(
     api.platform.billing.queries.listSubscriptions,
-    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+    { sessionToken },
+    isPlatformAdmin && !!sessionToken
   );
-  const auditLogs = useQuery(
+  const auditLogs = usePlatformQuery(
     api.platform.audit.queries.listAuditLogs,
-    isPlatformAdmin && sessionToken ? { sessionToken, limit: 200 } : "skip"
+    { sessionToken, limit: 200 },
+    isPlatformAdmin && !!sessionToken
   );
-  const allUsers = useQuery(
+  const allUsers = usePlatformQuery(
     api.platform.users.queries.listAllUsers,
-    isMasterAdmin && sessionToken ? { sessionToken } : "skip"
+    { sessionToken },
+    isMasterAdmin && !!sessionToken
   ) as Array<{ createdAt?: number }> | undefined;
 
   const rangeStart = useMemo(() => {
