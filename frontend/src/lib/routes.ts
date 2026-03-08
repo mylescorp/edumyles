@@ -19,7 +19,6 @@ import {
   Bell,
   BarChart3,
   Eye,
-  Target,
   type LucideIcon,
 } from "lucide-react";
 
@@ -59,7 +58,6 @@ export const adminNavItems: NavItem[] = [
   { label: "eWallet", href: "/admin/ewallet", icon: Wallet, module: "ewallet" },
   { label: "eCommerce", href: "/admin/ecommerce", icon: ShoppingCart, module: "ecommerce" },
   { label: "Marketplace", href: "/admin/marketplace", icon: ShoppingCart },
-  { label: "Linear", href: "/admin/linear", icon: Target },
   { label: "Settings", href: "/admin/settings", icon: Settings },
   { label: "Audit Log", href: "/admin/audit", icon: FileText },
 ];
