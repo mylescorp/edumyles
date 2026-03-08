@@ -37,6 +37,11 @@ export function useAuth() {
         if (!cancelled) {
           setSession(data.session as Session | null);
           setIsLoading(false);
+          
+          // Store session in localStorage for Convex client
+          if (data.session) {
+            localStorage.setItem('convex_auth', JSON.stringify(data.session));
+          }
         }
       } catch {
         if (!cancelled) {
@@ -62,6 +67,14 @@ export function useAuth() {
           "Content-Type": "application/json",
         },
       });
+
+      if (response.ok) {
+        setSession(null);
+        setIsLoading(false);
+        
+        // Clear session from localStorage
+        localStorage.removeItem('convex_auth');
+      }
 
       if (response.ok) {
         // Clear local storage and session storage
