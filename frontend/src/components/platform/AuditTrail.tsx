@@ -70,17 +70,16 @@ export function AuditTrail({ logs }: { logs: AuditLog[] }) {
   }, [logs, filters]);
 
   const exportAuditData = () => {
-    const csvContent = [
-      'Timestamp,Action,Actor,Tenant ID,Details',
-      ...filteredLogs.map(log => [
-        log.timestamp,
-        log.action,
-        log.actorId,
-        log.tenantId,
-        JSON.stringify(log.details || '')
-      ].map(row => `${row}`)
-    ].join('\n');
-    ];
+    const rows = filteredLogs.map(log => [
+      log.timestamp,
+      log.action,
+      log.actorId,
+      log.tenantId,
+      JSON.stringify(log.details || '')
+    ]);
+    
+    const csvContent = 'Timestamp,Action,Actor,Tenant ID,Details\n' + 
+      rows.map(row => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
