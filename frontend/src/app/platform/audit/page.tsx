@@ -7,7 +7,6 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { AuditTrail } from "@/components/platform/AuditTrail";
-import { PlatformMetricsProvider } from "@/components/platform/PlatformMetrics";
 
 export default function AuditLogPage() {
   const { isLoading, sessionToken } = useAuth();
@@ -23,19 +22,17 @@ export default function AuditLogPage() {
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
   return (
-    <PlatformMetricsProvider>
-      <div className="space-y-6">
-        <PageHeader
-          title="Audit Log"
-          description="Platform-wide activity and security audit trail"
-          breadcrumbs={[
-            { label: "Platform", href: "/platform" },
-            { label: "Audit Log", href: "/platform/audit" }
-          ]}
-        />
+    <div className="space-y-6">
+      <PageHeader
+        title="Audit Log"
+        description="Platform-wide activity and security audit trail"
+        breadcrumbs={[
+          { label: "Platform", href: "/platform" },
+          { label: "Audit Log", href: "/platform/audit" }
+        ]}
+      />
 
-        <AuditTrail logs={logs || []} />
-      </div>
-    </PlatformMetricsProvider>
+      <AuditTrail logs={logs || []} />
+    </div>
   );
 }
