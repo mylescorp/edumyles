@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,11 +32,13 @@ export default function InvoicesPage() {
     const { isLoading, sessionToken } = useAuth();
     const [statusFilter, setStatusFilter] = useState<string>("all");
 
-    const invoices = useQuery(api.modules.finance.queries.listInvoices,
-        statusFilter === "all" ? {} : { status: statusFilter as any }
+    const invoices = usePlatformQuery(
+        api.modules.finance.queries.listInvoices,
+        statusFilter === "all" ? {} : { status: statusFilter as any },
+        !!sessionToken
     );
 
-    const students = useQuery(api.modules.sis.queries.listStudents, {});
+    const students = usePlatformQuery(api.modules.sis.queries.listStudents, {}, !!sessionToken);
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
