@@ -56,6 +56,8 @@ export function BulkOperations({ items, itemType, onBulkAction }: BulkOperationP
     return items.filter(item => item.status === 'active' || item.isActive).length;
   };
 
+  const getCount = () => selectedItems.length;
+
   type BulkAction = 'suspend' | 'activate' | 'delete';
 
   return (
