@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,9 +26,14 @@ import { Save } from "lucide-react";
 export default function PlatformModuleEditPage() {
   const params = useParams();
   const moduleId = params.moduleId as string;
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, sessionToken } = useAuth();
+  const { hasRole } = usePermissions();
+  const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
-  const registry = useQuery(api.modules.marketplace.platform.getFullRegistry);
+  const registry = useQuery(
+    api.modules.marketplace.platform.getFullRegistry,
+    isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+  );
   const updateStatus = useMutation(api.modules.marketplace.platform.updateModuleStatus);
   const updateVersion = useMutation(api.modules.marketplace.platform.updateModuleVersion);
   const [isSaving, setIsSaving] = useState(false);
@@ -58,6 +64,7 @@ export default function PlatformModuleEditPage() {
     setIsSaving(true);
     try {
       await updateStatus({
+        sessionToken: sessionToken!,
         moduleId,
         status: newStatus as "active" | "beta" | "deprecated",
       });
@@ -72,7 +79,7 @@ export default function PlatformModuleEditPage() {
     if (!editVersion || editVersion === mod.version) return;
     setIsSaving(true);
     try {
-      await updateVersion({ moduleId, version: editVersion });
+      await updateVersion({ sessionToken: sessionToken!, moduleId, version: editVersion });
     } catch (error) {
       console.error("Failed to update version:", error);
     } finally {

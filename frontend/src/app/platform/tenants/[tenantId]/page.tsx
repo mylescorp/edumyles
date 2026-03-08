@@ -46,13 +46,23 @@ function PlanBadge({ plan }: { plan: string }) {
 export default function TenantDetailPage() {
     const params = useParams();
     const tenantId = params.tenantId as string;
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const { hasRole } = usePermissions();
     const isMasterAdmin = hasRole("master_admin");
+    const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
-    const tenant = useQuery(api.platform.tenants.queries.getTenantById, { tenantId });
-    const tenantUsers = useQuery(api.platform.tenants.queries.getTenantUsers, { tenantId });
-    const tenantModules = useQuery(api.platform.tenants.queries.getTenantModules, { tenantId });
+    const tenant = useQuery(
+        api.platform.tenants.queries.getTenantById,
+        isPlatformAdmin && sessionToken ? { sessionToken, tenantId } : "skip"
+    );
+    const tenantUsers = useQuery(
+        api.platform.tenants.queries.getTenantUsers,
+        isPlatformAdmin && sessionToken ? { sessionToken, tenantId } : "skip"
+    );
+    const tenantModules = useQuery(
+        api.platform.tenants.queries.getTenantModules,
+        isPlatformAdmin && sessionToken ? { sessionToken, tenantId } : "skip"
+    );
 
     const suspendTenant = useMutation(api.platform.tenants.mutations.suspendTenant);
     const activateTenant = useMutation(api.platform.tenants.mutations.activateTenant);
@@ -67,7 +77,7 @@ export default function TenantDetailPage() {
     const handleSuspend = async () => {
         setActionLoading(true);
         try {
-            await suspendTenant({ tenantId, reason: "Suspended by platform admin" });
+            await suspendTenant({ sessionToken: sessionToken!, tenantId, reason: "Suspended by platform admin" });
             setSuspendDialog(false);
         } finally {
             setActionLoading(false);
@@ -77,7 +87,7 @@ export default function TenantDetailPage() {
     const handleActivate = async () => {
         setActionLoading(true);
         try {
-            await activateTenant({ tenantId });
+            await activateTenant({ sessionToken: sessionToken!, tenantId });
             setActivateDialog(false);
         } finally {
             setActionLoading(false);

@@ -31,12 +31,19 @@ type ImpersonationSession = {
 };
 
 export default function ImpersonationPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const { hasRole } = usePermissions();
     const isMasterAdmin = hasRole("master_admin");
+    const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
-    const allSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, {});
-    const activeSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, { activeOnly: true });
+    const allSessions = useQuery(
+        api.platform.impersonation.queries.listImpersonationSessions,
+        isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+    );
+    const activeSessions = useQuery(
+        api.platform.impersonation.queries.listImpersonationSessions,
+        isPlatformAdmin && sessionToken ? { sessionToken, activeOnly: true } : "skip"
+    );
 
     const endImpersonation = useMutation(api.platform.impersonation.mutations.endImpersonation);
 
@@ -49,7 +56,7 @@ export default function ImpersonationPage() {
         if (!endDialog) return;
         setActionLoading(true);
         try {
-            await endImpersonation({ targetUserId: endDialog.targetUserId });
+            await endImpersonation({ sessionToken: sessionToken!, targetUserId: endDialog.targetUserId });
             setEndDialog(null);
         } finally {
             setActionLoading(false);

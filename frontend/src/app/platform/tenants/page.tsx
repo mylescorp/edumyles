@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
@@ -58,12 +59,16 @@ function PlanBadge({ plan }: { plan: string }) {
 }
 
 export default function TenantsPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
+    const { hasRole } = usePermissions();
+    const isPlatformAdmin = hasRole("master_admin", "super_admin");
     const [statusFilter, setStatusFilter] = useState<"active" | "suspended" | "trial" | undefined>(undefined);
 
     const tenants = useQuery(
         api.platform.tenants.queries.listAllTenants,
-        statusFilter ? { status: statusFilter } : {}
+        isPlatformAdmin && sessionToken
+            ? (statusFilter ? { sessionToken, status: statusFilter } : { sessionToken })
+            : "skip"
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;

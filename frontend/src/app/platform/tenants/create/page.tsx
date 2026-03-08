@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Building2 } from "lucide-react";
 
 export default function CreateTenantPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const router = useRouter();
     const createTenant = useMutation(api.platform.tenants.mutations.createTenant);
 
@@ -39,7 +39,7 @@ export default function CreateTenantPage() {
         setSubmitting(true);
 
         try {
-            await createTenant(form);
+            await createTenant({ ...form, sessionToken: sessionToken! });
             router.push("/platform/tenants");
         } catch (err: any) {
             setError(err.message || "Failed to create tenant");

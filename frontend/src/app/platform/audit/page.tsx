@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
@@ -54,14 +55,21 @@ function ActionBadge({ action }: { action: string }) {
 }
 
 export default function AuditLogPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
+    const { hasRole } = usePermissions();
+    const isPlatformAdmin = hasRole("master_admin", "super_admin");
     const [actionFilter, setActionFilter] = useState<string | undefined>(undefined);
 
     const logs = useQuery(
         api.platform.audit.queries.listAuditLogs,
-        actionFilter ? { action: actionFilter } : {}
+        isPlatformAdmin && sessionToken
+            ? (actionFilter ? { sessionToken, action: actionFilter } : { sessionToken })
+            : "skip"
     );
-    const actionTypes = useQuery(api.platform.audit.queries.getAuditActionTypes);
+    const actionTypes = useQuery(
+        api.platform.audit.queries.getAuditActionTypes,
+        isPlatformAdmin && sessionToken ? { sessionToken } : "skip"
+    );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 

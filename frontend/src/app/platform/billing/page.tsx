@@ -47,14 +47,17 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function BillingPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const { hasRole } = usePermissions();
     const isMasterAdmin = hasRole("master_admin");
+    const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
     const [planFilter, setPlanFilter] = useState<string | undefined>(undefined);
     const subscriptions = useQuery(
         api.platform.billing.queries.listSubscriptions,
-        planFilter ? { plan: planFilter } : {}
+        isPlatformAdmin && sessionToken
+            ? (planFilter ? { sessionToken, plan: planFilter } : { sessionToken })
+            : "skip"
     );
 
     const updateTier = useMutation(api.platform.billing.mutations.updateTenantTier);
@@ -69,6 +72,7 @@ export default function BillingPage() {
         setActionLoading(true);
         try {
             await updateTier({
+                sessionToken: sessionToken!,
                 tenantId: changeTierDialog.tenant.tenantId,
                 plan: changeTierDialog.newPlan as "free" | "starter" | "growth" | "enterprise",
             });

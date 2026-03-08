@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UserPlus } from "lucide-react";
 
 export default function InviteAdminPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const { hasRole } = usePermissions();
     const isMasterAdmin = hasRole("master_admin");
     const router = useRouter();
@@ -47,7 +47,7 @@ export default function InviteAdminPage() {
         setSubmitting(true);
 
         try {
-            await createAdmin(form);
+            await createAdmin({ ...form, sessionToken: sessionToken! });
             router.push("/platform/users");
         } catch (err: any) {
             setError(err.message || "Failed to create admin");
