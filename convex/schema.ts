@@ -79,6 +79,8 @@ export default defineSchema({
     isActive: v.boolean(),
     avatarUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    location: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])

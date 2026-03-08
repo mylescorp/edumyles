@@ -15,6 +15,18 @@ export const listPlatformAdmins = query({
     },
 });
 
+// Get the current logged-in platform user's full record
+export const getCurrentPlatformUser = query({
+    args: { sessionToken: v.string() },
+    handler: async (ctx, args) => {
+        const session = await requirePlatformSession(ctx, args);
+        return await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), session.userId))
+            .first();
+    },
+});
+
 // Cross-tenant user search (master_admin only)
 export const listAllUsers = query({
     args: {

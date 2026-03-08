@@ -63,6 +63,4 @@ export function useRealTimeStats(sessionToken: string | null) {
   }, []);
 
   return { stats, isConnected, addActivity };
-
-  return { stats, isConnected, addActivity };
 }

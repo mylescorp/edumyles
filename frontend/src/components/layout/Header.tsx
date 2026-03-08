@@ -15,6 +15,7 @@ import { Bell, LogOut, User, Settings, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
 import { useNotifications } from "@/hooks/useSSRSafeConvex";
+import { usePathname } from "next/navigation";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
 import Link from "next/link";
@@ -27,9 +28,13 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
   const { user, role, logout } = useAuth();
   const { tenant } = useTenant();
   const { unreadCount } = useNotifications();
+  const pathname = usePathname();
 
   const displayName = formatName(user?.firstName, user?.lastName);
   const initials = getInitials(user?.firstName, user?.lastName);
+  const notificationsHref = pathname?.startsWith("/platform")
+    ? "/platform/audit"
+    : "/admin/notifications";
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-background px-6 z-[2000] relative">
@@ -57,7 +62,7 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
       <div className="flex items-center gap-4">
         {/* Notifications */}
         <Link
-          href="/admin/notifications"
+          href={notificationsHref}
           className="relative rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <Bell className="h-5 w-5" />

@@ -1,5 +1,6 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { ConvexError } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
@@ -96,6 +97,95 @@ export const updatePlatformAdminRole = mutation({
             before: { role: user.role },
             after: { role: args.role },
         });
+    },
+});
+
+// Update own profile (name, phone, bio, location)
+export const updateUserProfile = mutation({
+    args: {
+        sessionToken: v.string(),
+        firstName: v.optional(v.string()),
+        lastName: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        bio: v.optional(v.string()),
+        location: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const { sessionToken, ...fields } = args;
+        const tenantCtx = await requirePlatformSession(ctx, { sessionToken });
+
+        const user = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), tenantCtx.userId))
+            .first();
+
+        if (!user) throw new ConvexError("User not found");
+
+        // Remove undefined values before patching
+        const patch: Record<string, string> = {};
+        if (fields.firstName !== undefined) patch.firstName = fields.firstName;
+        if (fields.lastName !== undefined) patch.lastName = fields.lastName;
+        if (fields.phone !== undefined) patch.phone = fields.phone;
+        if (fields.bio !== undefined) patch.bio = fields.bio;
+        if (fields.location !== undefined) patch.location = fields.location;
+
+        await ctx.db.patch(user._id, patch);
+
+        await logAction(ctx, {
+            tenantId: tenantCtx.tenantId,
+            actorId: tenantCtx.userId,
+            actorEmail: tenantCtx.email,
+            action: "profile.updated",
+            entityType: "user",
+            entityId: tenantCtx.userId,
+            after: patch,
+        });
+
+        return { ok: true };
+    },
+});
+
+// Step 1: Generate a one-time Convex storage upload URL for avatar
+export const generateAvatarUploadUrl = mutation({
+    args: { sessionToken: v.string() },
+    handler: async (ctx, args) => {
+        await requirePlatformSession(ctx, args);
+        return await ctx.storage.generateUploadUrl();
+    },
+});
+
+// Step 2: Persist the uploaded avatar storageId to the user record
+export const saveUserAvatar = mutation({
+    args: {
+        sessionToken: v.string(),
+        storageId: v.id("_storage"),
+    },
+    handler: async (ctx, args) => {
+        const tenantCtx = await requirePlatformSession(ctx, args);
+
+        const url = await ctx.storage.getUrl(args.storageId);
+        if (!url) throw new ConvexError("Failed to retrieve upload URL");
+
+        const user = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), tenantCtx.userId))
+            .first();
+
+        if (!user) throw new ConvexError("User not found");
+
+        await ctx.db.patch(user._id, { avatarUrl: url });
+
+        await logAction(ctx, {
+            tenantId: tenantCtx.tenantId,
+            actorId: tenantCtx.userId,
+            actorEmail: tenantCtx.email,
+            action: "profile.avatar_updated",
+            entityType: "user",
+            entityId: tenantCtx.userId,
+            after: { avatarUrl: url },
+        });
+
+        return { url };
     },
 });
 

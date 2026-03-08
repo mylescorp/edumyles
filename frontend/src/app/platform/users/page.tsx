@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { VirtualizedList } from "@/components/ui/VirtualizedList";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
@@ -141,6 +142,18 @@ export default function PlatformUsersPage() {
             byTenant,
         };
     }, [systemUsers]);
+
+    const filteredUsers = useMemo(() => {
+        return systemUsers.filter((u) => {
+            const matchesSearch =
+                u.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                u.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                u.email.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesRole = roleFilter === "all" || u.role === roleFilter;
+            const matchesStatus = statusFilter === "all" || u.status === statusFilter;
+            return matchesSearch && matchesRole && matchesStatus;
+        });
+    }, [systemUsers, searchTerm, roleFilter, statusFilter]);
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -470,16 +483,7 @@ export default function PlatformUsersPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {systemUsers
-                                            .filter(user => {
-                                                const matchesSearch = user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                                    user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                                    user.email.toLowerCase().includes(searchTerm.toLowerCase());
-                                                const matchesRole = roleFilter === "all" || user.role === roleFilter;
-                                                const matchesStatus = statusFilter === "all" || user.status === statusFilter;
-                                                return matchesSearch && matchesRole && matchesStatus;
-                                            })
-                                            .map((user) => (
+                                        {filteredUsers.map((user) => (
                                             <tr key={user._id} className="border-b hover:bg-gray-50">
                                                 <td className="p-3">
                                                     <div className="flex items-center space-x-3">

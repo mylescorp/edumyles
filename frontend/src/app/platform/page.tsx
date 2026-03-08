@@ -7,22 +7,14 @@ import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useOptimizedData } from "@/hooks/useOptimizedData";
 import { useAccessibility } from "@/hooks/useAccessibility";
-import { VirtualizedList } from "@/components/ui/VirtualizedList";
-import { api } from "@/convex/_generated/api";
-import { PlatformMetricsProvider, usePlatformMetrics } from "@/components/platform/PlatformMetrics";
+import { usePlatformMetrics } from "@/components/platform/PlatformMetrics";
 import { InteractiveChart } from "@/components/charts/InteractiveChart";
 import { HeatmapChart } from "@/components/charts/HeatmapChart";
-import { AdvancedDateRange } from "@/components/forms/AdvancedDateRange";
 import {
   Activity,
   AlertTriangle,
   Building2,
-  Clock,
-  Settings,
   DollarSign,
   FileText,
   Shield,
@@ -57,6 +49,13 @@ export default function PlatformDashboardPage() {
   const isMasterAdmin = hasRole("master_admin");
 
   const { data: stats, isConnected, addActivity } = usePlatformMetrics();
+  const { announceToScreenReader } = useAccessibility();
+
+  const rangeStart = useMemo(() => {
+    const now = Date.now();
+    const ms = timeRange === "7d" ? 7 * 24 * 60 * 60 * 1000 : timeRange === "30d" ? 30 * 24 * 60 * 60 * 1000 : 90 * 24 * 60 * 60 * 1000;
+    return now - ms;
+  }, [timeRange]);
 
   const derived = useMemo(() => {
     if (!stats) {
@@ -74,12 +73,6 @@ export default function PlatformDashboardPage() {
       return sum + (PLAN_PRICES_USD[key] ?? 0);
     }, 0);
 
-    const rangeStart = useMemo(() => {
-      const now = Date.now();
-      const ms = timeRange === "7d" ? 7 * 24 * 60 * 60 * 1000 : timeRange === "30d" ? 30 * 24 * 60 * 60 * 1000 : 90 * 24 * 60 * 60 * 1000;
-      return now - ms;
-    }, [timeRange]);
-
     const recentActivity = (stats?.recentActivity ?? []).filter((a) => (a.timestamp ?? 0) >= rangeStart);
     const securityEvents = recentActivity.filter((a) => /(suspend|deleted|unauthorized|failed|impersonation)/i.test(String(a.action)));
     const newUsers = recentActivity.filter((a) => /created/i.test(String(a.action)));
@@ -90,7 +83,7 @@ export default function PlatformDashboardPage() {
       recentActivity,
       securityEvents: securityEvents.length,
     };
-  }, [stats, timeRange]);
+  }, [stats, timeRange, rangeStart]);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -108,8 +101,7 @@ export default function PlatformDashboardPage() {
   }
 
   return (
-    <PlatformMetricsProvider>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <PageHeader
           title="Master Admin Dashboard"
           description="Live platform metrics and cross-tenant activity"
@@ -125,7 +117,7 @@ export default function PlatformDashboardPage() {
                   key={range}
                   variant={timeRange === range ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setTimeRange(range)}
+                  onClick={() => { setTimeRange(range); announceToScreenReader(`Showing ${range === "7d" ? "7 days" : range === "30d" ? "30 days" : "90 days"} of data`); }}
                   className="text-xs"
                 >
                   {range === "7d" ? "7 Days" : range === "30d" ? "30 Days" : "90 Days"}
@@ -170,15 +162,16 @@ export default function PlatformDashboardPage() {
           />
           
           <HeatmapChart
-            data={Array.from({ length: 7 }, (_, day) => ({
-              day: `Day ${day + 1}`,
-              hour: Math.floor(Math.random() * 24),
-              value: Math.floor(Math.random() * 100)
-            }))}
+            data={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((dayName) => {
+              const count = derived.recentActivity.filter((a) => {
+                const d = new Date(a.timestamp ?? 0);
+                return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] === dayName;
+              }).length;
+              return { day: dayName, hour: 12, value: count };
+            })}
             title="User Activity Heatmap"
           />
         </div>
-      </div>
-    </PlatformMetricsProvider>
+    </div>
   );
 }

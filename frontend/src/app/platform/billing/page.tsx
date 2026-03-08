@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -12,7 +12,9 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DollarSign, CreditCard, TrendingUp } from "lucide-react";
 import { formatDate } from "@/lib/formatters";
 
 type Subscription = {
@@ -64,6 +66,17 @@ export default function BillingPage() {
 
     const [changeTierDialog, setChangeTierDialog] = useState<{ tenant: Subscription; newPlan: string } | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
+
+    const PLAN_PRICES: Record<string, number> = { free: 0, starter: 49, growth: 129, enterprise: 499 };
+    const billingStats = useMemo(() => {
+        const list = (subscriptions as Subscription[]) ?? [];
+        const active = list.filter((s) => s.status === "active" || s.status === "trial");
+        const mrr = active.reduce((sum, s) => sum + (PLAN_PRICES[s.plan] ?? 0), 0);
+        const topPlan = Object.entries(
+            list.reduce((acc, s) => { acc[s.plan] = (acc[s.plan] ?? 0) + 1; return acc; }, {} as Record<string, number>)
+        ).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
+        return { total: list.length, active: active.length, mrr, topPlan };
+    }, [subscriptions]);
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -158,6 +171,40 @@ export default function BillingPage() {
                     { label: "Billing" },
                 ]}
             />
+
+            {/* Stat Cards */}
+            <div className="grid gap-4 md:grid-cols-3 mb-6">
+                <Card className="border-l-4 border-l-green-500">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Estimated MRR</CardTitle>
+                        <DollarSign className="h-5 w-5 text-green-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-600">${billingStats.mrr.toLocaleString()}</div>
+                        <p className="text-xs text-muted-foreground">Monthly recurring revenue (USD)</p>
+                    </CardContent>
+                </Card>
+                <Card className="border-l-4 border-l-blue-500">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Active Subscriptions</CardTitle>
+                        <CreditCard className="h-5 w-5 text-blue-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{billingStats.active}</div>
+                        <p className="text-xs text-muted-foreground">Active + trial plans</p>
+                    </CardContent>
+                </Card>
+                <Card className="border-l-4 border-l-purple-500">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Top Plan</CardTitle>
+                        <TrendingUp className="h-5 w-5 text-purple-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold capitalize">{billingStats.topPlan}</div>
+                        <p className="text-xs text-muted-foreground">Most common plan</p>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Filters */}
             <div className="mb-4 flex items-center gap-3">

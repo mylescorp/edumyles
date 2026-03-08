@@ -17,11 +17,6 @@ export function usePlatformQuery<T = any>(
   // In development, skip authentication to prevent UNAUTHENTICATED errors
   const isDevMode = process.env.NODE_ENV === "development";
   const shouldSkip = !enabled || (!sessionToken && !isDevMode);
-  
-  // In development, always allow queries
-  if (isDevMode && enabled) {
-    return useQuery(query, args);
-  }
-  
+
   return useQuery(query, shouldSkip ? "skip" : args);
 }

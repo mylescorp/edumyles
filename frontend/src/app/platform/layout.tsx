@@ -7,6 +7,7 @@ import { platformNavItems } from "@/lib/routes";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import { PlatformMetricsProvider } from "@/components/platform/PlatformMetrics";
 
 class PlatformErrorBoundary extends Component<
   { children: ReactNode },
@@ -56,7 +57,11 @@ export default function PlatformLayout({ children }: { children: ReactNode }) {
   return (
     <RoleGuard allowedRoles={PLATFORM_ROLES}>
       <AppShell navItems={platformNavItems}>
-        <PlatformErrorBoundary>{children}</PlatformErrorBoundary>
+        <PlatformErrorBoundary>
+          <PlatformMetricsProvider>
+            {children}
+          </PlatformMetricsProvider>
+        </PlatformErrorBoundary>
       </AppShell>
     </RoleGuard>
   );
