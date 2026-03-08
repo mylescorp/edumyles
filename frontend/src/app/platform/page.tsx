@@ -108,75 +108,77 @@ export default function PlatformDashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Master Admin Dashboard"
-        description="Live platform metrics and cross-tenant activity"
-        breadcrumbs={[{ label: "Dashboard", href: "/platform" }]}
-      />
+    <PlatformMetricsProvider>
+      <div className="space-y-6">
+        <PageHeader
+          title="Master Admin Dashboard"
+          description="Live platform metrics and cross-tenant activity"
+          breadcrumbs={[{ label: "Dashboard", href: "/platform" }]}
+        />
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-muted-foreground">Time Range:</span>
-          <div className="flex space-x-1">
-            {(["7d", "30d", "90d"] as const).map((range) => (
-              <Button
-                key={range}
-                variant={timeRange === range ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeRange(range)}
-                className="text-xs"
-              >
-                {range === "7d" ? "7 Days" : range === "30d" ? "30 Days" : "90 Days"}
-              </Button>
-            ))}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">Time Range:</span>
+            <div className="flex space-x-1">
+              {(["7d", "30d", "90d"] as const).map((range) => (
+                <Button
+                  key={range}
+                  variant={timeRange === range ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTimeRange(range)}
+                  className="text-xs"
+                >
+                  {range === "7d" ? "7 Days" : range === "30d" ? "30 Days" : "90 Days"}
+                </Button>
+              ))}
+            </div>
           </div>
+          <Link href="/platform/analytics">
+            <Button className="bg-[#056C40] hover:bg-[#023c24]">
+              <FileText className="h-4 w-4 mr-2" />
+              Open Analytics
+            </Button>
+          </Link>
         </div>
-        <Link href="/platform/analytics">
-          <Button className="bg-[#056C40] hover:bg-[#023c24]">
-            <FileText className="h-4 w-4 mr-2" />
-            Open Analytics
-          </Button>
-        </Link>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Tenants" value={stats?.totalTenants ?? 0} icon={Building2} />
-        <StatCard label="Total Users" value={(stats?.totalUsers ?? 0).toLocaleString()} icon={Users} />
-        <StatCard label="New Users (Range)" value={derived.newUsers.toLocaleString()} icon={UserCheck} />
-        <StatCard label="Estimated MRR (USD)" value={`$${derived.estimatedMrr.toLocaleString()}`} icon={DollarSign} />
-      </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Total Tenants" value={stats?.totalTenants ?? 0} icon={Building2} />
+          <StatCard label="Total Users" value={(stats?.totalUsers ?? 0).toLocaleString()} icon={Users} />
+          <StatCard label="New Users (Range)" value={derived.newUsers.toLocaleString()} icon={UserCheck} />
+          <StatCard label="Estimated MRR (USD)" value={`$${derived.estimatedMrr.toLocaleString()}`} icon={DollarSign} />
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Active Tenants" value={stats?.activeTenants ?? 0} icon={Building2} />
-        <StatCard label="Suspended Tenants" value={stats?.suspendedTenants ?? 0} icon={AlertTriangle} />
-        <StatCard label="Security Events" value={derived.securityEvents} icon={Shield} />
-        <StatCard label="Activity Records" value={derived.recentActivity.length} icon={Activity} />
-      </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Active Tenants" value={stats?.activeTenants ?? 0} icon={Building2} />
+          <StatCard label="Suspended Tenants" value={stats?.suspendedTenants ?? 0} icon={AlertTriangle} />
+          <StatCard label="Security Events" value={derived.securityEvents} icon={Shield} />
+          <StatCard label="Activity Records" value={derived.recentActivity.length} icon={Activity} />
+        </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <InteractiveChart
-          data={derived.recentActivity.map((item, index) => ({
-            x: index,
-            y: item.action.includes('created') ? 1 : item.action.includes('updated') ? 0.5 : 0.2,
-            value: item
-          }))}
-          title="Activity Trend"
-          type="line"
-          onDrillDown={(point) => {
-            console.log('Drill down to:', point.value);
-          }}
-        />
-        
-        <HeatmapChart
-          data={Array.from({ length: 7 }, (_, day) => ({
-            day: `Day ${day + 1}`,
-            hour: Math.floor(Math.random() * 24),
-            value: Math.floor(Math.random() * 100)
-          }))}
-          title="User Activity Heatmap"
-        />
+        <div className="grid gap-6 md:grid-cols-2">
+          <InteractiveChart
+            data={derived.recentActivity.map((item, index) => ({
+              x: index,
+              y: item.action.includes('created') ? 1 : item.action.includes('updated') ? 0.5 : 0.2,
+              value: item
+            }))}
+            title="Activity Trend"
+            type="line"
+            onDrillDown={(point) => {
+              console.log('Drill down to:', point.value);
+            }}
+          />
+          
+          <HeatmapChart
+            data={Array.from({ length: 7 }, (_, day) => ({
+              day: `Day ${day + 1}`,
+              hour: Math.floor(Math.random() * 24),
+              value: Math.floor(Math.random() * 100)
+            }))}
+            title="User Activity Heatmap"
+          />
+        </div>
       </div>
-    </div>
+    </PlatformMetricsProvider>
   );
 }
