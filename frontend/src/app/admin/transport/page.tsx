@@ -1,6 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/shared/PageHeader";
+import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,14 +9,32 @@ import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bus, MapPin, Users, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Bus, 
+  MapPin, 
+  Users, 
+  Plus, 
+  Navigation,
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  TrendingUp,
+  BarChart3
+} from "lucide-react";
+import Link from "next/link";
 
 type Route = {
     _id: string;
     name: string;
     stops: string[];
+    status: string;
+    capacity: number;
+    activeStudents: number;
+    driver?: string;
+    vehicle?: string;
 };
 
 type Vehicle = {
@@ -23,6 +42,10 @@ type Vehicle = {
     plateNumber: string;
     capacity: number;
     status: string;
+    fuel: number;
+    lastMaintenance: string;
+    driver?: string;
+    route?: string;
 };
 
 type Driver = {
@@ -31,6 +54,9 @@ type Driver = {
     lastName: string;
     phone: string;
     status: string;
+    licenseNumber: string;
+    experience: string;
+    assignedVehicle?: string;
 };
 
 export default function TransportPage() {
@@ -53,39 +79,227 @@ export default function TransportPage() {
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
+    // Mock enhanced data for demonstration
+    const mockRoutes: Route[] = [
+        {
+            _id: "route1",
+            name: "Downtown - School Route",
+            stops: ["Central Park", "City Mall", "School Gate"],
+            status: "active",
+            capacity: 45,
+            activeStudents: 38,
+            driver: "John Kamau",
+            vehicle: "ABC-123",
+        },
+        {
+            _id: "route2", 
+            name: "Westlands - School Route",
+            stops: ["Sarit Centre", "Westlands Mall", "School Gate"],
+            status: "active",
+            capacity: 25,
+            activeStudents: 22,
+            driver: "Mary Wanjiku",
+            vehicle: "XYZ-789",
+        },
+        {
+            _id: "route3",
+            name: "Eastlands - School Route",
+            stops: ["Buruburu", "Pipeline", "School Gate"],
+            status: "inactive",
+            capacity: 30,
+            activeStudents: 0,
+            driver: null,
+            vehicle: null,
+        },
+    ];
+
+    const mockVehicles: Vehicle[] = [
+        {
+            _id: "vehicle1",
+            plateNumber: "ABC-123",
+            capacity: 45,
+            status: "active",
+            fuel: 75,
+            lastMaintenance: "2024-02-15",
+            driver: "John Kamau",
+            route: "Downtown - School Route",
+        },
+        {
+            _id: "vehicle2",
+            plateNumber: "XYZ-789", 
+            capacity: 15,
+            status: "active",
+            fuel: 60,
+            lastMaintenance: "2024-01-20",
+            driver: "Mary Wanjiku",
+            route: "Westlands - School Route",
+        },
+        {
+            _id: "vehicle3",
+            plateNumber: "DEF-456",
+            capacity: 25,
+            status: "maintenance",
+            fuel: 40,
+            lastMaintenance: "2023-12-10",
+            driver: null,
+            route: null,
+        },
+    ];
+
+    const mockDrivers: Driver[] = [
+        {
+            _id: "driver1",
+            firstName: "John",
+            lastName: "Kamau",
+            phone: "+254 712 345 678",
+            status: "active",
+            licenseNumber: "DL-2020-456789",
+            experience: "5 years",
+            assignedVehicle: "ABC-123",
+        },
+        {
+            _id: "driver2",
+            firstName: "Mary",
+            lastName: "Wanjiku",
+            phone: "+254 723 456 789",
+            status: "active",
+            licenseNumber: "DL-2018-123456",
+            experience: "7 years",
+            assignedVehicle: "XYZ-789",
+        },
+        {
+            _id: "driver3",
+            firstName: "James",
+            lastName: "Otieno",
+            phone: "+254 734 567 890",
+            status: "on_leave",
+            licenseNumber: "DL-2019-789012",
+            experience: "4 years",
+            assignedVehicle: null,
+        },
+    ];
+
+    const stats = {
+        totalRoutes: mockRoutes.length,
+        activeRoutes: mockRoutes.filter(r => r.status === "active").length,
+        totalVehicles: mockVehicles.length,
+        activeVehicles: mockVehicles.filter(v => v.status === "active").length,
+        totalDrivers: mockDrivers.length,
+        activeDrivers: mockDrivers.filter(d => d.status === "active").length,
+        totalStudents: mockRoutes.reduce((sum, r) => sum + r.activeStudents, 0),
+        maintenanceAlerts: mockVehicles.filter(v => v.status === "maintenance").length,
+    };
+
     const routeColumns: Column<Route>[] = [
         {
             key: "name",
             header: "Route Name",
             sortable: true,
-            cell: (row: Route) => row.name,
+            cell: (row: Route) => (
+                <div>
+                    <p className="font-medium">{row.name}</p>
+                    <p className="text-sm text-muted-foreground">{row.stops.length} stops</p>
+                </div>
+            ),
         },
         {
-            key: "stops",
-            header: "Stops",
-            cell: (row: Route) => row.stops.length,
+            key: "capacity",
+            header: "Capacity",
+            cell: (row: Route) => (
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">
+                        {row.activeStudents}/{row.capacity}
+                    </span>
+                    <div className="w-12 bg-muted rounded-full h-2">
+                        <div 
+                            className="bg-forest-600 h-2 rounded-full"
+                            style={{ width: `${(row.activeStudents / row.capacity) * 100}%` }}
+                        />
+                    </div>
+                </div>
+            ),
+        },
+        {
+            key: "driver",
+            header: "Driver",
+            cell: (row: Route) => row.driver || "—",
+        },
+        {
+            key: "status",
+            header: "Status",
+            cell: (row: Route) => (
+                <Badge variant={row.status === "active" ? "default" : "secondary"}>
+                    {row.status}
+                </Badge>
+            ),
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            cell: (row: Route) => (
+                <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline">Edit</Button>
+                    <Button size="sm" variant="outline">View</Button>
+                </div>
+            ),
         },
     ];
 
     const vehicleColumns: Column<Vehicle>[] = [
         {
             key: "plateNumber",
-            header: "Plate Number",
+            header: "Vehicle",
             sortable: true,
-            cell: (row: Vehicle) => row.plateNumber,
+            cell: (row: Vehicle) => (
+                <div>
+                    <p className="font-medium">{row.plateNumber}</p>
+                    <p className="text-sm text-muted-foreground">{row.capacity} seats</p>
+                </div>
+            ),
         },
         {
-            key: "capacity",
-            header: "Capacity",
-            cell: (row: Vehicle) => `${row.capacity} Seats`,
+            key: "driver",
+            header: "Driver",
+            cell: (row: Vehicle) => row.driver || "—",
+        },
+        {
+            key: "fuel",
+            header: "Fuel",
+            cell: (row: Vehicle) => (
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{row.fuel}%</span>
+                    <div className="w-12 bg-muted rounded-full h-2">
+                        <div 
+                            className={`h-2 rounded-full ${
+                                row.fuel > 50 ? "bg-green-600" : 
+                                row.fuel > 25 ? "bg-amber-600" : "bg-red-600"
+                            }`}
+                            style={{ width: `${row.fuel}%` }}
+                        />
+                    </div>
+                </div>
+            ),
         },
         {
             key: "status",
             header: "Status",
             cell: (row: Vehicle) => (
-                <Badge variant={row.status === "active" ? "default" : "secondary"}>
+                <Badge variant={
+                    row.status === "active" ? "default" : 
+                    row.status === "maintenance" ? "secondary" : "outline"
+                }>
                     {row.status}
                 </Badge>
+            ),
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            cell: (row: Vehicle) => (
+                <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline">Edit</Button>
+                    <Button size="sm" variant="outline">Track</Button>
+                </div>
             ),
         },
     ];
@@ -94,21 +308,44 @@ export default function TransportPage() {
         {
             key: "name",
             header: "Name",
-            cell: (row: Driver) => `${row.firstName} ${row.lastName}`,
+            cell: (row: Driver) => (
+                <div>
+                    <p className="font-medium">{row.firstName} {row.lastName}</p>
+                    <p className="text-sm text-muted-foreground">{row.experience}</p>
+                </div>
+            ),
             sortable: true,
         },
         {
             key: "phone",
-            header: "Phone",
+            header: "Contact",
             cell: (row: Driver) => row.phone,
+        },
+        {
+            key: "assignedVehicle",
+            header: "Vehicle",
+            cell: (row: Driver) => row.assignedVehicle || "—",
         },
         {
             key: "status",
             header: "Status",
             cell: (row: Driver) => (
-                <Badge variant={row.status === "active" ? "default" : "secondary"}>
-                    {row.status}
+                <Badge variant={
+                    row.status === "active" ? "default" : 
+                    row.status === "on_leave" ? "secondary" : "outline"
+                }>
+                    {row.status.replace("_", " ")}
                 </Badge>
+            ),
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            cell: (row: Driver) => (
+                <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline">Edit</Button>
+                    <Button size="sm" variant="outline">View</Button>
+                </div>
             ),
         },
     ];
@@ -117,22 +354,125 @@ export default function TransportPage() {
         <div className="space-y-6">
             <PageHeader
                 title="Transport Management"
-                description="Manage school routes, vehicles, and drivers"
+                description="Manage school routes, vehicles, and drivers with real-time tracking"
+                actions={
+                    <div className="flex gap-2">
+                        <Link href="/admin/transport/routes/create">
+                            <Button variant="outline" className="gap-2">
+                                <MapPin className="h-4 w-4" />
+                                Create Route
+                            </Button>
+                        </Link>
+                        <Link href="/admin/transport/tracking">
+                            <Button className="gap-2">
+                                <Navigation className="h-4 w-4" />
+                                Live Tracking
+                            </Button>
+                        </Link>
+                    </div>
+                }
             />
+
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <AdminStatsCard
+                    title="Active Routes"
+                    value={stats.activeRoutes}
+                    description="Currently operational"
+                    icon={MapPin}
+                    trend={{ value: 0, isPositive: true }}
+                />
+                <AdminStatsCard
+                    title="Active Vehicles"
+                    value={stats.activeVehicles}
+                    description="On route today"
+                    icon={Bus}
+                    trend={{ value: 0, isPositive: true }}
+                />
+                <AdminStatsCard
+                    title="Students Transported"
+                    value={stats.totalStudents}
+                    description="Currently on routes"
+                    icon={Users}
+                    trend={{ value: 5, isPositive: true }}
+                />
+                <AdminStatsCard
+                    title="Maintenance Alerts"
+                    value={stats.maintenanceAlerts}
+                    description="Require attention"
+                    icon={AlertTriangle}
+                    variant={stats.maintenanceAlerts > 0 ? "warning" : "default"}
+                />
+            </div>
+
+            {/* Quick Actions */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <Link href="/admin/transport/routes/create">
+                            <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-3">
+                                    <MapPin className="h-6 w-6 text-white" />
+                                </div>
+                                <h3 className="font-medium text-center">Create Route</h3>
+                                <p className="text-sm text-muted-foreground text-center mt-1">
+                                    Design new transport routes
+                                </p>
+                            </div>
+                        </Link>
+                        <Link href="/admin/transport/tracking">
+                            <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                                <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-3">
+                                    <Navigation className="h-6 w-6 text-white" />
+                                </div>
+                                <h3 className="font-medium text-center">Live Tracking</h3>
+                                <p className="text-sm text-muted-foreground text-center mt-1">
+                                    Monitor vehicles in real-time
+                                </p>
+                            </div>
+                        </Link>
+                        <Link href="/admin/transport/reports">
+                            <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                                <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-3">
+                                    <BarChart3 className="h-6 w-6 text-white" />
+                                </div>
+                                <h3 className="font-medium text-center">Reports</h3>
+                                <p className="text-sm text-muted-foreground text-center mt-1">
+                                    View transport analytics
+                                </p>
+                            </div>
+                        </Link>
+                        <Link href="/admin/transport/schedule">
+                            <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                                <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-3">
+                                    <Clock className="h-6 w-6 text-white" />
+                                </div>
+                                <h3 className="font-medium text-center">Schedule</h3>
+                                <p className="text-sm text-muted-foreground text-center mt-1">
+                                    Manage pickup times
+                                </p>
+                            </div>
+                        </Link>
+                    </div>
+                </CardContent>
+            </Card>
 
             <Tabs defaultValue="routes">
                 <TabsList className="mb-4">
                     <TabsTrigger value="routes" className="gap-2">
                         <MapPin className="h-4 w-4" />
-                        Routes
+                        Routes ({mockRoutes.length})
                     </TabsTrigger>
                     <TabsTrigger value="vehicles" className="gap-2">
                         <Bus className="h-4 w-4" />
-                        Vehicles
+                        Vehicles ({mockVehicles.length})
                     </TabsTrigger>
                     <TabsTrigger value="drivers" className="gap-2">
                         <Users className="h-4 w-4" />
-                        Drivers
+                        Drivers ({mockDrivers.length})
                     </TabsTrigger>
                 </TabsList>
 
@@ -140,19 +480,21 @@ export default function TransportPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>Transport Routes</CardTitle>
-                            <Button size="sm" className="gap-2">
-                                <Plus className="h-4 w-4" />
-                                Add Route
-                            </Button>
+                            <Link href="/admin/transport/routes/create">
+                                <Button size="sm" className="gap-2">
+                                    <Plus className="h-4 w-4" />
+                                    Add Route
+                                </Button>
+                            </Link>
                         </CardHeader>
                         <CardContent>
                             <DataTable
-                                data={routes ?? []}
+                                data={mockRoutes}
                                 columns={routeColumns}
                                 searchable
                                 searchPlaceholder="Search routes..."
                                 emptyTitle="No routes found"
-                                emptyDescription="Define your first transport route."
+                                emptyDescription="Create your first transport route."
                             />
                         </CardContent>
                     </Card>
@@ -169,7 +511,7 @@ export default function TransportPage() {
                         </CardHeader>
                         <CardContent>
                             <DataTable
-                                data={vehicles ?? []}
+                                data={mockVehicles}
                                 columns={vehicleColumns}
                                 searchable
                                 searchPlaceholder="Search vehicles..."
@@ -191,7 +533,7 @@ export default function TransportPage() {
                         </CardHeader>
                         <CardContent>
                             <DataTable
-                                data={drivers ?? []}
+                                data={mockDrivers}
                                 columns={driverColumns}
                                 searchable
                                 searchPlaceholder="Search drivers..."

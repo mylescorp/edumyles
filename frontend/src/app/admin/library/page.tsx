@@ -1,14 +1,25 @@
 "use client";
 
 import { PageHeader } from "@/components/shared/PageHeader";
-import { StatCard } from "@/components/shared/StatCard";
+import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Library, BookOpen, AlertCircle, ArrowRight, BookmarkPlus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Library, 
+  BookOpen, 
+  AlertCircle, 
+  ArrowRight, 
+  BookmarkPlus,
+  Users,
+  TrendingUp,
+  Activity,
+  BarChart3
+} from "lucide-react";
 import Link from "next/link";
 
 export default function LibraryDashboardPage() {
@@ -31,94 +42,263 @@ export default function LibraryDashboardPage() {
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
+    // Mock enhanced data for better dashboard
+    const stats = {
+        totalBooks: 1250,
+        totalBorrowers: 335,
+        monthlyCirculation: 892,
+        averageRating: 4.6,
+    };
+
+    const recentActivity = [
+        {
+            id: "1",
+            type: "borrow",
+            title: "Book Borrowed",
+            description: "Alice Johnson borrowed 'Introduction to Mathematics'",
+            time: "2 hours ago",
+            user: "Student Portal",
+        },
+        {
+            id: "2", 
+            type: "return",
+            title: "Book Returned",
+            description: "Bob Wilson returned 'Science Explorations'",
+            time: "4 hours ago",
+            user: "Library Staff",
+        },
+        {
+            id: "3",
+            type: "overdue",
+            title: "Overdue Notice",
+            description: "3 books are now overdue for return",
+            time: "1 day ago",
+            user: "System",
+        },
+    ];
+
+    const quickActions = [
+        {
+            title: "Add New Book",
+            description: "Add books to the catalog",
+            href: "/admin/library/books",
+            icon: BookmarkPlus,
+            color: "bg-blue-500",
+        },
+        {
+            title: "Borrow Book",
+            description: "Process book borrowing",
+            href: "/admin/library/circulation",
+            icon: BookOpen,
+            color: "bg-green-500",
+        },
+        {
+            title: "View Reports",
+            description: "Library analytics",
+            href: "/admin/library/reports",
+            icon: BarChart3,
+            color: "bg-purple-500",
+        },
+        {
+            title: "Manage Circulation",
+            description: "Track borrowing activity",
+            href: "/admin/library/circulation",
+            icon: Activity,
+            color: "bg-orange-500",
+        },
+    ];
+
     return (
         <div className="space-y-6">
             <PageHeader
-                title="Library Dashboard"
-                description="Manage books and student borrowings"
+                title="Library Management"
+                description="Comprehensive library system with catalog management and circulation tracking"
                 actions={
-                    <Link href="/admin/library/books">
-                        <Button className="gap-2">
-                            <BookmarkPlus className="h-4 w-4" />
-                            Add Books
-                        </Button>
-                    </Link>
+                    <div className="flex gap-2">
+                        <Link href="/admin/library/books">
+                            <Button variant="outline" className="gap-2">
+                                <BookmarkPlus className="h-4 w-4" />
+                                Add Books
+                            </Button>
+                        </Link>
+                        <Link href="/admin/library/reports">
+                            <Button className="gap-2">
+                                <BarChart3 className="h-4 w-4" />
+                                View Reports
+                            </Button>
+                        </Link>
+                    </div>
                 }
             />
 
-            <div className="grid gap-4 md:grid-cols-3">
-                <StatCard
-                    label="Active Borrows"
-                    value={activeBorrows?.length ?? 0}
-                    icon={BookOpen}
-                />
-                <StatCard
-                    label="Overdue Books"
-                    value={overdue?.length ?? 0}
-                    icon={AlertCircle}
-                    className={overdue && overdue.length > 0 ? "border-destructive/20 bg-destructive/5" : ""}
-                />
-                <StatCard
-                    label="Low Stock Alert"
-                    value={lowStock?.length ?? 0}
+            {/* Enhanced Stats Overview */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <AdminStatsCard
+                    title="Total Books"
+                    value={stats.totalBooks.toLocaleString()}
+                    description="In library collection"
                     icon={Library}
-                    className={lowStock && lowStock.length > 0 ? "border-amber-200 bg-amber-50/50" : ""}
+                    trend={{ value: 8, isPositive: true }}
+                />
+                <AdminStatsCard
+                    title="Active Borrowers"
+                    value={stats.totalBorrowers}
+                    description="This month"
+                    icon={Users}
+                    trend={{ value: 12, isPositive: true }}
+                />
+                <AdminStatsCard
+                    title="Active Borrows"
+                    value={activeBorrows?.length ?? 0}
+                    description="Books currently borrowed"
+                    icon={BookOpen}
+                    trend={{ value: 5, isPositive: false }}
+                />
+                <AdminStatsCard
+                    title="Overdue Books"
+                    value={overdue?.length ?? 0}
+                    description="Require immediate attention"
+                    icon={AlertCircle}
+                    variant={overdue && overdue.length > 0 ? "danger" : "default"}
                 />
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Quick Links</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid gap-4">
-                        <Link href="/admin/library/books">
-                            <Button className="w-full justify-start gap-2" variant="outline">
-                                <Library className="h-4 w-4" />
-                                Book Catalog
-                                <ArrowRight className="ml-auto h-4 w-4" />
-                            </Button>
-                        </Link>
-                    </CardContent>
-                </Card>
+            {/* Quick Actions Grid */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        {quickActions.map((action, index) => {
+                            const Icon = action.icon;
+                            return (
+                                <Link key={index} href={action.href}>
+                                    <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${action.color}`}>
+                                            <Icon className="h-6 w-6 text-white" />
+                                        </div>
+                                        <h3 className="font-medium text-center">{action.title}</h3>
+                                        <p className="text-sm text-muted-foreground text-center mt-1">
+                                            {action.description}
+                                        </p>
+                                    </div>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </CardContent>
+            </Card>
 
-                <Card>
+            <div className="grid gap-6 lg:grid-cols-3">
+                {/* Recent Activity */}
+                <Card className="lg:col-span-2">
                     <CardHeader>
-                        <CardTitle>Recent Overdue</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <Activity className="h-5 w-5" />
+                            Recent Activity
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {overdue && overdue.length > 0 ? (
-                                (overdue as any[]).slice(0, 5).map((b) => (
-                                    <div key={b._id} className="flex items-center justify-between border-b pb-2 last:border-0">
-                                        <div className="text-sm">
-                                            <p className="font-medium">Book ID: {b.bookId.slice(-6)}</p>
-                                            <p className="text-muted-foreground text-xs">Borrower: {b.borrowerId.slice(-6)}</p>
-                                        </div>
-                                        <Badge variant="destructive">Overdue</Badge>
+                            {recentActivity.map((activity) => (
+                                <div key={activity.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                                    <div className="p-2 bg-muted rounded-full">
+                                        {activity.type === 'borrow' && <BookOpen className="h-4 w-4 text-blue-600" />}
+                                        {activity.type === 'return' && <AlertCircle className="h-4 w-4 text-green-600" />}
+                                        {activity.type === 'overdue' && <AlertCircle className="h-4 w-4 text-red-600" />}
                                     </div>
-                                ))
-                            ) : (
-                                <p className="text-sm text-muted-foreground text-center py-8">
-                                    No overdue books at the moment.
-                                </p>
-                            )}
+                                    <div className="flex-1">
+                                        <h4 className="font-medium text-sm">{activity.title}</h4>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {activity.description}
+                                        </p>
+                                        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                                            <span>{activity.user}</span>
+                                            <span>•</span>
+                                            <span>{activity.time}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </CardContent>
                 </Card>
+
+                {/* Quick Links & Alerts */}
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Library Links</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            <Link href="/admin/library/books">
+                                <Button className="w-full justify-start gap-2" variant="outline">
+                                    <Library className="h-4 w-4" />
+                                    Book Catalog
+                                    <ArrowRight className="ml-auto h-4 w-4" />
+                                </Button>
+                            </Link>
+                            <Link href="/admin/library/circulation">
+                                <Button className="w-full justify-start gap-2" variant="outline">
+                                    <Activity className="h-4 w-4" />
+                                    Circulation Tracking
+                                    <ArrowRight className="ml-auto h-4 w-4" />
+                                </Button>
+                            </Link>
+                            <Link href="/admin/library/reports">
+                                <Button className="w-full justify-start gap-2" variant="outline">
+                                    <BarChart3 className="h-4 w-4" />
+                                    Analytics & Reports
+                                    <ArrowRight className="ml-auto h-4 w-4" />
+                                </Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
+
+                    {/* Alerts */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Alerts</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            {overdue && overdue.length > 0 && (
+                                <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded">
+                                    <AlertCircle className="h-4 w-4 text-red-600" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-red-800">
+                                            {overdue.length} overdue books
+                                        </p>
+                                        <p className="text-xs text-red-600">
+                                            Action required
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {lowStock && lowStock.length > 0 && (
+                                <div className="flex items-center gap-2 p-2 bg-amber-50 border border-amber-200 rounded">
+                                    <TrendingUp className="h-4 w-4 text-amber-600" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-amber-800">
+                                            {lowStock.length} books low in stock
+                                        </p>
+                                        <p className="text-xs text-amber-600">
+                                            Restock recommended
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {!overdue?.length && !lowStock?.length && (
+                                <p className="text-sm text-muted-foreground text-center py-4">
+                                    All systems operational
+                                </p>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
-    );
-}
-
-function Badge({ children, variant = "default" }: { children: React.ReactNode, variant?: string }) {
-    const variants: Record<string, string> = {
-        default: "bg-primary text-primary-foreground",
-        destructive: "bg-destructive text-destructive-foreground",
-    };
-    return (
-        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${variants[variant]}`}>
-            {children}
-        </span>
     );
 }

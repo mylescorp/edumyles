@@ -7,8 +7,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
+import { Plus, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Book = {
     _id: string;
@@ -80,10 +81,20 @@ export default function BookCatalogPage() {
                 title="Book Catalog"
                 description="Browse and manage the library collection"
                 actions={
-                    <Button className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Add New Book
-                    </Button>
+                    <div className="flex gap-2">
+                        <Link href="/admin/library/books/create">
+                            <Button className="gap-2">
+                                <Plus className="h-4 w-4" />
+                                Add New Book
+                            </Button>
+                        </Link>
+                        <Link href="/admin/library/reports">
+                            <Button variant="outline" className="gap-2">
+                                <BarChart3 className="h-4 w-4" />
+                                View Reports
+                            </Button>
+                        </Link>
+                    </div>
                 }
             />
 
