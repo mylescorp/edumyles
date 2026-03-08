@@ -7,22 +7,14 @@ import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useOptimizedData } from "@/hooks/useOptimizedData";
 import { useAccessibility } from "@/hooks/useAccessibility";
-import { VirtualizedList } from "@/components/ui/VirtualizedList";
-import { api } from "@/convex/_generated/api";
 import { usePlatformMetrics } from "@/components/platform/PlatformMetrics";
 import { InteractiveChart } from "@/components/charts/InteractiveChart";
 import { HeatmapChart } from "@/components/charts/HeatmapChart";
-import { AdvancedDateRange } from "@/components/forms/AdvancedDateRange";
 import {
   Activity,
   AlertTriangle,
   Building2,
-  Clock,
-  Settings,
   DollarSign,
   FileText,
   Shield,
@@ -57,6 +49,7 @@ export default function PlatformDashboardPage() {
   const isMasterAdmin = hasRole("master_admin");
 
   const { data: stats, isConnected, addActivity } = usePlatformMetrics();
+  const { announceToScreenReader } = useAccessibility();
 
   const rangeStart = useMemo(() => {
     const now = Date.now();
@@ -124,7 +117,7 @@ export default function PlatformDashboardPage() {
                   key={range}
                   variant={timeRange === range ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setTimeRange(range)}
+                  onClick={() => { setTimeRange(range); announceToScreenReader(`Showing ${range === "7d" ? "7 days" : range === "30d" ? "30 days" : "90 days"} of data`); }}
                   className="text-xs"
                 >
                   {range === "7d" ? "7 Days" : range === "30d" ? "30 Days" : "90 Days"}

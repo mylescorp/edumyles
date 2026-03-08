@@ -1,184 +1,146 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  Shield, 
+import {
+  Calendar,
+  Shield,
   MapPin,
   Edit,
   Save,
   X,
   Camera,
   Lock,
-  Bell,
   Globe,
   CheckCircle2,
-  AlertCircle
+  Loader2,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 import { getRoleLabel } from "@/lib/routes";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-
-interface UserProfile {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  role: string;
-  avatar?: string;
-  bio?: string;
-  location?: string;
-  timezone: string;
-  language: string;
-  createdAt: string;
-  lastLogin: string;
-  preferences: {
-    emailNotifications: boolean;
-    pushNotifications: boolean;
-    twoFactorAuth: boolean;
-    marketingEmails: boolean;
-    weeklyDigest: boolean;
-  };
-  security: {
-    lastPasswordChange: string;
-    loginAttempts: number;
-    activeSessions: number;
-  };
-}
+import { api } from "@/convex/_generated/api";
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user: sessionUser, sessionToken, logout } = useAuth();
   const { toast } = useToast();
-  
+
+  const profileData = usePlatformQuery(
+    api.platform.users.queries.getCurrentPlatformUser,
+    { sessionToken },
+    !!sessionToken
+  ) as any;
+
+  const updateProfile = useMutation(api.platform.users.mutations.updateUserProfile);
+  const generateUploadUrl = useMutation(api.platform.users.mutations.generateAvatarUploadUrl);
+  const saveAvatar = useMutation(api.platform.users.mutations.saveUserAvatar);
+
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [editForm, setEditForm] = useState<Partial<UserProfile>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [editForm, setEditForm] = useState<{
+    firstName: string;
+    lastName: string;
+    phone: string;
+    bio: string;
+    location: string;
+  } | null>(null);
 
-  // Mock profile data
-  const mockProfile: UserProfile = {
-    id: "1",
-    firstName: "Super",
-    lastName: "Admin",
-    email: "admin@edumyles.com",
-    phone: "+254 712 345 678",
-    role: "master_admin",
-    avatar: "",
-    bio: "Platform administrator with over 10 years of experience in educational technology and system administration.",
-    location: "Nairobi, Kenya",
-    timezone: "Africa/Nairobi",
-    language: "English",
-    createdAt: "2023-01-01T00:00:00Z",
-    lastLogin: "2024-01-15T10:30:00Z",
-    preferences: {
-      emailNotifications: true,
-      pushNotifications: true,
-      twoFactorAuth: true,
-      marketingEmails: false,
-      weeklyDigest: true
-    },
-    security: {
-      lastPasswordChange: "2023-12-01T00:00:00Z",
-      loginAttempts: 0,
-      activeSessions: 3
-    }
-  };
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      setIsLoading(true);
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setProfile(mockProfile);
-      setEditForm(mockProfile);
-      setIsLoading(false);
-    };
-
-    loadProfile();
-  }, []);
+  const isLoading = profileData === undefined && !!sessionToken;
 
   const handleEdit = () => {
     setIsEditing(true);
-    setEditForm(profile || {});
+    setEditForm({
+      firstName: profileData?.firstName ?? "",
+      lastName: profileData?.lastName ?? "",
+      phone: profileData?.phone ?? "",
+      bio: profileData?.bio ?? "",
+      location: profileData?.location ?? "",
+    });
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditForm(profile || {});
+    setEditForm(null);
   };
 
   const handleSave = async () => {
-    setIsLoading(true);
+    if (!editForm || !sessionToken) return;
+    setIsSaving(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setProfile(editForm as UserProfile);
-      setIsEditing(false);
-      
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
+      await updateProfile({
+        sessionToken,
+        firstName: editForm.firstName || undefined,
+        lastName: editForm.lastName || undefined,
+        phone: editForm.phone || undefined,
+        bio: editForm.bio || undefined,
+        location: editForm.location || undefined,
       });
-    } catch (error) {
+      setIsEditing(false);
+      setEditForm(null);
+      toast({ title: "Profile Updated", description: "Your profile has been saved." });
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: error.message || "Failed to update profile.",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  const handlePreferenceChange = (key: keyof UserProfile['preferences'], value: boolean) => {
-    if (profile) {
-      const updatedProfile = {
-        ...profile,
-        preferences: {
-          ...profile.preferences,
-          [key]: value
-        }
-      };
-      setProfile(updatedProfile);
-      setEditForm(updatedProfile);
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !sessionToken) return;
+    setIsUploadingAvatar(true);
+    try {
+      const uploadUrl = await generateUploadUrl({ sessionToken });
+      const result = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!result.ok) throw new Error("Upload failed");
+      const { storageId } = await result.json();
+      await saveAvatar({ sessionToken, storageId });
+      toast({ title: "Photo Updated", description: "Your avatar has been updated." });
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Could not upload photo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out.",
-    });
-  };
+  if (isLoading) return <LoadingSkeleton variant="page" />;
 
-  if (isLoading || !profile) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#056C40]"></div>
-          <span className="text-muted-foreground">Loading profile...</span>
-        </div>
-      </div>
-    );
-  }
-
-  const initials = `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
+  const firstName = isEditing ? (editForm?.firstName ?? "") : (profileData?.firstName ?? sessionUser?.firstName ?? "");
+  const lastName = isEditing ? (editForm?.lastName ?? "") : (profileData?.lastName ?? sessionUser?.lastName ?? "");
+  const email = profileData?.email ?? sessionUser?.email ?? "";
+  const role = profileData?.role ?? sessionUser?.role ?? "";
+  const avatarUrl = profileData?.avatarUrl ?? sessionUser?.avatarUrl;
+  const initials =
+    `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() ||
+    email[0]?.toUpperCase() ||
+    "U";
+  const createdAt = profileData?.createdAt ? new Date(profileData.createdAt) : null;
 
   return (
     <div className="space-y-6">
@@ -187,22 +149,26 @@ export default function ProfilePage() {
         description="Manage your account settings and preferences"
         breadcrumbs={[
           { label: "Dashboard", href: "/platform" },
-          { label: "Profile", href: "/platform/profile" }
+          { label: "Profile", href: "/platform/profile" },
         ]}
         actions={
           <div className="flex items-center space-x-2">
             {isEditing ? (
               <>
-                <Button variant="outline" onClick={handleCancel}>
+                <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
                   <X className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
-                <Button 
-                  className="bg-[#056C40] hover:bg-[#023c24]" 
+                <Button
+                  className="bg-[#056C40] hover:bg-[#023c24]"
                   onClick={handleSave}
-                  disabled={isLoading}
+                  disabled={isSaving}
                 >
-                  <Save className="h-4 w-4 mr-2" />
+                  {isSaving ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
                   Save Changes
                 </Button>
               </>
@@ -224,57 +190,76 @@ export default function ProfilePage() {
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={profile.avatar} alt={profile.firstName} />
+                    <AvatarImage src={avatarUrl} alt={firstName} />
                     <AvatarFallback className="text-2xl bg-[#056C40] text-white">
-                      {initials}
+                      {isUploadingAvatar ? (
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                      ) : (
+                        initials
+                      )}
                     </AvatarFallback>
                   </Avatar>
                   {isEditing && (
-                    <Button
-                      size="sm"
-                      className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
-                      variant="outline"
-                    >
-                      <Camera className="h-4 w-4" />
-                    </Button>
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                      />
+                      <Button
+                        size="sm"
+                        className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingAvatar}
+                      >
+                        <Camera className="h-4 w-4" />
+                      </Button>
+                    </>
                   )}
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold">
-                    {profile.firstName} {profile.lastName}
+                    {[firstName, lastName].filter(Boolean).join(" ") || email}
                   </h2>
-                  <p className="text-sm text-muted-foreground">{profile.email}</p>
+                  <p className="text-sm text-muted-foreground">{email}</p>
                   <div className="mt-2">
                     <Badge className="bg-purple-100 text-purple-800">
-                      {getRoleLabel(profile.role)}
+                      {getRoleLabel(role)}
                     </Badge>
                   </div>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2 text-sm">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{profile.location}</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Joined {new Date(profile.createdAt).toLocaleDateString()}</span>
-              </div>
+              {(isEditing ? editForm?.location : profileData?.location) && (
+                <div className="flex items-center space-x-2 text-sm">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span>{isEditing ? editForm?.location : profileData?.location}</span>
+                </div>
+              )}
+              {createdAt && (
+                <div className="flex items-center space-x-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>Joined {createdAt.toLocaleDateString()}</span>
+                </div>
+              )}
               <div className="flex items-center space-x-2 text-sm">
                 <Shield className="h-4 w-4 text-muted-foreground" />
-                <span>Last login: {new Date(profile.lastLogin).toLocaleDateString()}</span>
+                <span>{getRoleLabel(role)}</span>
               </div>
-              
+
               <div className="pt-4 border-t space-y-2">
                 <Button variant="outline" className="w-full justify-start">
                   <Lock className="h-4 w-4 mr-2" />
                   Change Password
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start text-red-600 hover:text-red-700"
-                  onClick={handleLogout}
+                  onClick={logout}
                 >
                   <X className="h-4 w-4 mr-2" />
                   Sign Out
@@ -287,9 +272,8 @@ export default function ProfilePage() {
         {/* Detailed Information */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="personal" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="personal">Personal</TabsTrigger>
-              <TabsTrigger value="preferences">Preferences</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
             </TabsList>
@@ -306,8 +290,10 @@ export default function ProfilePage() {
                       <Label htmlFor="firstName">First Name</Label>
                       <Input
                         id="firstName"
-                        value={isEditing ? editForm.firstName : profile.firstName}
-                        onChange={(e) => setEditForm({...editForm, firstName: e.target.value})}
+                        value={isEditing ? (editForm?.firstName ?? "") : (profileData?.firstName ?? "")}
+                        onChange={(e) =>
+                          setEditForm((f) => (f ? { ...f, firstName: e.target.value } : f))
+                        }
                         disabled={!isEditing}
                       />
                     </div>
@@ -315,20 +301,22 @@ export default function ProfilePage() {
                       <Label htmlFor="lastName">Last Name</Label>
                       <Input
                         id="lastName"
-                        value={isEditing ? editForm.lastName : profile.lastName}
-                        onChange={(e) => setEditForm({...editForm, lastName: e.target.value})}
+                        value={isEditing ? (editForm?.lastName ?? "") : (profileData?.lastName ?? "")}
+                        onChange={(e) =>
+                          setEditForm((f) => (f ? { ...f, lastName: e.target.value } : f))
+                        }
                         disabled={!isEditing}
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
-                      value={profile.email}
-                      disabled={true}
+                      value={email}
+                      disabled
                       className="bg-gray-50"
                     />
                     <p className="text-xs text-muted-foreground">
@@ -340,9 +328,12 @@ export default function ProfilePage() {
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
                       id="phone"
-                      value={isEditing ? editForm.phone : profile.phone}
-                      onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                      value={isEditing ? (editForm?.phone ?? "") : (profileData?.phone ?? "")}
+                      onChange={(e) =>
+                        setEditForm((f) => (f ? { ...f, phone: e.target.value } : f))
+                      }
                       disabled={!isEditing}
+                      placeholder="+254 712 345 678"
                     />
                   </div>
 
@@ -350,107 +341,26 @@ export default function ProfilePage() {
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea
                       id="bio"
-                      value={isEditing ? editForm.bio : profile.bio}
-                      onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
+                      value={isEditing ? (editForm?.bio ?? "") : (profileData?.bio ?? "")}
+                      onChange={(e) =>
+                        setEditForm((f) => (f ? { ...f, bio: e.target.value } : f))
+                      }
                       disabled={!isEditing}
                       rows={4}
                       placeholder="Tell us about yourself..."
                     />
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        value={isEditing ? editForm.location : profile.location}
-                        onChange={(e) => setEditForm({...editForm, location: e.target.value})}
-                        disabled={!isEditing}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="timezone">Timezone</Label>
-                      <Input
-                        id="timezone"
-                        value={profile.timezone}
-                        disabled={true}
-                        className="bg-gray-50"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Preferences Tab */}
-            <TabsContent value="preferences" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notification Preferences</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Email Notifications</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive email updates about your account activity
-                      </p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.emailNotifications}
-                      onCheckedChange={(checked) => handlePreferenceChange('emailNotifications', checked)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Push Notifications</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive push notifications in your browser
-                      </p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.pushNotifications}
-                      onCheckedChange={(checked) => handlePreferenceChange('pushNotifications', checked)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Two-Factor Authentication</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Add an extra layer of security to your account
-                      </p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.twoFactorAuth}
-                      onCheckedChange={(checked) => handlePreferenceChange('twoFactorAuth', checked)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Marketing Emails</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive emails about new features and updates
-                      </p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.marketingEmails}
-                      onCheckedChange={(checked) => handlePreferenceChange('marketingEmails', checked)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Weekly Digest</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive a weekly summary of platform activity
-                      </p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.weeklyDigest}
-                      onCheckedChange={(checked) => handlePreferenceChange('weeklyDigest', checked)}
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={isEditing ? (editForm?.location ?? "") : (profileData?.location ?? "")}
+                      onChange={(e) =>
+                        setEditForm((f) => (f ? { ...f, location: e.target.value } : f))
+                      }
+                      disabled={!isEditing}
+                      placeholder="Nairobi, Kenya"
                     />
                   </div>
                 </CardContent>
@@ -463,23 +373,8 @@ export default function ProfilePage() {
                 <CardHeader>
                   <CardTitle>Security Settings</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>Last Password Change</Label>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(profile.security.lastPasswordChange).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Active Sessions</Label>
-                      <p className="text-sm text-muted-foreground">
-                        {profile.security.activeSessions} devices
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
                     <Button variant="outline" className="w-full justify-start">
                       <Lock className="h-4 w-4 mr-2" />
                       Change Password
@@ -508,40 +403,16 @@ export default function ProfilePage() {
                     <div className="flex items-start space-x-3 p-3 rounded-lg bg-green-50">
                       <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <p className="font-medium">Profile Updated</p>
+                        <p className="font-medium">Logged In</p>
                         <p className="text-sm text-muted-foreground">
-                          You updated your profile information
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          2 hours ago
+                          Currently logged in as {getRoleLabel(role)}
                         </p>
                       </div>
                     </div>
-
-                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-blue-50">
-                      <Bell className="h-5 w-5 text-blue-500 mt-0.5" />
-                      <div>
-                        <p className="font-medium">Login from new device</p>
-                        <p className="text-sm text-muted-foreground">
-                          New login detected from Chrome on Windows
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          1 day ago
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-amber-50">
-                      <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-                      <div>
-                        <p className="font-medium">Password Changed</p>
-                        <p className="text-sm text-muted-foreground">
-                          Your password was successfully changed
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          1 week ago
-                        </p>
-                      </div>
+                    <div className="text-center py-4">
+                      <Button variant="outline" asChild>
+                        <a href="/platform/audit">View Full Audit Log</a>
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

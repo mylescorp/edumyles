@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -26,6 +27,7 @@ interface SidebarProps {
 export function Sidebar({ navItems, installedModules, isMobile = false, onClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const filteredItems = navItems.filter((item) => {
     if (!item.module) return true;
@@ -139,12 +141,16 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
             collapsed ? "justify-center" : ""
           )}>
             <div className="h-8 w-8 rounded-full bg-sidebar-accent flex items-center justify-center">
-              <span className="text-xs font-medium">A</span>
+              <span className="text-xs font-medium">
+                {user?.firstName?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "U"}
+              </span>
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">Admin User</p>
-                <p className="text-xs text-sidebar-foreground/70 truncate">admin@edumyles.com</p>
+                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                  {[user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || "User"}
+                </p>
+                <p className="text-xs text-sidebar-foreground/70 truncate">{user?.email ?? ""}</p>
               </div>
             )}
           </div>

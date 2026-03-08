@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -10,8 +10,9 @@ import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Building2, CheckCircle2, PauseCircle, FlaskConical } from "lucide-react";
 import { formatDate } from "@/lib/formatters";
 import Link from "next/link";
 import { BulkOperations } from "@/components/platform/BulkOperations";
@@ -71,6 +72,16 @@ export default function TenantsPage() {
             ? (statusFilter ? { sessionToken, status: statusFilter } : { sessionToken })
             : "skip"
     );
+
+    const tenantStats = useMemo(() => {
+        const list = (tenants as Tenant[]) ?? [];
+        return {
+            total: list.length,
+            active: list.filter((t) => t.status === "active").length,
+            suspended: list.filter((t) => t.status === "suspended").length,
+            trial: list.filter((t) => t.status === "trial").length,
+        };
+    }, [tenants]);
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -137,6 +148,50 @@ export default function TenantsPage() {
                     </Link>
                 }
             />
+
+            {/* Stat Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+                <Card className="border-l-4 border-l-blue-500">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Total Schools</CardTitle>
+                        <Building2 className="h-5 w-5 text-blue-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{tenantStats.total}</div>
+                        <p className="text-xs text-muted-foreground">All registered schools</p>
+                    </CardContent>
+                </Card>
+                <Card className="border-l-4 border-l-green-500">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-600">{tenantStats.active}</div>
+                        <p className="text-xs text-muted-foreground">Currently active</p>
+                    </CardContent>
+                </Card>
+                <Card className="border-l-4 border-l-blue-400">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Trial</CardTitle>
+                        <FlaskConical className="h-5 w-5 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-blue-600">{tenantStats.trial}</div>
+                        <p className="text-xs text-muted-foreground">On trial plan</p>
+                    </CardContent>
+                </Card>
+                <Card className="border-l-4 border-l-red-500">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Suspended</CardTitle>
+                        <PauseCircle className="h-5 w-5 text-red-600" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-red-600">{tenantStats.suspended}</div>
+                        <p className="text-xs text-muted-foreground">Suspended accounts</p>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Filters */}
             <div className="mb-4 flex items-center gap-3">
