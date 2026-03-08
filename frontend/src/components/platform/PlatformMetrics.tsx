@@ -27,7 +27,7 @@ export function PlatformMetricsProvider({
   const { sessionToken } = useAuth();
   const { stats, isConnected, addActivity } = useRealTimeStats(sessionToken);
   
-  const { data: platformStats } = usePlatformQuery(
+  const platformStats = usePlatformQuery(
     api.platform.tenants.queries.getPlatformStats,
     { sessionToken },
     !!sessionToken
