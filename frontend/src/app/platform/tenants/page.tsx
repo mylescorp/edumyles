@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { formatDate } from "@/lib/formatters";
 import Link from "next/link";
+import { BulkOperations } from "@/components/platform/BulkOperations";
 
 type Tenant = {
     _id: string;

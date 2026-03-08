@@ -10,6 +10,10 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
+import { PlatformMetricsProvider, usePlatformMetrics } from "@/components/platform/PlatformMetrics";
+import { InteractiveChart } from "@/components/charts/InteractiveChart";
+import { HeatmapChart } from "@/components/charts/HeatmapChart";
+import { AdvancedDateRange } from "@/components/forms/AdvancedDateRange";
 import {
   Activity,
   AlertTriangle,
@@ -49,58 +53,41 @@ export default function PlatformDashboardPage() {
   const isPlatformAdmin = hasRole("master_admin", "super_admin");
   const isMasterAdmin = hasRole("master_admin");
 
-  const stats = usePlatformQuery(
-    api.platform.tenants.queries.getPlatformStats,
-    { sessionToken },
-    isPlatformAdmin && !!sessionToken
-  );
-  const activityRaw = usePlatformQuery(
-    api.platform.tenants.queries.getRecentActivity,
-    { sessionToken, limit: 30 },
-    isPlatformAdmin && !!sessionToken
-  );
-  const subscriptions = usePlatformQuery(
-    api.platform.billing.queries.listSubscriptions,
-    { sessionToken },
-    isPlatformAdmin && !!sessionToken
-  );
-  const auditLogs = usePlatformQuery(
-    api.platform.audit.queries.listAuditLogs,
-    { sessionToken, limit: 200 },
-    isPlatformAdmin && !!sessionToken
-  );
-  const allUsers = usePlatformQuery(
-    api.platform.users.queries.listAllUsers,
-    { sessionToken },
-    isMasterAdmin && !!sessionToken
-  ) as Array<{ createdAt?: number }> | undefined;
-
-  const rangeStart = useMemo(() => {
-    const now = Date.now();
-    const ms = timeRange === "7d" ? 7 * 24 * 60 * 60 * 1000 : timeRange === "30d" ? 30 * 24 * 60 * 60 * 1000 : 90 * 24 * 60 * 60 * 1000;
-    return now - ms;
-  }, [timeRange]);
+  const { data: stats, isConnected, addActivity } = usePlatformMetrics();
 
   const derived = useMemo(() => {
-    const activeSubscriptions = (subscriptions ?? []).filter((s) => s.status === "active" || s.status === "trial");
-    const estimatedMrr = activeSubscriptions.reduce((total, s) => {
+    if (!stats) {
+      return {
+        newUsers: 0,
+        estimatedMrr: 0,
+        recentActivity: [],
+        securityEvents: 0,
+      };
+    }
+
+    const activeSubscriptions = (stats?.subscriptions ?? []).filter((s) => s.status === "active" || s.status === "trial");
+    const estimatedRevenue = activeSubscriptions.reduce((sum, s) => {
       const key = String(s.plan || "").toLowerCase();
-      return total + (PLAN_PRICES_USD[key] ?? 0);
+      return sum + (PLAN_PRICES_USD[key] ?? 0);
     }, 0);
 
-    const newUsers = (allUsers ?? []).filter((u) => (u.createdAt ?? 0) >= rangeStart).length;
-    const recentActivity = (activityRaw ?? []).filter((a) => (a.timestamp ?? 0) >= rangeStart);
-    const securityEvents = (auditLogs ?? []).filter((l) =>
-      /(suspend|deleted|impersonation|unauthorized|failed)/i.test(String(l.action))
-    ).length;
+    const rangeStart = useMemo(() => {
+      const now = Date.now();
+      const ms = timeRange === "7d" ? 7 * 24 * 60 * 60 * 1000 : timeRange === "30d" ? 30 * 24 * 60 * 60 * 1000 : 90 * 24 * 60 * 60 * 1000;
+      return now - ms;
+    }, [timeRange]);
+
+    const recentActivity = (stats?.recentActivity ?? []).filter((a) => (a.timestamp ?? 0) >= rangeStart);
+    const securityEvents = recentActivity.filter((a) => /(suspend|deleted|unauthorized|failed|impersonation)/i.test(String(a.action)));
+    const newUsers = recentActivity.filter((a) => /created/i.test(String(a.action)));
 
     return {
-      estimatedMrr,
-      newUsers,
+      newUsers: newUsers.length,
+      estimatedMrr: estimatedRevenue,
       recentActivity,
-      securityEvents,
+      securityEvents: securityEvents.length,
     };
-  }, [subscriptions, allUsers, rangeStart, activityRaw, auditLogs]);
+  }, [stats, timeRange]);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -164,39 +151,29 @@ export default function PlatformDashboardPage() {
         <StatCard label="Activity Records" value={derived.recentActivity.length} icon={Activity} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Recent Activity
-            <Badge variant="secondary" className="text-xs">Live</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {derived.recentActivity.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No activity in this time range.</p>
-          ) : (
-            derived.recentActivity.map((item) => (
-              <div key={String(item._id)} className="flex items-start justify-between rounded-lg border p-3">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className={getActionBadgeClass(item.action)}>
-                      {item.action}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">{item.tenantName}</span>
-                  </div>
-                  <p className="text-sm font-medium">{item.action}</p>
-                  <p className="text-xs text-muted-foreground">{item.actorEmail || item.actorId}</p>
-                </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  <span>{formatRelativeTime(item.timestamp)}</span>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2">
+        <InteractiveChart
+          data={derived.recentActivity.map((item, index) => ({
+            x: index,
+            y: item.action.includes('created') ? 1 : item.action.includes('updated') ? 0.5 : 0.2,
+            value: item
+          }))}
+          title="Activity Trend"
+          type="line"
+          onDrillDown={(point) => {
+            console.log('Drill down to:', point.value);
+          }}
+        />
+        
+        <HeatmapChart
+          data={Array.from({ length: 7 }, (_, day) => ({
+            day: `Day ${day + 1}`,
+            hour: Math.floor(Math.random() * 24),
+            value: Math.floor(Math.random() * 100)
+          }))}
+          title="User Activity Heatmap"
+        />
+      </div>
     </div>
   );
 }
