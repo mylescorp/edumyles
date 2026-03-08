@@ -3,11 +3,13 @@
 import { AlertTriangle } from "lucide-react";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/hooks/useAuth";
 
 export function ImpersonationBanner() {
-  const activeSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, {
-    activeOnly: true,
-  }) as Array<{ _id: string; targetUserId: string; targetUserName?: string }> | undefined;
+  const { sessionToken } = useAuth();
+  const activeSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, 
+    sessionToken ? { sessionToken, activeOnly: true } : "skip"
+  ) as Array<{ _id: string; targetUserId: string; targetUserName?: string }> | undefined;
   const endImpersonation = useMutation(api.platform.impersonation.mutations.endImpersonation);
 
   const firstSession = activeSessions?.[0];

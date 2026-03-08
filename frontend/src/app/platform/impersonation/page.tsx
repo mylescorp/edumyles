@@ -31,12 +31,12 @@ type ImpersonationSession = {
 };
 
 export default function ImpersonationPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const { hasRole } = usePermissions();
     const isMasterAdmin = hasRole("master_admin");
 
-    const allSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, {});
-    const activeSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, { activeOnly: true });
+    const allSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, sessionToken ? { sessionToken } : "skip");
+    const activeSessions = useQuery(api.platform.impersonation.queries.listImpersonationSessions, sessionToken ? { sessionToken, activeOnly: true } : "skip");
 
     const endImpersonation = useMutation(api.platform.impersonation.mutations.endImpersonation);
 
