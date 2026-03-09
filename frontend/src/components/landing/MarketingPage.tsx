@@ -51,7 +51,7 @@ export default function MarketingPage({
             <div className="section-header">
               <h2>{section.title}</h2>
             </div>
-            <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7, maxWidth: "70ch" }}>
+            <p className="text-muted-foreground" style={{ fontSize: "1.05rem", lineHeight: 1.7, maxWidth: "70ch" }}>
               {section.text}
             </p>
           </div>

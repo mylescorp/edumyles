@@ -29,7 +29,7 @@ export default function ContactPage() {
                 </div>
                 <div className="contact-detail">
                   <strong>Response Time</strong>
-                  <span style={{ fontSize: "0.9rem", color: "var(--charcoal)" }}>Within 4 hours</span>
+                  <span className="text-sm text-foreground">Within 4 hours</span>
                 </div>
               </div>
               <Link className="btn btn-primary" href="/concierge">Book a Demo</Link>
@@ -47,7 +47,7 @@ export default function ContactPage() {
                 </div>
                 <div className="contact-detail">
                   <strong>Response Time</strong>
-                  <span style={{ fontSize: "0.9rem", color: "var(--charcoal)" }}>Within 2 hours (Standard+)</span>
+                  <span className="text-sm text-foreground">Within 2 hours (Standard+)</span>
                 </div>
               </div>
               <Link className="btn btn-outline" href="mailto:support@edumyles.com">Email Support</Link>
@@ -65,7 +65,7 @@ export default function ContactPage() {
                 </div>
                 <div className="contact-detail">
                   <strong>For</strong>
-                  <span style={{ fontSize: "0.9rem", color: "var(--charcoal)" }}>Ed-tech providers, integrators</span>
+                  <span className="text-sm text-foreground">Ed-tech providers, integrators</span>
                 </div>
               </div>
               <Link className="btn btn-outline" href="mailto:partners@edumyles.com">Start Conversation</Link>

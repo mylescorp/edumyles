@@ -260,7 +260,7 @@ export default function TeamPage() {
       <section className="content-section green-bg">
         <div className="content-inner">
           <div className="section-header centered">
-            <h2 style={{ color: "var(--white)" }}>Join our team</h2>
+            <h2 className="text-white">Join our team</h2>
             <p className="section-subtitle light">
               We are always looking for talented people who are passionate about education and
               technology across Africa. If you want to make a real impact, we would love to hear from you.

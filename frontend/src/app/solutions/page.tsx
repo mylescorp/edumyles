@@ -117,7 +117,7 @@ export default function SolutionsPage() {
       <section className="content-section green-bg">
         <div className="content-inner">
           <div className="section-header centered">
-            <h2 style={{ color: "var(--white)" }}>Available across East Africa</h2>
+            <h2 className="text-white">Available across East Africa</h2>
           </div>
           <div className="countries-grid">
             {[
