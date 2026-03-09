@@ -70,7 +70,7 @@ export function BulkOperations({ items, itemType, onBulkAction }: BulkOperationP
               checked={selectAll}
               onCheckedChange={handleSelectAll}
             />
-            <label className="text-sm font-medium">
+            <label className="text-sm font-medium text-foreground">
               Select All ({getCount()} of {getItemCount()})
             </label>
           </div>
@@ -133,7 +133,7 @@ export function BulkOperations({ items, itemType, onBulkAction }: BulkOperationP
                         }
                       }}
                     />
-                    <span className="text-sm">{getItemName(item)}</span>
+                    <span className="text-sm text-foreground">{getItemName(item)}</span>
                   </div>
                   <Badge variant={item.status === 'active' ? 'default' : 'secondary'}>
                     {item.status || 'Inactive'}
