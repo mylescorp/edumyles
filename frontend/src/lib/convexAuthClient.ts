@@ -19,34 +19,36 @@ if (!CONVEX_URL) {
 export function createConvexClientWithAuth(): ConvexReactClient {
   const client = new ConvexReactClient(CONVEX_URL);
   
-  // Set up authentication fetch replacement to include session token
-  const originalFetch = window.fetch;
-  
-  // Override fetch to include authentication headers for Convex requests
-  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    // Only modify Convex requests
-    if (typeof input === 'string' && input.includes(CONVEX_URL)) {
-      const sessionData = localStorage.getItem('convex_auth');
-      if (sessionData) {
-        try {
-          const session = JSON.parse(sessionData);
-          const headers = new Headers(init?.headers);
-          
-          // Add session token as authorization header
-          headers.set('Authorization', `Bearer ${session.sessionToken}`);
-          
-          return originalFetch(input, {
-            ...init,
-            headers,
-          });
-        } catch (error) {
-          console.error('Failed to parse session data:', error);
+  // Only modify fetch on client side
+  if (typeof window !== 'undefined') {
+    const originalFetch = window.fetch;
+    
+    // Override fetch to include authentication headers for Convex requests
+    window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      // Only modify Convex requests
+      if (typeof input === 'string' && input.includes(CONVEX_URL)) {
+        const sessionData = localStorage.getItem('convex_auth');
+        if (sessionData) {
+          try {
+            const session = JSON.parse(sessionData);
+            const headers = new Headers(init?.headers);
+            
+            // Add session token as authorization header
+            headers.set('Authorization', `Bearer ${session.sessionToken}`);
+            
+            return originalFetch(input, {
+              ...init,
+              headers,
+            });
+          } catch (error) {
+            console.error('Failed to parse session data:', error);
+          }
         }
       }
-    }
-    
-    return originalFetch(input, init);
-  };
+      
+      return originalFetch(input, init);
+    };
+  }
   
   return client;
 }

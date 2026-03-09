@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
-import "./globals.css";
+import "./globals-critical.css";
+import LazyCSS from "@/components/LazyCSS";
+import PerformanceMonitor from "@/components/PerformanceMonitor";
 import { Toaster } from "@/components/ui/toaster";
 import ConditionalLayout from "@/components/landing/ConditionalLayout";
 import { ConvexClientProvider } from "./providers";
@@ -63,6 +65,8 @@ export default function RootLayout({
             >
                 <ErrorBoundary>
                     <ConvexClientProvider>
+                        <PerformanceMonitor />
+                        <LazyCSS href="/globals.css" />
                         <ConditionalLayout>{children}</ConditionalLayout>
                     </ConvexClientProvider>
                 </ErrorBoundary>
