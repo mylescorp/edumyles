@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 interface FounderImageProps {
-  src: string;
+  src?: string;
   alt: string;
   initials: string;
 }
@@ -11,7 +11,7 @@ interface FounderImageProps {
 export default function FounderImage({ src, alt, initials }: FounderImageProps) {
   const [imgError, setImgError] = useState(false);
 
-  if (imgError) {
+  if (!src || imgError) {
     return (
       <div className="founder-avatar-fallback" style={{ display: "flex" }}>
         {initials}

@@ -148,7 +148,7 @@ export default function AboutPage() {
 
           <div className="founder-block" style={{ marginBottom: "3rem" }}>
             <div className="founder-image">
-              <FounderImage src="/team/jonathan-myles.jpg" alt="Jonathan Myles - CEO & Founder" initials="JM" />
+              <FounderImage alt="Jonathan Myles - CEO & Founder" initials="JM" />
             </div>
             <div className="founder-text">
               <p className="eyebrow">CEO &amp; Founder</p>
@@ -175,7 +175,7 @@ export default function AboutPage() {
 
           <div className="founder-block" style={{ direction: "rtl" }}>
             <div className="founder-image" style={{ direction: "ltr" }}>
-              <FounderImage src="/team/pauline-moraa.jpg" alt="Pauline Moraa - Co-Founder & COO" initials="PM" />
+              <FounderImage alt="Pauline Moraa - Co-Founder & COO" initials="PM" />
             </div>
             <div className="founder-text" style={{ direction: "ltr" }}>
               <p className="eyebrow">Co-Founder &amp; COO</p>
