@@ -1,43 +1,72 @@
-import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+"use client";
+
+import Link from "next/link";
+
+interface Section {
+  title: string;
+  text: string;
+}
 
 interface MarketingPageProps {
   eyebrow: string;
   title: string;
   subtitle: string;
-  sections: { title: string; text: string }[];
+  sections: Section[];
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 
-export default function MarketingPage({ eyebrow, title, subtitle, sections }: MarketingPageProps) {
+export default function MarketingPage({
+  eyebrow,
+  title,
+  subtitle,
+  sections,
+  ctaLabel = "Get Started Free",
+  ctaHref = "/auth/login",
+}: MarketingPageProps) {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        {eyebrow && (
-          <Badge variant="outline" className="mb-2">
-            {eyebrow}
-          </Badge>
-        )}
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        {subtitle && (
-          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-        )}
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-12">
-        {sections.map((section, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Badge variant="outline">{section.title}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{section.text}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+    <main>
+      <section className="page-hero">
+        <div className="page-hero-inner">
+          <p className="eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
+          <p className="subtext">{subtitle}</p>
+          <div className="actions">
+            <Link className="btn btn-primary" href={ctaHref}>
+              {ctaLabel}
+            </Link>
+            <Link className="btn btn-secondary" href="/concierge">
+              Book a Demo
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {sections.map((section, i) => (
+        <section
+          key={section.title}
+          className={`content-section ${i % 2 === 1 ? "alt" : ""}`}
+        >
+          <div className="content-inner">
+            <div className="section-header">
+              <h2>{section.title}</h2>
+            </div>
+            <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7, maxWidth: "70ch" }}>
+              {section.text}
+            </p>
+          </div>
+        </section>
+      ))}
+
+      <section className="final-cta">
+        <div className="final-cta-card">
+          <h2>Ready to transform your school?</h2>
+          <p>Join 50+ schools across East Africa already running smarter with EduMyles.</p>
+          <Link className="btn btn-primary" href="/auth/login">
+            Start Your Free Trial
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }

@@ -118,7 +118,7 @@ export function middleware(request: NextRequest) {
   }
 
   // 2. Redirect authenticated users away from auth pages to dashboard
-  if (isPublic && session && (pathname === "/auth/login" || pathname === "/auth/signup")) {
+  if (isPublic && session && pathname === "/auth/login") {
     const dashboard = getRoleDashboard(role ?? "school_admin");
     return NextResponse.redirect(new URL(dashboard, request.url));
   }

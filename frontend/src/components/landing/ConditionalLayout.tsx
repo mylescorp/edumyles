@@ -1,23 +1,25 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import LandingNavbar from "./LandingNavbar";
+import LandingFooter from "./LandingFooter";
+
+const HIDE_LANDING_LAYOUT = ["/admin", "/platform", "/portal", "/dashboard"];
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const isAuthPage = pathname.startsWith("/auth");
+  const pathname = usePathname();
+  const hide = HIDE_LANDING_LAYOUT.some((p) => pathname.startsWith(p));
 
-    if (isAuthPage) {
-        // Auth pages have their own layout (auth/layout.tsx)
-        return <>{children}</>;
-    }
+  if (hide) return <>{children}</>;
 
-    return (
-        <>
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-        </>
-    );
+  // Also hide on auth pages - they have their own layout
+  if (pathname.startsWith("/auth")) return <>{children}</>;
+
+  return (
+    <>
+      <LandingNavbar />
+      {children}
+      <LandingFooter />
+    </>
+  );
 }
