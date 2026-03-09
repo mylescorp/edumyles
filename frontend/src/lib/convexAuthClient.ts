@@ -17,43 +17,18 @@ if (!CONVEX_URL) {
  * This client will automatically handle authentication by reading session data
  */
 export function createConvexClientWithAuth(): ConvexReactClient {
-  const client = new ConvexReactClient(CONVEX_URL);
-  
-  // Only modify fetch on client side
-  if (typeof window !== 'undefined') {
-    const originalFetch = window.fetch;
-    
-    // Override fetch to include authentication headers for Convex requests
-    window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-      // Only modify Convex requests
-      if (typeof input === 'string' && input.includes(CONVEX_URL)) {
-        const sessionData = localStorage.getItem('convex_auth');
-        if (sessionData) {
-          try {
-            const session = JSON.parse(sessionData);
-            const headers = new Headers(init?.headers);
-            
-            // Add session token as authorization header
-            headers.set('Authorization', `Bearer ${session.sessionToken}`);
-            
-            return originalFetch(input, {
-              ...init,
-              headers,
-            });
-          } catch (error) {
-            console.error('Failed to parse session data:', error);
-          }
-        }
-      }
-      
-      return originalFetch(input, init);
-    };
-  }
-  
-  return client;
+  return new ConvexReactClient(CONVEX_URL);
 }
 
 /**
  * Singleton authenticated Convex client
+ * Created lazily to avoid server-side initialization issues
  */
-export const authenticatedConvexClient = createConvexClientWithAuth();
+let _authenticatedConvexClient: ConvexReactClient | null = null;
+
+export const authenticatedConvexClient = (() => {
+  if (!_authenticatedConvexClient && typeof window !== 'undefined') {
+    _authenticatedConvexClient = createConvexClientWithAuth();
+  }
+  return _authenticatedConvexClient;
+})();
