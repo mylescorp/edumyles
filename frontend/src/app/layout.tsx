@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import ConditionalLayout from "@/components/landing/ConditionalLayout";
-import { ConvexClientProvider } from "./providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -62,10 +60,8 @@ export default function RootLayout({
                 className={`${inter.variable} ${poppins.variable} font-sans antialiased`}
             >
                 <ErrorBoundary>
-                    <ConvexClientProvider>
-                        <ConditionalLayout>{children}</ConditionalLayout>
-                    </ConvexClientProvider>
-                </ErrorBoundary>
+    {children}
+</ErrorBoundary>
                 <Toaster />
                 <SpeedInsights />
             </body>
