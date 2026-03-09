@@ -150,7 +150,7 @@ export default function ConciergePage() {
           <h2>Prefer to explore on your own first?</h2>
           <p>Start a free 30-day trial with full access to all modules. No credit card required.</p>
           <div className="centered-actions">
-            <Link className="btn btn-primary" href="/auth/login">Start Free Trial</Link>
+            <Link className="btn btn-primary" href="/auth/signup">Start Free Trial</Link>
             <Link className="btn btn-outline" href="/features">View All Features</Link>
           </div>
         </div>

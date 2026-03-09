@@ -55,7 +55,7 @@ export default function PricingPage() {
               <ul className="pricing-modules">
                 {plan.features.map((f) => (<li key={f}><span className="check-icon">&#10003;</span> {f}</li>))}
               </ul>
-              <Link className="btn btn-primary" href="/auth/login">{plan.cta}</Link>
+              <Link className="btn btn-primary" href="/auth/signup">{plan.cta}</Link>
             </div>
           ))}
         </div>
@@ -94,7 +94,7 @@ export default function PricingPage() {
           <h2>Start free. Scale when ready.</h2>
           <p>Every plan includes a 30-day free trial with full access. No credit card required.</p>
           <div className="centered-actions">
-            <Link className="btn btn-primary" href="/auth/login">Start Free Trial</Link>
+            <Link className="btn btn-primary" href="/auth/signup">Start Free Trial</Link>
             <Link className="btn btn-outline" href="/contact">Talk to Sales</Link>
           </div>
         </div>

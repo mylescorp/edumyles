@@ -137,7 +137,7 @@ function LandingPageContent() {
             stakeholder from admissions to alumni.
           </p>
           <div className="actions">
-            <Link className="btn btn-primary" href="/auth/login">
+            <Link className="btn btn-primary" href="/auth/signup">
               Get Started Free
             </Link>
             <Link className="btn btn-secondary" href="/concierge">
@@ -263,7 +263,7 @@ function LandingPageContent() {
           <div className="module-tab-text">
             <h3>{activeCategory.label}</h3>
             <p>{activeCategory.description}</p>
-            <Link className="btn btn-primary" href="/auth/login">
+            <Link className="btn btn-primary" href="/auth/signup">
               Try It Free
             </Link>
           </div>
@@ -534,7 +534,7 @@ function LandingPageContent() {
                   </li>
                 ))}
               </ul>
-              <Link className="btn btn-primary" href="/auth/login">
+              <Link className="btn btn-primary" href="/auth/signup">
                 {plan.price === "Free" ? "Start Free" : "Start Free Trial"}
               </Link>
             </div>
@@ -599,7 +599,7 @@ function LandingPageContent() {
             Start your free 30-day trial today - no credit card required.
           </p>
           <div className="actions" style={{ justifyContent: "center" }}>
-            <Link className="btn btn-primary" href="/auth/login">
+            <Link className="btn btn-primary" href="/auth/signup">
               Activate Free Trial
             </Link>
             <Link className="btn btn-outline" href="/concierge">

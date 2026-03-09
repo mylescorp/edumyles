@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 interface TeamMember {
   name: string;
@@ -110,26 +111,19 @@ const operations: TeamMember[] = [
 ];
 
 function TeamCard({ member }: { member: TeamMember }) {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <div className="team-card">
       <div className="team-card-image">
-        {member.image ? (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={member.image}
-              alt={member.name}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-                const fallback = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = "flex";
-              }}
-            />
-            <div className="team-avatar-fallback" style={{ display: "none" }}>
-              {member.initials}
-            </div>
-          </>
+        {member.image && !imgError ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={member.image}
+            alt={member.name}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            onError={() => setImgError(true)}
+          />
         ) : (
           <div className="team-avatar-fallback">{member.initials}</div>
         )}
@@ -286,7 +280,7 @@ export default function TeamPage() {
         <div className="final-cta-card">
           <h2>Want to see what we have built?</h2>
           <p>Start your free trial and explore the platform our team has crafted for schools like yours.</p>
-          <Link className="btn btn-primary" href="/auth/login">Get Started Free</Link>
+          <Link className="btn btn-primary" href="/auth/signup">Get Started Free</Link>
         </div>
       </section>
     </main>

@@ -39,7 +39,7 @@ export default function LandingFooter() {
             <p>
               Start using EduMyles today with no credit card. Full access to all modules during your trial.
             </p>
-            <Link href="/auth/login" className="btn btn-primary btn-sm">
+            <Link href="/auth/signup" className="btn btn-primary btn-sm">
               Start Free Trial
             </Link>
           </div>

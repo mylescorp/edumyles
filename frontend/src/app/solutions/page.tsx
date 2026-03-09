@@ -12,7 +12,7 @@ export default function SolutionsPage() {
             institution - EduMyles adapts to your structure and workflows.
           </p>
           <div className="actions">
-            <Link className="btn btn-amber" href="/auth/login">
+            <Link className="btn btn-amber" href="/auth/signup">
               Get Started Free
             </Link>
             <Link className="btn btn-outline-light" href="/concierge">
@@ -35,7 +35,7 @@ export default function SolutionsPage() {
                 management, and parent communication in one seamless workflow designed for how East
                 African schools actually operate.
               </p>
-              <Link className="btn btn-primary" href="/auth/login">
+              <Link className="btn btn-primary" href="/auth/signup">
                 Start Free Trial
               </Link>
             </div>
@@ -65,7 +65,7 @@ export default function SolutionsPage() {
                 analytics, manage shared staff, and maintain consistent policies across all your
                 campuses while keeping data strictly isolated between schools.
               </p>
-              <Link className="btn btn-primary" href="/auth/login">
+              <Link className="btn btn-primary" href="/auth/signup">
                 Start Free Trial
               </Link>
             </div>
@@ -144,7 +144,7 @@ export default function SolutionsPage() {
           <h2>Find the right solution for your school</h2>
           <p>Book a free consultation to discuss your specific needs and workflows.</p>
           <div className="centered-actions">
-            <Link className="btn btn-primary" href="/auth/login">
+            <Link className="btn btn-primary" href="/auth/signup">
               Start Free Trial
             </Link>
             <Link className="btn btn-outline" href="/concierge">

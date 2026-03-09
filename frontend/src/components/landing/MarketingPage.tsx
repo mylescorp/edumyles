@@ -22,7 +22,7 @@ export default function MarketingPage({
   subtitle,
   sections,
   ctaLabel = "Get Started Free",
-  ctaHref = "/auth/login",
+  ctaHref = "/auth/signup",
 }: MarketingPageProps) {
   return (
     <main>
@@ -62,7 +62,7 @@ export default function MarketingPage({
         <div className="final-cta-card">
           <h2>Ready to transform your school?</h2>
           <p>Join 50+ schools across East Africa already running smarter with EduMyles.</p>
-          <Link className="btn btn-primary" href="/auth/login">
+          <Link className="btn btn-primary" href="/auth/signup">
             Start Your Free Trial
           </Link>
         </div>

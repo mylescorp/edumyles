@@ -126,7 +126,7 @@ export default function LandingNavbar() {
         <Link href="/auth/login" className="navbar-login">
           Log In
         </Link>
-        <Link href="/auth/login" className="navbar-get-started">
+        <Link href="/auth/signup" className="navbar-get-started">
           Get Started
         </Link>
       </div>
@@ -162,7 +162,7 @@ export default function LandingNavbar() {
             <Link href="/auth/login" className="btn btn-outline">
               Log In
             </Link>
-            <Link href="/auth/login" className="btn btn-primary">
+            <Link href="/auth/signup" className="btn btn-primary">
               Get Started Free
             </Link>
           </div>

@@ -14,7 +14,7 @@ export default function AboutPage() {
             team of engineers, educators, and operators building software that schools can trust.
           </p>
           <div className="actions">
-            <Link className="btn btn-amber" href="/auth/login">
+            <Link className="btn btn-amber" href="/auth/signup">
               Get Started Free
             </Link>
             <Link className="btn btn-outline-light" href="/concierge">
@@ -232,7 +232,7 @@ export default function AboutPage() {
         <div className="final-cta-card">
           <h2>Join the schools transforming education in Africa</h2>
           <p>Start your free 30-day trial today. No credit card required.</p>
-          <Link className="btn btn-primary" href="/auth/login">
+          <Link className="btn btn-primary" href="/auth/signup">
             Get Started Free
           </Link>
         </div>

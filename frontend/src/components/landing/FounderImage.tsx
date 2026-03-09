@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface FounderImageProps {
   src: string;
   alt: string;
@@ -7,6 +9,16 @@ interface FounderImageProps {
 }
 
 export default function FounderImage({ src, alt, initials }: FounderImageProps) {
+  const [imgError, setImgError] = useState(false);
+
+  if (imgError) {
+    return (
+      <div className="founder-avatar-fallback" style={{ display: "flex" }}>
+        {initials}
+      </div>
+    );
+  }
+
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -14,15 +26,8 @@ export default function FounderImage({ src, alt, initials }: FounderImageProps) 
         src={src}
         alt={alt}
         style={{ width: "100%", display: "block", borderRadius: "16px" }}
-        onError={(e) => {
-          (e.target as HTMLImageElement).style.display = "none";
-          const fallback = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
-          if (fallback) fallback.style.display = "flex";
-        }}
+        onError={() => setImgError(true)}
       />
-      <div className="founder-avatar-fallback" style={{ display: "none" }}>
-        {initials}
-      </div>
     </>
   );
 }

@@ -149,7 +149,7 @@ export default function BlogPage() {
         <div className="final-cta-card">
           <h2>Ready to modernize your school?</h2>
           <p>Start your free 30-day trial and see the difference firsthand.</p>
-          <Link className="btn btn-primary" href="/auth/login">Get Started Free</Link>
+          <Link className="btn btn-primary" href="/auth/signup">Get Started Free</Link>
         </div>
       </section>
     </main>

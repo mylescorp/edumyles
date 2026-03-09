@@ -26,7 +26,7 @@ export default function FeaturesPage() {
             independently or together as a unified platform.
           </p>
           <div className="actions">
-            <Link className="btn btn-primary" href="/auth/login">Try All Modules Free</Link>
+            <Link className="btn btn-primary" href="/auth/signup">Try All Modules Free</Link>
             <Link className="btn btn-secondary" href="/concierge">See a Live Demo</Link>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function FeaturesPage() {
         <div className="final-cta-card">
           <h2>See all modules in action</h2>
           <p>Start your free 30-day trial with full access to every module. No credit card required.</p>
-          <Link className="btn btn-primary" href="/auth/login">Start Free Trial</Link>
+          <Link className="btn btn-primary" href="/auth/signup">Start Free Trial</Link>
         </div>
       </section>
     </main>
