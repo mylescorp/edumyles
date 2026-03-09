@@ -5,31 +5,100 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
 
 :root {
-  /* Zoho One — Primary */
-  --forest-green: #056C40;
-  --crimson-red: #E42527;
-  --amber-yellow: #FFD731;
+  /* ================================================= */
+  /* EduMyles Design Tokens v3.0 — globals.css         */
+  /* Single source of truth. Never hardcode hex values */
+  /* ================================================= */
 
-  /* Zoho One — Neutrals */
-  --charcoal: #101010;
-  --off-white: #F8F8F8;
-  --white: #ffffff;
-  --black: #000000;
-  --zoho-blue: #056CB8;
+  /* Brand */
+  --em-primary:       #1A4731;
+  --em-primary-light: #16A34A;
+  --em-primary-dark:  #0F2E20;
+  --em-primary-10:    rgba(26,71,49,0.10);
 
-  /* Semantic mapping */
-  --background: #ffffff;
-  --foreground: #101010;
-  --surface: #F8F8F8;
-  --border: #E8E8E8;
-  --muted: #808080;
+  /* Accent */
+  --em-accent:        #F59E0B;
+  --em-accent-light:  #FDE68A;
+  --em-accent-dark:   #B45309;
+
+  /* Semantic */
+  --em-info:          #1E3A8A;
+  --em-info-bg:       #DBEAFE;
+  --em-success:       #16A34A;
+  --em-success-bg:    #DCFCE7;
+  --em-warning:       #F59E0B;
+  --em-warning-bg:    #FEF9C3;
+  --em-danger:        #DC2626;
+  --em-danger-bg:     #FEE2E2;
+
+  /* Text */
+  --em-text-primary:   #1E293B;
+  --em-text-secondary: #64748B;
+  --em-text-disabled:  #94A3B8;
+  --em-text-inverse:   #FFFFFF;
+
+  /* Surfaces */
+  --em-bg-base:        #FFFFFF;
+  --em-bg-subtle:      #F8FAFC;
+  --em-bg-muted:       #F1F5F9;
+  --em-border:         #E2E8F0;
+  --em-border-strong:  #CBD5E1;
+
+  /* Elevation Shadows */
+  --em-shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --em-shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  --em-shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --em-shadow-xl: 0 16px 40px rgba(0,0,0,0.15);
+
+  /* Spacing tokens — use these for all margin/padding/gap */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Layout */
+  --section-padding:        5rem 3rem;
+  --section-padding-mobile: 3rem 1.5rem;
+  --max-width:              1200px;
+
+  /* ------------------------------------------------- */
+  /* Legacy aliases — map old names → v3 tokens        */
+  /* Allows existing component classes to keep working */
+  /* ------------------------------------------------- */
+  --forest-green:       var(--em-primary);
+  --forest:             var(--em-primary);
+  --forest-dark:        var(--em-primary-dark);
+  --crimson-red:        var(--em-danger);
+  --crimson:            var(--em-danger);
+  --crimson-dark:       #b91c1c;
+  --charcoal:           var(--em-text-primary);
+  --off-white:          var(--em-bg-subtle);
+  --white:              #FFFFFF;
+  --black:              #000000;
+  --zoho-blue:          var(--em-info);
+  --blue:               var(--em-info);
+  --muted:              var(--em-text-secondary);
+
+  /* Marketing accent — landing pages ONLY, never inside product UI */
+  --amber-yellow:       #FFD731;
+  --amber:              #FFD731;
+  --amber-dark:         #e6c12c;
+
+  /* Shadcn/ui & semantic surface mappings */
+  --background:         var(--em-bg-base);
+  --foreground:         var(--em-text-primary);
+  --surface:            var(--em-bg-muted);
+  --border:             var(--em-border);
 
   /* Sidebar */
-  --sidebar-bg: #023c24;
-  --sidebar-active: #056C40;
-  --sidebar-text: rgba(255, 255, 255, 0.75);
-  --sidebar-text-active: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-bg:          var(--em-primary-dark);
+  --sidebar-active:      var(--em-primary);
+  --sidebar-text:        rgba(255, 255, 255, 0.75);
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-border:      rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -58,35 +127,10 @@ h6 {
   font-weight: 700;
   letter-spacing: -0.01em;
 }
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
-
 /* ================================================================
    EduMyles Landing Page — Global Styles
-   Inspired by Zoho One: Red / Yellow / Dark-Green tri-colour scheme
+   Design System v3.0 — tokens defined in :root above
    ================================================================ */
-
-:root {
-  /* Zoho One — Primary */
-  --forest: #056C40;
-  --forest-dark: #023c24;
-  --crimson: #E42527;
-  --crimson-dark: #cc2123;
-  --amber: #FFD731;
-  --amber-dark: #e6c12c;
-
-  /* Neutrals */
-  --charcoal: #101010;
-  --off-white: #F8F8F8;
-  --white: #ffffff;
-  --muted: #6b6b6b;
-  --border: #e0e0e0;
-  --blue: #056CB8;
-
-  /* Spacing */
-  --section-padding: 5rem 3rem;
-  --section-padding-mobile: 3rem 1.5rem;
-  --max-width: 1200px;
-}
 
 /* ── Reset ── */
 *,
@@ -116,12 +160,12 @@ html {
 }
 
 ::selection {
-  background: var(--forest);
-  color: var(--white);
+  background: var(--em-primary);
+  color: var(--em-text-inverse);
 }
 
 *:focus-visible {
-  outline: 2px solid var(--forest);
+  outline: 2px solid var(--em-primary-light);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -317,9 +361,10 @@ body.admin-page .navbar * {
   gap: 1rem;
 }
 
+/* v3: Primary CTAs are always Emerald Green — never Red */
 .navbar-cta {
-  background: var(--crimson);
-  color: var(--white);
+  background: var(--em-primary-light);
+  color: var(--em-text-inverse);
   font-weight: 700;
   font-size: 0.85rem;
   padding: 0.55rem 1.2rem;
@@ -332,7 +377,7 @@ body.admin-page .navbar * {
 }
 
 .navbar-cta:hover {
-  background: var(--crimson-dark);
+  background: #15803d; /* Emerald darkened 8% */
   transform: translateY(-1px);
 }
 
@@ -350,9 +395,10 @@ body.admin-page .navbar * {
   color: var(--forest-dark);
 }
 
+/* v3: Primary CTA — Emerald Green */
 .navbar-get-started {
-  background: var(--forest);
-  color: var(--white);
+  background: var(--em-primary-light);
+  color: var(--em-text-inverse);
   font-weight: 700;
   font-size: 0.85rem;
   padding: 0.55rem 1.2rem;
@@ -365,7 +411,7 @@ body.admin-page .navbar * {
 }
 
 .navbar-get-started:hover {
-  background: var(--forest-dark);
+  background: #15803d; /* Emerald darkened 8% */
   transform: translateY(-1px);
 }
 
@@ -562,14 +608,15 @@ body.admin-page .navbar * {
   transform: translateY(-1px);
 }
 
+/* v3: Primary CTAs are always Emerald Green — never Red */
 .btn-primary {
-  background: var(--crimson);
-  color: var(--white);
+  background: var(--em-primary-light);
+  color: var(--em-text-inverse);
 }
 
 .btn-primary:hover {
-  background: var(--crimson-dark);
-  box-shadow: 0 4px 12px rgba(228, 37, 39, 0.25);
+  background: #15803d; /* Emerald darkened 8% */
+  box-shadow: var(--em-shadow-md);
 }
 
 .btn-secondary {
@@ -3841,6 +3888,182 @@ details[open] .faq-question::after {
 
 .pricing-card .features li::before {
   content: "\2713";
-  color: var(--forest);
+  color: var(--em-primary-light);
   font-weight: 700;
+}
+
+/* ================================================================
+   DARK MODE TOKEN OVERRIDES — EduMyles Design System v3.0
+   Activated via class="dark" on <html>
+   Brand & semantic colours stay the same — only surfaces change
+   ================================================================ */
+.dark {
+  --em-bg-base:        #0F172A;
+  --em-bg-subtle:      #1E293B;
+  --em-bg-muted:       #334155;
+  --em-text-primary:   #F1F5F9;
+  --em-text-secondary: #94A3B8;
+  --em-text-disabled:  #475569;
+  --em-border:         #334155;
+  --em-border-strong:  #475569;
+
+  /* Semantic backgrounds go darker in dark mode */
+  --em-success-bg:     #14532D;
+  --em-warning-bg:     #78350F;
+  --em-danger-bg:      #7F1D1D;
+  --em-info-bg:        #1E3A8A;
+
+  /* Brand stays recognisable */
+  --em-primary:        #1A4731;
+  --em-primary-light:  #16A34A;
+  --em-accent:         #F59E0B;
+
+  /* Propagate to legacy aliases */
+  --background:        var(--em-bg-base);
+  --foreground:        var(--em-text-primary);
+  --surface:           var(--em-bg-muted);
+  --border:            var(--em-border);
+  --charcoal:          var(--em-text-primary);
+  --off-white:         var(--em-bg-subtle);
+  --muted:             var(--em-text-secondary);
+}
+
+/* ================================================================
+   SKELETON LOADERS — EduMyles Design System v3.0
+   Use .skeleton class on placeholder elements during loading.
+   Never show blank white screens — always use skeleton shimmer.
+   ================================================================ */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--em-border) 25%,
+    var(--em-bg-muted) 50%,
+    var(--em-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-avatar {
+  background: linear-gradient(
+    90deg,
+    var(--em-border) 25%,
+    var(--em-bg-subtle) 50%,
+    var(--em-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 50%;
+}
+
+/* ================================================================
+   CARD COMPONENT RULES — EduMyles Design System v3.0
+   ================================================================ */
+.em-card {
+  background:    var(--em-bg-base);
+  border:        1px solid var(--em-border);
+  border-radius: 18px;
+  padding:       2rem;
+  box-shadow:    var(--em-shadow-sm);
+  transition:    all 0.2s ease;
+}
+
+.em-card:hover {
+  transform:  translateY(-3px);
+  box-shadow: var(--em-shadow-md);
+}
+
+/* ================================================================
+   SEMANTIC ALERT SYSTEM — EduMyles Design System v3.0
+   ================================================================ */
+.em-alert {
+  border-radius: 8px;
+  padding: var(--space-4);
+  border-left: 3px solid transparent;
+}
+
+.em-alert-success {
+  background:  var(--em-success-bg);
+  border-color: var(--em-success);
+  color:        #166534;
+}
+
+.em-alert-warning {
+  background:  var(--em-warning-bg);
+  border-color: var(--em-warning);
+  color:        #92400E;
+}
+
+.em-alert-danger {
+  background:  var(--em-danger-bg);
+  border-color: var(--em-danger);
+  color:        #991B1B;
+}
+
+.em-alert-info {
+  background:  var(--em-info-bg);
+  border-color: var(--em-info);
+  color:        #1E40AF;
+}
+
+/* ================================================================
+   HOVER OVERLAY PATTERNS — EduMyles Design System v3.0
+   ================================================================ */
+.nav-item:hover  { background: var(--em-primary-10); }
+.table-row:hover { background: var(--em-bg-muted); }
+
+/* ================================================================
+   PRINT STYLES — EduMyles Design System v3.0
+   Applied when printing report cards, receipts, transcripts
+   ================================================================ */
+@media print {
+  nav,
+  aside,
+  .sidebar,
+  .btn,
+  .no-print,
+  .navbar,
+  .announcement-bar {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+  }
+
+  h1, h2, h3 {
+    color: #000;
+  }
+
+  a::after {
+    content: ' (' attr(href) ')';
+    font-size: 9pt;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  th {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+    font-weight: bold;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Strip interactive elements */
+  button, input, select, textarea {
+    display: none !important;
+  }
 }
