@@ -234,8 +234,8 @@ export default function AcademicsPage() {
               <div className="space-y-3">
                 {upcomingEvents.map((event) => (
                   <div key={event.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                    <div className="p-2 bg-forest-100 rounded-full">
-                      <Clock className="h-4 w-4 text-forest-600" />
+                    <div className="p-2 bg-success-bg rounded-full">
+                      <Clock className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{event.title}</h4>

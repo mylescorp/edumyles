@@ -207,11 +207,11 @@ export default function PlatformUsersPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case "active":
-                return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+                return <Badge className="bg-success-bg text-success">Active</Badge>;
             case "inactive":
-                return <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>;
+                return <Badge className="bg-muted text-muted-foreground">Inactive</Badge>;
             case "suspended":
-                return <Badge className="bg-red-100 text-red-800">Suspended</Badge>;
+                return <Badge className="bg-danger-bg text-danger">Suspended</Badge>;
             default:
                 return <Badge variant="secondary">{status}</Badge>;
         }
@@ -219,16 +219,16 @@ export default function PlatformUsersPage() {
 
     const getRoleBadge = (role: string) => {
         const colors: Record<string, string> = {
-            master_admin: "bg-purple-100 text-purple-800",
-            super_admin: "bg-indigo-100 text-indigo-800",
-            school_admin: "bg-blue-100 text-blue-800",
-            teacher: "bg-green-100 text-green-800",
-            student: "bg-amber-100 text-amber-800",
-            parent: "bg-pink-100 text-pink-800"
+            master_admin: "bg-[#EDE9FE] text-role-student",
+            super_admin: "bg-info-bg text-info",
+            school_admin: "bg-info-bg text-info",
+            teacher: "bg-success-bg text-success",
+            student: "bg-warning-bg text-em-accent-dark",
+            parent: "bg-[#FCE7F3] text-role-parent"
         };
         
         return (
-            <Badge className={colors[role] || "bg-gray-100 text-gray-800"}>
+            <Badge className={colors[role] || "bg-muted text-muted-foreground"}>
                 {getRoleLabel(role)}
             </Badge>
         );
@@ -242,7 +242,7 @@ export default function PlatformUsersPage() {
             cell: (row) => {
                 const name = [row.firstName, row.lastName].filter(Boolean).join(" ") || "—";
                 const initials = `${row.firstName?.[0] ?? ""}${row.lastName?.[0] ?? ""}`.toUpperCase() || row.email[0]?.toUpperCase() || "?";
-                const colorClass = row.role === "master_admin" ? "bg-purple-600" : "bg-[#056C40]";
+                const colorClass = row.role === "master_admin" ? "bg-[#9333EA]" : "bg-primary";
                 return (
                     <div className="flex items-center space-x-3">
                         <div className={`h-8 w-8 rounded-full ${colorClass} text-white flex items-center justify-center text-xs font-semibold shrink-0`}>
@@ -265,8 +265,8 @@ export default function PlatformUsersPage() {
                     variant="secondary"
                     className={
                         row.role === "master_admin"
-                            ? "bg-purple-500/10 text-purple-700 border-purple-200"
-                            : "bg-blue-500/10 text-blue-700 border-blue-200"
+                            ? "bg-[#EDE9FE] text-role-student border-[#DDD6FE]"
+                            : "bg-info-bg text-info border-info"
                     }
                 >
                     {getRoleLabel(row.role)}
@@ -279,7 +279,7 @@ export default function PlatformUsersPage() {
             cell: (row) => (
                 <Badge
                     variant="outline"
-                    className={row.isActive ? "bg-green-500/10 text-green-700" : "bg-red-500/10 text-red-700"}
+                    className={row.isActive ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}
                 >
                     {row.isActive ? "Active" : "Inactive"}
                 </Badge>
@@ -319,7 +319,7 @@ export default function PlatformUsersPage() {
                             {row.isActive && (
                                 <DropdownMenuItem
                                     onClick={() => setDeactivateDialog(row)}
-                                    className="text-red-600"
+                                    className="text-danger"
                                 >
                                     <UserX className="mr-2 h-4 w-4" />
                                     Deactivate
@@ -353,7 +353,7 @@ export default function PlatformUsersPage() {
                                 {showAllUsers ? "Platform Admins" : "All System Users"}
                             </Button>
                             <Link href="/platform/users/invite">
-                                <Button size="sm" className="bg-[#056C40] hover:bg-[#023c24] w-full sm:w-auto">
+                                <Button size="sm" className="bg-primary hover:bg-primary-dark w-full sm:w-auto">
                                     <UserPlus className="mr-2 h-4 w-4" />
                                     Invite User
                                 </Button>
@@ -366,12 +366,12 @@ export default function PlatformUsersPage() {
             {/* Stats Cards - Always visible for master admins */}
             {isMasterAdmin && (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Card className="border-l-4 border-l-blue-500">
+                    <Card className="border-l-4 border-l-info">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                                 Total Users
                             </CardTitle>
-                            <UserCheck className="h-5 w-5 text-blue-600" />
+                            <UserCheck className="h-5 w-5 text-info" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{userStats.total.toLocaleString()}</div>
@@ -379,41 +379,41 @@ export default function PlatformUsersPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-l-4 border-l-green-500">
+                    <Card className="border-l-4 border-l-success">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                                 Active Users
                             </CardTitle>
-                            <UserCheck className="h-5 w-5 text-green-600" />
+                            <UserCheck className="h-5 w-5 text-success" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-green-600">{userStats.active.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-success">{userStats.active.toLocaleString()}</div>
                             <p className="text-xs text-muted-foreground">Currently active</p>
                         </CardContent>
                     </Card>
 
-                    <Card className="border-l-4 border-l-gray-500">
+                    <Card className="border-l-4 border-l-neutral-400">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                                 Inactive Users
                             </CardTitle>
-                            <UserX className="h-5 w-5 text-gray-600" />
+                            <UserX className="h-5 w-5 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-gray-600">{userStats.inactive.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-muted-foreground">{userStats.inactive.toLocaleString()}</div>
                             <p className="text-xs text-muted-foreground">Not recently active</p>
                         </CardContent>
                     </Card>
 
-                    <Card className="border-l-4 border-l-red-500">
+                    <Card className="border-l-4 border-l-danger">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                                 Suspended Users
                             </CardTitle>
-                            <Shield className="h-5 w-5 text-red-600" />
+                            <Shield className="h-5 w-5 text-danger" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-red-600">{userStats.suspended.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-danger">{userStats.suspended.toLocaleString()}</div>
                             <p className="text-xs text-muted-foreground">Suspended accounts</p>
                         </CardContent>
                     </Card>
@@ -444,14 +444,14 @@ export default function PlatformUsersPage() {
                                             placeholder="Search users by name or email..."
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#056C40]"
+                                            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
                                 </div>
                                 <select
                                     value={roleFilter}
                                     onChange={(e) => setRoleFilter(e.target.value)}
-                                    className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#056C40]"
+                                    className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="all">All Roles</option>
                                     <option value="master_admin">Master Admin</option>
@@ -464,7 +464,7 @@ export default function PlatformUsersPage() {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#056C40]"
+                                    className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="all">All Status</option>
                                     <option value="active">Active</option>
@@ -503,10 +503,10 @@ export default function PlatformUsersPage() {
                                     </thead>
                                     <tbody>
                                         {filteredUsers.map((user) => (
-                                            <tr key={user._id} className="border-b hover:bg-gray-50">
+                                            <tr key={user._id} className="border-b hover:bg-muted">
                                                 <td className="p-3">
                                                     <div className="flex items-center space-x-3">
-                                                        <div className="h-8 w-8 rounded-full bg-[#056C40] text-white flex items-center justify-center text-sm font-medium">
+                                                        <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
                                                             {user.firstName[0]}{user.lastName[0]}
                                                         </div>
                                                         <div>
@@ -572,7 +572,7 @@ export default function PlatformUsersPage() {
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem 
                                                                 onClick={() => handleUserAction("Delete", user)}
-                                                                className="text-red-600"
+                                                                className="text-danger"
                                                             >
                                                                 <Trash2 className="h-4 w-4 mr-2" />
                                                                 Delete

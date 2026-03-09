@@ -42,7 +42,7 @@ export function AdminCharts({
                 <div className="flex-1">
                   <div className="relative h-6 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="absolute left-0 top-0 h-full bg-forest-600 rounded-full transition-all duration-500 ease-out"
+                      className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-500 ease-out"
                       style={{ width: `${(item.value / maxValue) * 100}%` }}
                     />
                   </div>

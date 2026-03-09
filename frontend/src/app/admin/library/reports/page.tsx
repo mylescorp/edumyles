@@ -5,6 +5,7 @@ import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { AdminCharts } from "@/components/admin/AdminCharts";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { chartColors } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,17 +41,17 @@ export default function LibraryReportsPage() {
   ];
 
   const popularCategories = [
-    { name: "Fiction", value: 34, color: "#056C40" },
-    { name: "Science", value: 28, color: "#056CB8" },
-    { name: "History", value: 18, color: "#FFD731" },
+    { name: "Fiction", value: 34, color: chartColors.categorical[0] },
+    { name: "Science", value: 28, color: chartColors.categorical[1] },
+    { name: "History", value: 18, color: chartColors.categorical[2] },
     { name: "Mathematics", value: 12, color: "#DC2626" },
     { name: "Literature", value: 8, color: "#7C3AED" },
   ];
 
   const borrowerStats = [
-    { name: "Students", value: 245, color: "#056C40" },
-    { name: "Teachers", value: 67, color: "#056CB8" },
-    { name: "Staff", value: 23, color: "#FFD731" },
+    { name: "Students", value: 245, color: chartColors.categorical[0] },
+    { name: "Teachers", value: 67, color: chartColors.categorical[1] },
+    { name: "Staff", value: 23, color: chartColors.categorical[2] },
   ];
 
   const topBooks = [
@@ -233,7 +234,7 @@ export default function LibraryReportsPage() {
               <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="flex items-center justify-center w-6 h-6 bg-forest-100 text-forest-600 rounded-full text-xs font-bold">
+                    <span className="flex items-center justify-center w-6 h-6 bg-success-bg text-primary rounded-full text-xs font-bold">
                       {index + 1}
                     </span>
                     <h4 className="font-medium">{book.title}</h4>

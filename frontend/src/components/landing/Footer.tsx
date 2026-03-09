@@ -172,7 +172,7 @@ export default function Footer() {
           ))}
         </div>
         <p className="copyright">
-          &copy; {new Date().getFullYear()} EduMyles. Built for East Africa. All Rights Reserved.
+          &copy; {new Date().getFullYear()} Mylesoft Technologies. All Rights Reserved.
         </p>
       </div>
     </footer>

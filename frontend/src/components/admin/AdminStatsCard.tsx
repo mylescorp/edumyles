@@ -37,25 +37,25 @@ export function AdminStatsCard({
     switch (variant) {
       case "success":
         return {
-          icon: "text-green-600",
-          trend: "text-green-600",
-          border: "border-green-100",
+          icon: "text-success",
+          trend: "text-success",
+          border: "border-success",
         };
       case "warning":
         return {
-          icon: "text-amber-600",
-          trend: "text-amber-600",
-          border: "border-amber-100",
+          icon: "text-em-accent-dark",
+          trend: "text-em-accent-dark",
+          border: "border-warning",
         };
       case "danger":
         return {
-          icon: "text-red-600",
-          trend: "text-red-600",
-          border: "border-red-100",
+          icon: "text-danger",
+          trend: "text-danger",
+          border: "border-danger",
         };
       default:
         return {
-          icon: "text-forest-600",
+          icon: "text-primary",
           trend: "text-muted-foreground",
           border: "border-border",
         };

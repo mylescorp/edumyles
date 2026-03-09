@@ -283,7 +283,7 @@ export default function AuditReportsPage() {
                   <div className="relative">
                     <div className="w-full bg-muted rounded-full h-24">
                       <div 
-                        className="bg-forest-600 rounded-full absolute bottom-0"
+                        className="bg-primary rounded-full absolute bottom-0"
                         style={{ 
                           height: `${(day.totalActions / Math.max(...activityData.map(d => d.totalActions))) * 100}%`,
                           width: '100%'
@@ -292,7 +292,7 @@ export default function AuditReportsPage() {
                     </div>
                     <div className="mt-2 text-sm font-medium">{day.totalActions}</div>
                     {day.criticalActions > 0 && (
-                      <div className="text-xs text-red-600 mt-1">
+                      <div className="text-xs text-danger mt-1">
                         {day.criticalActions} critical
                       </div>
                     )}
@@ -317,8 +317,8 @@ export default function AuditReportsPage() {
             {userActivity.map((user, index) => (
               <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-forest-100 rounded-full flex items-center justify-center">
-                    <Users className="h-4 w-4 text-forest-600" />
+                  <div className="w-8 h-8 bg-success-bg rounded-full flex items-center justify-center">
+                    <Users className="h-4 w-4 text-primary" />
                   </div>
                   <div>
                     <p className="font-medium">{user.userName}</p>
@@ -354,8 +354,8 @@ export default function AuditReportsPage() {
               <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
                 <div className="p-2 bg-muted rounded-full">
                   <AlertTriangle className={`h-4 w-4 ${
-                    event.severity === 'critical' ? 'text-red-600' : 
-                    event.severity === 'high' ? 'text-orange-600' : 'text-amber-600'
+                    event.severity === 'critical' ? 'text-danger' : 
+                    event.severity === 'high' ? 'text-em-accent-dark' : 'text-em-accent'
                   }`} />
                 </div>
                 <div className="flex-1">
@@ -396,15 +396,15 @@ export default function AuditReportsPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Authorized Access:</span>
-                  <span className="text-green-600">98.5%</span>
+                  <span className="text-success">98.5%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Unauthorized Attempts:</span>
-                  <span className="text-red-600">1.5%</span>
+                  <span className="text-danger">1.5%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Data Exports:</span>
-                  <span className="text-amber-600">12</span>
+                  <span className="text-em-accent-dark">12</span>
                 </div>
               </div>
             </div>
@@ -413,15 +413,15 @@ export default function AuditReportsPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Normal Activity:</span>
-                  <span className="text-green-600">89.2%</span>
+                  <span className="text-success">89.2%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Suspicious Activity:</span>
-                  <span className="text-amber-600">8.3%</span>
+                  <span className="text-em-accent-dark">8.3%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Policy Violations:</span>
-                  <span className="text-red-600">2.5%</span>
+                  <span className="text-danger">2.5%</span>
                 </div>
               </div>
             </div>
@@ -430,15 +430,15 @@ export default function AuditReportsPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Log Integrity:</span>
-                  <span className="text-green-600">100%</span>
+                  <span className="text-success">100%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Audit Completeness:</span>
-                  <span className="text-green-600">99.8%</span>
+                  <span className="text-success">99.8%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Retention Compliance:</span>
-                  <span className="text-green-600">100%</span>
+                  <span className="text-success">100%</span>
                 </div>
               </div>
             </div>

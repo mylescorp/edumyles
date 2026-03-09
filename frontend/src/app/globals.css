@@ -806,7 +806,7 @@ h1 {
 }
 
 .mockup-stat-card.c1 {
-  background: linear-gradient(135deg, var(--forest), #08945a);
+  background: linear-gradient(135deg, var(--em-primary), var(--em-primary-light));
 }
 
 .mockup-stat-card.c2 {
@@ -814,7 +814,7 @@ h1 {
 }
 
 .mockup-stat-card.c3 {
-  background: linear-gradient(135deg, var(--crimson), #f04e50);
+  background: linear-gradient(135deg, var(--em-danger), #f04e50);
 }
 
 .mockup-chart {
@@ -1339,7 +1339,7 @@ h1 {
 }
 
 .pricing-card.featured {
-  border: 3px solid var(--crimson);
+  border: 3px solid var(--em-primary-light);
   transform: scale(1.04);
 }
 
@@ -1352,7 +1352,7 @@ h1 {
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--crimson);
+  background: var(--em-primary-light);
   color: var(--white);
   font-size: 0.72rem;
   font-weight: 700;
@@ -2655,8 +2655,8 @@ h1 {
 }
 
 .contact-option-card.highlighted {
-  border-color: var(--crimson);
-  box-shadow: 0 4px 20px rgba(228, 37, 39, 0.1);
+  border-color: var(--em-primary-light);
+  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.1);
 }
 
 .contact-option-card h3 {
@@ -3425,7 +3425,7 @@ details[open] .faq-question::after {
   border-radius: 10px;
   background: rgba(228, 37, 39, 0.06);
   border: 1px solid rgba(228, 37, 39, 0.15);
-  color: var(--crimson);
+  color: var(--em-danger);
   font-size: 0.85rem;
 }
 
@@ -3673,7 +3673,7 @@ details[open] .faq-question::after {
   border-radius: 20px;
   background:
     radial-gradient(700px 300px at 15% 0%, rgba(255, 255, 255, 0.2), transparent 65%),
-    linear-gradient(135deg, #056c40 0%, #023c24 100%);
+    linear-gradient(135deg, var(--em-primary) 0%, var(--em-primary-dark) 100%);
   color: #fff;
 }
 

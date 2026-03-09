@@ -249,8 +249,8 @@ export default function CreateRoutePage() {
                       <div key={stop.id} className="flex items-center gap-3 p-3 border rounded-lg">
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">{index + 1}</Badge>
-                          <div className="w-8 h-8 bg-forest-100 rounded-full flex items-center justify-center">
-                            <MapPin className="h-4 w-4 text-forest-600" />
+                          <div className="w-8 h-8 bg-success-bg rounded-full flex items-center justify-center">
+                            <MapPin className="h-4 w-4 text-primary" />
                           </div>
                         </div>
                         <div className="flex-1">

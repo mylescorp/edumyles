@@ -168,8 +168,8 @@ export default function WalletsPage() {
       cell: (row: Wallet) => (
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-forest-100 rounded-full flex items-center justify-center">
-              <Users className="h-4 w-4 text-forest-600" />
+            <div className="w-8 h-8 bg-success-bg rounded-full flex items-center justify-center">
+              <Users className="h-4 w-4 text-primary" />
             </div>
             <div>
               <p className="font-medium">{row.user.firstName} {row.user.lastName}</p>

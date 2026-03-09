@@ -170,7 +170,7 @@ export default function ProfilePage() {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-[#056C40] hover:bg-[#023c24]"
+                  className="bg-primary hover:bg-primary-dark"
                   onClick={handleSave}
                   disabled={isSaving}
                 >
@@ -197,13 +197,13 @@ export default function ProfilePage() {
         <div className="lg:col-span-1">
           <Card className="overflow-hidden">
             {/* Gradient banner */}
-            <div className="h-20 bg-gradient-to-br from-[#056C40] to-[#023c24]" />
+            <div className="h-20 bg-gradient-to-br from-primary to-primary-dark" />
             <CardHeader className="text-center -mt-10">
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
                   <Avatar className="h-24 w-24 ring-4 ring-white ring-offset-0">
                     <AvatarImage src={avatarUrl} alt={firstName} />
-                    <AvatarFallback className="text-2xl bg-[#056C40] text-white">
+                    <AvatarFallback className="text-2xl bg-primary text-white">
                       {isUploadingAvatar ? (
                         <Loader2 className="h-8 w-8 animate-spin" />
                       ) : (
@@ -238,7 +238,7 @@ export default function ProfilePage() {
                   </h2>
                   <p className="text-sm text-muted-foreground">{email}</p>
                   <div className="mt-2">
-                    <Badge className="bg-purple-100 text-purple-800">
+                    <Badge className="bg-[#EDE9FE] text-role-student">
                       {getRoleLabel(role)}
                     </Badge>
                   </div>
@@ -252,9 +252,9 @@ export default function ProfilePage() {
                   <span className="text-sm font-medium">Profile Completeness</span>
                   <span className="text-sm text-muted-foreground">{completeness}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-neutral-200 rounded-full h-2">
                   <div 
-                    className="bg-[#056C40] h-2 rounded-full transition-all duration-300" 
+                    className="bg-primary h-2 rounded-full transition-all duration-300" 
                     style={{ width: `${completeness}%` }}
                   />
                 </div>
@@ -343,7 +343,7 @@ export default function ProfilePage() {
                       type="email"
                       value={email}
                       disabled
-                      className="bg-gray-50"
+                      className="bg-muted"
                     />
                     <p className="text-xs text-muted-foreground">
                       Email cannot be changed. Contact support if needed.
@@ -426,8 +426,8 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-green-50">
-                      <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-success-bg">
+                      <CheckCircle2 className="h-5 w-5 text-success mt-0.5" />
                       <div>
                         <p className="font-medium">Logged In</p>
                         <p className="text-sm text-muted-foreground">

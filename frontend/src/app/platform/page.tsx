@@ -36,11 +36,11 @@ const PLAN_PRICES_USD: Record<string, number> = {
 };
 
 function getActionBadgeClass(action: string) {
-  if (action.includes("suspended") || action.includes("deleted")) return "bg-red-500/10 text-red-700";
-  if (action.includes("created") || action.includes("installed")) return "bg-green-500/10 text-green-700";
-  if (action.includes("updated")) return "bg-amber-500/10 text-amber-700";
-  if (action.includes("impersonation")) return "bg-orange-500/10 text-orange-700";
-  return "bg-slate-500/10 text-slate-700";
+  if (action.includes("suspended") || action.includes("deleted")) return "bg-danger-bg text-danger";
+  if (action.includes("created") || action.includes("installed")) return "bg-success-bg text-success";
+  if (action.includes("updated")) return "bg-warning-bg text-em-accent-dark";
+  if (action.includes("impersonation")) return "bg-em-accent/10 text-em-accent-dark";
+  return "bg-muted text-muted-foreground";
 }
 
 export default function PlatformDashboardPage() {
@@ -129,18 +129,18 @@ export default function PlatformDashboardPage() {
           {/* Connection status pill */}
           <div className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
             isConnected
-              ? "bg-green-50 text-green-700 border-green-200"
-              : "bg-amber-50 text-amber-700 border-amber-200"
+              ? "bg-success-bg text-success border-success"
+              : "bg-warning-bg text-em-accent-dark border-warning"
           }`}>
             {isConnected ? (
               <>
-                <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
                 <Wifi className="h-3 w-3" />
                 <span>Live</span>
               </>
             ) : (
               <>
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                <span className="h-1.5 w-1.5 rounded-full bg-em-accent" />
                 <WifiOff className="h-3 w-3" />
                 <span>Reconnecting…</span>
               </>
@@ -149,7 +149,7 @@ export default function PlatformDashboardPage() {
         </div>
 
         <Link href="/platform/analytics">
-          <Button className="bg-[#056C40] hover:bg-[#023c24]">
+          <Button className="bg-primary hover:bg-primary-dark">
             <FileText className="h-4 w-4 mr-2" />
             Open Analytics
           </Button>
@@ -197,7 +197,7 @@ export default function PlatformDashboardPage() {
             </div>
           </div>
           <Link href="/platform/analytics">
-            <Button className="bg-[#056C40] hover:bg-[#023c24]">
+            <Button className="bg-primary hover:bg-primary-dark">
               <FileText className="h-4 w-4 mr-2" />
               Open Analytics
             </Button>
@@ -249,7 +249,7 @@ export default function PlatformDashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
-                <Activity className="h-5 w-5 text-[#056C40]" />
+                <Activity className="h-5 w-5 text-primary" />
                 <span>Recent Activity</span>
               </CardTitle>
               <div className="flex items-center space-x-2">
@@ -267,16 +267,16 @@ export default function PlatformDashboardPage() {
           <CardContent>
             <div className="space-y-3">
               {derived.recentActivity.slice(0, 5).map((item, index) => (
-                <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+                <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-muted">
                   <div className={`h-2 w-2 rounded-full mt-2 ${getActionBadgeClass(item.action).split(' ')[0]}`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">{item.action}</p>
-                    <p className="text-xs text-gray-500">{formatRelativeTime(item.timestamp ?? 0)}</p>
+                    <p className="text-sm font-medium text-foreground">{item.action}</p>
+                    <p className="text-xs text-muted-foreground">{formatRelativeTime(item.timestamp ?? 0)}</p>
                   </div>
                 </div>
               ))}
               {derived.recentActivity.length === 0 && (
-                <p className="text-center text-gray-500 py-4">No recent activity</p>
+                <p className="text-center text-muted-foreground py-4">No recent activity</p>
               )}
             </div>
           </CardContent>

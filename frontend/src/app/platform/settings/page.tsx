@@ -179,7 +179,7 @@ export default function PlatformSettingsPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
               Reset Draft
             </Button>
-            <Button className="bg-[#056C40] hover:bg-[#023c24]" onClick={saveDraft}>
+            <Button className="bg-primary hover:bg-primary-dark" onClick={saveDraft}>
               <Save className="mr-2 h-4 w-4" />
               Save Draft
             </Button>
@@ -204,7 +204,7 @@ export default function PlatformSettingsPage() {
             {derived.securityEvents > 0 ? (
               <AlertTriangle className="h-5 w-5 text-amber-600" />
             ) : (
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <CheckCircle2 className="h-5 w-5 text-success" />
             )}
           </CardContent>
         </Card>

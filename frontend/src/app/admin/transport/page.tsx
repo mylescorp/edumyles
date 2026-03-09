@@ -212,7 +212,7 @@ export default function TransportPage() {
                     </span>
                     <div className="w-12 bg-muted rounded-full h-2">
                         <div 
-                            className="bg-forest-600 h-2 rounded-full"
+                            className="bg-primary h-2 rounded-full"
                             style={{ width: `${(row.activeStudents / row.capacity) * 100}%` }}
                         />
                     </div>

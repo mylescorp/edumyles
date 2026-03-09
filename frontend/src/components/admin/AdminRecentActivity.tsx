@@ -39,15 +39,15 @@ const getActivityIcon = (type: ActivityItem["type"]) => {
 const getActivityColor = (type: ActivityItem["type"]) => {
   switch (type) {
     case "student_enrolled":
-      return "bg-green-100 text-green-800 border-green-200";
+      return "bg-success-bg text-success border-success";
     case "invoice_paid":
-      return "bg-blue-100 text-blue-800 border-blue-200";
+      return "bg-info-bg text-info border-info";
     case "staff_added":
-      return "bg-purple-100 text-purple-800 border-purple-200";
+      return "bg-[#EDE9FE] text-role-student border-[#DDD6FE]";
     case "application_submitted":
-      return "bg-amber-100 text-amber-800 border-amber-200";
+      return "bg-warning-bg text-em-accent-dark border-warning";
     default:
-      return "bg-gray-100 text-gray-800 border-gray-200";
+      return "bg-muted text-muted-foreground border";
   }
 };
 

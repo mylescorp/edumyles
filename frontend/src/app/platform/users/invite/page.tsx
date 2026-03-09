@@ -67,7 +67,7 @@ export default function InviteAdminPage() {
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <Card className="w-full max-w-md overflow-hidden shadow-lg">
           {/* Green success banner */}
-          <div className="bg-gradient-to-br from-[#056C40] to-[#023c24] px-8 py-10 flex flex-col items-center text-center">
+          <div className="bg-gradient-to-br from-primary to-primary-dark px-8 py-10 flex flex-col items-center text-center">
             <div className="h-20 w-20 rounded-full bg-white/20 flex items-center justify-center mb-4">
               <CheckCircle2 className="h-12 w-12 text-white" />
             </div>
@@ -102,7 +102,7 @@ export default function InviteAdminPage() {
                 Invite Another
               </Button>
               <Button
-                className="flex-1 bg-[#056C40] hover:bg-[#023c24]"
+                className="flex-1 bg-primary hover:bg-primary-dark"
                 onClick={() => router.push("/platform/users")}
               >
                 <Users className="h-4 w-4 mr-2" />
@@ -137,7 +137,7 @@ export default function InviteAdminPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              <div className="rounded-lg border border-danger bg-danger-bg p-3 text-sm text-danger">
                 {error}
               </div>
             )}

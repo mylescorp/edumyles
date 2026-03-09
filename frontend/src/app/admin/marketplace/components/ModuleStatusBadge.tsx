@@ -6,27 +6,27 @@ import { cn } from "@/lib/utils";
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   active: {
     label: "Active",
-    className: "bg-green-50 text-green-700 border-green-200",
+    className: "bg-success-bg text-success border-success",
   },
   inactive: {
     label: "Inactive",
-    className: "bg-gray-100 text-gray-600 border-gray-200",
+    className: "bg-muted text-muted-foreground border",
   },
   beta: {
     label: "Beta",
-    className: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    className: "bg-warning-bg text-em-accent-dark border-warning",
   },
   deprecated: {
     label: "Deprecated",
-    className: "bg-red-50 text-red-700 border-red-200",
+    className: "bg-danger-bg text-danger border-danger",
   },
   installed: {
     label: "Installed",
-    className: "bg-green-50 text-green-700 border-green-200",
+    className: "bg-success-bg text-success border-success",
   },
   not_installed: {
     label: "Not Installed",
-    className: "bg-gray-100 text-gray-500 border-gray-200",
+    className: "bg-muted text-muted-foreground border",
   },
 };
 
@@ -38,7 +38,7 @@ interface ModuleStatusBadgeProps {
 export function ModuleStatusBadge({ status, className }: ModuleStatusBadgeProps) {
   const config = STATUS_CONFIG[status] ?? {
     label: status,
-    className: "bg-gray-100 text-gray-600 border-gray-200",
+    className: "bg-muted text-muted-foreground border",
   };
 
   return (

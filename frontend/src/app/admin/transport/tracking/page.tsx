@@ -263,7 +263,7 @@ export default function TransportTrackingPage() {
                   </span>
                   <div className="w-16 bg-muted rounded-full h-2">
                     <div 
-                      className="bg-forest-600 h-2 rounded-full"
+                      className="bg-primary h-2 rounded-full"
                       style={{ width: `${(vehicle.currentPassengers / vehicle.capacity) * 100}%` }}
                     />
                   </div>

@@ -92,25 +92,25 @@ export function AuditTrail({ logs }: { logs: AuditLog[] }) {
 
   const getActionColor = (action: string) => {
     const colors = {
-      'created': 'bg-green-500/10 text-green-700',
-      'updated': 'bg-blue-500/10 text-blue-700',
-      'deleted': 'bg-red-500/10 text-red-700',
-      'suspended': 'bg-orange-500/10 text-orange-700',
-      'impersonation.started': 'bg-purple-500/10 text-purple-700',
-      'impersonation.ended': 'bg-indigo-500/10 text-indigo-700',
-      'login': 'bg-gray-500/10 text-gray-700',
-      'logout': 'bg-gray-500/10 text-gray-700'
+      'created': 'bg-success-bg text-success',
+      'updated': 'bg-info-bg text-info',
+      'deleted': 'bg-danger-bg text-danger',
+      'suspended': 'bg-em-accent/10 text-em-accent-dark',
+      'impersonation.started': 'bg-[#EDE9FE] text-role-student',
+      'impersonation.ended': 'bg-[#E0E7FF] text-info',
+      'login': 'bg-muted text-muted-foreground',
+      'logout': 'bg-muted text-muted-foreground'
     };
-    return colors[action as keyof typeof colors] || 'bg-gray-500/10 text-gray-700';
+    return colors[action as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+      <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-gray-500" />
+            <Filter className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">Filters</span>
           </div>
           

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { chartColors } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,27 +48,27 @@ export default function AdminDashboardPage() {
 
   // Mock data for charts - in real app, this would come from API
   const admissionsData = [
-    { name: "Jan", value: 12, color: "#056C40" },
-    { name: "Feb", value: 19, color: "#056C40" },
-    { name: "Mar", value: 15, color: "#056C40" },
-    { name: "Apr", value: 25, color: "#056C40" },
-    { name: "May", value: 22, color: "#056C40" },
-    { name: "Jun", value: 30, color: "#056C40" },
+    { name: "Jan", value: 12, color: chartColors.categorical[0] },
+    { name: "Feb", value: 19, color: chartColors.categorical[0] },
+    { name: "Mar", value: 15, color: chartColors.categorical[0] },
+    { name: "Apr", value: 25, color: chartColors.categorical[0] },
+    { name: "May", value: 22, color: chartColors.categorical[0] },
+    { name: "Jun", value: 30, color: chartColors.categorical[0] },
   ];
 
   const revenueData = [
-    { name: "Tuition", value: 450000, color: "#056CB8" },
-    { name: "Fees", value: 125000, color: "#056CB8" },
-    { name: "Transport", value: 45000, color: "#056CB8" },
-    { name: "Library", value: 15000, color: "#056CB8" },
+    { name: "Tuition", value: 450000, color: chartColors.categorical[1] },
+    { name: "Fees", value: 125000, color: chartColors.categorical[1] },
+    { name: "Transport", value: 45000, color: chartColors.categorical[1] },
+    { name: "Library", value: 15000, color: chartColors.categorical[1] },
   ];
 
   const enrollmentData = [
-    { name: "Grade 1", value: 45, color: "#FFD731" },
-    { name: "Grade 2", value: 42, color: "#FFD731" },
-    { name: "Grade 3", value: 38, color: "#FFD731" },
-    { name: "Grade 4", value: 40, color: "#FFD731" },
-    { name: "Grade 5", value: 35, color: "#FFD731" },
+    { name: "Grade 1", value: 45, color: chartColors.categorical[2] },
+    { name: "Grade 2", value: 42, color: chartColors.categorical[2] },
+    { name: "Grade 3", value: 38, color: chartColors.categorical[2] },
+    { name: "Grade 4", value: 40, color: chartColors.categorical[2] },
+    { name: "Grade 5", value: 35, color: chartColors.categorical[2] },
   ];
 
   // Mock recent activity data
@@ -103,14 +104,14 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border bg-gradient-to-r from-forest-800 to-forest-600 p-6 text-white">
+      <section className="rounded-xl border bg-gradient-to-r from-primary-dark to-primary p-6 text-white">
         <p className="text-sm text-white/70">School Operations Center</p>
         <h1 className="mt-1 text-3xl font-bold">Admin Dashboard</h1>
         <p className="mt-2 max-w-2xl text-sm text-white/80">
           Live overview of admissions, academics, people, and finance. Use quick actions to jump into daily workflows.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button asChild size="sm" className="bg-white text-forest-800 hover:bg-white/90">
+          <Button asChild size="sm" className="bg-white text-primary-dark hover:bg-white/90">
             <Link href="/admin/students/create">Enroll Student</Link>
           </Button>
           <Button asChild size="sm" variant="outline" className="border-white/40 text-white hover:bg-white/15">
