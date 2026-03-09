@@ -350,20 +350,6 @@ body.admin-page .navbar * {
   color: var(--forest-dark);
 }
 
-.navbar-signup {
-  background: var(--crimson);
-  color: var(--white);
-  font-weight: 700;
-  font-size: 0.85rem;
-  padding: 0.55rem 1.2rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  transition: background 180ms ease, transform 180ms ease;
-}
-
 .navbar-get-started {
   background: var(--forest);
   color: var(--white);
@@ -380,11 +366,6 @@ body.admin-page .navbar * {
 
 .navbar-get-started:hover {
   background: var(--forest-dark);
-  transform: translateY(-1px);
-}
-
-.navbar-signup:hover {
-  background: var(--crimson-dark);
   transform: translateY(-1px);
 }
 
@@ -3710,4 +3691,156 @@ details[open] .faq-question::after {
     padding-top: 3.5rem;
     padding-bottom: 3rem;
   }
+}
+
+/* ================================================================
+   INTEGRATIONS GRID
+   ================================================================ */
+.integrations-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.integration-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.integration-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.integration-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--charcoal);
+}
+
+.integration-category {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .integrations-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .integrations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================================================================
+   FAQ GRID (Landing page)
+   ================================================================ */
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.faq-grid .faq-item {
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  border-bottom: none;
+}
+
+.faq-grid .faq-item h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 0.5rem;
+}
+
+.faq-grid .faq-item p {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================================================================
+   STORY RESULT BADGE
+   ================================================================ */
+.story-result {
+  display: inline-block;
+  background: rgba(5, 108, 64, 0.08);
+  color: var(--forest);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+
+/* Price display fixes */
+.price {
+  margin: 0.5rem 0;
+}
+
+.price .amount {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--charcoal);
+}
+
+.price .currency {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  vertical-align: top;
+}
+
+.price .period {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.pricing-card .features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  flex: 1;
+}
+
+.pricing-card .features li {
+  font-size: 0.85rem;
+  color: var(--charcoal);
+  padding: 0.35rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pricing-card .features li::before {
+  content: "\2713";
+  color: var(--forest);
+  font-weight: 700;
 }

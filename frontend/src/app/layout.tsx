@@ -7,8 +7,6 @@ import { ConvexClientProvider } from "./providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-// Force rebuild 2025-03-06 - All merge conflicts resolved
-
 export const metadata: Metadata = {
     title: "EduMyles - School Management for East Africa",
     description:
@@ -43,5 +41,3 @@ export default function RootLayout({
         </html>
     );
 }
-
-
