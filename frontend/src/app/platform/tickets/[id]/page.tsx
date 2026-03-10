@@ -79,6 +79,7 @@ interface Ticket {
   firstResponseAt?: number;
   resolvedAt?: number;
   comments: Comment[];
+  attachments?: string[];
 }
 
 export default function TicketDetailPage() {
@@ -97,6 +98,84 @@ export default function TicketDetailPage() {
   const { data: ticket, isLoading } = useQuery(api.tickets.getTicket, { ticketId });
   const updateStatus = useMutation(api.tickets.updateTicketStatus);
   const addComment = useMutation(api.tickets.addComment);
+
+  // Mock ticket data for demonstration
+  const mockTicket: Ticket = {
+    _id: ticketId,
+    title: "Unable to access student attendance reports",
+    body: "Hello,\n\nI'm having trouble accessing the student attendance reports for the past month. When I try to generate the report, I get an error message saying 'Insufficient permissions' even though I'm the school administrator.\n\nI need this report urgently for our upcoming board meeting scheduled for next week. The attendance data is crucial for our compliance reporting.\n\nI've tried:\n1. Logging out and back in\n2. Clearing browser cache\n3. Using a different browser\n4. Asking other staff members to try (they get the same error)\n\nThis is affecting our ability to track student attendance and could impact our funding requirements.\n\nPlease help resolve this as soon as possible.\n\nThank you,\nSarah Johnson\nSchool Administrator",
+    category: "Technical Issue",
+    priority: "P1",
+    status: "in_progress",
+    tenantName: "Nairobi International Academy",
+    createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000, // 2 days ago
+    slaResolutionDL: Date.now() + 3 * 24 * 60 * 60 * 1000, // 3 days from now
+    slaFirstResponseDL: Date.now() - 4 * 60 * 60 * 1000, // 4 hours ago (breached)
+    slaBreached: true,
+    assignedTo: "agent1@edumyles.com",
+    firstResponseAt: Date.now() - 5 * 60 * 60 * 1000, // 5 hours ago
+    resolvedAt: undefined,
+    attachments: [
+      "screenshot_error.png",
+      "browser_console.log",
+      "permission_settings.pdf"
+    ],
+    comments: [
+      {
+        _id: "1",
+        authorId: "agent1",
+        authorEmail: "michael.chen@edumyles.com",
+        authorRole: "Support Agent",
+        content: "Hi Sarah,\n\nThank you for reporting this issue. I understand this is urgent for your board meeting.\n\nI've checked your account permissions and can see there might be a configuration issue with your role settings. I'm escalating this to our technical team for immediate resolution.\n\nYou should receive an update within the next 2 hours.\n\nBest regards,\nMichael Chen\nEduMyles Support Team",
+        isInternal: false,
+        attachments: [],
+        createdAt: Date.now() - 5 * 60 * 60 * 1000
+      },
+      {
+        _id: "2",
+        authorId: "tech1",
+        authorEmail: "david.kim@edumyles.com",
+        authorRole: "Technical Lead",
+        content: "Internal Note:\n\nFound the issue - the school's subscription tier doesn't include advanced reporting features. They need to upgrade to Growth tier to access attendance reports.\n\nSLA is breached for first response. Need to communicate this clearly to the customer.",
+        isInternal: true,
+        attachments: [],
+        createdAt: Date.now() - 4 * 60 * 60 * 1000
+      },
+      {
+        _id: "3",
+        authorId: "agent1",
+        authorEmail: "michael.chen@edumyles.com",
+        authorRole: "Support Agent",
+        content: "Hi Sarah,\n\nI have an update from our technical team. The issue is related to your current subscription plan. The advanced attendance reporting features are available on our Growth tier and above.\n\nI can see you're currently on the Starter tier. Would you like me to connect you with our sales team to discuss upgrading your plan? We can offer a temporary upgrade for this month to help with your board meeting.\n\nPlease let me know how you'd like to proceed.\n\nBest regards,\nMichael",
+        isInternal: false,
+        attachments: [],
+        createdAt: Date.now() - 3 * 60 * 60 * 1000
+      },
+      {
+        _id: "4",
+        authorId: "sarah",
+        authorEmail: "sarah.johnson@nairobi-academy.edu",
+        authorRole: "School Admin",
+        content: "Hi Michael,\n\nThank you for the update. I wasn't aware that attendance reports were a premium feature. Yes, we'd definitely be interested in a temporary upgrade for this month, and we can discuss the long-term plan after our board meeting.\n\nCould you please arrange the temporary upgrade? We need the reports by Friday at the latest.\n\nThank you for your help!\n\nSarah",
+        isInternal: false,
+        attachments: [],
+        createdAt: Date.now() - 2 * 60 * 60 * 1000
+      },
+      {
+        _id: "5",
+        authorId: "agent1",
+        authorEmail: "michael.chen@edumyles.com",
+        authorRole: "Support Agent",
+        content: "Hi Sarah,\n\nPerfect! I've arranged a temporary upgrade to the Growth tier for this month. You should now have access to the attendance reports.\n\nI've also scheduled a call with our sales team for next Tuesday to discuss your long-term needs.\n\nPlease try accessing the reports now and let me know if you encounter any issues.\n\nBest regards,\nMichael",
+        isInternal: false,
+        attachments: [],
+        createdAt: Date.now() - 1 * 60 * 60 * 1000
+      }
+    ]
+  };
+
+  // Use mock data if no real data available
+  const ticketData = ticket || mockTicket;
 
   const handleStatusUpdate = () => {
     if (selectedStatus) {
@@ -174,18 +253,18 @@ export default function TicketDetailPage() {
     return <div>Loading ticket...</div>;
   }
 
-  if (!ticket) {
+  if (!ticketData) {
     return <div>Ticket not found</div>;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader 
-        title={ticket.title} 
-        description={`Ticket #${ticketId} • ${ticket.category}`}
+        title={ticketData.title} 
+        description={`Ticket #${ticketId} • ${ticketData.category}`}
         breadcrumbs={[
           { label: "Tickets", href: "/platform/tickets" },
-          { label: ticket.title, href: `/platform/tickets/${ticketId}` }
+          { label: ticketData.title, href: `/platform/tickets/${ticketId}` }
         ]}
       />
 
@@ -206,14 +285,14 @@ export default function TicketDetailPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Status</span>
-                  <Badge className={getStatusColor(ticket.status)}>
-                    {ticket.status.replace("_", " ")}
+                  <Badge className={getStatusColor(ticketData.status)}>
+                    {ticketData.status.replace("_", " ")}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Priority</span>
-                  <Badge className={getPriorityColor(ticket.priority)}>
-                    {ticket.priority}
+                  <Badge className={getPriorityColor(ticketData.priority)}>
+                    {ticketData.priority}
                   </Badge>
                 </div>
               </div>
@@ -226,7 +305,7 @@ export default function TicketDetailPage() {
                   <Building className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">School</span>
                 </div>
-                <p className="text-sm text-muted-foreground">{ticket.tenantName}</p>
+                <p className="text-sm text-muted-foreground">{ticketData.tenantName}</p>
                 
                 <div className="flex items-center gap-2 mt-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -265,11 +344,11 @@ export default function TicketDetailPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs font-bold">
-                      {ticket.assignedTo ? ticket.assignedTo.charAt(0).toUpperCase() : "U"}
+                      {ticketData.assignedTo ? ticketData.assignedTo.charAt(0).toUpperCase() : "U"}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {ticket.assignedTo || "Unassigned"}
+                    {ticketData.assignedTo || "Unassigned"}
                   </p>
                 </div>
               </div>
@@ -287,14 +366,14 @@ export default function TicketDetailPage() {
                   <div>
                     <div className="flex items-center justify-between text-xs">
                       <span>First Response</span>
-                      <span className={formatTimeRemaining(ticket.slaFirstResponseDL).color}>
-                        {formatTimeRemaining(ticket.slaFirstResponseDL).text}
+                      <span className={formatTimeRemaining(ticketData.slaFirstResponseDL).color}>
+                        {formatTimeRemaining(ticketData.slaFirstResponseDL).text}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
                       <div 
                         className="bg-blue-600 h-1.5 rounded-full"
-                        style={{ width: `${Math.max(0, Math.min(100, ((ticket.slaFirstResponseDL - Date.now()) / (ticket.slaFirstResponseDL - ticket.createdAt)) * 100))}%` }}
+                        style={{ width: `${Math.max(0, Math.min(100, ((ticketData.slaFirstResponseDL - Date.now()) / (ticketData.slaFirstResponseDL - ticketData.createdAt)) * 100))}%` }}
                       />
                     </div>
                   </div>
@@ -302,20 +381,20 @@ export default function TicketDetailPage() {
                   <div>
                     <div className="flex items-center justify-between text-xs">
                       <span>Resolution</span>
-                      <span className={formatTimeRemaining(ticket.slaResolutionDL).color}>
-                        {formatTimeRemaining(ticket.slaResolutionDL).text}
+                      <span className={formatTimeRemaining(ticketData.slaResolutionDL).color}>
+                        {formatTimeRemaining(ticketData.slaResolutionDL).text}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
                       <div 
                         className="bg-green-600 h-1.5 rounded-full"
-                        style={{ width: `${Math.max(0, Math.min(100, ((ticket.slaResolutionDL - Date.now()) / (ticket.slaResolutionDL - ticket.createdAt)) * 100))}%` }}
+                        style={{ width: `${Math.max(0, Math.min(100, ((ticketData.slaResolutionDL - Date.now()) / (ticketData.slaResolutionDL - ticketData.createdAt)) * 100))}%` }}
                       />
                     </div>
                   </div>
                 </div>
 
-                {ticket.slaBreached && (
+                {ticketData.slaBreached && (
                   <div className="flex items-center gap-2 p-2 bg-red-50 rounded-lg">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
                     <span className="text-sm font-medium text-red-700">SLA Breached</span>
@@ -329,11 +408,11 @@ export default function TicketDetailPage() {
               <div className="space-y-2 text-xs text-muted-foreground">
                 <div className="flex items-center justify-between">
                   <span>Created</span>
-                  <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                  <span>{new Date(ticketData.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Category</span>
-                  <span>{ticket.category}</span>
+                  <span>{ticketData.category}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Ticket ID</span>
@@ -355,16 +434,16 @@ export default function TicketDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground whitespace-pre-wrap">{ticket.body}</p>
+              <p className="text-muted-foreground whitespace-pre-wrap">{ticketData.body}</p>
               
-              {ticket.attachments && ticket.attachments.length > 0 && (
+              {ticketData.attachments && ticketData.attachments.length > 0 && (
                 <div className="mt-4 p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-2 text-sm font-medium mb-2">
                     <Paperclip className="h-4 w-4" />
-                    Attachments ({ticket.attachments.length})
+                    Attachments ({ticketData.attachments.length})
                   </div>
                   <div className="space-y-2">
-                    {ticket.attachments.map((attachment, index) => (
+                    {ticketData.attachments.map((attachment, index) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4" />
@@ -387,7 +466,7 @@ export default function TicketDetailPage() {
               <CardTitle className="text-lg flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  Thread ({ticket.comments?.length || 0} comments)
+                  Thread ({ticketData.comments?.length || 0} comments)
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm">
@@ -402,7 +481,7 @@ export default function TicketDetailPage() {
             <CardContent className="space-y-4">
               {/* Comments List */}
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {ticket.comments?.map((comment, index) => (
+                {ticketData.comments?.map((comment, index) => (
                   <div key={comment._id} className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -464,7 +543,7 @@ export default function TicketDetailPage() {
                       </div>
                     </div>
                     
-                    {index < ticket.comments.length - 1 && <Separator />}
+                    {index < ticketData.comments.length - 1 && <Separator />}
                   </div>
                 ))}
               </div>
@@ -673,30 +752,30 @@ export default function TicketDetailPage() {
                   <div>
                     <p className="text-sm font-medium">Ticket Created</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(ticket.createdAt).toLocaleString()}
+                      {new Date(ticketData.createdAt).toLocaleString()}
                     </p>
                   </div>
                 </div>
                 
-                {ticket.firstResponseAt && (
+                {ticketData.firstResponseAt && (
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full mt-1"></div>
                     <div>
                       <p className="text-sm font-medium">First Response</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(ticket.firstResponseAt).toLocaleString()}
+                        {new Date(ticketData.firstResponseAt).toLocaleString()}
                       </p>
                     </div>
                   </div>
                 )}
                 
-                {ticket.resolvedAt && (
+                {ticketData.resolvedAt && (
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-1"></div>
                     <div>
                       <p className="text-sm font-medium">Ticket Resolved</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(ticket.resolvedAt).toLocaleString()}
+                        {new Date(ticketData.resolvedAt).toLocaleString()}
                       </p>
                     </div>
                   </div>
