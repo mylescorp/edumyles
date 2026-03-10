@@ -62,6 +62,10 @@ export default function PlatformMarketplacePage() {
     return <LoadingSkeleton variant="page" />;
   }
 
+  // Extract data from registry query result
+  const registryData = registry?.data || [];
+  const registryArray = Array.isArray(registryData) ? registryData : [];
+
   const handleSeed = async () => {
     if (!sessionToken) return;
     setIsSeeding(true);
@@ -108,7 +112,7 @@ export default function PlatformMarketplacePage() {
         }
       />
 
-      {registry.length === 0 ? (
+      {registryArray.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
@@ -134,7 +138,7 @@ export default function PlatformMarketplacePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(registry as any[]).map((mod) => (
+                {registryArray.map((mod) => (
                   <TableRow key={mod.moduleId}>
                     <TableCell>
                       <Link
