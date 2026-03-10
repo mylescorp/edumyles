@@ -27,6 +27,7 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 type ViewType = "table" | "kanban" | "calendar";
 
@@ -45,6 +46,7 @@ interface Ticket {
 
 export default function TicketsPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [viewType, setViewType] = useState<ViewType>("table");
   const [filters, setFilters] = useState({
     status: "all",
@@ -85,14 +87,26 @@ export default function TicketsPage() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
   }) || [];
 
+  // Debug information
+  console.log("Debug Info:", {
+    totalTickets: ticketsQuery?.data?.length || 0,
+    filteredCount: filteredTickets.length,
+    searchQuery,
+    filters,
+    userTenantId: user?.tenantId,
+  });
+
   const handleCreateTicket = async () => {
     if (!newTicket.title.trim() || !newTicket.body.trim()) {
       return;
     }
     
     try {
+      // For platform admin, use a default tenant or create one
+      const tenantId = user?.tenantId || "platform";
+      
       await createTicketMutation({
-        tenantId: "temp_tenant_id", // TODO: Get actual tenant ID
+        tenantId: tenantId,
         title: newTicket.title,
         body: newTicket.body,
         category: newTicket.category as any,
@@ -108,6 +122,7 @@ export default function TicketsPage() {
       setIsCreateDialogOpen(false);
     } catch (error) {
       console.error("Failed to create ticket:", error);
+      alert("Failed to create ticket: " + (error as Error).message);
     }
   };
 
