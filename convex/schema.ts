@@ -748,4 +748,78 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_student_term", ["studentId", "term", "academicYear"]),
+
+  // Ticket Management System - Module 04
+  tickets: defineTable({
+    tenantId: v.id("tenants"),
+    title: v.string(),
+    body: v.string(),
+    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
+      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
+      v.literal("legal"), v.literal("other")),
+    priority: v.union(v.literal("P0"), v.literal("P1"), v.literal("P2"), v.literal("P3")),
+    status: v.union(v.literal("open"), v.literal("in_progress"),
+      v.literal("pending_school"), v.literal("resolved"), v.literal("closed")),
+    assignedTo: v.optional(v.string()),
+    createdBy: v.string(),
+    attachments: v.optional(v.array(v.string())),
+    slaFirstResponseDL: v.number(),
+    slaResolutionDL: v.number(),
+    slaBreached: v.optional(v.boolean()),
+    slaClockPaused: v.optional(v.boolean()),
+    firstResponseAt: v.optional(v.number()),
+    resolvedAt: v.optional(v.number()),
+    csatScore: v.optional(v.number()),
+    csatComment: v.optional(v.string()),
+    linearIssueUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"]).index("by_status", ["status"])
+    .index("by_priority", ["priority"]).index("by_assigned", ["assignedTo"])
+    .index("by_sla", ["slaResolutionDL"]),
+
+  ticketComments: defineTable({
+    ticketId: v.id("tickets"),
+    authorId: v.string(),
+    authorEmail: v.string(),
+    authorRole: v.string(),
+    content: v.string(),
+    isInternal: v.boolean(),
+    attachments: v.optional(v.array(v.string())),
+    createdAt: v.number(),
+  })
+    .index("by_ticket", ["ticketId"])
+    .index("by_author", ["authorId"]),
+
+  cannedResponses: defineTable({
+    title: v.string(),
+    content: v.string(),
+    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
+      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
+      v.literal("legal"), v.literal("other")),
+    variables: v.optional(v.array(v.string())), // Variable names like {{school_name}}
+    isActive: v.boolean(),
+    usageCount: v.number(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_category", ["category"])
+    .index("by_active", ["isActive"]),
+
+  slaRules: defineTable({
+    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
+      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
+      v.literal("legal"), v.literal("other")),
+    priority: v.union(v.literal("P0"), v.literal("P1"), v.literal("P2"), v.literal("P3")),
+    firstResponseHours: v.number(),
+    resolutionHours: v.number(),
+    escalationChain: v.optional(v.array(v.string())), // Role escalation chain
+    isActive: v.boolean(),
+    updatedBy: v.string(),
+    updatedAt: v.number(),
+  })
+    .index("by_category_priority", ["category", "priority"])
+    .index("by_active", ["isActive"]),
 });
