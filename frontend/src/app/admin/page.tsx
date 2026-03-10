@@ -36,15 +36,21 @@ export default function AdminDashboardPage() {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const studentCount = students.length;
-  const staffCount = staff.length;
-  const pendingAdmissions = applications.filter((a: any) => ["submitted", "under_review", "waitlisted"].includes(a.status)).length;
-  const outstandingInvoices = invoices.filter((inv: any) => inv.status !== "paid" && inv.status !== "cancelled").length;
-  const totalReceivables = invoices
-    .filter((inv: any) => inv.status !== "paid" && inv.status !== "cancelled")
-    .reduce((sum: number, inv: any) => sum + (inv.amount ?? 0), 0);
+  const studentCount = Array.isArray(students) ? students.length : 0;
+  const staffCount = Array.isArray(staff) ? staff.length : 0;
+  const pendingAdmissions = Array.isArray(applications) 
+    ? applications.filter((a: any) => ["submitted", "under_review", "waitlisted"].includes(a.status)).length 
+    : 0;
+  const outstandingInvoices = Array.isArray(invoices) 
+    ? invoices.filter((inv: any) => inv.status !== "paid" && inv.status !== "cancelled").length 
+    : 0;
+  const totalReceivables = Array.isArray(invoices)
+    ? invoices
+        .filter((inv: any) => inv.status !== "paid" && inv.status !== "cancelled")
+        .reduce((sum: number, inv: any) => sum + (inv.amount ?? 0), 0)
+    : 0;
 
-  const recentAdmissions = applications.slice(0, 5);
+  const recentAdmissions = Array.isArray(applications) ? applications.slice(0, 5) : [];
 
   // Mock data for charts - in real app, this would come from API
   const admissionsData = [
