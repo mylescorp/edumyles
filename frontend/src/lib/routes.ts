@@ -72,6 +72,7 @@ export const teacherNavItems: NavItem[] = [
   { label: "Attendance", href: "/portal/teacher/attendance", icon: Calendar },
   { label: "Assignments", href: "/portal/teacher/assignments", icon: FileText },
   { label: "Timetable", href: "/portal/teacher/timetable", icon: Calendar },
+  { label: "Support Tickets", href: "/support/tickets", icon: Headphones },
 ];
 
 export const studentNavItems: NavItem[] = [
@@ -80,6 +81,7 @@ export const studentNavItems: NavItem[] = [
   { label: "Timetable", href: "/portal/student/timetable", icon: Calendar },
   { label: "Assignments", href: "/portal/student/assignments", icon: FileText },
   { label: "Attendance", href: "/portal/student/attendance", icon: ClipboardList },
+  { label: "Support Tickets", href: "/support/tickets", icon: Headphones },
   { label: "Wallet", href: "/portal/student/wallet", icon: Wallet },
   { label: "Report Cards", href: "/portal/student/report-cards", icon: FileText },
 ];
@@ -90,6 +92,7 @@ export const parentNavItems: NavItem[] = [
   { label: "Fees", href: "/portal/parent/fees", icon: DollarSign },
   { label: "Messages", href: "/portal/parent/messages", icon: MessageSquare },
   { label: "Announcements", href: "/portal/parent/announcements", icon: Bell },
+  { label: "Support Tickets", href: "/support/tickets", icon: Headphones },
 ];
 
 export const alumniNavItems: NavItem[] = [
@@ -97,6 +100,7 @@ export const alumniNavItems: NavItem[] = [
   { label: "Transcripts", href: "/portal/alumni/transcripts", icon: FileText },
   { label: "Directory", href: "/portal/alumni/directory", icon: Users },
   { label: "Events", href: "/portal/alumni/events", icon: Calendar },
+  { label: "Support Tickets", href: "/support/tickets", icon: Headphones },
 ];
 
 export const partnerNavItems: NavItem[] = [
@@ -105,6 +109,7 @@ export const partnerNavItems: NavItem[] = [
   { label: "Reports", href: "/portal/partner/reports", icon: FileText },
   { label: "Payments", href: "/portal/partner/payments", icon: DollarSign },
   { label: "Messages", href: "/portal/partner/messages", icon: MessageSquare },
+  { label: "Support Tickets", href: "/support/tickets", icon: Headphones },
   { label: "Profile", href: "/portal/partner/profile", icon: Building2 },
 ];
 
