@@ -12,7 +12,7 @@ const SLA_RULES = {
 // Create a new ticket
 export const createTicket = mutation({
   args: {
-    tenantId: v.id("tenants"),
+    tenantId: v.string(),
     title: v.string(),
     body: v.string(),
     category: v.union(
@@ -112,7 +112,10 @@ export const getTickets = query({
     // Fetch tenant names for display
     const ticketsWithTenants = await Promise.all(
       limitedTickets.map(async (ticket) => {
-        const tenant = await ctx.db.get(ticket.tenantId);
+        const tenant = await ctx.db
+          .query("tenants")
+          .withIndex("by_tenantId", (q) => q.eq("tenantId", ticket.tenantId))
+          .first();
         return {
           ...ticket,
           tenantName: tenant?.name || "Unknown Tenant",
@@ -139,7 +142,10 @@ export const getTicket = query({
       .collect();
 
     // Get tenant info
-    const tenant = await ctx.db.get(ticket.tenantId);
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", ticket.tenantId))
+      .first();
 
     return {
       ...ticket,
