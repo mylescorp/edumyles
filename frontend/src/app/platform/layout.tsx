@@ -1,5 +1,7 @@
 "use client";
 
+import React, { useState } from "react";
+import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
 import { Component, ReactNode } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { RoleGuard } from "@/components/shared/RoleGuard";
@@ -9,60 +11,62 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 import { PlatformMetricsProvider } from "@/components/platform/PlatformMetrics";
 
-class PlatformErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false, error: null };
+interface PlatformErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+function PlatformErrorBoundary({ children }: { children: ReactNode }) {
+  const [hasError, setHasError] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  const resetError = () => {
+    setHasError(false);
+    setError(null);
+  };
+
+  if (hasError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] p-6">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center space-y-4">
+            <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto" />
+            <div>
+              <h3 className="font-semibold text-lg">Something went wrong</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {error?.message?.replace(/^(UNAUTHENTICATED|UNAUTHORIZED): /, "") ||
+                  "An unexpected error occurred."}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={resetError}
+            >
+              Try again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="flex items-center justify-center min-h-[400px] p-6">
-          <Card className="max-w-md w-full">
-            <CardContent className="pt-6 text-center space-y-4">
-              <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto" />
-              <div>
-                <h3 className="font-semibold text-lg">Something went wrong</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {this.state.error?.message?.replace(/^(UNAUTHENTICATED|UNAUTHORIZED): /, "") ||
-                    "An unexpected error occurred."}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => this.setState({ hasError: false, error: null })}
-              >
-                Try again
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
+  return children;
 }
 
 const PLATFORM_ROLES = ["master_admin", "super_admin"];
 
 export default function PlatformLayout({ children }: { children: ReactNode }) {
   return (
-    <RoleGuard allowedRoles={PLATFORM_ROLES}>
-      <AppShell navItems={platformNavItems}>
-        <PlatformErrorBoundary>
-          <PlatformMetricsProvider>
-            {children}
-          </PlatformMetricsProvider>
-        </PlatformErrorBoundary>
-      </AppShell>
-    </RoleGuard>
+    <ConvexAuthProvider>
+      <RoleGuard allowedRoles={PLATFORM_ROLES}>
+        <AppShell navItems={platformNavItems}>
+          <PlatformErrorBoundary>
+            <PlatformMetricsProvider>
+              {children}
+            </PlatformMetricsProvider>
+          </PlatformErrorBoundary>
+        </AppShell>
+      </RoleGuard>
+    </ConvexAuthProvider>
   );
 }
