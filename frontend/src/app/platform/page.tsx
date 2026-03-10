@@ -122,6 +122,7 @@ export default function PlatformDashboardPage() {
       <DashboardKPIGrid kpis={kpis || defaultKPIs} isLoading={kpisLoading} />
 
       {/* Quick Actions */}
+      {(() => { console.log("QuickActions rendered on platform page"); return null; })()}
       <QuickActions variant="grid" />
 
       {/* Dashboard Charts */}
