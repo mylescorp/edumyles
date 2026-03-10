@@ -204,23 +204,23 @@ export default function TicketsPage() {
         {slaStatsQuery?.data && (
           <div className="grid grid-cols-5 gap-4 mb-6 p-4 bg-success-bg/10 rounded-lg">
             <div className="text-center">
-              <div className="text-2xl font-bold text-success">{slaStatsQuery.data.total}</div>
+              <div className="text-2xl font-bold text-success">{slaStatsQuery.data?.total || 0}</div>
               <div className="text-sm text-muted-foreground">Total Tickets</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-info">{slaStatsQuery.data.open}</div>
+              <div className="text-2xl font-bold text-info">{slaStatsQuery.data?.open || 0}</div>
               <div className="text-sm text-muted-foreground">Open</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-warning">{slaStatsQuery.data.atRisk}</div>
+              <div className="text-2xl font-bold text-warning">{slaStatsQuery.data?.atRisk || 0}</div>
               <div className="text-sm text-muted-foreground">At Risk</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-danger">{slaStatsQuery.data.breached}</div>
+              <div className="text-2xl font-bold text-danger">{slaStatsQuery.data?.reached || 0}</div>
               <div className="text-sm text-muted-foreground">Breached</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-em-accent">{slaStatsQuery.data.compliance}%</div>
+              <div className="text-2xl font-bold text-em-accent">{slaStatsQuery.data?.compliance || 0}%</div>
               <div className="text-sm text-muted-foreground">SLA Compliance</div>
             </div>
           </div>
@@ -292,7 +292,7 @@ export default function TicketsPage() {
     </Card>
   );
 
-  if (ticketsQuery.isLoading) {
+  if (ticketsQuery.isLoading || !ticketsQuery.data) {
     return <div>Loading tickets...</div>;
   }
 
