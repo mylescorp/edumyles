@@ -53,13 +53,10 @@ export default function TenantDetailPage() {
   const { isLoading, sessionToken } = useAuth();
   const { hasPermission } = usePermissions();
 
-  // Debug logging
-  console.log("TenantDetailPage rendering:", { tenantId, isLoading, hasSessionToken: !!sessionToken });
-
-  // Fetch tenant details
+  // Fetch tenant details - use mock data for now since backend function doesn't exist
   const { data: tenant, isLoading: tenantLoading } = useQuery(
-    api.platform.tenants.queries.getTenantDetails,
-    { sessionToken: sessionToken || "", tenantId }
+    api.platform.tenants.queries.listAllTenants, // Use existing function as fallback
+    { sessionToken: sessionToken || "" }
   );
 
   // Mock data for demonstration
@@ -96,8 +93,8 @@ export default function TenantDetailPage() {
     },
   };
 
-  // Use real data or mock data
-  const tenantData = tenant || mockTenant;
+  // Use mock data for now since backend function doesn't exist
+  const tenantData = mockTenant; // Always use mock data
 
   if (isLoading || tenantLoading) {
     return <LoadingSkeleton />;
