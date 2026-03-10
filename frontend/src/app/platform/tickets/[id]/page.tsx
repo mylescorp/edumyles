@@ -95,7 +95,8 @@ export default function TicketDetailPage() {
   const [ccEmails, setCcEmails] = useState<string[]>([]);
   const [newCcEmail, setNewCcEmail] = useState("");
 
-  const { data: ticket, isLoading } = useQuery(api.tickets.getTicket, { ticketId });
+  // Temporarily disable Convex query to ensure mock data shows
+  const { data: ticket, isLoading } = { data: undefined, isLoading: false };
   const updateStatus = useMutation(api.tickets.updateTicketStatus);
   const addComment = useMutation(api.tickets.addComment);
 
