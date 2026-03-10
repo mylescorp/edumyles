@@ -93,9 +93,6 @@ export function QuickActions({
   const router = useRouter();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
-  // Debug logging
-  console.log("QuickActions rendering:", { variant, showHeader, quickActions: quickActions.length });
-
   const handleActionClick = async (action: QuickAction) => {
     setLoadingAction(action.id);
     
