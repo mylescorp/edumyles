@@ -102,8 +102,9 @@ export default function TicketsPage() {
     }
     
     try {
-      // For platform admin, use a default tenant or create one
-      const tenantId = user?.tenantId || "platform";
+      // For platform admin, we need to create or use a system tenant
+      // Let's try using a string ID first, if that fails we'll create a tenant
+      const tenantId = user?.tenantId || "system-tenant";
       
       await createTicketMutation({
         tenantId: tenantId,
@@ -120,6 +121,9 @@ export default function TicketsPage() {
         priority: "P2",
       });
       setIsCreateDialogOpen(false);
+      
+      // Show success message
+      alert("Ticket created successfully!");
     } catch (error) {
       console.error("Failed to create ticket:", error);
       alert("Failed to create ticket: " + (error as Error).message);

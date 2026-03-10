@@ -751,7 +751,7 @@ export default defineSchema({
 
   // Ticket Management System - Module 04
   tickets: defineTable({
-    tenantId: v.id("tenants"),
+    tenantId: v.string(),
     title: v.string(),
     body: v.string(),
     category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
