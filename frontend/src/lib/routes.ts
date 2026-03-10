@@ -19,6 +19,7 @@ import {
   Bell,
   BarChart3,
   Eye,
+  Headphones,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,6 +35,7 @@ export const platformNavItems: NavItem[] = [
   { label: "Dashboard", href: "/platform", icon: LayoutDashboard },
   { label: "Tenants", href: "/platform/tenants", icon: Building2 },
   { label: "Users", href: "/platform/users", icon: Users },
+  { label: "Tickets", href: "/platform/tickets", icon: Headphones },
   { label: "Analytics", href: "/platform/analytics", icon: BarChart3 },
   { label: "Marketplace", href: "/platform/marketplace", icon: ShoppingCart },
   { label: "Billing", href: "/platform/billing", icon: DollarSign },
@@ -55,6 +57,7 @@ export const adminNavItems: NavItem[] = [
   { label: "Library", href: "/admin/library", icon: Library, module: "library" },
   { label: "Transport", href: "/admin/transport", icon: Bus, module: "transport" },
   { label: "Communications", href: "/admin/communications", icon: MessageSquare, module: "communications" },
+  { label: "Support Tickets", href: "/admin/tickets", icon: Headphones, module: "tickets" },
   { label: "eWallet", href: "/admin/ewallet", icon: Wallet, module: "ewallet" },
   { label: "eCommerce", href: "/admin/ecommerce", icon: ShoppingCart, module: "ecommerce" },
   { label: "Marketplace", href: "/admin/marketplace", icon: ShoppingCart },
