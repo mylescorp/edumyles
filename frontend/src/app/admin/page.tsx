@@ -25,35 +25,85 @@ import { AdminRecentActivity } from "@/components/admin/AdminRecentActivity";
 import { AdminCharts } from "@/components/admin/AdminCharts";
 
 export default function AdminDashboardPage() {
-  const { isLoading, sessionToken } = useAuth();
+  const { isLoading, sessionToken, isAuthenticated } = useAuth();
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  // Show authentication error if not authenticated
+  if (!isAuthenticated || !sessionToken) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
+            <p className="text-muted-foreground mb-4">
+              Please log in to access the admin dashboard.
+            </p>
+            <Button asChild>
+              <Link href="/auth/login">Go to Login</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const students = usePlatformQuery(api.modules.sis.queries.listStudents, {}, !!sessionToken);
   const staff = usePlatformQuery(api.modules.hr.queries.listStaff, {}, !!sessionToken);
   const applications = usePlatformQuery(api.modules.admissions.queries.listApplications, {}, !!sessionToken);
   const invoices = usePlatformQuery(api.modules.finance.queries.listInvoices, {}, !!sessionToken);
 
-  if (isLoading || students === undefined || staff === undefined || applications === undefined || invoices === undefined) {
+  // Handle loading state for queries
+  if (students?.isLoading || staff?.isLoading || applications?.isLoading || invoices?.isLoading) {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const studentCount = Array.isArray(students) ? students.length : 0;
-  const staffCount = Array.isArray(staff) ? staff.length : 0;
-  const pendingAdmissions = Array.isArray(applications) 
-    ? applications.filter((a: any) => ["submitted", "under_review", "waitlisted"].includes(a.status)).length 
+  // Extract data from query results
+  const studentsData = students?.data;
+  const staffData = staff?.data;
+  const applicationsData = applications?.data;
+  const invoicesData = invoices?.data;
+
+  // Handle query errors gracefully
+  if (students?.error || staff?.error || applications?.error || invoices?.error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-xl font-semibold mb-2">Data Loading Error</h2>
+            <p className="text-muted-foreground mb-4">
+              Unable to load dashboard data. Please try refreshing the page.
+            </p>
+            <Button onClick={() => window.location.reload()}>
+              Refresh Page
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const studentCount = Array.isArray(studentsData) ? studentsData.length : 0;
+  const staffCount = Array.isArray(staffData) ? staffData.length : 0;
+  const pendingAdmissions = Array.isArray(applicationsData) 
+    ? applicationsData.filter((a: any) => ["submitted", "under_review", "waitlisted"].includes(a.status)).length 
     : 0;
-  const outstandingInvoices = Array.isArray(invoices) 
-    ? invoices.filter((inv: any) => inv.status !== "paid" && inv.status !== "cancelled").length 
+  const outstandingInvoices = Array.isArray(invoicesData) 
+    ? invoicesData.filter((inv: any) => inv.status !== "paid" && inv.status !== "cancelled").length 
     : 0;
-  const totalReceivables = Array.isArray(invoices)
-    ? invoices
+  const totalReceivables = Array.isArray(invoicesData)
+    ? invoicesData
         .filter((inv: any) => inv.status !== "paid" && inv.status !== "cancelled")
         .reduce((sum: number, inv: any) => sum + (inv.amount ?? 0), 0)
     : 0;
 
-  const recentAdmissions = Array.isArray(applications) ? applications.slice(0, 5) : [];
+  const recentAdmissions = Array.isArray(applicationsData) ? applicationsData.slice(0, 5) : [];
 
   // Mock data for charts - in real app, this would come from API
-  const admissionsData = [
+  const chartAdmissionsData = [
     { name: "Jan", value: 12, color: chartColors.categorical[0] },
     { name: "Feb", value: 19, color: chartColors.categorical[0] },
     { name: "Mar", value: 15, color: chartColors.categorical[0] },
@@ -201,7 +251,7 @@ export default function AdminDashboardPage() {
           </Card>
 
           <AdminCharts 
-            admissionsData={admissionsData}
+            admissionsData={chartAdmissionsData}
             revenueData={revenueData}
             enrollmentData={enrollmentData}
           />
