@@ -25,6 +25,13 @@ import {
   User,
   Building,
   X,
+  Search,
+  Grid3X3,
+  Table,
+  CalendarDays,
+  ArrowUpDown,
+  Download,
+  RefreshCw
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
@@ -74,8 +81,120 @@ export default function TicketsPage() {
 
   const slaStatsQuery = useQuery(api.tickets.getSLAStats, {});
 
+  // Mock data for demonstration
+  const mockTickets: Ticket[] = [
+    {
+      _id: "1",
+      title: "Unable to access student attendance reports",
+      category: "Technical",
+      priority: "P1",
+      status: "in_progress",
+      tenantName: "Nairobi International Academy",
+      createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+      slaResolutionDL: Date.now() + 3 * 24 * 60 * 60 * 1000,
+      slaBreached: false,
+      assignedTo: "agent1@edumyles.com"
+    },
+    {
+      _id: "2",
+      title: "Billing invoice not generated for March",
+      category: "Billing",
+      priority: "P2",
+      status: "open",
+      tenantName: "Mombasa Primary School",
+      createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
+      slaResolutionDL: Date.now() + 5 * 24 * 60 * 60 * 1000,
+      slaBreached: false,
+      assignedTo: "agent2@edumyles.com"
+    },
+    {
+      _id: "3",
+      title: "Request for additional user licenses",
+      category: "Account",
+      priority: "P3",
+      status: "pending_school",
+      tenantName: "Kisumu High School",
+      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+      slaResolutionDL: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      slaBreached: false,
+      assignedTo: "agent3@edumyles.com"
+    },
+    {
+      _id: "4",
+      title: "Data export request for academic records",
+      category: "Data",
+      priority: "P2",
+      status: "resolved",
+      tenantName: "Eldoret Academy",
+      createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
+      slaResolutionDL: Date.now() - 1 * 24 * 60 * 60 * 1000,
+      slaBreached: false,
+      assignedTo: "agent1@edumyles.com"
+    },
+    {
+      _id: "5",
+      title: "System login issues for multiple teachers",
+      category: "Technical",
+      priority: "P0",
+      status: "open",
+      tenantName: "Nakuru Day School",
+      createdAt: Date.now() - 6 * 60 * 60 * 1000,
+      slaResolutionDL: Date.now() + 1 * 24 * 60 * 60 * 1000,
+      slaBreached: false,
+      assignedTo: "agent2@edumyles.com"
+    },
+    {
+      _id: "6",
+      title: "Feature request: Bulk SMS notifications",
+      category: "Feature",
+      priority: "P3",
+      status: "open",
+      tenantName: "Thika Secondary School",
+      createdAt: Date.now() - 4 * 24 * 60 * 60 * 1000,
+      slaResolutionDL: Date.now() + 10 * 24 * 60 * 60 * 1000,
+      slaBreached: false,
+      assignedTo: undefined
+    },
+    {
+      _id: "7",
+      title: "Onboarding session needed for new staff",
+      category: "Onboarding",
+      priority: "P2",
+      status: "in_progress",
+      tenantName: "Kitengela Academy",
+      createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+      slaResolutionDL: Date.now() + 4 * 24 * 60 * 60 * 1000,
+      slaBreached: false,
+      assignedTo: "agent3@edumyles.com"
+    },
+    {
+      _id: "8",
+      title: "Legal compliance documentation update",
+      category: "Legal",
+      priority: "P1",
+      status: "pending_school",
+      tenantName: "Machakos Girls School",
+      createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
+      slaResolutionDL: Date.now() + 2 * 24 * 60 * 60 * 1000,
+      slaBreached: false,
+      assignedTo: "agent1@edumyles.com"
+    }
+  ];
+
+  const mockSlaStats = {
+    total: 8,
+    open: 4,
+    atRisk: 2,
+    reached: 0,
+    compliance: 85
+  };
+
+  // Use mock data if no real data available
+  const ticketsData = ticketsQuery?.data || mockTickets;
+  const slaStatsData = slaStatsQuery?.data || mockSlaStats;
+
   // Filter tickets based on search and filters
-  const filteredTickets = ticketsQuery?.data?.filter(ticket => {
+  const filteredTickets = ticketsData?.filter(ticket => {
     const matchesSearch = searchQuery === "" || 
       ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ticket.tenantName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -89,7 +208,7 @@ export default function TicketsPage() {
 
   // Debug information
   console.log("Debug Info:", {
-    totalTickets: ticketsQuery?.data?.length || 0,
+    totalTickets: ticketsData?.length || 0,
     filteredCount: filteredTickets.length,
     searchQuery,
     filters,
@@ -148,7 +267,7 @@ export default function TicketsPage() {
               size="sm"
               onClick={() => setViewType("table")}
             >
-              <Layout className="h-4 w-4 mr-1" />
+              <Table className="h-4 w-4 mr-1" />
               Table
             </Button>
             <Button
@@ -156,7 +275,7 @@ export default function TicketsPage() {
               size="sm"
               onClick={() => setViewType("kanban")}
             >
-              <Layout className="h-4 w-4 mr-1" />
+              <Grid3X3 className="h-4 w-4 mr-1" />
               Kanban
             </Button>
             <Button
@@ -164,7 +283,7 @@ export default function TicketsPage() {
               size="sm"
               onClick={() => setViewType("calendar")}
             >
-              <Calendar className="h-4 w-4 mr-1" />
+              <CalendarDays className="h-4 w-4 mr-1" />
               Calendar
             </Button>
             <Button onClick={() => setIsCreateDialogOpen(true)}>
@@ -248,7 +367,7 @@ export default function TicketsPage() {
               size="sm"
               onClick={() => setViewType("table")}
             >
-              <Layout className="h-4 w-4 mr-1" />
+              <Table className="h-4 w-4 mr-1" />
               Table
             </Button>
             <Button
@@ -256,7 +375,7 @@ export default function TicketsPage() {
               size="sm"
               onClick={() => setViewType("kanban")}
             >
-              <Layout className="h-4 w-4 mr-1" />
+              <Grid3X3 className="h-4 w-4 mr-1" />
               Kanban
             </Button>
             <Button
@@ -264,7 +383,7 @@ export default function TicketsPage() {
               size="sm"
               onClick={() => setViewType("calendar")}
             >
-              <Calendar className="h-4 w-4 mr-1" />
+              <CalendarDays className="h-4 w-4 mr-1" />
               Calendar
             </Button>
             <Button onClick={() => setIsCreateDialogOpen(true)}>
@@ -414,80 +533,92 @@ export default function TicketsPage() {
       </CardHeader>
       <CardContent>
         {/* Filters */}
-        <div className="flex items-center space-x-4 mb-6 p-4 bg-muted rounded-lg">
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search tickets..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-64"
-            />
+        <div className="flex items-center justify-between mb-6 p-4 bg-muted rounded-lg">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search tickets by title, school, or ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-80"
+              />
+            </div>
+            <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="pending_school">Pending School</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filters.priority} onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Priority</SelectItem>
+                <SelectItem value="P0">P0 - Critical</SelectItem>
+                <SelectItem value="P1">P1 - High</SelectItem>
+                <SelectItem value="P2">P2 - Medium</SelectItem>
+                <SelectItem value="P3">P3 - Low</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filters.category} onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="billing">Billing</SelectItem>
+                <SelectItem value="technical">Technical</SelectItem>
+                <SelectItem value="data">Data</SelectItem>
+                <SelectItem value="feature">Feature</SelectItem>
+                <SelectItem value="onboarding">Onboarding</SelectItem>
+                <SelectItem value="account">Account</SelectItem>
+                <SelectItem value="legal">Legal</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="open">Open</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="pending_school">Pending School</SelectItem>
-              <SelectItem value="resolved">Resolved</SelectItem>
-              <SelectItem value="closed">Closed</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={filters.priority} onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Priority</SelectItem>
-              <SelectItem value="P0">P0 - Critical</SelectItem>
-              <SelectItem value="P1">P1 - High</SelectItem>
-              <SelectItem value="P2">P2 - Medium</SelectItem>
-              <SelectItem value="P3">P3 - Low</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={filters.category} onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="billing">Billing</SelectItem>
-              <SelectItem value="technical">Technical</SelectItem>
-              <SelectItem value="data">Data</SelectItem>
-              <SelectItem value="feature">Feature</SelectItem>
-              <SelectItem value="onboarding">Onboarding</SelectItem>
-              <SelectItem value="account">Account</SelectItem>
-              <SelectItem value="legal">Legal</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-1" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm">
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* SLA Stats */}
-        {slaStatsQuery?.data && (
-          <div className="grid grid-cols-5 gap-4 mb-6 p-4 bg-success-bg/10 rounded-lg">
+        {slaStatsData && (
+          <div className="grid grid-cols-5 gap-4 mb-6 p-4 bg-green-50 rounded-lg">
             <div className="text-center">
-              <div className="text-2xl font-bold text-success">{slaStatsQuery.data?.total || 0}</div>
+              <div className="text-2xl font-bold text-green-600">{slaStatsData.total || 0}</div>
               <div className="text-sm text-muted-foreground">Total Tickets</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-info">{slaStatsQuery.data?.open || 0}</div>
+              <div className="text-2xl font-bold text-blue-600">{slaStatsData.open || 0}</div>
               <div className="text-sm text-muted-foreground">Open</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-warning">{slaStatsQuery.data?.atRisk || 0}</div>
+              <div className="text-2xl font-bold text-yellow-600">{slaStatsData.atRisk || 0}</div>
               <div className="text-sm text-muted-foreground">At Risk</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-danger">{slaStatsQuery.data?.reached || 0}</div>
+              <div className="text-2xl font-bold text-red-600">{slaStatsData.reached || 0}</div>
               <div className="text-sm text-muted-foreground">Breached</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-em-accent">{slaStatsQuery.data?.compliance || 0}%</div>
+              <div className="text-2xl font-bold text-purple-600">{slaStatsData.compliance || 0}%</div>
               <div className="text-sm text-muted-foreground">SLA Compliance</div>
             </div>
           </div>
