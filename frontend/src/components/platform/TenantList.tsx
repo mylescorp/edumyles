@@ -104,6 +104,17 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
   const [sortBy, setSortBy] = useState("created-desc");
   const [showFilters, setShowFilters] = useState(false);
 
+  // Debug logging
+  console.log("TenantList rendering:", { 
+    tenantsCount: tenants.length, 
+    isLoading, 
+    searchTerm,
+    statusFilter,
+    planFilter,
+    countyFilter,
+    sortBy
+  });
+
   // Filter and sort tenants
   const filteredAndSortedTenants = useMemo(() => {
     let filtered = tenants.filter(tenant => {
