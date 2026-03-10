@@ -10,8 +10,14 @@ import {
 export const ConvexProvider = ReactConvexProvider;
 
 export function useQuery(query: any, args?: any) {
-  const safeUseQuery = useConvexQuery as (queryFn: any, queryArgs?: any) => any;
-  return safeUseQuery(query, args);
+  const result = useConvexQuery(query, args);
+  
+  // Ensure we always return an object with the expected properties
+  return {
+    data: result?.data || undefined,
+    isLoading: result?.isLoading || false,
+    error: result?.error || null,
+  };
 }
 
 export function useMutation(mutation: any) {
