@@ -293,29 +293,23 @@ export function TenantProvisioningWizard({ className = "" }: TenantProvisioningW
     setError(null);
 
     try {
-      // Map form data to tenant creation format
+      // Map form data to tenant creation format (matching API signature)
       const tenantData = {
+        sessionToken,
         name: formData.schoolName,
         subdomain: formData.subdomain,
         email: formData.schoolEmail,
-        phone: formData.schoolPhone,
-        plan: formData.plan,
+        phone: formData.schoolPhone || "",
+        plan: formData.plan as "free" | "starter" | "growth" | "enterprise",
         county: formData.schoolCounty,
-        country: formData.schoolCountry,
-        address: formData.schoolAddress,
-        modules: formData.selectedModules,
-        billingCycle: formData.billingCycle,
-        paymentMethod: formData.paymentMethod,
-        trialPeriod: formData.trialPeriod,
-        customDomain: formData.customDomain,
-        enableSSL: formData.enableSSL,
-        schoolType: formData.schoolType,
-        studentCount: formData.studentCount,
-        sessionToken
+        country: formData.schoolCountry || "KE"
       };
 
+      console.log("Creating tenant with data:", tenantData);
+
       // Call the real API
-      await createTenant(tenantData);
+      const result = await createTenant(tenantData);
+      console.log("Tenant created successfully:", result);
       
       // Redirect to tenants list on success
       router.push("/platform/tenants");
