@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -189,6 +192,8 @@ const SCHOOL_TYPES = [
 
 export function TenantProvisioningWizard({ className = "" }: TenantProvisioningWizardProps) {
   const router = useRouter();
+  const { sessionToken } = useAuth();
+  const createTenant = useMutation(api.platform.tenants.mutations.createTenant);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -279,17 +284,44 @@ export function TenantProvisioningWizard({ className = "" }: TenantProvisioningW
       return;
     }
 
+    if (!sessionToken) {
+      setError("Authentication required. Please log in again.");
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Map form data to tenant creation format
+      const tenantData = {
+        name: formData.schoolName,
+        subdomain: formData.subdomain,
+        email: formData.schoolEmail,
+        phone: formData.schoolPhone,
+        plan: formData.plan,
+        county: formData.schoolCounty,
+        country: formData.schoolCountry,
+        address: formData.schoolAddress,
+        modules: formData.selectedModules,
+        billingCycle: formData.billingCycle,
+        paymentMethod: formData.paymentMethod,
+        trialPeriod: formData.trialPeriod,
+        customDomain: formData.customDomain,
+        enableSSL: formData.enableSSL,
+        schoolType: formData.schoolType,
+        studentCount: formData.studentCount,
+        sessionToken
+      };
+
+      // Call the real API
+      await createTenant(tenantData);
       
-      // Redirect to success page or tenant details
+      // Redirect to tenants list on success
       router.push("/platform/tenants");
     } catch (err: any) {
-      setError(err.message || "Failed to create tenant");
+      console.error("Tenant creation error:", err);
+      setError(err.message || "Failed to create tenant. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
