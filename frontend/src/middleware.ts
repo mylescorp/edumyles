@@ -6,7 +6,7 @@ const PUBLIC_ROUTES = ["/auth/login", "/auth/callback"];
 
 // ── RBAC: Which roles can access which route prefixes ─────────
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
-  "/platform": ["master_admin", "super_admin"],
+  "/platform": ["super_admin", "admin"],
   "/admin": [
     "school_admin",
     "principal",
@@ -14,49 +14,74 @@ const ROUTE_ROLE_MAP: Record<string, string[]> = {
     "hr_manager",
     "librarian",
     "transport_manager",
-    "master_admin",
     "super_admin",
+    "admin",
   ],
   "/portal/teacher": [
     "teacher",
-    "master_admin",
     "super_admin",
+    "admin",
     "school_admin",
     "principal",
   ],
   "/portal/student": [
     "student",
-    "master_admin",
     "super_admin",
+    "admin",
     "school_admin",
     "principal",
     "teacher",
   ],
   "/portal/parent": [
     "parent",
-    "master_admin",
     "super_admin",
+    "admin",
     "school_admin",
     "principal",
   ],
   "/portal/alumni": [
     "alumni",
-    "master_admin",
     "super_admin",
+    "admin",
     "school_admin",
   ],
   "/portal/partner": [
     "partner",
-    "master_admin",
     "super_admin",
+    "admin",
     "school_admin",
   ],
 };
 
+// ── Permission-based route protection ───────────────────────────────
+const ROUTE_PERMISSIONS: Record<string, string[]> = {
+  "/platform/users": ["user:read"],
+  "/platform/users/create": ["user:create"],
+  "/platform/users/[userId]/edit": ["user:update"],
+  "/platform/tenants": ["tenant:read"],
+  "/platform/tenants/create": ["tenant:create"],
+  "/platform/tenants/[tenantId]/edit": ["tenant:update"],
+  "/platform/tickets": ["ticket:read"],
+  "/platform/tickets/create": ["ticket:create"],
+  "/platform/tickets/[ticketId]/edit": ["ticket:update"],
+  "/platform/crm": ["crm:read"],
+  "/platform/crm/create": ["crm:create"],
+  "/platform/crm/proposals": ["proposal:create"],
+  "/platform/communications": ["communication:read"],
+  "/platform/communications/create": ["communication:create"],
+  "/platform/billing": ["billing:read"],
+  "/platform/analytics": ["analytics:read"],
+  "/platform/feature-flags": ["feature_flag:read"],
+  "/platform/marketplace": ["marketplace:read"],
+  "/platform/staff-performance": ["staff_performance:read"],
+  "/platform/impersonation": ["impersonate:user"],
+  "/platform/settings": ["system:config"],
+};
+
 function getRoleDashboard(role: string): string {
   switch (role) {
-    case "master_admin":
     case "super_admin":
+    case "admin":
       return "/platform";
     case "school_admin":
     case "principal":
@@ -95,10 +120,21 @@ function isRoleAllowedForPath(pathname: string, role: string): boolean {
   return true;
 }
 
+function hasRequiredPermissions(pathname: string, userPermissions: string[]): boolean {
+  const requiredPermissions = ROUTE_PERMISSIONS[pathname];
+  if (!requiredPermissions) return true; // No specific permissions required
+  
+  return requiredPermissions.some(permission => 
+    userPermissions.includes(permission) || 
+    userPermissions.includes("all:access")
+  );
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const session = request.cookies.get("edumyles_session");
   const role = request.cookies.get("edumyles_role")?.value;
+  const permissions = request.cookies.get("edumyles_permissions")?.value?.split(',') || [];
 
   // Development bypass - skip middleware for admin routes in development
   if (process.env.NODE_ENV === "development" && pathname.startsWith("/admin")) {
@@ -129,7 +165,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(dashboard, request.url));
   }
 
-  // 4. RBAC enforcement
+  // 4. RBAC enforcement - Role-based access
   if (isProtected && session && role) {
     if (!isRoleAllowedForPath(pathname, role)) {
       const correctDashboard = getRoleDashboard(role);
@@ -139,9 +175,16 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(redirectUrl);
       }
     }
+    
+    // 5. Permission-based access control
+    if (!hasRequiredPermissions(pathname, permissions)) {
+      const redirectUrl = new URL("/unauthorized", request.url);
+      redirectUrl.searchParams.set("error", "insufficient_permissions");
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
-  // 5. Extract tenant slug from subdomain
+  // 6. Extract tenant slug from subdomain
   const host = request.headers.get("host") ?? "";
   const parts = host.split(".");
   const response = NextResponse.next();
@@ -152,6 +195,11 @@ export function middleware(request: NextRequest) {
       response.headers.set("x-tenant-slug", firstPart);
     }
   }
+
+  // 7. Add security headers
+  response.headers.set("x-frame-options", "DENY");
+  response.headers.set("x-content-type-options", "nosniff");
+  response.headers.set("referrer-policy", "strict-origin-when-cross-origin");
 
   return response;
 }
