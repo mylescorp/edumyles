@@ -27,6 +27,12 @@ import { AdminCharts } from "@/components/admin/AdminCharts";
 export default function AdminDashboardPage() {
   const { isLoading, sessionToken, isAuthenticated } = useAuth();
 
+  // Always call hooks before any conditional returns
+  const students = usePlatformQuery(api.modules.sis.queries.listStudents, {}, !!sessionToken);
+  const staff = usePlatformQuery(api.modules.hr.queries.listStaff, {}, !!sessionToken);
+  const applications = usePlatformQuery(api.modules.admissions.queries.listApplications, {}, !!sessionToken);
+  const invoices = usePlatformQuery(api.modules.finance.queries.listInvoices, {}, !!sessionToken);
+
   // Show loading state while checking authentication
   if (isLoading) {
     return <LoadingSkeleton variant="page" />;
@@ -50,11 +56,6 @@ export default function AdminDashboardPage() {
       </div>
     );
   }
-
-  const students = usePlatformQuery(api.modules.sis.queries.listStudents, {}, !!sessionToken);
-  const staff = usePlatformQuery(api.modules.hr.queries.listStaff, {}, !!sessionToken);
-  const applications = usePlatformQuery(api.modules.admissions.queries.listApplications, {}, !!sessionToken);
-  const invoices = usePlatformQuery(api.modules.finance.queries.listInvoices, {}, !!sessionToken);
 
   // Handle loading state for queries
   if (students?.isLoading || staff?.isLoading || applications?.isLoading || invoices?.isLoading) {
