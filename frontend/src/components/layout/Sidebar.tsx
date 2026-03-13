@@ -38,16 +38,18 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
   const SidebarContent = () => (
     <>
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b px-4">
-        <GraduationCap className="h-7 w-7 shrink-0 text-sidebar-primary" />
+      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4 bg-gradient-to-r from-sidebar-bg to-sidebar-active/20">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent/20">
+          <GraduationCap className="h-4 w-4 text-sidebar-icon" />
+        </div>
         {!collapsed && (
-          <span className="text-lg font-bold text-sidebar-foreground">EduMyles</span>
+          <span className="text-lg font-bold text-sidebar-text-active transition-all duration-200">EduMyles</span>
         )}
         {!isMobile && (
           <Button
             variant="ghost"
             size="sm"
-            className="ml-auto h-8 w-8 p-0"
+            className="ml-auto h-8 w-8 p-0 text-sidebar-icon hover:text-sidebar-text-active hover:bg-sidebar-accent/50 transition-all duration-200"
             onClick={() => setCollapsed(!collapsed)}
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -57,7 +59,7 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
           <Button
             variant="ghost"
             size="sm"
-            className="ml-auto h-8 w-8 p-0"
+            className="ml-auto h-8 w-8 p-0 text-sidebar-icon hover:text-sidebar-text-active hover:bg-sidebar-accent/50 transition-all duration-200"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
@@ -93,16 +95,22 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
                   href={item.href}
                   onClick={isMobile ? onClose : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors relative",
+                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 relative",
+                    "hover:bg-sidebar-accent/50 hover:translate-x-0.5",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                      ? "bg-sidebar-accent text-sidebar-text-active shadow-sm border-l-2 border-em-primary-light"
+                      : "text-sidebar-text hover:text-sidebar-text-hover"
                   )}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {!collapsed && <span>{item.label}</span>}
+                  <div className={cn(
+                    "flex h-4 w-4 items-center justify-center rounded transition-all duration-200",
+                    isActive ? "bg-em-primary-light/20 text-em-primary-light" : "text-sidebar-icon group-hover:text-sidebar-icon-hover"
+                  )}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  {!collapsed && <span className="truncate">{item.label}</span>}
                   {!collapsed && badgeCount && (
-                    <Badge variant="destructive" className="ml-auto h-5 w-5 rounded-full p-0 text-xs">
+                    <Badge variant="destructive" className="ml-auto h-5 w-5 rounded-full p-0 text-xs bg-em-danger border-0 shadow-sm">
                       {badgeCount}
                     </Badge>
                   )}
@@ -135,22 +143,23 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
 
       {/* User section at bottom */}
       {!isMobile && (
-        <div className="border-t p-4">
+        <div className="border-t border-sidebar-border p-4 bg-gradient-to-t from-sidebar-accent/10 to-transparent">
           <div className={cn(
-            "flex items-center gap-3",
+            "flex items-center gap-3 transition-all duration-200",
             collapsed ? "justify-center" : ""
           )}>
-            <div className="h-8 w-8 rounded-full bg-sidebar-accent flex items-center justify-center">
-              <span className="text-xs font-medium">
+            <div className="relative h-8 w-8 rounded-full bg-gradient-to-br from-em-primary-light to-em-primary flex items-center justify-center shadow-sm">
+              <span className="text-xs font-medium text-sidebar-text-active">
                 {user?.firstName?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "U"}
               </span>
+              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-em-success border-2 border-sidebar-bg"></div>
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                <p className="text-sm font-medium text-sidebar-text-active truncate">
                   {[user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || "User"}
                 </p>
-                <p className="text-xs text-sidebar-foreground/70 truncate">{user?.email ?? ""}</p>
+                <p className="text-xs text-sidebar-text truncate">{user?.email ?? ""}</p>
               </div>
             )}
           </div>
@@ -172,7 +181,8 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
   return (
     <aside
       className={cn(
-        "relative flex h-full flex-col border-r bg-sidebar transition-all duration-300 z-[1000]",
+        "relative flex h-full flex-col border-r border-sidebar-border bg-sidebar-bg transition-all duration-300 z-[1000]",
+        "shadow-lg",
         collapsed ? "w-16" : "w-64"
       )}
     >
