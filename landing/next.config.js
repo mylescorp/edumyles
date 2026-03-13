@@ -5,6 +5,9 @@ const nextConfig = {
     WORKOS_REDIRECT_URI: process.env.WORKOS_REDIRECT_URI ?? "",
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? "",
   },
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
 };
 
 module.exports = nextConfig;
