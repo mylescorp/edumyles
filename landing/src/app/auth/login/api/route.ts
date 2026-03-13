@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
 
-// Required for static export mode
-export const dynamic = "force-static";
-export const revalidate = false;
-
 function buildAuthUrl(req: NextRequest, email?: string) {
   const apiKey = process.env.WORKOS_API_KEY;
   const clientId =

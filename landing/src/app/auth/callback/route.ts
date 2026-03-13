@@ -4,10 +4,6 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
 
-// Required for static export mode
-export const dynamic = "force-static";
-export const revalidate = false;
-
 const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL ?? "ayany004@gmail.com";
 
 function resolveRole(email: string, _orgId?: string): string {
