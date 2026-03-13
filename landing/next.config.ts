@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
     WORKOS_REDIRECT_URI: process.env.WORKOS_REDIRECT_URI ?? "",
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? "",
   },
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+  distDir: 'out',
 };
 
 export default nextConfig;
