@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, GraduationCap, Car, Hospital, Users, Tractor, Brain } from "lucide-react";
 
 interface Product {
-  icon: React.ReactElement;
+  icon: any;
   name: string;
   description: string;
   href: string;
