@@ -6,10 +6,9 @@ import Footer from "./Footer";
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isAuthPage = pathname.startsWith("/auth");
+    const isAuthPage = pathname?.startsWith("/auth");
 
     if (isAuthPage) {
-        // Auth pages have their own layout (auth/layout.tsx)
         return <>{children}</>;
     }
 
