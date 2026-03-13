@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import ConditionalLayout from "../components/ConditionalLayout";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
@@ -28,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="antialiased">
-        <ConditionalLayout>{children}</ConditionalLayout>
+        {children}
         <SpeedInsights />
       </body>
     </html>
