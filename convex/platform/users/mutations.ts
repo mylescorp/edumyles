@@ -138,12 +138,36 @@ export const updateUserProfile = mutation({
     },
     handler: async (ctx, args) => {
         const { sessionToken, ...fields } = args;
+        
+        console.log("updateUserProfile called with:", {
+            sessionToken: sessionToken ? "present" : "missing",
+            fields: fields
+        });
+        
         const tenantCtx = await requirePlatformSession(ctx, { sessionToken });
+        
+        console.log("requirePlatformSession result:", {
+            tenantId: tenantCtx.tenantId,
+            userId: tenantCtx.userId,
+            role: tenantCtx.role,
+            email: tenantCtx.email
+        });
 
         const user = await ctx.db
             .query("users")
             .filter((q) => q.eq(q.field("eduMylesUserId"), tenantCtx.userId))
             .first();
+
+        console.log("user lookup result:", user ? "found" : "not found");
+        if (user) {
+            console.log("user data:", {
+                _id: user._id,
+                eduMylesUserId: user.eduMylesUserId,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName
+            });
+        }
 
         if (!user) throw new ConvexError("User not found");
 
@@ -154,6 +178,8 @@ export const updateUserProfile = mutation({
         if (fields.phone !== undefined) patch.phone = fields.phone;
         if (fields.bio !== undefined) patch.bio = fields.bio;
         if (fields.location !== undefined) patch.location = fields.location;
+
+        console.log("patch data to apply:", patch);
 
         await ctx.db.patch(user._id, patch);
 
