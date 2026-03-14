@@ -1007,6 +1007,164 @@ export default defineSchema({
     .index("by_status", ["tenantId", "status"])
     .index("by_createdBy", ["tenantId", "createdBy"]),
 
+  // Platform Operations Center - System Monitoring & Incident Management
+  incidents: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    severity: v.union(v.literal("critical"), v.literal("high"), v.literal("medium"), v.literal("low")),
+    status: v.union(v.literal("active"), v.literal("investigating"), v.literal("resolved"), v.literal("closed")),
+    services: v.array(v.string()),
+    impact: v.string(),
+    assignedTo: v.optional(v.string()),
+    tags: v.array(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    startTime: v.number(),
+    endTime: v.optional(v.number()),
+    duration: v.optional(v.number()),
+    resolution: v.optional(v.string()),
+    resolvedBy: v.optional(v.string()),
+    acknowledged: v.boolean(),
+    acknowledgedAt: v.optional(v.number()),
+    acknowledgedBy: v.optional(v.string()),
+    notifications: v.array(v.string()),
+    metrics: v.object({
+      affectedUsers: v.number(),
+      affectedTenants: v.number(),
+      businessImpact: v.string(),
+      recoveryTime: v.optional(v.number()),
+    }),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_severity", ["tenantId", "severity"])
+    .index("by_assignedTo", ["tenantId", "assignedTo"])
+    .index("by_createdBy", ["tenantId", "createdBy"])
+    .index("by_createdAt", ["createdAt"]),
+
+  incidentTimeline: defineTable({
+    incidentId: v.string(),
+    type: v.union(v.literal("status_change"), v.literal("note"), v.literal("action"), v.literal("notification")),
+    message: v.string(),
+    metadata: v.optional(v.any()),
+    internal: v.boolean(),
+    createdBy: v.string(),
+    tenantId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_incidentId", ["incidentId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  maintenanceWindows: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    status: v.union(v.literal("scheduled"), v.literal("in_progress"), v.literal("completed"), v.literal("cancelled")),
+    scheduledStart: v.number(),
+    scheduledEnd: v.number(),
+    actualStart: v.optional(v.number()),
+    actualEnd: v.optional(v.number()),
+    impact: v.union(v.literal("no_impact"), v.literal("degraded_performance"), v.literal("service_unavailable")),
+    affectedServices: v.array(v.string()),
+    notificationChannels: v.array(v.string()),
+    autoNotify: v.boolean(),
+    createdBy: v.string(),
+    tenantId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    notifications: v.array(v.string()),
+    notes: v.optional(v.string()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_scheduledStart", ["scheduledStart"])
+    .index("by_createdBy", ["tenantId", "createdBy"]),
+
+  operationsAlerts: defineTable({
+    tenantId: v.string(),
+    type: v.union(v.literal("system"), v.literal("security"), v.literal("performance"), v.literal("capacity")),
+    title: v.string(),
+    description: v.string(),
+    severity: v.union(v.literal("critical"), v.literal("warning"), v.literal("info")),
+    status: v.union(v.literal("active"), v.literal("resolved")),
+    source: v.string(),
+    metrics: v.optional(v.record(v.any())),
+    autoResolve: v.boolean(),
+    resolveCondition: v.optional(v.string()),
+    createdBy: v.string(),
+    tenantId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    resolvedAt: v.optional(v.number()),
+    resolvedBy: v.optional(v.string()),
+    resolution: v.optional(v.string()),
+    acknowledgements: v.array(v.string()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_type", ["tenantId", "type"])
+    .index("by_severity", ["tenantId", "severity"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_createdAt", ["createdAt"])
+    .index("by_source", ["source"]),
+
+  alertAcknowledgements: defineTable({
+    alertId: v.string(),
+    userId: v.string(),
+    notes: v.string(),
+    acknowledgedAt: v.number(),
+    tenantId: v.string(),
+  })
+    .index("by_alertId", ["alertId"])
+    .index("by_userId", ["userId", "acknowledgedAt"]),
+
+  alertSuppressions: defineTable({
+    alertType: v.string(),
+    source: v.string(),
+    condition: v.string(),
+    suppressedBy: v.string(),
+    suppressedAt: v.number(),
+    expiresAt: v.number(),
+    tenantId: v.string(),
+  })
+    .index("by_type_source", ["alertType", "source"])
+    .index("by_expiresAt", ["expiresAt"])
+    .index("by_tenant", ["tenantId"]),
+
+  scheduledNotifications: defineTable({
+    maintenanceId: v.string(),
+    type: v.string(),
+    scheduledFor: v.number(),
+    message: v.string(),
+    channels: v.array(v.string()),
+    status: v.union(v.literal("pending"), v.literal("sent"), v.literal("failed")),
+    tenantId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_scheduledFor", ["scheduledFor"]),
+
+  systemHealth: defineTable({
+    tenantId: v.string(),
+    overall: v.string(),
+    score: v.number(),
+    lastChecked: v.number(),
+    services: v.array(v.object({
+      name: v.string(),
+      status: v.string(),
+      responseTime: v.number(),
+      uptime: v.number(),
+      lastCheck: v.number(),
+      metrics: v.record(v.any()),
+    })),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_overall", ["tenantId", "overall"])
+    .index("by_lastChecked", ["lastChecked"]),
+
   // Ticket Management System - Module 04
   tickets: defineTable({
     tenantId: v.string(),
