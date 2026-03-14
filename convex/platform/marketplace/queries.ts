@@ -1,714 +1,504 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
-export const getAvailableIntegrations = query({
+const categoryValidator = v.union(
+  v.literal("academic_tools"), v.literal("communication"),
+  v.literal("finance_fees"), v.literal("analytics_bi"),
+  v.literal("content_packs"), v.literal("integrations"),
+  v.literal("ai_automation"), v.literal("accessibility"),
+  v.literal("administration"), v.literal("security_compliance")
+);
+
+// ── Storefront Queries ────────────────────────────────────────────────
+
+export const getMarketplaceHome = query({
   args: {
     sessionToken: v.string(),
-    category: v.optional(v.union(
-      v.literal("payment"),
-      v.literal("communication"),
-      v.literal("analytics"),
-      v.literal("storage"),
-      v.literal("crm"),
-      v.literal("education"),
-      v.literal("security"),
-      v.literal("productivity")
-    )),
-    provider: v.optional(v.string()),
-    type: v.optional(v.union(v.literal("api"), v.literal("webhook"), v.literal("oauth"), v.literal("sdk"))),
-    isActive: v.optional(v.boolean()),
-    limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement available integrations retrieval
-    return [
-      {
-        _id: "integration_1",
-        name: "Stripe Payment Gateway",
-        description: "Secure payment processing with support for multiple currencies and payment methods",
-        category: "payment",
-        provider: "Stripe",
-        type: "api",
-        version: "v2024-03-20",
-        documentation: "https://stripe.com/docs/api",
-        configuration: {
-          apiKey: "string",
-          webhookSecret: "string",
-          defaultCurrency: "string",
-        },
-        pricing: {
-          model: "usage_based",
-          currency: "USD",
-          amount: 0.029,
-          unit: "per_transaction",
-          features: ["Credit cards", "Bank transfers", "Digital wallets", "Recurring billing"],
-        },
-        requirements: ["SSL certificate", "Webhook endpoint", "PCI compliance"],
-        capabilities: ["Payment processing", "Subscription management", "Dispute handling", "Fraud detection"],
-        isActive: true,
-        popularity: 95,
-        rating: 4.8,
-        reviews: 1247,
-        installs: 892,
-        createdAt: Date.now() - 180 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "integration_2",
-        name: "SendGrid Email Service",
-        description: "Reliable email delivery with advanced analytics and template management",
-        category: "communication",
-        provider: "SendGrid",
-        type: "api",
-        version: "v3.0",
-        documentation: "https://sendgrid.com/docs/api-reference/",
-        configuration: {
-          apiKey: "string",
-          fromEmail: "string",
-          defaultTemplate: "string",
-        },
-        pricing: {
-          model: "freemium",
-          currency: "USD",
-          amount: 15.00,
-          unit: "per_month",
-          features: ["100 free emails/day", "Template library", "Analytics", "A/B testing"],
-        },
-        requirements: ["Verified domain", "API key", "From address"],
-        capabilities: ["Email sending", "Template management", "Analytics", "Automation"],
-        isActive: true,
-        popularity: 88,
-        rating: 4.6,
-        reviews: 892,
-        installs: 654,
-        createdAt: Date.now() - 150 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "integration_3",
-        name: "Google Analytics 4",
-        description: "Advanced web analytics and user behavior tracking",
-        category: "analytics",
-        provider: "Google",
-        type: "api",
-        version: "v1beta",
-        documentation: "https://developers.google.com/analytics",
-        configuration: {
-          measurementId: "string",
-          apiSecret: "string",
-          streamId: "string",
-        },
-        pricing: {
-          model: "free",
-          features: ["Real-time analytics", "Custom reports", "User segmentation", "Conversion tracking"],
-        },
-        requirements: ["Google account", "GA4 property", "Measurement ID"],
-        capabilities: ["Event tracking", "User analytics", "Conversion analysis", "Custom reports"],
-        isActive: true,
-        popularity: 92,
-        rating: 4.7,
-        reviews: 2156,
-        installs: 1567,
-        createdAt: Date.now() - 240 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 14 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "integration_4",
-        name: "Amazon S3 Storage",
-        description: "Scalable cloud storage with high durability and availability",
-        category: "storage",
-        provider: "Amazon Web Services",
-        type: "api",
-        version: "v2006-03-01",
-        documentation: "https://docs.aws.amazon.com/s3/",
-        configuration: {
-          accessKeyId: "string",
-          secretAccessKey: "string",
-          bucketName: "string",
-          region: "string",
-        },
-        pricing: {
-          model: "usage_based",
-          currency: "USD",
-          amount: 0.023,
-          unit: "per_gb_month",
-          features: ["99.999999999% durability", "Unlimited storage", "Versioning", "Encryption"],
-        },
-        requirements: ["AWS account", "S3 bucket", "IAM credentials"],
-        capabilities: ["File storage", "Version control", "Encryption", "CDN integration"],
-        isActive: true,
-        popularity: 94,
-        rating: 4.9,
-        reviews: 3421,
-        installs: 2897,
-        createdAt: Date.now() - 300 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 21 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "integration_5",
-        name: "Salesforce CRM",
-        description: "Comprehensive customer relationship management and sales automation",
-        category: "crm",
-        provider: "Salesforce",
-        type: "oauth",
-        version: "v58.0",
-        documentation: "https://developer.salesforce.com/docs/",
-        configuration: {
-          clientId: "string",
-          clientSecret: "string",
-          redirectUri: "string",
-          environment: v.union(v.literal("sandbox"), v.literal("production")),
-        },
-        pricing: {
-          model: "paid",
-          currency: "USD",
-          amount: 25.00,
-          unit: "per_user_month",
-          features: ["Contact management", "Lead tracking", "Opportunity management", "Reporting"],
-        },
-        requirements: ["Salesforce account", "OAuth app", "API permissions"],
-        capabilities: ["Contact sync", "Lead management", "Opportunity tracking", "Custom objects"],
-        isActive: true,
-        popularity: 87,
-        rating: 4.5,
-        reviews: 1567,
-        installs: 892,
-        createdAt: Date.now() - 200 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "integration_6",
-        name: "Google Classroom",
-        description: "Educational platform for assignment management and classroom collaboration",
-        category: "education",
-        provider: "Google",
-        type: "oauth",
-        version: "v1",
-        documentation: "https://developers.google.com/classroom",
-        configuration: {
-          clientId: "string",
-          clientSecret: "string",
-          redirectUri: "string",
-          scopes: v.array(v.string()),
-        },
-        pricing: {
-          model: "free",
-          features: ["Assignment management", "Grade tracking", "Student roster", "Class communication"],
-        },
-        requirements: ["Google Workspace account", "Classroom API enabled", "OAuth consent"],
-        capabilities: ["Course sync", "Assignment management", "Grade sync", "Student enrollment"],
-        isActive: true,
-        popularity: 79,
-        rating: 4.4,
-        reviews: 445,
-        installs: 234,
-        createdAt: Date.now() - 120 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "integration_7",
-        name: "Auth0 Authentication",
-        description: "Enterprise-grade authentication and authorization platform",
-        category: "security",
-        provider: "Auth0",
-        type: "sdk",
-        version: "v2",
-        documentation: "https://auth0.com/docs/",
-        configuration: {
-          domain: "string",
-          clientId: "string",
-          clientSecret: "string",
-          callbackUrl: "string",
-        },
-        pricing: {
-          model: "freemium",
-          currency: "USD",
-          amount: 23.00,
-          unit: "per_month",
-          features: ["7,500 free users", "SSO", "MFA", "User management"],
-        },
-        requirements: ["Auth0 account", "Application setup", "Callback configuration"],
-        capabilities: ["User authentication", "SSO", "MFA", "User provisioning"],
-        isActive: true,
-        popularity: 91,
-        rating: 4.7,
-        reviews: 2891,
-        installs: 1678,
-        createdAt: Date.now() - 180 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 8 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "integration_8",
-        name: "Slack Workspace",
-        description: "Team communication and collaboration platform",
-        category: "productivity",
-        provider: "Slack",
-        type: "oauth",
-        version: "v1.0.2",
-        documentation: "https://api.slack.com/",
-        configuration: {
-          clientId: "string",
-          clientSecret: "string",
-          redirectUri: "string",
-          botToken: "string",
-        },
-        pricing: {
-          model: "freemium",
-          currency: "USD",
-          amount: 8.75,
-          unit: "per_user_month",
-          features: ["Unlimited message history", "10 app integrations", "1-to-1 video calls"],
-        },
-        requirements: ["Slack workspace", "App creation", "Bot permissions"],
-        capabilities: ["Message sending", "Channel management", "User sync", "Notifications"],
-        isActive: true,
-        popularity: 85,
-        rating: 4.6,
-        reviews: 1234,
-        installs: 789,
-        createdAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      },
-    ];
-  },
-});
+    await requirePlatformSession(ctx, args);
+    const now = Date.now();
 
-export const getInstalledIntegrations = query({
-  args: {
-    sessionToken: v.string(),
-    tenantId: v.optional(v.string()),
-    category: v.optional(v.union(
-      v.literal("payment"),
-      v.literal("communication"),
-      v.literal("analytics"),
-      v.literal("storage"),
-      v.literal("crm"),
-      v.literal("education"),
-      v.literal("security"),
-      v.literal("productivity")
-    )),
-    status: v.optional(v.union(v.literal("active"), v.literal("inactive"), v.literal("error"), v.literal("pending"))),
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx, args) => {
-    // TODO: Implement installed integrations retrieval
-    return [
-      {
-        _id: "install_1",
-        tenantId: "tenant_1",
-        tenantName: "Nairobi Academy",
-        integrationId: "integration_1",
-        integrationName: "Stripe Payment Gateway",
-        category: "payment",
-        provider: "Stripe",
-        version: "v2024-03-20",
-        status: "active",
-        configuration: {
-          apiKey: "sk_test_...masked",
-          webhookSecret: "whsec_...masked",
-          defaultCurrency: "USD",
-        },
-        settings: {
-          autoSync: true,
-          syncFrequency: "realtime",
-          notifications: true,
-          logging: true,
-        },
-        lastSync: Date.now() - 15 * 60 * 1000,
-        nextSync: Date.now() + 45 * 60 * 1000,
-        usage: {
-          totalCalls: 1247,
-          lastMonthCalls: 342,
-          errorRate: 0.02,
-          avgResponseTime: 145,
-        },
-        installedAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-        installedBy: "admin@nairobiacademy.edu",
-        updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-        health: {
-          status: "healthy",
-          lastCheck: Date.now() - 5 * 60 * 1000,
-          uptime: 99.8,
-          issues: [],
-        },
-      },
-      {
-        _id: "install_2",
-        tenantId: "tenant_1",
-        tenantName: "Nairobi Academy",
-        integrationId: "integration_2",
-        integrationName: "SendGrid Email Service",
-        category: "communication",
-        provider: "SendGrid",
-        version: "v3.0",
-        status: "active",
-        configuration: {
-          apiKey: "SG.123...masked",
-          fromEmail: "noreply@nairobiacademy.edu",
-          defaultTemplate: "welcome",
-        },
-        settings: {
-          autoSync: true,
-          syncFrequency: "hourly",
-          notifications: true,
-          logging: true,
-        },
-        lastSync: Date.now() - 30 * 60 * 1000,
-        nextSync: Date.now() + 30 * 60 * 1000,
-        usage: {
-          totalCalls: 892,
-          lastMonthCalls: 234,
-          errorRate: 0.01,
-          avgResponseTime: 89,
-        },
-        installedAt: Date.now() - 45 * 24 * 60 * 60 * 1000,
-        installedBy: "admin@nairobiacademy.edu",
-        updatedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-        health: {
-          status: "healthy",
-          lastCheck: Date.now() - 10 * 60 * 1000,
-          uptime: 99.9,
-          issues: [],
-        },
-      },
-      {
-        _id: "install_3",
-        tenantId: "tenant_2",
-        tenantName: "Mombasa International School",
-        integrationId: "integration_3",
-        integrationName: "Google Analytics 4",
-        category: "analytics",
-        provider: "Google",
-        version: "v1beta",
-        status: "active",
-        configuration: {
-          measurementId: "G-ABC123XYZ",
-          apiSecret: "secret_...masked",
-          streamId: "1234567890",
-        },
-        settings: {
-          autoSync: true,
-          syncFrequency: "daily",
-          notifications: false,
-          logging: true,
-        },
-        lastSync: Date.now() - 2 * 60 * 60 * 1000,
-        nextSync: Date.now() + 22 * 60 * 60 * 1000,
-        usage: {
-          totalCalls: 1567,
-          lastMonthCalls: 445,
-          errorRate: 0.00,
-          avgResponseTime: 234,
-        },
-        installedAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-        installedBy: "tech@mombasainternational.edu",
-        updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-        health: {
-          status: "healthy",
-          lastCheck: Date.now() - 15 * 60 * 1000,
-          uptime: 100.0,
-          issues: [],
-        },
-      },
-      {
-        _id: "install_4",
-        tenantId: "tenant_3",
-        tenantName: "Kisumu High School",
-        integrationId: "integration_7",
-        integrationName: "Auth0 Authentication",
-        category: "security",
-        provider: "Auth0",
-        version: "v2",
-        status: "error",
-        configuration: {
-          domain: "kisumu-high.auth0.com",
-          clientId: "client_...masked",
-          clientSecret: "secret_...masked",
-          callbackUrl: "https://kisumu.edumyles.com/auth/callback",
-        },
-        settings: {
-          autoSync: true,
-          syncFrequency: "realtime",
-          notifications: true,
-          logging: true,
-        },
-        lastSync: Date.now() - 4 * 60 * 60 * 1000,
-        nextSync: null,
-        usage: {
-          totalCalls: 234,
-          lastMonthCalls: 67,
-          errorRate: 0.15,
-          avgResponseTime: 567,
-        },
-        installedAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-        installedBy: "admin@kisumuhigh.edu",
-        updatedAt: Date.now() - 4 * 60 * 60 * 1000,
-        health: {
-          status: "unhealthy",
-          lastCheck: Date.now() - 4 * 60 * 60 * 1000,
-          uptime: 85.2,
-          issues: ["API rate limit exceeded", "Authentication token expired"],
-        },
-      },
-    ];
-  },
-});
+    // Get published modules
+    const allModules = await ctx.db
+      .query("marketplaceModules")
+      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .collect();
 
-export const getIntegrationTemplates = query({
-  args: {
-    sessionToken: v.string(),
-    category: v.optional(v.union(
-      v.literal("payment"),
-      v.literal("communication"),
-      v.literal("analytics"),
-      v.literal("storage"),
-      v.literal("crm"),
-      v.literal("education"),
-      v.literal("security"),
-      v.literal("productivity")
-    )),
-    isPublic: v.optional(v.boolean()),
-    tags: v.optional(v.array(v.string())),
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx, args) => {
-    // TODO: Implement integration templates retrieval
-    return [
-      {
-        _id: "template_1",
-        name: "Educational Institution Setup",
-        description: "Complete integration package for educational institutions including payment, communication, and analytics",
-        category: "education",
-        integrationId: "integration_6",
-        integrationName: "Google Classroom",
-        templateConfig: {
-          autoCreateCourses: true,
-          syncStudentRoster: true,
-          assignmentGrading: true,
-          parentNotifications: true,
-        },
-        presetSettings: {
-          autoSync: true,
-          syncFrequency: "hourly",
-          notifications: true,
-          logging: true,
-        },
-        isPublic: true,
-        tags: ["education", "classroom", "assignments", "grading"],
-        popularity: 89,
-        downloads: 567,
-        rating: 4.7,
-        reviews: 123,
-        createdBy: "edumyles_team",
-        createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "template_2",
-        name: "Payment Processing Bundle",
-        description: "Comprehensive payment solution with Stripe integration and automated billing",
-        category: "payment",
-        integrationId: "integration_1",
-        integrationName: "Stripe Payment Gateway",
-        templateConfig: {
-          enableRecurringBilling: true,
-          automaticInvoicing: true,
-          paymentReminders: true,
-          refundHandling: true,
-        },
-        presetSettings: {
-          autoSync: true,
-          syncFrequency: "realtime",
-          notifications: true,
-          logging: true,
-        },
-        isPublic: true,
-        tags: ["payment", "billing", "stripe", "recurring"],
-        popularity: 94,
-        downloads: 892,
-        rating: 4.8,
-        reviews: 234,
-        createdBy: "edumyles_team",
-        createdAt: Date.now() - 45 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "template_3",
-        name: "Analytics Dashboard Setup",
-        description: "Google Analytics 4 configuration with custom events and conversion tracking",
-        category: "analytics",
-        integrationId: "integration_3",
-        integrationName: "Google Analytics 4",
-        templateConfig: {
-          trackPageViews: true,
-          trackUserEngagement: true,
-          conversionEvents: ["signup", "purchase", "course_completion"],
-          customDimensions: ["user_type", "course_category"],
-        },
-        presetSettings: {
-          autoSync: true,
-          syncFrequency: "daily",
-          notifications: false,
-          logging: true,
-        },
-        isPublic: true,
-        tags: ["analytics", "google", "tracking", "conversions"],
-        popularity: 87,
-        downloads: 445,
-        rating: 4.6,
-        reviews: 89,
-        createdBy: "edumyles_team",
-        createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      },
-    ];
-  },
-});
+    // Featured banners
+    const featuredPlacements = await ctx.db
+      .query("marketplaceFeatured")
+      .withIndex("by_type", (q) => q.eq("type", "banner").eq("isActive", true))
+      .collect();
+    const activeBanners = featuredPlacements.filter(
+      (f) => f.startDate <= now && f.endDate >= now
+    );
 
-export const getIntegrationUsage = query({
-  args: {
-    sessionToken: v.string(),
-    tenantId: v.string(),
-    installationId: v.optional(v.string()),
-    dateRange: v.object({
-      startDate: v.number(),
-      endDate: v.number(),
-    }),
-    groupBy: v.union(v.literal("day"), v.literal("week"), v.literal("month")),
-  },
-  handler: async (ctx, args) => {
-    // TODO: Implement integration usage analytics
+    // Staff picks
+    const staffPicks = await ctx.db
+      .query("marketplaceFeatured")
+      .withIndex("by_type", (q) => q.eq("type", "staff_pick").eq("isActive", true))
+      .collect();
+
+    // New & noteworthy (published in last 30 days)
+    const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+    const newModules = allModules
+      .filter((m) => m.publishedAt && m.publishedAt > thirtyDaysAgo)
+      .sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0))
+      .slice(0, 8);
+
+    // Top rated (min 1 review, sorted by avg rating)
+    const topRated = [...allModules]
+      .filter((m) => m.totalReviews > 0)
+      .sort((a, b) => b.averageRating - a.averageRating || b.totalReviews - a.totalReviews)
+      .slice(0, 8);
+
+    // Trending (highest install count)
+    const trending = [...allModules]
+      .sort((a, b) => b.totalInstalls - a.totalInstalls)
+      .slice(0, 8);
+
+    // Categories with counts
+    const categories = await ctx.db
+      .query("marketplaceCategories")
+      .withIndex("by_active", (q) => q.eq("isActive", true))
+      .collect();
+
+    // Count modules per category
+    const categoryWithCounts = categories
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((cat) => ({
+        ...cat,
+        moduleCount: allModules.filter((m) => m.category === cat.slug).length,
+      }));
+
+    // Stats
+    const totalInstalls = allModules.reduce((sum, m) => sum + m.totalInstalls, 0);
+    const avgRating = allModules.length > 0
+      ? allModules.filter((m) => m.totalReviews > 0).reduce((sum, m) => sum + m.averageRating, 0) /
+        Math.max(1, allModules.filter((m) => m.totalReviews > 0).length)
+      : 0;
+
+    // Recent activity
+    const recentActivity = await ctx.db
+      .query("marketplaceActivity")
+      .withIndex("by_created")
+      .order("desc")
+      .take(10);
+
+    // Publishers count
+    const publishers = await ctx.db
+      .query("marketplacePublishers")
+      .withIndex("by_active", (q) => q.eq("isActive", true))
+      .collect();
+
     return {
-      overview: {
-        totalIntegrations: 4,
-        activeIntegrations: 3,
-        totalApiCalls: 3940,
-        errorRate: 0.03,
-        avgResponseTime: 189,
-        lastSync: Date.now() - 15 * 60 * 1000,
+      stats: {
+        totalModules: allModules.length,
+        totalInstalls,
+        averageRating: Math.round(avgRating * 10) / 10,
+        totalPublishers: publishers.length,
       },
-      usageByIntegration: [
-        {
-          installationId: "install_1",
-          integrationName: "Stripe Payment Gateway",
-          category: "payment",
-          calls: 1247,
-          errors: 25,
-          errorRate: 0.02,
-          avgResponseTime: 145,
-          lastUsed: Date.now() - 15 * 60 * 1000,
-          trend: "increasing",
-        },
-        {
-          installationId: "install_2",
-          integrationName: "SendGrid Email Service",
-          category: "communication",
-          calls: 892,
-          errors: 9,
-          errorRate: 0.01,
-          avgResponseTime: 89,
-          lastUsed: Date.now() - 30 * 60 * 1000,
-          trend: "stable",
-        },
-        {
-          installationId: "install_3",
-          integrationName: "Google Analytics 4",
-          category: "analytics",
-          calls: 1567,
-          errors: 0,
-          errorRate: 0.00,
-          avgResponseTime: 234,
-          lastUsed: Date.now() - 2 * 60 * 60 * 1000,
-          trend: "increasing",
-        },
-        {
-          installationId: "install_4",
-          integrationName: "Auth0 Authentication",
-          category: "security",
-          calls: 234,
-          errors: 35,
-          errorRate: 0.15,
-          avgResponseTime: 567,
-          lastUsed: Date.now() - 4 * 60 * 60 * 1000,
-          trend: "decreasing",
-        },
-      ],
-      usageByCategory: [
-        {
-          category: "payment",
-          calls: 1247,
-          errors: 25,
-          errorRate: 0.02,
-          integrations: 1,
-        },
-        {
-          category: "communication",
-          calls: 892,
-          errors: 9,
-          errorRate: 0.01,
-          integrations: 1,
-        },
-        {
-          category: "analytics",
-          calls: 1567,
-          errors: 0,
-          errorRate: 0.00,
-          integrations: 1,
-        },
-        {
-          category: "security",
-          calls: 234,
-          errors: 35,
-          errorRate: 0.15,
-          integrations: 1,
-        },
-      ],
-      timeline: [
-        { date: "2024-04-01", calls: 134, errors: 3 },
-        { date: "2024-04-02", calls: 156, errors: 2 },
-        { date: "2024-04-03", calls: 142, errors: 1 },
-        { date: "2024-04-04", calls: 178, errors: 4 },
-        { date: "2024-04-05", calls: 165, errors: 2 },
-        { date: "2024-04-06", calls: 189, errors: 3 },
-        { date: "2024-04-07", calls: 145, errors: 1 },
-      ],
-      costs: [
-        {
-          integrationId: "integration_1",
-          integrationName: "Stripe Payment Gateway",
-          costModel: "usage_based",
-          currentMonthCost: 36.17,
-          lastMonthCost: 28.45,
-          trend: "increasing",
-        },
-        {
-          integrationId: "integration_2",
-          integrationName: "SendGrid Email Service",
-          costModel: "freemium",
-          currentMonthCost: 15.00,
-          lastMonthCost: 15.00,
-          trend: "stable",
-        },
-        {
-          integrationId: "integration_3",
-          integrationName: "Google Analytics 4",
-          costModel: "free",
-          currentMonthCost: 0.00,
-          lastMonthCost: 0.00,
-          trend: "stable",
-        },
-        {
-          integrationId: "integration_7",
-          integrationName: "Auth0 Authentication",
-          costModel: "freemium",
-          currentMonthCost: 23.00,
-          lastMonthCost: 23.00,
-          trend: "stable",
-        },
-      ],
+      featuredBanners: activeBanners,
+      staffPicks,
+      newAndNoteworthy: newModules,
+      topRated,
+      trending,
+      categories: categoryWithCounts,
+      recentActivity,
     };
   },
 });
+
+export const browseModules = query({
+  args: {
+    sessionToken: v.string(),
+    category: v.optional(categoryValidator),
+    search: v.optional(v.string()),
+    pricingModel: v.optional(v.string()),
+    minRating: v.optional(v.number()),
+    compatiblePlan: v.optional(v.string()),
+    sortBy: v.optional(v.union(
+      v.literal("relevance"), v.literal("most_installed"),
+      v.literal("highest_rated"), v.literal("newest"),
+      v.literal("alphabetical"), v.literal("price_low"),
+      v.literal("price_high")
+    )),
+    limit: v.optional(v.number()),
+    offset: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let modules;
+    if (args.category) {
+      modules = await ctx.db
+        .query("marketplaceModules")
+        .withIndex("by_category", (q) => q.eq("category", args.category!).eq("status", "published"))
+        .collect();
+    } else {
+      modules = await ctx.db
+        .query("marketplaceModules")
+        .withIndex("by_status", (q) => q.eq("status", "published"))
+        .collect();
+    }
+
+    // Apply filters
+    if (args.search) {
+      const searchLower = args.search.toLowerCase();
+      modules = modules.filter((m) =>
+        m.name.toLowerCase().includes(searchLower) ||
+        m.shortDescription.toLowerCase().includes(searchLower) ||
+        m.tags.some((t) => t.toLowerCase().includes(searchLower)) ||
+        m.publisherName.toLowerCase().includes(searchLower)
+      );
+    }
+
+    if (args.pricingModel) {
+      modules = modules.filter((m) => m.pricingModel === args.pricingModel);
+    }
+
+    if (args.minRating) {
+      modules = modules.filter((m) => m.averageRating >= args.minRating!);
+    }
+
+    if (args.compatiblePlan) {
+      modules = modules.filter((m) => m.compatiblePlans.includes(args.compatiblePlan!));
+    }
+
+    // Sort
+    const sortBy = args.sortBy || "relevance";
+    switch (sortBy) {
+      case "most_installed":
+        modules.sort((a, b) => b.totalInstalls - a.totalInstalls);
+        break;
+      case "highest_rated":
+        modules.sort((a, b) => b.averageRating - a.averageRating);
+        break;
+      case "newest":
+        modules.sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
+        break;
+      case "alphabetical":
+        modules.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "price_low":
+        modules.sort((a, b) => (a.priceCents || 0) - (b.priceCents || 0));
+        break;
+      case "price_high":
+        modules.sort((a, b) => (b.priceCents || 0) - (a.priceCents || 0));
+        break;
+      default: // relevance - featured first, then by installs
+        modules.sort((a, b) => {
+          if (a.isFeatured && !b.isFeatured) return -1;
+          if (!a.isFeatured && b.isFeatured) return 1;
+          return b.totalInstalls - a.totalInstalls;
+        });
+    }
+
+    const total = modules.length;
+    const offset = args.offset || 0;
+    const limit = args.limit || 24;
+    modules = modules.slice(offset, offset + limit);
+
+    return { modules, total, offset, limit };
+  },
+});
+
+export const getModuleDetail = query({
+  args: {
+    sessionToken: v.string(),
+    moduleId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const mod = await ctx.db
+      .query("marketplaceModules")
+      .withIndex("by_moduleId", (q) => q.eq("moduleId", args.moduleId))
+      .first();
+    if (!mod) throw new Error("Module not found");
+
+    // Get publisher info
+    const publisher = await ctx.db
+      .query("marketplacePublishers")
+      .withIndex("by_userId", (q) => q.eq("userId", mod.publisherId))
+      .first();
+
+    // Get version history
+    const versions = await ctx.db
+      .query("marketplaceModuleVersions")
+      .withIndex("by_module", (q) => q.eq("moduleId", args.moduleId))
+      .order("desc")
+      .collect();
+
+    // Get approved reviews
+    const reviews = await ctx.db
+      .query("marketplaceReviews")
+      .withIndex("by_module", (q) => q.eq("moduleId", args.moduleId).eq("status", "approved"))
+      .collect();
+
+    // Get other modules by same publisher
+    const otherModules = await ctx.db
+      .query("marketplaceModules")
+      .withIndex("by_publisher", (q) => q.eq("publisherId", mod.publisherId))
+      .collect();
+    const otherPublished = otherModules
+      .filter((m) => m.moduleId !== args.moduleId && m.status === "published")
+      .slice(0, 4);
+
+    // Get install count by tenant
+    const installations = await ctx.db
+      .query("marketplaceInstallations")
+      .withIndex("by_module", (q) => q.eq("moduleId", args.moduleId))
+      .collect();
+    const activeInstallations = installations.filter((i) => i.status === "active");
+
+    return {
+      module: mod,
+      publisher: publisher ? {
+        _id: publisher._id,
+        legalName: publisher.legalName,
+        verificationLevel: publisher.verificationLevel,
+        totalModules: publisher.totalModules,
+        averageRating: publisher.averageRating,
+        contactEmail: publisher.contactEmail,
+        website: publisher.website,
+        logoUrl: publisher.logoUrl,
+        bio: publisher.bio,
+      } : null,
+      versions,
+      reviews: reviews.sort((a, b) => b.createdAt - a.createdAt),
+      otherModulesByPublisher: otherPublished,
+      installStats: {
+        total: mod.totalInstalls,
+        active: activeInstallations.length,
+      },
+    };
+  },
+});
+
+// ── Installation Queries ──────────────────────────────────────────────
+
+export const getTenantInstallations = query({
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+    status: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let installations;
+    if (args.status) {
+      installations = await ctx.db
+        .query("marketplaceInstallations")
+        .withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", args.status as any))
+        .collect();
+    } else {
+      installations = await ctx.db
+        .query("marketplaceInstallations")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+        .collect();
+    }
+
+    // Enrich with module info
+    const enriched = await Promise.all(
+      installations.map(async (inst) => {
+        const mod = await ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_moduleId", (q) => q.eq("moduleId", inst.moduleId))
+          .first();
+        return {
+          ...inst,
+          moduleName: mod?.name || "Unknown Module",
+          moduleCategory: mod?.category,
+          moduleVersion: mod?.version,
+          moduleIcon: mod?.iconUrl,
+          updateAvailable: mod ? mod.version !== inst.installedVersion : false,
+          latestVersion: mod?.version,
+        };
+      })
+    );
+
+    return enriched;
+  },
+});
+
+export const getAllInstallations = query({
+  args: {
+    sessionToken: v.string(),
+    moduleId: v.optional(v.string()),
+    status: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let installations;
+    if (args.moduleId) {
+      installations = await ctx.db
+        .query("marketplaceInstallations")
+        .withIndex("by_module", (q) => q.eq("moduleId", args.moduleId!))
+        .collect();
+    } else {
+      installations = await ctx.db
+        .query("marketplaceInstallations")
+        .collect();
+    }
+
+    if (args.status) {
+      installations = installations.filter((i) => i.status === args.status);
+    }
+
+    // Enrich with tenant and module names
+    const enriched = await Promise.all(
+      installations.slice(0, args.limit || 100).map(async (inst) => {
+        const mod = await ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_moduleId", (q) => q.eq("moduleId", inst.moduleId))
+          .first();
+        const tenant = await ctx.db
+          .query("tenants")
+          .withIndex("by_tenantId", (q) => q.eq("tenantId", inst.tenantId))
+          .first();
+        return {
+          ...inst,
+          moduleName: mod?.name || "Unknown",
+          tenantName: tenant?.name || "Unknown",
+        };
+      })
+    );
+
+    return enriched;
+  },
+});
+
+// ── Review Queries ────────────────────────────────────────────────────
+
+export const getModuleReviews = query({
+  args: {
+    sessionToken: v.string(),
+    moduleId: v.string(),
+    status: v.optional(v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"))),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const status = args.status || "approved";
+    const reviews = await ctx.db
+      .query("marketplaceReviews")
+      .withIndex("by_module", (q) => q.eq("moduleId", args.moduleId).eq("status", status))
+      .collect();
+
+    return reviews.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+export const getPendingReviews = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const pending = await ctx.db
+      .query("marketplaceReviews")
+      .withIndex("by_status", (q) => q.eq("status", "pending"))
+      .collect();
+
+    // Enrich with module names
+    const enriched = await Promise.all(
+      pending.map(async (r) => {
+        const mod = await ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_moduleId", (q) => q.eq("moduleId", r.moduleId))
+          .first();
+        return { ...r, moduleName: mod?.name || "Unknown" };
+      })
+    );
+
+    return enriched.sort((a, b) => a.createdAt - b.createdAt);
+  },
+});
+
+// ── Publisher Queries ─────────────────────────────────────────────────
+
+export const getPublishers = query({
+  args: {
+    sessionToken: v.string(),
+    verificationLevel: v.optional(v.union(v.literal("basic"), v.literal("verified"), v.literal("featured_partner"))),
+    isActive: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let publishers;
+    if (args.verificationLevel) {
+      publishers = await ctx.db
+        .query("marketplacePublishers")
+        .withIndex("by_verification", (q) => q.eq("verificationLevel", args.verificationLevel!))
+        .collect();
+    } else if (args.isActive !== undefined) {
+      publishers = await ctx.db
+        .query("marketplacePublishers")
+        .withIndex("by_active", (q) => q.eq("isActive", args.isActive!))
+        .collect();
+    } else {
+      publishers = await ctx.db.query("marketplacePublishers").collect();
+    }
+
+    return publishers.sort((a, b) => b.totalInstalls - a.totalInstalls);
+  },
+});
+
+export const getPublisherDetail = query({
+  args: {
+    sessionToken: v.string(),
+    publisherId: v.id("marketplacePublishers"),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const publisher = await ctx.db.get(args.publisherId);
+    if (!publisher) throw new Error("Publisher not found");
+
+    // Get publisher's modules
+    const modules = await ctx.db
+      .query("marketplaceModules")
+      .withIndex("by_publisher", (q) => q.eq("publisherId", publisher.userId))
+      .collect();
+
+    // Get recent transactions
+    const transactions = await ctx.db
+      .query("marketplaceTransactions")
+      .withIndex("by_publisher", (q) => q.eq("publisherId", publisher.userId))
+      .order("desc")
+      .take(20);
+
+    // Get payouts
+    const payouts = await ctx.db
+      .query("marketplacePayouts")
+      .withIndex("by_publisher", (q) => q.eq("publisherId", publisher.userId))
+      .order("desc")
+      .take(10);
+
+    return {
+      publisher,
+      modules,
+      transactions,
+      payouts,
+      stats: {
+        totalModules: modules.length,
+        publishedModules: modules.filter((m) => m.status === "published").length,
+        totalInstalls: publisher.totalInstalls,
+        totalEarningsCents: publisher.totalEarningsCents,
+        pendingPayoutCents: publisher.pendingPayoutCents,
+        averageRating: publisher.averageRating,
+      },
+    };
+  },
+});
+
+// ── Admin Queries ─────────────────────────────────────────────────────
 
 export const getMarketplaceOverview = query({
   args: {
@@ -716,172 +506,196 @@ export const getMarketplaceOverview = query({
     timeRange: v.optional(v.union(v.literal("7d"), v.literal("30d"), v.literal("90d"), v.literal("365d"))),
   },
   handler: async (ctx, args) => {
-    const timeRange = args.timeRange || "30d";
-    
-    // TODO: Implement marketplace overview calculation
+    await requirePlatformSession(ctx, args);
+
+    const allModules = await ctx.db.query("marketplaceModules").collect();
+    const published = allModules.filter((m) => m.status === "published");
+    const pending = allModules.filter((m) => m.status === "pending_review");
+    const publishers = await ctx.db.query("marketplacePublishers").collect();
+    const activePublishers = publishers.filter((p) => p.isActive);
+
+    const installations = await ctx.db.query("marketplaceInstallations").collect();
+    const activeInstalls = installations.filter((i) => i.status === "active");
+
+    const pendingReviews = await ctx.db
+      .query("marketplaceReviews")
+      .withIndex("by_status", (q) => q.eq("status", "pending"))
+      .collect();
+
+    const openDisputes = await ctx.db
+      .query("marketplaceDisputes")
+      .withIndex("by_status", (q) => q.eq("status", "open"))
+      .collect();
+
+    const transactions = await ctx.db.query("marketplaceTransactions").collect();
+    const completedTx = transactions.filter((t) => t.status === "completed");
+    const totalRevenueCents = completedTx.reduce((sum, t) => sum + t.grossAmountCents, 0);
+    const totalCommissionCents = completedTx.reduce((sum, t) => sum + t.commissionCents, 0);
+
+    const categories = await ctx.db
+      .query("marketplaceCategories")
+      .withIndex("by_active", (q) => q.eq("isActive", true))
+      .collect();
+
+    const categoriesWithCounts = categories.map((cat) => ({
+      ...cat,
+      moduleCount: published.filter((m) => m.category === cat.slug).length,
+      installCount: installations.filter((i) => {
+        const mod = published.find((m) => m.moduleId === i.moduleId);
+        return mod?.category === cat.slug;
+      }).length,
+    }));
+
+    // Recent activity
+    const recentActivity = await ctx.db
+      .query("marketplaceActivity")
+      .withIndex("by_created")
+      .order("desc")
+      .take(20);
+
+    // Top modules by installs
+    const topModules = [...published]
+      .sort((a, b) => b.totalInstalls - a.totalInstalls)
+      .slice(0, 5);
+
     return {
       overview: {
-        totalIntegrations: 8,
-        activeIntegrations: 8,
-        totalInstalls: 8967,
-        activeInstalls: 6234,
-        totalTemplates: 3,
-        publicTemplates: 3,
-        averageRating: 4.6,
-        totalReviews: 1234,
+        totalModules: allModules.length,
+        publishedModules: published.length,
+        pendingReview: pending.length,
+        totalPublishers: publishers.length,
+        activePublishers: activePublishers.length,
+        totalInstallations: installations.length,
+        activeInstallations: activeInstalls.length,
+        pendingReviews: pendingReviews.length,
+        openDisputes: openDisputes.length,
+        totalRevenueCents,
+        totalCommissionCents,
       },
-      categories: [
-        {
-          category: "payment",
-          integrations: 1,
-          installs: 892,
-          averageRating: 4.8,
-          popular: true,
-        },
-        {
-          category: "communication",
-          integrations: 1,
-          installs: 654,
-          averageRating: 4.6,
-          popular: true,
-        },
-        {
-          category: "analytics",
-          integrations: 1,
-          installs: 1567,
-          averageRating: 4.7,
-          popular: true,
-        },
-        {
-          category: "storage",
-          integrations: 1,
-          installs: 2897,
-          averageRating: 4.9,
-          popular: true,
-        },
-        {
-          category: "crm",
-          integrations: 1,
-          installs: 892,
-          averageRating: 4.5,
-          popular: false,
-        },
-        {
-          category: "education",
-          integrations: 1,
-          installs: 234,
-          averageRating: 4.4,
-          popular: false,
-        },
-        {
-          category: "security",
-          integrations: 1,
-          installs: 1678,
-          averageRating: 4.7,
-          popular: true,
-        },
-        {
-          category: "productivity",
-          integrations: 1,
-          installs: 789,
-          averageRating: 4.6,
-          popular: false,
-        },
-      ],
-      topIntegrations: [
-        {
-          integrationId: "integration_1",
-          name: "Stripe Payment Gateway",
-          provider: "Stripe",
-          category: "payment",
-          installs: 892,
-          rating: 4.8,
-          reviews: 1247,
-          revenue: 15420.50,
-          trend: "increasing",
-        },
-        {
-          integrationId: "integration_4",
-          name: "Amazon S3 Storage",
-          provider: "Amazon Web Services",
-          category: "storage",
-          installs: 2897,
-          rating: 4.9,
-          reviews: 3421,
-          revenue: 28970.00,
-          trend: "stable",
-        },
-        {
-          integrationId: "integration_3",
-          name: "Google Analytics 4",
-          provider: "Google",
-          category: "analytics",
-          installs: 1567,
-          rating: 4.7,
-          reviews: 2156,
-          revenue: 0.00,
-          trend: "increasing",
-        },
-      ],
-      recentActivity: [
-        {
-          type: "install",
-          integrationName: "Stripe Payment Gateway",
-          tenantName: "Eldoret Academy",
-          timestamp: Date.now() - 2 * 60 * 60 * 1000,
-          user: "admin@eldoretacademy.edu",
-        },
-        {
-          type: "template_download",
-          templateName: "Payment Processing Bundle",
-          tenantName: "Nakuru High School",
-          timestamp: Date.now() - 4 * 60 * 60 * 1000,
-          user: "tech@nakuruhigh.edu",
-        },
-        {
-          type: "update",
-          integrationName: "SendGrid Email Service",
-          tenantName: "Thika Girls School",
-          timestamp: Date.now() - 6 * 60 * 60 * 1000,
-          user: "admin@thikagirls.edu",
-        },
-        {
-          type: "test",
-          integrationName: "Google Analytics 4",
-          tenantName: "Mombasa International School",
-          timestamp: Date.now() - 8 * 60 * 60 * 1000,
-          user: "analytics@mombasainternational.edu",
-        },
-      ],
-      trends: {
-        installs: [
-          { date: "2024-04-01", count: 12 },
-          { date: "2024-04-02", count: 15 },
-          { date: "2024-04-03", count: 18 },
-          { date: "2024-04-04", count: 14 },
-          { date: "2024-04-05", count: 22 },
-          { date: "2024-04-06", count: 19 },
-          { date: "2024-04-07", count: 25 },
-        ],
-        revenue: [
-          { date: "2024-04-01", amount: 1250.00 },
-          { date: "2024-04-02", amount: 1380.00 },
-          { date: "2024-04-03", amount: 1420.00 },
-          { date: "2024-04-04", amount: 1290.00 },
-          { date: "2024-04-05", amount: 1560.00 },
-          { date: "2024-04-06", amount: 1430.00 },
-          { date: "2024-04-07", amount: 1680.00 },
-        ],
-        errors: [
-          { date: "2024-04-01", count: 3 },
-          { date: "2024-04-02", count: 2 },
-          { date: "2024-04-03", count: 4 },
-          { date: "2024-04-04", count: 1 },
-          { date: "2024-04-05", count: 3 },
-          { date: "2024-04-06", count: 2 },
-          { date: "2024-04-07", count: 1 },
-        ],
-      },
+      categories: categoriesWithCounts.sort((a, b) => a.sortOrder - b.sortOrder),
+      topModules,
+      recentActivity,
     };
+  },
+});
+
+export const getPendingModules = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const pending = await ctx.db
+      .query("marketplaceModules")
+      .withIndex("by_status", (q) => q.eq("status", "pending_review"))
+      .collect();
+
+    const enriched = await Promise.all(
+      pending.map(async (mod) => {
+        const publisher = await ctx.db
+          .query("marketplacePublishers")
+          .withIndex("by_userId", (q) => q.eq("userId", mod.publisherId))
+          .first();
+        return {
+          ...mod,
+          publisherVerification: publisher?.verificationLevel || "basic",
+        };
+      })
+    );
+
+    return enriched.sort((a, b) => a.createdAt - b.createdAt);
+  },
+});
+
+export const getCategories = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const categories = await ctx.db
+      .query("marketplaceCategories")
+      .withIndex("by_active", (q) => q.eq("isActive", true))
+      .collect();
+
+    return categories.sort((a, b) => a.sortOrder - b.sortOrder);
+  },
+});
+
+export const getDisputes = query({
+  args: {
+    sessionToken: v.string(),
+    status: v.optional(v.union(v.literal("open"), v.literal("under_review"), v.literal("resolved"), v.literal("dismissed"))),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let disputes;
+    if (args.status) {
+      disputes = await ctx.db
+        .query("marketplaceDisputes")
+        .withIndex("by_status", (q) => q.eq("status", args.status!))
+        .collect();
+    } else {
+      disputes = await ctx.db.query("marketplaceDisputes").collect();
+    }
+
+    const enriched = await Promise.all(
+      disputes.map(async (d) => {
+        const mod = await ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_moduleId", (q) => q.eq("moduleId", d.moduleId))
+          .first();
+        return { ...d, moduleName: mod?.name || "Unknown" };
+      })
+    );
+
+    return enriched.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+export const getTransactions = query({
+  args: {
+    sessionToken: v.string(),
+    publisherId: v.optional(v.string()),
+    moduleId: v.optional(v.string()),
+    status: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let transactions;
+    if (args.publisherId) {
+      transactions = await ctx.db
+        .query("marketplaceTransactions")
+        .withIndex("by_publisher", (q) => q.eq("publisherId", args.publisherId!))
+        .order("desc")
+        .collect();
+    } else if (args.moduleId) {
+      transactions = await ctx.db
+        .query("marketplaceTransactions")
+        .withIndex("by_module", (q) => q.eq("moduleId", args.moduleId!))
+        .order("desc")
+        .collect();
+    } else {
+      transactions = await ctx.db
+        .query("marketplaceTransactions")
+        .collect();
+    }
+
+    if (args.status) {
+      transactions = transactions.filter((t) => t.status === args.status);
+    }
+
+    return transactions.slice(0, args.limit || 50);
+  },
+});
+
+export const getFeaturedPlacements = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const placements = await ctx.db.query("marketplaceFeatured").collect();
+    return placements.sort((a, b) => a.sortOrder - b.sortOrder);
   },
 });

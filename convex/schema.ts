@@ -870,4 +870,343 @@ export default defineSchema({
   })
     .index("by_category_priority", ["category", "priority"])
     .index("by_active", ["isActive"]),
+
+  // ── Module Marketplace ──────────────────────────────────────────────
+
+  // Marketplace module listings (published by Mylesoft or third-party devs)
+  marketplaceModules: defineTable({
+    moduleId: v.string(), // UUID
+    name: v.string(), // max 60 chars
+    shortDescription: v.string(), // max 120 chars
+    fullDescription: v.string(), // rich text, max 5000 chars
+    category: v.union(
+      v.literal("academic_tools"), v.literal("communication"),
+      v.literal("finance_fees"), v.literal("analytics_bi"),
+      v.literal("content_packs"), v.literal("integrations"),
+      v.literal("ai_automation"), v.literal("accessibility"),
+      v.literal("administration"), v.literal("security_compliance")
+    ),
+    subCategory: v.optional(v.string()),
+    tags: v.array(v.string()),
+    iconUrl: v.optional(v.string()), // 512x512 PNG/SVG
+    screenshots: v.array(v.string()), // URLs, min 2 max 10
+    demoVideoUrl: v.optional(v.string()),
+    featureHighlights: v.array(v.string()), // up to 8 bullet points
+    version: v.string(), // semver
+    edumylesMinVersion: v.optional(v.string()),
+    edumylesMaxVersion: v.optional(v.string()),
+    permissions: v.array(v.string()), // data scopes requested
+    supportsOffline: v.boolean(),
+    dataResidency: v.array(v.string()), // country codes
+    // Pricing
+    pricingModel: v.union(
+      v.literal("free"), v.literal("freemium"), v.literal("one_time"),
+      v.literal("monthly"), v.literal("annual"), v.literal("per_student"),
+      v.literal("per_user"), v.literal("free_trial")
+    ),
+    priceCents: v.optional(v.number()),
+    currency: v.optional(v.string()),
+    trialDays: v.optional(v.number()), // 7-30
+    pricingTiers: v.optional(v.array(v.object({
+      name: v.string(),
+      priceCents: v.number(),
+      features: v.array(v.string()),
+    }))),
+    // Compatibility
+    compatiblePlans: v.array(v.string()), // starter, growth, enterprise etc
+    systemRequirements: v.optional(v.string()),
+    // Publisher
+    publisherId: v.string(),
+    publisherName: v.string(),
+    // Support
+    supportUrl: v.optional(v.string()),
+    documentationUrl: v.optional(v.string()),
+    privacyPolicyUrl: v.optional(v.string()),
+    // Aggregate stats (denormalized for perf)
+    totalInstalls: v.number(),
+    activeInstalls: v.number(),
+    averageRating: v.number(),
+    totalReviews: v.number(),
+    // Lifecycle
+    status: v.union(
+      v.literal("draft"), v.literal("pending_review"), v.literal("approved"),
+      v.literal("published"), v.literal("suspended"), v.literal("deprecated"),
+      v.literal("rejected")
+    ),
+    reviewNotes: v.optional(v.string()),
+    reviewedBy: v.optional(v.string()),
+    reviewedAt: v.optional(v.number()),
+    publishedAt: v.optional(v.number()),
+    deprecatedAt: v.optional(v.number()),
+    deprecationNotice: v.optional(v.string()),
+    isFeatured: v.boolean(),
+    featuredUntil: v.optional(v.number()),
+    // Trust badges
+    isVerified: v.boolean(),
+    isSecurityReviewed: v.boolean(),
+    isGdprCompliant: v.boolean(),
+    lastSecurityReviewAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_moduleId", ["moduleId"])
+    .index("by_status", ["status"])
+    .index("by_category", ["category", "status"])
+    .index("by_publisher", ["publisherId"])
+    .index("by_featured", ["isFeatured", "status"]),
+
+  // Module version history / changelog
+  marketplaceModuleVersions: defineTable({
+    moduleId: v.string(),
+    version: v.string(),
+    releaseNotes: v.string(),
+    packageSize: v.optional(v.number()), // bytes
+    packageHash: v.optional(v.string()), // SHA-256
+    storageId: v.optional(v.string()),
+    status: v.union(v.literal("draft"), v.literal("pending_review"), v.literal("approved"), v.literal("published"), v.literal("rejected")),
+    reviewedBy: v.optional(v.string()),
+    reviewedAt: v.optional(v.number()),
+    publishedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_module", ["moduleId", "createdAt"])
+    .index("by_module_version", ["moduleId", "version"]),
+
+  // Developer / publisher accounts
+  marketplacePublishers: defineTable({
+    userId: v.string(), // platform user id
+    legalName: v.string(),
+    entityType: v.union(v.literal("individual"), v.literal("organization")),
+    country: v.string(),
+    businessRegistration: v.optional(v.string()),
+    taxId: v.optional(v.string()),
+    payoutMethod: v.union(v.literal("mpesa"), v.literal("bank_transfer"), v.literal("paypal")),
+    payoutDetails: v.string(), // JSON string of payment details
+    verificationLevel: v.union(v.literal("basic"), v.literal("verified"), v.literal("featured_partner")),
+    totalModules: v.number(),
+    totalInstalls: v.number(),
+    totalEarningsCents: v.number(),
+    pendingPayoutCents: v.number(),
+    averageRating: v.number(),
+    agreementAcceptedAt: v.number(),
+    isActive: v.boolean(),
+    suspendedReason: v.optional(v.string()),
+    contactEmail: v.string(),
+    contactPhone: v.optional(v.string()),
+    website: v.optional(v.string()),
+    logoUrl: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_verification", ["verificationLevel"])
+    .index("by_active", ["isActive"]),
+
+  // Module installations per tenant
+  marketplaceInstallations: defineTable({
+    tenantId: v.string(),
+    moduleId: v.string(),
+    installedVersion: v.string(),
+    // Lifecycle state
+    status: v.union(
+      v.literal("active"), v.literal("degraded"), v.literal("suspended_non_payment"),
+      v.literal("update_available"), v.literal("update_required"),
+      v.literal("deprecated"), v.literal("uninstalled")
+    ),
+    // Licensing
+    licenseType: v.string(), // matches module pricingModel
+    licenseExpiresAt: v.optional(v.number()),
+    trialEndsAt: v.optional(v.number()),
+    isTrialUsed: v.boolean(),
+    // Billing
+    lastPaymentAt: v.optional(v.number()),
+    nextBillingAt: v.optional(v.number()),
+    monthlyCostCents: v.optional(v.number()),
+    // Config & access
+    configuration: v.optional(v.any()),
+    assignedRoles: v.array(v.string()), // which roles have access
+    // Usage tracking
+    lastUsedAt: v.optional(v.number()),
+    totalApiCalls: v.number(),
+    activeUsers: v.number(),
+    // Install metadata
+    installedBy: v.string(),
+    installedAt: v.number(),
+    uninstalledAt: v.optional(v.number()),
+    uninstalledBy: v.optional(v.string()),
+    uninstallReason: v.optional(v.string()),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_module", ["tenantId", "moduleId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_module", ["moduleId"]),
+
+  // Reviews & ratings
+  marketplaceReviews: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    reviewerId: v.string(),
+    reviewerEmail: v.string(),
+    reviewerRole: v.string(), // admin, teacher
+    rating: v.number(), // 1-5
+    content: v.string(), // 50-2000 chars
+    tags: v.array(v.string()), // e.g. "Easy to Use", "Good Support"
+    // Moderation
+    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")),
+    moderatedBy: v.optional(v.string()),
+    moderatedAt: v.optional(v.number()),
+    rejectionReason: v.optional(v.string()),
+    // Publisher response
+    publisherResponse: v.optional(v.string()),
+    publisherRespondedAt: v.optional(v.number()),
+    // Helpfulness
+    helpfulVotes: v.number(),
+    unhelpfulVotes: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_module", ["moduleId", "status"])
+    .index("by_tenant_module", ["tenantId", "moduleId"])
+    .index("by_reviewer", ["reviewerId"])
+    .index("by_status", ["status"]),
+
+  // Marketplace categories (admin-managed taxonomy)
+  marketplaceCategories: defineTable({
+    slug: v.string(),
+    name: v.string(),
+    description: v.string(),
+    parentSlug: v.optional(v.string()), // for sub-categories
+    iconName: v.optional(v.string()), // lucide icon name
+    sortOrder: v.number(),
+    moduleCount: v.number(),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_parent", ["parentSlug"])
+    .index("by_active", ["isActive", "sortOrder"]),
+
+  // Featured placements / curated collections
+  marketplaceFeatured: defineTable({
+    type: v.union(v.literal("banner"), v.literal("staff_pick"), v.literal("collection")),
+    title: v.string(),
+    description: v.optional(v.string()),
+    moduleIds: v.array(v.string()),
+    imageUrl: v.optional(v.string()),
+    startDate: v.number(),
+    endDate: v.number(),
+    sortOrder: v.number(),
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_type", ["type", "isActive"])
+    .index("by_active_date", ["isActive", "startDate", "endDate"]),
+
+  // Revenue / payout tracking
+  marketplaceTransactions: defineTable({
+    moduleId: v.string(),
+    publisherId: v.string(),
+    tenantId: v.string(),
+    installationId: v.string(),
+    type: v.union(
+      v.literal("purchase"), v.literal("subscription"), v.literal("renewal"),
+      v.literal("refund"), v.literal("trial_conversion")
+    ),
+    grossAmountCents: v.number(),
+    commissionCents: v.number(),
+    netAmountCents: v.number(),
+    commissionRate: v.number(), // 0.20, 0.25, 0.30
+    currency: v.string(),
+    paymentMethod: v.optional(v.string()), // mpesa, stripe, bank
+    paymentReference: v.optional(v.string()),
+    status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed"), v.literal("refunded")),
+    createdAt: v.number(),
+  })
+    .index("by_publisher", ["publisherId", "createdAt"])
+    .index("by_module", ["moduleId", "createdAt"])
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_status", ["status"]),
+
+  // Publisher payouts
+  marketplacePayouts: defineTable({
+    publisherId: v.string(),
+    amountCents: v.number(),
+    currency: v.string(),
+    payoutMethod: v.string(),
+    payoutReference: v.optional(v.string()),
+    transactionIds: v.array(v.string()), // which transactions are included
+    status: v.union(v.literal("pending"), v.literal("processing"), v.literal("completed"), v.literal("failed")),
+    periodStart: v.number(),
+    periodEnd: v.number(),
+    processedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_publisher", ["publisherId", "createdAt"])
+    .index("by_status", ["status"]),
+
+  // Marketplace activity log (installs, reviews, purchases etc)
+  marketplaceActivity: defineTable({
+    type: v.union(
+      v.literal("install"), v.literal("uninstall"), v.literal("update"),
+      v.literal("review"), v.literal("purchase"), v.literal("refund"),
+      v.literal("submission"), v.literal("approval"), v.literal("rejection"),
+      v.literal("suspension"), v.literal("featured")
+    ),
+    moduleId: v.optional(v.string()),
+    moduleName: v.optional(v.string()),
+    publisherId: v.optional(v.string()),
+    tenantId: v.optional(v.string()),
+    tenantName: v.optional(v.string()),
+    actorId: v.string(),
+    actorEmail: v.string(),
+    details: v.optional(v.any()),
+    createdAt: v.number(),
+  })
+    .index("by_module", ["moduleId", "createdAt"])
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_type", ["type", "createdAt"])
+    .index("by_created", ["createdAt"]),
+
+  // Module installation requests (from teachers to admins)
+  marketplaceInstallRequests: defineTable({
+    tenantId: v.string(),
+    moduleId: v.string(),
+    requestedBy: v.string(),
+    requestedByEmail: v.string(),
+    reason: v.string(),
+    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("denied")),
+    reviewedBy: v.optional(v.string()),
+    reviewedAt: v.optional(v.number()),
+    reviewNotes: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "status"])
+    .index("by_module", ["moduleId"]),
+
+  // Marketplace disputes
+  marketplaceDisputes: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    installationId: v.string(),
+    transactionId: v.optional(v.string()),
+    type: v.union(v.literal("refund"), v.literal("policy_violation"), v.literal("technical_failure"), v.literal("other")),
+    description: v.string(),
+    evidence: v.optional(v.array(v.string())),
+    status: v.union(v.literal("open"), v.literal("under_review"), v.literal("resolved"), v.literal("dismissed")),
+    resolution: v.optional(v.string()),
+    resolvedBy: v.optional(v.string()),
+    resolvedAt: v.optional(v.number()),
+    filedBy: v.string(),
+    filedByEmail: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_module", ["moduleId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["status"]),
 });
