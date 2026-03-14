@@ -12,7 +12,7 @@ const MODULE_CATALOG = [
     description:
       "Core student records, enrollment lifecycle, bulk import/export, NEMIS tracking. The foundation for all student-related modules.",
     tier: "free",
-    category: "core",
+    category: "administration",
     version: "1.0.0",
   },
   {
@@ -20,8 +20,8 @@ const MODULE_CATALOG = [
     name: "Admissions & Enrollment",
     description:
       "Online application forms, pipeline management (submitted > reviewed > interview > accepted > enrolled), document uploads, waiting lists.",
-    tier: "starter",
-    category: "core",
+    tier: "basic",
+    category: "administration",
     version: "1.0.0",
   },
   {
@@ -29,8 +29,8 @@ const MODULE_CATALOG = [
     name: "Fee & Finance Management",
     description:
       "Fee structure builder, invoice generation, M-Pesa/Stripe/Airtel Money payments, receipts, bursar dashboard, aging reports.",
-    tier: "starter",
-    category: "core",
+    tier: "basic",
+    category: "administration",
     version: "1.0.0",
   },
   {
@@ -38,7 +38,7 @@ const MODULE_CATALOG = [
     name: "Academics & Gradebook",
     description:
       "Grade entry with multi-curriculum support (CBC, 8-4-4, IGCSE), report card generation, assignment management, exam scheduling.",
-    tier: "standard",
+    tier: "premium",
     category: "academics",
     version: "1.0.0",
   },
@@ -47,7 +47,7 @@ const MODULE_CATALOG = [
     name: "Timetable & Scheduling",
     description:
       "Visual timetable builder with conflict detection, period templates, substitute teacher assignment, room management.",
-    tier: "standard",
+    tier: "premium",
     category: "academics",
     version: "1.0.0",
   },
@@ -56,7 +56,7 @@ const MODULE_CATALOG = [
     name: "Communications & Notifications",
     description:
       "SMS (Africa's Talking), email (Resend), in-app notifications, announcement system, emergency broadcasts with acknowledgment.",
-    tier: "starter",
+    tier: "basic",
     category: "operations",
     version: "1.0.0",
   },
@@ -65,7 +65,7 @@ const MODULE_CATALOG = [
     name: "HR & Payroll",
     description:
       "Staff records, contract management, leave workflows, payroll with Kenya statutory deductions (PAYE, NSSF, SHIF, Housing Levy), payslip generation.",
-    tier: "pro",
+    tier: "premium",
     category: "operations",
     version: "1.0.0",
   },
@@ -74,7 +74,7 @@ const MODULE_CATALOG = [
     name: "Library Management",
     description:
       "Book catalogue, borrowing/return tracking, overdue fine automation (charged to eWallet), low-stock alerts, librarian dashboard.",
-    tier: "pro",
+    tier: "premium",
     category: "operations",
     version: "1.0.0",
   },
@@ -83,7 +83,7 @@ const MODULE_CATALOG = [
     name: "Transport Management",
     description:
       "Route and stop management, vehicle fleet tracking, student-route assignment, transport fee billing, arrival/departure notifications.",
-    tier: "pro",
+    tier: "premium",
     category: "operations",
     version: "1.0.0",
   },
@@ -132,7 +132,7 @@ export const seedModuleRegistry = mutation({
           description: mod.description,
           tier: mod.tier,
           category: mod.category,
-          status: "active",
+          status: "published",
           version: mod.version,
         });
         seeded++;
@@ -226,8 +226,9 @@ export const updateModuleMetadata = mutation({
     moduleId: v.string(),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
-    tier: v.optional(v.string()),
-    category: v.optional(v.string()),
+    tier: v.optional(v.union(v.literal("free"), v.literal("basic"), v.literal("premium"), v.literal("enterprise"))),
+    category: v.optional(v.union(v.literal("academics"), v.literal("administration"), v.literal("communications"), v.literal("finance"), v.literal("analytics"), v.literal("security"), v.literal("integrations"))),
+    status: v.optional(v.union(v.literal("draft"), v.literal("published"), v.literal("deprecated"))),
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
