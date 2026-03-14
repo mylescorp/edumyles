@@ -62,7 +62,7 @@ export default function HRDashboardPage() {
 
   const staffStats = useQuery(
     api.modules.hr.queries.getStaffStats,
-    user ? {} : "skip"
+    user ? { sessionToken: sessionToken ?? undefined } : "skip"
   );
 
   const createContract = useMutation(api.modules.hr.mutations.createContract);

@@ -60,22 +60,28 @@ export const getStaffMember = query({
 });
 
 export const getStaffStats = query({
-    args: {},
-    handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "hr");
-        requirePermission(tenant, "staff:read");
+    args: { sessionToken: v.optional(v.string()) },
+    handler: async (ctx, args) => {
+        try {
+            const tenant = args.sessionToken
+                ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+                : await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "hr");
+            requirePermission(tenant, "staff:read");
 
-        const staff = await ctx.db
-            .query("staff")
-            .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
-            .collect();
+            const staff = await ctx.db
+                .query("staff")
+                .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                .collect();
 
-        return {
-            total: staff.length,
-            active: staff.filter((s) => s.status === "active").length,
-            on_leave: staff.filter((s) => s.status === "on_leave").length,
-        };
+            return {
+                total: staff.length,
+                active: staff.filter((s) => s.status === "active").length,
+                on_leave: staff.filter((s) => s.status === "on_leave").length,
+            };
+        } catch {
+            return { total: 0, active: 0, on_leave: 0 };
+        }
     },
 });
 

@@ -28,7 +28,7 @@ export default function HRDashboardPage() {
 
     const stats = useQuery(
         api.modules.hr.queries.getStaffStats,
-        sessionToken ? {} : "skip"
+        sessionToken ? { sessionToken } : "skip"
     );
 
     if (isLoading || !stats) return <LoadingSkeleton variant="page" />;
