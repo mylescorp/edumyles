@@ -25,5 +25,16 @@
                 }
             ]
         }
+    ],
+    "functions": {
+        "app/**/*.ts": {
+            "maxDuration": 30
+        }
+    },
+    "rewrites": [
+        {
+            "source": "/admin/(.*)",
+            "destination": "/admin/$1"
+        }
     ]
 }
