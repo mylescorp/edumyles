@@ -19,11 +19,17 @@ export const listPlatformAdmins = query({
 export const getCurrentPlatformUser = query({
     args: { sessionToken: v.string() },
     handler: async (ctx, args) => {
-        const session = await requirePlatformSession(ctx, args);
-        return await ctx.db
-            .query("users")
-            .filter((q) => q.eq(q.field("eduMylesUserId"), session.userId))
-            .first();
+        try {
+            const session = await requirePlatformSession(ctx, args);
+            return await ctx.db
+                .query("users")
+                .filter((q) => q.eq(q.field("eduMylesUserId"), session.userId))
+                .first();
+        } catch (error) {
+            console.error("Error in getCurrentPlatformUser:", error);
+            // Return null instead of throwing to prevent app crashes
+            return null;
+        }
     },
 });
 
