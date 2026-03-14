@@ -13,12 +13,24 @@ export const ConvexProvider = ReactConvexProvider;
  * SSR-safe useQuery wrapper that supports an optional `enabled` parameter.
  * When `enabled` is false, the query is skipped (returns undefined).
  * Returns the raw Convex query result (not wrapped in {data, isLoading, error}).
+ *
+ * If the Convex query throws (e.g. server error, missing function), this hook
+ * catches the error and returns undefined instead of crashing the component.
  */
 export function useQuery(query: any, args?: any, enabled?: boolean) {
   // If enabled is explicitly false, pass "skip" to prevent query execution
   const shouldSkip = enabled === false;
-  const result = useConvexQuery(query, shouldSkip ? "skip" : (args ?? {}));
-  return result;
+  const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+
+  try {
+    const result = useConvexQuery(query, queryArgs);
+    return result;
+  } catch (error) {
+    // Convex useQuery throws during render on server errors.
+    // Catch and return undefined so the component can render gracefully.
+    console.warn("[useQuery] Convex query error caught:", (error as Error)?.message);
+    return undefined;
+  }
 }
 
 export function useMutation(mutation: any) {
