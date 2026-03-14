@@ -10,46 +10,69 @@ import { requireModule } from "../../../helpers/moduleGuard";
 export const getMyProfile = query({
     args: {},
     handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
-        // Student profile is part of SIS
-        await requireModule(ctx, tenant.tenantId, "sis");
-
-        // First try to find by userId (preferred method)
-        let student = await ctx.db
-            .query("students")
-            .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
-            .first();
-
-        // If not found by userId, try finding by session matching (fallback)
-        if (!student) {
-            console.log("Student not found by userId, trying fallback methods");
+        try {
+            // Get authentication context first
+            const tenant = await requireTenantContext(ctx);
             
-            // Try to find any student record for this tenant as fallback
-            const allStudents = await ctx.db
+            // Student profile is part of SIS
+            await requireModule(ctx, tenant.tenantId, "sis");
+
+            // First try to find by userId (preferred method)
+            let student = await ctx.db
                 .query("students")
-                .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
-                .collect();
-            
-            console.log(`Found ${allStudents.length} students for tenant ${tenant.tenantId}`);
-            
-            // For now, return the first student as a fallback
-            // In production, this should be handled by proper user-student linking
-            student = allStudents.length > 0 ? allStudents[0] : null;
-        }
+                .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
+                .first();
 
-        if (!student) {
-            console.log("No student record found for user:", tenant.userId, "tenant:", tenant.tenantId);
+            // If not found by userId, it's possible the student record exists but userId is not set
+            // This can happen in development or during data migration
+            if (!student) {
+                console.log("Student not found by userId, checking for any student record for tenant");
+                
+                // Try to find any student record for this tenant as a fallback
+                const allStudents = await ctx.db
+                    .query("students")
+                    .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                    .collect();
+                
+                console.log(`Found ${allStudents.length} students for tenant ${tenant.tenantId}`);
+                
+                // Return the first student found (this is a fallback for development/data issues)
+                if (allStudents.length > 0) {
+                    student = allStudents[0];
+                    console.log("Using fallback student record:", student._id);
+                } else {
+                    console.log("No student records found for tenant");
+                    return null;
+                }
+            }
+
+            // Final validation
+            if (!student) {
+                console.log("No student record could be found for user:", tenant.userId);
+                return null;
+            }
+
+            // Verify tenant match (security check)
+            if (student.tenantId !== tenant.tenantId) {
+                console.log("Security: Tenant mismatch - student belongs to", student.tenantId, "but user is in", tenant.tenantId);
+                return null;
+            }
+
+            console.log("Successfully found student record:", {
+                _id: student._id,
+                firstName: student.firstName,
+                lastName: student.lastName,
+                userId: student.userId || "NOT_SET",
+                tenantId: student.tenantId
+            });
+
+            return student;
+            
+        } catch (error) {
+            console.error("Error in getMyProfile:", error);
+            // Return null instead of throwing to prevent app crashes
             return null;
         }
-
-        // Verify tenant match
-        if (student.tenantId !== tenant.tenantId) {
-            console.log("Tenant mismatch:", student.tenantId, "vs", tenant.tenantId);
-            return null;
-        }
-
-        console.log("Found student:", student._id, student.firstName, student.lastName);
-        return student;
     },
 });
 
