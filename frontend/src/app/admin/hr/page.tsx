@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,43 +26,19 @@ import { formatDistanceToNow } from "date-fns";
 export default function HRDashboardPage() {
     const { isLoading, sessionToken } = useAuth();
 
-    const stats = useQuery(
+    const stats = usePlatformQuery(
         api.modules.hr.queries.getStaffStats,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken } : "skip",
+        !!sessionToken
     );
 
-    if (isLoading || !stats) return <LoadingSkeleton variant="page" />;
+    const recentActivities = usePlatformQuery(
+        api.modules.hr.queries.getRecentActivities,
+        sessionToken ? { sessionToken, limit: 5 } : "skip",
+        !!sessionToken
+    );
 
-    // Mock data for enhanced features
-    const recentActivities = [
-        {
-            id: "1",
-            type: "leave_request",
-            title: "Leave Request Submitted",
-            employee: "John Doe",
-            department: "Mathematics",
-            date: Date.now() - 1000 * 60 * 30, // 30 minutes ago
-            status: "pending",
-        },
-        {
-            id: "2",
-            type: "new_hire",
-            title: "New Teacher Onboarded",
-            employee: "Jane Smith",
-            department: "Science",
-            date: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
-            status: "completed",
-        },
-        {
-            id: "3",
-            type: "payroll_processed",
-            title: "Monthly Payroll Processed",
-            employee: "HR System",
-            department: "Finance",
-            date: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
-            status: "completed",
-        },
-    ];
+    if (isLoading || !stats || !recentActivities) return <LoadingSkeleton variant="page" />;
 
     const upcomingEvents = [
         {
@@ -204,7 +180,7 @@ export default function HRDashboardPage() {
                             {recentActivities.map((activity) => {
                                 const Icon = getActivityIcon(activity.type);
                                 return (
-                                    <div key={activity.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                                    <div key={activity._id} className="flex items-start gap-3 p-3 border rounded-lg">
                                         <div className="p-2 bg-muted rounded-full">
                                             <Icon className="h-4 w-4" />
                                         </div>

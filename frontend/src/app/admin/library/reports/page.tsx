@@ -5,6 +5,8 @@ import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { AdminCharts } from "@/components/admin/AdminCharts";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { api } from "@/convex/_generated/api";
 import { chartColors } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,52 +26,19 @@ import {
 import { useState } from "react";
 
 export default function LibraryReportsPage() {
-  const { isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
   const [reportPeriod, setReportPeriod] = useState("monthly");
   const [reportType, setReportType] = useState("circulation");
 
-  if (isLoading) return <LoadingSkeleton variant="page" />;
+  const reports = usePlatformQuery(
+    api.modules.library.queries.getLibraryReports,
+    sessionToken ? { sessionToken, period: reportPeriod } : "skip",
+    !!sessionToken
+  );
 
-  // Mock data for reports - in real app, this would come from API
-  const circulationData = [
-    { name: "Jan", borrowed: 145, returned: 132, overdue: 8 },
-    { name: "Feb", borrowed: 167, returned: 158, overdue: 12 },
-    { name: "Mar", borrowed: 189, returned: 176, overdue: 15 },
-    { name: "Apr", borrowed: 156, returned: 148, overdue: 10 },
-    { name: "May", borrowed: 178, returned: 165, overdue: 18 },
-    { name: "Jun", borrowed: 195, returned: 182, overdue: 22 },
-  ];
+  if (isLoading || !reports) return <LoadingSkeleton variant="page" />;
 
-  const popularCategories = [
-    { name: "Fiction", value: 34, color: chartColors.categorical[0] },
-    { name: "Science", value: 28, color: chartColors.categorical[1] },
-    { name: "History", value: 18, color: chartColors.categorical[2] },
-    { name: "Mathematics", value: 12, color: "#DC2626" },
-    { name: "Literature", value: 8, color: "#7C3AED" },
-  ];
-
-  const borrowerStats = [
-    { name: "Students", value: 245, color: chartColors.categorical[0] },
-    { name: "Teachers", value: 67, color: chartColors.categorical[1] },
-    { name: "Staff", value: 23, color: chartColors.categorical[2] },
-  ];
-
-  const topBooks = [
-    { title: "Introduction to Mathematics", author: "John Smith", borrows: 45, rating: 4.8 },
-    { title: "Science Explorations", author: "Dr. Sarah Lee", borrows: 38, rating: 4.6 },
-    { title: "History of Africa", author: "Prof. Michael Okonkwo", borrows: 32, rating: 4.7 },
-    { title: "Literature Classics", author: "Jane Austen", borrows: 28, rating: 4.9 },
-    { title: "Computer Science Fundamentals", author: "Tech Writers", borrows: 25, rating: 4.5 },
-  ];
-
-  const stats = {
-    totalBooks: 1250,
-    activeBorrowers: 335,
-    monthlyCirculation: 892,
-    overdueRate: 3.2,
-    averageReadingTime: 14, // days
-    collectionEfficiency: 94.5,
-  };
+  const { stats, circulationData, popularCategories, borrowerStats, topBooks } = reports;
 
   return (
     <div className="space-y-6">

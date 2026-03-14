@@ -5,7 +5,7 @@ import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,121 +64,28 @@ export default function TimetablePage() {
     const [viewMode, setViewMode] = useState<"grid" | "list" | "conflicts">("grid");
     const [checkConflictsDay, setCheckConflictsDay] = useState<number>(0);
 
-    const classes = useQuery(
+    const classes = usePlatformQuery(
         api.modules.sis.queries.listClasses,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken } : "skip",
+        !!sessionToken
     );
 
-    const schedule = useQuery(
+    const schedule = usePlatformQuery(
         api.modules.timetable.queries.getClassSchedule,
-        sessionToken && selectedClassId ? { classId: selectedClassId } : "skip"
+        sessionToken && selectedClassId ? { classId: selectedClassId } : "skip",
+        !!(sessionToken && selectedClassId)
     );
 
-    const conflicts = useQuery(
+    const conflicts = usePlatformQuery(
         api.modules.timetable.queries.getConflicts,
-        sessionToken && checkConflictsDay ? { dayOfWeek: checkConflictsDay } : "skip"
+        sessionToken && checkConflictsDay ? { dayOfWeek: checkConflictsDay } : "skip",
+        !!(sessionToken && checkConflictsDay)
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
-    // Mock enhanced data for demonstration
-    const mockSchedule: TimetableSlot[] = [
-        {
-            _id: "slot1",
-            dayOfWeek: 1,
-            startTime: "08:00",
-            endTime: "08:40",
-            subjectId: "sub1",
-            subjectName: "Mathematics",
-            teacherId: "t1",
-            teacherName: "Alice Johnson",
-            room: "Room 101",
-            classId: "class1",
-            className: "Grade 8A",
-            status: "scheduled",
-        },
-        {
-            _id: "slot2",
-            dayOfWeek: 1,
-            startTime: "08:45",
-            endTime: "09:25",
-            subjectId: "sub2",
-            subjectName: "English",
-            teacherId: "t2",
-            teacherName: "Bob Wilson",
-            room: "Room 102",
-            classId: "class1",
-            className: "Grade 8A",
-            status: "scheduled",
-        },
-        {
-            _id: "slot3",
-            dayOfWeek: 1,
-            startTime: "09:40",
-            endTime: "10:20",
-            subjectId: "sub3",
-            subjectName: "Science",
-            teacherId: "t3",
-            teacherName: "Mary Wanjiku",
-            room: "Science Lab",
-            classId: "class1",
-            className: "Grade 8A",
-            status: "conflict",
-            conflictType: "room",
-        },
-        {
-            _id: "slot4",
-            dayOfWeek: 2,
-            startTime: "08:00",
-            endTime: "08:40",
-            subjectId: "sub4",
-            subjectName: "Social Studies",
-            teacherId: "t4",
-            teacherName: "James Otieno",
-            room: "Room 103",
-            classId: "class1",
-            className: "Grade 8A",
-            status: "scheduled",
-        },
-        {
-            _id: "slot5",
-            dayOfWeek: 2,
-            startTime: "08:45",
-            endTime: "09:25",
-            subjectId: "sub5",
-            subjectName: "Physical Education",
-            teacherId: "t5",
-            teacherName: "Grace Kimani",
-            room: "Sports Field",
-            classId: "class1",
-            className: "Grade 8A",
-            status: "scheduled",
-        },
-    ];
-
-    const mockConflicts: Conflict[] = [
-        {
-            _id: "conf1",
-            type: "room",
-            severity: "medium",
-            description: "Science Lab double-booked for Grade 8A and Grade 7B",
-            affectedSlots: ["slot3"],
-            suggestions: ["Move Grade 7B to Computer Lab", "Reschedule to Period 4", "Use Mobile Lab"],
-            autoResolved: false,
-        },
-        {
-            _id: "conf2",
-            type: "teacher",
-            severity: "high",
-            description: "Alice Johnson scheduled for two classes simultaneously",
-            affectedSlots: ["slot1", "slot6"],
-            suggestions: ["Assign substitute teacher", "Reschedule one class", "Swap with another teacher"],
-            autoResolved: false,
-        },
-    ];
-
-    const currentSchedule = (schedule as TimetableSlot[]) || mockSchedule;
-    const currentConflicts = (conflicts as Conflict[]) || mockConflicts;
+    const currentSchedule = (schedule as TimetableSlot[]) || [];
+    const currentConflicts = (conflicts as any[]) || [];
 
     const stats = {
         totalSlots: currentSchedule.length,

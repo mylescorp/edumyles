@@ -23,6 +23,7 @@ import {
   Flag,
   TrendingUp,
   Activity,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -44,6 +45,8 @@ export const platformNavItems: NavItem[] = [
   { label: "Tickets", href: "/platform/tickets", icon: Headphones },
   { label: "Communications", href: "/platform/communications", icon: MessageSquare },
   { label: "System Health", href: "/platform/health", icon: Activity },
+  { label: "Security Operations", href: "/platform/security", icon: Shield },
+  { label: "Automation Center", href: "/platform/automation", icon: Zap },
   { label: "Analytics", href: "/platform/analytics", icon: BarChart3 },
   { label: "Marketplace", href: "/platform/marketplace", icon: ShoppingCart },
   { label: "Billing", href: "/platform/billing", icon: DollarSign },

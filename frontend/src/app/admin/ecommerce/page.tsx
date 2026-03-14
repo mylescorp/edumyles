@@ -5,7 +5,7 @@ import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,120 +54,32 @@ type Order = {
 export default function ECommercePage() {
     const { isLoading, sessionToken } = useAuth();
 
-    const products = useQuery(
+    const products = usePlatformQuery(
         api.modules.ecommerce.queries.listProducts,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken } : "skip",
+        !!sessionToken
     );
 
-    const orders = useQuery(
+    const orders = usePlatformQuery(
         api.modules.ecommerce.queries.listOrders,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken } : "skip",
+        !!sessionToken
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
-    // Mock enhanced data for demonstration
-    const mockProducts: Product[] = [
-        {
-            _id: "prod1",
-            name: "School Uniform - Primary",
-            priceCents: 250000, // 2500.00 KES
-            stock: 45,
-            category: "Uniforms",
-            status: "active",
-            sku: "UNI-PRM-001",
-            lowStock: false,
-        },
-        {
-            _id: "prod2",
-            name: "Mathematics Textbook Grade 8",
-            priceCents: 120000, // 1200.00 KES
-            stock: 3,
-            category: "Books",
-            status: "active",
-            sku: "BK-MATH-008",
-            lowStock: true,
-        },
-        {
-            _id: "prod3",
-            name: "Sports Kit - Football",
-            priceCents: 350000, // 3500.00 KES
-            stock: 12,
-            category: "Sports Equipment",
-            status: "active",
-            sku: "SPRT-FB-001",
-            lowStock: false,
-        },
-        {
-            _id: "prod4",
-            name: "Stationery Set Complete",
-            priceCents: 80000, // 800.00 KES
-            stock: 28,
-            category: "Stationery",
-            status: "active",
-            sku: "STAT-COMP-001",
-            lowStock: false,
-        },
-        {
-            _id: "prod5",
-            name: "Lab Equipment Set",
-            priceCents: 500000, // 5000.00 KES
-            stock: 0,
-            category: "Lab Supplies",
-            status: "inactive",
-            sku: "LAB-EQ-001",
-            lowStock: true,
-        },
-    ];
-
-    const mockOrders: Order[] = [
-        {
-            _id: "order1",
-            orderNumber: "ORD-2024-001",
-            totalCents: 697000, // 6970.00 KES
-            status: "delivered",
-            createdAt: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
-            customer: "Alice Johnson",
-            paymentStatus: "paid",
-        },
-        {
-            _id: "order2",
-            orderNumber: "ORD-2024-002",
-            totalCents: 395000, // 3950.00 KES
-            status: "processing",
-            createdAt: Date.now() - 1000 * 60 * 60 * 4, // 4 hours ago
-            customer: "Bob Wilson",
-            paymentStatus: "paid",
-        },
-        {
-            _id: "order3",
-            orderNumber: "ORD-2024-003",
-            totalCents: 264000, // 2640.00 KES
-            status: "pending",
-            createdAt: Date.now() - 1000 * 60 * 60 * 6, // 6 hours ago
-            customer: "Mary Wanjiku",
-            paymentStatus: "pending",
-        },
-        {
-            _id: "order4",
-            orderNumber: "ORD-2024-004",
-            totalCents: 570000, // 5700.00 KES
-            status: "cancelled",
-            createdAt: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
-            customer: "James Otieno",
-            paymentStatus: "refunded",
-        },
-    ];
+    const currentProducts = (products as Product[]) || [];
+    const currentOrders = (orders as Order[]) || [];
 
     const stats = {
-        totalProducts: mockProducts.length,
-        activeProducts: mockProducts.filter(p => p.status === "active").length,
-        lowStockProducts: mockProducts.filter(p => p.lowStock).length,
-        totalOrders: mockOrders.length,
-        pendingOrders: mockOrders.filter(o => o.status === "pending").length,
-        processingOrders: mockOrders.filter(o => o.status === "processing").length,
-        totalRevenue: mockOrders.filter(o => o.paymentStatus === "paid").reduce((sum, o) => sum + o.totalCents, 0),
-        todayOrders: mockOrders.filter(o => 
+        totalProducts: currentProducts.length,
+        activeProducts: currentProducts.filter(p => p.status === "active").length,
+        lowStockProducts: currentProducts.filter(p => (p.stock <= 5) || (p.lowStock)).length,
+        totalOrders: currentOrders.length,
+        pendingOrders: currentOrders.filter(o => o.status === "pending").length,
+        processingOrders: currentOrders.filter(o => o.status === "processing").length,
+        totalRevenue: currentOrders.filter(o => o.paymentStatus === "paid").reduce((sum, o) => sum + o.totalCents, 0),
+        todayOrders: currentOrders.filter(o => 
             new Date(o.createdAt).toDateString() === new Date().toDateString()
         ).length,
     };

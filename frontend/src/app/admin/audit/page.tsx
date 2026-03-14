@@ -6,7 +6,7 @@ import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -109,120 +109,38 @@ export default function AuditLogPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [dateRange, setDateRange] = useState<string>("7");
 
-    const auditLogs = useQuery(
-        api.users.listAuditLogs,
+    const auditLogs = usePlatformQuery(
+        api.platform.audit.queries.listAuditLogs,
         sessionToken && tenantId
-            ? { tenantId, action: actionFilter === "all" ? undefined : actionFilter }
-            : "skip"
+            ? { sessionToken, tenantId, action: actionFilter === "all" ? undefined : actionFilter }
+            : "skip",
+        !!(sessionToken && tenantId)
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
-    // Mock enhanced data for demonstration
-    const mockAuditLogs: AuditLogEntry[] = [
-        {
-            _id: "audit1",
-            actorId: "user1",
-            actorName: "Alice Johnson",
-            actorRole: "Admin",
-            action: "CREATED",
-            entityId: "student123",
-            entityType: "Student",
-            entityName: "John Smith",
-            after: { name: "John Smith", grade: "Grade 8", status: "active" },
-            timestamp: Date.now() - 1000 * 60 * 30, // 30 minutes ago
-            ipAddress: "192.168.1.100",
-            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-            severity: "low",
-            category: "user",
-        },
-        {
-            _id: "audit2",
-            actorId: "user2",
-            actorName: "Bob Wilson",
-            actorRole: "Teacher",
-            action: "UPDATED",
-            entityId: "class456",
-            entityType: "Class",
-            entityName: "Mathematics Grade 8",
-            before: { subject: "Mathematics", room: "Room 101" },
-            after: { subject: "Mathematics", room: "Room 102" },
-            timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
-            ipAddress: "192.168.1.101",
-            severity: "low",
-            category: "user",
-        },
-        {
-            _id: "audit3",
-            actorId: "system",
-            actorName: "System",
-            actorRole: "System",
-            action: "PERMISSION_CHANGE",
-            entityId: "user789",
-            entityType: "User",
-            entityName: "Mary Wanjiku",
-            before: { role: "Student" },
-            after: { role: "Staff" },
-            timestamp: Date.now() - 1000 * 60 * 60 * 4, // 4 hours ago
-            severity: "high",
-            category: "security",
-        },
-        {
-            _id: "audit4",
-            actorId: "user3",
-            actorName: "James Otieno",
-            actorRole: "Student",
-            action: "LOGIN_FAILED",
-            timestamp: Date.now() - 1000 * 60 * 60 * 6, // 6 hours ago
-            ipAddress: "192.168.1.102",
-            severity: "medium",
-            category: "security",
-        },
-        {
-            _id: "audit5",
-            actorId: "user1",
-            actorName: "Alice Johnson",
-            actorRole: "Admin",
-            action: "DELETED",
-            entityId: "record321",
-            entityType: "Student Record",
-            entityName: "Previous Student Data",
-            before: { studentId: "old123", name: "Old Student" },
-            timestamp: Date.now() - 1000 * 60 * 60 * 8, // 8 hours ago
-            severity: "critical",
-            category: "data",
-        },
-        {
-            _id: "audit6",
-            actorId: "system",
-            actorName: "System",
-            actorRole: "System",
-            action: "SYSTEM_CONFIG",
-            entityId: "config789",
-            entityType: "System Setting",
-            entityName: "Security Configuration",
-            after: { setting: "max_login_attempts", value: 5 },
-            timestamp: Date.now() - 1000 * 60 * 60 * 12, // 12 hours ago
-            severity: "high",
-            category: "system",
-        },
-        {
-            _id: "audit7",
-            actorId: "user4",
-            actorName: "Grace Kimani",
-            actorRole: "Staff",
-            action: "EXPORTED",
-            entityId: "data654",
-            entityType: "Report",
-            entityName: "Student Performance Report",
-            timestamp: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
-            ipAddress: "192.168.1.103",
-            severity: "medium",
-            category: "compliance",
-        },
-    ];
+    const currentAuditLogs = (auditLogs as AuditLogEntry[]) || [];
 
-    const filteredLogs = mockAuditLogs.filter(log => {
+    const stats = {
+        totalLogs: currentAuditLogs.length,
+        todayLogs: currentAuditLogs.filter(log => 
+            new Date(log.timestamp).toDateString() === new Date().toDateString()
+        ).length,
+        criticalLogs: currentAuditLogs.filter(log => log.severity === "critical").length,
+        securityLogs: currentAuditLogs.filter(log => log.category === "security").length,
+        userLogs: currentAuditLogs.filter(log => log.category === "user").length,
+        systemLogs: currentAuditLogs.filter(log => log.category === "system").length,
+        totalActions: currentAuditLogs.length,
+        criticalActions: currentAuditLogs.filter(l => l.severity === "critical").length,
+        highSeverity: currentAuditLogs.filter(l => l.severity === "high").length,
+        securityEvents: currentAuditLogs.filter(l => l.category === "security").length,
+        todayActions: currentAuditLogs.filter(l => 
+            new Date(l.timestamp).toDateString() === new Date().toDateString()
+        ).length,
+        uniqueUsers: new Set(currentAuditLogs.map(l => l.actorId)).size,
+    };
+
+    const filteredLogs = currentAuditLogs.filter(log => {
         const matchesSearch = searchTerm === "" || 
             log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
             log.actorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -235,17 +153,6 @@ export default function AuditLogPage() {
         
         return matchesSearch && matchesAction && matchesSeverity && matchesCategory;
     });
-
-    const stats = {
-        totalActions: mockAuditLogs.length,
-        criticalActions: mockAuditLogs.filter(l => l.severity === "critical").length,
-        highSeverity: mockAuditLogs.filter(l => l.severity === "high").length,
-        securityEvents: mockAuditLogs.filter(l => l.category === "security").length,
-        todayActions: mockAuditLogs.filter(l => 
-            new Date(l.timestamp).toDateString() === new Date().toDateString()
-        ).length,
-        uniqueUsers: new Set(mockAuditLogs.map(l => l.actorId)).size,
-    };
 
     const columns: Column<AuditLogEntry>[] = [
         {
@@ -502,7 +409,7 @@ export default function AuditLogPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Audit Trail</CardTitle>
                     <div className="text-sm text-muted-foreground">
-                        Showing {filteredLogs.length} of {mockAuditLogs.length} entries
+                        Showing {filteredLogs.length} of {currentAuditLogs.length} entries
                     </div>
                 </CardHeader>
                 <CardContent>

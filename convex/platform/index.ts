@@ -1,5 +1,6 @@
 export * from "./audit";
 export * from "./analytics";
+export * from "./automation";
 export * from "./billing";
 export * from "./communications";
 export * from "./dashboard";
@@ -7,6 +8,7 @@ export * from "./files";
 export * from "./health";
 export * from "./impersonation";
 export * from "./notifications";
+export * from "./security";
 export * from "./settings";
 export * from "./tenants";
 export * from "./users";

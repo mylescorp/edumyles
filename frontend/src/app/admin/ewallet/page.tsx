@@ -5,7 +5,7 @@ import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,92 +44,26 @@ type Transaction = {
 export default function EWalletPage() {
     const { isLoading, sessionToken } = useAuth();
 
-    const transactions = useQuery(
+    const transactions = usePlatformQuery(
         api.modules.ewallet.queries.listWalletTransactions,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken } : "skip",
+        !!sessionToken
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
-    // Mock enhanced data for demonstration
-    const mockTransactions: Transaction[] = [
-        {
-            _id: "txn1",
-            walletId: "wallet1",
-            type: "credit",
-            amountCents: 100000, // 1000.00 KES
-            reference: "TOPUP-2024-001",
-            createdAt: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
-            status: "completed",
-            user: {
-                name: "Alice Johnson",
-                type: "student",
-            },
-        },
-        {
-            _id: "txn2",
-            walletId: "wallet2",
-            type: "debit",
-            amountCents: 25050, // 250.50 KES
-            reference: "PAY-2024-042",
-            createdAt: Date.now() - 1000 * 60 * 60 * 4, // 4 hours ago
-            status: "completed",
-            user: {
-                name: "Bob Wilson",
-                type: "student",
-            },
-        },
-        {
-            _id: "txn3",
-            walletId: "wallet3",
-            type: "transfer",
-            amountCents: 50000, // 500.00 KES
-            reference: "TRANSFER-2024-018",
-            createdAt: Date.now() - 1000 * 60 * 60 * 6, // 6 hours ago
-            status: "completed",
-            user: {
-                name: "Mary Wanjiku",
-                type: "staff",
-            },
-        },
-        {
-            _id: "txn4",
-            walletId: "wallet4",
-            type: "credit",
-            amountCents: 200000, // 2000.00 KES
-            reference: "TOPUP-2024-002",
-            createdAt: Date.now() - 1000 * 60 * 60 * 8, // 8 hours ago
-            status: "pending",
-            user: {
-                name: "James Otieno",
-                type: "parent",
-            },
-        },
-        {
-            _id: "txn5",
-            walletId: "wallet5",
-            type: "debit",
-            amountCents: 15000, // 150.00 KES
-            reference: "PAY-2024-043",
-            createdAt: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
-            status: "failed",
-            user: {
-                name: "Grace Kimani",
-                type: "student",
-            },
-        },
-    ];
+    const currentTransactions = (transactions as Transaction[]) || [];
 
     const stats = {
-        totalWallets: 1247,
-        activeWallets: 1189,
-        totalBalance: 2847500, // 28,475.00 KES
-        todayTransactions: mockTransactions.filter(t => 
+        totalWallets: 0, // Will be calculated from wallets query
+        activeWallets: 0, // Will be calculated from wallets query
+        totalBalance: 0, // Will be calculated from wallets query
+        todayTransactions: currentTransactions.filter(t => 
             new Date(t.createdAt).toDateString() === new Date().toDateString()
         ).length,
-        pendingTransactions: mockTransactions.filter(t => t.status === "pending").length,
-        failedTransactions: mockTransactions.filter(t => t.status === "failed").length,
-        dailyVolume: mockTransactions.reduce((sum, t) => sum + t.amountCents, 0),
+        pendingTransactions: currentTransactions.filter(t => t.status === "pending").length,
+        failedTransactions: currentTransactions.filter(t => t.status === "failed").length,
+        dailyVolume: currentTransactions.reduce((sum, t) => sum + t.amountCents, 0),
     };
 
     const transactionColumns: Column<Transaction>[] = [

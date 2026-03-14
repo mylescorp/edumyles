@@ -5,7 +5,7 @@ import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,132 +62,35 @@ type Driver = {
 export default function TransportPage() {
     const { isLoading, sessionToken } = useAuth();
 
-    const routes = useQuery(
+    const routes = usePlatformQuery(
         api.modules.transport.queries.listRoutes,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken } : "skip",
+        !!sessionToken
     );
 
-    const vehicles = useQuery(
+    const vehicles = usePlatformQuery(
         api.modules.transport.queries.listVehicles,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken } : "skip",
+        !!sessionToken
     );
 
-    const drivers = useQuery(
+    const drivers = usePlatformQuery(
         api.modules.transport.queries.listDrivers,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken } : "skip",
+        !!sessionToken
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
-    // Mock enhanced data for demonstration
-    const mockRoutes: Route[] = [
-        {
-            _id: "route1",
-            name: "Downtown - School Route",
-            stops: ["Central Park", "City Mall", "School Gate"],
-            status: "active",
-            capacity: 45,
-            activeStudents: 38,
-            driver: "John Kamau",
-            vehicle: "ABC-123",
-        },
-        {
-            _id: "route2", 
-            name: "Westlands - School Route",
-            stops: ["Sarit Centre", "Westlands Mall", "School Gate"],
-            status: "active",
-            capacity: 25,
-            activeStudents: 22,
-            driver: "Mary Wanjiku",
-            vehicle: "XYZ-789",
-        },
-        {
-            _id: "route3",
-            name: "Eastlands - School Route",
-            stops: ["Buruburu", "Pipeline", "School Gate"],
-            status: "inactive",
-            capacity: 30,
-            activeStudents: 0,
-            driver: null,
-            vehicle: null,
-        },
-    ];
-
-    const mockVehicles: Vehicle[] = [
-        {
-            _id: "vehicle1",
-            plateNumber: "ABC-123",
-            capacity: 45,
-            status: "active",
-            fuel: 75,
-            lastMaintenance: "2024-02-15",
-            driver: "John Kamau",
-            route: "Downtown - School Route",
-        },
-        {
-            _id: "vehicle2",
-            plateNumber: "XYZ-789", 
-            capacity: 15,
-            status: "active",
-            fuel: 60,
-            lastMaintenance: "2024-01-20",
-            driver: "Mary Wanjiku",
-            route: "Westlands - School Route",
-        },
-        {
-            _id: "vehicle3",
-            plateNumber: "DEF-456",
-            capacity: 25,
-            status: "maintenance",
-            fuel: 40,
-            lastMaintenance: "2023-12-10",
-            driver: null,
-            route: null,
-        },
-    ];
-
-    const mockDrivers: Driver[] = [
-        {
-            _id: "driver1",
-            firstName: "John",
-            lastName: "Kamau",
-            phone: "+254 712 345 678",
-            status: "active",
-            licenseNumber: "DL-2020-456789",
-            experience: "5 years",
-            assignedVehicle: "ABC-123",
-        },
-        {
-            _id: "driver2",
-            firstName: "Mary",
-            lastName: "Wanjiku",
-            phone: "+254 723 456 789",
-            status: "active",
-            licenseNumber: "DL-2018-123456",
-            experience: "7 years",
-            assignedVehicle: "XYZ-789",
-        },
-        {
-            _id: "driver3",
-            firstName: "James",
-            lastName: "Otieno",
-            phone: "+254 734 567 890",
-            status: "on_leave",
-            licenseNumber: "DL-2019-789012",
-            experience: "4 years",
-            assignedVehicle: null,
-        },
-    ];
-
     const stats = {
-        totalRoutes: mockRoutes.length,
-        activeRoutes: mockRoutes.filter(r => r.status === "active").length,
-        totalVehicles: mockVehicles.length,
-        activeVehicles: mockVehicles.filter(v => v.status === "active").length,
-        totalDrivers: mockDrivers.length,
-        activeDrivers: mockDrivers.filter(d => d.status === "active").length,
-        totalStudents: mockRoutes.reduce((sum, r) => sum + r.activeStudents, 0),
-        maintenanceAlerts: mockVehicles.filter(v => v.status === "maintenance").length,
+        totalRoutes: (routes as any[])?.length || 0,
+        activeRoutes: (routes as any[])?.filter((r: any) => r.status === "active").length || 0,
+        totalVehicles: (vehicles as any[])?.length || 0,
+        activeVehicles: (vehicles as any[])?.filter((v: any) => v.status === "active").length || 0,
+        totalDrivers: (drivers as any[])?.length || 0,
+        activeDrivers: (drivers as any[])?.filter((d: any) => d.status === "active").length || 0,
+        totalStudents: 0, // Will be calculated from assignments
+        maintenanceAlerts: (vehicles as any[])?.filter((v: any) => v.status === "maintenance").length || 0,
     };
 
     const routeColumns: Column<Route>[] = [
