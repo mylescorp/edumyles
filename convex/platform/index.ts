@@ -11,6 +11,7 @@ export * from "./marketplace";
 export * from "./notifications";
 export * from "./security";
 export * from "./settings";
+export * from "./support";
 export * from "./tenantSuccess";
 export * from "./tenants";
 export * from "./users";
