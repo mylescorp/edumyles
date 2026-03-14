@@ -62,7 +62,14 @@ export const getAvailableForTier = query({
     }
 
     const tier = tenant.plan ?? "free";
-    const allowedModuleIds = TIER_MODULES[tier] ?? TIER_MODULES["free"];
+    const allowedModuleIds = TIER_MODULES[tier] || TIER_MODULES["free"];
+
+    console.log("getAvailableForTier:", {
+      tenantId,
+      tier,
+      allowedModuleIds,
+      hasTier: !!TIER_MODULES[tier]
+    });
 
     const allModules = await ctx.db.query("moduleRegistry").collect();
 
