@@ -25,17 +25,17 @@ interface AuditFilters {
 
 export function AuditTrail({ logs }: { logs: AuditLog[] }) {
   const [filters, setFilters] = useState<AuditFilters>({
-    action: '',
-    dateRange: '30d',
-    userId: '',
-    tenantId: ''
+    action: "all",
+    dateRange: "30d",
+    userId: "",
+    tenantId: ""
   });
 
   const filteredLogs = useMemo(() => {
     let filtered = logs;
 
     // Apply filters
-    if (filters.action) {
+    if (filters.action !== "all") {
       filtered = filtered.filter(log => 
         log.action?.toLowerCase().includes(filters.action.toLowerCase())
       );
@@ -120,7 +120,7 @@ export function AuditTrail({ logs }: { logs: AuditLog[] }) {
                 <SelectValue placeholder="Filter by action" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All actions</SelectItem>
+                <SelectItem value="all">All actions</SelectItem>
                 <SelectItem value="created">Created</SelectItem>
                 <SelectItem value="updated">Updated</SelectItem>
                 <SelectItem value="deleted">Deleted</SelectItem>

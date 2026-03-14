@@ -34,8 +34,8 @@ interface Ticket {
 
 export default function SchoolTicketsPage() {
   const [filters, setFilters] = useState({
-    status: "",
-    priority: "",
+    status: "all",
+    priority: "all",
     category: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,14 +45,17 @@ export default function SchoolTicketsPage() {
   
   const { data: tickets, isLoading } = useQuery(api.tickets.getTenantTickets, {
     tenantId,
-    status: filters.status || undefined,
+    status: filters.status === "all" ? undefined : filters.status,
   });
 
   // Filter tickets based on search
-  const filteredTickets = tickets?.filter(ticket => 
-    ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ticket.category.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredTickets = tickets?.filter(ticket => {
+    const matchesSearch =
+      ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPriority = filters.priority === "all" || ticket.priority === filters.priority;
+    return matchesSearch && matchesPriority;
+  }) || [];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -189,7 +192,7 @@ export default function SchoolTicketsPage() {
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="open">Open</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
                 <SelectItem value="pending_school">Pending School</SelectItem>
@@ -202,7 +205,7 @@ export default function SchoolTicketsPage() {
                 <SelectValue placeholder="All Priority" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Priority</SelectItem>
+                <SelectItem value="all">All Priority</SelectItem>
                 <SelectItem value="P0">P0 - Critical</SelectItem>
                 <SelectItem value="P1">P1 - High</SelectItem>
                 <SelectItem value="P2">P2 - Medium</SelectItem>
@@ -284,7 +287,7 @@ export default function SchoolTicketsPage() {
               <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No tickets found</h3>
               <p className="text-muted-foreground mb-6">
-                {searchQuery || filters.status || filters.priority 
+                {searchQuery || filters.status !== "all" || filters.priority !== "all" 
                   ? "No tickets match your current filters." 
                   : "You haven't created any support tickets yet."
                 }
