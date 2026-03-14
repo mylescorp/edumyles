@@ -730,34 +730,6 @@ export default function ProfilePage() {
   };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !sessionToken) return;
-    setIsUploadingAvatar(true);
-    try {
-      const uploadUrl = await generateUploadUrl({ sessionToken });
-      const result = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      if (!result.ok) throw new Error("Upload failed");
-      const { storageId } = await result.json();
-      await saveAvatar({ sessionToken, storageId });
-      toast({ title: "Photo Updated", description: "Your avatar has been updated." });
-    } catch (error: any) {
-      toast({
-        title: "Upload Failed",
-        description: error.message || "Could not upload photo.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploadingAvatar(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
-
-  if (isLoading) return <LoadingSkeleton variant="page" />;
-
   const firstName = isEditing ? (editForm?.firstName ?? "") : (profileData?.firstName ?? sessionUser?.firstName ?? "");
   const lastName = isEditing ? (editForm?.lastName ?? "") : (profileData?.lastName ?? sessionUser?.lastName ?? "");
   const email = profileData?.email ?? sessionUser?.email ?? "";
