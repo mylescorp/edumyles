@@ -35,6 +35,56 @@ async function resolveParentChildren(ctx: any, tenant: any) {
   return children;
 }
 
+async function getParentRecord(ctx: any, tenant: any) {
+  const guardian = await ctx.db
+    .query("guardians")
+    .withIndex("by_user", (q: any) => q.eq("userId", tenant.userId))
+    .filter((q: any) => q.eq(q.field("tenantId"), tenant.tenantId))
+    .first();
+  if (!guardian || !guardian.isActive) return null;
+  return guardian;
+}
+
+export const updateParentProfile = mutation({
+  args: {
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    occupation: v.optional(v.string()),
+    employer: v.optional(v.string()),
+    workPhone: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    requirePermission(tenant, "students:read");
+
+    const guardian = await getParentRecord(ctx, tenant);
+    if (!guardian) throw new Error("Parent profile not found");
+
+    const updates: Record<string, unknown> = { updatedAt: Date.now() };
+    if (args.firstName !== undefined) updates.firstName = args.firstName;
+    if (args.lastName !== undefined) updates.lastName = args.lastName;
+    if (args.phone !== undefined) updates.phone = args.phone;
+    if (args.occupation !== undefined) updates.occupation = args.occupation;
+    if (args.employer !== undefined) updates.employer = args.employer;
+    if (args.workPhone !== undefined) updates.workPhone = args.workPhone;
+
+    await ctx.db.patch(guardian._id, updates);
+    
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "user.updated",
+      entityType: "guardian",
+      entityId: guardian._id.toString(),
+      after: updates,
+    });
+
+    return { success: true };
+  },
+});
+
 export const initiatePayment = mutation({
   args: {
     invoiceId: v.string(),
