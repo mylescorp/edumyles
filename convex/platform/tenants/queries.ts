@@ -44,19 +44,24 @@ export const getPlatformStats = query({
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    const tenants = await ctx.db.query("tenants").collect();
-    const activeTenants = tenants.filter((t) => t.status === "active");
-    const suspendedTenants = tenants.filter((t) => t.status === "suspended");
-    const trialTenants = tenants.filter((t) => t.status === "trial");
+    // Helper to safely query tables that may not exist yet
+    async function safeCollect<T>(fn: () => Promise<T[]>): Promise<T[]> {
+      try { return await fn(); } catch { return []; }
+    }
 
-    const users = await ctx.db.query("users").collect();
-    const activeUsers = users.filter((u) => u.isActive);
-    const students = await ctx.db.query("students").collect();
+    const tenants = await safeCollect(() => ctx.db.query("tenants").collect());
+    const activeTenants = tenants.filter((t: any) => t.status === "active");
+    const suspendedTenants = tenants.filter((t: any) => t.status === "suspended");
+    const trialTenants = tenants.filter((t: any) => t.status === "trial");
+
+    const users = await safeCollect(() => ctx.db.query("users").collect());
+    const activeUsers = users.filter((u: any) => u.isActive);
+    const students = await safeCollect(() => ctx.db.query("students").collect());
 
     // Count tenants per plan tier
     const planCounts: Record<string, number> = {};
     for (const t of tenants) {
-      planCounts[t.plan] = (planCounts[t.plan] || 0) + 1;
+      planCounts[(t as any).plan] = (planCounts[(t as any).plan] || 0) + 1;
     }
 
     return {
@@ -82,20 +87,28 @@ export const getRecentActivity = query({
 
     const limit = args.limit ?? 20;
 
-    // Get recent audit logs across all tenants
-    const logs = await ctx.db.query("auditLogs").order("desc").take(limit);
+    // Get recent audit logs across all tenants (safely handle missing table)
+    let logs: any[];
+    try {
+      logs = await ctx.db.query("auditLogs").order("desc").take(limit);
+    } catch {
+      return [];
+    }
 
     // Enrich with tenant names
     const enriched = await Promise.all(
-      logs.map(async (log) => {
-        const tenant = await ctx.db
-          .query("tenants")
-          .withIndex("by_tenantId", (q) => q.eq("tenantId", log.tenantId))
-          .first();
-        return {
-          ...log,
-          tenantName: tenant?.name ?? "Unknown",
-        };
+      logs.map(async (log: any) => {
+        let tenantName = "Unknown";
+        try {
+          const tenant = await ctx.db
+            .query("tenants")
+            .withIndex("by_tenantId", (q) => q.eq("tenantId", log.tenantId))
+            .first();
+          tenantName = tenant?.name ?? "Unknown";
+        } catch {
+          // Table or index may not exist
+        }
+        return { ...log, tenantName };
       })
     );
 
