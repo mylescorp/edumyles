@@ -166,13 +166,37 @@ export default defineSchema({
     moduleId: v.string(),
     name: v.string(),
     description: v.string(),
-    tier: v.string(),
-    category: v.string(),
-    status: v.string(),
+    tier: v.union(v.literal("free"), v.literal("basic"), v.literal("premium"), v.literal("enterprise")),
+    category: v.union(
+      v.literal("academics"),
+      v.literal("administration"),
+      v.literal("communications"),
+      v.literal("finance"),
+      v.literal("analytics"),
+      v.literal("security"),
+      v.literal("integrations")
+    ),
+    status: v.union(v.literal("draft"), v.literal("published"), v.literal("deprecated")),
     version: v.string(),
+    pricing: v.object({
+      monthly: v.number(),
+      quarterly: v.optional(v.number()),
+      annual: v.optional(v.number()),
+      currency: v.string(),
+    }),
+    features: v.array(v.string()),
+    dependencies: v.array(v.string()),
+    documentation: v.string(),
+    support: v.object({
+      email: v.string(),
+      phone: v.string(),
+      responseTime: v.string(),
+    }),
   })
     .index("by_module_id", ["moduleId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_tier", ["tier"])
+    .index("by_category", ["category"]),
 
   moduleRequests: defineTable({
     tenantId: v.string(),
@@ -797,6 +821,350 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_student_term", ["studentId", "term", "academicYear"]),
 
+  // Workflow Management System
+  workflows: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    description: v.string(),
+    category: v.union(
+      v.literal("onboarding"),
+      v.literal("offboarding"),
+      v.literal("compliance"),
+      v.literal("security"),
+      v.literal("communications"),
+      v.literal("data_management"),
+      v.literal("approval"),
+      v.literal("notification"),
+      v.literal("integration")
+    ),
+    trigger: v.union(
+      v.literal("manual"),
+      v.literal("scheduled"),
+      v.literal("event_based"),
+      v.literal("webhook")
+    ),
+    triggerConfig: v.optional(v.record(v.any())),
+    steps: v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      type: v.union(
+        v.literal("action"),
+        v.literal("condition"),
+        v.literal("approval"),
+        v.literal("notification"),
+        v.literal("delay"),
+        v.literal("integration"),
+        v.literal("data_operation")
+      ),
+      config: v.record(v.any()),
+      position: v.number(),
+    })),
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    executionCount: v.number(),
+    successRate: v.number(),
+    averageDuration: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_category", ["tenantId", "category"])
+    .index("by_status", ["tenantId", "isActive"]),
+
+  workflowExecutions: defineTable({
+    workflowId: v.string(),
+    workflowName: v.string(),
+    executionId: v.string(),
+    status: v.union(v.literal("running"), v.literal("completed"), v.literal("failed"), v.literal("cancelled")),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+    duration: v.number(),
+    triggeredBy: v.string(),
+    triggerData: v.record(v.any()),
+    steps: v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      type: v.string(),
+      status: v.union(v.literal("pending"), v.literal("running"), v.literal("completed"), v.literal("failed")),
+      startedAt: v.number(),
+      completedAt: v.optional(v.number()),
+      duration: v.number(),
+      output: v.optional(v.any()),
+      error: v.optional(v.object({
+        message: v.string(),
+        timestamp: v.number(),
+      })),
+    })),
+    error: v.optional(v.object({
+      message: v.string(),
+      stack: v.string(),
+      timestamp: v.number(),
+    })),
+    tenantId: v.string(),
+  })
+    .index("by_workflow", ["workflowId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_executionId", ["executionId"]),
+
+  // Payment Processing System
+  paymentTransactions: defineTable({
+    tenantId: v.string(),
+    moduleId: v.string(),
+    paymentMethod: v.union(v.literal("mpesa"), v.literal("card"), v.literal("bank_transfer")),
+    billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
+    amount: v.number(),
+    currency: v.string(),
+    status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed"), v.literal("cancelled")),
+    paymentReference: v.string(),
+    paymentUrl: v.optional(v.string()),
+    couponCode: v.optional(v.string()),
+    discountAmount: v.number(),
+    originalAmount: v.number(),
+    initiatedAt: v.number(),
+    processedAt: v.optional(v.number()),
+    expiresAt: v.number(),
+    initiatedBy: v.string(),
+    metadata: v.optional(v.record(v.any())),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_reference", ["paymentReference"])
+    .index("by_module", ["moduleId"]),
+
+  moduleSubscriptions: defineTable({
+    tenantId: v.string(),
+    moduleId: v.string(),
+    transactionId: v.string(),
+    billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
+    status: v.union(v.literal("active"), v.literal("cancelled"), v.literal("expired")),
+    activatedAt: v.number(),
+    expiresAt: v.number(),
+    cancelledAt: v.optional(v.number()),
+    cancelReason: v.optional(v.string()),
+    autoRenew: v.boolean(),
+    features: v.array(v.string()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_module", ["moduleId"])
+    .index("by_expiry", ["expiresAt"]),
+
+  coupons: defineTable({
+    code: v.string(),
+    discountType: v.union(v.literal("percentage"), v.literal("fixed")),
+    discountValue: v.number(),
+    maxDiscount: v.optional(v.number()),
+    minAmount: v.optional(v.number()),
+    usageLimit: v.optional(v.number()),
+    usedCount: v.number(),
+    validFrom: v.number(),
+    validUntil: v.number(),
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_code", ["code"])
+    .index("by_active", ["isActive", "validFrom", "validUntil"]),
+
+  // Analytics and Reporting System
+  reports: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    description: v.string(),
+    reportType: v.union(
+      v.literal("user_analytics"),
+      v.literal("ticket_analytics"),
+      v.literal("workflow_analytics"),
+      v.literal("tenant_analytics"),
+      v.literal("system_analytics"),
+      v.literal("custom")
+    ),
+    config: v.object({
+      timeRange: v.union(v.literal("1h"), v.literal("24h"), v.literal("7d"), v.literal("30d"), v.literal("90d")),
+      filters: v.optional(v.record(v.any())),
+      metrics: v.array(v.string()),
+      groupBy: v.optional(v.string()),
+      chartType: v.union(v.literal("line"), v.literal("bar"), v.literal("pie"), v.literal("table")),
+    }),
+    schedule: v.optional(v.object({
+      enabled: v.boolean(),
+      frequency: v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly")),
+      recipients: v.array(v.string()),
+    })),
+    status: v.union(v.literal("created"), v.literal("generating"), v.literal("completed"), v.literal("failed")),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    lastGenerated: v.optional(v.number()),
+    nextScheduled: v.optional(v.number()),
+    data: v.optional(v.any()),
+    lastExported: v.optional(v.number()),
+    exportFormat: v.optional(v.union(v.literal("csv"), v.literal("excel"), v.literal("pdf"))),
+    exportUrl: v.optional(v.string()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_type", ["tenantId", "reportType"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_createdBy", ["tenantId", "createdBy"]),
+
+  // Platform Operations Center - System Monitoring & Incident Management
+  incidents: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    severity: v.union(v.literal("critical"), v.literal("high"), v.literal("medium"), v.literal("low")),
+    status: v.union(v.literal("active"), v.literal("investigating"), v.literal("resolved"), v.literal("closed")),
+    services: v.array(v.string()),
+    impact: v.string(),
+    assignedTo: v.optional(v.string()),
+    tags: v.array(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    startTime: v.number(),
+    endTime: v.optional(v.number()),
+    duration: v.optional(v.number()),
+    resolution: v.optional(v.string()),
+    resolvedBy: v.optional(v.string()),
+    acknowledged: v.boolean(),
+    acknowledgedAt: v.optional(v.number()),
+    acknowledgedBy: v.optional(v.string()),
+    notifications: v.array(v.string()),
+    metrics: v.object({
+      affectedUsers: v.number(),
+      affectedTenants: v.number(),
+      businessImpact: v.string(),
+      recoveryTime: v.optional(v.number()),
+    }),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_severity", ["tenantId", "severity"])
+    .index("by_assignedTo", ["tenantId", "assignedTo"])
+    .index("by_createdBy", ["tenantId", "createdBy"])
+    .index("by_createdAt", ["createdAt"]),
+
+  incidentTimeline: defineTable({
+    incidentId: v.string(),
+    type: v.union(v.literal("status_change"), v.literal("note"), v.literal("action"), v.literal("notification")),
+    message: v.string(),
+    metadata: v.optional(v.any()),
+    internal: v.boolean(),
+    createdBy: v.string(),
+    tenantId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_incidentId", ["incidentId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  maintenanceWindows: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    status: v.union(v.literal("scheduled"), v.literal("in_progress"), v.literal("completed"), v.literal("cancelled")),
+    scheduledStart: v.number(),
+    scheduledEnd: v.number(),
+    actualStart: v.optional(v.number()),
+    actualEnd: v.optional(v.number()),
+    impact: v.union(v.literal("no_impact"), v.literal("degraded_performance"), v.literal("service_unavailable")),
+    affectedServices: v.array(v.string()),
+    notificationChannels: v.array(v.string()),
+    autoNotify: v.boolean(),
+    createdBy: v.string(),
+    tenantId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    notifications: v.array(v.string()),
+    notes: v.optional(v.string()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_scheduledStart", ["scheduledStart"])
+    .index("by_createdBy", ["tenantId", "createdBy"]),
+
+  operationsAlerts: defineTable({
+    tenantId: v.string(),
+    type: v.union(v.literal("system"), v.literal("security"), v.literal("performance"), v.literal("capacity")),
+    title: v.string(),
+    description: v.string(),
+    severity: v.union(v.literal("critical"), v.literal("warning"), v.literal("info")),
+    status: v.union(v.literal("active"), v.literal("resolved")),
+    source: v.string(),
+    metrics: v.optional(v.record(v.any())),
+    autoResolve: v.boolean(),
+    resolveCondition: v.optional(v.string()),
+    createdBy: v.string(),
+    tenantId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    resolvedAt: v.optional(v.number()),
+    resolvedBy: v.optional(v.string()),
+    resolution: v.optional(v.string()),
+    acknowledgements: v.array(v.string()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_type", ["tenantId", "type"])
+    .index("by_severity", ["tenantId", "severity"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_createdAt", ["createdAt"])
+    .index("by_source", ["source"]),
+
+  alertAcknowledgements: defineTable({
+    alertId: v.string(),
+    userId: v.string(),
+    notes: v.string(),
+    acknowledgedAt: v.number(),
+    tenantId: v.string(),
+  })
+    .index("by_alertId", ["alertId"])
+    .index("by_userId", ["userId", "acknowledgedAt"]),
+
+  alertSuppressions: defineTable({
+    alertType: v.string(),
+    source: v.string(),
+    condition: v.string(),
+    suppressedBy: v.string(),
+    suppressedAt: v.number(),
+    expiresAt: v.number(),
+    tenantId: v.string(),
+  })
+    .index("by_type_source", ["alertType", "source"])
+    .index("by_expiresAt", ["expiresAt"])
+    .index("by_tenant", ["tenantId"]),
+
+  scheduledNotifications: defineTable({
+    maintenanceId: v.string(),
+    type: v.string(),
+    scheduledFor: v.number(),
+    message: v.string(),
+    channels: v.array(v.string()),
+    status: v.union(v.literal("pending"), v.literal("sent"), v.literal("failed")),
+    tenantId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_scheduledFor", ["scheduledFor"]),
+
+  systemHealth: defineTable({
+    tenantId: v.string(),
+    overall: v.string(),
+    score: v.number(),
+    lastChecked: v.number(),
+    services: v.array(v.object({
+      name: v.string(),
+      status: v.string(),
+      responseTime: v.number(),
+      uptime: v.number(),
+      lastCheck: v.number(),
+      metrics: v.record(v.any()),
+    })),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_overall", ["tenantId", "overall"])
+    .index("by_lastChecked", ["lastChecked"]),
+
   // Ticket Management System - Module 04
   tickets: defineTable({
     tenantId: v.string(),
@@ -820,6 +1188,36 @@ export default defineSchema({
     csatScore: v.optional(v.number()),
     csatComment: v.optional(v.string()),
     linearIssueUrl: v.optional(v.string()),
+    // AI Analysis fields
+    aiAnalysis: v.optional(v.object({
+      sentiment: v.object({
+        sentiment: v.string(),
+        confidence: v.number(),
+        emotions: v.array(v.string()),
+        keyPhrases: v.array(v.string()),
+        urgency: v.string(),
+        escalationRecommended: v.boolean(),
+      }),
+      analyzedAt: v.number(),
+      analyzedBy: v.string(),
+    })),
+    aiCategorization: v.optional(v.object({
+      category: v.string(),
+      confidence: v.number(),
+      priority: v.string(),
+      reasoning: v.string(),
+      alternatives: v.array(v.string()),
+      factors: v.array(v.string()),
+      escalation: v.object({
+        recommended: v.boolean(),
+        confidence: v.number(),
+        reason: v.string(),
+        suggestedLevel: v.string(),
+      }),
+    })),
+    categorizedAt: v.optional(v.number()),
+    categorizedBy: v.optional(v.string()),
+    escalatedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

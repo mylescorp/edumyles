@@ -15,37 +15,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Bot,
   Brain,
-  MessageSquare,
   TrendingUp,
   Users,
   Clock,
   CheckCircle,
-  XCircle,
   AlertTriangle,
-  Zap,
-  Target,
-  BarChart3,
-  PieChart,
-  LineChart,
-  FileText,
-  BookOpen,
-  GraduationCap,
-  Lightbulb,
-  Settings,
-  Play,
-  Pause,
-  Square,
-  MoreHorizontal,
-  ArrowUpRight,
-  ArrowDownRight,
-  Minus,
-  Star,
-  ThumbsUp,
-  ThumbsDown,
-  Eye,
-  Edit,
+  MessageSquare,
   Trash2,
   Download,
   Upload,
@@ -111,6 +87,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 
 interface AITicket {
@@ -240,230 +217,65 @@ export default function AISupportPage() {
   const [isAnalyzeDialogOpen, setIsAnalyzeDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<AITicket | null>(null);
 
-  // Mock data - replace with actual queries
-  const aiTickets: AITicket[] = [
-    {
-      _id: "ticket_1",
-      ticketId: "TKT-2024-001",
-      title: "Login issues with mobile app",
-      description: "Users are experiencing login problems when trying to access the platform through the mobile application. The app shows an error message 'Invalid credentials' even with correct login details.",
-      category: "technical",
-      priority: "high",
-      status: "in_progress",
-      tenantId: "tenant_1",
-      tenantName: "Nairobi Academy",
-      userId: "user_123",
-      userName: "John Doe",
-      userEmail: "john.doe@nairobiacademy.edu",
-      contactInfo: {
-        email: "john.doe@nairobiacademy.edu",
-        phone: "+254 712 345 678",
-      },
-      submittedBy: "john.doe@nairobiacademy.edu",
-      assignedTo: "agent_1",
-      assignedAgentName: "Sarah Chen",
-      createdAt: Date.now() - 2 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 30 * 60 * 1000,
-      resolvedAt: null,
-      aiAnalysis: {
-        sentiment: {
-          score: -0.3,
-          label: "negative",
-          confidence: 0.85,
-          emotions: ["frustrated", "confused"],
-          keyPhrases: ["login problems", "invalid credentials", "mobile app"],
-        },
-        category: {
-          predicted: "technical",
-          confidence: 0.92,
-          reasoning: "Keywords indicate technical authentication issues",
-          alternatives: ["technical", "account"],
-        },
-        priority: {
-          predicted: "high",
-          confidence: 0.78,
-          factors: ["user_impact", "urgency_indicators", "multiple_users_affected"],
-          reasoning: "Affects multiple users and core functionality",
-        },
-        escalation: {
-          recommended: false,
-          confidence: 0.65,
-          reason: "Standard technical issue within support scope",
-          suggestedLevel: "level_1",
-        },
-      },
-      aiResponses: [
-        {
-          _id: "response_1",
-          type: "initial",
-          content: "Thank you for reporting this issue. I understand you're experiencing login problems with the mobile app. Let me help you troubleshoot this.",
-          tone: "empathetic",
-          confidence: 0.92,
-          generatedAt: Date.now() - 2 * 60 * 60 * 1000,
-          generatedBy: "ai_system",
-          suggestedActions: [
-            "Try clearing the mobile app cache",
-            "Ensure you're using the latest app version",
-            "Check if the issue occurs on different devices",
-          ],
-        },
-        {
-          _id: "response_2",
-          type: "follow_up",
-          content: "Based on our analysis, this appears to be related to a recent authentication update. Our team is working on a fix and will deploy it shortly.",
-          tone: "professional",
-          confidence: 0.88,
-          generatedAt: Date.now() - 90 * 60 * 1000,
-          generatedBy: "ai_system",
-          suggestedActions: [
-            "Monitor for authentication service updates",
-            "Test with different user accounts",
-            "Document affected user accounts",
-          ],
-        },
-      ],
-      attachments: ["screenshot_1.png", "error_log.txt"],
-      tags: ["mobile", "login", "authentication", "urgent"],
-      satisfaction: null,
-      resolutionTime: null,
-      escalationHistory: [],
-      knowledgeBaseReferences: ["kb_123", "kb_456"],
-    },
-    {
-      _id: "ticket_2",
-      ticketId: "TKT-2024-002",
-      title: "Billing inquiry about subscription renewal",
-      description: "Customer wants to understand the subscription renewal process and pricing for the upcoming year. They have questions about payment methods and possible discounts.",
-      category: "billing",
-      priority: "medium",
-      status: "resolved",
-      tenantId: "tenant_2",
-      tenantName: "Mombasa International School",
-      userId: "user_456",
-      userName: "Jane Smith",
-      userEmail: "jane.smith@mombasainternational.edu",
-      contactInfo: {
-        email: "jane.smith@mombasainternational.edu",
-      },
-      submittedBy: "jane.smith@mombasainternational.edu",
-      assignedTo: "agent_2",
-      assignedAgentName: "John Smith",
-      createdAt: Date.now() - 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 18 * 60 * 60 * 1000,
-      resolvedAt: Date.now() - 18 * 60 * 60 * 1000,
-      aiAnalysis: {
-        sentiment: {
-          score: 0.2,
-          label: "neutral",
-          confidence: 0.76,
-          emotions: ["inquisitive", "neutral"],
-          keyPhrases: ["subscription renewal", "pricing", "payment methods", "discounts"],
-        },
-        category: {
-          predicted: "billing",
-          confidence: 0.94,
-          reasoning: "Clear billing-related keywords and context",
-          alternatives: ["billing"],
-        },
-        priority: {
-          predicted: "medium",
-          confidence: 0.82,
-          factors: ["business_criticality", "timing", "revenue_impact"],
-          reasoning: "Important for revenue but not urgent",
-        },
-        escalation: {
-          recommended: false,
-          confidence: 0.91,
-          reason: "Standard billing inquiry within support scope",
-          suggestedLevel: "level_1",
-        },
-      },
-      aiResponses: [
-        {
-          _id: "response_3",
-          type: "initial",
-          content: "I'd be happy to help you with your subscription renewal questions. Let me provide you with detailed information about our renewal process and pricing options.",
-          tone: "friendly",
-          confidence: 0.89,
-          generatedAt: Date.now() - 23 * 60 * 60 * 1000,
-          generatedBy: "ai_system",
-          suggestedActions: [
-            "Review current subscription details",
-            "Check available discount programs",
-            "Prepare renewal timeline",
-          ],
-        },
-        {
-          _id: "response_4",
-          type: "resolution",
-          content: "I've provided you with all the information about subscription renewal, including pricing options and available discounts. Is there anything specific about the renewal process you'd like me to clarify?",
-          tone: "professional",
-          confidence: 0.85,
-          generatedAt: Date.now() - 19 * 60 * 60 * 1000,
-          generatedBy: "ai_system",
-          suggestedActions: [
-            "Confirm understanding of renewal process",
-            "Follow up on discount eligibility",
-            "Schedule renewal reminder if needed",
-          ],
-        },
-      ],
-      attachments: [],
-      tags: ["billing", "subscription", "renewal", "pricing"],
-      satisfaction: 4.8,
-      resolutionTime: 6 * 60 * 60 * 1000,
-      escalationHistory: [],
-      knowledgeBaseReferences: ["kb_789", "kb_012"],
-    },
-  ];
+  // Real AI mutations
+  const analyzeSentiment = useMutation(api.ai.support.analyzeSentiment);
+  const categorizeTicket = useMutation(api.ai.support.categorizeTicket);
+  const generateResponse = useMutation(api.ai.support.generateResponse);
 
-  const aiInsights: AIInsight = {
-    totalTickets: 1247,
-    resolvedTickets: 1089,
-    averageResolutionTime: 4.2,
-    topCategories: ["technical", "billing", "account"],
-    trends: [
-      { date: "2024-04-01", tickets: 45, resolved: 42, aiHandled: 18 },
-      { date: "2024-04-02", tickets: 52, resolved: 48, aiHandled: 22 },
-      { date: "2024-04-03", tickets: 38, resolved: 35, aiHandled: 15 },
-      { date: "2024-04-04", tickets: 61, resolved: 56, aiHandled: 28 },
-      { date: "2024-04-05", tickets: 47, resolved: 44, aiHandled: 21 },
-    ],
-    aiPerformance: {
-      aiHandledTickets: 523,
-      aiResolutionRate: 0.68,
-      averageResponseTime: 0.5,
-      customerSatisfaction: 4.1,
-      escalationRate: 0.32,
-    },
-    recommendations: [
-      "Increase AI training data for better accuracy",
-      "Implement proactive AI outreach for common issues",
-      "Fine-tune sentiment analysis models",
-      "Optimize AI response templates for better satisfaction",
-    ],
-    totalAgents: 12,
-    averageTicketsPerAgent: 104,
-    averageResponseTime: 1.8,
-    satisfactionScore: 4.6,
-    topPerformers: [
-      {
-        agentId: "agent_1",
-        name: "Sarah Chen",
-        tickets: 156,
-        satisfaction: 4.8,
-        averageResponseTime: 1.2,
-        aiAssistedTickets: 89,
-      },
-      {
-        agentId: "agent_2",
-        name: "John Smith",
-        tickets: 142,
-        satisfaction: 4.7,
-        averageResponseTime: 1.5,
-        aiAssistedTickets: 76,
-      },
-    ],
+  // Real AI insights query
+  const { data: aiInsights, isLoading: insightsLoading } = usePlatformQuery(
+    api.ai.support.getAIInsights,
+    { sessionToken },
+    !!sessionToken
+  );
+
+  // Get AI-analyzed tickets
+  const { data: aiTickets, isLoading: ticketsLoading } = usePlatformQuery(
+    api.platform.tickets.queries.listTickets,
+    { sessionToken, limit: 50 },
+    !!sessionToken
+  );
+
+  // Helper functions for AI operations
+  const handleAnalyzeTicket = async (ticket: any) => {
+    if (!sessionToken) return;
+    
+    try {
+      // Analyze sentiment
+      await analyzeSentiment({
+        sessionToken,
+        text: `${ticket.title} ${ticket.body}`,
+        ticketId: ticket._id,
+      });
+      
+      // Categorize ticket
+      await categorizeTicket({
+        sessionToken,
+        title: ticket.title,
+        description: ticket.body,
+        ticketId: ticket._id,
+      });
+    } catch (error) {
+      console.error("Failed to analyze ticket:", error);
+    }
+  };
+
+  const handleGenerateResponse = async (ticket: any, responseType: "initial" | "follow_up" | "resolution") => {
+    if (!sessionToken) return;
+    
+    try {
+      const response = await generateResponse({
+        sessionToken,
+        ticketContent: `${ticket.title} ${ticket.body}`,
+        responseType,
+      });
+      
+      console.log("Generated AI response:", response);
+      return response;
+    } catch (error) {
+      console.error("Failed to generate response:", error);
+      return null;
+    }
   };
 
   const getCategoryIcon = (category: string) => {
