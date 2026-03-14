@@ -19,7 +19,15 @@ export type AuditAction =
   | "communication.email_sent" | "communication.sms_sent"
   | "alumni.profile_updated" | "alumni.transcript_requested" | "alumni.event_rsvp"
   | "timetable.slot_created" | "timetable.slot_updated" | "timetable.slot_deleted" | "timetable.substitute_assigned"
-  | "message.sent";
+  | "message.sent"
+  | "marketplace.module_submitted" | "marketplace.module_approved" | "marketplace.module_rejected"
+  | "marketplace.module_published" | "marketplace.module_suspended" | "marketplace.module_deprecated"
+  | "marketplace.module_installed" | "marketplace.module_uninstalled" | "marketplace.module_updated"
+  | "marketplace.review_submitted" | "marketplace.review_moderated"
+  | "marketplace.publisher_registered" | "marketplace.publisher_verified"
+  | "marketplace.purchase" | "marketplace.refund"
+  | "marketplace.dispute_filed" | "marketplace.dispute_resolved"
+  | "marketplace.category_updated" | "marketplace.featured_updated";
 
 export async function logAction(
   ctx: MutationCtx,
