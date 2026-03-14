@@ -33,6 +33,10 @@ export async function requireTenantSession(
   ctx: QueryCtx | MutationCtx,
   args: { sessionToken: string }
 ): Promise<TenantContext> {
+  console.log("requireTenantSession called with:", {
+    sessionToken: args.sessionToken ? "present" : "missing",
+  });
+
   const session =
     (await ctx.db
       .query("sessions")
@@ -42,6 +46,15 @@ export async function requireTenantSession(
       .query("sessions")
       .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
       .first());
+
+  console.log("session lookup result:", session ? {
+    tenantId: session.tenantId,
+    userId: session.userId,
+    role: session.role,
+    email: session.email,
+    expiresAt: session.expiresAt,
+    isExpired: session.expiresAt < Date.now(),
+  } : "not found");
 
   if (!session) {
     throw new Error("UNAUTHENTICATED: Session not found");
@@ -54,6 +67,13 @@ export async function requireTenantSession(
   if (!session.tenantId.startsWith("TENANT-")) {
     throw new Error("INVALID_TENANT: Malformed tenantId");
   }
+
+  console.log("returning tenant context:", {
+    tenantId: session.tenantId,
+    userId: session.userId,
+    role: session.role,
+    email: session.email,
+  });
 
   return {
     tenantId: session.tenantId,
