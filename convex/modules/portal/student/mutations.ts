@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation } from "../../../_generated/server";
 import { requireTenantContext } from "../../../helpers/tenantGuard";
+import { requirePlatformSession } from "../../../helpers/platformGuard";
 import { requireModule } from "../../../helpers/moduleGuard";
 import { logAction } from "../../../helpers/auditLog";
 
@@ -13,12 +14,62 @@ async function getStudentRecord(ctx: any, tenant: any) {
   return student;
 }
 
+export const installSISModule = mutation({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    
+    // Check if SIS module is already installed
+    const existing = await ctx.db
+      .query("installedModules")
+      .withIndex("by_tenant_module", (q) =>
+        q.eq("tenantId", tenant.tenantId).eq("moduleId", "sis")
+      )
+      .first();
+    
+    if (existing) {
+      console.log("SIS module already installed for tenant:", tenant.tenantId);
+      return { success: true, alreadyInstalled: true };
+    }
+    
+    // Install SIS module
+    await ctx.db.insert("installedModules", {
+      tenantId: tenant.tenantId,
+      moduleId: "sis",
+      installedAt: Date.now(),
+      installedBy: tenant.userId,
+      config: {},
+      status: "active",
+      updatedAt: Date.now(),
+    });
+    
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "module.installed",
+      entityType: "installedModule",
+      entityId: "sis",
+      after: { moduleId: "sis", status: "active" },
+    });
+    
+    return { success: true, alreadyInstalled: false };
+  },
+});
+
 export const updateStudentProfile = mutation({
-    args: {
-        firstName: v.optional(v.string()),
-        lastName: v.optional(v.string()),
-        phone: v.optional(v.string()),
-        bio: v.optional(v.string()),
+  args: {
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    location: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
         location: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
