@@ -22,10 +22,15 @@ export async function requirePlatformSession(
   ctx: QueryCtx | MutationCtx,
   args: { sessionToken: string }
 ): Promise<PlatformContext> {
-  const session = await ctx.db
-    .query("sessions")
-    .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-    .first();
+  const session =
+    (await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first()) ??
+    (await ctx.db
+      .query("sessions")
+      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .first());
 
   if (!session) throw new Error("UNAUTHENTICATED: Session not found");
   if (session.expiresAt < Date.now()) throw new Error("UNAUTHENTICATED: Session expired");
