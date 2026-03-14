@@ -25,14 +25,22 @@ export const testStudentProfile = query({
                 userId: identity.userId,
                 role: identity.role
             });
+
+            const tenantId = identity.tenantId;
+            if (!tenantId) {
+                return { error: "No tenantId in identity" };
+            }
+            if (typeof tenantId !== "string") {
+                return { error: "Invalid tenantId in identity" };
+            }
             
             // Try a simple database query
             const students = await ctx.db
                 .query("students")
-                .withIndex("by_tenant", (q) => q.eq("tenantId", identity.tenantId))
+                .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
                 .collect();
             
-            console.log(`Found ${students.length} students for tenant ${identity.tenantId}`);
+            console.log(`Found ${students.length} students for tenant ${tenantId}`);
             
             return {
                 identity: identity,

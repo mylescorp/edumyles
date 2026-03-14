@@ -134,19 +134,6 @@ export default defineSchema({
   })
     .index("by_email", ["email"]),
 
-  notifications: defineTable({
-    tenantId: v.string(),
-    userId: v.string(),
-    title: v.string(),
-    message: v.string(),
-    type: v.string(),
-    read: v.boolean(),
-    actionUrl: v.optional(v.string()),
-    createdAt: v.number(),
-  })
-    .index("by_user", ["userId", "createdAt"])
-    .index("by_user_unread", ["userId", "read"]),
-
   platformFiles: defineTable({
     tenantId: v.string(),
     uploadedBy: v.string(),

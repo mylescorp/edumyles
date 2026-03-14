@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await convex.mutation((api as any).modules.finance.mutations.savePaymentCallbackFromServer, {
+    await convex.action((api as any).modules.finance.actions.savePaymentCallbackFromServer, {
       webhookSecret,
       tenantId: session.tenantId,
       gateway: "stripe",

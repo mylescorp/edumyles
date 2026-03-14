@@ -5,28 +5,32 @@ import { api } from "@/convex/_generated/api";
 import { useAuth } from "./useAuth";
 
 export function useDashboardKPIs() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, isLoading: authLoading } = useAuth();
   
   // For now, use platform stats to get basic KPI data
-  const platformStats = useQuery(api.platform.tenants.queries.getPlatformStats, { 
-    sessionToken: sessionToken || "" 
-  });
+  const platformStats = useQuery(
+    api.platform.tenants.queries.getPlatformStats,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
+
+  const isLoading = authLoading || (!!sessionToken && platformStats === undefined);
 
   // Transform the data to match expected KPI format
-  if (platformStats.data) {
+  if (platformStats) {
     return {
       data: {
-        activeTenants: platformStats.data.activeTenants || 0,
-        mrr: platformStats.data.mrr || 0,
-        arr: platformStats.data.arr || 0,
-        openTickets: platformStats.data.openTickets || 0,
-        pipelineValue: platformStats.data.pipelineValue || 0,
-        systemHealth: platformStats.data.systemHealth || 100,
-        trialsActive: platformStats.data.trialTenants || 0,
-        newThisMonth: platformStats.data.newThisMonth || 0,
+        activeTenants: platformStats.activeTenants || 0,
+        mrr: platformStats.mrr || 0,
+        arr: platformStats.arr || 0,
+        openTickets: platformStats.openTickets || 0,
+        pipelineValue: platformStats.pipelineValue || 0,
+        systemHealth: platformStats.systemHealth || 100,
+        trialsActive: platformStats.trialTenants || 0,
+        newThisMonth: platformStats.newThisMonth || 0,
       },
-      isLoading: platformStats.isLoading,
-      error: platformStats.error,
+      isLoading,
+      error: null,
     };
   }
 
@@ -41,8 +45,8 @@ export function useDashboardKPIs() {
       trialsActive: 0,
       newThisMonth: 0,
     },
-    isLoading: platformStats.isLoading,
-    error: platformStats.error,
+    isLoading,
+    error: null,
   };
 }
 
@@ -81,11 +85,17 @@ export function useDashboardCharts(timeRange?: "7d" | "30d" | "90d" | "12m") {
 }
 
 export function useActivityFeed(limit?: number) {
-  const { sessionToken } = useAuth();
-  
-  // Use recent activity from platform tenants
-  return useQuery(api.platform.tenants.queries.getRecentActivity, { 
-    sessionToken: sessionToken || "",
-    limit: limit || 20
-  });
+  const { sessionToken, isLoading: authLoading } = useAuth();
+
+  const events = useQuery(
+    api.platform.tenants.queries.getRecentActivity,
+    { sessionToken: sessionToken || "", limit: limit || 20 },
+    !!sessionToken
+  );
+
+  return {
+    data: events || [],
+    isLoading: authLoading || (!!sessionToken && events === undefined),
+    error: null,
+  };
 }

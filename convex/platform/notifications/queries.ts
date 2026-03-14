@@ -16,7 +16,7 @@ export const listNotifications = query({
       notifications = await ctx.db
         .query("notifications")
         .withIndex("by_user_unread", (q) =>
-          q.eq("userId", session.userId).eq("read", false)
+          q.eq("userId", session.userId).eq("isRead", false)
         )
         .order("desc")
         .collect();
@@ -44,7 +44,7 @@ export const getUnreadCount = query({
     const unread = await ctx.db
       .query("notifications")
       .withIndex("by_user_unread", (q) =>
-        q.eq("userId", session.userId).eq("read", false)
+        q.eq("userId", session.userId).eq("isRead", false)
       )
       .collect();
 

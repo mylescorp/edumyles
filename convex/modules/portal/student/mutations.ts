@@ -70,36 +70,31 @@ export const updateStudentProfile = mutation({
   handler: async (ctx, args) => {
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
-        location: v.optional(v.string()),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "academics");
 
-        const student = await getStudentRecord(ctx, tenant);
-        if (!student) throw new Error("Student profile not found");
+    const student = await getStudentRecord(ctx, tenant);
+    if (!student) throw new Error("Student profile not found");
 
-        const updates: Record<string, unknown> = { updatedAt: Date.now() };
-        if (args.firstName !== undefined) updates.firstName = args.firstName;
-        if (args.lastName !== undefined) updates.lastName = args.lastName;
-        if (args.phone !== undefined) updates.phone = args.phone;
-        if (args.bio !== undefined) updates.bio = args.bio;
-        if (args.location !== undefined) updates.location = args.location;
+    const updates: Record<string, unknown> = { updatedAt: Date.now() };
+    if (args.firstName !== undefined) updates.firstName = args.firstName;
+    if (args.lastName !== undefined) updates.lastName = args.lastName;
+    if (args.phone !== undefined) updates.phone = args.phone;
+    if (args.bio !== undefined) updates.bio = args.bio;
+    if (args.location !== undefined) updates.location = args.location;
 
-        await ctx.db.patch(student._id, updates);
-        
-        await logAction(ctx, {
-            tenantId: tenant.tenantId,
-            actorId: tenant.userId,
-            actorEmail: tenant.email,
-            action: "student.updated",
-            entityType: "student",
-            entityId: student._id.toString(),
-            after: updates,
-        });
+    await ctx.db.patch(student._id, updates);
 
-        return { success: true };
-    },
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "student.updated",
+      entityType: "student",
+      entityId: student._id.toString(),
+      after: updates,
+    });
+
+    return { success: true };
+  },
 });
 
 export const submitAssignment = mutation({

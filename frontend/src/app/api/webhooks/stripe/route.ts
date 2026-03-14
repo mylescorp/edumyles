@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing session id" }, { status: 400 });
     }
     try {
-      await convex.mutation(api.modules.finance.mutations.recordPaymentFromGateway, {
+      await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
         webhookSecret,
         gateway: "stripe",
         externalId: sessionId,

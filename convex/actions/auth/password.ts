@@ -48,7 +48,7 @@ export const changePassword = action({
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 
     // Get user
-    const user = await ctx.runQuery(api.actions.auth.passwordHelpers.getUserByUserId, {
+    const user = await ctx.runQuery(api.modules.auth.passwordHelpers.getUserByUserId, {
       sessionToken: args.sessionToken,
       userId: session.userId,
     });
@@ -69,7 +69,7 @@ export const changePassword = action({
     const newHash = await hashPassword(args.newPassword);
 
     // Update password in database
-    await ctx.runMutation(api.actions.auth.passwordHelpers.updatePasswordHash, {
+    await ctx.runMutation(api.modules.auth.passwordHelpers.updatePasswordHash, {
       sessionToken: args.sessionToken,
       userId: session.userId,
       passwordHash: newHash,
@@ -102,7 +102,7 @@ export const setInitialPassword = action({
 
     const newHash = await hashPassword(args.newPassword);
 
-    await ctx.runMutation(api.actions.auth.passwordHelpers.updatePasswordHash, {
+    await ctx.runMutation(api.modules.auth.passwordHelpers.updatePasswordHash, {
       sessionToken: args.sessionToken,
       userId: session.userId,
       passwordHash: newHash,
@@ -122,7 +122,7 @@ export const requestPasswordReset = action({
     const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
 
     // Store the token (this will also check if user exists)
-    await ctx.runMutation(api.actions.auth.passwordHelpers.createResetToken, {
+    await ctx.runMutation(api.modules.auth.passwordHelpers.createResetToken, {
       email: args.email,
       token,
       expiresAt,
@@ -146,7 +146,7 @@ export const resetPassword = action({
     }
 
     // Validate token and get userId
-    const resetToken = await ctx.runQuery(api.actions.auth.passwordHelpers.getResetToken, {
+    const resetToken = await ctx.runQuery(api.modules.auth.passwordHelpers.getResetToken, {
       token: args.token,
     });
 
@@ -157,7 +157,7 @@ export const resetPassword = action({
     const newHash = await hashPassword(args.newPassword);
 
     // Update password and mark token as used
-    await ctx.runMutation(api.actions.auth.passwordHelpers.resetPasswordWithToken, {
+    await ctx.runMutation(api.modules.auth.passwordHelpers.resetPasswordWithToken, {
       token: args.token,
       userId: resetToken.userId,
       passwordHash: newHash,

@@ -10,9 +10,11 @@ export const createNotification = mutation({
     message: v.string(),
     type: v.string(),
     actionUrl: v.optional(v.string()),
+    link: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const session = await requirePlatformSession(ctx, args);
+    const link = args.link ?? args.actionUrl;
 
     return await ctx.db.insert("notifications", {
       tenantId: session.tenantId,
@@ -20,8 +22,8 @@ export const createNotification = mutation({
       title: args.title,
       message: args.message,
       type: args.type,
-      read: false,
-      actionUrl: args.actionUrl,
+      isRead: false,
+      link,
       createdAt: Date.now(),
     });
   },
@@ -40,7 +42,7 @@ export const markAsRead = mutation({
       throw new Error("Notification not found");
     }
 
-    await ctx.db.patch(args.notificationId, { read: true });
+    await ctx.db.patch(args.notificationId, { isRead: true });
   },
 });
 
@@ -52,12 +54,12 @@ export const markAllAsRead = mutation({
     const unread = await ctx.db
       .query("notifications")
       .withIndex("by_user_unread", (q) =>
-        q.eq("userId", session.userId).eq("read", false)
+        q.eq("userId", session.userId).eq("isRead", false)
       )
       .collect();
 
     for (const n of unread) {
-      await ctx.db.patch(n._id, { read: true });
+      await ctx.db.patch(n._id, { isRead: true });
     }
   },
 });

@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const reference = String((body as any).reference ?? externalId);
 
     const convex = getConvexClient();
-    await convex.mutation(api.modules.finance.mutations.recordPaymentFromGateway, {
+    await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
       webhookSecret: expectedSecret,
       gateway: "airtel",
       externalId,

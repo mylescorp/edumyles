@@ -66,7 +66,7 @@ describe('Payment Webhook Tests', () => {
             reference = receipt?.Value != null ? String(receipt.Value) : undefined;
           }
 
-          await mockConvexMutation('modules.finance.mutations.recordPaymentFromGateway', {
+          await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
             webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
             gateway: 'mpesa',
             externalId: checkoutRequestId,
@@ -88,7 +88,7 @@ describe('Payment Webhook Tests', () => {
 
       expect(response.status).toBe(200);
       expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.mutations.recordPaymentFromGateway',
+        'modules.finance.actions.recordPaymentFromGateway',
         {
           webhookSecret: 'test-webhook-secret',
           gateway: 'mpesa',
@@ -121,7 +121,7 @@ describe('Payment Webhook Tests', () => {
         const body = raw as any;
         const stk = body.Body?.stkCallback;
         
-        await mockConvexMutation('modules.finance.mutations.recordPaymentFromGateway', {
+        await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
           webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
           gateway: 'mpesa',
           externalId: stk.CheckoutRequestID,
@@ -135,7 +135,7 @@ describe('Payment Webhook Tests', () => {
 
       expect(response.status).toBe(200);
       expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.mutations.recordPaymentFromGateway',
+        'modules.finance.actions.recordPaymentFromGateway',
         {
           webhookSecret: 'test-webhook-secret',
           gateway: 'mpesa',
@@ -209,7 +209,7 @@ describe('Payment Webhook Tests', () => {
         const event = await req.json();
         
         if (event.type === 'payment_intent.succeeded') {
-          await mockConvexMutation('modules.finance.mutations.recordPaymentFromGateway', {
+          await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
             webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
             gateway: 'stripe',
             externalId: event.data.object.id,
@@ -227,7 +227,7 @@ describe('Payment Webhook Tests', () => {
 
       expect(response.status).toBe(200);
       expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.mutations.recordPaymentFromGateway',
+        'modules.finance.actions.recordPaymentFromGateway',
         {
           webhookSecret: 'test-webhook-secret',
           gateway: 'stripe',
@@ -269,7 +269,7 @@ describe('Payment Webhook Tests', () => {
         const event = await req.json();
         
         if (event.type === 'payment_intent.payment_failed') {
-          await mockConvexMutation('modules.finance.mutations.recordPaymentFromGateway', {
+          await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
             webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
             gateway: 'stripe',
             externalId: event.data.object.id,
@@ -285,7 +285,7 @@ describe('Payment Webhook Tests', () => {
 
       expect(response.status).toBe(200);
       expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.mutations.recordPaymentFromGateway',
+        'modules.finance.actions.recordPaymentFromGateway',
         {
           webhookSecret: 'test-webhook-secret',
           gateway: 'stripe',
@@ -322,7 +322,7 @@ describe('Payment Webhook Tests', () => {
         const transaction = body.transaction;
         
         if (transaction.status === 'SUCCESS') {
-          await mockConvexMutation('modules.finance.mutations.recordPaymentFromGateway', {
+          await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
             webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
             gateway: 'airtel',
             externalId: transaction.id,
@@ -340,7 +340,7 @@ describe('Payment Webhook Tests', () => {
 
       expect(response.status).toBe(200);
       expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.mutations.recordPaymentFromGateway',
+        'modules.finance.actions.recordPaymentFromGateway',
         {
           webhookSecret: 'test-webhook-secret',
           gateway: 'airtel',

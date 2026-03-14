@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await convex.mutation(api.modules.finance.mutations.recordPaymentFromGateway, {
+    await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
       webhookSecret,
       gateway: "mpesa",
       externalId: checkoutRequestId,
