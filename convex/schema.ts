@@ -166,13 +166,37 @@ export default defineSchema({
     moduleId: v.string(),
     name: v.string(),
     description: v.string(),
-    tier: v.string(),
-    category: v.string(),
-    status: v.string(),
+    tier: v.union(v.literal("free"), v.literal("basic"), v.literal("premium"), v.literal("enterprise")),
+    category: v.union(
+      v.literal("academics"),
+      v.literal("administration"),
+      v.literal("communications"),
+      v.literal("finance"),
+      v.literal("analytics"),
+      v.literal("security"),
+      v.literal("integrations")
+    ),
+    status: v.union(v.literal("draft"), v.literal("published"), v.literal("deprecated")),
     version: v.string(),
+    pricing: v.object({
+      monthly: v.number(),
+      quarterly: v.optional(v.number()),
+      annual: v.optional(v.number()),
+      currency: v.string(),
+    }),
+    features: v.array(v.string()),
+    dependencies: v.array(v.string()),
+    documentation: v.string(),
+    support: v.object({
+      email: v.string(),
+      phone: v.string(),
+      responseTime: v.string(),
+    }),
   })
     .index("by_module_id", ["moduleId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_tier", ["tier"])
+    .index("by_category", ["category"]),
 
   moduleRequests: defineTable({
     tenantId: v.string(),
@@ -882,6 +906,66 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_status", ["tenantId", "status"])
     .index("by_executionId", ["executionId"]),
+
+  // Payment Processing System
+  paymentTransactions: defineTable({
+    tenantId: v.string(),
+    moduleId: v.string(),
+    paymentMethod: v.union(v.literal("mpesa"), v.literal("card"), v.literal("bank_transfer")),
+    billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
+    amount: v.number(),
+    currency: v.string(),
+    status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed"), v.literal("cancelled")),
+    paymentReference: v.string(),
+    paymentUrl: v.optional(v.string()),
+    couponCode: v.optional(v.string()),
+    discountAmount: v.number(),
+    originalAmount: v.number(),
+    initiatedAt: v.number(),
+    processedAt: v.optional(v.number()),
+    expiresAt: v.number(),
+    initiatedBy: v.string(),
+    metadata: v.optional(v.record(v.any())),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_reference", ["paymentReference"])
+    .index("by_module", ["moduleId"]),
+
+  moduleSubscriptions: defineTable({
+    tenantId: v.string(),
+    moduleId: v.string(),
+    transactionId: v.string(),
+    billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
+    status: v.union(v.literal("active"), v.literal("cancelled"), v.literal("expired")),
+    activatedAt: v.number(),
+    expiresAt: v.number(),
+    cancelledAt: v.optional(v.number()),
+    cancelReason: v.optional(v.string()),
+    autoRenew: v.boolean(),
+    features: v.array(v.string()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_module", ["moduleId"])
+    .index("by_expiry", ["expiresAt"]),
+
+  coupons: defineTable({
+    code: v.string(),
+    discountType: v.union(v.literal("percentage"), v.literal("fixed")),
+    discountValue: v.number(),
+    maxDiscount: v.optional(v.number()),
+    minAmount: v.optional(v.number()),
+    usageLimit: v.optional(v.number()),
+    usedCount: v.number(),
+    validFrom: v.number(),
+    validUntil: v.number(),
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_code", ["code"])
+    .index("by_active", ["isActive", "validFrom", "validUntil"]),
 
   // Analytics and Reporting System
   reports: defineTable({
