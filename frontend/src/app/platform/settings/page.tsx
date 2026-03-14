@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +26,7 @@ import {
   RefreshCw,
   AlertTriangle,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
 type SettingsDraft = {
@@ -82,6 +83,59 @@ const DEFAULT_DRAFT: SettingsDraft = {
   },
 };
 
+function sectionToSettings(section: string, data: Record<string, any>): Array<{ key: string; value: string }> {
+  return Object.entries(data).map(([key, value]) => ({
+    key,
+    value: typeof value === "object" ? JSON.stringify(value) : String(value),
+  }));
+}
+
+function applyDbSettings(draft: SettingsDraft, dbSettings: Record<string, Record<string, string>>): SettingsDraft {
+  const result = { ...draft };
+
+  if (dbSettings.general) {
+    const g = dbSettings.general;
+    result.general = {
+      platformName: g.platformName ?? draft.general.platformName,
+      platformDescription: g.platformDescription ?? draft.general.platformDescription,
+      timezone: g.timezone ?? draft.general.timezone,
+      dateFormat: g.dateFormat ?? draft.general.dateFormat,
+    };
+  }
+
+  if (dbSettings.security) {
+    const s = dbSettings.security;
+    result.security = {
+      passwordMinLength: s.passwordMinLength ? Number(s.passwordMinLength) : draft.security.passwordMinLength,
+      sessionTimeoutMinutes: s.sessionTimeoutMinutes ? Number(s.sessionTimeoutMinutes) : draft.security.sessionTimeoutMinutes,
+      maxLoginAttempts: s.maxLoginAttempts ? Number(s.maxLoginAttempts) : draft.security.maxLoginAttempts,
+      twoFactorRequired: s.twoFactorRequired === "true",
+      allowedDomains: s.allowedDomains ? JSON.parse(s.allowedDomains) : draft.security.allowedDomains,
+    };
+  }
+
+  if (dbSettings.integrations) {
+    const i = dbSettings.integrations;
+    result.integrations = {
+      paymentGateway: i.paymentGateway ?? draft.integrations.paymentGateway,
+      smsProvider: i.smsProvider ?? draft.integrations.smsProvider,
+      analyticsEnabled: i.analyticsEnabled === "true",
+    };
+  }
+
+  if (dbSettings.operations) {
+    const o = dbSettings.operations;
+    result.operations = {
+      maintenanceMode: o.maintenanceMode === "true",
+      registrationEnabled: o.registrationEnabled !== "false",
+      backupFrequency: o.backupFrequency ?? draft.operations.backupFrequency,
+      retentionDays: o.retentionDays ? Number(o.retentionDays) : draft.operations.retentionDays,
+    };
+  }
+
+  return result;
+}
+
 export default function PlatformSettingsPage() {
   const { isLoading, sessionToken } = useAuth();
   const { hasRole } = usePermissions();
@@ -91,6 +145,25 @@ export default function PlatformSettingsPage() {
 
   const [draft, setDraft] = useState<SettingsDraft>(DEFAULT_DRAFT);
   const [dirty, setDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [loadedFromDb, setLoadedFromDb] = useState(false);
+
+  // Fetch persisted settings from Convex
+  const dbSettings = usePlatformQuery(
+    api.platform.settings.queries.getSettings,
+    { sessionToken },
+    isPlatformAdmin && !!sessionToken
+  ) as Record<string, Record<string, string>> | undefined;
+
+  const updateSettings = useMutation(api.platform.settings.mutations.updateSettings);
+
+  // Load DB settings into draft when they arrive
+  useEffect(() => {
+    if (dbSettings && !loadedFromDb) {
+      setDraft(applyDbSettings(DEFAULT_DRAFT, dbSettings));
+      setLoadedFromDb(true);
+    }
+  }, [dbSettings, loadedFromDb]);
 
   const platformStats = usePlatformQuery(
     api.platform.tenants.queries.getPlatformStats,
@@ -116,31 +189,66 @@ export default function PlatformSettingsPage() {
     const settingsChanges = logs.filter((l: any) =>
       /settings\.updated/i.test(String(l.action))
     ).length;
-    const activeTenants = platformStats?.activeTenants ?? 0;
-    const totalTenants = platformStats?.totalTenants ?? 0;
+    const activeTenants = (platformStats as any)?.activeTenants ?? 0;
+    const totalTenants = (platformStats as any)?.totalTenants ?? 0;
     const health = totalTenants === 0 ? 100 : Math.round((activeTenants / totalTenants) * 100);
     return {
       securityEvents,
       settingsChanges,
       health,
-      subscriptions: subscriptions?.length ?? 0,
+      subscriptions: Array.isArray(subscriptions) ? subscriptions.length : 0,
     };
   }, [auditLogs, platformStats, subscriptions]);
 
-  const saveDraft = () => {
-    setDirty(false);
-    toast({
-      title: "Draft saved locally",
-      description: "Persistent platform settings API is not implemented yet.",
-    });
+  const saveSettings = async () => {
+    if (!sessionToken) return;
+    setIsSaving(true);
+    try {
+      // Save each section
+      const sections: Array<{ section: string; data: Record<string, any> }> = [
+        { section: "general", data: draft.general },
+        { section: "security", data: draft.security },
+        { section: "integrations", data: draft.integrations },
+        { section: "operations", data: draft.operations },
+      ];
+
+      for (const { section, data } of sections) {
+        await updateSettings({
+          sessionToken,
+          section,
+          settings: sectionToSettings(section, data),
+        });
+      }
+
+      // Set/clear maintenance mode cookie for middleware enforcement
+      if (draft.operations.maintenanceMode) {
+        document.cookie = "edumyles_maintenance=true; path=/; max-age=31536000";
+      } else {
+        document.cookie = "edumyles_maintenance=; path=/; max-age=0";
+      }
+
+      setDirty(false);
+      toast({
+        title: "Settings Saved",
+        description: "Platform settings have been persisted successfully.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Save Failed",
+        description: err.message || "Could not save settings.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const resetDraft = () => {
+  const resetToDefaults = async () => {
     setDraft(DEFAULT_DRAFT);
-    setDirty(false);
+    setDirty(true);
     toast({
-      title: "Reset complete",
-      description: "Local settings draft reset to defaults.",
+      title: "Reset to Defaults",
+      description: "Settings reset to defaults. Click Save to persist.",
     });
   };
 
@@ -175,13 +283,17 @@ export default function PlatformSettingsPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={resetDraft}>
+            <Button variant="outline" onClick={resetToDefaults} disabled={isSaving}>
               <RefreshCw className="mr-2 h-4 w-4" />
-              Reset Draft
+              Reset Defaults
             </Button>
-            <Button className="bg-primary hover:bg-primary-dark" onClick={saveDraft}>
-              <Save className="mr-2 h-4 w-4" />
-              Save Draft
+            <Button className="bg-primary hover:bg-primary-dark" onClick={saveSettings} disabled={isSaving}>
+              {isSaving ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Save Settings
             </Button>
           </div>
         }
@@ -442,8 +554,12 @@ export default function PlatformSettingsPage() {
 
       {dirty && (
         <Card className="border-amber-300 bg-amber-50/60">
-          <CardContent className="pt-4 text-sm text-amber-800">
-            Settings edits are currently local draft only. Persisted platform settings endpoints are not implemented yet.
+          <CardContent className="pt-4 text-sm text-amber-800 flex items-center justify-between">
+            <span>You have unsaved changes.</span>
+            <Button size="sm" onClick={saveSettings} disabled={isSaving}>
+              {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              Save Now
+            </Button>
           </CardContent>
         </Card>
       )}

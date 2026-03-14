@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform"];
-const PUBLIC_ROUTES = ["/auth/login", "/auth/callback"];
+const PUBLIC_ROUTES = ["/auth/login", "/auth/callback", "/auth/forgot-password", "/auth/reset-password"];
 
 // ── RBAC: Which roles can access which route prefixes ─────────
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
@@ -107,6 +107,15 @@ export function middleware(request: NextRequest) {
 
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
+
+  // 0. Maintenance mode check - redirect non-platform-admin users to maintenance page
+  const maintenanceMode = request.cookies.get("edumyles_maintenance")?.value === "true";
+  if (maintenanceMode && !pathname.startsWith("/platform") && !pathname.startsWith("/maintenance") && !pathname.startsWith("/auth")) {
+    const isPlatformAdmin = role === "master_admin" || role === "super_admin";
+    if (!isPlatformAdmin) {
+      return NextResponse.redirect(new URL("/maintenance", request.url));
+    }
+  }
 
   // 1. Redirect unauthenticated users from protected routes to auth (landing when NEXT_PUBLIC_AUTH_BASE_URL is set)
   if (isProtected && !session) {
