@@ -61,3 +61,81 @@ export const deleteSession = mutation({
     }
   },
 });
+
+export const listUserSessions = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    // Validate the requesting session first
+    const currentSession = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+
+    if (!currentSession || currentSession.expiresAt < Date.now()) return [];
+
+    // Get all sessions for this user
+    const sessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_userId", (q) => q.eq("userId", currentSession.userId))
+      .collect();
+
+    return sessions
+      .filter((s) => s.expiresAt > Date.now())
+      .map((s) => ({
+        _id: s._id,
+        sessionToken: s.sessionToken,
+        deviceInfo: s.deviceInfo ?? "Unknown device",
+        createdAt: s.createdAt,
+        expiresAt: s.expiresAt,
+        isCurrent: s.sessionToken === args.sessionToken,
+      }));
+  },
+});
+
+export const deleteSessionById = mutation({
+  args: { sessionToken: v.string(), targetSessionId: v.id("sessions") },
+  handler: async (ctx, args) => {
+    // Validate the requesting session
+    const currentSession = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+
+    if (!currentSession || currentSession.expiresAt < Date.now()) {
+      throw new Error("UNAUTHENTICATED");
+    }
+
+    const targetSession = await ctx.db.get(args.targetSessionId);
+    if (!targetSession || targetSession.userId !== currentSession.userId) {
+      throw new Error("UNAUTHORIZED: Cannot terminate another user's session");
+    }
+
+    await ctx.db.delete(args.targetSessionId);
+  },
+});
+
+export const deleteAllUserSessions = mutation({
+  args: { sessionToken: v.string(), exceptCurrent: v.optional(v.boolean()) },
+  handler: async (ctx, args) => {
+    const currentSession = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+
+    if (!currentSession || currentSession.expiresAt < Date.now()) {
+      throw new Error("UNAUTHENTICATED");
+    }
+
+    const sessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_userId", (q) => q.eq("userId", currentSession.userId))
+      .collect();
+
+    for (const session of sessions) {
+      if (args.exceptCurrent && session.sessionToken === args.sessionToken) {
+        continue;
+      }
+      await ctx.db.delete(session._id);
+    }
+  },
+});

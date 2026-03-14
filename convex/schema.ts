@@ -81,6 +81,11 @@ export default defineSchema({
     phone: v.optional(v.string()),
     bio: v.optional(v.string()),
     location: v.optional(v.string()),
+    passwordHash: v.optional(v.string()),
+    twoFactorEnabled: v.optional(v.boolean()),
+    twoFactorSecret: v.optional(v.string()),
+    recoveryCodes: v.optional(v.array(v.string())),
+    lastPasswordChangeAt: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
@@ -100,6 +105,61 @@ export default defineSchema({
     .index("by_workos_org", ["workosOrgId"])
     .index("by_subdomain", ["subdomain"])
     .index("by_tenant", ["tenantId"]),
+
+  passwordResetTokens: defineTable({
+    userId: v.string(),
+    email: v.string(),
+    token: v.string(),
+    expiresAt: v.number(),
+    used: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_token", ["token"])
+    .index("by_userId", ["userId"]),
+
+  platformSettings: defineTable({
+    section: v.string(),
+    key: v.string(),
+    value: v.string(),
+    updatedBy: v.string(),
+    updatedAt: v.number(),
+  })
+    .index("by_section_key", ["section", "key"]),
+
+  loginAttempts: defineTable({
+    email: v.string(),
+    attempts: v.number(),
+    lastAttemptAt: v.number(),
+    lockedUntil: v.optional(v.number()),
+  })
+    .index("by_email", ["email"]),
+
+  notifications: defineTable({
+    tenantId: v.string(),
+    userId: v.string(),
+    title: v.string(),
+    message: v.string(),
+    type: v.string(),
+    read: v.boolean(),
+    actionUrl: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId", "createdAt"])
+    .index("by_user_unread", ["userId", "read"]),
+
+  platformFiles: defineTable({
+    tenantId: v.string(),
+    uploadedBy: v.string(),
+    fileName: v.string(),
+    fileType: v.string(),
+    fileSize: v.number(),
+    storageId: v.string(),
+    fileUrl: v.string(),
+    category: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_category", ["category", "createdAt"]),
 
   installedModules: defineTable({
     tenantId: v.string(),

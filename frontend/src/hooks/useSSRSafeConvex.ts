@@ -9,15 +9,16 @@ import {
 
 export const ConvexProvider = ReactConvexProvider;
 
-export function useQuery(query: any, args?: any) {
-  const result = useConvexQuery(query, args);
-  
-  // Ensure we always return an object with the expected properties
-  return {
-    data: result?.data || undefined,
-    isLoading: result?.isLoading || false,
-    error: result?.error || null,
-  };
+/**
+ * SSR-safe useQuery wrapper that supports an optional `enabled` parameter.
+ * When `enabled` is false, the query is skipped (returns undefined).
+ * Returns the raw Convex query result (not wrapped in {data, isLoading, error}).
+ */
+export function useQuery(query: any, args?: any, enabled?: boolean) {
+  // If enabled is explicitly false, pass "skip" to prevent query execution
+  const shouldSkip = enabled === false;
+  const result = useConvexQuery(query, shouldSkip ? "skip" : (args ?? {}));
+  return result;
 }
 
 export function useMutation(mutation: any) {

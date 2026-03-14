@@ -5,10 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  ChevronLeft,
+  ChevronRight,
   GraduationCap,
+  LogOut,
   X
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,7 +28,7 @@ interface SidebarProps {
 export function Sidebar({ navItems, installedModules, isMobile = false, onClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const filteredItems = navItems.filter((item) => {
     if (!item.module) return true;
@@ -161,6 +162,23 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
                 </p>
                 <p className="text-xs text-sidebar-text truncate">{user?.email ?? ""}</p>
               </div>
+            )}
+            {!collapsed && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-sidebar-text hover:text-red-500 hover:bg-red-50/10"
+                      onClick={logout}
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Sign out</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
         </div>
