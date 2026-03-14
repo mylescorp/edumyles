@@ -348,7 +348,7 @@ export default function SecurityOperationsPage() {
               <SelectValue placeholder="Severity" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Severities</SelectItem>
+              <SelectItem value="all">All Severities</SelectItem>
               <SelectItem value="critical">Critical</SelectItem>
               <SelectItem value="high">High</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
@@ -360,7 +360,7 @@ export default function SecurityOperationsPage() {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               <SelectItem value="unauthorized_access">Unauthorized Access</SelectItem>
               <SelectItem value="data_breach">Data Breach</SelectItem>
               <SelectItem value="malware">Malware</SelectItem>
@@ -602,7 +602,7 @@ export default function SecurityOperationsPage() {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               <SelectItem value="access_control">Access Control</SelectItem>
               <SelectItem value="data_protection">Data Protection</SelectItem>
               <SelectItem value="incident_response">Incident Response</SelectItem>
@@ -807,7 +807,7 @@ export default function SecurityOperationsPage() {
               <SelectValue placeholder="Threat Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="malware">Malware</SelectItem>
               <SelectItem value="phishing">Phishing</SelectItem>
               <SelectItem value="vulnerability">Vulnerability</SelectItem>
