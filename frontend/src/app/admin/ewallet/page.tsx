@@ -46,7 +46,7 @@ export default function EWalletPage() {
 
     const transactions = useQuery(
         api.modules.ewallet.queries.listWalletTransactions,
-        sessionToken ? {} : "skip"
+        sessionToken ? { sessionToken } : "skip"
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
