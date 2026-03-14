@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -193,15 +193,15 @@ export default function MarketplacePage() {
 
   // Filter modules with useMemo to prevent unnecessary recalculations
   const filteredModules = useMemo(() => {
-    return modules?.filter(module => {
+    return modules.filter(module => {
       const categoryMatch = selectedCategory === "all" || module.category === selectedCategory;
       const tierMatch = selectedTier === "all" || module.tier === selectedTier;
       return categoryMatch && tierMatch;
-    }) || [];
+    });
   }, [modules, selectedCategory, selectedTier]);
 
-  // Calculate pricing
-  const calculatePricing = (module: Module, cycle: string) => {
+  // Calculate pricing with useCallback to prevent recreation
+  const calculatePricing = useCallback((module: Module, cycle: string) => {
     const basePrice = module.pricing.monthly;
     let multiplier = 1;
     let discount = 0;
@@ -223,7 +223,7 @@ export default function MarketplacePage() {
       saved,
       discount: discount * 100,
     };
-  };
+  }, []);
 
   // Handle module purchase
   const handlePurchase = async () => {
@@ -267,6 +267,7 @@ export default function MarketplacePage() {
     }
   };
 
+  // Calculate pricing for selected module
   const pricing = selectedModule ? calculatePricing(selectedModule, billingCycle) : null;
 
   return (
@@ -279,7 +280,7 @@ export default function MarketplacePage() {
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="flex items-center gap-1">
             <ShoppingCart className="w-4 h-4" />
-            {subscriptions?.length || 0} Active
+            {subscriptions.length} Active
           </Badge>
         </div>
       </div>
@@ -392,7 +393,7 @@ export default function MarketplacePage() {
 
         <TabsContent value="subscriptions" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {subscriptions?.map((subscription) => (
+            {subscriptions.map((subscription) => (
               <Card key={subscription._id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
