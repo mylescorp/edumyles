@@ -124,7 +124,7 @@ export const processPaymentCallback = mutation({
     transactionReference: v.string(),
     status: v.union(v.literal("success"), v.literal("failed"), v.literal("cancelled")),
     amount: v.number(),
-    metadata: v.optional(v.record(v.any())),
+    metadata: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     // Find transaction by reference

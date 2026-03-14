@@ -20,26 +20,41 @@ export const getMarketplaceHome = query({
     await requirePlatformSession(ctx, args);
     const now = Date.now();
 
+    // Helper to safely query tables that may not exist yet
+    async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+      try {
+        return await fn();
+      } catch {
+        return fallback;
+      }
+    }
+
     // Get published modules
-    const allModules = await ctx.db
-      .query("marketplaceModules")
-      .withIndex("by_status", (q) => q.eq("status", "published"))
-      .collect();
+    const allModules = await safeQuery(
+      () => ctx.db.query("marketplaceModules")
+        .withIndex("by_status", (q) => q.eq("status", "published"))
+        .collect(),
+      []
+    );
 
     // Featured banners
-    const featuredPlacements = await ctx.db
-      .query("marketplaceFeatured")
-      .withIndex("by_type", (q) => q.eq("type", "banner").eq("isActive", true))
-      .collect();
+    const featuredPlacements = await safeQuery(
+      () => ctx.db.query("marketplaceFeatured")
+        .withIndex("by_type", (q) => q.eq("type", "banner").eq("isActive", true))
+        .collect(),
+      []
+    );
     const activeBanners = featuredPlacements.filter(
       (f) => f.startDate <= now && f.endDate >= now
     );
 
     // Staff picks
-    const staffPicks = await ctx.db
-      .query("marketplaceFeatured")
-      .withIndex("by_type", (q) => q.eq("type", "staff_pick").eq("isActive", true))
-      .collect();
+    const staffPicks = await safeQuery(
+      () => ctx.db.query("marketplaceFeatured")
+        .withIndex("by_type", (q) => q.eq("type", "staff_pick").eq("isActive", true))
+        .collect(),
+      []
+    );
 
     // New & noteworthy (published in last 30 days)
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
@@ -60,10 +75,12 @@ export const getMarketplaceHome = query({
       .slice(0, 8);
 
     // Categories with counts
-    const categories = await ctx.db
-      .query("marketplaceCategories")
-      .withIndex("by_active", (q) => q.eq("isActive", true))
-      .collect();
+    const categories = await safeQuery(
+      () => ctx.db.query("marketplaceCategories")
+        .withIndex("by_active", (q) => q.eq("isActive", true))
+        .collect(),
+      []
+    );
 
     // Count modules per category
     const categoryWithCounts = categories
@@ -81,17 +98,21 @@ export const getMarketplaceHome = query({
       : 0;
 
     // Recent activity
-    const recentActivity = await ctx.db
-      .query("marketplaceActivity")
-      .withIndex("by_created")
-      .order("desc")
-      .take(10);
+    const recentActivity = await safeQuery(
+      () => ctx.db.query("marketplaceActivity")
+        .withIndex("by_created")
+        .order("desc")
+        .take(10),
+      []
+    );
 
     // Publishers count
-    const publishers = await ctx.db
-      .query("marketplacePublishers")
-      .withIndex("by_active", (q) => q.eq("isActive", true))
-      .collect();
+    const publishers = await safeQuery(
+      () => ctx.db.query("marketplacePublishers")
+        .withIndex("by_active", (q) => q.eq("isActive", true))
+        .collect(),
+      []
+    );
 
     return {
       stats: {
@@ -131,17 +152,21 @@ export const browseModules = query({
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    let modules;
-    if (args.category) {
-      modules = await ctx.db
-        .query("marketplaceModules")
-        .withIndex("by_category", (q) => q.eq("category", args.category!).eq("status", "published"))
-        .collect();
-    } else {
-      modules = await ctx.db
-        .query("marketplaceModules")
-        .withIndex("by_status", (q) => q.eq("status", "published"))
-        .collect();
+    let modules: any[];
+    try {
+      if (args.category) {
+        modules = await ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_category", (q) => q.eq("category", args.category!).eq("status", "published"))
+          .collect();
+      } else {
+        modules = await ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_status", (q) => q.eq("status", "published"))
+          .collect();
+      }
+    } catch {
+      modules = [];
     }
 
     // Apply filters
@@ -508,54 +533,67 @@ export const getMarketplaceOverview = query({
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    const allModules = await ctx.db.query("marketplaceModules").collect();
-    const published = allModules.filter((m) => m.status === "published");
-    const pending = allModules.filter((m) => m.status === "pending_review");
-    const publishers = await ctx.db.query("marketplacePublishers").collect();
-    const activePublishers = publishers.filter((p) => p.isActive);
+    // Helper to safely query tables
+    async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+      try { return await fn(); } catch { return fallback; }
+    }
 
-    const installations = await ctx.db.query("marketplaceInstallations").collect();
-    const activeInstalls = installations.filter((i) => i.status === "active");
+    const allModules = await safeQuery(() => ctx.db.query("marketplaceModules").collect(), []);
+    const published = allModules.filter((m: any) => m.status === "published");
+    const pending = allModules.filter((m: any) => m.status === "pending_review");
+    const publishers = await safeQuery(() => ctx.db.query("marketplacePublishers").collect(), []);
+    const activePublishers = publishers.filter((p: any) => p.isActive);
 
-    const pendingReviews = await ctx.db
-      .query("marketplaceReviews")
-      .withIndex("by_status", (q) => q.eq("status", "pending"))
-      .collect();
+    const installations = await safeQuery(() => ctx.db.query("marketplaceInstallations").collect(), []);
+    const activeInstalls = installations.filter((i: any) => i.status === "active");
 
-    const openDisputes = await ctx.db
-      .query("marketplaceDisputes")
-      .withIndex("by_status", (q) => q.eq("status", "open"))
-      .collect();
+    const pendingReviews = await safeQuery(
+      () => ctx.db.query("marketplaceReviews")
+        .withIndex("by_status", (q) => q.eq("status", "pending"))
+        .collect(),
+      []
+    );
 
-    const transactions = await ctx.db.query("marketplaceTransactions").collect();
-    const completedTx = transactions.filter((t) => t.status === "completed");
-    const totalRevenueCents = completedTx.reduce((sum, t) => sum + t.grossAmountCents, 0);
-    const totalCommissionCents = completedTx.reduce((sum, t) => sum + t.commissionCents, 0);
+    const openDisputes = await safeQuery(
+      () => ctx.db.query("marketplaceDisputes")
+        .withIndex("by_status", (q) => q.eq("status", "open"))
+        .collect(),
+      []
+    );
 
-    const categories = await ctx.db
-      .query("marketplaceCategories")
-      .withIndex("by_active", (q) => q.eq("isActive", true))
-      .collect();
+    const transactions = await safeQuery(() => ctx.db.query("marketplaceTransactions").collect(), []);
+    const completedTx = transactions.filter((t: any) => t.status === "completed");
+    const totalRevenueCents = completedTx.reduce((sum: number, t: any) => sum + t.grossAmountCents, 0);
+    const totalCommissionCents = completedTx.reduce((sum: number, t: any) => sum + t.commissionCents, 0);
 
-    const categoriesWithCounts = categories.map((cat) => ({
+    const categories = await safeQuery(
+      () => ctx.db.query("marketplaceCategories")
+        .withIndex("by_active", (q) => q.eq("isActive", true))
+        .collect(),
+      []
+    );
+
+    const categoriesWithCounts = categories.map((cat: any) => ({
       ...cat,
-      moduleCount: published.filter((m) => m.category === cat.slug).length,
-      installCount: installations.filter((i) => {
-        const mod = published.find((m) => m.moduleId === i.moduleId);
+      moduleCount: published.filter((m: any) => m.category === cat.slug).length,
+      installCount: installations.filter((i: any) => {
+        const mod = published.find((m: any) => m.moduleId === i.moduleId);
         return mod?.category === cat.slug;
       }).length,
     }));
 
     // Recent activity
-    const recentActivity = await ctx.db
-      .query("marketplaceActivity")
-      .withIndex("by_created")
-      .order("desc")
-      .take(20);
+    const recentActivity = await safeQuery(
+      () => ctx.db.query("marketplaceActivity")
+        .withIndex("by_created")
+        .order("desc")
+        .take(20),
+      []
+    );
 
     // Top modules by installs
     const topModules = [...published]
-      .sort((a, b) => b.totalInstalls - a.totalInstalls)
+      .sort((a: any, b: any) => b.totalInstalls - a.totalInstalls)
       .slice(0, 5);
 
     return {
@@ -572,7 +610,7 @@ export const getMarketplaceOverview = query({
         totalRevenueCents,
         totalCommissionCents,
       },
-      categories: categoriesWithCounts.sort((a, b) => a.sortOrder - b.sortOrder),
+      categories: categoriesWithCounts.sort((a: any, b: any) => a.sortOrder - b.sortOrder),
       topModules,
       recentActivity,
     };
