@@ -27,17 +27,17 @@ export default function LibraryDashboardPage() {
 
     const activeBorrows = useQuery(
         api.modules.library.queries.listActiveBorrows,
-        sessionToken ? {} : "skip"
+        sessionToken ? { sessionToken } : "skip"
     );
 
     const overdue = useQuery(
         api.modules.library.queries.getOverdueBorrows,
-        sessionToken ? {} : "skip"
+        sessionToken ? { sessionToken } : "skip"
     );
 
     const lowStock = useQuery(
         api.modules.library.queries.getLowStockBooks,
-        sessionToken ? {} : "skip"
+        sessionToken ? { sessionToken } : "skip"
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;

@@ -38,6 +38,11 @@ type SettingsDraft = {
   };
   security: {
     passwordMinLength: number;
+    passwordRequireUppercase: boolean;
+    passwordRequireLowercase: boolean;
+    passwordRequireNumbers: boolean;
+    passwordRequireSpecialChars: boolean;
+    passwordMaxLength: number;
     sessionTimeoutMinutes: number;
     maxLoginAttempts: number;
     twoFactorRequired: boolean;
@@ -65,6 +70,11 @@ const DEFAULT_DRAFT: SettingsDraft = {
   },
   security: {
     passwordMinLength: 8,
+    passwordRequireUppercase: true,
+    passwordRequireLowercase: true,
+    passwordRequireNumbers: true,
+    passwordRequireSpecialChars: true,
+    passwordMaxLength: 128,
     sessionTimeoutMinutes: 480,
     maxLoginAttempts: 5,
     twoFactorRequired: false,
@@ -107,6 +117,11 @@ function applyDbSettings(draft: SettingsDraft, dbSettings: Record<string, Record
     const s = dbSettings.security;
     result.security = {
       passwordMinLength: s.passwordMinLength ? Number(s.passwordMinLength) : draft.security.passwordMinLength,
+      passwordRequireUppercase: s.passwordRequireUppercase === "true",
+      passwordRequireLowercase: s.passwordRequireLowercase === "true",
+      passwordRequireNumbers: s.passwordRequireNumbers === "true",
+      passwordRequireSpecialChars: s.passwordRequireSpecialChars === "true",
+      passwordMaxLength: s.passwordMaxLength ? Number(s.passwordMaxLength) : draft.security.passwordMaxLength,
       sessionTimeoutMinutes: s.sessionTimeoutMinutes ? Number(s.sessionTimeoutMinutes) : draft.security.sessionTimeoutMinutes,
       maxLoginAttempts: s.maxLoginAttempts ? Number(s.maxLoginAttempts) : draft.security.maxLoginAttempts,
       twoFactorRequired: s.twoFactorRequired === "true",

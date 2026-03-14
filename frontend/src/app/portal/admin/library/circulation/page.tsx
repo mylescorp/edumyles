@@ -29,7 +29,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
 export default function LibraryCirculationPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, sessionToken } = useAuth();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -39,17 +39,17 @@ export default function LibraryCirculationPage() {
 
   const activeBorrows = useQuery(
     api.modules.library.queries.listActiveBorrows,
-    user ? {} : "skip"
+    user ? { sessionToken: sessionToken ?? undefined } : "skip"
   );
 
   const overdueBorrows = useQuery(
     api.modules.library.queries.getOverdueBorrows,
-    user ? {} : "skip"
+    user ? { sessionToken: sessionToken ?? undefined } : "skip"
   );
 
   const books = useQuery(
     api.modules.library.queries.listBooks,
-    user ? {} : "skip"
+    user ? { sessionToken: sessionToken ?? undefined } : "skip"
   );
 
   const borrowBook = useMutation(api.modules.library.mutations.borrowBook);

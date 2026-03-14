@@ -84,6 +84,7 @@ export default defineSchema({
     passwordHash: v.optional(v.string()),
     twoFactorEnabled: v.optional(v.boolean()),
     twoFactorSecret: v.optional(v.string()),
+    tempTwoFactorSecret: v.optional(v.string()),
     recoveryCodes: v.optional(v.array(v.string())),
     lastPasswordChangeAt: v.optional(v.number()),
     createdAt: v.number(),

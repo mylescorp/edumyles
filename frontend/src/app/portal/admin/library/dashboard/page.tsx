@@ -40,7 +40,7 @@ interface LibraryStats {
 }
 
 export default function LibraryDashboardPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, sessionToken } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [focusedBookId, setFocusedBookId] = useState<string | null>(null);
@@ -54,22 +54,32 @@ export default function LibraryDashboardPage() {
 
   const books = useQuery(
     api.modules.library.queries.listBooks,
-    user ? { category: selectedCategory === "all" ? undefined : selectedCategory } : "skip"
+    user
+      ? {
+          category: selectedCategory === "all" ? undefined : selectedCategory,
+          sessionToken: sessionToken ?? undefined,
+        }
+      : "skip"
   );
 
   const activeBorrows = useQuery(
     api.modules.library.queries.listActiveBorrows,
-    user ? {} : "skip"
+    user ? { sessionToken: sessionToken ?? undefined } : "skip"
   );
 
   const overdueBorrows = useQuery(
     api.modules.library.queries.getOverdueBorrows,
-    user ? {} : "skip"
+    user ? { sessionToken: sessionToken ?? undefined } : "skip"
   );
 
   const lowStockBooks = useQuery(
     api.modules.library.queries.getLowStockBooks,
-    user ? { threshold: 3 } : "skip"
+    user
+      ? {
+          threshold: 3,
+          sessionToken: sessionToken ?? undefined,
+        }
+      : "skip"
   );
 
   const createBook = useMutation(api.modules.library.mutations.createBook);

@@ -4,6 +4,7 @@ import { action } from "../../_generated/server";
 import { v } from "convex/values";
 import { api } from "../../_generated/api";
 import crypto from "crypto";
+import { validatePassword } from "../../modules/auth/passwordPolicy";
 
 const SALT_LENGTH = 32;
 const KEY_LENGTH = 64;
@@ -60,9 +61,11 @@ export const changePassword = action({
       if (!valid) throw new Error("Current password is incorrect");
     }
 
-    // Validate new password
-    if (args.newPassword.length < 8) {
-      throw new Error("Password must be at least 8 characters");
+    // Validate new password using comprehensive policy
+    const policy = await ctx.runQuery(api.modules.auth.passwordPolicy.getPasswordPolicy);
+    const validation = validatePassword(args.newPassword, policy);
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join("; "));
     }
 
     // Hash new password
@@ -96,8 +99,10 @@ export const setInitialPassword = action({
     });
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 
-    if (args.newPassword.length < 8) {
-      throw new Error("Password must be at least 8 characters");
+    const policy = await ctx.runQuery(api.modules.auth.passwordPolicy.getPasswordPolicy);
+    const validation = validatePassword(args.newPassword, policy);
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join("; "));
     }
 
     const newHash = await hashPassword(args.newPassword);
@@ -141,8 +146,10 @@ export const resetPassword = action({
     newPassword: v.string(),
   },
   handler: async (ctx, args) => {
-    if (args.newPassword.length < 8) {
-      throw new Error("Password must be at least 8 characters");
+    const policy = await ctx.runQuery(api.modules.auth.passwordPolicy.getPasswordPolicy);
+    const validation = validatePassword(args.newPassword, policy);
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join("; "));
     }
 
     // Validate token and get userId

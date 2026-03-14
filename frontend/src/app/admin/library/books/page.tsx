@@ -26,7 +26,7 @@ export default function BookCatalogPage() {
 
     const books = useQuery(
         api.modules.library.queries.listBooks,
-        sessionToken ? {} : "skip"
+        sessionToken ? { sessionToken } : "skip"
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;

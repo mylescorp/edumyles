@@ -50,12 +50,12 @@ export default function CirculationPage() {
 
   const activeBorrows = useQuery(
     api.modules.library.queries.listActiveBorrows,
-    sessionToken ? {} : "skip"
+    sessionToken ? { sessionToken } : "skip"
   );
 
   const overdueBorrows = useQuery(
     api.modules.library.queries.getOverdueBorrows,
-    sessionToken ? {} : "skip"
+    sessionToken ? { sessionToken } : "skip"
   );
 
   if (isLoading) return <LoadingSkeleton variant="page" />;

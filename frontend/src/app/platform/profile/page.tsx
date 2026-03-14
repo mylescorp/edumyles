@@ -34,6 +34,8 @@ import {
   Clock,
   ShieldCheck,
   KeyRound,
+  Plus,
+  Check,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
@@ -372,9 +374,94 @@ function TwoFactorModal({
   sessionToken: string;
   twoFactorEnabled: boolean;
 }) {
+  const { toast } = useToast();
+  const generateSecret = useAction(api.actions.auth.twoFactor.generateTwoFactorSecret);
+  const enableTwoFactor = useAction(api.actions.auth.twoFactor.enableTwoFactor);
+  const disableTwoFactor = useAction(api.actions.auth.twoFactor.disableTwoFactor);
+
+  const [setupStep, setSetupStep] = useState<"info" | "setup" | "verify">("info");
+  const [qrCode, setQrCode] = useState("");
+  const [secret, setSecret] = useState("");
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [disablePassword, setDisablePassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const resetSetup = () => {
+    setSetupStep("info");
+    setQrCode("");
+    setSecret("");
+    setBackupCodes([]);
+    setVerificationCode("");
+    setError("");
+  };
+
+  const handleStartSetup = async () => {
+    setIsSubmitting(true);
+    setError("");
+    try {
+      const result = await generateSecret({ sessionToken });
+      setQrCode(result.qrCode);
+      setSecret(result.secret);
+      setBackupCodes(result.backupCodes);
+      setSetupStep("setup");
+    } catch (err: any) {
+      setError(err.message || "Failed to generate 2FA secret");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEnableTwoFactor = async () => {
+    if (!verificationCode) {
+      setError("Please enter the verification code");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+    try {
+      await enableTwoFactor({ sessionToken, token: verificationCode });
+      toast({
+        title: "2FA Enabled",
+        description: "Two-factor authentication has been enabled for your account.",
+      });
+      resetSetup();
+      onOpenChange(false);
+    } catch (err: any) {
+      setError(err.message || "Failed to enable 2FA");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDisableTwoFactor = async () => {
+    if (!disablePassword) {
+      setError("Please enter your password to disable 2FA");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+    try {
+      await disableTwoFactor({ sessionToken, password: disablePassword });
+      toast({
+        title: "2FA Disabled",
+        description: "Two-factor authentication has been disabled for your account.",
+      });
+      setDisablePassword("");
+      onOpenChange(false);
+    } catch (err: any) {
+      setError(err.message || "Failed to disable 2FA");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={(v) => !v && resetSetup() && onOpenChange(v)}>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5" />
@@ -387,38 +474,170 @@ function TwoFactorModal({
           </DialogDescription>
         </DialogHeader>
 
+        {error && (
+          <div className="flex items-center gap-2 p-3 text-sm text-red-700 bg-red-50 rounded-lg">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            {error}
+          </div>
+        )}
+
         <div className="py-4">
-          <div className="flex items-center gap-3 p-4 rounded-lg bg-muted">
-            <div className={`p-2 rounded-full ${twoFactorEnabled ? "bg-green-100" : "bg-yellow-100"}`}>
-              {twoFactorEnabled ? (
-                <ShieldCheck className="h-5 w-5 text-green-600" />
-              ) : (
-                <Shield className="h-5 w-5 text-yellow-600" />
+          {twoFactorEnabled ? (
+            // Disable 2FA flow
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-green-50 border border-green-100">
+                <div className="p-2 rounded-full bg-green-100">
+                  <ShieldCheck className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm text-green-800">2FA is Active</p>
+                  <p className="text-xs text-green-600">Your account is protected with an authenticator app.</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="disablePassword">Password</Label>
+                <Input
+                  id="disablePassword"
+                  type="password"
+                  value={disablePassword}
+                  onChange={(e) => setDisablePassword(e.target.value)}
+                  placeholder="Enter your password to disable 2FA"
+                />
+                <p className="text-xs text-muted-foreground">
+                  For security, you must enter your password to disable two-factor authentication.
+                </p>
+              </div>
+
+              <Button 
+                variant="destructive" 
+                onClick={handleDisableTwoFactor}
+                disabled={isSubmitting || !disablePassword}
+                className="w-full"
+              >
+                {isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Shield className="h-4 w-4 mr-2" />}
+                Disable 2FA
+              </Button>
+            </div>
+          ) : (
+            // Enable 2FA flow
+            <div className="space-y-4">
+              {setupStep === "info" && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-4 rounded-lg bg-yellow-50 border border-yellow-100">
+                    <div className="p-2 rounded-full bg-yellow-100">
+                      <Shield className="h-5 w-5 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-yellow-800">2FA is Not Enabled</p>
+                      <p className="text-xs text-yellow-600">Enable 2FA using an authenticator app for added security.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <p>Two-factor authentication adds an extra layer of security by requiring:</p>
+                    <ul className="list-disc list-inside space-y-1 ml-2">
+                      <li>Something you know (your password)</li>
+                      <li>Something you have (your phone with authenticator app)</li>
+                    </ul>
+                  </div>
+
+                  <Button onClick={handleStartSetup} disabled={isSubmitting} className="w-full">
+                    {isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
+                    Enable 2FA
+                  </Button>
+                </div>
+              )}
+
+              {setupStep === "setup" && (
+                <div className="space-y-4">
+                  <div className="text-center space-y-2">
+                    <h3 className="font-medium">Step 1: Scan QR Code</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Use your authenticator app (Google Authenticator, Authy, etc.) to scan this QR code
+                    </p>
+                  </div>
+
+                  {qrCode && (
+                    <div className="flex justify-center">
+                      <div className="p-4 bg-white rounded-lg border">
+                        <img src={qrCode} alt="2FA QR Code" className="w-48 h-48" />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label>Manual Entry Key</Label>
+                    <div className="p-2 bg-muted rounded font-mono text-xs break-all">
+                      {secret}
+                    </div>
+                  </div>
+
+                  <Button onClick={() => setSetupStep("verify")} className="w-full">
+                    Continue to Verification
+                  </Button>
+                </div>
+              )}
+
+              {setupStep === "verify" && (
+                <div className="space-y-4">
+                  <div className="text-center space-y-2">
+                    <h3 className="font-medium">Step 2: Verify Code</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Enter the 6-digit code from your authenticator app
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="verificationCode">Authentication Code</Label>
+                    <Input
+                      id="verificationCode"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      placeholder="000000"
+                      maxLength={6}
+                      className="text-center text-lg font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Backup Codes</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Save these backup codes securely. You can use them if you lose access to your authenticator app.
+                    </p>
+                    <div className="p-3 bg-muted rounded">
+                      <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                        {backupCodes.map((code, index) => (
+                          <div key={index} className="bg-background p-2 rounded border">
+                            {code}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setSetupStep("setup")} className="flex-1">
+                      Back
+                    </Button>
+                    <Button 
+                      onClick={handleEnableTwoFactor}
+                      disabled={isSubmitting || verificationCode.length !== 6}
+                      className="flex-1"
+                    >
+                      {isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+                      Enable 2FA
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
-            <div>
-              <p className="font-medium text-sm">
-                {twoFactorEnabled ? "2FA is Active" : "2FA is Not Enabled"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {twoFactorEnabled
-                  ? "Your account is protected with an authenticator app."
-                  : "Enable 2FA using an authenticator app for added security."}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 p-4 rounded-lg border border-dashed">
-            <p className="text-sm text-muted-foreground text-center">
-              Full TOTP-based two-factor authentication setup will be available in the next release.
-              This will include QR code scanning with authenticator apps and recovery codes.
-            </p>
-          </div>
+          )}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+          <Button variant="outline" onClick={() => { resetSetup(); onOpenChange(false); }}>
+            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>
