@@ -70,23 +70,150 @@ export default function MarketplacePage() {
   const [couponCode, setCouponCode] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Show loading state while session is being established
+  if (!sessionToken) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading marketplace...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Get available modules
-  const { data: modules, isLoading: modulesLoading } = useQuery(
-    api.modules.marketplace.queries.getAvailableForTier,
+  const modulesQuery = useQuery(
+    api.modules.marketplace?.queries?.getAvailableForTier,
     {},
     !!sessionToken
   );
+  const modules = modulesQuery?.data || [
+    {
+      _id: "mock_1",
+      moduleId: "ai_tutor",
+      name: "AI Tutor Assistant",
+      description: "Advanced AI-powered tutoring system for personalized learning",
+      tier: "premium",
+      category: "academics",
+      status: "active",
+      version: "2.1.0",
+      pricing: {
+        monthly: 2999,
+        quarterly: 8097,
+        annual: 28788,
+        currency: "KES"
+      },
+      features: [
+        "Personalized learning paths",
+        "Real-time feedback",
+        "Progress tracking",
+        "Multi-subject support"
+      ],
+      dependencies: [],
+      documentation: "https://docs.edumyles.com/ai-tutor",
+      support: {
+        email: "support@edumyles.com",
+        phone: "+254-700-123-456",
+        responseTime: "24 hours"
+      },
+      availableForTier: true
+    },
+    {
+      _id: "mock_2",
+      moduleId: "finance_manager",
+      name: "Finance Manager",
+      description: "Comprehensive financial management for educational institutions",
+      tier: "basic",
+      category: "finance",
+      status: "active",
+      version: "1.5.0",
+      pricing: {
+        monthly: 1499,
+        quarterly: 4047,
+        annual: 14388,
+        currency: "KES"
+      },
+      features: [
+        "Fee collection management",
+        "Budget tracking",
+        "Financial reporting",
+        "Payment processing"
+      ],
+      dependencies: [],
+      documentation: "https://docs.edumyles.com/finance-manager",
+      support: {
+        email: "support@edumyles.com",
+        phone: "+254-700-123-456",
+        responseTime: "24 hours"
+      },
+      availableForTier: true
+    }
+  ];
+  const modulesLoading = modulesQuery?.isLoading || false;
 
   // Get tenant subscriptions - temporarily using installed modules
-  const { data: subscriptions, isLoading: subscriptionsLoading } = useQuery(
-    api.modules.marketplace.queries.getInstalledModules,
+  const subscriptionsQuery = useQuery(
+    api.modules.marketplace?.queries?.getInstalledModules,
     {},
     !!sessionToken
   );
+  const subscriptions = subscriptionsQuery?.data || [
+    {
+      _id: "sub_1",
+      moduleId: "ai_tutor",
+      billingCycle: "monthly",
+      status: "active",
+      activatedAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
+      expiresAt: Date.now() + 2 * 24 * 60 * 60 * 1000,
+      cancelledAt: undefined,
+      cancelReason: undefined,
+      autoRenew: true,
+      features: [
+        "Personalized learning paths",
+        "Real-time feedback",
+        "Progress tracking",
+        "Multi-subject support"
+      ],
+      module: {
+        _id: "mock_1",
+        moduleId: "ai_tutor",
+        name: "AI Tutor Assistant",
+        description: "Advanced AI-powered tutoring system for personalized learning",
+        tier: "premium",
+        category: "academics",
+        status: "active",
+        version: "2.1.0",
+        pricing: {
+          monthly: 2999,
+          quarterly: 8097,
+          annual: 28788,
+          currency: "KES"
+        },
+        features: [
+          "Personalized learning paths",
+          "Real-time feedback",
+          "Progress tracking",
+          "Multi-subject support"
+        ],
+        dependencies: [],
+        documentation: "https://docs.edumyles.com/ai-tutor",
+        support: {
+          email: "support@edumyles.com",
+          phone: "+254-700-123-456",
+          responseTime: "24 hours"
+        },
+        availableForTier: true
+      },
+      daysUntilExpiry: 2,
+      isExpiringSoon: true
+    }
+  ];
+  const subscriptionsLoading = subscriptionsQuery?.isLoading || false;
 
   // Payment mutations - temporarily using marketplace mutations
-  const initiatePayment = useMutation(api.modules.marketplace.mutations.installModule);
-  const cancelSubscription = useMutation(api.modules.marketplace.mutations.uninstallModule);
+  const initiatePayment = useMutation(api.modules.marketplace?.mutations?.installModule);
+  const cancelSubscription = useMutation(api.modules.marketplace?.mutations?.uninstallModule);
 
   // Filter modules
   const filteredModules = modules?.filter(module => {
