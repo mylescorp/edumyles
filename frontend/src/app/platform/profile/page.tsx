@@ -706,6 +706,13 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!editForm || !sessionToken) return;
     setIsSaving(true);
+    
+    console.log("handleSave called with:", {
+      editForm,
+      sessionToken: sessionToken ? "present" : "missing",
+      hasEditForm: !!editForm
+    });
+    
     try {
       await updateProfile({
         sessionToken,
@@ -719,6 +726,7 @@ export default function ProfilePage() {
       setEditForm(null);
       toast({ title: "Profile Updated", description: "Your profile has been saved." });
     } catch (error: any) {
+      console.error("handleSave error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update profile.",
