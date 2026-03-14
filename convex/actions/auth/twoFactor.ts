@@ -1,6 +1,6 @@
 "use node";
 
-import { action } from "../../_generated/server";
+import { action, ActionCtx } from "../../_generated/server";
 import { v } from "convex/values";
 import { api } from "../../_generated/api";
 import speakeasy from "speakeasy";
@@ -10,7 +10,10 @@ export const generateTwoFactorSecret = action({
   args: {
     sessionToken: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx: ActionCtx,
+    args: { sessionToken: string }
+  ): Promise<{ secret: string; qrCode: string; backupCodes: string[] }> => {
     // Validate session
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: args.sessionToken,
@@ -18,8 +21,11 @@ export const generateTwoFactorSecret = action({
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 
     // Get user details
-    const users = await ctx.runQuery(api.modules.auth.queries.getAllUsers);
-    const user = users.find((u: any) => u.eduMylesUserId === session.userId);
+    const users = (await ctx.runQuery(api.modules.auth.queries.getAllUsers)) as Array<{
+      eduMylesUserId?: string;
+      email?: string;
+    }>;
+    const user = users.find((u) => u.eduMylesUserId === session.userId);
     if (!user) throw new Error("User not found");
 
     // Generate TOTP secret
@@ -27,7 +33,7 @@ export const generateTwoFactorSecret = action({
       name: `EduMyles (${user.email})`,
       issuer: "EduMyles Platform",
       length: 32,
-    });
+    }) as { base32: string; otpauth_url?: string | null };
 
     // Generate QR code for the secret
     const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url!);
