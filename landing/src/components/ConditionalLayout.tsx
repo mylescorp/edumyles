@@ -1,23 +1,26 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Navbar from "@/components/nav/Navbar";
+import Footer from "@/components/footer/Footer";
+import WhatsAppFAB from "@/components/ui/WhatsAppFAB";
+import CookieBanner from "@/components/ui/CookieBanner";
+
+const NO_SHELL_PATHS = ["/auth", "/admin", "/platform", "/portal"];
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const isAuthPage = pathname.startsWith("/auth");
+  const pathname = usePathname();
+  const noShell = NO_SHELL_PATHS.some((p) => pathname.startsWith(p));
 
-    if (isAuthPage) {
-        // Auth pages have their own layout (auth/layout.tsx)
-        return <>{children}</>;
-    }
+  if (noShell) return <>{children}</>;
 
-    return (
-        <>
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-        </>
-    );
+  return (
+    <>
+      <Navbar />
+      <main>{children}</main>
+      <Footer />
+      <WhatsAppFAB />
+      <CookieBanner />
+    </>
+  );
 }

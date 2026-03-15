@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -49,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${jakarta.variable} ${inter.variable} font-inter antialiased bg-white text-dark-grey`}>
-        {children}
+        <ConditionalLayout>{children}</ConditionalLayout>
         <SpeedInsights />
       </body>
     </html>
