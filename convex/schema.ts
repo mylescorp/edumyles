@@ -845,7 +845,7 @@ export default defineSchema({
       v.literal("event_based"),
       v.literal("webhook")
     ),
-    triggerConfig: v.optional(v.record(v.any())),
+    triggerConfig: v.optional(v.record(v.string(), v.any())),
     steps: v.array(v.object({
       id: v.string(),
       name: v.string(),
@@ -858,7 +858,7 @@ export default defineSchema({
         v.literal("integration"),
         v.literal("data_operation")
       ),
-      config: v.record(v.any()),
+      config: v.record(v.string(), v.any()),
       position: v.number(),
     })),
     isActive: v.boolean(),
@@ -882,7 +882,7 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
     duration: v.number(),
     triggeredBy: v.string(),
-    triggerData: v.record(v.any()),
+    triggerData: v.record(v.string(), v.any()),
     steps: v.array(v.object({
       id: v.string(),
       name: v.string(),
@@ -927,7 +927,7 @@ export default defineSchema({
     processedAt: v.optional(v.number()),
     expiresAt: v.number(),
     initiatedBy: v.string(),
-    metadata: v.optional(v.record(v.any())),
+    metadata: v.optional(v.record(v.string(), v.any())),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_status", ["tenantId", "status"])
@@ -984,7 +984,7 @@ export default defineSchema({
     ),
     config: v.object({
       timeRange: v.union(v.literal("1h"), v.literal("24h"), v.literal("7d"), v.literal("30d"), v.literal("90d")),
-      filters: v.optional(v.record(v.any())),
+      filters: v.optional(v.record(v.string(), v.any())),
       metrics: v.array(v.string()),
       groupBy: v.optional(v.string()),
       chartType: v.union(v.literal("line"), v.literal("bar"), v.literal("pie"), v.literal("table")),
@@ -1092,7 +1092,7 @@ export default defineSchema({
     severity: v.union(v.literal("critical"), v.literal("warning"), v.literal("info")),
     status: v.union(v.literal("active"), v.literal("resolved")),
     source: v.string(),
-    metrics: v.optional(v.record(v.any())),
+    metrics: v.optional(v.record(v.string(), v.any())),
     autoResolve: v.boolean(),
     resolveCondition: v.optional(v.string()),
     createdBy: v.string(),
@@ -1158,7 +1158,7 @@ export default defineSchema({
       responseTime: v.number(),
       uptime: v.number(),
       lastCheck: v.number(),
-      metrics: v.record(v.any()),
+      metrics: v.record(v.string(), v.any()),
     })),
   })
     .index("by_tenant", ["tenantId"])
@@ -1287,7 +1287,7 @@ export default defineSchema({
     .index("by_status", ["tenantId", "status"])
     .index("by_category", ["tenantId", "category"])
     .index("by_severity", ["tenantId", "severity"])
-    .index("by_createdBy", ["tenantId", "createdBy"])
+    .index("by_reportedBy", ["tenantId", "reportedBy"])
     .index("by_createdAt", ["createdAt"]),
 
   securityIncidentTimeline: defineTable({
@@ -1383,14 +1383,14 @@ export default defineSchema({
     isPublic: v.boolean(),
     isFeatured: v.boolean(),
     status: v.union(v.literal("draft"), v.literal("published"), v.literal("deprecated")),
-    configuration: v.record(v.any()),
+    configuration: v.record(v.string(), v.any()),
     endpoints: v.array(v.object({
       name: v.string(),
       url: v.string(),
       method: v.union(v.literal("GET"), v.literal("POST"), v.literal("PUT"), v.literal("DELETE")),
       authentication: v.object({
         type: v.union(v.literal("none"), v.literal("api_key"), v.literal("oauth"), v.literal("basic")),
-        credentials: v.optional(v.record(v.any())),
+        credentials: v.optional(v.record(v.string(), v.any())),
       }),
     })),
     webhookUrl: v.optional(v.string()),
@@ -1428,7 +1428,7 @@ export default defineSchema({
     _id: v.string(),
     tenantId: v.string(),
     integrationId: v.string(),
-    configuration: v.record(v.any()),
+    configuration: v.record(v.string(), v.any()),
     status: v.union(v.literal("installed"), v.literal("active"), v.literal("disabled"), v.literal("error"), v.literal("uninstalled")),
     installedBy: v.string(),
     installedAt: v.number(),
