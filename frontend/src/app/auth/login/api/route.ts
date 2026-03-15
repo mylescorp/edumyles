@@ -31,10 +31,10 @@ function buildAuthUrl(req: NextRequest, email?: string, state?: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Development bypass - redirect directly to admin panel
-    if (process.env.NODE_ENV === "development") {
-      console.log("[auth/login] Development mode: Bypassing WorkOS auth");
-      const response = NextResponse.json({ 
+    // Development bypass - only active when ENABLE_DEV_AUTH_BYPASS=true is explicitly set
+    if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
+      console.log("[auth/login] Dev bypass enabled: Bypassing WorkOS auth");
+      const response = NextResponse.json({
         success: true,
         redirectUrl: "/admin"
       });
@@ -65,9 +65,9 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    // Development bypass - redirect directly to admin panel
-    if (process.env.NODE_ENV === "development") {
-      console.log("[auth/login] Development mode: Bypassing WorkOS auth");
+    // Development bypass - only active when ENABLE_DEV_AUTH_BYPASS=true is explicitly set
+    if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
+      console.log("[auth/login] Dev bypass enabled: Bypassing WorkOS auth");
       const response = NextResponse.redirect(new URL("/admin", req.url));
       return response;
     }

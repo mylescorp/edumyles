@@ -11,7 +11,7 @@ export const getRealTimeAnalytics = query({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
@@ -370,7 +370,7 @@ export const createCustomReport = mutation({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
@@ -578,7 +578,7 @@ export const exportReport = mutation({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {

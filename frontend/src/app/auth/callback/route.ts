@@ -4,7 +4,10 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
 
-const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL ?? "ayany004@gmail.com";
+const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL;
+if (!MASTER_ADMIN_EMAIL) {
+  console.error("[auth/callback] MASTER_ADMIN_EMAIL env var is not set — master admin login will not work");
+}
 
 function resolveRole(email: string, _orgId?: string): string {
   if (MASTER_ADMIN_EMAIL && email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase()) {
@@ -56,9 +59,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login?error=invalid_state", req.url));
   }
   
-  // If no saved state, continue without state validation (fallback for edge cases)
+  // If WorkOS returned a state but we have no saved cookie to validate against, reject
   if (!savedState && returnedState) {
-    console.log("[auth/callback] No saved state found, continuing without state validation");
+    console.error("[auth/callback] No saved state cookie found — possible CSRF or expired session");
+    return NextResponse.redirect(new URL("/auth/login?error=invalid_state", req.url));
   }
 
   try {
@@ -132,7 +136,7 @@ export async function GET(req: NextRequest) {
       console.log("[auth/callback] Session created and stored");
     } catch (error) {
       console.error("[auth/callback] Session creation failed:", error);
-      // Continue anyway - user can still login but session won't be validated
+      return NextResponse.redirect(new URL("/auth/login?error=session_failed", req.url));
     }
 
     // --- Set cookies & redirect -------------------------------------------

@@ -19,195 +19,30 @@ export const getWorkflows = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflows retrieval
-    return [
-      {
-        _id: "workflow_1",
-        name: "New Employee Onboarding",
-        description: "Automated onboarding process for new staff members including account setup, training assignments, and equipment allocation",
-        category: "onboarding",
-        trigger: "manual",
-        status: "active",
-        steps: [
-          {
-            id: "step_1",
-            name: "Create User Account",
-            type: "action",
-            config: {
-              action: "create_user",
-              parameters: {
-                role: "staff",
-                send_welcome_email: true,
-              },
-            },
-            position: 1,
-          },
-          {
-            id: "step_2",
-            name: "Assign Required Training",
-            type: "action",
-            config: {
-              action: "assign_training",
-              courses: ["safety_training", "system_training", "compliance_training"],
-              due_date: "30_days",
-            },
-            position: 2,
-          },
-          {
-            id: "step_3",
-            name: "Notify IT Department",
-            type: "notification",
-            config: {
-              recipients: ["it@edumyles.com"],
-              subject: "New Employee Equipment Setup",
-              template: "equipment_setup_notification",
-            },
-            position: 3,
-          },
-          {
-            id: "step_4",
-            name: "Schedule Welcome Meeting",
-            type: "action",
-            config: {
-              action: "create_meeting",
-              attendees: ["hr", "manager", "department_head"],
-              duration: "1_hour",
-            },
-            position: 4,
-          },
-        ],
-        isActive: true,
-        createdBy: "hr_admin@edumyles.com",
-        createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
-        executionCount: 45,
-        successRate: 95.6,
-        averageDuration: 2.5, // days
-      },
-      {
-        _id: "workflow_2",
-        name: "Monthly Compliance Check",
-        description: "Automated monthly compliance verification and reporting for regulatory requirements",
-        category: "compliance",
-        trigger: "scheduled",
-        status: "active",
-        steps: [
-          {
-            id: "step_1",
-            name: "Generate Compliance Report",
-            type: "data_operation",
-            config: {
-              operation: "generate_report",
-              report_type: "compliance_summary",
-              time_range: "monthly",
-            },
-            position: 1,
-          },
-          {
-            id: "step_2",
-            name: "Check Policy Compliance",
-            type: "condition",
-            config: {
-              condition: "compliance_score >= 90",
-              on_true: "step_3",
-              on_false: "step_4",
-            },
-            position: 2,
-          },
-          {
-            id: "step_3",
-            name: "Send Compliance Confirmation",
-            type: "notification",
-            config: {
-              recipients: ["compliance_officer@edumyles.com"],
-              subject: "Monthly Compliance Check - PASSED",
-              template: "compliance_success_notification",
-            },
-            position: 3,
-          },
-          {
-            id: "step_4",
-            name: "Create Compliance Tasks",
-            type: "action",
-            config: {
-              action: "create_tasks",
-              priority: "high",
-              assignee: "compliance_team@edumyles.com",
-              due_date: "7_days",
-            },
-            position: 4,
-          },
-        ],
-        isActive: true,
-        createdBy: "compliance_admin@edumyles.com",
-        createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-        executionCount: 12,
-        successRate: 100,
-        averageDuration: 0.5, // days
-      },
-      {
-        _id: "workflow_3",
-        name: "Student Data Backup",
-        description: "Automated daily backup of critical student data with verification and notification",
-        category: "data_management",
-        trigger: "scheduled",
-        status: "active",
-        steps: [
-          {
-            id: "step_1",
-            name: "Initiate Database Backup",
-            type: "integration",
-            config: {
-              integration: "database_backup",
-              backup_type: "full",
-              compression: true,
-            },
-            position: 1,
-          },
-          {
-            id: "step_2",
-            name: "Verify Backup Integrity",
-            type: "condition",
-            config: {
-              condition: "backup_verification.success",
-              on_true: "step_3",
-              on_false: "step_4",
-            },
-            position: 2,
-          },
-          {
-            id: "step_3",
-            name: "Store Backup to Cloud Storage",
-            type: "integration",
-            config: {
-              integration: "cloud_storage",
-              storage_location: "backups/student_data",
-              encryption: true,
-            },
-            position: 3,
-          },
-          {
-            id: "step_4",
-            name: "Send Backup Failure Alert",
-            type: "notification",
-            config: {
-              recipients: ["admin@edumyles.com", "it@edumyles.com"],
-              subject: "BACKUP FAILURE - Student Data",
-              priority: "high",
-            },
-            position: 4,
-          },
-        ],
-        isActive: true,
-        createdBy: "it_admin@edumyles.com",
-        createdAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-        executionCount: 365,
-        successRate: 98.9,
-        averageDuration: 0.1, // days
-      },
-    ];
+    const limit = args.limit ?? 50;
+
+    let workflows;
+    if (args.category) {
+      workflows = await ctx.db
+        .query("workflows")
+        .withIndex("by_category", (q) => q.eq("tenantId", "PLATFORM").eq("category", args.category!))
+        .order("desc")
+        .take(limit);
+    } else {
+      workflows = await ctx.db
+        .query("workflows")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
+        .order("desc")
+        .take(limit);
+    }
+
+    if (args.status === "active") {
+      workflows = workflows.filter((w) => w.isActive);
+    } else if (args.status === "inactive") {
+      workflows = workflows.filter((w) => !w.isActive);
+    }
+
+    return workflows;
   },
 });
 
@@ -219,300 +54,67 @@ export const getWorkflowExecutions = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflow executions retrieval
-    return [
-      {
-        _id: "execution_1",
-        workflowId: "workflow_1",
-        workflowName: "New Employee Onboarding",
-        executionId: "exec_123456",
-        status: "completed",
-        startedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-        completedAt: Date.now() - 1.8 * 24 * 60 * 60 * 1000,
-        duration: 4.8, // hours
-        triggeredBy: "hr_admin@edumyles.com",
-        triggerData: {
-          employeeId: "emp_789",
-          employeeName: "John Doe",
-          department: "Academics",
-          position: "Teacher",
-        },
-        steps: [
-          {
-            id: "step_1",
-            name: "Create User Account",
-            status: "completed",
-            startedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-            completedAt: Date.now() - 1.95 * 24 * 60 * 60 * 1000,
-            duration: 0.3,
-            output: {
-              userId: "user_456",
-              email: "john.doe@edumyles.com",
-              accountCreated: true,
-            },
-          },
-          {
-            id: "step_2",
-            name: "Assign Required Training",
-            status: "completed",
-            startedAt: Date.now() - 1.95 * 24 * 60 * 60 * 1000,
-            completedAt: Date.now() - 1.8 * 24 * 60 * 60 * 1000,
-            duration: 0.15,
-            output: {
-              coursesAssigned: 3,
-              trainingIds: ["course_1", "course_2", "course_3"],
-              dueDate: "2024-04-15",
-            },
-          },
-          {
-            id: "step_3",
-            name: "Notify IT Department",
-            status: "completed",
-            startedAt: Date.now() - 1.8 * 24 * 60 * 60 * 1000,
-            completedAt: Date.now() - 1.75 * 24 * 60 * 60 * 1000,
-            duration: 0.05,
-            output: {
-              notificationSent: true,
-              recipients: ["it@edumyles.com"],
-              emailId: "email_789",
-            },
-          },
-          {
-            id: "step_4",
-            name: "Schedule Welcome Meeting",
-            status: "completed",
-            startedAt: Date.now() - 1.75 * 24 * 60 * 60 * 1000,
-            completedAt: Date.now() - 1.8 * 24 * 60 * 60 * 1000,
-            duration: 0.03,
-            output: {
-              meetingScheduled: true,
-              meetingId: "meeting_123",
-              attendees: ["hr", "manager", "department_head"],
-              startTime: "2024-03-20T10:00:00Z",
-            },
-          },
-        ],
-        error: null,
-      },
-      {
-        _id: "execution_2",
-        workflowId: "workflow_2",
-        workflowName: "Monthly Compliance Check",
-        executionId: "exec_123457",
-        status: "running",
-        startedAt: Date.now() - 1 * 60 * 60 * 1000,
-        completedAt: null,
-        duration: 1.0, // hours (so far)
-        triggeredBy: "system",
-        triggerData: {
-          scheduleType: "monthly",
-          runDate: "2024-03-15",
-        },
-        steps: [
-          {
-            id: "step_1",
-            name: "Generate Compliance Report",
-            status: "completed",
-            startedAt: Date.now() - 1 * 60 * 60 * 1000,
-            completedAt: Date.now() - 0.9 * 60 * 60 * 1000,
-            duration: 0.1,
-            output: {
-              reportGenerated: true,
-              reportId: "report_456",
-              complianceScore: 92,
-            },
-          },
-          {
-            id: "step_2",
-            name: "Check Policy Compliance",
-            status: "running",
-            startedAt: Date.now() - 0.9 * 60 * 60 * 1000,
-            completedAt: null,
-            duration: 0.9,
-            output: null,
-          },
-          {
-            id: "step_3",
-            name: "Send Compliance Confirmation",
-            status: "pending",
-            startedAt: null,
-            completedAt: null,
-            duration: null,
-            output: null,
-          },
-          {
-            id: "step_4",
-            name: "Create Compliance Tasks",
-            status: "pending",
-            startedAt: null,
-            completedAt: null,
-            duration: null,
-            output: null,
-          },
-        ],
-        error: null,
-      },
-    ];
+    const limit = args.limit ?? 50;
+
+    let executions;
+    if (args.workflowId) {
+      executions = await ctx.db
+        .query("workflowExecutions")
+        .withIndex("by_workflow", (q) => q.eq("workflowId", args.workflowId!))
+        .order("desc")
+        .take(limit);
+    } else if (args.status) {
+      executions = await ctx.db
+        .query("workflowExecutions")
+        .withIndex("by_status", (q) => q.eq("tenantId", "PLATFORM").eq("status", args.status!))
+        .order("desc")
+        .take(limit);
+    } else {
+      executions = await ctx.db
+        .query("workflowExecutions")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
+        .order("desc")
+        .take(limit);
+    }
+
+    if (args.status && !args.workflowId) return executions;
+    if (args.status) {
+      executions = executions.filter((e) => e.status === args.status);
+    }
+    return executions;
   },
 });
 
 export const getWorkflowTemplates = query({
   args: {
     sessionToken: v.string(),
-    category: v.optional(v.union(
-      v.literal("onboarding"),
-      v.literal("offboarding"),
-      v.literal("compliance"),
-      v.literal("security"),
-      v.literal("communications"),
-      v.literal("data_management"),
-      v.literal("approval"),
-      v.literal("notification"),
-      v.literal("integration")
-    )),
+    category: v.optional(v.string()),
     tags: v.optional(v.array(v.string())),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflow templates retrieval
-    return [
-      {
-        _id: "template_1",
-        name: "Standard Employee Onboarding",
-        description: "Complete onboarding workflow template for new staff members",
-        category: "onboarding",
-        templateSteps: [
-          {
-            id: "step_1",
-            name: "Create User Account",
-            type: "action",
-            config: {
-              action: "create_user",
-              parameters: {
-                role: "staff",
-                send_welcome_email: true,
-              },
-            },
-            position: 1,
-          },
-          {
-            id: "step_2",
-            name: "Assign Required Training",
-            type: "action",
-            config: {
-              action: "assign_training",
-              courses: ["safety_training", "system_training"],
-            },
-            position: 2,
-          },
-          {
-            id: "step_3",
-            name: "Notify IT Department",
-            type: "notification",
-            config: {
-              recipients: ["it@edumyles.com"],
-              subject: "New Employee Equipment Setup",
-            },
-            position: 3,
-          },
-        ],
-        isPublic: true,
-        tags: ["onboarding", "hr", "staff"],
-        usageCount: 156,
-        rating: 4.8,
-        createdBy: "hr_admin@edumyles.com",
-        createdAt: Date.now() - 180 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "template_2",
-        name: "Data Backup Verification",
-        description: "Automated backup workflow with integrity verification",
-        category: "data_management",
-        templateSteps: [
-          {
-            id: "step_1",
-            name: "Initiate Database Backup",
-            type: "integration",
-            config: {
-              integration: "database_backup",
-              backup_type: "full",
-            },
-            position: 1,
-          },
-          {
-            id: "step_2",
-            name: "Verify Backup Integrity",
-            type: "condition",
-            config: {
-              condition: "backup_verification.success",
-            },
-            position: 2,
-          },
-          {
-            id: "step_3",
-            name: "Store to Cloud Storage",
-            type: "integration",
-            config: {
-              integration: "cloud_storage",
-              encryption: true,
-            },
-            position: 3,
-          },
-        ],
-        isPublic: true,
-        tags: ["backup", "data", "security"],
-        usageCount: 89,
-        rating: 4.6,
-        createdBy: "it_admin@edumyles.com",
-        createdAt: Date.now() - 120 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "template_3",
-        name: "Student Enrollment Process",
-        description: "Complete student enrollment workflow with document verification and notification",
-        category: "communications",
-        templateSteps: [
-          {
-            id: "step_1",
-            name: "Verify Enrollment Documents",
-            type: "condition",
-            config: {
-              condition: "documents_verified",
-            },
-            position: 1,
-          },
-          {
-            id: "step_2",
-            name: "Create Student Record",
-            type: "action",
-            config: {
-              action: "create_student",
-              enrollment_status: "pending",
-            },
-            position: 2,
-          },
-          {
-            id: "step_3",
-            name: "Send Confirmation to Parents",
-            type: "notification",
-            config: {
-              recipients: ["parents"],
-              template: "enrollment_confirmation",
-            },
-            position: 3,
-          },
-        ],
-        isPublic: false,
-        tags: ["enrollment", "students", "communications"],
-        usageCount: 234,
-        rating: 4.7,
-        createdBy: "admin@edumyles.com",
-        createdAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
-      },
-    ];
+    const limit = args.limit ?? 50;
+
+    let templates;
+    if (args.category) {
+      templates = await ctx.db
+        .query("workflowTemplates")
+        .withIndex("by_category", (q) => q.eq("category", args.category!))
+        .take(limit);
+    } else {
+      templates = await ctx.db
+        .query("workflowTemplates")
+        .order("desc")
+        .take(limit);
+    }
+
+    if (args.tags && args.tags.length > 0) {
+      templates = templates.filter((t) =>
+        args.tags!.some((tag) => t.tags.includes(tag))
+      );
+    }
+
+    return templates;
   },
 });
 
@@ -522,61 +124,102 @@ export const getAutomationMetrics = query({
     timeRange: v.optional(v.union(v.literal("24h"), v.literal("7d"), v.literal("30d"), v.literal("90d"))),
   },
   handler: async (ctx, args) => {
-    const timeRange = args.timeRange || "30d";
-    
-    // TODO: Implement automation metrics calculation
+    const timeRange = args.timeRange ?? "30d";
+    const msMap: Record<string, number> = {
+      "24h": 24 * 60 * 60 * 1000,
+      "7d": 7 * 24 * 60 * 60 * 1000,
+      "30d": 30 * 24 * 60 * 60 * 1000,
+      "90d": 90 * 24 * 60 * 60 * 1000,
+    };
+    const since = Date.now() - msMap[timeRange];
+
+    const allWorkflows = await ctx.db
+      .query("workflows")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
+      .collect();
+
+    const allExecutions = await ctx.db
+      .query("workflowExecutions")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
+      .collect();
+
+    const recentExecutions = allExecutions.filter((e) => e.startedAt >= since);
+
+    const totalExecutions = recentExecutions.length;
+    const successfulExecutions = recentExecutions.filter((e) => e.status === "completed").length;
+    const failedExecutions = recentExecutions.filter((e) => e.status === "failed").length;
+    const successRate = totalExecutions > 0 ? (successfulExecutions / totalExecutions) * 100 : 0;
+    const avgDuration =
+      recentExecutions.length > 0
+        ? recentExecutions.reduce((sum, e) => sum + (e.duration ?? 0), 0) / recentExecutions.length
+        : 0;
+
+    // Group by category
+    const categoryMap: Record<string, { count: number; executions: number; successCount: number }> = {};
+    for (const wf of allWorkflows) {
+      if (!categoryMap[wf.category]) {
+        categoryMap[wf.category] = { count: 0, executions: 0, successCount: 0 };
+      }
+      categoryMap[wf.category].count++;
+    }
+    for (const ex of recentExecutions) {
+      const wf = allWorkflows.find((w) => w._id.toString() === ex.workflowId);
+      if (wf && categoryMap[wf.category]) {
+        categoryMap[wf.category].executions++;
+        if (ex.status === "completed") categoryMap[wf.category].successCount++;
+      }
+    }
+    const byCategory = Object.entries(categoryMap).map(([category, data]) => ({
+      category,
+      count: data.count,
+      executions: data.executions,
+      successRate: data.executions > 0 ? (data.successCount / data.executions) * 100 : 0,
+    }));
+
+    // Top performers
+    const topPerformers = allWorkflows
+      .sort((a, b) => b.successRate - a.successRate)
+      .slice(0, 5)
+      .map((wf) => ({
+        workflowId: wf._id,
+        workflowName: wf.name,
+        executions: wf.executionCount,
+        successRate: wf.successRate,
+        avgDuration: wf.averageDuration,
+      }));
+
+    // Daily trends (last 7 data points)
+    const trends: { date: string; executions: number; successRate: number }[] = [];
+    const dayMs = 24 * 60 * 60 * 1000;
+    for (let i = 6; i >= 0; i--) {
+      const dayStart = Date.now() - i * dayMs;
+      const dayEnd = dayStart + dayMs;
+      const dayExecs = recentExecutions.filter((e) => e.startedAt >= dayStart && e.startedAt < dayEnd);
+      const daySuc = dayExecs.filter((e) => e.status === "completed").length;
+      trends.push({
+        date: new Date(dayStart).toISOString().split("T")[0],
+        executions: dayExecs.length,
+        successRate: dayExecs.length > 0 ? (daySuc / dayExecs.length) * 100 : 0,
+      });
+    }
+
     return {
       overview: {
-        totalWorkflows: 24,
-        activeWorkflows: 18,
-        totalExecutions: 1245,
-        successfulExecutions: 1189,
-        failedExecutions: 56,
-        successRate: 95.5,
-        averageExecutionTime: 1.2, // hours
+        totalWorkflows: allWorkflows.length,
+        activeWorkflows: allWorkflows.filter((w) => w.isActive).length,
+        totalExecutions,
+        successfulExecutions,
+        failedExecutions,
+        successRate: Math.round(successRate * 10) / 10,
+        averageExecutionTime: Math.round(avgDuration * 100) / 100,
       },
-      byCategory: [
-        { category: "onboarding", count: 6, executions: 234, successRate: 96.6 },
-        { category: "offboarding", count: 3, executions: 45, successRate: 93.3 },
-        { category: "compliance", count: 4, executions: 89, successRate: 100 },
-        { category: "security", count: 2, executions: 156, successRate: 97.4 },
-        { category: "communications", count: 5, executions: 445, successRate: 94.6 },
-        { category: "data_management", count: 4, executions: 276, successRate: 98.9 },
-      ],
-      trends: [
-        { date: "2024-01-01", executions: 42, successRate: 94.2 },
-        { date: "2024-01-02", executions: 38, successRate: 95.1 },
-        { date: "2024-01-03", executions: 45, successRate: 96.3 },
-        { date: "2024-01-04", executions: 41, successRate: 94.8 },
-        { date: "2024-01-05", executions: 39, successRate: 95.7 },
-      ],
-      topPerformers: [
-        {
-          workflowId: "workflow_3",
-          workflowName: "Student Data Backup",
-          executions: 365,
-          successRate: 98.9,
-          avgDuration: 0.1,
-        },
-        {
-          workflowId: "workflow_2",
-          workflowName: "Monthly Compliance Check",
-          executions: 12,
-          successRate: 100,
-          avgDuration: 0.5,
-        },
-        {
-          workflowId: "workflow_1",
-          workflowName: "New Employee Onboarding",
-          executions: 45,
-          successRate: 95.6,
-          avgDuration: 2.5,
-        },
-      ],
+      byCategory,
+      trends,
+      topPerformers,
       timeSaved: {
-        totalHoursSaved: 1240,
-        avgHoursPerExecution: 1.0,
-        estimatedCostSavings: 15600, // KES
+        totalHoursSaved: Math.round(successfulExecutions * 1.5),
+        avgHoursPerExecution: 1.5,
+        estimatedCostSavings: Math.round(successfulExecutions * 1.5 * 500),
       },
     };
   },

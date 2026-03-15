@@ -14,7 +14,7 @@ export const initiatePayment = mutation({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
@@ -223,7 +223,7 @@ export const getPaymentStatus = query({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
@@ -254,7 +254,7 @@ export const getTenantSubscriptions = query({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
@@ -306,7 +306,7 @@ export const cancelSubscription = mutation({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
