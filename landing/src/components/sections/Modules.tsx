@@ -226,7 +226,7 @@ export default function Modules() {
             <div className="flex items-center gap-3 pt-4 border-t border-light-grey">
               <a
                 href="#demo"
-                className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-sm px-6 py-2.5 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-sm px-6 py-2.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 See it in action →
               </a>

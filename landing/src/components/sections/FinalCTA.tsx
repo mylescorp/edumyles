@@ -34,7 +34,7 @@ export default function FinalCTA() {
                 href="https://cal.com/edumyles/demo"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-base px-8 py-4 rounded-full transition-all hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-base px-8 py-4 rounded-lg transition-all hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98] shadow-md"
               >
                 Book a Free Demo
               </a>
@@ -43,7 +43,7 @@ export default function FinalCTA() {
                 href="https://wa.me/254700000000?text=Hi%2C%20I%27d%20like%20to%20learn%20more%20about%20EduMyles"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20B957] text-white font-inter font-semibold text-base px-8 py-4 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20B957] text-white font-inter font-semibold text-base px-8 py-4 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <svg
                   viewBox="0 0 24 24"

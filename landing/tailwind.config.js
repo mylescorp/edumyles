@@ -50,6 +50,12 @@ module.exports = {
       boxShadow: {
         "gold-glow": "0 0 30px rgba(199, 150, 57, 0.3)",
         "navy-glow": "0 0 30px rgba(26, 57, 91, 0.3)",
+        "card": "0 2px 12px rgba(0,0,0,0.08)",
+      },
+      borderRadius: {
+        'btn': '8px',
+        'card': '12px',
+        'card-lg': '16px',
       },
     },
   },

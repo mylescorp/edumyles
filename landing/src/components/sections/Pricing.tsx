@@ -76,33 +76,25 @@ export default function Pricing() {
   return (
     <section
       id="pricing"
-      className="py-20 lg:py-32 bg-navy relative overflow-hidden"
+      className="py-20 lg:py-32 bg-off-white relative overflow-hidden"
       aria-label="Pricing plans"
     >
-      {/* Background radial */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full"
-          style={{ background: "radial-gradient(circle, #C79639 0%, transparent 70%)" }}
-        />
-      </div>
-
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="font-inter font-semibold text-gold uppercase tracking-widest text-sm mb-3">
             Pricing
           </p>
-          <h2 className="font-jakarta font-bold text-4xl lg:text-5xl text-white mb-4">
+          <h2 className="font-jakarta font-bold text-4xl lg:text-5xl text-navy mb-4">
             Simple, transparent pricing
           </h2>
-          <p className="font-inter text-lg text-white/70 max-w-2xl mx-auto mb-8">
+          <p className="font-inter text-lg text-mid-grey max-w-2xl mx-auto mb-8">
             No hidden fees. Pay per school per month. Cancel anytime. Start free for 30 days.
           </p>
 
           {/* Toggle */}
           <div className="flex items-center justify-center gap-4">
             <span
-              className={`font-inter text-sm font-medium ${!annual ? "text-white" : "text-white/50"}`}
+              className={`font-inter text-sm font-medium ${!annual ? "text-navy" : "text-mid-grey"}`}
             >
               Monthly
             </span>
@@ -110,7 +102,7 @@ export default function Pricing() {
               type="button"
               onClick={() => setAnnual(!annual)}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                annual ? "bg-gold" : "bg-white/20"
+                annual ? "bg-gold" : "bg-light-grey"
               }`}
               aria-label="Toggle annual billing"
               aria-checked={annual}
@@ -123,10 +115,10 @@ export default function Pricing() {
               />
             </button>
             <span
-              className={`font-inter text-sm font-medium ${annual ? "text-white" : "text-white/50"}`}
+              className={`font-inter text-sm font-medium ${annual ? "text-navy" : "text-mid-grey"}`}
             >
               Annual{" "}
-              <span className="bg-gold/20 text-gold px-1.5 py-0.5 rounded-full text-xs font-semibold ml-1">
+              <span className="bg-gold/10 text-gold px-1.5 py-0.5 rounded text-xs font-semibold ml-1">
                 Save 20%
               </span>
             </span>
@@ -139,13 +131,13 @@ export default function Pricing() {
               key={plan.name}
               className={`relative rounded-2xl p-6 lg:p-8 flex flex-col ${
                 plan.featured
-                  ? "bg-white shadow-2xl border-2 border-gold md:scale-[1.02]"
-                  : "bg-white/5 border border-white/10 backdrop-blur-sm"
+                  ? "bg-navy shadow-2xl border-2 border-gold md:scale-[1.02]"
+                  : "bg-white border border-light-grey shadow-card"
               }`}
             >
               {plan.featured && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-gold text-white font-inter font-semibold text-xs px-4 py-1.5 rounded-full shadow-md whitespace-nowrap">
+                  <span className="bg-gold text-white font-inter font-semibold text-xs px-4 py-1.5 rounded-lg shadow-md whitespace-nowrap">
                     ⭐ Most Popular
                   </span>
                 </div>
@@ -153,14 +145,14 @@ export default function Pricing() {
 
               <h3
                 className={`font-jakarta font-bold text-2xl mb-1 ${
-                  plan.featured ? "text-navy" : "text-white"
+                  plan.featured ? "text-gold" : "text-navy"
                 }`}
               >
                 {plan.name}
               </h3>
               <p
                 className={`font-inter text-xs mb-4 ${
-                  plan.featured ? "text-mid-grey" : "text-white/50"
+                  plan.featured ? "text-white/60" : "text-mid-grey"
                 }`}
               >
                 {plan.limit}
@@ -170,7 +162,7 @@ export default function Pricing() {
                 {plan.monthlyPrice === null ? (
                   <div
                     className={`font-jakarta font-bold text-4xl ${
-                      plan.featured ? "text-navy" : "text-white"
+                      plan.featured ? "text-gold" : "text-navy"
                     }`}
                   >
                     Custom
@@ -179,14 +171,14 @@ export default function Pricing() {
                   <>
                     <div
                       className={`font-jakarta font-extrabold text-4xl ${
-                        plan.featured ? "text-navy" : "text-white"
+                        plan.featured ? "text-gold" : "text-navy"
                       }`}
                     >
                       {formatKES(annual ? plan.annualPrice! : plan.monthlyPrice)}
                     </div>
                     <div
                       className={`font-inter text-sm ${
-                        plan.featured ? "text-mid-grey" : "text-white/50"
+                        plan.featured ? "text-white/60" : "text-mid-grey"
                       }`}
                     >
                       /month
@@ -197,7 +189,7 @@ export default function Pricing() {
 
               <p
                 className={`font-inter text-sm leading-relaxed mb-6 ${
-                  plan.featured ? "text-mid-grey" : "text-white/60"
+                  plan.featured ? "text-white/70" : "text-mid-grey"
                 }`}
               >
                 {plan.description}
@@ -209,7 +201,7 @@ export default function Pricing() {
                     <span className="text-gold font-bold text-sm mt-0.5 flex-shrink-0">✓</span>
                     <span
                       className={`font-inter text-sm ${
-                        plan.featured ? "text-dark-grey" : "text-white/70"
+                        plan.featured ? "text-white/80" : "text-dark-grey"
                       }`}
                     >
                       {f}
@@ -220,10 +212,10 @@ export default function Pricing() {
 
               <Link
                 href={plan.href}
-                className={`block text-center font-inter font-semibold text-base py-3.5 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98] ${
+                className={`block text-center font-inter font-semibold text-base py-3.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98] ${
                   plan.featured
                     ? "bg-gold hover:bg-gold-dark text-white shadow-md hover:shadow-gold-glow"
-                    : "bg-white/10 hover:bg-white/20 text-white border border-white/20"
+                    : "bg-navy hover:bg-navy-dark text-white border border-navy"
                 }`}
               >
                 {plan.cta}
@@ -233,7 +225,7 @@ export default function Pricing() {
         </div>
 
         <div className="text-center mt-10">
-          <p className="font-inter text-sm text-white/50">
+          <p className="font-inter text-sm text-mid-grey">
             30-day money-back guarantee · No setup fees · M-Pesa or bank transfer
           </p>
           <div className="flex justify-center gap-4 mt-4">
@@ -243,10 +235,10 @@ export default function Pricing() {
             >
               Compare all features →
             </Link>
-            <span className="text-white/20">·</span>
+            <span className="text-light-grey">·</span>
             <Link
               href="/contact"
-              className="font-inter text-sm text-white/50 hover:text-gold transition-colors"
+              className="font-inter text-sm text-mid-grey hover:text-gold transition-colors"
             >
               Talk to Sales
             </Link>

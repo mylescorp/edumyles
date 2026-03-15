@@ -60,7 +60,7 @@ export default function HowItWorks() {
         <div className="text-center mt-12">
           <a
             href="#demo"
-            className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold px-8 py-3.5 rounded-full transition-all hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98] shadow-md inline-block"
+            className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold px-8 py-3.5 rounded-lg transition-all hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98] shadow-md inline-block"
           >
             Book Your Free Demo Today
           </a>

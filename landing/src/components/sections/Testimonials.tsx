@@ -79,7 +79,7 @@ export default function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="py-20 lg:py-32 bg-navy"
+      className="py-20 lg:py-32 bg-white"
       aria-label="Customer testimonials"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -87,10 +87,10 @@ export default function Testimonials() {
           <p className="font-inter font-semibold text-gold uppercase tracking-widest text-sm mb-3">
             Social Proof
           </p>
-          <h2 className="font-jakarta font-bold text-4xl lg:text-5xl text-white mb-4">
+          <h2 className="font-jakarta font-bold text-4xl lg:text-5xl text-navy mb-4">
             Schools thriving with EduMyles
           </h2>
-          <p className="font-inter text-lg text-white/70 max-w-2xl mx-auto">
+          <p className="font-inter text-lg text-mid-grey max-w-2xl mx-auto">
             Real results from real schools across East Africa.
           </p>
         </div>
@@ -139,7 +139,7 @@ export default function Testimonials() {
             <button
               type="button"
               onClick={prev}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="p-2 rounded-full bg-light-grey hover:bg-navy hover:text-white text-navy transition-colors"
               aria-label="Previous testimonial"
             >
               <ChevronLeft size={20} />
@@ -153,7 +153,7 @@ export default function Testimonials() {
                   type="button"
                   onClick={() => setCurrent(i)}
                   className={`h-2 rounded-full transition-all ${
-                    i === current ? "bg-gold w-6" : "bg-white/30 w-2"
+                    i === current ? "bg-gold w-6" : "bg-light-grey w-2"
                   }`}
                   aria-label={`Go to testimonial ${i + 1}`}
                 />
@@ -163,7 +163,7 @@ export default function Testimonials() {
             <button
               type="button"
               onClick={next}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="p-2 rounded-full bg-light-grey hover:bg-navy hover:text-white text-navy transition-colors"
               aria-label="Next testimonial"
             >
               <ChevronRight size={20} />

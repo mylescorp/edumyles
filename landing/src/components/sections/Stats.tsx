@@ -84,13 +84,13 @@ export default function Stats() {
     <section
       id="stats"
       ref={ref}
-      className="bg-navy py-16 lg:py-24"
+      className="bg-off-white py-16 lg:py-24 border-y border-light-grey"
       aria-label="Impact statistics"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 text-center">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
           {stats.map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center">
+            <div key={stat.label} className="flex flex-col items-center bg-white rounded-xl p-4 border border-light-grey shadow-sm">
               <div className="font-jakarta font-extrabold text-4xl lg:text-5xl text-gold mb-2">
                 <CountUp
                   target={stat.value}
@@ -101,7 +101,7 @@ export default function Stats() {
                   started={started}
                 />
               </div>
-              <div className="font-inter text-sm text-white/70 leading-tight text-center">
+              <div className="font-inter text-sm text-mid-grey leading-tight text-center">
                 {stat.label}
               </div>
             </div>

@@ -90,8 +90,8 @@ export default function Hero() {
           }}
         />
         {/* Gradient blobs */}
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-navy/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-navy/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 lg:pt-32 lg:pb-24">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -127,14 +127,14 @@ export default function Hero() {
                 {/* CTA 1 — Primary */}
                 <a
                   href="#demo"
-                  className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-base px-8 py-3.5 rounded-full transition-all duration-200 hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                  className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-base px-8 py-3.5 rounded-lg transition-all duration-200 hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98] shadow-md"
                 >
                   Book a Free Demo
                 </a>
                 {/* CTA 2 — Secondary */}
                 <Link
                   href="https://app.edumyles.com/auth/signup"
-                  className="border-2 border-navy text-navy hover:bg-navy hover:text-white font-inter font-semibold text-base px-8 py-3.5 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  className="border-2 border-navy text-navy hover:bg-navy hover:text-white font-inter font-semibold text-base px-8 py-3.5 rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Start Free Trial
                 </Link>

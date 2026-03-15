@@ -51,14 +51,14 @@ export default function CookieBanner() {
         <button
           type="button"
           onClick={accept}
-          className="flex-1 bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-sm py-2.5 rounded-full transition-colors"
+          className="flex-1 bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-sm py-2.5 rounded-lg transition-colors"
         >
           Accept All
         </button>
         <button
           type="button"
           onClick={decline}
-          className="flex-1 border border-white/20 hover:border-white/40 text-white/70 hover:text-white font-inter text-sm py-2.5 rounded-full transition-colors"
+          className="flex-1 border border-white/20 hover:border-white/40 text-white/70 hover:text-white font-inter text-sm py-2.5 rounded-lg transition-colors"
         >
           Decline
         </button>

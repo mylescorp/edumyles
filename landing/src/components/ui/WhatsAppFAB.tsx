@@ -11,7 +11,7 @@ export default function WhatsAppFAB() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat with us on WhatsApp"
-          className="relative flex items-center gap-2 bg-[#25D366] hover:bg-[#20B957] text-white rounded-full px-4 py-3 shadow-lg hover:shadow-xl transition-all hover:scale-[1.05] active:scale-[0.98]"
+          className="relative flex items-center gap-2 bg-[#25D366] hover:bg-[#20B957] text-white rounded-lg px-4 py-3 shadow-lg hover:shadow-xl transition-all hover:scale-[1.05] active:scale-[0.98]"
         >
           <svg
             viewBox="0 0 24 24"
