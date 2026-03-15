@@ -1930,4 +1930,184 @@ export default defineSchema({
     .index("by_module", ["moduleId"])
     .index("by_tenant", ["tenantId"])
     .index("by_status", ["status"]),
+
+  // ─── Premium Communication Module Tables ────────────────────────────
+
+  /** Message templates for email, SMS, push, and in-app channels */
+  messageTemplates: defineTable({
+    tenantId: v.optional(v.string()), // null = platform-level (global) template
+    name: v.string(),
+    description: v.optional(v.string()),
+    category: v.string(), // onboarding | marketing | system | alerts | academic | finance | custom
+    channels: v.array(v.string()), // email | sms | push | in_app
+    subject: v.optional(v.string()), // email subject
+    content: v.string(), // message body with {{variable}} placeholders
+    htmlContent: v.optional(v.string()), // rich HTML content for email
+    variables: v.array(v.object({
+      name: v.string(),
+      type: v.string(), // text | date | time | number | url
+      defaultValue: v.optional(v.string()),
+      required: v.boolean(),
+    })),
+    isGlobal: v.optional(v.boolean()), // platform-wide template
+    status: v.string(), // active | archived | draft
+    usageCount: v.optional(v.number()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_category", ["category"])
+    .index("by_global", ["isGlobal", "status"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  /** Campaigns for broadcast messaging across channels */
+  campaigns: defineTable({
+    tenantId: v.optional(v.string()), // null = platform-level campaign
+    name: v.string(),
+    description: v.optional(v.string()),
+    channels: v.array(v.string()), // email | sms | push | in_app
+    status: v.string(), // draft | scheduled | running | paused | completed | cancelled
+    message: v.string(),
+    subject: v.optional(v.string()),
+    htmlContent: v.optional(v.string()),
+    templateId: v.optional(v.id("messageTemplates")),
+    targetAudience: v.object({
+      type: v.string(), // all | by_tenant | by_role | by_status | custom
+      tenantIds: v.optional(v.array(v.string())),
+      roles: v.optional(v.array(v.string())),
+      tenantStatuses: v.optional(v.array(v.string())), // active | trial | suspended
+      tenantPlans: v.optional(v.array(v.string())), // free | starter | standard | pro | enterprise
+      excludeTenantIds: v.optional(v.array(v.string())),
+    }),
+    scheduledFor: v.optional(v.number()),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    isPlatformLevel: v.optional(v.boolean()),
+    stats: v.optional(v.object({
+      totalRecipients: v.number(),
+      sent: v.number(),
+      delivered: v.number(),
+      opened: v.number(),
+      clicked: v.number(),
+      failed: v.number(),
+      bounced: v.number(),
+    })),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_status", ["status", "createdAt"])
+    .index("by_platform", ["isPlatformLevel", "status"])
+    .index("by_scheduled", ["status", "scheduledFor"]),
+
+  /** Individual message records for tracking delivery per recipient */
+  messageRecords: defineTable({
+    tenantId: v.string(),
+    campaignId: v.optional(v.id("campaigns")),
+    channel: v.string(), // email | sms | push | in_app
+    recipientId: v.string(), // userId
+    recipientEmail: v.optional(v.string()),
+    recipientPhone: v.optional(v.string()),
+    subject: v.optional(v.string()),
+    content: v.string(),
+    status: v.string(), // queued | sending | sent | delivered | opened | clicked | failed | bounced
+    externalId: v.optional(v.string()), // provider message ID
+    errorMessage: v.optional(v.string()),
+    sentAt: v.optional(v.number()),
+    deliveredAt: v.optional(v.number()),
+    openedAt: v.optional(v.number()),
+    clickedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_campaign", ["campaignId", "status"])
+    .index("by_recipient", ["recipientId", "createdAt"])
+    .index("by_channel_status", ["channel", "status"])
+    .index("by_status", ["status", "createdAt"]),
+
+  /** Direct messages between users (1:1 or group conversations) */
+  conversations: defineTable({
+    tenantId: v.string(),
+    type: v.string(), // direct | group
+    name: v.optional(v.string()), // for group conversations
+    participants: v.array(v.string()), // userIds
+    lastMessageAt: v.optional(v.number()),
+    lastMessagePreview: v.optional(v.string()),
+    isPlatformThread: v.optional(v.boolean()), // cross-tenant platform thread
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "lastMessageAt"])
+    .index("by_platform", ["isPlatformThread", "lastMessageAt"]),
+
+  /** Messages within conversations */
+  directMessages: defineTable({
+    tenantId: v.string(),
+    conversationId: v.id("conversations"),
+    senderId: v.string(),
+    senderName: v.optional(v.string()),
+    senderRole: v.optional(v.string()),
+    content: v.string(),
+    attachments: v.optional(v.array(v.object({
+      name: v.string(),
+      url: v.string(),
+      type: v.string(),
+      size: v.optional(v.number()),
+    }))),
+    isEdited: v.optional(v.boolean()),
+    isDeleted: v.optional(v.boolean()),
+    readBy: v.optional(v.array(v.string())), // userIds who read the message
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_conversation", ["conversationId", "createdAt"])
+    .index("by_sender", ["senderId", "createdAt"]),
+
+  /** User notification preferences */
+  notificationPreferences: defineTable({
+    tenantId: v.string(),
+    userId: v.string(),
+    emailEnabled: v.optional(v.boolean()),
+    smsEnabled: v.optional(v.boolean()),
+    pushEnabled: v.optional(v.boolean()),
+    inAppEnabled: v.optional(v.boolean()),
+    quietHoursStart: v.optional(v.string()), // HH:mm
+    quietHoursEnd: v.optional(v.string()), // HH:mm
+    categories: v.optional(v.object({
+      announcements: v.optional(v.boolean()),
+      academic: v.optional(v.boolean()),
+      finance: v.optional(v.boolean()),
+      system: v.optional(v.boolean()),
+      marketing: v.optional(v.boolean()),
+    })),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_tenant", ["tenantId"]),
+
+  /** Contact lists / recipient groups for targeting */
+  contactLists: defineTable({
+    tenantId: v.optional(v.string()), // null = platform-level
+    name: v.string(),
+    description: v.optional(v.string()),
+    type: v.string(), // role | tenant | custom | dynamic
+    isPlatformLevel: v.optional(v.boolean()),
+    criteria: v.object({
+      roles: v.optional(v.array(v.string())),
+      tenantIds: v.optional(v.array(v.string())),
+      tenantStatuses: v.optional(v.array(v.string())),
+      tenantPlans: v.optional(v.array(v.string())),
+    }),
+    memberCount: v.optional(v.number()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_platform", ["isPlatformLevel"])
+    .index("by_type", ["type"]),
 });
