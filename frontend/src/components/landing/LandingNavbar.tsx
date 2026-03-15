@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import ThemeToggle from "@/components/landing/ThemeToggle";
 
 interface DropdownItem {
   label: string;
@@ -121,8 +122,9 @@ export default function LandingNavbar() {
         ))}
       </div>
 
-      {/* Desktop Actions - Login + Get Started only */}
+      {/* Desktop Actions */}
       <div className="navbar-actions">
+        <ThemeToggle />
         <Link href="/auth/login" className="navbar-login">
           Log In
         </Link>

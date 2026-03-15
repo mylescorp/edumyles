@@ -8,13 +8,13 @@ const plans = [
     cta: "Start Free", featured: false,
   },
   {
-    name: "Standard", price: "$8", period: "/student/month",
+    name: "Standard", price: "KSh 1,050", period: "/student/month",
     desc: "For growing schools needing advanced modules and payment integrations",
     features: ["Up to 500 students", "All 11 modules included", "M-Pesa & Airtel Money", "Parent & teacher portals", "SMS & email communications", "Priority support & training", "Unlimited admin users", "Advanced gradebook (CBC + 8-4-4)"],
     cta: "Start Free Trial", featured: true,
   },
   {
-    name: "Pro", price: "$15", period: "/student/month",
+    name: "Pro", price: "KSh 1,950", period: "/student/month",
     desc: "Comprehensive solution for established and multi-campus schools",
     features: ["Unlimited students", "Multi-campus support", "Advanced analytics & reports", "Custom integrations & API", "Dedicated account manager", "Priority phone support", "White-label options", "SLA guarantee"],
     cta: "Start Free Trial", featured: false,

@@ -1202,3 +1202,553 @@ details.faq-item[open] summary::after {
     padding: 0.5rem 1rem !important;
   }
 }
+
+/* ================================================================
+   MISSING UTILITIES (auth-nav, centered-actions, faq-grid, etc.)
+   ================================================================ */
+
+.auth-nav {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 2rem;
+  border-bottom: 1px solid var(--em-border);
+  background: var(--em-bg-base);
+}
+
+.auth-nav .navbar-logo {
+  font-weight: 700;
+  font-size: 1.3rem;
+  background: linear-gradient(135deg, #1A4731 0%, #16A34A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* centered-actions — used in pricing final-cta */
+.centered-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* faq-grid — 2-column grid for FAQ preview on home page */
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+  .faq-grid { grid-template-columns: 1fr; }
+}
+
+/* faq-list — single-column accordion (pricing page) */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--em-border);
+  background: transparent;
+  color: var(--charcoal);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--em-bg-muted);
+  border-color: var(--em-border-strong);
+  transform: rotate(15deg);
+}
+
+/* ── CTA buttons on dark-bg sections (concierge, pricing hero) ── */
+.concierge-section .btn-outline,
+.page-hero .btn-outline,
+.pricing-section .btn-outline {
+  background: rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  color: #FFFFFF !important;
+}
+
+.concierge-section .btn-outline:hover,
+.page-hero .btn-outline:hover,
+.pricing-section .btn-outline:hover {
+  background: rgba(255,255,255,0.18) !important;
+  border-color: rgba(255,255,255,0.5) !important;
+}
+
+/* ── Sub-page hero: keep subtext white ── */
+.page-hero .subtext {
+  color: rgba(255,255,255,0.75) !important;
+}
+
+/* ── about-mission-stats grid ── */
+.about-mission-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* ── founder block ── */
+.founder-block {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+  margin-bottom: 3rem;
+}
+
+.founder-bio {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin: 0 0 1rem;
+}
+
+.founder-location {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #16A34A;
+  background: rgba(22,163,74,0.08);
+  border: 1px solid rgba(22,163,74,0.15);
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 700px) {
+  .founder-block {
+    grid-template-columns: 1fr;
+  }
+  .about-mission-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ================================================================
+   DARK MODE
+   All selectors scoped to html.dark so light mode is unchanged.
+   ================================================================ */
+
+/* ── Base tokens ── */
+html.dark {
+  --em-bg-base:        #0f1a12;
+  --em-bg-subtle:      #0b1410;
+  --em-bg-muted:       #162219;
+  --em-border:         rgba(255,255,255,0.09);
+  --em-border-strong:  rgba(255,255,255,0.16);
+  --em-text-primary:   #f1f5f9;
+  --em-text-secondary: #94a3b8;
+  --em-shadow-sm:      0 1px 3px rgba(0,0,0,0.4);
+  --em-shadow-md:      0 4px 12px rgba(0,0,0,0.5);
+  --em-shadow-lg:      0 8px 24px rgba(0,0,0,0.6);
+  /* legacy aliases */
+  --charcoal:   #f1f5f9;
+  --muted:      #94a3b8;
+  --white:      #0f1a12;
+  --off-white:  #162219;
+  --border:     rgba(255,255,255,0.09);
+  --background: #0b1410;
+  --foreground: #f1f5f9;
+}
+
+/* ── Body ── */
+html.dark body {
+  background: #0b1410;
+  color: #f1f5f9;
+}
+
+/* ── Navbar ── */
+html.dark .navbar {
+  background: rgba(11, 20, 16, 0.92) !important;
+  border-bottom-color: rgba(255,255,255,0.07) !important;
+}
+
+html.dark .navbar.scrolled {
+  background: rgba(11, 20, 16, 0.88) !important;
+}
+
+html.dark .navbar-links a {
+  color: #cbd5e1;
+}
+
+html.dark .navbar-links a:hover {
+  color: #4ade80;
+}
+
+html.dark .nav-dropdown {
+  background: #162219;
+  border-color: rgba(255,255,255,0.1);
+}
+
+html.dark .dropdown-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+html.dark .dropdown-item-label {
+  color: #f1f5f9;
+}
+
+html.dark .theme-toggle {
+  color: #94a3b8;
+  border-color: rgba(255,255,255,0.12);
+}
+
+html.dark .theme-toggle:hover {
+  background: rgba(255,255,255,0.07);
+  color: #f1f5f9;
+}
+
+html.dark .mobile-menu {
+  background: #0f1a12;
+}
+
+html.dark .mobile-menu a {
+  color: #cbd5e1;
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+/* ── Hero ── */
+html.dark .hero::before {
+  background:
+    radial-gradient(ellipse 75% 65% at 5% 10%,  rgba(74,222,128,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 55% at 95% 90%, rgba(22,163,74,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 45% at 60%  5%, rgba(245,158,11,0.03) 0%, transparent 55%);
+}
+
+html.dark .hero h1 {
+  background: linear-gradient(135deg, #f1f5f9 0%, #86efac 55%, #4ade80 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark .subtext {
+  color: #94a3b8 !important;
+}
+
+html.dark .eyebrow {
+  background: rgba(74,222,128,0.1) !important;
+  border-color: rgba(74,222,128,0.2) !important;
+  color: #4ade80 !important;
+}
+
+html.dark .trust-signals {
+  border-top-color: rgba(255,255,255,0.08);
+}
+
+html.dark .trust-signal {
+  color: #94a3b8;
+}
+
+html.dark .dashboard-mockup {
+  box-shadow:
+    0 40px 100px rgba(0,0,0,0.5),
+    0 10px 30px rgba(0,0,0,0.4),
+    0 0 0 1px rgba(74,222,128,0.08) !important;
+  background: #1a2e20 !important;
+}
+
+html.dark .mockup-header {
+  background: #0a1208;
+}
+
+html.dark .mockup-main {
+  background: #1a2e20;
+}
+
+html.dark .mockup-chart {
+  background: #162219;
+}
+
+html.dark .mockup-table-row {
+  background: #1e3524;
+}
+
+/* ── Announcement bar ── stays dark — no change needed ── */
+
+/* ── Social Proof ── */
+html.dark .social-proof-section {
+  background: linear-gradient(180deg, #0b1410 0%, #0f1a12 100%) !important;
+}
+
+html.dark .stat-card {
+  background: #162219 !important;
+  border-color: rgba(255,255,255,0.07) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+}
+
+html.dark .school-logo {
+  border-color: rgba(255,255,255,0.1) !important;
+  color: #94a3b8 !important;
+}
+
+/* ── Highlights Zone — already dark green, fine in both modes ── */
+
+/* ── Modules Section ── */
+html.dark .modules-section {
+  background: linear-gradient(180deg, #0f1a12 0%, #0b1410 100%) !important;
+}
+
+html.dark .section-header h2 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .section-subtitle {
+  color: #94a3b8 !important;
+}
+
+html.dark .module-tabs {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.09);
+}
+
+html.dark .module-tab {
+  color: #94a3b8 !important;
+}
+
+html.dark .module-tab:hover {
+  background: rgba(74,222,128,0.07) !important;
+  color: #4ade80 !important;
+}
+
+html.dark .module-tab.active {
+  background: #1e3524 !important;
+  color: #86efac !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06) !important;
+}
+
+html.dark .module-tab-text h3 {
+  background: linear-gradient(135deg, #f1f5f9 0%, #86efac 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark .module-tab-text p {
+  color: #94a3b8;
+}
+
+html.dark .module-app-card {
+  background: #162219 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+html.dark .module-app-card h4 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .module-app-card p {
+  color: #94a3b8 !important;
+}
+
+/* ── Feature Cards ── */
+html.dark .feature-card {
+  background: #162219 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+html.dark .feature-card h3 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .feature-card p {
+  color: #94a3b8 !important;
+}
+
+/* ── Content sections ── */
+html.dark .content-section {
+  background: #0f1a12 !important;
+}
+
+html.dark .content-section.alt {
+  background: #0b1410 !important;
+}
+
+/* ── Integration cards ── */
+html.dark .integration-card {
+  background: #162219 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+html.dark .integration-name {
+  color: #f1f5f9 !important;
+}
+
+/* ── Success stories ── */
+html.dark .stories-section {
+  background: linear-gradient(180deg, #0f1a12 0%, #0b1410 100%) !important;
+}
+
+html.dark .story-card {
+  background: #162219 !important;
+  border-color: rgba(255,255,255,0.07) !important;
+}
+
+html.dark .story-quote {
+  color: #cbd5e1 !important;
+}
+
+html.dark .story-name {
+  color: #f1f5f9 !important;
+}
+
+/* ── Brand section ── */
+html.dark .brand-section {
+  background: linear-gradient(180deg, #0b1410 0%, #0f1a12 100%) !important;
+}
+
+html.dark .brand-column h3 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .brand-column p {
+  color: #94a3b8 !important;
+}
+
+html.dark .brand-values-list li {
+  color: #94a3b8 !important;
+}
+
+html.dark .brand-values-list li:hover {
+  background: rgba(74,222,128,0.06) !important;
+}
+
+/* ── Panels (how-it-works) ── */
+html.dark .panel {
+  background: rgba(22, 40, 26, 0.95) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+html.dark .panel h3 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .panel p {
+  color: #94a3b8 !important;
+}
+
+/* ── FAQ items ── */
+html.dark .faq-item,
+html.dark details.faq-item {
+  background: #162219 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+html.dark .faq-item h4,
+html.dark details.faq-item summary {
+  color: #f1f5f9 !important;
+}
+
+html.dark .faq-item p,
+html.dark .faq-answer {
+  color: #94a3b8 !important;
+}
+
+html.dark details.faq-item summary::after {
+  color: #64748b !important;
+}
+
+html.dark details.faq-item[open] summary::after {
+  color: #4ade80 !important;
+}
+
+/* ── About page ── */
+html.dark .about-stat {
+  background: #162219 !important;
+  border-color: rgba(255,255,255,0.07) !important;
+}
+
+html.dark .about-lead,
+html.dark .about p {
+  color: #94a3b8 !important;
+}
+
+html.dark .timeline-item:hover {
+  background: rgba(74,222,128,0.04) !important;
+}
+
+html.dark .timeline-content h3 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .timeline-content p {
+  color: #94a3b8 !important;
+}
+
+/* ── Module detail cards (features page) ── */
+html.dark .module-detail-card {
+  background: #162219 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+html.dark .module-detail-card h3,
+html.dark .module-detail-card p {
+  color: #94a3b8 !important;
+}
+
+html.dark .module-detail-card h3 {
+  color: #f1f5f9 !important;
+}
+
+/* ── Auth nav ── */
+html.dark .auth-nav {
+  background: #0f1a12 !important;
+  border-bottom-color: rgba(255,255,255,0.08) !important;
+}
+
+/* ── Pricing cards (light cards on dark section — already dark) ── */
+html.dark .pricing-card {
+  background: rgba(22, 40, 26, 0.95) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+html.dark .pricing-card h3 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .pricing-card .pricing-desc {
+  color: #94a3b8 !important;
+}
+
+html.dark .pricing-card .pricing-modules li {
+  color: #94a3b8 !important;
+}
+
+html.dark .pricing-card.featured {
+  border-color: rgba(74,222,128,0.4) !important;
+  box-shadow:
+    0 0 0 1px rgba(74,222,128,0.15),
+    0 20px 60px rgba(74,222,128,0.12) !important;
+}
+
+/* ── Scrollbar ── */
+html.dark ::-webkit-scrollbar-track {
+  background: #0b1410;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2d4a35;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3d6347;
+}

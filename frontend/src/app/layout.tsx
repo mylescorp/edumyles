@@ -52,6 +52,8 @@ export default function RootLayout({
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+                {/* Runs synchronously before paint — prevents dark-mode flash */}
+                <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('em-theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();` }} />
             </head>
             {/*
              * font-sans resolves to Inter (product UI default).

@@ -277,7 +277,7 @@ function LandingPageContent() {
             },
             {
               name: "Standard",
-              price: "8",
+              price: "KSh 1,050",
               description: "For growing schools needing advanced modules and integrations",
               features: [
                 "Up to 500 students",
@@ -290,7 +290,7 @@ function LandingPageContent() {
             },
             {
               name: "Pro",
-              price: "15",
+              price: "KSh 1,950",
               description: "Comprehensive solution for established and multi-campus schools",
               features: [
                 "Unlimited students",
@@ -310,7 +310,7 @@ function LandingPageContent() {
                   <span className="price-amount">Free</span>
                 ) : (
                   <>
-                    <span className="price-amount">${plan.price}</span>
+                    <span className="price-amount">{plan.price}</span>
                     <span className="price-period">/student/month</span>
                   </>
                 )}
