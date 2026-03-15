@@ -1,6 +1,8 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
+/** List campaigns — platform-level (isPlatformLevel=true) */
 export const listCampaigns = query({
   args: {
     sessionToken: v.string(),
@@ -9,246 +11,281 @@ export const listCampaigns = query({
       v.literal("scheduled"),
       v.literal("running"),
       v.literal("completed"),
-      v.literal("paused")
+      v.literal("paused"),
+      v.literal("cancelled")
     )),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement campaign listing logic
-    return [
-      {
-        _id: "campaign_1",
-        name: "Welcome Message Series",
-        description: "Onboarding campaign for new schools",
-        status: "running",
-        channels: ["email", "sms"],
-        createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-        scheduledFor: Date.now() - 5 * 24 * 60 * 60 * 1000,
-        stats: {
-          totalRecipients: 1250,
-          sent: 1180,
-          delivered: 1120,
-          opened: 890,
-          clicked: 234,
-          failed: 6,
-        },
-      },
-      {
-        _id: "campaign_2",
-        name: "Monthly Newsletter",
-        description: "Platform updates and announcements",
-        status: "scheduled",
-        channels: ["email"],
-        createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-        scheduledFor: Date.now() + 3 * 24 * 60 * 60 * 1000,
-        stats: {
-          totalRecipients: 5000,
-          sent: 0,
-          delivered: 0,
-          opened: 0,
-          clicked: 0,
-          failed: 0,
-        },
-      },
-    ];
+    await requirePlatformSession(ctx, args);
+    const limit = args.limit ?? 50;
+
+    let results;
+    if (args.status) {
+      results = await ctx.db
+        .query("campaigns")
+        .withIndex("by_platform", (q) =>
+          q.eq("isPlatformLevel", true).eq("status", args.status!)
+        )
+        .collect();
+    } else {
+      results = await ctx.db
+        .query("campaigns")
+        .withIndex("by_platform", (q) => q.eq("isPlatformLevel", true))
+        .collect();
+    }
+
+    return results.sort((a, b) => b.createdAt - a.createdAt).slice(0, limit);
   },
 });
 
 export const getCampaignById = query({
   args: {
     sessionToken: v.string(),
-    campaignId: v.string(),
+    campaignId: v.id("campaigns"),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement campaign retrieval logic
-    return {
-      _id: args.campaignId,
-      name: "Welcome Message Series",
-      description: "Onboarding campaign for new schools",
-      status: "running",
-      channels: ["email", "sms"],
-      message: "Welcome to EduMyles! We're excited to have you join our platform.",
-      targetAudience: {
-        tenantIds: ["tenant_1", "tenant_2"],
-        roles: ["school_admin", "principal"],
-      },
-      createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      scheduledFor: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      stats: {
-        totalRecipients: 1250,
-        sent: 1180,
-        delivered: 1120,
-        opened: 890,
-        clicked: 234,
-        failed: 6,
-      },
-    };
+    await requirePlatformSession(ctx, args);
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign) return null;
+    return campaign;
   },
 });
 
+/** List message templates — platform-level (isGlobal=true) + all tenant templates */
 export const listTemplates = query({
   args: {
     sessionToken: v.string(),
     category: v.optional(v.string()),
-    channel: v.optional(v.string()),
+    status: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement template listing logic
-    return [
-      {
-        _id: "template_1",
-        name: "Welcome Email",
-        description: "Standard welcome message for new users",
-        category: "onboarding",
-        channels: ["email"],
-        subject: "Welcome to EduMyles",
-        content: "Dear {{firstName}}, welcome to EduMyles!",
-        variables: [
-          { name: "firstName", type: "text", defaultValue: "User", required: true },
-          { name: "schoolName", type: "text", defaultValue: "Your School", required: true },
-        ],
-        usageCount: 145,
-        createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-      },
-      {
-        _id: "template_2",
-        name: "Maintenance Notice",
-        description: "System maintenance notification",
-        category: "system",
-        channels: ["email", "sms"],
-        subject: "Scheduled Maintenance",
-        content: "EduMyles will be under maintenance on {{date}} from {{startTime}} to {{endTime}}.",
-        variables: [
-          { name: "date", type: "date", required: true },
-          { name: "startTime", type: "time", required: true },
-          { name: "endTime", type: "time", required: true },
-        ],
-        usageCount: 23,
-        createdAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
-      },
-    ];
+    await requirePlatformSession(ctx, args);
+    const limit = args.limit ?? 50;
+
+    // Get global templates
+    const globalTemplates = await ctx.db
+      .query("messageTemplates")
+      .withIndex("by_global", (q) => q.eq("isGlobal", true).eq("status", "active"))
+      .collect();
+
+    let results = globalTemplates;
+
+    // Filter by category if provided
+    if (args.category) {
+      results = results.filter((t) => t.category === args.category);
+    }
+
+    return results.sort((a, b) => b.createdAt - a.createdAt).slice(0, limit);
   },
 });
 
 export const getTemplateById = query({
   args: {
     sessionToken: v.string(),
-    templateId: v.string(),
+    templateId: v.id("messageTemplates"),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement template retrieval logic
-    return {
-      _id: args.templateId,
-      name: "Welcome Email",
-      description: "Standard welcome message for new users",
-      category: "onboarding",
-      channels: ["email"],
-      subject: "Welcome to EduMyles",
-      content: "Dear {{firstName}}, welcome to EduMyles! We're excited to have you join our platform.",
-      variables: [
-        { name: "firstName", type: "text", defaultValue: "User", required: true },
-        { name: "schoolName", type: "text", defaultValue: "Your School", required: true },
-      ],
-      usageCount: 145,
-      createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    };
+    await requirePlatformSession(ctx, args);
+    return await ctx.db.get(args.templateId);
   },
 });
 
+/** Delivery analytics across all platform campaigns */
 export const getDeliveryAnalytics = query({
   args: {
     sessionToken: v.string(),
-    campaignId: v.optional(v.string()),
+    campaignId: v.optional(v.id("campaigns")),
     dateRange: v.optional(v.object({
       start: v.number(),
       end: v.number(),
     })),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement analytics retrieval logic
+    await requirePlatformSession(ctx, args);
+
+    // Get all platform campaigns
+    const campaigns = await ctx.db
+      .query("campaigns")
+      .withIndex("by_platform", (q) => q.eq("isPlatformLevel", true))
+      .collect();
+
+    // Aggregate stats from campaigns
+    const overview = {
+      totalSent: 0,
+      totalDelivered: 0,
+      totalOpened: 0,
+      totalClicked: 0,
+      totalFailed: 0,
+      totalBounced: 0,
+      deliveryRate: 0,
+      openRate: 0,
+      clickRate: 0,
+    };
+
+    const channelStats: Record<string, { sent: number; delivered: number; opened: number; clicked: number; failed: number }> = {
+      email: { sent: 0, delivered: 0, opened: 0, clicked: 0, failed: 0 },
+      sms: { sent: 0, delivered: 0, opened: 0, clicked: 0, failed: 0 },
+      push: { sent: 0, delivered: 0, opened: 0, clicked: 0, failed: 0 },
+      in_app: { sent: 0, delivered: 0, opened: 0, clicked: 0, failed: 0 },
+    };
+
+    for (const campaign of campaigns) {
+      if (campaign.stats) {
+        overview.totalSent += campaign.stats.sent;
+        overview.totalDelivered += campaign.stats.delivered;
+        overview.totalOpened += campaign.stats.opened;
+        overview.totalClicked += campaign.stats.clicked;
+        overview.totalFailed += campaign.stats.failed;
+        overview.totalBounced += campaign.stats.bounced;
+      }
+    }
+
+    // Get message records for channel breakdown
+    if (args.campaignId) {
+      const records = await ctx.db
+        .query("messageRecords")
+        .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId!))
+        .collect();
+
+      for (const record of records) {
+        const ch = channelStats[record.channel];
+        if (!ch) continue;
+        ch.sent++;
+        if (record.status === "delivered" || record.status === "opened" || record.status === "clicked") ch.delivered++;
+        if (record.status === "opened" || record.status === "clicked") ch.opened++;
+        if (record.status === "clicked") ch.clicked++;
+        if (record.status === "failed") ch.failed++;
+      }
+    }
+
+    if (overview.totalSent > 0) {
+      overview.deliveryRate = Math.round((overview.totalDelivered / overview.totalSent) * 1000) / 10;
+      overview.openRate = Math.round((overview.totalOpened / overview.totalDelivered) * 1000) / 10;
+      overview.clickRate = Math.round((overview.totalClicked / overview.totalOpened) * 1000) / 10;
+    }
+
+    const byChannel = Object.entries(channelStats)
+      .filter(([, stats]) => stats.sent > 0)
+      .map(([channel, stats]) => ({
+        channel,
+        ...stats,
+        deliveryRate: stats.sent > 0 ? Math.round((stats.delivered / stats.sent) * 1000) / 10 : 0,
+        openRate: stats.delivered > 0 ? Math.round((stats.opened / stats.delivered) * 1000) / 10 : 0,
+        clickRate: stats.opened > 0 ? Math.round((stats.clicked / stats.opened) * 1000) / 10 : 0,
+      }));
+
+    return { overview, byChannel, campaignCount: campaigns.length };
+  },
+});
+
+/** Get recipient lists — platform-level */
+export const getRecipientLists = query({
+  args: {
+    sessionToken: v.string(),
+    type: v.optional(v.union(v.literal("tenant"), v.literal("role"), v.literal("custom"), v.literal("dynamic"))),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const lists = await ctx.db
+      .query("contactLists")
+      .withIndex("by_platform", (q) => q.eq("isPlatformLevel", true))
+      .collect();
+
+    if (args.type) {
+      return lists.filter((l) => l.type === args.type);
+    }
+    return lists;
+  },
+});
+
+/** Platform-wide communication stats overview */
+export const getPlatformCommStats = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const campaigns = await ctx.db
+      .query("campaigns")
+      .withIndex("by_platform", (q) => q.eq("isPlatformLevel", true))
+      .collect();
+
+    const templates = await ctx.db
+      .query("messageTemplates")
+      .withIndex("by_global", (q) => q.eq("isGlobal", true).eq("status", "active"))
+      .collect();
+
+    const contactLists = await ctx.db
+      .query("contactLists")
+      .withIndex("by_platform", (q) => q.eq("isPlatformLevel", true))
+      .collect();
+
+    // Aggregate campaign stats
+    let totalSent = 0;
+    let totalDelivered = 0;
+    let totalRecipients = 0;
+    const activeCampaigns = campaigns.filter((c) => c.status === "running").length;
+    const scheduledCampaigns = campaigns.filter((c) => c.status === "scheduled").length;
+
+    for (const campaign of campaigns) {
+      if (campaign.stats) {
+        totalSent += campaign.stats.sent;
+        totalDelivered += campaign.stats.delivered;
+        totalRecipients += campaign.stats.totalRecipients;
+      }
+    }
+
     return {
-      overview: {
-        totalSent: 15420,
-        totalDelivered: 14890,
-        totalOpened: 8920,
-        totalClicked: 2340,
-        totalFailed: 89,
-        deliveryRate: 96.6,
-        openRate: 59.9,
-        clickRate: 25.9,
-      },
-      byChannel: [
-        {
-          channel: "email",
-          sent: 12400,
-          delivered: 12100,
-          opened: 7890,
-          clicked: 1890,
-          failed: 45,
-          deliveryRate: 97.6,
-          openRate: 65.2,
-          clickRate: 24.0,
-        },
-        {
-          channel: "sms",
-          sent: 3020,
-          delivered: 2790,
-          opened: 1030,
-          clicked: 450,
-          failed: 44,
-          deliveryRate: 92.4,
-          openRate: 36.9,
-          clickRate: 43.7,
-        },
-      ],
-      trends: [
-        { date: "2024-01-01", sent: 450, delivered: 435, opened: 280, clicked: 89 },
-        { date: "2024-01-02", sent: 520, delivered: 508, opened: 320, clicked: 102 },
-        { date: "2024-01-03", sent: 380, delivered: 369, opened: 245, clicked: 78 },
-      ],
+      totalCampaigns: campaigns.length,
+      activeCampaigns,
+      scheduledCampaigns,
+      totalTemplates: templates.length,
+      totalContactLists: contactLists.length,
+      totalSent,
+      totalDelivered,
+      totalRecipients,
+      deliveryRate: totalSent > 0 ? Math.round((totalDelivered / totalSent) * 100) : 0,
     };
   },
 });
 
-export const getRecipientLists = query({
+/** List all conversations for platform admin (cross-tenant support threads) */
+export const listPlatformConversations = query({
   args: {
     sessionToken: v.string(),
-    type: v.optional(v.union(v.literal("tenant"), v.literal("role"), v.literal("custom"))),
+    limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement recipient list retrieval logic
-    return [
-      {
-        _id: "list_1",
-        name: "All School Administrators",
-        type: "role",
-        description: "All users with admin roles across all tenants",
-        count: 234,
-        criteria: {
-          roles: ["school_admin", "principal", "bursar"],
-        },
-      },
-      {
-        _id: "list_2",
-        name: "Active Schools",
-        type: "tenant",
-        description: "All users from active tenant schools",
-        count: 5420,
-        criteria: {
-          tenantStatus: "active",
-        },
-      },
-      {
-        _id: "list_3",
-        name: "Trial Schools",
-        type: "tenant",
-        description: "All users from trial tenant schools",
-        count: 890,
-        criteria: {
-          tenantStatus: "trial",
-        },
-      },
-    ];
+    const session = await requirePlatformSession(ctx, args);
+    const limit = args.limit ?? 50;
+
+    // Get platform threads and conversations the admin is part of
+    const platformThreads = await ctx.db
+      .query("conversations")
+      .withIndex("by_platform", (q) => q.eq("isPlatformThread", true))
+      .collect();
+
+    return platformThreads
+      .sort((a, b) => (b.lastMessageAt ?? b.createdAt) - (a.lastMessageAt ?? a.createdAt))
+      .slice(0, limit);
+  },
+});
+
+/** List all tenants for audience targeting */
+export const listTenantsForTargeting = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const tenants = await ctx.db.query("tenants").collect();
+    return tenants.map((t) => ({
+      tenantId: t.tenantId,
+      name: t.name,
+      plan: t.plan,
+      status: t.status,
+      county: t.county,
+    }));
   },
 });

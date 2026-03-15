@@ -43,7 +43,15 @@ export type Permission =
   | "settings:read"
   | "settings:write"
   | "users:manage"
-  | "platform:admin";
+  | "platform:admin"
+  | "communications:read"
+  | "communications:write"
+  | "communications:broadcast"
+  | "communications:campaigns"
+  | "communications:templates"
+  | "communications:messaging"
+  | "communications:analytics"
+  | "communications:platform_broadcast";
 
 /**
  * Role-to-permission mapping. Kept in sync with the server-side
@@ -75,6 +83,14 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "transport:read",
     "transport:write",
     "reports:read",
+    "communications:read",
+    "communications:write",
+    "communications:broadcast",
+    "communications:campaigns",
+    "communications:templates",
+    "communications:messaging",
+    "communications:analytics",
+    "communications:platform_broadcast",
   ],
   super_admin: [
     "platform:admin",
@@ -82,6 +98,14 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "settings:write",
     "settings:read",
     "reports:read",
+    "communications:read",
+    "communications:write",
+    "communications:broadcast",
+    "communications:campaigns",
+    "communications:templates",
+    "communications:messaging",
+    "communications:analytics",
+    "communications:platform_broadcast",
   ],
   school_admin: [
     "users:manage",
@@ -95,6 +119,13 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "reports:read",
     "attendance:read",
     "grades:read",
+    "communications:read",
+    "communications:write",
+    "communications:broadcast",
+    "communications:campaigns",
+    "communications:templates",
+    "communications:messaging",
+    "communications:analytics",
   ],
   principal: [
     "students:read",
@@ -106,6 +137,10 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "reports:read",
     "settings:read",
     "finance:read",
+    "communications:read",
+    "communications:write",
+    "communications:broadcast",
+    "communications:messaging",
   ],
   teacher: [
     "students:read",
@@ -113,22 +148,30 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "grades:write",
     "attendance:read",
     "attendance:write",
+    "communications:read",
+    "communications:messaging",
   ],
   parent: [
     "students:read",
     "grades:read",
     "attendance:read",
     "finance:read",
+    "communications:read",
+    "communications:messaging",
   ],
   student: [
     "grades:read",
     "attendance:read",
+    "communications:read",
+    "communications:messaging",
   ],
   bursar: [
     "finance:read",
     "finance:write",
     "finance:approve",
     "reports:read",
+    "communications:read",
+    "communications:messaging",
   ],
   hr_manager: [
     "staff:read",
@@ -136,31 +179,41 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "payroll:read",
     "payroll:write",
     "reports:read",
+    "communications:read",
+    "communications:write",
+    "communications:messaging",
   ],
   librarian: [
     "library:read",
     "library:write",
     "students:read",
+    "communications:read",
+    "communications:messaging",
   ],
   transport_manager: [
     "transport:read",
     "transport:write",
     "students:read",
+    "communications:read",
+    "communications:messaging",
   ],
   board_member: [
     "reports:read",
     "finance:read",
     "students:read",
+    "communications:read",
   ],
   alumni: [
     "grades:read",
     "reports:read",
     "attendance:read",
+    "communications:read",
   ],
   partner: [
     "students:read",
     "finance:read",
     "reports:read",
+    "communications:read",
   ],
 };
 
