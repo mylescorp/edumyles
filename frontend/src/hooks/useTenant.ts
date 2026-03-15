@@ -2,20 +2,22 @@
 
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { useAuth } from "./useAuth";
 
 /** Core module IDs — always considered installed regardless of DB state */
 const CORE_MODULE_IDS = ["sis", "communications", "users"];
 
 export function useTenant() {
-  // Query installed module IDs from Convex (includes core modules)
+  const { sessionToken } = useAuth();
+
   const installedModuleIds = useQuery(
-    api.modules.marketplace.queries.getInstalledModuleIds
+    api.modules.marketplace.queries.getInstalledModuleIds,
+    { sessionToken: sessionToken ?? "" },
+    !!sessionToken
   );
 
   // Always include core modules even if the query hasn't loaded yet
-  const resolvedModules = installedModuleIds
-    ? installedModuleIds
-    : CORE_MODULE_IDS;
+  const resolvedModules = installedModuleIds ?? CORE_MODULE_IDS;
 
   return {
     tenantId: "demo-tenant-001",

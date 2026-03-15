@@ -29,11 +29,13 @@ import Link from "next/link";
 const CORE_MODULE_IDS = ["sis", "communications", "users"];
 
 export default function MarketplacePage() {
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, sessionToken } = useAuth();
   const { tenantId, installedModules, tier, isLoading: tenantLoading } = useTenant();
 
   const availableModules = useQuery(
-    api.modules.marketplace.queries.getAvailableForTier
+    api.modules.marketplace.queries.getAvailableForTier,
+    { sessionToken: sessionToken ?? "" },
+    !!sessionToken
   );
 
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
@@ -136,11 +138,13 @@ export default function MarketplacePage() {
     try {
       if (dialogState.action === "install") {
         await installModule({
+          sessionToken: sessionToken ?? "",
           tenantId,
           moduleId: dialogState.moduleId,
         });
       } else {
         await uninstallModule({
+          sessionToken: sessionToken ?? "",
           tenantId,
           moduleId: dialogState.moduleId,
         });

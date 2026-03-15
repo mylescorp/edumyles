@@ -1,6 +1,8 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { ALL_MODULES, CORE_MODULE_IDS } from "../../modules/marketplace/moduleDefinitions";
+import { TIER_MODULES } from "../../modules/marketplace/tierModules";
 
 const categoryValidator = v.union(
   v.literal("academic_tools"), v.literal("communication"),
@@ -90,6 +92,52 @@ export const getMarketplaceHome = query({
         moduleCount: allModules.filter((m) => m.category === cat.slug).length,
       }));
 
+    // If marketplaceModules is empty, build fallback data from built-in module definitions
+    if (allModules.length === 0) {
+      const fallbackModules = ALL_MODULES.map((mod) => ({
+        _id: mod.moduleId as any,
+        _creationTime: 0,
+        moduleId: mod.moduleId,
+        name: mod.name,
+        description: mod.description,
+        shortDescription: mod.description,
+        category: "administration" as any,
+        tier: mod.tier,
+        isCore: mod.isCore,
+        iconName: mod.iconName,
+        version: mod.version,
+        features: mod.features,
+        pricingModel: "included" as any,
+        priceCents: 0,
+        status: "published" as any,
+        publisherName: "EduMyles",
+        isFeatured: mod.isCore,
+        totalInstalls: 0,
+        totalReviews: 0,
+        averageRating: 0,
+        compatiblePlans: Object.entries(TIER_MODULES)
+          .filter(([, mods]) => mods.includes(mod.moduleId))
+          .map(([tier]) => tier),
+        tags: mod.features.slice(0, 3),
+      }));
+
+      return {
+        stats: {
+          totalModules: fallbackModules.length,
+          totalInstalls: 0,
+          averageRating: 0,
+          totalPublishers: 1,
+        },
+        featuredBanners: [],
+        staffPicks: [],
+        newAndNoteworthy: fallbackModules.filter((m) => m.isCore).slice(0, 8),
+        topRated: [],
+        trending: fallbackModules.slice(0, 8),
+        categories: [],
+        recentActivity: [],
+      };
+    }
+
     // Stats
     const totalInstalls = allModules.reduce((sum, m) => sum + m.totalInstalls, 0);
     const avgRating = allModules.length > 0
@@ -167,6 +215,36 @@ export const browseModules = query({
       }
     } catch {
       modules = [];
+    }
+
+    // Fallback to built-in module definitions when marketplace table is empty
+    if (modules.length === 0) {
+      modules = ALL_MODULES.map((mod) => ({
+        _id: mod.moduleId as any,
+        _creationTime: 0,
+        moduleId: mod.moduleId,
+        name: mod.name,
+        description: mod.description,
+        shortDescription: mod.description,
+        category: "administration" as any,
+        tier: mod.tier,
+        isCore: mod.isCore,
+        iconName: mod.iconName,
+        version: mod.version,
+        features: mod.features,
+        pricingModel: "included" as any,
+        priceCents: 0,
+        status: "published" as any,
+        publisherName: "EduMyles",
+        isFeatured: mod.isCore,
+        totalInstalls: 0,
+        totalReviews: 0,
+        averageRating: 0,
+        compatiblePlans: Object.entries(TIER_MODULES)
+          .filter(([, mods]) => mods.includes(mod.moduleId))
+          .map(([tier]) => tier),
+        tags: mod.features.slice(0, 3),
+      }));
     }
 
     // Apply filters

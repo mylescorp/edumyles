@@ -1,6 +1,6 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantSession } from "../../helpers/tenantGuard";
 import { requireRole } from "../../helpers/authorize";
 import { logAction } from "../../helpers/auditLog";
 import { TIER_MODULES } from "./tierModules";
@@ -44,11 +44,12 @@ function assertTenantMatch(sessionTenantId: string, argsTenantId: string) {
  */
 export const installModule = mutation({
   args: {
+    sessionToken: v.string(),
     tenantId: v.string(),
     moduleId: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
+    const tenantCtx = await requireTenantSession(ctx, args);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
     assertTenantMatch(tenantCtx.tenantId, args.tenantId);
 
@@ -150,11 +151,12 @@ export const installModule = mutation({
  */
 export const uninstallModule = mutation({
   args: {
+    sessionToken: v.string(),
     tenantId: v.string(),
     moduleId: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
+    const tenantCtx = await requireTenantSession(ctx, args);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
     assertTenantMatch(tenantCtx.tenantId, args.tenantId);
 
@@ -219,12 +221,13 @@ export const uninstallModule = mutation({
  */
 export const updateModuleConfig = mutation({
   args: {
+    sessionToken: v.string(),
     tenantId: v.string(),
     moduleId: v.string(),
     config: v.any(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
+    const tenantCtx = await requireTenantSession(ctx, args);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
     assertTenantMatch(tenantCtx.tenantId, args.tenantId);
 
@@ -265,12 +268,13 @@ export const updateModuleConfig = mutation({
  */
 export const requestModuleAccess = mutation({
   args: {
+    sessionToken: v.string(),
     tenantId: v.string(),
     moduleId: v.string(),
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
+    const tenantCtx = await requireTenantSession(ctx, args);
     assertTenantMatch(tenantCtx.tenantId, args.tenantId);
 
     const { tenantId } = tenantCtx;
@@ -331,12 +335,13 @@ export const requestModuleAccess = mutation({
  */
 export const reviewModuleRequest = mutation({
   args: {
+    sessionToken: v.string(),
     requestId: v.id("moduleRequests"),
     status: v.union(v.literal("approved"), v.literal("rejected")),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
+    const tenantCtx = await requireTenantSession(ctx, args);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
 
     const request = await ctx.db.get(args.requestId);
@@ -367,12 +372,13 @@ export const reviewModuleRequest = mutation({
  */
 export const toggleModuleStatus = mutation({
   args: {
+    sessionToken: v.string(),
     tenantId: v.string(),
     moduleId: v.string(),
     status: v.union(v.literal("active"), v.literal("inactive")),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantContext(ctx);
+    const tenantCtx = await requireTenantSession(ctx, args);
     requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
     assertTenantMatch(tenantCtx.tenantId, args.tenantId);
 
