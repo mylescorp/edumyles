@@ -54,7 +54,7 @@ export const executeWorkflow = mutation({
       
       // Update execution record
       await ctx.db.patch(executionId, {
-        status: executionResult.status,
+        status: executionResult.status as "running" | "completed" | "failed" | "cancelled",
         completedAt: Date.now(),
         duration: (Date.now() - executionResult.startedAt) / 1000 / 60 / 60, // Convert to hours
         steps: executionResult.steps,

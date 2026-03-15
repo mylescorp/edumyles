@@ -784,3 +784,70 @@ html.dark .country-card {
 /* Section subtitle text in dark */
 html.dark .support-plan-desc { color: #C7D7EF; }
 html.dark .period { color: rgba(255,255,255,0.6); }
+
+/* Footer Social Links */
+.footer-social {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.footer-social a {
+  color: #64748B;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(100, 116, 139, 0.1);
+}
+
+.footer-social a:hover {
+  color: #C79639;
+  background: rgba(199, 150, 57, 0.1);
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+  border-top: 1px solid #E2E8F0;
+}
+
+.footer-email {
+  color: #64748B;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.footer-email:hover {
+  color: #C79639;
+}
+
+/* Dark mode footer styles */
+html.dark .footer-social a {
+  color: #94A3B8;
+  background: rgba(148, 163, 184, 0.1);
+}
+
+html.dark .footer-social a:hover {
+  color: #C79639;
+  background: rgba(199, 150, 57, 0.1);
+}
+
+html.dark .footer-contact {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .footer-email {
+  color: #94A3B8;
+}
+
+html.dark .footer-email:hover {
+  color: #C79639;
+}

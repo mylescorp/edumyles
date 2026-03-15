@@ -1413,7 +1413,6 @@ export default defineSchema({
     .index("by_createdAt", ["createdAt"]),
 
   integrationInstallations: defineTable({
-    _id: v.string(),
     tenantId: v.string(),
     integrationId: v.string(),
     configuration: v.record(v.string(), v.any()),
@@ -1451,7 +1450,6 @@ export default defineSchema({
     .index("by_installedAt", ["installedAt"]),
 
   integrationInstallationTimeline: defineTable({
-    _id: v.string(),
     installationId: v.string(),
     type: v.union(
       v.literal("installed"),
