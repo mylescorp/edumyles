@@ -29,11 +29,10 @@ export const getBusinessIntelligence = query({
     const activeTenants = allTenants.filter((t) => t.status === "active");
     const newTenants = allTenants.filter((t) => t.createdAt >= since);
 
-    // Subscriptions
-    const subscriptions = await ctx.db.query("subscriptions").collect();
-    const activeSubscriptions = subscriptions.filter((s) => (s as any).status === "active");
-    const mrr = activeSubscriptions.reduce((sum, s) => {
-      const price = PLAN_PRICES[(s as any).plan ?? "starter"] ?? 0;
+    // Derive subscription revenue from active tenants' plan field
+    const activeSubscriptions = activeTenants;
+    const mrr = activeSubscriptions.reduce((sum: number, s: any) => {
+      const price = PLAN_PRICES[(s.plan ?? "starter")] ?? 0;
       return sum + price;
     }, 0);
     const arr = mrr * 12;
@@ -70,8 +69,8 @@ export const getBusinessIntelligence = query({
       });
     }
 
-    // Module adoption
-    const installations = await ctx.db.query("moduleInstallations").collect();
+    // Module adoption (moduleInstallations table not yet implemented — use empty array)
+    const installations: any[] = [];
     const moduleMap: Record<string, number> = {};
     for (const inst of installations) {
       const mod = (inst as any).moduleId ?? "unknown";
@@ -122,7 +121,6 @@ export const getPredictiveAnalytics = query({
     const modelType = args.modelType ?? "churn";
 
     const allTenants = await ctx.db.query("tenants").collect();
-    const subscriptions = await ctx.db.query("subscriptions").collect();
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
     if (modelType === "churn") {
@@ -155,9 +153,9 @@ export const getPredictiveAnalytics = query({
     }
 
     if (modelType === "revenue") {
-      const activeSubscriptions = subscriptions.filter((s) => (s as any).status === "active");
+      const activeSubscriptions = allTenants.filter((t) => t.status === "active");
       const currentMrr = activeSubscriptions.reduce(
-        (sum, s) => sum + (PLAN_PRICES[(s as any).plan ?? "starter"] ?? 0),
+        (sum: number, s: any) => sum + (PLAN_PRICES[(s.plan ?? "starter")] ?? 0),
         0
       );
 

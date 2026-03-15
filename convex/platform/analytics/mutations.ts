@@ -1,5 +1,6 @@
 import { query, mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { Id } from "../../_generated/dataModel";
 
 // Real-time analytics aggregation
 export const getRealTimeAnalytics = query({
@@ -61,12 +62,12 @@ export const getRealTimeAnalytics = query({
 
 // User analytics aggregation
 async function getUserAnalytics(ctx: any, tenantId: string, cutoffTime: number) {
-  const users = await ctx.db
+  const users: any[] = await ctx.db
     .query("users")
-    .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId))
     .collect();
 
-  const activeUsers = users.filter(user => {
+  const activeUsers = users.filter((user: any) => {
     // Consider user active if they logged in within the time range
     // This would require tracking last login in a real implementation
     return user.isActive && Math.random() > 0.3; // Mock: 70% active rate
@@ -77,7 +78,7 @@ async function getUserAnalytics(ctx: any, tenantId: string, cutoffTime: number) 
     return acc;
   }, {});
 
-  const newUsers = users.filter(user => user.createdAt >= cutoffTime).length;
+  const newUsers = users.filter((user: any) => user.createdAt >= cutoffTime).length;
 
   return {
     totalUsers: users.length,
@@ -100,9 +101,9 @@ async function getUserAnalytics(ctx: any, tenantId: string, cutoffTime: number) 
 
 // Ticket analytics aggregation
 async function getTicketAnalytics(ctx: any, tenantId: string, cutoffTime: number) {
-  const tickets = await ctx.db
+  const tickets: any[] = await ctx.db
     .query("tickets")
-    .filter((q) => 
+    .filter((q: any) =>
       q.and(
         q.eq(q.field("tenantId"), tenantId),
         q.gte(q.field("createdAt"), cutoffTime)
@@ -110,8 +111,8 @@ async function getTicketAnalytics(ctx: any, tenantId: string, cutoffTime: number
     )
     .collect();
 
-  const resolvedTickets = tickets.filter(t => t.status === "resolved");
-  const openTickets = tickets.filter(t => t.status === "open");
+  const resolvedTickets = tickets.filter((t: any) => t.status === "resolved");
+  const openTickets = tickets.filter((t: any) => t.status === "open");
 
   const categoryDistribution = tickets.reduce((acc: any, ticket: any) => {
     acc[ticket.category] = (acc[ticket.category] || 0) + 1;
@@ -125,11 +126,11 @@ async function getTicketAnalytics(ctx: any, tenantId: string, cutoffTime: number
 
   // Calculate average resolution time
   const resolutionTimes = resolvedTickets
-    .filter(t => t.resolvedAt && t.createdAt)
-    .map(t => (t.resolvedAt! - t.createdAt) / (1000 * 60 * 60)); // Convert to hours
+    .filter((t: any) => t.resolvedAt && t.createdAt)
+    .map((t: any) => (t.resolvedAt - t.createdAt) / (1000 * 60 * 60)); // Convert to hours
 
-  const avgResolutionTime = resolutionTimes.length > 0 
-    ? resolutionTimes.reduce((sum, time) => sum + time, 0) / resolutionTimes.length 
+  const avgResolutionTime = resolutionTimes.length > 0
+    ? resolutionTimes.reduce((sum: number, time: number) => sum + time, 0) / resolutionTimes.length
     : 0;
 
   return {
@@ -150,9 +151,9 @@ async function getTicketAnalytics(ctx: any, tenantId: string, cutoffTime: number
 
 // Workflow analytics aggregation
 async function getWorkflowAnalytics(ctx: any, tenantId: string, cutoffTime: number) {
-  const executions = await ctx.db
+  const executions: any[] = await ctx.db
     .query("workflowExecutions")
-    .filter((q) => 
+    .filter((q: any) =>
       q.and(
         q.eq(q.field("tenantId"), tenantId),
         q.gte(q.field("startedAt"), cutoffTime)
@@ -160,16 +161,16 @@ async function getWorkflowAnalytics(ctx: any, tenantId: string, cutoffTime: numb
     )
     .collect();
 
-  const completedExecutions = executions.filter(e => e.status === "completed");
-  const failedExecutions = executions.filter(e => e.status === "failed");
-  const runningExecutions = executions.filter(e => e.status === "running");
+  const completedExecutions = executions.filter((e: any) => e.status === "completed");
+  const failedExecutions = executions.filter((e: any) => e.status === "failed");
+  const runningExecutions = executions.filter((e: any) => e.status === "running");
 
   const successRate = executions.length > 0 ? completedExecutions.length / executions.length : 0;
 
   const categoryMetrics = await getWorkflowCategoryMetrics(ctx, tenantId, cutoffTime);
 
   const avgExecutionTime = completedExecutions.length > 0
-    ? completedExecutions.reduce((sum, e) => sum + e.duration, 0) / completedExecutions.length
+    ? completedExecutions.reduce((sum: number, e: any) => sum + e.duration, 0) / completedExecutions.length
     : 0;
 
   return {
@@ -195,8 +196,8 @@ async function getTenantAnalytics(ctx: any, tenantId: string, cutoffTime: number
     .query("tenants")
     .collect();
 
-  const activeTenants = tenants.filter(t => t.status === "active");
-  const newTenants = tenants.filter(t => t.createdAt >= cutoffTime);
+  const activeTenants = tenants.filter((t: any) => t.status === "active");
+  const newTenants = tenants.filter((t: any) => t.createdAt >= cutoffTime);
 
   const planDistribution = tenants.reduce((acc: any, tenant: any) => {
     acc[tenant.plan] = (acc[tenant.plan] || 0) + 1;
@@ -388,8 +389,8 @@ export const createCustomReport = mutation({
       status: "created",
       createdBy: session.userId,
       createdAt: Date.now(),
-      lastGenerated: null,
-      nextScheduled: args.schedule?.enabled ? calculateNextScheduled(args.schedule.frequency) : null,
+      lastGenerated: undefined,
+      nextScheduled: args.schedule?.enabled ? calculateNextScheduled(args.schedule.frequency) : undefined,
     });
 
     // Generate initial report data
@@ -460,12 +461,12 @@ async function generateCustomReportData(ctx: any, config: any, tenantId: string,
 }
 
 async function calculateUserGrowth(ctx: any, tenantId: string, cutoffTime: number) {
-  const users = await ctx.db
+  const users: any[] = await ctx.db
     .query("users")
-    .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId))
     .collect();
 
-  const newUsers = users.filter(u => u.createdAt >= cutoffTime);
+  const newUsers = users.filter((u: any) => u.createdAt >= cutoffTime);
   const growthRate = calculateGrowthRate(users, cutoffTime);
 
   return {
@@ -477,9 +478,9 @@ async function calculateUserGrowth(ctx: any, tenantId: string, cutoffTime: numbe
 }
 
 async function calculateTicketVolume(ctx: any, tenantId: string, cutoffTime: number) {
-  const tickets = await ctx.db
+  const tickets: any[] = await ctx.db
     .query("tickets")
-    .filter((q) => 
+    .filter((q: any) =>
       q.and(
         q.eq(q.field("tenantId"), tenantId),
         q.gte(q.field("createdAt"), cutoffTime)
@@ -500,9 +501,9 @@ async function calculateTicketVolume(ctx: any, tenantId: string, cutoffTime: num
 }
 
 async function calculateWorkflowEfficiency(ctx: any, tenantId: string, cutoffTime: number) {
-  const executions = await ctx.db
+  const executions: any[] = await ctx.db
     .query("workflowExecutions")
-    .filter((q) => 
+    .filter((q: any) =>
       q.and(
         q.eq(q.field("tenantId"), tenantId),
         q.gte(q.field("startedAt"), cutoffTime)
@@ -510,15 +511,15 @@ async function calculateWorkflowEfficiency(ctx: any, tenantId: string, cutoffTim
     )
     .collect();
 
-  const completedExecutions = executions.filter(e => e.status === "completed");
-  const totalTimeSaved = completedExecutions.reduce((sum, e) => sum + (e.duration * 0.5), 0); // 0.5 hours saved per execution
+  const completedExecutions = executions.filter((e: any) => e.status === "completed");
+  const totalTimeSaved = completedExecutions.reduce((sum: number, e: any) => sum + (e.duration * 0.5), 0); // 0.5 hours saved per execution
 
   return {
     totalExecutions: executions.length,
     successRate: executions.length > 0 ? completedExecutions.length / executions.length : 0,
     totalTimeSaved,
-    avgTimePerExecution: completedExecutions.length > 0 
-      ? completedExecutions.reduce((sum, e) => sum + e.duration, 0) / completedExecutions.length 
+    avgTimePerExecution: completedExecutions.length > 0
+      ? completedExecutions.reduce((sum: number, e: any) => sum + e.duration, 0) / completedExecutions.length
       : 0,
     efficiency: totalTimeSaved > 0 ? totalTimeSaved / (executions.length * 8) : 0, // 8-hour workday
   };
@@ -600,7 +601,7 @@ export const exportReport = mutation({
     const exportUrl = `https://edumyles.com/exports/${exportId}.${args.format}`;
 
     // Update report with export info
-    await ctx.db.patch(args.reportId, {
+    await ctx.db.patch(args.reportId as Id<"reports">, {
       lastExported: Date.now(),
       exportFormat: args.format,
       exportUrl,
