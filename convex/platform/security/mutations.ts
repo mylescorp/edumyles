@@ -1,7 +1,7 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
-import { idGenerator } from "../../helpers/idGenerator";
 
 /**
  * Acknowledge a security threat
@@ -13,26 +13,22 @@ export const acknowledgeThreat = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    // Get threat
-    const threat = await ctx.db.get(args.threatId);
+    const threat = await ctx.db.get(args.threatId as Id<"threats">);
     if (!threat) {
       throw new Error("Threat not found");
     }
 
-    // Add acknowledgment
     await ctx.db.insert("threatAcknowledgements", {
-      _id: idGenerator("acknowledgement"),
       threatId: args.threatId,
       userId,
-      notes: args.notes || "",
+      notes: args.notes ?? "",
       acknowledgedAt: Date.now(),
       tenantId,
     });
 
-    // Update threat status
-    await ctx.db.patch(args.threatId, {
+    await ctx.db.patch(args.threatId as Id<"threats">, {
       status: "mitigating",
       updatedAt: Date.now(),
     });
@@ -55,17 +51,14 @@ export const mitigateThreat = mutation({
     preventRecurrence: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    // Get threat
-    const threat = await ctx.db.get(args.threatId);
+    const threat = await ctx.db.get(args.threatId as Id<"threats">);
     if (!threat) {
       throw new Error("Threat not found");
     }
 
-    // Add mitigation action
     await ctx.db.insert("threatMitigations", {
-      _id: idGenerator("mitigation"),
       threatId: args.threatId,
       action: args.mitigation,
       implementedBy: userId,
@@ -73,19 +66,18 @@ export const mitigateThreat = mutation({
       effectiveness: "high",
       verified: false,
       tenantId,
+      createdAt: Date.now(),
     });
 
-    // Update threat status
-    await ctx.db.patch(args.threatId, {
+    await ctx.db.patch(args.threatId as Id<"threats">, {
       status: args.mitigation === "block_ip" ? "mitigating" : "resolved",
       mitigatedAt: Date.now(),
       updatedAt: Date.now(),
     });
 
-    // If blocking IP, add to blocked IPs
+    // If blocking IP, add to blocked IPs list
     if (args.mitigation === "block_ip" && threat.source?.ip) {
       await ctx.db.insert("blockedIPs", {
-        _id: idGenerator("blocked_ip"),
         ip: threat.source.ip,
         reason: "Security threat mitigation",
         blockedBy: userId,
@@ -111,18 +103,17 @@ export const blockIP = mutation({
     sessionToken: v.string(),
     ip: v.string(),
     reason: v.string(),
-    duration: v.optional(v.number()), // Duration in milliseconds
+    duration: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     await ctx.db.insert("blockedIPs", {
-      _id: idGenerator("blocked_ip"),
       ip: args.ip,
       reason: args.reason,
       blockedBy: userId,
       blockedAt: Date.now(),
-      expiresAt: Date.now() + (args.duration || (24 * 60 * 60 * 1000)), // Default 24 hours
+      expiresAt: Date.now() + (args.duration ?? (24 * 60 * 60 * 1000)),
       tenantId,
     });
 
@@ -158,33 +149,35 @@ export const createSecurityIncident = mutation({
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const incidentId = idGenerator("incident");
-
-    // Create incident
-    await ctx.db.insert("securityIncidents", {
-      _id: incidentId,
+    const incidentId = await ctx.db.insert("securityIncidents", {
       title: args.title,
       description: args.description,
       severity: args.severity,
       category: args.category,
       status: "open",
       affectedSystems: args.affectedSystems,
-      affectedTenants: args.affectedTenants || [],
+      affectedTenants: args.affectedTenants ?? [],
       discoveredAt: Date.now(),
       reportedAt: Date.now(),
       reportedBy: userId,
-      assignee: args.assignee || null,
-      tags: args.tags || [],
+      assignee: args.assignee,
+      tags: args.tags ?? [],
       tenantId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      startTime: Date.now(),
+      impactAssessment: {
+        affectedUsers: 0,
+        dataExposed: false,
+        systemIntegrity: "unknown",
+        businessImpact: "unknown",
+      },
+      mitigations: [],
     });
 
-    // Add timeline entry
     await ctx.db.insert("securityIncidentTimeline", {
-      _id: idGenerator("timeline"),
       incidentId,
       type: "status_change",
       message: "Security incident created and assigned to investigation team",
@@ -197,14 +190,12 @@ export const createSecurityIncident = mutation({
       createdAt: Date.now(),
     });
 
-    // Trigger automated response based on severity
+    // Trigger automated response for critical incidents
     if (args.severity === "critical") {
-      // Send immediate alerts to security team
       await ctx.db.insert("securityNotifications", {
-        _id: idGenerator("notification"),
         type: "critical_incident",
         title: `Critical Security Incident: ${args.title}`,
-        message: `Critical security incident ${incidentId} requires immediate attention`,
+        message: `Critical security incident requires immediate attention`,
         incidentId,
         severity: "critical",
         status: "unread",
@@ -214,9 +205,7 @@ export const createSecurityIncident = mutation({
         createdAt: Date.now(),
       });
 
-      // Implement automated containment procedures
       await ctx.db.insert("securityIncidentTimeline", {
-        _id: idGenerator("timeline"),
         incidentId,
         type: "action",
         message: "Automated containment procedures initiated",
@@ -224,7 +213,7 @@ export const createSecurityIncident = mutation({
           automated: true,
           procedures: ["account_lockout", "ip_blocking", "session_invalidation"],
         },
-        createdBy: "security-system@edumyles.com",
+        createdBy: "security-system",
         tenantId,
         createdAt: Date.now(),
       });
@@ -258,43 +247,36 @@ export const updateSecurityIncident = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    // Get incident
-    const incident = await ctx.db.get(args.incidentId);
+    const incident = await ctx.db.get(args.incidentId as Id<"securityIncidents">);
     if (!incident) {
       throw new Error("Security incident not found");
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updatedAt: Date.now(),
     };
 
-    // Handle status changes
     if (args.updates.status) {
       updateData.status = args.updates.status;
-      
       if (args.updates.status === "resolved") {
-        updateData.resolvedAt = Date.now();
         updateData.resolvedBy = userId;
       }
     }
 
-    // Apply other updates
     Object.keys(args.updates).forEach(key => {
       if (args.updates[key as keyof typeof args.updates] !== undefined) {
         updateData[key] = args.updates[key as keyof typeof args.updates];
       }
     });
 
-    await ctx.db.patch(args.incidentId, updateData);
+    await ctx.db.patch(args.incidentId as Id<"securityIncidents">, updateData);
 
-    // Add timeline entry
     await ctx.db.insert("securityIncidentTimeline", {
-      _id: idGenerator("timeline"),
       incidentId: args.incidentId,
       type: "status_change",
-      message: `Incident updated to ${args.updates.status || 'modified'}`,
+      message: `Incident updated to ${args.updates.status ?? "modified"}`,
       metadata: args.updates,
       createdBy: userId,
       tenantId,
@@ -318,27 +300,28 @@ export const runVulnerabilityScan = mutation({
     targets: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const scanId = idGenerator("scan");
-
-    // Create scan record
-    await ctx.db.insert("vulnerabilityScans", {
-      _id: scanId,
+    const scanId = await ctx.db.insert("vulnerabilityScans", {
       type: args.scanType,
       status: "running",
-      targets: args.targets || ["all"],
+      targets: args.targets ?? ["all"],
       initiatedBy: userId,
       startedAt: Date.now(),
       tenantId,
       createdAt: Date.now(),
+      updatedAt: Date.now(),
+      vulnerabilitiesFound: 0,
+      highRiskVulnerabilities: 0,
+      mediumRiskVulnerabilities: 0,
+      lowRiskVulnerabilities: 0,
     });
 
-    // Mock vulnerability detection (in real implementation, this would integrate with security scanning tools)
+    // Simulated vulnerability detection results
     const vulnerabilities = [
       {
         id: "vuln_1",
-        severity: "high",
+        severity: "high" as const,
         category: "injection",
         title: "SQL Injection Vulnerability",
         description: "Potential SQL injection in user authentication endpoint",
@@ -349,7 +332,7 @@ export const runVulnerabilityScan = mutation({
       },
       {
         id: "vuln_2",
-        severity: "medium",
+        severity: "medium" as const,
         category: "xss",
         title: "Cross-Site Scripting (XSS)",
         description: "Reflected XSS vulnerability in search functionality",
@@ -360,18 +343,16 @@ export const runVulnerabilityScan = mutation({
       },
       {
         id: "vuln_3",
-        severity: "low",
+        severity: "low" as const,
         category: "configuration",
         title: "Weak Password Policy",
         description: "Password policy does not meet security best practices",
         affectedSystem: "Authentication System",
-        cveId: null,
         riskScore: 3.1,
         recommendation: "Implement stronger password requirements and MFA",
       },
     ];
 
-    // Update scan results
     await ctx.db.patch(scanId, {
       status: "completed",
       completedAt: Date.now(),
@@ -382,10 +363,8 @@ export const runVulnerabilityScan = mutation({
       updatedAt: Date.now(),
     });
 
-    // Store vulnerabilities
     for (const vulnerability of vulnerabilities) {
       await ctx.db.insert("vulnerabilities", {
-        _id: idGenerator("vulnerability"),
         scanId,
         ...vulnerability,
         tenantId,

@@ -7,7 +7,7 @@ export default function WhatsAppFAB() {
         {/* Pulse ring */}
         <div className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />
         <a
-          href="https://wa.me/254700000000?text=Hi%2C%20I%27d%20like%20to%20learn%20more%20about%20EduMyles"
+          href="https://wa.me/254743993715?text=Hi%2C%20I%27d%20like%20to%20learn%20more%20about%20EduMyles"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat with us on WhatsApp"

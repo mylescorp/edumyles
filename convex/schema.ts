@@ -1223,7 +1223,6 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"]),
 
   blockedIPs: defineTable({
-    _id: v.string(),
     ip: v.string(),
     reason: v.string(),
     blockedBy: v.string(),
@@ -1296,7 +1295,6 @@ export default defineSchema({
     .index("by_createdAt", ["createdAt"]),
 
   securityNotifications: defineTable({
-    _id: v.string(),
     type: v.string(),
     title: v.string(),
     message: v.string(),
@@ -1314,7 +1312,6 @@ export default defineSchema({
     .index("by_createdAt", ["createdAt"]),
 
   vulnerabilityScans: defineTable({
-    _id: v.string(),
     type: v.union(v.literal("quick"), v.literal("standard"), v.literal("comprehensive")),
     status: v.union(v.literal("running"), v.literal("completed"), v.literal("failed")),
     targets: v.array(v.string()),
@@ -1336,7 +1333,6 @@ export default defineSchema({
     .index("by_startedAt", ["startedAt"]),
 
   vulnerabilities: defineTable({
-    _id: v.string(),
     scanId: v.string(),
     id: v.string(),
     severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),

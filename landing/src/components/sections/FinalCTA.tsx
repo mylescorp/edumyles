@@ -40,7 +40,7 @@ export default function FinalCTA() {
               </a>
               {/* WhatsApp CTA */}
               <a
-                href="https://wa.me/254700000000?text=Hi%2C%20I%27d%20like%20to%20learn%20more%20about%20EduMyles"
+                href="https://wa.me/254743993715?text=Hi%2C%20I%27d%20like%20to%20learn%20more%20about%20EduMyles"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20B957] text-white font-inter font-semibold text-base px-8 py-4 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"

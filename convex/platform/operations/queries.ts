@@ -1,5 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
 /**
@@ -15,44 +16,48 @@ export const getIncidents = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    let incidentsQuery = ctx.db.query("incidents").withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId));
-
-    // Apply filters
+    // Use compound index when status is specified, otherwise filter by tenant
+    let rawQuery;
     if (args.status && args.status !== "all") {
-      incidentsQuery = incidentsQuery.withIndex("by_status", (q) => q.eq("status", args.status));
+      const status = args.status;
+      rawQuery = ctx.db
+        .query("incidents")
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", status));
+    } else {
+      rawQuery = ctx.db
+        .query("incidents")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId));
     }
 
+    // Apply severity filter
     if (args.severity) {
-      incidentsQuery = incidentsQuery.withIndex("by_severity", (q) => q.eq("severity", args.severity));
+      const sev = args.severity;
+      rawQuery = rawQuery.filter((q) => q.eq(q.field("severity"), sev));
     }
 
+    // Apply assignedTo filter
     if (args.assignedTo) {
-      incidentsQuery = incidentsQuery.withIndex("by_assignedTo", (q) => q.eq("assignedTo", args.assignedTo));
+      const assignee = args.assignedTo;
+      rawQuery = rawQuery.filter((q) => q.eq(q.field("assignedTo"), assignee));
     }
 
     // Apply time range filter
     const now = Date.now();
     let timeFilter = 0;
     switch (args.timeRange) {
-      case "24h":
-        timeFilter = 24 * 60 * 60 * 1000;
-        break;
-      case "7d":
-        timeFilter = 7 * 24 * 60 * 60 * 1000;
-        break;
-      case "30d":
-        timeFilter = 30 * 24 * 60 * 60 * 1000;
-        break;
+      case "24h": timeFilter = 24 * 60 * 60 * 1000; break;
+      case "7d":  timeFilter = 7 * 24 * 60 * 60 * 1000; break;
+      case "30d": timeFilter = 30 * 24 * 60 * 60 * 1000; break;
     }
     if (timeFilter > 0) {
-      incidentsQuery = incidentsQuery.filter((q) => q.gte(q.field("createdAt"), now - timeFilter));
+      const cutoff = now - timeFilter;
+      rawQuery = rawQuery.filter((q) => q.gte(q.field("createdAt"), cutoff));
     }
 
-    // Get incidents with timeline
-    const incidents = await incidentsQuery.take(args.limit || 50).collect();
-    
+    const incidents = await rawQuery.take(args.limit ?? 50);
+
     // Enrich with timeline entries
     const incidentsWithTimeline = await Promise.all(
       incidents.map(async (incident) => {
@@ -83,10 +88,9 @@ export const getIncidentDetails = query({
     incidentId: v.string(),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    // Get incident
-    const incident = await ctx.db.get(args.incidentId);
+    const incident = await ctx.db.get(args.incidentId as Id<"incidents">);
     if (!incident || incident.tenantId !== tenantId) {
       throw new Error("Incident not found");
     }
@@ -98,13 +102,19 @@ export const getIncidentDetails = query({
       .order("desc")
       .collect();
 
-    // Get related alerts
+    // Get related alerts (created during incident window)
+    const startTime = incident.startTime;
+    const endTime = incident.endTime ?? Date.now();
     const alerts = await ctx.db
       .query("operationsAlerts")
-      .withIndex("by_createdAt", (q) => q.gte(q.field("createdAt"), incident.startTime))
-      .filter((q) => q.lte(q.field("createdAt"), incident.endTime || Date.now()))
-      .take(10)
-      .collect();
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+      .filter((q) =>
+        q.and(
+          q.gte(q.field("createdAt"), startTime),
+          q.lte(q.field("createdAt"), endTime)
+        )
+      )
+      .take(10);
 
     return {
       incident,
@@ -124,16 +134,20 @@ export const getMaintenanceWindows = query({
     timeRange: v.optional(v.union(v.literal("upcoming"), v.literal("past"), v.literal("all"))),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    let maintenanceQuery = ctx.db.query("maintenanceWindows").withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId));
-
-    // Apply status filter
+    let maintenanceQuery;
     if (args.status && args.status !== "all") {
-      maintenanceQuery = maintenanceQuery.withIndex("by_status", (q) => q.eq("status", args.status));
+      const status = args.status;
+      maintenanceQuery = ctx.db
+        .query("maintenanceWindows")
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", status));
+    } else {
+      maintenanceQuery = ctx.db
+        .query("maintenanceWindows")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId));
     }
 
-    // Apply time range filter
     const now = Date.now();
     if (args.timeRange === "upcoming") {
       maintenanceQuery = maintenanceQuery.filter((q) => q.gte(q.field("scheduledStart"), now));
@@ -165,71 +179,59 @@ export const getAlerts = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    let alertsQuery = ctx.db.query("operationsAlerts").withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId));
-
-    // Apply filters
-    if (args.type) {
-      alertsQuery = alertsQuery.withIndex("by_type", (q) => q.eq("type", args.type));
-    }
-
-    if (args.severity) {
-      alertsQuery = alertsQuery.withIndex("by_severity", (q) => q.eq("severity", args.severity));
-    }
-
+    // Start with most specific available index
+    let alertsQuery;
     if (args.status && args.status !== "all") {
-      alertsQuery = alertsQuery.withIndex("by_status", (q) => q.eq("status", args.status));
+      const status = args.status;
+      alertsQuery = ctx.db
+        .query("operationsAlerts")
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", status));
+    } else if (args.type) {
+      const type = args.type;
+      alertsQuery = ctx.db
+        .query("operationsAlerts")
+        .withIndex("by_type", (q) => q.eq("tenantId", tenantId).eq("type", type));
+    } else if (args.severity) {
+      const severity = args.severity;
+      alertsQuery = ctx.db
+        .query("operationsAlerts")
+        .withIndex("by_severity", (q) => q.eq("tenantId", tenantId).eq("severity", severity));
+    } else {
+      alertsQuery = ctx.db
+        .query("operationsAlerts")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId));
     }
 
-    if (args.acknowledged !== undefined) {
-      if (args.acknowledged) {
-        // Get alerts that have acknowledgements
-        const acknowledgedAlertIds = await ctx.db
-          .query("alertAcknowledgements")
-          .withIndex("by_userId", (q) => q.eq("userId", tenantId))
-          .collect()
-          .then(acks => acks.map(ack => ack.alertId));
-
-        alertsQuery = alertsQuery.filter((q) => 
-          q.in(q.field("_id"), acknowledgedAlertIds)
-        );
-      } else {
-        // Get alerts without acknowledgements
-        const acknowledgedAlertIds = await ctx.db
-          .query("alertAcknowledgements")
-          .collect()
-          .then(acks => acks.map(ack => ack.alertId));
-
-        alertsQuery = alertsQuery.filter((q) => 
-          q.notIn(q.field("_id"), acknowledgedAlertIds)
-        );
-      }
+    // Apply remaining filters as JS-level filters
+    if (args.type && args.status && args.status !== "all") {
+      const type = args.type;
+      alertsQuery = alertsQuery.filter((q) => q.eq(q.field("type"), type));
+    }
+    if (args.severity && (args.status || args.type)) {
+      const severity = args.severity;
+      alertsQuery = alertsQuery.filter((q) => q.eq(q.field("severity"), severity));
     }
 
     // Apply time range filter
     const now = Date.now();
     let timeFilter = 0;
     switch (args.timeRange) {
-      case "1h":
-        timeFilter = 1 * 60 * 60 * 1000;
-        break;
-      case "24h":
-        timeFilter = 24 * 60 * 60 * 1000;
-        break;
-      case "7d":
-        timeFilter = 7 * 24 * 60 * 60 * 1000;
-        break;
+      case "1h":  timeFilter = 1 * 60 * 60 * 1000; break;
+      case "24h": timeFilter = 24 * 60 * 60 * 1000; break;
+      case "7d":  timeFilter = 7 * 24 * 60 * 60 * 1000; break;
     }
     if (timeFilter > 0) {
-      alertsQuery = alertsQuery.filter((q) => q.gte(q.field("createdAt"), now - timeFilter));
+      const cutoff = now - timeFilter;
+      alertsQuery = alertsQuery.filter((q) => q.gte(q.field("createdAt"), cutoff));
     }
 
-    const alerts = await alertsQuery.order("desc").take(args.limit || 50).collect();
+    const rawAlerts = await alertsQuery.order("desc").take(args.limit ?? 50);
 
     // Enrich with acknowledgements
     const alertsWithAcknowledgements = await Promise.all(
-      alerts.map(async (alert) => {
+      rawAlerts.map(async (alert) => {
         const acknowledgements = await ctx.db
           .query("alertAcknowledgements")
           .withIndex("by_alertId", (q) => q.eq("alertId", alert._id))
@@ -243,6 +245,13 @@ export const getAlerts = query({
       })
     );
 
+    // Apply acknowledged filter in JS (avoids q.in / q.notIn)
+    if (args.acknowledged !== undefined) {
+      return alertsWithAcknowledgements.filter((a) =>
+        args.acknowledged ? a.acknowledged : !a.acknowledged
+      );
+    }
+
     return alertsWithAcknowledgements;
   },
 });
@@ -255,84 +264,74 @@ export const getOperationsOverview = query({
     sessionToken: v.string(),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const now = Date.now();
     const last24Hours = now - (24 * 60 * 60 * 1000);
     const last7Days = now - (7 * 24 * 60 * 60 * 1000);
 
-    // Get counts
     const [activeIncidents, criticalIncidents, resolvedIncidents] = await Promise.all([
       ctx.db
         .query("incidents")
-        .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-        .withIndex("by_status", (q) => q.eq("status", "active"))
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", "active"))
         .collect()
-        .then(incidents => incidents.length),
-      
+        .then((r) => r.length),
+
       ctx.db
         .query("incidents")
-        .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-        .withIndex("by_severity", (q) => q.eq("severity", "critical"))
+        .withIndex("by_severity", (q) => q.eq("tenantId", tenantId).eq("severity", "critical"))
         .filter((q) => q.gte(q.field("createdAt"), last24Hours))
         .collect()
-        .then(incidents => incidents.length),
-      
+        .then((r) => r.length),
+
       ctx.db
         .query("incidents")
-        .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-        .withIndex("by_status", (q) => q.eq("status", "resolved"))
-        .filter((q) => q.gte(q.field("resolvedAt"), last7Days))
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", "resolved"))
+        .filter((q) => q.gte(q.field("updatedAt"), last7Days))
         .collect()
-        .then(incidents => incidents.length),
+        .then((r) => r.length),
     ]);
 
     const [activeAlerts, criticalAlerts, resolvedAlerts] = await Promise.all([
       ctx.db
         .query("operationsAlerts")
-        .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-        .withIndex("by_status", (q) => q.eq("status", "active"))
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", "active"))
         .collect()
-        .then(alerts => alerts.length),
-      
+        .then((r) => r.length),
+
       ctx.db
         .query("operationsAlerts")
-        .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-        .withIndex("by_severity", (q) => q.eq("severity", "critical"))
+        .withIndex("by_severity", (q) => q.eq("tenantId", tenantId).eq("severity", "critical"))
         .filter((q) => q.gte(q.field("createdAt"), last24Hours))
         .collect()
-        .then(alerts => alerts.length),
-      
+        .then((r) => r.length),
+
       ctx.db
         .query("operationsAlerts")
-        .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-        .withIndex("by_status", (q) => q.eq("status", "resolved"))
-        .filter((q) => q.gte(q.field("resolvedAt"), last7Days))
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", "resolved"))
+        .filter((q) => q.gte(q.field("updatedAt"), last7Days))
         .collect()
-        .then(alerts => alerts.length),
+        .then((r) => r.length),
     ]);
 
     const [upcomingMaintenance, activeMaintenance] = await Promise.all([
       ctx.db
         .query("maintenanceWindows")
-        .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-        .withIndex("by_status", (q) => q.eq("status", "scheduled"))
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", "scheduled"))
         .filter((q) => q.gte(q.field("scheduledStart"), now))
         .collect()
-        .then(maintenance => maintenance.length),
-      
+        .then((r) => r.length),
+
       ctx.db
         .query("maintenanceWindows")
-        .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-        .withIndex("by_status", (q) => q.eq("status", "in_progress"))
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", "in_progress"))
         .collect()
-        .then(maintenance => maintenance.length),
+        .then((r) => r.length),
     ]);
 
-    // Get system health status
     const systemHealth = await ctx.db
       .query("systemHealth")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .order("desc")
       .first();
 
@@ -351,7 +350,7 @@ export const getOperationsOverview = query({
         upcoming: upcomingMaintenance,
         active: activeMaintenance,
       },
-      systemHealth: systemHealth || {
+      systemHealth: systemHealth ?? {
         overall: "unknown",
         score: 0,
         lastChecked: now,
@@ -370,14 +369,18 @@ export const getScheduledNotifications = query({
     status: v.optional(v.union(v.literal("pending"), v.literal("sent"), v.literal("all"))),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    let notificationsQuery = ctx.db
-      .query("scheduledNotifications")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId));
-
+    let notificationsQuery;
     if (args.status && args.status !== "all") {
-      notificationsQuery = notificationsQuery.withIndex("by_status", (q) => q.eq("status", args.status));
+      const status = args.status;
+      notificationsQuery = ctx.db
+        .query("scheduledNotifications")
+        .withIndex("by_status", (q) => q.eq("tenantId", tenantId).eq("status", status));
+    } else {
+      notificationsQuery = ctx.db
+        .query("scheduledNotifications")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId));
     }
 
     const notifications = await notificationsQuery.order("desc").collect();
@@ -387,13 +390,9 @@ export const getScheduledNotifications = query({
       notifications.map(async (notification) => {
         let maintenance = null;
         if (notification.maintenanceId) {
-          maintenance = await ctx.db.get(notification.maintenanceId);
+          maintenance = await ctx.db.get(notification.maintenanceId as Id<"maintenanceWindows">);
         }
-
-        return {
-          ...notification,
-          maintenance,
-        };
+        return { ...notification, maintenance };
       })
     );
 

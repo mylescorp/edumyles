@@ -114,7 +114,7 @@ export default function ConciergePage() {
               <div className="concierge-contact-item">
                 <h4>Phone</h4>
                 <a href="tel:+254743993715">+254 743 993 715</a>
-                <a href="tel:+254751812884">+254 751 812 884</a>
+                <a href="tel:+254743993715">+254 743 993 715</a>
               </div>
               <div className="concierge-contact-item">
                 <h4>Office</h4>

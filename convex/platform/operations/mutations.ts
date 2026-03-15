@@ -1,7 +1,7 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
-import { idGenerator } from "../../helpers/idGenerator";
 
 /**
  * Create a new incident in the operations center
@@ -18,56 +18,29 @@ export const createIncident = mutation({
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const incidentId = idGenerator("incident");
-
-    // Create the incident
-    await ctx.db.insert("incidents", {
-      _id: incidentId,
+    const incidentId = await ctx.db.insert("incidents", {
       title: args.title,
       description: args.description,
       severity: args.severity,
       status: "active",
       services: args.services,
-      impact: args.impact || "",
-      assignedTo: args.assignedTo || null,
-      tags: args.tags || [],
+      impact: args.impact ?? "",
+      assignedTo: args.assignedTo,
+      tags: args.tags ?? [],
       createdBy: userId,
       tenantId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       startTime: Date.now(),
-      endTime: null,
-      duration: null,
-      resolution: null,
-      resolvedBy: null,
       acknowledged: false,
-      acknowledgedAt: null,
-      acknowledgedBy: null,
       notifications: [],
       metrics: {
         affectedUsers: 0,
         affectedTenants: 0,
         businessImpact: "unknown",
-        recoveryTime: null,
       },
-    });
-
-    // Send notifications to operations team
-    await ctx.db.insert("operationsNotifications", {
-      _id: idGenerator("notification"),
-      type: "incident_created",
-      title: `New ${args.severity} severity incident: ${args.title}`,
-      message: `Incident ${incidentId} has been created and requires immediate attention.`,
-      incidentId,
-      severity: args.severity,
-      status: "unread",
-      sentTo: "ops-team@edumyles.com",
-      sentBy: userId,
-      tenantId,
-      createdAt: Date.now(),
-      readAt: null,
     });
 
     return {
@@ -89,7 +62,7 @@ export const updateIncident = mutation({
       title: v.optional(v.string()),
       description: v.optional(v.string()),
       severity: v.optional(v.union(v.literal("critical"), v.literal("high"), v.literal("medium"), v.literal("low"))),
-      status: v.optional(v.union(v.literal("active"), v.literal("investigating"), v.literal("resolved"), v.literal("monitoring"))),
+      status: v.optional(v.union(v.literal("active"), v.literal("investigating"), v.literal("resolved"), v.literal("closed"))),
       assignedTo: v.optional(v.string()),
       impact: v.optional(v.string()),
       resolution: v.optional(v.string()),
@@ -97,27 +70,23 @@ export const updateIncident = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { userId, role } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    // Get the incident
-    const incident = await ctx.db.get(args.incidentId);
+    const incident = await ctx.db.get(args.incidentId as Id<"incidents">);
     if (!incident) {
       throw new Error("Incident not found");
     }
 
-    // Check permissions
     if (role !== "super_admin" && incident.createdBy !== userId) {
       throw new Error("Insufficient permissions to update this incident");
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updatedAt: Date.now(),
     };
 
-    // Handle status changes
     if (args.updates.status) {
       updateData.status = args.updates.status;
-      
       if (args.updates.status === "resolved") {
         updateData.endTime = Date.now();
         updateData.duration = Date.now() - incident.startTime;
@@ -125,21 +94,19 @@ export const updateIncident = mutation({
       }
     }
 
-    // Handle acknowledgment
     if (args.updates.status === "investigating" && !incident.acknowledged) {
       updateData.acknowledged = true;
       updateData.acknowledgedAt = Date.now();
       updateData.acknowledgedBy = userId;
     }
 
-    // Apply other updates
     Object.keys(args.updates).forEach(key => {
       if (args.updates[key as keyof typeof args.updates] !== undefined) {
         updateData[key] = args.updates[key as keyof typeof args.updates];
       }
     });
 
-    await ctx.db.patch(args.incidentId, updateData);
+    await ctx.db.patch(args.incidentId as Id<"incidents">, updateData);
 
     return {
       success: true,
@@ -163,17 +130,14 @@ export const addIncidentTimeline = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
-
-    const timelineId = idGenerator("timeline");
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     await ctx.db.insert("incidentTimeline", {
-      _id: timelineId,
       incidentId: args.incidentId,
       type: args.entry.type,
       message: args.entry.message,
-      metadata: args.entry.metadata || null,
-      internal: args.entry.internal || false,
+      metadata: args.entry.metadata,
+      internal: args.entry.internal ?? false,
       createdBy: userId,
       tenantId,
       createdAt: Date.now(),
@@ -181,7 +145,6 @@ export const addIncidentTimeline = mutation({
 
     return {
       success: true,
-      timelineId,
       message: "Timeline entry added successfully",
     };
   },
@@ -203,19 +166,14 @@ export const createMaintenanceWindow = mutation({
     autoNotify: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const maintenanceId = idGenerator("maintenance");
-
-    await ctx.db.insert("maintenanceWindows", {
-      _id: maintenanceId,
+    const maintenanceId = await ctx.db.insert("maintenanceWindows", {
       title: args.title,
       description: args.description,
       status: "scheduled",
       scheduledStart: args.scheduledStart,
       scheduledEnd: args.scheduledEnd,
-      actualStart: null,
-      actualEnd: null,
       impact: args.impact,
       affectedServices: args.affectedServices,
       notificationChannels: args.notificationChannels,
@@ -227,15 +185,13 @@ export const createMaintenanceWindow = mutation({
       notifications: [],
     });
 
-    // Schedule notifications if auto-notify is enabled
     if (args.autoNotify) {
       const notificationTime = args.scheduledStart - (30 * 60 * 1000); // 30 minutes before
       if (notificationTime > Date.now()) {
         await ctx.db.insert("scheduledNotifications", {
-          _id: idGenerator("scheduled"),
           type: "maintenance_reminder",
           scheduledFor: notificationTime,
-          maintenanceId,
+          maintenanceId: maintenanceId,
           message: `Maintenance window "${args.title}" is scheduled to start in 30 minutes`,
           channels: args.notificationChannels,
           status: "pending",
@@ -264,14 +220,14 @@ export const updateMaintenanceStatus = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const maintenance = await ctx.db.get(args.maintenanceId);
+    const maintenance = await ctx.db.get(args.maintenanceId as Id<"maintenanceWindows">);
     if (!maintenance) {
       throw new Error("Maintenance window not found");
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       status: args.status,
       updatedAt: Date.now(),
     };
@@ -288,7 +244,7 @@ export const updateMaintenanceStatus = mutation({
       updateData.notes = args.notes;
     }
 
-    await ctx.db.patch(args.maintenanceId, updateData);
+    await ctx.db.patch(args.maintenanceId as Id<"maintenanceWindows">, updateData);
 
     return {
       success: true,
@@ -313,30 +269,23 @@ export const createAlert = mutation({
     resolveCondition: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const alertId = idGenerator("alert");
-
-    await ctx.db.insert("operationsAlerts", {
-      _id: alertId,
+    const alertId = await ctx.db.insert("operationsAlerts", {
       type: args.type,
       title: args.title,
       description: args.description,
       severity: args.severity,
       status: "active",
       source: args.source,
-      metrics: args.metrics || {},
-      autoResolve: args.autoResolve || false,
-      resolveCondition: args.resolveCondition || null,
+      metrics: args.metrics,
+      autoResolve: args.autoResolve ?? false,
+      resolveCondition: args.resolveCondition,
       createdBy: userId,
       tenantId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      resolvedAt: null,
-      resolvedBy: null,
-      resolution: null,
       acknowledgements: [],
-      notifications: [],
     });
 
     return {
@@ -357,25 +306,22 @@ export const acknowledgeAlert = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const alert = await ctx.db.get(args.alertId);
+    const alert = await ctx.db.get(args.alertId as Id<"operationsAlerts">);
     if (!alert) {
       throw new Error("Alert not found");
     }
 
-    // Add acknowledgment
     await ctx.db.insert("alertAcknowledgements", {
-      _id: idGenerator("acknowledgement"),
       alertId: args.alertId,
       userId,
-      notes: args.notes || "",
+      notes: args.notes ?? "",
       acknowledgedAt: Date.now(),
       tenantId,
     });
 
-    // Update alert status
-    await ctx.db.patch(args.alertId, {
+    await ctx.db.patch(args.alertId as Id<"operationsAlerts">, {
       updatedAt: Date.now(),
     });
 
@@ -397,14 +343,14 @@ export const resolveAlert = mutation({
     preventRecurrence: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId, role } = await requirePlatformSession(ctx, args.sessionToken);
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const alert = await ctx.db.get(args.alertId);
+    const alert = await ctx.db.get(args.alertId as Id<"operationsAlerts">);
     if (!alert) {
       throw new Error("Alert not found");
     }
 
-    await ctx.db.patch(args.alertId, {
+    await ctx.db.patch(args.alertId as Id<"operationsAlerts">, {
       status: "resolved",
       resolvedAt: Date.now(),
       resolvedBy: userId,
@@ -412,10 +358,8 @@ export const resolveAlert = mutation({
       updatedAt: Date.now(),
     });
 
-    // Prevent recurrence if requested
     if (args.preventRecurrence && alert.resolveCondition) {
       await ctx.db.insert("alertSuppressions", {
-        _id: idGenerator("suppression"),
         alertType: alert.type,
         source: alert.source,
         condition: alert.resolveCondition,
