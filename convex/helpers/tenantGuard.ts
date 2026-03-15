@@ -37,15 +37,10 @@ export async function requireTenantSession(
     sessionToken: args.sessionToken ? "present" : "missing",
   });
 
-  const session =
-    (await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first()) ??
-    (await ctx.db
-      .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
-      .first());
+  const session = await ctx.db
+    .query("sessions")
+    .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+    .first();
 
   console.log("session lookup result:", session ? {
     tenantId: session.tenantId,

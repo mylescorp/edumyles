@@ -9,10 +9,11 @@ export const getNotifications = query({
   },
   handler: async (ctx, args) => {
     const limit = args.limit ?? 20;
-    
-    // For now, return empty notifications
-    // TODO: Implement proper notification system with Resend integration
-    return [];
+    return await ctx.db
+      .query("notifications")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .order("desc")
+      .take(limit);
   },
 });
 

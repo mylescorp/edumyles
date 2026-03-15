@@ -13,7 +13,7 @@ export const executeWorkflow = mutation({
     // Verify session and permissions
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
@@ -39,14 +39,12 @@ export const executeWorkflow = mutation({
       workflowId: args.workflowId,
       workflowName: workflow.name,
       executionId: `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      status: "running",
+      status: "running" as const,
       startedAt: Date.now(),
-      completedAt: null,
       duration: 0,
       triggeredBy: args.manualTrigger ? session.userId : "system",
       triggerData: args.triggerData || {},
       steps: [],
-      error: null,
       tenantId: session.tenantId,
     });
 
@@ -402,7 +400,7 @@ export const getWorkflowExecutionStatus = query({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
@@ -433,7 +431,7 @@ export const cancelWorkflowExecution = mutation({
     // Verify session
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_sessionToken", (q) => q.eq("token", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
     if (!session || session.expiresAt < Date.now()) {
@@ -511,16 +509,22 @@ export const createWorkflow = mutation({
     createdBy: v.string(),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflow creation
-    const workflowId = "workflow_" + Date.now();
-    
-    console.log("Workflow created:", {
-      workflowId,
+    const now = Date.now();
+    const workflowId = await ctx.db.insert("workflows", {
+      tenantId: "PLATFORM",
       name: args.name,
+      description: args.description,
       category: args.category,
       trigger: args.trigger,
-      stepsCount: args.steps.length,
+      triggerConfig: args.triggerConfig,
+      steps: args.steps,
+      isActive: args.isActive,
       createdBy: args.createdBy,
+      createdAt: now,
+      updatedAt: now,
+      executionCount: 0,
+      successRate: 0,
+      averageDuration: 0,
     });
 
     return {
@@ -539,18 +543,35 @@ export const triggerWorkflow = mutation({
     executionId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflow execution
-    const executionId = args.executionId || "exec_" + Date.now();
-    
-    console.log("Workflow execution started:", {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+    if (!session || session.expiresAt < Date.now()) {
+      throw new Error("Invalid or expired session");
+    }
+
+    const workflow = await ctx.db.get(args.workflowId as any);
+    if (!workflow) throw new Error("Workflow not found");
+
+    const execId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const executionDocId = await ctx.db.insert("workflowExecutions", {
       workflowId: args.workflowId,
-      executionId,
-      triggerData: args.triggerData,
+      workflowName: (workflow as any).name,
+      executionId: execId,
+      status: "running" as const,
+      startedAt: Date.now(),
+      duration: 0,
+      triggeredBy: session.userId,
+      triggerData: args.triggerData ?? {},
+      steps: [],
+      tenantId: session.tenantId,
     });
 
     return {
       success: true,
-      executionId,
+      executionId: execId,
+      executionDocId,
       status: "running",
       message: "Workflow execution started",
     };
@@ -564,15 +585,17 @@ export const updateWorkflowStatus = mutation({
     isActive: v.boolean(),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflow status update
-    console.log("Workflow status updated:", {
-      workflowId: args.workflowId,
+    const workflow = await ctx.db.get(args.workflowId as any);
+    if (!workflow) throw new Error("Workflow not found");
+
+    await ctx.db.patch(args.workflowId as any, {
       isActive: args.isActive,
+      updatedAt: Date.now(),
     });
 
     return {
       success: true,
-      message: "Workflow status updated successfully",
+      message: `Workflow ${args.isActive ? "activated" : "deactivated"} successfully`,
     };
   },
 });
@@ -582,29 +605,11 @@ export const createWorkflowTemplate = mutation({
     sessionToken: v.string(),
     name: v.string(),
     description: v.string(),
-    category: v.union(
-      v.literal("onboarding"),
-      v.literal("offboarding"),
-      v.literal("compliance"),
-      v.literal("security"),
-      v.literal("communications"),
-      v.literal("data_management"),
-      v.literal("approval"),
-      v.literal("notification"),
-      v.literal("integration")
-    ),
+    category: v.string(),
     templateSteps: v.array(v.object({
       id: v.string(),
       name: v.string(),
-      type: v.union(
-        v.literal("action"),
-        v.literal("condition"),
-        v.literal("approval"),
-        v.literal("notification"),
-        v.literal("delay"),
-        v.literal("integration"),
-        v.literal("data_operation")
-      ),
+      type: v.string(),
       config: v.record(v.string(), v.any()),
       position: v.number(),
     })),
@@ -613,15 +618,19 @@ export const createWorkflowTemplate = mutation({
     createdBy: v.string(),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflow template creation
-    const templateId = "template_" + Date.now();
-    
-    console.log("Workflow template created:", {
-      templateId,
+    const now = Date.now();
+    const templateId = await ctx.db.insert("workflowTemplates", {
       name: args.name,
+      description: args.description,
       category: args.category,
+      templateSteps: args.templateSteps,
       isPublic: args.isPublic,
+      tags: args.tags ?? [],
+      usageCount: 0,
+      rating: 0,
       createdBy: args.createdBy,
+      createdAt: now,
+      updatedAt: now,
     });
 
     return {
@@ -646,16 +655,19 @@ export const scheduleWorkflow = mutation({
     parameters: v.optional(v.record(v.string(), v.any())),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflow scheduling
-    const scheduleId = "schedule_" + Date.now();
-    
-    console.log("Workflow scheduled:", {
-      scheduleId,
-      workflowId: args.workflowId,
-      schedule: args.schedule,
-      parameters: args.parameters,
+    const workflow = await ctx.db.get(args.workflowId as any);
+    if (!workflow) throw new Error("Workflow not found");
+
+    await ctx.db.patch(args.workflowId as any, {
+      trigger: "scheduled",
+      triggerConfig: {
+        schedule: args.schedule,
+        parameters: args.parameters ?? {},
+      },
+      updatedAt: Date.now(),
     });
 
+    const scheduleId = `schedule_${Date.now()}`;
     return {
       success: true,
       scheduleId,
@@ -664,23 +676,19 @@ export const scheduleWorkflow = mutation({
   },
 });
 
-export const getWorkflowExecutionHistory = mutation({
+export const getWorkflowExecutionHistory = query({
   args: {
     sessionToken: v.string(),
     workflowId: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement workflow execution history retrieval
-    console.log("Retrieving workflow execution history:", {
-      workflowId: args.workflowId,
-      limit: args.limit,
-    });
-
-    return {
-      success: true,
-      executions: [],
-      message: "Workflow execution history retrieved",
-    };
+    const limit = args.limit ?? 20;
+    const executions = await ctx.db
+      .query("workflowExecutions")
+      .withIndex("by_workflow", (q) => q.eq("workflowId", args.workflowId))
+      .order("desc")
+      .take(limit);
+    return executions;
   },
 });

@@ -2,9 +2,10 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  // Auth sessions — canonical field is sessionToken
   sessions: defineTable({
-    sessionToken: v.optional(v.string()),
-    token: v.optional(v.string()), // Add this to match existing data
+    sessionToken: v.optional(v.string()), // canonical session token
+    token: v.optional(v.string()),        // legacy field kept for backward-compat; not indexed
     tenantId: v.string(),
     userId: v.string(),
     email: v.optional(v.string()),
@@ -16,8 +17,7 @@ export default defineSchema({
     permissions: v.optional(v.array(v.string())),
     workosUserId: v.optional(v.string()),
   })
-    .index("by_token", ["sessionToken"])
-    .index("by_sessionToken", ["token"]) // Add index for the token field
+    .index("by_token", ["sessionToken"])     // primary index — look up by sessionToken
     .index("by_userId", ["userId"]),
 
   auditLogs: defineTable({
@@ -166,34 +166,26 @@ export default defineSchema({
     moduleId: v.string(),
     name: v.string(),
     description: v.string(),
-    tier: v.union(v.literal("free"), v.literal("basic"), v.literal("premium"), v.literal("enterprise")),
-    category: v.union(
-      v.literal("academics"),
-      v.literal("administration"),
-      v.literal("communications"),
-      v.literal("finance"),
-      v.literal("analytics"),
-      v.literal("security"),
-      v.literal("integrations")
-    ),
-    status: v.union(v.literal("draft"), v.literal("published"), v.literal("deprecated")),
+    tier: v.string(),
+    category: v.string(),
+    status: v.string(),
     version: v.string(),
     isCore: v.optional(v.boolean()),
     iconName: v.optional(v.string()),
-    pricing: v.object({
+    pricing: v.optional(v.object({
       monthly: v.number(),
       quarterly: v.optional(v.number()),
       annual: v.optional(v.number()),
       currency: v.string(),
-    }),
-    features: v.array(v.string()),
-    dependencies: v.array(v.string()),
-    documentation: v.string(),
-    support: v.object({
+    })),
+    features: v.optional(v.array(v.string())),
+    dependencies: v.optional(v.array(v.string())),
+    documentation: v.optional(v.string()),
+    support: v.optional(v.object({
       email: v.string(),
       phone: v.string(),
       responseTime: v.string(),
-    }),
+    })),
   })
     .index("by_module_id", ["moduleId"])
     .index("by_status", ["status"])
@@ -2110,4 +2102,270 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_platform", ["isPlatformLevel"])
     .index("by_type", ["type"]),
+
+  // ─── Workflow Templates ────────────────────────────────────────────────────
+  workflowTemplates: defineTable({
+    name: v.string(),
+    description: v.string(),
+    category: v.string(),
+    templateSteps: v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      type: v.string(),
+      config: v.record(v.string(), v.any()),
+      position: v.number(),
+    })),
+    isPublic: v.boolean(),
+    tags: v.array(v.string()),
+    usageCount: v.number(),
+    rating: v.number(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_category", ["category"])
+    .index("by_public", ["isPublic"]),
+
+  // ─── Tenant Success ────────────────────────────────────────────────────────
+  tenantHealthScores: defineTable({
+    tenantId: v.string(),
+    category: v.union(
+      v.literal("adoption"),
+      v.literal("engagement"),
+      v.literal("support"),
+      v.literal("technical"),
+      v.literal("financial"),
+      v.literal("overall")
+    ),
+    score: v.number(),
+    grade: v.union(v.literal("A"), v.literal("B"), v.literal("C"), v.literal("D"), v.literal("F")),
+    metrics: v.record(v.string(), v.any()),
+    factors: v.array(v.object({
+      name: v.string(),
+      weight: v.number(),
+      value: v.number(),
+      impact: v.string(),
+    })),
+    recommendations: v.array(v.string()),
+    trends: v.array(v.object({ date: v.string(), score: v.number() })),
+    calculatedAt: v.number(),
+    calculatedBy: v.string(),
+    previousScore: v.optional(v.number()),
+    scoreChange: v.optional(v.number()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_category", ["tenantId", "category"])
+    .index("by_calculatedAt", ["tenantId", "calculatedAt"]),
+
+  successInitiatives: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    category: v.union(
+      v.literal("onboarding"),
+      v.literal("training"),
+      v.literal("optimization"),
+      v.literal("support"),
+      v.literal("engagement"),
+      v.literal("retention")
+    ),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    targetScore: v.number(),
+    currentScore: v.number(),
+    progress: v.number(),
+    actions: v.array(v.object({
+      id: v.string(),
+      title: v.string(),
+      assignee: v.string(),
+      dueDate: v.string(),
+      status: v.string(),
+      completedAt: v.optional(v.string()),
+    })),
+    milestones: v.array(v.object({
+      title: v.string(),
+      targetDate: v.string(),
+      completed: v.boolean(),
+      completedAt: v.optional(v.string()),
+    })),
+    createdBy: v.string(),
+    assignedTo: v.string(),
+    startDate: v.string(),
+    targetDate: v.string(),
+    status: v.union(
+      v.literal("planned"),
+      v.literal("active"),
+      v.literal("completed"),
+      v.literal("cancelled")
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_assignedTo", ["assignedTo"]),
+
+  successMetrics: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    description: v.string(),
+    category: v.union(
+      v.literal("adoption"),
+      v.literal("engagement"),
+      v.literal("support"),
+      v.literal("technical"),
+      v.literal("financial")
+    ),
+    unit: v.string(),
+    targetValue: v.number(),
+    currentValue: v.number(),
+    baselineValue: v.number(),
+    calculationMethod: v.union(v.literal("automated"), v.literal("manual"), v.literal("survey")),
+    frequency: v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly")),
+    isActive: v.boolean(),
+    trend: v.optional(v.string()),
+    lastUpdated: v.number(),
+    history: v.array(v.object({ date: v.string(), value: v.number() })),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_category", ["tenantId", "category"])
+    .index("by_active", ["tenantId", "isActive"]),
+
+  // ─── AI Support ───────────────────────────────────────────────────────────
+  aiSupportTickets: defineTable({
+    ticketId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    category: v.union(
+      v.literal("technical"),
+      v.literal("billing"),
+      v.literal("account"),
+      v.literal("feature_request"),
+      v.literal("bug_report"),
+      v.literal("general")
+    ),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent")),
+    status: v.union(
+      v.literal("open"),
+      v.literal("in_progress"),
+      v.literal("resolved"),
+      v.literal("closed"),
+      v.literal("escalated")
+    ),
+    tenantId: v.string(),
+    userId: v.string(),
+    contactInfo: v.optional(v.record(v.string(), v.any())),
+    submittedBy: v.string(),
+    assignedTo: v.optional(v.string()),
+    resolvedAt: v.optional(v.number()),
+    aiAnalysis: v.object({
+      sentiment: v.string(),
+      category: v.string(),
+      priority: v.string(),
+      escalation: v.object({ recommended: v.boolean(), confidence: v.number() }),
+    }),
+    aiResponses: v.array(v.object({
+      type: v.string(),
+      content: v.string(),
+      tone: v.string(),
+      confidence: v.number(),
+      generatedAt: v.number(),
+    })),
+    tags: v.array(v.string()),
+    satisfaction: v.optional(v.number()),
+    resolutionTime: v.optional(v.number()),
+    escalationHistory: v.array(v.object({
+      escalatedAt: v.number(),
+      reason: v.string(),
+      urgency: v.string(),
+      escalatedBy: v.string(),
+      assignedTo: v.optional(v.string()),
+    })),
+    knowledgeBaseRefs: v.array(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_category", ["tenantId", "category"])
+    .index("by_assignedTo", ["assignedTo"])
+    .index("by_ticketId", ["ticketId"]),
+
+  aiKnowledgeBase: defineTable({
+    title: v.string(),
+    content: v.string(),
+    category: v.string(),
+    tags: v.array(v.string()),
+    keywords: v.array(v.string()),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+    isPublic: v.boolean(),
+    viewCount: v.number(),
+    helpfulCount: v.number(),
+    relatedTickets: v.array(v.string()),
+    aiGenerated: v.boolean(),
+    aiConfidence: v.optional(v.number()),
+    language: v.string(),
+    estimatedReadTime: v.number(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_category", ["category"])
+    .index("by_public", ["isPublic"]),
+
+  // ─── Email / SMS Campaigns ────────────────────────────────────────────────
+  emailCampaigns: defineTable({
+    tenantId: v.optional(v.string()), // null = platform-level
+    name: v.string(),
+    subject: v.string(),
+    templateId: v.optional(v.string()),
+    body: v.string(),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("scheduled"),
+      v.literal("sending"),
+      v.literal("sent"),
+      v.literal("cancelled")
+    ),
+    scheduledAt: v.optional(v.number()),
+    sentAt: v.optional(v.number()),
+    recipientCount: v.number(),
+    openCount: v.number(),
+    clickCount: v.number(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_createdAt", ["tenantId", "createdAt"]),
+
+  emailTemplates: defineTable({
+    tenantId: v.optional(v.string()),
+    name: v.string(),
+    subject: v.string(),
+    body: v.string(),
+    variables: v.array(v.string()),
+    category: v.string(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_category", ["category"]),
+
+  smsTemplates: defineTable({
+    tenantId: v.optional(v.string()),
+    name: v.string(),
+    body: v.string(),
+    variables: v.array(v.string()),
+    category: v.string(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_category", ["category"]),
 });

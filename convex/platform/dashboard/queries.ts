@@ -35,11 +35,19 @@ export const getDashboardKPIs = query({
     const tickets = await ctx.db.query("tickets").collect();
     const openTickets = tickets.filter(t => t.status !== "closed");
 
-    // Get pipeline value (CRM deals - placeholder for now)
-    const pipelineValue = 0; // Will implement when CRM module is built
+    // Pipeline value — CRM deals table not yet in schema, default to 0
+    const pipelineValue = 0;
 
-    // Get system health (placeholder - will implement with System Health module)
-    const systemHealth = 98.5; // Placeholder percentage
+    // System health derived from recent error rate in audit logs
+    const recentLogs = await ctx.db
+      .query("auditLogs")
+      .filter((q) => q.gte(q.field("timestamp"), now - 60 * 60 * 1000))
+      .collect();
+    const errorLogs = recentLogs.filter((l) =>
+      l.action.includes("fail") || l.action.includes("error") || l.action.includes("denied")
+    );
+    const errorRate = recentLogs.length > 0 ? errorLogs.length / recentLogs.length : 0;
+    const systemHealth = Math.max(80, Math.round((1 - errorRate) * 100 * 10) / 10);
 
     // Get new tenants this month
     const newThisMonth = tenants.filter(tenant => {
