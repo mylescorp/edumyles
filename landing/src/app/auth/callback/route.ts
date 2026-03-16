@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
       path: "/",
     });
 
-    console.log(`[auth/callback] ${email} → ${role} → ${redirectUrl}`);
+    console.log(`[auth/callback] ${email} → ${role} → ${dashboard}`);
     return response;
   } catch (err) {
     console.error("[auth/callback] Full error details:", {
