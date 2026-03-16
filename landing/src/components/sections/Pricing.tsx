@@ -20,7 +20,7 @@ const plans = [
       "1 campus",
     ],
     cta: "Get Started Free",
-    href: "https://app.edumyles.com/auth/signup",
+    href: "https://edumyles.vercel.app/auth/signup/api",
     featured: false,
   },
   {
@@ -41,7 +41,7 @@ const plans = [
       "NEMIS integration",
     ],
     cta: "Get Started",
-    href: "https://app.edumyles.com/auth/signup",
+    href: "https://edumyles.vercel.app/auth/signup/api",
     featured: true,
   },
   {
