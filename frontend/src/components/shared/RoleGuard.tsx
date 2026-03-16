@@ -20,7 +20,7 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
       // Clear stale session cookies first to prevent middleware redirect loop,
       // then navigate to login.
       fetch("/auth/logout", { method: "POST" }).finally(() => {
-        router.replace(`/auth/login?returnTo=${encodeURIComponent(pathname)}`);
+        router.replace(`/auth/login/api?returnTo=${encodeURIComponent(pathname)}`);
       });
     }
   }, [isLoading, user, router, pathname]);

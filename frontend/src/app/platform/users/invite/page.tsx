@@ -90,7 +90,7 @@ export default function InviteAdminPage() {
                   <p className="font-semibold">No invitation email sent</p>
                   <p className="mt-1 text-amber-700">
                     WorkOS integration is not yet configured. Share the login link manually:{" "}
-                    <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">/auth/login</span>
+                    <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">/auth/login/api</span>
                   </p>
                 </div>
               </div>
