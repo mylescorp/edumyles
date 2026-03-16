@@ -55,14 +55,9 @@ export async function GET(req: NextRequest) {
   }
 
   const savedState = req.cookies.get("workos_state")?.value;
+  // Only validate state when we explicitly set one (CSRF protection for POST-initiated flows)
   if (savedState && returnedState !== savedState) {
     console.error("[auth/callback] Invalid state - mismatch:", { savedState, returnedState });
-    return NextResponse.redirect(new URL("/auth/login?error=invalid_state", req.url));
-  }
-  
-  // If WorkOS returned a state but we have no saved cookie to validate against, reject
-  if (!savedState && returnedState) {
-    console.error("[auth/callback] No saved state cookie found — possible CSRF or expired session");
     return NextResponse.redirect(new URL("/auth/login?error=invalid_state", req.url));
   }
 

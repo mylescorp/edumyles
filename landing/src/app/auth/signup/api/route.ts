@@ -1,6 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
 
+export async function GET(req: NextRequest) {
+  try {
+    const email = req.nextUrl.searchParams.get("email") ?? undefined;
+    const apiKey = process.env.WORKOS_API_KEY;
+    const clientId =
+      process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
+    const redirectUri =
+      process.env.WORKOS_REDIRECT_URI ||
+      process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
+      req.nextUrl.origin + "/auth/callback";
+
+    if (!clientId || !apiKey) {
+      return NextResponse.redirect(new URL("/?authError=not_configured", req.url));
+    }
+
+    const workos = new WorkOS(apiKey);
+    const authUrl = workos.userManagement.getAuthorizationUrl({
+      clientId,
+      redirectUri,
+      provider: "authkit",
+      screenHint: "sign-up",
+      ...(email ? { loginHint: email } : {}),
+    });
+
+    return NextResponse.redirect(authUrl);
+  } catch (error) {
+    console.error("Signup GET redirect error:", error);
+    return NextResponse.redirect(new URL("/?authError=signup_unavailable", req.url));
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
