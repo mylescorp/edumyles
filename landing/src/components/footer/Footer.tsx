@@ -6,7 +6,7 @@ const footerLinks = {
     { label: "Modules", href: "#modules" },
     { label: "Pricing", href: "#pricing" },
     { label: "Book a Demo", href: "#demo" },
-    { label: "Start Free Trial", href: "https://app.edumyles.com/auth/signup" },
+    { label: "Start Free Trial", href: "https://edumyles.vercel.app/auth/signup/api" },
   ],
   Company: [
     { label: "About", href: "/about" },

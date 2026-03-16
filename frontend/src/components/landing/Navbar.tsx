@@ -159,15 +159,12 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link className="navbar-login" href={`${appUrl}/auth/login`}>
-                Log In
-              </Link>
-              <Link className="navbar-get-started" href={`${appUrl}/auth/signup`}>
+              <a className="navbar-login" href="/auth/login/api">
+                Sign In
+              </a>
+              <a className="navbar-get-started" href="/auth/signup/api">
                 Get Started
-              </Link>
-              <Link className="navbar-signup" href={`${appUrl}/auth/signup`}>
-                Sign Up Free
-              </Link>
+              </a>
             </>
           )}
 
@@ -217,15 +214,12 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link href={`${appUrl}/auth/login`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
-                  Log In
-                </Link>
-                <Link href={`${appUrl}/auth/signup`} className="btn btn-secondary" onClick={() => setMobileMenuOpen(false)}>
-                  Get Started
-                </Link>
-                <Link href={`${appUrl}/auth/signup`} className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
-                  Sign Up Free
-                </Link>
+                <a href="/auth/login/api" className="btn btn-outline" onClick={() => setMobileMenuOpen(false)}>
+                  Sign In
+                </a>
+                <a href="/auth/signup/api" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)}>
+                  Get Started Free
+                </a>
               </>
             )}
 
