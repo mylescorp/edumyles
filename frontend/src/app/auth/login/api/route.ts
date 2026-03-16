@@ -12,9 +12,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
-    const returnTo = req.nextUrl.searchParams.get("returnTo") ?? "/admin";
-    const authUrl = await getSignInUrl({ returnTo });
-    return NextResponse.redirect(authUrl);
+    const returnTo = req.nextUrl.searchParams.get("returnTo") ?? "/platform";
+    
+    // Generate CSRF state for consistency with POST
+    const state = crypto.randomBytes(16).toString("hex");
+    
+    const authUrl = await getSignInUrl({ returnTo, state });
+    
+    const response = NextResponse.redirect(authUrl);
+    // Set state cookie for validation on callback
+    response.cookies.set("workos_state", state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600,
+      path: "/",
+    });
+    
+    return response;
   } catch (error) {
     console.error("[auth/login] Failed to build sign-in URL:", error);
     return NextResponse.redirect(
@@ -33,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json().catch(() => ({}));
     const email: string | undefined = body?.email;
-    const returnTo: string = body?.returnTo ?? "/admin";
+    const returnTo: string = body?.returnTo ?? "/platform";
 
     // Generate CSRF state
     const state = crypto.randomBytes(16).toString("hex");
