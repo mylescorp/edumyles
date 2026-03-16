@@ -93,6 +93,14 @@ export async function GET(req: NextRequest) {
     const role = resolveRole(email, organizationId ?? undefined);
     const tenantId = organizationId ?? "PLATFORM";
 
+    console.log("[auth/callback] Role resolution:", {
+      email,
+      masterAdminEmail: MASTER_ADMIN_EMAIL,
+      isMasterAdmin: MASTER_ADMIN_EMAIL && email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase(),
+      assignedRole: role,
+      organizationId
+    });
+
     // --- Decode optional state (e.g. schoolName from signup) --------------
     let _stateData: Record<string, string> = {};
     if (returnedState) {
