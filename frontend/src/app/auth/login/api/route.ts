@@ -5,6 +5,8 @@ import crypto from "crypto";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  console.log("[auth/login/api] GET request received");
+  
   try {
     // Dev bypass — only when ENABLE_DEV_AUTH_BYPASS=true is explicitly set
     if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
@@ -12,12 +14,23 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
+    console.log("[auth/login/api] Environment check:", {
+      hasWorkosKey: !!process.env.WORKOS_API_KEY,
+      hasClientId: !!process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID,
+      hasRedirectUri: !!process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI,
+      nodeEnv: process.env.NODE_ENV
+    });
+
     const returnTo = req.nextUrl.searchParams.get("returnTo") ?? "/platform";
     
     // Generate CSRF state for consistency with POST
     const state = crypto.randomBytes(16).toString("hex");
     
+    console.log("[auth/login/api] Building sign-in URL with:", { returnTo, state });
+    
     const authUrl = await getSignInUrl({ returnTo, state });
+    
+    console.log("[auth/login/api] Generated auth URL:", authUrl);
     
     const response = NextResponse.redirect(authUrl);
     // Set state cookie for validation on callback
