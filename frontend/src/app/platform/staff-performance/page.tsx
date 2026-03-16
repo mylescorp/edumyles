@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -127,214 +130,54 @@ interface Achievement {
   level: "bronze" | "silver" | "gold" | "platinum" | "diamond";
 }
 
-const mockStaff: StaffMember[] = [
-  {
-    _id: "1",
-    firstName: "Michael",
-    lastName: "Chen",
-    email: "michael.chen@edumyles.com",
-    phone: "+254 712 345 678",
-    role: "super_admin",
-    department: "Management",
-    location: "Nairobi",
+function mapBackendToStaffMember(record: any): StaffMember {
+  const nameParts = (record.userName || "Unknown").split(" ");
+  const firstName = nameParts[0] || "Unknown";
+  const lastName = nameParts.slice(1).join(" ") || "";
+  const m = record.metrics || {};
+  return {
+    _id: record._id || record.userId,
+    firstName,
+    lastName,
+    email: record.userEmail || "",
+    role: record.role || "agent",
+    department: record.department || "General",
+    location: "",
     isActive: true,
-    joinedAt: Date.now() - 365 * 24 * 60 * 60 * 1000,
-    lastActivity: Date.now() - 2 * 60 * 60 * 1000,
+    joinedAt: record.createdAt || Date.now(),
+    lastActivity: record.updatedAt || Date.now(),
     performance: {
-      ticketsResolved: 145,
-      ticketsCreated: 89,
-      responseTime: 15,
-      satisfactionScore: 4.8,
-      productivity: 8.5,
-      attendance: 98,
-      qualityScore: 92,
-      efficiency: 88,
-      collaboration: 95,
-      innovation: 85,
-      communication: 90,
-      leadership: 93,
-      weeklyStats: [
-        { week: "2024-W01", ticketsResolved: 28, responseTime: 12, satisfactionScore: 4.9, productivity: 9.2 },
-        { week: "2024-W02", ticketsResolved: 32, responseTime: 14, satisfactionScore: 4.7, productivity: 8.8 },
-        { week: "2024-W03", ticketsResolved: 30, responseTime: 13, satisfactionScore: 4.8, productivity: 9.0 },
-        { week: "2024-W04", ticketsResolved: 35, responseTime: 15, satisfactionScore: 4.9, productivity: 9.5 }
-      ],
-      monthlyStats: [
-        { month: "2024-01", ticketsResolved: 125, revenue: 2500000, clientSatisfaction: 4.8, efficiency: 87 },
-        { month: "2024-02", ticketsResolved: 145, revenue: 2900000, clientSatisfaction: 4.9, efficiency: 90 }
-      ]
+      ticketsResolved: m.ticketsResolved ?? 0,
+      ticketsCreated: 0,
+      responseTime: m.avgResponseTime ?? 0,
+      satisfactionScore: (m.satisfactionScore ?? 0) / 20, // scale 0-100 to 0-5
+      productivity: ((m.ticketsResolved ?? 0) / 5),
+      attendance: 95,
+      qualityScore: record.overallScore ?? 0,
+      efficiency: m.slaCompliance ?? 0,
+      collaboration: 80,
+      innovation: 80,
+      communication: 80,
+      leadership: 80,
+      weeklyStats: [],
+      monthlyStats: [],
     },
-    activities: [
-      {
-        _id: "1",
-        type: "ticket_resolved",
-        description: "Resolved critical tenant issue",
-        details: "Fixed billing system bug for Nairobi International Academy",
-        timestamp: Date.now() - 2 * 60 * 60 * 1000,
-        duration: 45,
-        impact: "high",
-        category: "support"
-      },
-      {
-        _id: "2",
-        type: "meeting_attended",
-        description: "Weekly management meeting",
-        details: "Discussed Q1 targets and team performance",
-        timestamp: Date.now() - 4 * 60 * 60 * 1000,
-        duration: 60,
-        impact: "medium",
-        category: "management"
-      }
-    ],
-    achievements: [
-      {
-        _id: "1",
-        title: "Top Performer",
-        description: "Highest satisfaction score this month",
-        icon: "trophy",
-        category: "performance",
-        earnedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-        points: 100,
-        level: "gold"
-      },
-      {
-        _id: "2",
-        title: "Quick Responder",
-        description: "Average response time under 15 minutes",
-        icon: "zap",
-        category: "efficiency",
-        earnedAt: Date.now() - 14 * 24 * 60 * 60 * 1000,
-        points: 75,
-        level: "silver"
-      }
-    ]
-  },
-  {
-    _id: "2",
-    firstName: "Sarah",
-    lastName: "Wilson",
-    email: "sarah.wilson@edumyles.com",
-    phone: "+254 734 567 890",
-    role: "admin",
-    department: "Support",
-    location: "Nairobi",
-    isActive: true,
-    joinedAt: Date.now() - 180 * 24 * 60 * 60 * 1000,
-    lastActivity: Date.now() - 30 * 60 * 1000,
-    performance: {
-      ticketsResolved: 234,
-      ticketsCreated: 156,
-      responseTime: 12,
-      satisfactionScore: 4.6,
-      productivity: 9.2,
-      attendance: 96,
-      qualityScore: 88,
-      efficiency: 91,
-      collaboration: 92,
-      innovation: 78,
-      communication: 94,
-      leadership: 82,
-      weeklyStats: [
-        { week: "2024-W01", ticketsResolved: 42, responseTime: 11, satisfactionScore: 4.5, productivity: 9.5 },
-        { week: "2024-W02", ticketsResolved: 48, responseTime: 12, satisfactionScore: 4.7, productivity: 9.8 },
-        { week: "2024-W03", ticketsResolved: 45, responseTime: 13, satisfactionScore: 4.6, productivity: 9.1 },
-        { week: "2024-W04", ticketsResolved: 51, responseTime: 12, satisfactionScore: 4.7, productivity: 9.4 }
-      ],
-      monthlyStats: [
-        { month: "2024-01", ticketsResolved: 186, revenue: 1860000, clientSatisfaction: 4.6, efficiency: 89 },
-        { month: "2024-02", ticketsResolved: 234, revenue: 2340000, clientSatisfaction: 4.7, efficiency: 92 }
-      ]
-    },
-    activities: [
-      {
-        _id: "3",
-        type: "ticket_resolved",
-        description: "Resolved multiple tenant issues",
-        details: "Fixed 5 tenant configuration problems",
-        timestamp: Date.now() - 30 * 60 * 1000,
-        duration: 120,
-        impact: "high",
-        category: "support"
-      }
-    ],
-    achievements: [
-      {
-        _id: "3",
-        title: "Support Champion",
-        description: "Most tickets resolved this month",
-        icon: "award",
-        category: "performance",
-        earnedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-        points: 120,
-        level: "platinum"
-      }
-    ]
-  },
-  {
-    _id: "3",
-    firstName: "David",
-    lastName: "Kim",
-    email: "david.kim@edumyles.com",
-    phone: "+254 756 234 567",
-    role: "manager",
-    department: "Sales",
-    location: "Mombasa",
-    isActive: true,
-    joinedAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-    lastActivity: Date.now() - 1 * 24 * 60 * 60 * 1000,
-    performance: {
-      ticketsResolved: 67,
-      ticketsCreated: 89,
-      responseTime: 18,
-      satisfactionScore: 4.4,
-      productivity: 7.8,
-      attendance: 94,
-      qualityScore: 85,
-      efficiency: 82,
-      collaboration: 88,
-      innovation: 92,
-      communication: 86,
-      leadership: 89,
-      weeklyStats: [
-        { week: "2024-W01", ticketsResolved: 15, responseTime: 17, satisfactionScore: 4.3, productivity: 7.5 },
-        { week: "2024-W02", ticketsResolved: 18, responseTime: 19, satisfactionScore: 4.5, productivity: 8.0 },
-        { week: "2024-W03", ticketsResolved: 16, responseTime: 18, satisfactionScore: 4.4, productivity: 7.8 },
-        { week: "2024-W04", ticketsResolved: 18, responseTime: 20, satisfactionScore: 4.5, productivity: 8.2 }
-      ],
-      monthlyStats: [
-        { month: "2024-01", ticketsResolved: 45, revenue: 1350000, clientSatisfaction: 4.4, efficiency: 80 },
-        { month: "2024-02", ticketsResolved: 67, revenue: 2010000, clientSatisfaction: 4.5, efficiency: 83 }
-      ]
-    },
-    activities: [
-      {
-        _id: "4",
-        type: "client_contact",
-        description: "Sales call with potential client",
-        details: "Demoed system to Mombasa High School",
-        timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000,
-        duration: 90,
-        impact: "high",
-        category: "sales"
-      }
-    ],
-    achievements: [
-      {
-        _id: "4",
-        title: "Sales Leader",
-        description: "Highest revenue generated this quarter",
-        icon: "crown",
-        category: "performance",
-        earnedAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
-        points: 150,
-        level: "diamond"
-      }
-    ]
-  }
-];
+    activities: [],
+    achievements: (record.achievements || []).map((a: string, i: number) => ({
+      _id: String(i),
+      title: a,
+      description: a,
+      icon: "award",
+      category: "performance" as const,
+      earnedAt: record.createdAt || Date.now(),
+      points: 50,
+      level: "silver" as const,
+    })),
+  };
+}
 
 export default function StaffPerformancePage() {
-  const [staff, setStaff] = useState<StaffMember[]>(mockStaff);
+  const { sessionToken } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
   const [selectedRole, setSelectedRole] = useState<string>("all");
@@ -342,6 +185,16 @@ export default function StaffPerformancePage() {
   const [selectedPeriod, setSelectedPeriod] = useState<string>("week");
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+
+  // Real Convex query
+  const staffData = usePlatformQuery(
+    api.platform.staffPerformance.queries.listStaffPerformance,
+    { sessionToken: sessionToken || "" }
+  );
+
+  if (!staffData) return <div className="p-6">Loading...</div>;
+
+  const staff: StaffMember[] = staffData.map(mapBackendToStaffMember);
 
   const filteredStaff = staff.filter(member => {
     const matchesSearch = searchQuery === "" || 

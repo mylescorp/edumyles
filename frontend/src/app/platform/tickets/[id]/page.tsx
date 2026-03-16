@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { Id } from "@/convex/_generated/dataModel";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -100,12 +102,15 @@ export default function TicketDetailPage() {
   const [cursorPosition, setCursorPosition] = useState(0);
   const [selectedPriority, setSelectedPriority] = useState("");
 
-  // Temporarily disable Convex query to ensure mock data shows
-  const { data: ticket, isLoading } = { data: undefined, isLoading: false };
+  // Real Convex queries
+  const ticketData = useQuery(
+    api.tickets.getTicket,
+    ticketId ? { ticketId: ticketId as Id<"tickets"> } : "skip"
+  );
   const updateStatus = useMutation(api.tickets.updateTicketStatus);
   const addComment = useMutation(api.tickets.addComment);
 
-  // Mock users for @mentions
+  // Users for @mentions - could be fetched from a real query in future
   const mockUsers = [
     { id: "agent1", email: "michael.chen@edumyles.com", name: "Michael Chen", role: "Support Agent" },
     { id: "agent2", email: "sarah.wilson@edumyles.com", name: "Sarah Wilson", role: "Support Agent" },
@@ -113,81 +118,6 @@ export default function TicketDetailPage() {
     { id: "admin1", email: "john.doe@edumyles.com", name: "John Doe", role: "System Admin" },
     { id: "customer1", email: "sarah.johnson@nairobi-academy.edu", name: "Sarah Johnson", role: "School Admin" }
   ];
-
-  // Mock ticket data for demonstration
-  const mockTicket: Ticket = {
-    _id: ticketId,
-    title: "Unable to access student attendance reports",
-    body: "Hello,\n\nI'm having trouble accessing the student attendance reports for the past month. When I try to generate the report, I get an error message saying 'Insufficient permissions' even though I'm the school administrator.\n\nI need this report urgently for our upcoming board meeting scheduled for next week. The attendance data is crucial for our compliance reporting.\n\nI've tried:\n1. Logging out and back in\n2. Clearing browser cache\n3. Using a different browser\n4. Asking other staff members to try (they get the same error)\n\nThis is affecting our ability to track student attendance and could impact our funding requirements.\n\nPlease help resolve this as soon as possible.\n\nThank you,\nSarah Johnson\nSchool Administrator",
-    category: "Technical Issue",
-    priority: "P1",
-    status: "in_progress",
-    tenantName: "Nairobi International Academy",
-    createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000, // 2 days ago
-    slaResolutionDL: Date.now() + 3 * 24 * 60 * 60 * 1000, // 3 days from now
-    slaFirstResponseDL: Date.now() - 4 * 60 * 60 * 1000, // 4 hours ago (breached)
-    slaBreached: true,
-    assignedTo: "agent1@edumyles.com",
-    firstResponseAt: Date.now() - 5 * 60 * 60 * 1000, // 5 hours ago
-    resolvedAt: undefined,
-    attachments: [
-      "screenshot_error.png",
-      "browser_console.log",
-      "permission_settings.pdf"
-    ],
-    comments: [
-      {
-        _id: "1",
-        authorId: "agent1",
-        authorEmail: "michael.chen@edumyles.com",
-        authorRole: "Support Agent",
-        content: "Hi @Sarah Johnson,\n\nThank you for reporting this issue. I understand this is urgent for your board meeting.\n\nI've checked your account permissions and can see there might be a configuration issue. I'm escalating this to @David Kim for immediate resolution.\n\nYou should receive an update within the next 2 hours.\n\nBest regards,\nMichael Chen",
-        isInternal: false,
-        attachments: [],
-        createdAt: Date.now() - 5 * 60 * 60 * 1000
-      },
-      {
-        _id: "2",
-        authorId: "tech1",
-        authorEmail: "david.kim@edumyles.com",
-        authorRole: "Technical Lead",
-        content: "Internal Note:\n\nFound the issue - the school's subscription tier doesn't include advanced reporting features. They need to upgrade to Growth tier to access attendance reports.\n\n@Michael Chen - please communicate this clearly to the customer. We should offer them a temporary upgrade for this month's board meeting.\n\n@John Doe - please review the pricing for temporary upgrades.",
-        isInternal: true,
-        attachments: ["pricing_tiers.pdf"],
-        createdAt: Date.now() - 4 * 60 * 60 * 1000
-      },
-      {
-        _id: "3",
-        authorId: "agent1",
-        authorEmail: "michael.chen@edumyles.com",
-        authorRole: "Support Agent",
-        content: "Hi @Sarah Johnson,\n\nI have an update from @David Kim. The issue is related to your current subscription plan. The advanced attendance reporting features are available on our Growth tier and above.\n\nI can see you're currently on the Starter tier. Would you like me to connect you with @Sarah Wilson to discuss upgrading your plan? We can offer a temporary upgrade for this month to help with your board meeting.\n\nPlease let me know how you'd like to proceed.\n\nBest regards,\nMichael",
-        isInternal: false,
-        attachments: ["plan_comparison.pdf"],
-        createdAt: Date.now() - 3 * 60 * 60 * 1000
-      },
-      {
-        _id: "4",
-        authorId: "sarah",
-        authorEmail: "sarah.johnson@nairobi-academy.edu",
-        authorRole: "School Admin",
-        content: "Hi @Michael Chen,\n\nThank you for the update. I wasn't aware that attendance reports were a premium feature. Yes, we'd definitely be interested in a temporary upgrade for this month, and we can discuss the long-term plan after our board meeting.\n\nCould you please arrange the temporary upgrade? We need the reports by Friday at the latest.\n\nThank you for your help!\n\nSarah",
-        isInternal: false,
-        attachments: ["board_meeting_agenda.docx"],
-        createdAt: Date.now() - 2 * 60 * 60 * 1000
-      },
-      {
-        _id: "5",
-        authorId: "agent1",
-        authorEmail: "michael.chen@edumyles.com",
-        authorRole: "Support Agent",
-        content: "Hi @Sarah Johnson,\n\nPerfect! I've arranged a temporary upgrade to the Growth tier for this month. You should now have access to the attendance reports.\n\nI've also scheduled a call with @Sarah Wilson for next Tuesday to discuss your long-term needs.\n\nPlease try accessing the reports now and let me know if you encounter any issues.\n\nBest regards,\nMichael",
-        isInternal: false,
-        attachments: ["upgrade_confirmation.pdf"],
-        createdAt: Date.now() - 1 * 60 * 60 * 1000
-      }
-    ]
-  };
 
   const handleStatusUpdate = () => {
     if (selectedStatus) {
@@ -325,11 +255,8 @@ export default function TicketDetailPage() {
     return { text: `${hours}h ${minutes}m`, color: hours < 2 ? "text-red-600" : "text-yellow-600" };
   };
 
-  // Use mock data if no real data available
-  const ticketData = ticket || mockTicket;
-
-  if (isLoading && !ticket) {
-    return <div>Loading ticket...</div>;
+  if (ticketData === undefined) {
+    return <LoadingSkeleton variant="page" />;
   }
 
   if (!ticketData) {

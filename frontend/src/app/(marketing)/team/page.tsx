@@ -278,7 +278,7 @@ export default function TeamPage() {
         <div className="final-cta-card">
           <h2>Want to see what we have built?</h2>
           <p>Start your free trial and explore the platform our team has crafted for schools like yours.</p>
-          <Link className="btn btn-primary" href="/auth/signup">Get Started Free</Link>
+          <Link className="btn btn-primary" href="/auth/signup/api">Get Started Free</Link>
         </div>
       </section>
     </main>

@@ -125,12 +125,12 @@ export default function LandingNavbar() {
       {/* Desktop Actions */}
       <div className="navbar-actions">
         <ThemeToggle />
-        <Link href="/auth/login" className="navbar-login">
-          Log In
-        </Link>
-        <Link href="/auth/signup" className="navbar-get-started">
+        <a href="/auth/login/api" className="navbar-login">
+          Sign In
+        </a>
+        <a href="/auth/signup/api" className="navbar-get-started">
           Get Started
-        </Link>
+        </a>
       </div>
 
       {/* Mobile Menu Toggle */}
@@ -161,12 +161,12 @@ export default function LandingNavbar() {
             </div>
           ))}
           <div className="mobile-auth-actions">
-            <Link href="/auth/login" className="btn btn-outline">
-              Log In
-            </Link>
-            <Link href="/auth/signup" className="btn btn-primary">
+            <a href="/auth/login/api" className="btn btn-outline">
+              Sign In
+            </a>
+            <a href="/auth/signup/api" className="btn btn-primary">
               Get Started Free
-            </Link>
+            </a>
           </div>
         </div>
       )}

@@ -361,6 +361,50 @@ export const getOperationsOverview = query({
 });
 
 /**
+ * List alert suppressions
+ */
+export const listAlertSuppressions = query({
+  args: {
+    sessionToken: v.string(),
+    active: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const suppressions = await ctx.db
+      .query("alertSuppressions")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+      .collect();
+
+    if (args.active) {
+      const now = Date.now();
+      return suppressions.filter((s) => s.expiresAt > now);
+    }
+
+    return suppressions;
+  },
+});
+
+/**
+ * Get alert acknowledgements for a specific alert
+ */
+export const getAlertAcknowledgements = query({
+  args: {
+    sessionToken: v.string(),
+    alertId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    return await ctx.db
+      .query("alertAcknowledgements")
+      .withIndex("by_alertId", (q) => q.eq("alertId", args.alertId))
+      .order("desc")
+      .collect();
+  },
+});
+
+/**
  * Get scheduled notifications
  */
 export const getScheduledNotifications = query({

@@ -291,6 +291,195 @@ export const updateSecurityIncident = mutation({
 });
 
 /**
+ * Create a new security threat
+ */
+export const createThreat = mutation({
+  args: {
+    sessionToken: v.string(),
+    title: v.string(),
+    description: v.string(),
+    type: v.union(
+      v.literal("malware"), v.literal("phishing"), v.literal("brute_force"), v.literal("ddos"),
+      v.literal("injection"), v.literal("xss"), v.literal("social_engineering"), v.literal("insider_threat")
+    ),
+    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    source: v.optional(v.object({
+      ip: v.optional(v.string()),
+      country: v.optional(v.string()),
+      userAgent: v.optional(v.string()),
+    })),
+    affectedSystems: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const threatId = await ctx.db.insert("threats", {
+      title: args.title,
+      description: args.description,
+      type: args.type,
+      severity: args.severity,
+      status: "active",
+      source: args.source ?? {},
+      affectedSystems: args.affectedSystems ?? [],
+      detectedAt: Date.now(),
+      reportedBy: userId,
+      tenantId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    return { success: true, threatId, message: "Threat created successfully" };
+  },
+});
+
+/**
+ * Update a security threat
+ */
+export const updateThreat = mutation({
+  args: {
+    sessionToken: v.string(),
+    threatId: v.string(),
+    updates: v.object({
+      title: v.optional(v.string()),
+      description: v.optional(v.string()),
+      severity: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical"))),
+      status: v.optional(v.union(v.literal("active"), v.literal("mitigating"), v.literal("resolved"), v.literal("false_positive"))),
+    }),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const threat = await ctx.db.get(args.threatId as Id<"threats">);
+    if (!threat) throw new Error("Threat not found");
+
+    const updateData: Record<string, unknown> = { updatedAt: Date.now() };
+    Object.entries(args.updates).forEach(([key, val]) => {
+      if (val !== undefined) updateData[key] = val;
+    });
+
+    if (args.updates.status === "resolved") {
+      updateData.mitigatedAt = Date.now();
+    }
+
+    await ctx.db.patch(args.threatId as Id<"threats">, updateData);
+    return { success: true, message: "Threat updated successfully" };
+  },
+});
+
+/**
+ * Unblock an IP address
+ */
+export const unblockIP = mutation({
+  args: {
+    sessionToken: v.string(),
+    blockedIPId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const blockedIP = await ctx.db.get(args.blockedIPId as Id<"blockedIPs">);
+    if (!blockedIP) throw new Error("Blocked IP not found");
+
+    await ctx.db.delete(args.blockedIPId as Id<"blockedIPs">);
+    return { success: true, message: "IP unblocked successfully" };
+  },
+});
+
+/**
+ * Add timeline entry to security incident
+ */
+export const addSecurityIncidentTimeline = mutation({
+  args: {
+    sessionToken: v.string(),
+    incidentId: v.string(),
+    type: v.union(v.literal("status_change"), v.literal("note"), v.literal("action"), v.literal("notification")),
+    message: v.string(),
+    metadata: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    await ctx.db.insert("securityIncidentTimeline", {
+      incidentId: args.incidentId,
+      type: args.type,
+      message: args.message,
+      metadata: args.metadata,
+      createdBy: userId,
+      tenantId,
+      createdAt: Date.now(),
+    });
+
+    return { success: true, message: "Timeline entry added" };
+  },
+});
+
+/**
+ * Create a vulnerability manually
+ */
+export const createVulnerability = mutation({
+  args: {
+    sessionToken: v.string(),
+    title: v.string(),
+    description: v.string(),
+    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    category: v.string(),
+    affectedSystem: v.string(),
+    cveId: v.optional(v.string()),
+    riskScore: v.number(),
+    recommendation: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const vulnId = await ctx.db.insert("vulnerabilities", {
+      id: `vuln_manual_${Date.now()}`,
+      title: args.title,
+      description: args.description,
+      severity: args.severity,
+      category: args.category,
+      affectedSystem: args.affectedSystem,
+      cveId: args.cveId,
+      riskScore: args.riskScore,
+      recommendation: args.recommendation,
+      tenantId,
+      createdAt: Date.now(),
+    });
+
+    return { success: true, vulnerabilityId: vulnId, message: "Vulnerability created" };
+  },
+});
+
+/**
+ * Update vulnerability status
+ */
+export const updateVulnerability = mutation({
+  args: {
+    sessionToken: v.string(),
+    vulnerabilityId: v.string(),
+    updates: v.object({
+      severity: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical"))),
+      riskScore: v.optional(v.number()),
+      recommendation: v.optional(v.string()),
+      status: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const vuln = await ctx.db.get(args.vulnerabilityId as Id<"vulnerabilities">);
+    if (!vuln) throw new Error("Vulnerability not found");
+
+    const updateData: Record<string, unknown> = {};
+    Object.entries(args.updates).forEach(([key, val]) => {
+      if (val !== undefined) updateData[key] = val;
+    });
+
+    await ctx.db.patch(args.vulnerabilityId as Id<"vulnerabilities">, updateData);
+    return { success: true, message: "Vulnerability updated" };
+  },
+});
+
+/**
  * Run vulnerability scan
  */
 export const runVulnerabilityScan = mutation({

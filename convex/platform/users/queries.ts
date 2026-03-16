@@ -33,6 +33,18 @@ export const getCurrentPlatformUser = query({
     },
 });
 
+// Get a single user by Convex document ID
+export const getUserById = query({
+    args: {
+        sessionToken: v.string(),
+        userId: v.id("users"),
+    },
+    handler: async (ctx, args) => {
+        await requirePlatformSession(ctx, args);
+        return await ctx.db.get(args.userId);
+    },
+});
+
 // Cross-tenant user search (master_admin only)
 export const listAllUsers = query({
     args: {

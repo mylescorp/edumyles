@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useAuth } from "@/hooks/useAuth";
+import { api } from "../../../../../../convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -160,9 +163,20 @@ EduMyles Technologies`,
 export default function ProposalDetailPage() {
   const params = useParams();
   const proposalId = params.proposalId as string;
-  
-  const [proposal, setProposal] = useState<Proposal>(mockProposal);
+  const { sessionToken } = useAuth();
+
+  const proposalData = usePlatformQuery(
+    api.platform.crm.proposalQueries.getProposalById,
+    { sessionToken: sessionToken || "", proposalId },
+    !!sessionToken
+  );
+
+  const [proposal, setProposal] = useState<Proposal | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  if (proposalData && !proposal) {
+    setProposal(proposalData as any);
+  }
   const [isSignatureDialogOpen, setIsSignatureDialogOpen] = useState(false);
   const [signatureData, setSignatureData] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -243,9 +257,11 @@ export default function ProposalDetailPage() {
     window.print();
   };
 
+  if (!proposal) return <div className="p-6 text-center text-muted-foreground">Loading proposal...</div>;
+
   return (
     <div className="space-y-6">
-      <PageHeader 
+      <PageHeader
         title={`Proposal: ${proposal.schoolName}`} 
         description="Manage proposal details and track e-signature status"
         breadcrumbs={[

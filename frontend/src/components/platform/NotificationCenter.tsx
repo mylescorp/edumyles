@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "convex/react";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";

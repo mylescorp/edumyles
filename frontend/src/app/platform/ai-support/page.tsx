@@ -225,24 +225,80 @@ export default function AISupportPage() {
   const [isAnalyzeDialogOpen, setIsAnalyzeDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<AITicket | null>(null);
 
+  // Create ticket form state
+  const [newTicketTitle, setNewTicketTitle] = useState("");
+  const [newTicketDescription, setNewTicketDescription] = useState("");
+  const [newTicketCategory, setNewTicketCategory] = useState<string>("");
+  const [newTicketPriority, setNewTicketPriority] = useState<string>("");
+  const [newTicketEmail, setNewTicketEmail] = useState("");
+  const [newTicketTags, setNewTicketTags] = useState("");
+  const [isCreatingTicket, setIsCreatingTicket] = useState(false);
+
   // Real AI mutations
   const analyzeSentiment = useMutation(api.ai.support.analyzeSentiment);
   const categorizeTicket = useMutation(api.ai.support.categorizeTicket);
   const generateResponse = useMutation(api.ai.support.generateResponse);
+  const createTicket = useMutation(api.platform.support.mutations.createAISupportTicket);
 
-  // Real AI insights query
-  const { data: aiInsights, isLoading: insightsLoading } = usePlatformQuery(
+  // Real AI insights query - usePlatformQuery returns T | undefined
+  const aiInsights = usePlatformQuery(
     api.ai.support.getAIInsights,
     { sessionToken },
     !!sessionToken
   );
 
   // Get AI-analyzed tickets
-  const { data: aiTickets, isLoading: ticketsLoading } = usePlatformQuery(
+  const aiTickets = usePlatformQuery(
     api.platform.tickets.queries.listTickets,
     { sessionToken, limit: 50 },
     !!sessionToken
   );
+
+  const handleCreateTicket = async () => {
+    if (!sessionToken || !newTicketTitle || !newTicketCategory || !newTicketPriority) return;
+    setIsCreatingTicket(true);
+    try {
+      await createTicket({
+        sessionToken,
+        title: newTicketTitle,
+        description: newTicketDescription,
+        category: newTicketCategory as any,
+        priority: newTicketPriority as any,
+        tenantId: "",
+        userId: "",
+        submittedBy: "platform_admin",
+        contactInfo: newTicketEmail ? { email: newTicketEmail } : undefined,
+        tags: newTicketTags ? newTicketTags.split(",").map(t => t.trim()) : undefined,
+      });
+      setIsCreateTicketDialogOpen(false);
+      setNewTicketTitle("");
+      setNewTicketDescription("");
+      setNewTicketCategory("");
+      setNewTicketPriority("");
+      setNewTicketEmail("");
+      setNewTicketTags("");
+    } catch (error) {
+      console.error("Failed to create ticket:", error);
+    } finally {
+      setIsCreatingTicket(false);
+    }
+  };
+
+  const handleApplyAIRecommendations = async () => {
+    if (!selectedTicket || !sessionToken) return;
+    try {
+      const response = await generateResponse({
+        sessionToken,
+        ticketContent: `${selectedTicket.title} ${selectedTicket.body}`,
+        responseType: "resolution",
+      });
+      if (response) {
+        setIsAnalyzeDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Failed to apply AI recommendations:", error);
+    }
+  };
 
   // Helper functions for AI operations
   const handleAnalyzeTicket = async (ticket: any) => {
@@ -783,18 +839,18 @@ export default function AISupportPage() {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
-              <Input id="title" placeholder="Enter ticket title" />
+              <Input id="title" placeholder="Enter ticket title" value={newTicketTitle} onChange={(e) => setNewTicketTitle(e.target.value)} />
             </div>
-            
+
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea id="description" placeholder="Describe the issue in detail" />
+              <Textarea id="description" placeholder="Describe the issue in detail" value={newTicketDescription} onChange={(e) => setNewTicketDescription(e.target.value)} />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label>Category</Label>
-                <Select>
+                <Select value={newTicketCategory} onValueChange={setNewTicketCategory}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -808,10 +864,10 @@ export default function AISupportPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="grid gap-2">
                 <Label>Priority</Label>
-                <Select>
+                <Select value={newTicketPriority} onValueChange={setNewTicketPriority}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
@@ -824,24 +880,23 @@ export default function AISupportPage() {
                 </Select>
               </div>
             </div>
-            
+
             <div className="grid gap-2">
               <Label>Contact Information</Label>
-              <Input placeholder="Email address" />
-              <Input placeholder="Phone number (optional)" />
+              <Input placeholder="Email address" value={newTicketEmail} onChange={(e) => setNewTicketEmail(e.target.value)} />
             </div>
-            
+
             <div className="grid gap-2">
               <Label>Tags</Label>
-              <Input placeholder="Enter tags separated by commas" />
+              <Input placeholder="Enter tags separated by commas" value={newTicketTags} onChange={(e) => setNewTicketTags(e.target.value)} />
             </div>
           </div>
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={() => setIsCreateTicketDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => setIsCreateTicketDialogOpen(false)}>
-              Create Ticket
+            <Button onClick={handleCreateTicket} disabled={isCreatingTicket || !newTicketTitle || !newTicketCategory || !newTicketPriority}>
+              {isCreatingTicket ? "Creating..." : "Create Ticket"}
             </Button>
           </div>
         </DialogContent>
@@ -944,7 +999,7 @@ export default function AISupportPage() {
             <Button variant="outline" onClick={() => setIsAnalyzeDialogOpen(false)}>
               Close
             </Button>
-            <Button>
+            <Button onClick={handleApplyAIRecommendations}>
               Apply AI Recommendations
             </Button>
           </div>

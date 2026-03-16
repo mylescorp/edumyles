@@ -11,10 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Users, 
-  Plus, 
-  Search, 
+import {
+  Users,
+  Plus,
+  Search,
   Filter,
   Download,
   Edit,
@@ -40,34 +40,34 @@ import {
   Activity,
   LogOut
 } from "lucide-react";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger, 
-  DropdownMenuSeparator 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 
+// User type matching the Convex users table schema
 interface User {
   _id: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   phone?: string;
-  role: "super_admin" | "admin" | "manager" | "agent" | "viewer";
-  status: "active" | "inactive" | "suspended" | "pending";
-  tenantId?: string;
-  tenantName?: string;
-  department?: string;
-  location?: string;
-  lastLogin?: number;
-  createdAt: number;
-  updatedAt: number;
-  createdBy: string;
+  role: string;
+  tenantId: string;
+  isActive: boolean;
   permissions: string[];
-  twoFactorEnabled: boolean;
-  emailVerified: boolean;
-  profilePicture?: string;
+  location?: string;
+  createdAt: number;
+  twoFactorEnabled?: boolean;
+  avatarUrl?: string;
+  eduMylesUserId: string;
 }
 
 interface Role {
@@ -91,114 +91,14 @@ interface ActivityLog {
   timestamp: number;
 }
 
-const mockUsers: User[] = [
-  {
-    _id: "1",
-    firstName: "Michael",
-    lastName: "Chen",
-    email: "michael.chen@edumyles.com",
-    phone: "+254 712 345 678",
-    role: "super_admin",
-    status: "active",
-    department: "Management",
-    location: "Nairobi",
-    lastLogin: Date.now() - 2 * 60 * 60 * 1000,
-    createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-    createdBy: "system",
-    permissions: ["all"],
-    twoFactorEnabled: true,
-    emailVerified: true
-  },
-  {
-    _id: "2",
-    firstName: "Sarah",
-    lastName: "Wilson",
-    email: "sarah.wilson@edumyles.com",
-    phone: "+254 734 567 890",
-    role: "admin",
-    status: "active",
-    tenantId: "tenant-1",
-    tenantName: "Nairobi International Academy",
-    department: "Administration",
-    location: "Nairobi",
-    lastLogin: Date.now() - 6 * 60 * 60 * 1000,
-    createdAt: Date.now() - 180 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-    createdBy: "michael.chen@edumyles.com",
-    permissions: ["tenant_management", "user_management", "reporting"],
-    twoFactorEnabled: false,
-    emailVerified: true
-  },
-  {
-    _id: "3",
-    firstName: "David",
-    lastName: "Kim",
-    email: "david.kim@edumyles.com",
-    phone: "+254 756 234 567",
-    role: "manager",
-    status: "active",
-    tenantId: "tenant-2",
-    tenantName: "Mombasa Primary School",
-    department: "Academics",
-    location: "Mombasa",
-    lastLogin: Date.now() - 1 * 24 * 60 * 60 * 1000,
-    createdAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-    createdBy: "sarah.wilson@edumyles.com",
-    permissions: ["student_management", "grade_management", "parent_communication"],
-    twoFactorEnabled: false,
-    emailVerified: true
-  },
-  {
-    _id: "4",
-    firstName: "Grace",
-    lastName: "Ochieng",
-    email: "grace.ochieng@edumyles.com",
-    phone: "+254 723 890 123",
-    role: "agent",
-    status: "inactive",
-    tenantId: "tenant-3",
-    tenantName: "Kisumu High School",
-    department: "Support",
-    location: "Kisumu",
-    lastLogin: Date.now() - 7 * 24 * 60 * 60 * 1000,
-    createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
-    createdBy: "david.kim@edumyles.com",
-    permissions: ["ticket_management", "basic_reporting"],
-    twoFactorEnabled: false,
-    emailVerified: false
-  },
-  {
-    _id: "5",
-    firstName: "Peter",
-    lastName: "Kiprop",
-    email: "peter.kiprop@edumyles.com",
-    phone: "+254 745 678 901",
-    role: "viewer",
-    status: "pending",
-    tenantId: "tenant-4",
-    tenantName: "Eldoret Academy",
-    department: "Finance",
-    location: "Eldoret",
-    lastLogin: undefined,
-    createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-    createdBy: "michael.chen@edumyles.com",
-    permissions: ["view_reports"],
-    twoFactorEnabled: false,
-    emailVerified: false
-  }
-];
-
-const mockRoles: Role[] = [
+// Static roles (no backend query for roles yet)
+const staticRoles: Role[] = [
   {
     _id: "1",
     name: "Super Admin",
     description: "Full system access with all permissions",
     permissions: ["all"],
-    userCount: 1,
+    userCount: 0,
     isSystem: true,
     createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
   },
@@ -207,7 +107,7 @@ const mockRoles: Role[] = [
     name: "Admin",
     description: "Tenant administrator with management capabilities",
     permissions: ["tenant_management", "user_management", "reporting"],
-    userCount: 3,
+    userCount: 0,
     isSystem: true,
     createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
   },
@@ -216,7 +116,7 @@ const mockRoles: Role[] = [
     name: "Manager",
     description: "Department manager with operational permissions",
     permissions: ["student_management", "grade_management", "parent_communication"],
-    userCount: 5,
+    userCount: 0,
     isSystem: true,
     createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
   },
@@ -225,7 +125,7 @@ const mockRoles: Role[] = [
     name: "Agent",
     description: "Support agent with limited permissions",
     permissions: ["ticket_management", "basic_reporting"],
-    userCount: 8,
+    userCount: 0,
     isSystem: true,
     createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
   },
@@ -234,49 +134,16 @@ const mockRoles: Role[] = [
     name: "Viewer",
     description: "Read-only access for reporting and monitoring",
     permissions: ["view_reports"],
-    userCount: 12,
+    userCount: 0,
     isSystem: true,
     createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
   }
 ];
 
-const mockActivities: ActivityLog[] = [
-  {
-    _id: "1",
-    userId: "1",
-    action: "login",
-    resource: "system",
-    details: "Successful login from Nairobi",
-    ipAddress: "192.168.1.100",
-    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    timestamp: Date.now() - 2 * 60 * 60 * 1000
-  },
-  {
-    _id: "2",
-    userId: "2",
-    action: "user_created",
-    resource: "users",
-    details: "Created new user: grace.ochieng@edumyles.com",
-    ipAddress: "192.168.1.101",
-    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-    timestamp: Date.now() - 6 * 60 * 60 * 1000
-  },
-  {
-    _id: "3",
-    userId: "3",
-    action: "report_generated",
-    resource: "reports",
-    details: "Generated monthly performance report",
-    ipAddress: "192.168.1.102",
-    userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
-    timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000
-  }
-];
-
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [roles, setRoles] = useState<Role[]>(mockRoles);
-  const [activities, setActivities] = useState<ActivityLog[]>(mockActivities);
+  const { sessionToken } = useAuth();
+  const deactivateUser = useMutation(api.platform.users.mutations.deactivatePlatformAdmin);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -299,18 +166,54 @@ export default function UsersPage() {
     permissions: [] as string[]
   });
 
+  // Fetch users from Convex backend
+  const usersData = usePlatformQuery(
+    api.platform.users.queries.listAllUsers,
+    {
+      sessionToken: sessionToken ?? "",
+      ...(selectedRoleFilter !== "all" ? { role: selectedRoleFilter } : {}),
+      ...(selectedTenant !== "all" ? { tenantId: selectedTenant } : {}),
+    },
+    !!sessionToken
+  );
+
+  const users: User[] = (usersData as User[] | undefined) ?? [];
+  const [roles, setRoles] = useState<Role[]>(staticRoles);
+  const [activities] = useState<ActivityLog[]>([]);
+
+  // Derive user status from isActive field
+  const getUserStatus = (user: User): string => {
+    return user.isActive ? "active" : "inactive";
+  };
+
   const filteredUsers = users.filter(user => {
-    const matchesSearch = searchQuery === "" || 
-      user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = searchQuery === "" ||
+      (user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
+      (user.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesRole = selectedRoleFilter === "all" || user.role === selectedRoleFilter;
-    const matchesStatus = selectedStatus === "all" || user.status === selectedStatus;
-    const matchesTenant = selectedTenant === "all" || user.tenantId === selectedTenant;
-    
-    return matchesSearch && matchesRole && matchesStatus && matchesTenant;
+
+    const matchesStatus = selectedStatus === "all" || getUserStatus(user) === selectedStatus;
+
+    return matchesSearch && matchesStatus;
   });
+
+  if (!usersData && sessionToken) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="User Management"
+          description="Manage platform users, roles, and permissions"
+          breadcrumbs={[
+            { label: "Platform", href: "/platform" },
+            { label: "Users", href: "/platform/users" }
+          ]}
+        />
+        <div className="flex items-center justify-center py-12">
+          <div className="text-muted-foreground">Loading users...</div>
+        </div>
+      </div>
+    );
+  }
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -416,9 +319,13 @@ export default function UsersPage() {
     });
   };
 
-  const handleDeleteUser = (userId: string) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      setUsers(users.filter(user => user._id !== userId));
+  const handleDeleteUser = async (userId: string) => {
+    if (confirm("Are you sure you want to deactivate this user?")) {
+      try {
+        await deactivateUser({ sessionToken: sessionToken ?? "", userId: userId as any });
+      } catch (error) {
+        console.error("Failed to deactivate user:", error);
+      }
     }
   };
 
@@ -434,24 +341,26 @@ export default function UsersPage() {
     setSelectedRole(null);
   };
 
-  const handleToggleUserStatus = (userId: string, newStatus: User['status']) => {
-    setUsers(users.map(user => 
-      user._id === userId 
-        ? { ...user, status: newStatus, updatedAt: Date.now() }
-        : user
-    ));
+  const handleToggleUserStatus = async (userId: string, newStatus: string) => {
+    if (newStatus === "inactive" || newStatus === "suspended") {
+      try {
+        await deactivateUser({ sessionToken: sessionToken ?? "", userId: userId as any });
+      } catch (error) {
+        console.error("Failed to deactivate user:", error);
+      }
+    }
+    // Note: reactivation would require a separate backend mutation
   };
 
   const handleExportUsers = () => {
     const csvContent = [
-      ["Name", "Email", "Role", "Status", "Tenant", "Department", "Location", "Created"],
+      ["Name", "Email", "Role", "Status", "Tenant", "Location", "Created"],
       ...filteredUsers.map(user => [
-        `${user.firstName} ${user.lastName}`,
+        `${user.firstName ?? ""} ${user.lastName ?? ""}`,
         user.email,
         user.role,
-        user.status,
-        user.tenantName || "N/A",
-        user.department || "N/A",
+        getUserStatus(user),
+        user.tenantId || "N/A",
         user.location || "N/A",
         formatDate(user.createdAt)
       ])
@@ -486,19 +395,19 @@ export default function UsersPage() {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">{users.filter(u => u.status === "active").length}</div>
+            <div className="text-2xl font-bold text-green-600">{users.filter(u => u.isActive).length}</div>
             <div className="text-sm text-muted-foreground">Active Users</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-yellow-600">{users.filter(u => u.status === "pending").length}</div>
-            <div className="text-sm text-muted-foreground">Pending Activation</div>
+            <div className="text-2xl font-bold text-yellow-600">{users.filter(u => !u.isActive).length}</div>
+            <div className="text-sm text-muted-foreground">Inactive Users</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-purple-600">{users.filter(u => u.twoFactorEnabled).length}</div>
+            <div className="text-2xl font-bold text-purple-600">{users.filter(u => u.twoFactorEnabled === true).length}</div>
             <div className="text-sm text-muted-foreground">2FA Enabled</div>
           </CardContent>
         </Card>
@@ -577,8 +486,8 @@ export default function UsersPage() {
                   <th className="text-left p-3 font-semibold">Role</th>
                   <th className="text-left p-3 font-semibold">Status</th>
                   <th className="text-left p-3 font-semibold">Tenant</th>
-                  <th className="text-left p-3 font-semibold">Department</th>
-                  <th className="text-left p-3 font-semibold">Last Login</th>
+                  <th className="text-left p-3 font-semibold">Location</th>
+                  <th className="text-left p-3 font-semibold">Created</th>
                   <th className="text-left p-3 font-semibold">Security</th>
                   <th className="text-left p-3 font-semibold">Actions</th>
                 </tr>
@@ -590,11 +499,11 @@ export default function UsersPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                           <span className="text-xs font-medium">
-                            {user.firstName[0]?.toUpperCase()}{user.lastName[0]?.toUpperCase()}
+                            {user.firstName?.[0]?.toUpperCase()}{user.lastName?.[0]?.toUpperCase()}
                           </span>
                         </div>
                         <div>
-                          <div className="font-medium">{user.firstName} {user.lastName}</div>
+                          <div className="font-medium">{user.firstName ?? ""} {user.lastName ?? ""}</div>
                           <div className="text-sm text-muted-foreground">{user.email}</div>
                           {user.phone && (
                             <div className="text-xs text-muted-foreground">{user.phone}</div>
@@ -608,23 +517,20 @@ export default function UsersPage() {
                       </Badge>
                     </td>
                     <td className="p-3">
-                      <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
-                        {getStatusIcon(user.status)}
-                        <span>{user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span>
+                      <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(getUserStatus(user))}`}>
+                        {getStatusIcon(getUserStatus(user))}
+                        <span>{getUserStatus(user).charAt(0).toUpperCase() + getUserStatus(user).slice(1)}</span>
                       </div>
                     </td>
-                    <td className="p-3 text-sm">{user.tenantName || "Platform"}</td>
-                    <td className="p-3 text-sm">{user.department || "-"}</td>
+                    <td className="p-3 text-sm">{user.tenantId || "Platform"}</td>
+                    <td className="p-3 text-sm">{user.location || "-"}</td>
                     <td className="p-3 text-sm">
-                      {user.lastLogin ? formatDate(user.lastLogin) : "Never"}
+                      {formatDate(user.createdAt)}
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
                         {user.twoFactorEnabled && (
                           <div className="w-2 h-2 bg-green-500 rounded-full" title="2FA Enabled" />
-                        )}
-                        {user.emailVerified && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full" title="Email Verified" />
                         )}
                       </div>
                     </td>

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useAuth } from "@/hooks/useAuth";
+import { api } from "../../../../../convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -339,8 +342,21 @@ const mockProposals: GeneratedProposal[] = [
 ];
 
 export default function ProposalTemplatesPage() {
-  const [templates, setTemplates] = useState<ProposalTemplate[]>(mockTemplates);
-  const [proposals, setProposals] = useState<GeneratedProposal[]>(mockProposals);
+  const { sessionToken } = useAuth();
+
+  const templatesData = usePlatformQuery(
+    api.platform.crm.proposalQueries.listProposalTemplates,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
+  const proposalsData = usePlatformQuery(
+    api.platform.crm.proposalQueries.listProposals,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
+
+  const templates = (templatesData as any[]) || [];
+  const proposals = (proposalsData as any[]) || [];
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("templates");

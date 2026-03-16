@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "convex/react";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelativeTime } from "@/lib/utils";
@@ -146,38 +147,41 @@ export default function OperationsCenterPage() {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
 
   // Get operations overview
-  const { data: overview, isLoading: overviewLoading } = useQuery(
-    api.platform.operations.getOperationsOverview,
-    { sessionToken },
+  const overview = usePlatformQuery(
+    api.platform.operations.queries.getOperationsOverview,
+    { sessionToken: sessionToken || "" },
     !!sessionToken
   );
 
   // Get incidents
-  const { data: incidents, isLoading: incidentsLoading } = useQuery(
-    api.platform.operations.getIncidents,
-    { sessionToken, status: "active" },
+  const incidents = usePlatformQuery(
+    api.platform.operations.queries.getIncidents,
+    { sessionToken: sessionToken || "", status: "active" },
     !!sessionToken
   );
 
   // Get maintenance windows
-  const { data: maintenance, isLoading: maintenanceLoading } = useQuery(
-    api.platform.operations.getMaintenanceWindows,
-    { sessionToken, status: "upcoming" },
+  const maintenance = usePlatformQuery(
+    api.platform.operations.queries.getMaintenanceWindows,
+    { sessionToken: sessionToken || "", status: "upcoming" },
     !!sessionToken
   );
 
   // Get alerts
-  const { data: alerts, isLoading: alertsLoading } = useQuery(
-    api.platform.operations.getAlerts,
-    { sessionToken, status: "active" },
+  const alerts = usePlatformQuery(
+    api.platform.operations.queries.getAlerts,
+    { sessionToken: sessionToken || "", status: "active" },
     !!sessionToken
   );
 
   // Mutations
-  const createIncidentMutation = useMutation(api.platform.operations.createIncident);
-  const updateIncidentMutation = useMutation(api.platform.operations.updateIncident);
-  const createMaintenanceMutation = useMutation(api.platform.operations.createMaintenanceWindow);
-  const acknowledgeAlertMutation = useMutation(api.platform.operations.acknowledgeAlert);
+  const createIncidentMutation = useMutation(api.platform.operations.mutations.createIncident);
+  const updateIncidentMutation = useMutation(api.platform.operations.mutations.updateIncident);
+  const createMaintenanceMutation = useMutation(api.platform.operations.mutations.createMaintenanceWindow);
+  const acknowledgeAlertMutation = useMutation(api.platform.operations.mutations.acknowledgeAlert);
+  const resolveAlertMutation = useMutation(api.platform.operations.mutations.resolveAlert);
+  const updateMaintenanceMutation = useMutation(api.platform.operations.mutations.updateMaintenanceStatus);
+  const cancelMaintenanceMutation = useMutation(api.platform.operations.mutations.cancelMaintenance);
 
   // Get severity color
   const getSeverityColor = (severity: string) => {
@@ -609,13 +613,23 @@ export default function OperationsCenterPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {window.status === "scheduled" && (
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={async () => {
+                          if (!sessionToken) return;
+                          try {
+                            await updateMaintenanceMutation({ sessionToken, maintenanceId: window._id, status: "in_progress" });
+                          } catch (e) { console.error(e); }
+                        }}>
                           <Pause className="w-4 h-4 mr-1" />
                           Start Now
                         </Button>
                       )}
                       {window.status === "in_progress" && (
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={async () => {
+                          if (!sessionToken) return;
+                          try {
+                            await updateMaintenanceMutation({ sessionToken, maintenanceId: window._id, status: "completed" });
+                          } catch (e) { console.error(e); }
+                        }}>
                           <Square className="w-4 h-4 mr-1" />
                           Complete
                         </Button>
@@ -724,7 +738,12 @@ export default function OperationsCenterPage() {
                         </Button>
                       )}
                       {alert.status === "active" && (
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={async () => {
+                          if (!sessionToken) return;
+                          try {
+                            await resolveAlertMutation({ sessionToken, alertId: alert._id, resolution: "Manually resolved by admin" });
+                          } catch (e) { console.error(e); }
+                        }}>
                           <CheckCircle className="w-4 h-4 mr-1" />
                           Resolve
                         </Button>

@@ -272,7 +272,7 @@ export const getComplianceStatus = query({
 });
 
 /**
- * Get access logs
+ * Get access logs - uses real login attempts and audit log data
  */
 export const getAccessLogs = query({
   args: {
@@ -294,15 +294,125 @@ export const getAccessLogs = query({
       case "30d": timeFilter = 30 * 24 * 60 * 60 * 1000; break;
     }
 
-    const accessLogs = [
-      { _id: "log_1", timestamp: now - (30 * 60 * 1000), action: "login_success", user: "admin@edumyles.com", ip: "192.168.1.100", userAgent: "Mozilla/5.0", success: true, location: "Nairobi, Kenya" },
-      { _id: "log_2", timestamp: now - (25 * 60 * 1000), action: "login_failed", user: "unknown@edumyles.com", ip: "192.168.1.101", userAgent: "Mozilla/5.0", success: false, reason: "invalid_credentials", location: "Unknown" },
-      { _id: "log_3", timestamp: now - (20 * 60 * 1000), action: "api_access_denied", user: "user@edumyles.com", ip: "192.168.1.102", userAgent: "curl/7.68.0", success: false, reason: "insufficient_permissions", location: "Nairobi, Kenya" },
-      { _id: "log_4", timestamp: now - (15 * 60 * 1000), action: "suspicious_activity", user: "admin@edumyles.com", ip: "203.0.113.45", userAgent: "Python-requests/2.28.1", success: false, reason: "brute_force_attempt", location: "Unknown" },
-      { _id: "log_5", timestamp: now - (10 * 60 * 1000), action: "account_locked", user: "user@edumyles.com", ip: "192.168.1.103", userAgent: "Mozilla/5.0", success: false, reason: "too_many_failed_attempts", location: "Nairobi, Kenya" },
-    ].filter(log => log.timestamp >= now - timeFilter);
+    const cutoff = now - timeFilter;
 
-    return accessLogs.sort((a, b) => b.timestamp - a.timestamp).slice(0, args.limit ?? 100);
+    // Get real login attempts from loginAttempts table
+    try {
+      const loginAttempts = await ctx.db
+        .query("loginAttempts")
+        .order("desc")
+        .filter((q) => q.gte(q.field("timestamp"), cutoff))
+        .take(args.limit ?? 100);
+
+      if (loginAttempts.length > 0) {
+        return loginAttempts.map((attempt: any) => ({
+          _id: attempt._id,
+          timestamp: attempt.timestamp || attempt.createdAt,
+          action: attempt.success ? "login_success" : "login_failed",
+          user: attempt.email || "unknown",
+          ip: attempt.ip || "unknown",
+          userAgent: attempt.userAgent || "unknown",
+          success: attempt.success ?? false,
+          reason: attempt.failReason,
+          location: attempt.location || "Unknown",
+        }));
+      }
+    } catch {
+      // loginAttempts table may not exist yet
+    }
+
+    // Fallback: derive access logs from audit logs
+    const auditLogs = await ctx.db
+      .query("auditLogs")
+      .filter((q) =>
+        q.and(
+          q.gte(q.field("timestamp"), cutoff),
+          q.or(
+            q.eq(q.field("action"), "login"),
+            q.eq(q.field("action"), "login_failed"),
+            q.eq(q.field("action"), "logout"),
+            q.eq(q.field("action"), "session_created"),
+          )
+        )
+      )
+      .order("desc")
+      .take(args.limit ?? 100);
+
+    return auditLogs.map((log) => ({
+      _id: log._id,
+      timestamp: log.timestamp,
+      action: log.action,
+      user: log.actorEmail,
+      ip: (log.after as any)?.ip || "unknown",
+      userAgent: (log.after as any)?.userAgent || "unknown",
+      success: !log.action.includes("failed"),
+      location: (log.after as any)?.location || "Unknown",
+    }));
+  },
+});
+
+/**
+ * List blocked IPs
+ */
+export const listBlockedIPs = query({
+  args: {
+    sessionToken: v.string(),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const blockedIPs = await ctx.db
+      .query("blockedIPs")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+      .order("desc")
+      .take(args.limit ?? 100);
+
+    return blockedIPs;
+  },
+});
+
+/**
+ * List vulnerabilities
+ */
+export const listVulnerabilities = query({
+  args: {
+    sessionToken: v.string(),
+    severity: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical"))),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    let vulnQuery = ctx.db
+      .query("vulnerabilities")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId));
+
+    if (args.severity) {
+      const severity = args.severity;
+      vulnQuery = vulnQuery.filter((q) => q.eq(q.field("severity"), severity));
+    }
+
+    return await vulnQuery.order("desc").take(args.limit ?? 50);
+  },
+});
+
+/**
+ * Get security incident timeline
+ */
+export const getSecurityIncidentTimeline = query({
+  args: {
+    sessionToken: v.string(),
+    incidentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    return await ctx.db
+      .query("securityIncidentTimeline")
+      .withIndex("by_incidentId", (q) => q.eq("incidentId", args.incidentId))
+      .order("desc")
+      .collect();
   },
 });
 
