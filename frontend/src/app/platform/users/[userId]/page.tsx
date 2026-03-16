@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,9 +46,6 @@ import {
   History,
   X
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
 interface UserDetail {
