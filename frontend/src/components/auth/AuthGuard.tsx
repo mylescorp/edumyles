@@ -35,7 +35,7 @@ export function AuthGuard({
   children, 
   requiredRole, 
   requiredPermission,
-  fallbackPath = "/auth/login",
+  fallbackPath = "/auth/login/api",
   showUnauthorizedMessage = true 
 }: AuthGuardProps) {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
@@ -228,7 +228,7 @@ export function useAuthGuard() {
       } else {
         const currentPath = window.location.pathname;
         const returnUrl = encodeURIComponent(currentPath);
-        router.push(`/auth/login?returnUrl=${returnUrl}`);
+        router.push(`/auth/login/api?returnUrl=${returnUrl}`);
       }
       return false;
     }
