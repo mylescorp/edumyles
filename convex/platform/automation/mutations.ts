@@ -195,18 +195,23 @@ async function executeActionStep(ctx: any, step: any, session: any, triggerData:
 async function executeConditionStep(ctx: any, step: any, session: any, triggerData: any) {
   const condition = step.config.condition;
   
-  // Simple condition evaluation - in production, this would be more sophisticated
+  // Evaluate condition against trigger data and context
   let result = false;
-  
+
   if (condition.includes("compliance_score >= 90")) {
-    // Mock compliance check
-    result = Math.random() > 0.3; // 70% chance of passing
+    // Check actual compliance score from trigger data
+    const score = triggerData?.compliance_score ?? triggerData?.score ?? 0;
+    result = score >= 90;
   } else if (condition.includes("backup_verification.success")) {
-    // Mock backup verification
-    result = Math.random() > 0.1; // 90% chance of success
+    // Check actual backup status from trigger data
+    result = triggerData?.backup_verification?.success === true || triggerData?.backupSuccess === true;
   } else if (condition.includes("documents_verified")) {
-    // Mock document verification
-    result = Math.random() > 0.2; // 80% chance of verification
+    // Check actual document verification status
+    result = triggerData?.documents_verified === true || triggerData?.documentsVerified === true;
+  } else {
+    // Generic condition: check if the condition key exists and is truthy in trigger data
+    const conditionKey = condition.replace(/[^a-zA-Z0-9_]/g, "_").toLowerCase();
+    result = !!triggerData?.[conditionKey];
   }
 
   return {

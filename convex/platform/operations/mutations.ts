@@ -254,6 +254,82 @@ export const updateMaintenanceStatus = mutation({
 });
 
 /**
+ * Cancel a maintenance window
+ */
+export const cancelMaintenance = mutation({
+  args: {
+    sessionToken: v.string(),
+    maintenanceId: v.string(),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const maintenance = await ctx.db.get(args.maintenanceId as Id<"maintenanceWindows">);
+    if (!maintenance) throw new Error("Maintenance window not found");
+
+    await ctx.db.patch(args.maintenanceId as Id<"maintenanceWindows">, {
+      status: "cancelled",
+      updatedAt: Date.now(),
+      notes: args.reason ?? "Cancelled by admin",
+    });
+
+    return { success: true, message: "Maintenance window cancelled" };
+  },
+});
+
+/**
+ * Create an alert suppression rule
+ */
+export const createAlertSuppression = mutation({
+  args: {
+    sessionToken: v.string(),
+    alertType: v.union(v.literal("system"), v.literal("security"), v.literal("performance"), v.literal("capacity")),
+    source: v.string(),
+    condition: v.string(),
+    durationHours: v.optional(v.number()),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const expiresAt = Date.now() + ((args.durationHours ?? 168) * 60 * 60 * 1000); // default 7 days
+
+    const suppressionId = await ctx.db.insert("alertSuppressions", {
+      alertType: args.alertType,
+      source: args.source,
+      condition: args.condition,
+      suppressedBy: userId,
+      suppressedAt: Date.now(),
+      expiresAt,
+      tenantId,
+      reason: args.reason,
+    });
+
+    return { success: true, suppressionId, message: "Alert suppression created" };
+  },
+});
+
+/**
+ * Remove an alert suppression
+ */
+export const removeAlertSuppression = mutation({
+  args: {
+    sessionToken: v.string(),
+    suppressionId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    const suppression = await ctx.db.get(args.suppressionId as Id<"alertSuppressions">);
+    if (!suppression) throw new Error("Alert suppression not found");
+
+    await ctx.db.delete(args.suppressionId as Id<"alertSuppressions">);
+    return { success: true, message: "Alert suppression removed" };
+  },
+});
+
+/**
  * Create an operations alert
  */
 export const createAlert = mutation({

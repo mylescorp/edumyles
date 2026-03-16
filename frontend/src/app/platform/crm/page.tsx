@@ -11,10 +11,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Users, 
-  Plus, 
-  Search, 
+import {
+  Users,
+  Plus,
+  Search,
   Filter,
   Building,
   MapPin,
@@ -36,6 +36,11 @@ import {
   GripVertical,
   X
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 
 interface Deal {
   _id: string;
@@ -80,119 +85,6 @@ interface DealFormData {
   tags: string;
   notes: string;
 }
-
-let initialDeals: Deal[] = [
-  {
-    _id: "1",
-    schoolName: "Nairobi International Academy",
-    contactPerson: "Sarah Johnson",
-    email: "sarah@nairobi-academy.edu",
-    phone: "+254 712 345 678",
-    county: "Nairobi",
-    schoolType: "International",
-    currentStudents: 450,
-    potentialStudents: 600,
-    stage: "proposal",
-    value: 150000,
-    currency: "KES",
-    source: "Website",
-    assignedTo: "michael.chen@edumyles.com",
-    createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    lastActivity: Date.now() - 2 * 24 * 60 * 60 * 1000,
-    expectedCloseDate: Date.now() + 15 * 24 * 60 * 60 * 1000,
-    probability: 60,
-    tags: ["International", "Urban", "Large"],
-    notes: "Interested in Growth plan with custom modules. Decision maker is the school director."
-  },
-  {
-    _id: "2",
-    schoolName: "Mombasa Primary School",
-    contactPerson: "James Kimani",
-    email: "james@mombasa-primary.edu",
-    phone: "+254 734 567 890",
-    county: "Mombasa",
-    schoolType: "Public",
-    currentStudents: 800,
-    potentialStudents: 950,
-    stage: "qualified",
-    value: 75000,
-    currency: "KES",
-    source: "Referral",
-    assignedTo: "sarah.wilson@edumyles.com",
-    createdAt: Date.now() - 45 * 24 * 60 * 60 * 1000,
-    lastActivity: Date.now() - 1 * 24 * 60 * 60 * 1000,
-    expectedCloseDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
-    probability: 40,
-    tags: ["Public", "Coastal", "Medium"],
-    notes: "Budget conscious, interested in Starter plan with potential upgrade."
-  },
-  {
-    _id: "3",
-    schoolName: "Kisumu High School",
-    contactPerson: "Grace Ochieng",
-    email: "grace@kisumu-high.edu",
-    phone: "+254 756 234 567",
-    county: "Kisumu",
-    schoolType: "Secondary",
-    currentStudents: 1200,
-    potentialStudents: 1200,
-    stage: "negotiation",
-    value: 200000,
-    currency: "KES",
-    source: "Cold Outreach",
-    assignedTo: "david.kim@edumyles.com",
-    createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-    lastActivity: Date.now() - 3 * 24 * 60 * 60 * 1000,
-    expectedCloseDate: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    probability: 80,
-    tags: ["Secondary", "Large", "Government"],
-    notes: "Negotiating pricing for Pro plan. Government approval pending."
-  },
-  {
-    _id: "4",
-    schoolName: "Eldoret Academy",
-    contactPerson: "Peter Kiprop",
-    email: "peter@eldoret-academy.edu",
-    phone: "+254 723 890 123",
-    county: "Uasin Gishu",
-    schoolType: "Private",
-    currentStudents: 300,
-    potentialStudents: 400,
-    stage: "closed_won",
-    value: 100000,
-    currency: "KES",
-    source: "Conference",
-    assignedTo: "michael.chen@edumyles.com",
-    createdAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-    lastActivity: Date.now() - 10 * 24 * 60 * 60 * 1000,
-    expectedCloseDate: Date.now() - 15 * 24 * 60 * 60 * 1000,
-    probability: 100,
-    tags: ["Private", "Rural", "Small"],
-    notes: "Signed up for Growth plan. Implementation starts next week."
-  },
-  {
-    _id: "5",
-    schoolName: "Kitengela Academy",
-    contactPerson: "Lucy Wanjiku",
-    email: "lucy@kitengela-academy.edu",
-    phone: "+254 745 678 901",
-    county: "Kajiado",
-    schoolType: "Private",
-    currentStudents: 200,
-    potentialStudents: 250,
-    stage: "lead",
-    value: 50000,
-    currency: "KES",
-    source: "Website",
-    assignedTo: "sarah.wilson@edumyles.com",
-    createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-    lastActivity: Date.now() - 5 * 24 * 60 * 60 * 1000,
-    expectedCloseDate: Date.now() + 45 * 24 * 60 * 60 * 1000,
-    probability: 20,
-    tags: ["Private", "Suburban", "Small"],
-    notes: "Initial inquiry received. Follow up scheduled for next week."
-  }
-];
 
 const pipelineStages = [
   { id: "lead", name: "Lead", color: "bg-gray-100 border-gray-200" },

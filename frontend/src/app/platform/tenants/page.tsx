@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,132 +13,51 @@ import { Building2, Users, TrendingUp, Activity } from "lucide-react";
 import { TenantList } from "@/components/platform/TenantList";
 import Link from "next/link";
 
-type Tenant = {
-  _id: string;
-  tenantId: string;
-  name: string;
-  subdomain: string;
-  plan: string;
-  status: string;
-  email: string;
-  county: string;
-  country: string;
-  createdAt: number;
-  modules?: string[];
-  userCount?: number;
-  lastActive?: number;
-};
-
 export default function TenantsPage() {
   const { isLoading, sessionToken } = useAuth();
   const { hasPermission } = usePermissions();
 
-  // Fetch tenants data
-  const { data: tenants, isLoading: tenantsLoading } = useQuery(
+  // Fetch tenants data from Convex backend
+  const tenants = usePlatformQuery(
     api.platform.tenants.queries.listAllTenants,
     { sessionToken: sessionToken || "" }
   );
 
-  
-  // Mock data for demonstration
-  const mockTenants: Tenant[] = [
-    {
-      _id: "1",
-      tenantId: "st-johns-academy",
-      name: "St. John's Academy",
-      subdomain: "stjohns",
-      plan: "growth",
-      status: "active",
-      email: "admin@stjohns.edu",
-      county: "nairobi",
-      country: "KE",
-      createdAt: Date.now() - 90 * 24 * 60 * 60 * 1000, // 90 days ago
-      modules: ["academics", "communications", "billing"],
-      userCount: 245,
-      lastActive: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
-    },
-    {
-      _id: "2",
-      tenantId: "elite-high-school",
-      name: "Elite High School",
-      subdomain: "elite",
-      plan: "pro",
-      status: "active",
-      email: "info@elitehigh.sc.ke",
-      county: "mombasa",
-      country: "KE",
-      createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000, // 60 days ago
-      modules: ["academics", "communications", "billing", "hr"],
-      userCount: 189,
-      lastActive: Date.now() - 1 * 60 * 60 * 1000, // 1 hour ago
-    },
-    {
-      _id: "3",
-      tenantId: "sunshine-primary",
-      name: "Sunshine Primary School",
-      subdomain: "sunshine",
-      plan: "starter",
-      status: "trial",
-      email: "headteacher@sunshineprimary.sc.ke",
-      county: "nakuru",
-      country: "KE",
-      createdAt: Date.now() - 14 * 24 * 60 * 60 * 1000, // 14 days ago
-      modules: ["academics"],
-      userCount: 67,
-      lastActive: Date.now() - 30 * 60 * 1000, // 30 minutes ago
-    },
-    {
-      _id: "4",
-      tenantId: "kisumu-international",
-      name: "Kisumu International School",
-      subdomain: "kisumu-int",
-      plan: "enterprise",
-      status: "active",
-      email: "admin@kisumu-int.sc.ke",
-      county: "kisumu",
-      country: "KE",
-      createdAt: Date.now() - 120 * 24 * 60 * 60 * 1000, // 120 days ago
-      modules: ["academics", "communications", "billing", "hr", "library"],
-      userCount: 412,
-      lastActive: Date.now() - 15 * 60 * 1000, // 15 minutes ago
-    },
-    {
-      _id: "5",
-      tenantId: "hillside-academy",
-      name: "Hillside Academy",
-      subdomain: "hillside",
-      plan: "growth",
-      status: "suspended",
-      email: "office@hillside.sc.ke",
-      county: "kiambu",
-      country: "KE",
-      createdAt: Date.now() - 180 * 24 * 60 * 60 * 1000, // 180 days ago
-      modules: ["academics", "communications"],
-      userCount: 156,
-      lastActive: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
-    },
-  ];
+  // Fetch platform stats from Convex backend
+  const platformStats = usePlatformQuery(
+    api.platform.tenants.queries.getPlatformStats,
+    { sessionToken: sessionToken || "" }
+  );
 
-  // Use real data if available, otherwise use mock data
-  const tenantsData = tenants && tenants.length > 0 ? tenants : mockTenants;
-
-  // Calculate statistics
+  // Calculate statistics from real data
   const stats = useMemo(() => {
-    const totalTenants = tenantsData.length;
-    const activeTenants = tenantsData.filter(t => t.status === "active").length;
-    const trialTenants = tenantsData.filter(t => t.status === "trial").length;
-    const totalUsers = tenantsData.reduce((sum, t) => sum + (t.userCount || 0), 0);
+    if (platformStats) {
+      return {
+        totalTenants: platformStats.totalTenants,
+        activeTenants: platformStats.activeTenants,
+        trialTenants: platformStats.trialTenants,
+        suspendedTenants: platformStats.suspendedTenants,
+        totalUsers: platformStats.totalUsers,
+      };
+    }
+    // Fallback: derive stats from tenants list if platformStats not yet loaded
+    if (tenants) {
+      const totalTenants = tenants.length;
+      const activeTenants = tenants.filter((t: any) => t.status === "active").length;
+      const trialTenants = tenants.filter((t: any) => t.status === "trial").length;
+      const totalUsers = tenants.reduce((sum: number, t: any) => sum + (t.userCount || 0), 0);
+      return {
+        totalTenants,
+        activeTenants,
+        trialTenants,
+        suspendedTenants: totalTenants - activeTenants - trialTenants,
+        totalUsers,
+      };
+    }
+    return { totalTenants: 0, activeTenants: 0, trialTenants: 0, suspendedTenants: 0, totalUsers: 0 };
+  }, [tenants, platformStats]);
 
-    return {
-      totalTenants,
-      activeTenants,
-      trialTenants,
-      suspendedTenants: totalTenants - activeTenants - trialTenants,
-      totalUsers,
-    };
-  }, [tenantsData]);
-
-  if (isLoading || tenantsLoading) {
+  if (isLoading || !tenants) {
     return <LoadingSkeleton />;
   }
 
@@ -183,7 +102,7 @@ export default function TenantsPage() {
           <CardContent>
             <div className="text-2xl font-bold text-em-success">{stats.activeTenants}</div>
             <p className="text-xs text-muted-foreground">
-              {Math.round((stats.activeTenants / stats.totalTenants) * 100)}% of total
+              {stats.totalTenants > 0 ? Math.round((stats.activeTenants / stats.totalTenants) * 100) : 0}% of total
             </p>
           </CardContent>
         </Card>
@@ -216,7 +135,7 @@ export default function TenantsPage() {
       </div>
 
       {/* Tenant List */}
-      <TenantList tenants={tenantsData} isLoading={tenantsLoading} />
+      <TenantList tenants={tenants as any} isLoading={false} />
     </div>
   );
 }

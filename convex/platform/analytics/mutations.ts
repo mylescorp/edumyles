@@ -67,11 +67,19 @@ async function getUserAnalytics(ctx: any, tenantId: string, cutoffTime: number) 
     .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId))
     .collect();
 
-  const activeUsers = users.filter((user: any) => {
-    // Consider user active if they logged in within the time range
-    // This would require tracking last login in a real implementation
-    return user.isActive && Math.random() > 0.3; // Mock: 70% active rate
-  });
+  // Determine active users from session/login data
+  const recentSessions: any[] = await ctx.db
+    .query("sessions")
+    .filter((q: any) =>
+      q.and(
+        q.eq(q.field("tenantId"), tenantId),
+        q.gte(q.field("createdAt"), cutoffTime)
+      )
+    )
+    .collect();
+
+  const activeUserIds = new Set(recentSessions.map((s: any) => s.userId));
+  const activeUsers = users.filter((user: any) => activeUserIds.has(user._id));
 
   const roleDistribution = users.reduce((acc: any, user: any) => {
     acc[user.role] = (acc[user.role] || 0) + 1;
@@ -80,6 +88,37 @@ async function getUserAnalytics(ctx: any, tenantId: string, cutoffTime: number) 
 
   const newUsers = users.filter((user: any) => user.createdAt >= cutoffTime).length;
 
+  // Calculate real login frequency from sessions
+  const sessionsByUser: Record<string, number> = {};
+  recentSessions.forEach((s: any) => {
+    sessionsByUser[s.userId] = (sessionsByUser[s.userId] || 0) + 1;
+  });
+  const sessionCounts = Object.values(sessionsByUser);
+  const avgLoginFrequency = sessionCounts.length > 0
+    ? sessionCounts.reduce((sum, c) => sum + c, 0) / sessionCounts.length
+    : 0;
+
+  // Calculate real feature usage from audit logs
+  const auditLogs: any[] = await ctx.db
+    .query("auditLogs")
+    .filter((q: any) =>
+      q.and(
+        q.eq(q.field("tenantId"), tenantId),
+        q.gte(q.field("timestamp"), cutoffTime)
+      )
+    )
+    .collect();
+
+  const totalLogs = auditLogs.length || 1;
+  const featureUsage: Record<string, number> = {};
+  auditLogs.forEach((log: any) => {
+    const module = log.module || "other";
+    featureUsage[module] = (featureUsage[module] || 0) + 1;
+  });
+  Object.keys(featureUsage).forEach((k) => {
+    featureUsage[k] = featureUsage[k] / totalLogs;
+  });
+
   return {
     totalUsers: users.length,
     activeUsers: activeUsers.length,
@@ -87,14 +126,9 @@ async function getUserAnalytics(ctx: any, tenantId: string, cutoffTime: number) 
     roleDistribution,
     growthRate: calculateGrowthRate(users, cutoffTime),
     engagementMetrics: {
-      averageLoginFrequency: 4.2, // Mock data
-      sessionDuration: 25.5, // minutes
-      featureUsage: {
-        dashboard: 0.95,
-        tickets: 0.67,
-        workflows: 0.34,
-        analytics: 0.28,
-      },
+      averageLoginFrequency: Math.round(avgLoginFrequency * 10) / 10,
+      sessionDuration: 0, // Would need session end tracking
+      featureUsage,
     },
   };
 }
@@ -142,9 +176,13 @@ async function getTicketAnalytics(ctx: any, tenantId: string, cutoffTime: number
     categoryDistribution,
     priorityDistribution,
     satisfactionMetrics: {
-      averageCsat: 4.2, // Mock data
-      responseTime: 2.1, // hours
-      escalationRate: 0.15,
+      averageCsat: tickets.length > 0
+        ? tickets.filter((t: any) => t.rating).reduce((sum: number, t: any) => sum + (t.rating || 0), 0) / (tickets.filter((t: any) => t.rating).length || 1)
+        : 0,
+      responseTime: avgResolutionTime > 0 ? Math.round(avgResolutionTime * 10) / 10 : 0,
+      escalationRate: tickets.length > 0
+        ? tickets.filter((t: any) => t.priority === "urgent" || t.escalated).length / tickets.length
+        : 0,
     },
   };
 }
@@ -204,6 +242,18 @@ async function getTenantAnalytics(ctx: any, tenantId: string, cutoffTime: number
     return acc;
   }, {});
 
+  // Calculate churn from inactive tenants
+  const inactiveTenants = tenants.filter((t: any) => t.status === "inactive" || t.status === "churned");
+  const churnRate = tenants.length > 0 ? inactiveTenants.length / tenants.length : 0;
+
+  // Calculate support load from tickets
+  const tenantTickets: any[] = await ctx.db
+    .query("tickets")
+    .filter((q: any) => q.gte(q.field("createdAt"), cutoffTime))
+    .collect();
+  const openTicketCount = tenantTickets.filter((t: any) => t.status === "open" || t.status === "in_progress").length;
+  const supportLoad = tenants.length > 0 ? Math.min(openTicketCount / (tenants.length * 5), 1) : 0;
+
   return {
     totalTenants: tenants.length,
     activeTenants: activeTenants.length,
@@ -211,45 +261,86 @@ async function getTenantAnalytics(ctx: any, tenantId: string, cutoffTime: number
     planDistribution,
     growthMetrics: {
       newTenantsGrowth: calculateGrowthRate(tenants, cutoffTime),
-      churnRate: 0.05, // Mock 5% churn rate
-      retentionRate: 0.95,
+      churnRate: Math.round(churnRate * 100) / 100,
+      retentionRate: Math.round((1 - churnRate) * 100) / 100,
     },
     performanceMetrics: {
-      avgTenantHealth: 0.87,
-      resourceUtilization: 0.72,
-      supportLoad: 0.43,
+      avgTenantHealth: tenants.length > 0 ? Math.round((activeTenants.length / tenants.length) * 100) / 100 : 0,
+      resourceUtilization: tenants.length > 0 ? Math.round((activeTenants.length / Math.max(tenants.length, 1)) * 100) / 100 : 0,
+      supportLoad: Math.round(supportLoad * 100) / 100,
     },
   };
 }
 
-// System analytics aggregation
+// System analytics aggregation - derives metrics from real data
 async function getSystemAnalytics(ctx: any, cutoffTime: number) {
-  // Mock system metrics - in production, these would come from monitoring systems
+  // Get real security metrics
+  const failedLogins: any[] = await ctx.db
+    .query("loginAttempts")
+    .filter((q: any) =>
+      q.and(
+        q.eq(q.field("success"), false),
+        q.gte(q.field("timestamp"), cutoffTime)
+      )
+    )
+    .collect();
+
+  const blockedIPs: any[] = await ctx.db
+    .query("blockedIPs")
+    .filter((q: any) => q.eq(q.field("isActive"), true))
+    .collect();
+
+  const securityIncidents: any[] = await ctx.db
+    .query("securityIncidents")
+    .filter((q: any) => q.gte(q.field("detectedAt"), cutoffTime))
+    .collect();
+
+  const criticalIncidents = securityIncidents.filter((i: any) => i.severity === "critical").length;
+  const threatLevel = criticalIncidents > 5 ? "critical" : criticalIncidents > 2 ? "high" : criticalIncidents > 0 ? "medium" : "low";
+
+  // Derive system health from real operational data
+  const allIncidents: any[] = await ctx.db
+    .query("incidents")
+    .filter((q: any) => q.gte(q.field("createdAt"), cutoffTime))
+    .collect();
+  const resolvedIncidents = allIncidents.filter((i: any) => i.status === "resolved").length;
+  const incidentResolutionRate = allIncidents.length > 0 ? resolvedIncidents / allIncidents.length : 1;
+
+  // Error rate from failed workflow executions
+  const executions: any[] = await ctx.db
+    .query("workflowExecutions")
+    .filter((q: any) => q.gte(q.field("startedAt"), cutoffTime))
+    .collect();
+  const failedExecs = executions.filter((e: any) => e.status === "failed").length;
+  const errorRate = executions.length > 0 ? failedExecs / executions.length : 0;
+
+  const healthScore = Math.round(((incidentResolutionRate + (1 - errorRate)) / 2) * 100) / 100;
+
   return {
-    healthScore: 0.94,
+    healthScore,
     performance: {
-      responseTime: 245, // ms
-      throughput: 1250, // requests/minute
-      errorRate: 0.02,
-      uptime: 0.999,
+      responseTime: 0, // Would need APM integration
+      throughput: executions.length,
+      errorRate: Math.round(errorRate * 1000) / 1000,
+      uptime: Math.round((1 - errorRate) * 1000) / 1000,
     },
     resources: {
-      cpuUsage: 0.67,
-      memoryUsage: 0.73,
-      diskUsage: 0.45,
-      networkBandwidth: 0.38,
+      cpuUsage: 0, // Would need infrastructure monitoring
+      memoryUsage: 0,
+      diskUsage: 0,
+      networkBandwidth: 0,
     },
     database: {
-      queryPerformance: 0.89,
-      connectionPool: 0.71,
-      indexEfficiency: 0.94,
-      cacheHitRate: 0.87,
+      queryPerformance: 0, // Would need DB monitoring
+      connectionPool: 0,
+      indexEfficiency: 0,
+      cacheHitRate: 0,
     },
     security: {
-      failedLogins: 124,
-      blockedIPs: 8,
-      securityEvents: 3,
-      threatLevel: "low",
+      failedLogins: failedLogins.length,
+      blockedIPs: blockedIPs.length,
+      securityEvents: securityIncidents.length,
+      threatLevel,
     },
   };
 }
@@ -276,64 +367,153 @@ function calculateGrowthRate(items: any[], cutoffTime: number): number {
 }
 
 async function getWorkflowCategoryMetrics(ctx: any, tenantId: string, cutoffTime: number) {
-  // Mock category metrics - would aggregate from workflow executions
-  return {
-    onboarding: { executions: 45, successRate: 0.96, avgTime: 2.1 },
-    offboarding: { executions: 12, successRate: 0.92, avgTime: 1.8 },
-    compliance: { executions: 89, successRate: 0.98, avgTime: 0.5 },
-    security: { executions: 156, successRate: 0.94, avgTime: 0.3 },
-    communications: { executions: 234, successRate: 0.91, avgTime: 0.8 },
-    data_management: { executions: 276, successRate: 0.97, avgTime: 1.2 },
-  };
+  const executions: any[] = await ctx.db
+    .query("workflowExecutions")
+    .filter((q: any) =>
+      q.and(
+        q.eq(q.field("tenantId"), tenantId),
+        q.gte(q.field("startedAt"), cutoffTime)
+      )
+    )
+    .collect();
+
+  // Get workflow definitions to map execution to category
+  const workflows: any[] = await ctx.db
+    .query("workflows")
+    .filter((q: any) => q.eq(q.field("tenantId"), tenantId))
+    .collect();
+
+  const workflowMap = new Map(workflows.map((w: any) => [w._id.toString(), w]));
+
+  const categories: Record<string, { total: number; completed: number; totalTime: number }> = {};
+
+  executions.forEach((exec: any) => {
+    const workflow = workflowMap.get(exec.workflowId?.toString());
+    const category = workflow?.category || "uncategorized";
+    if (!categories[category]) {
+      categories[category] = { total: 0, completed: 0, totalTime: 0 };
+    }
+    categories[category].total++;
+    if (exec.status === "completed") {
+      categories[category].completed++;
+      categories[category].totalTime += (exec.duration || 0);
+    }
+  });
+
+  const result: Record<string, { executions: number; successRate: number; avgTime: number }> = {};
+  for (const [cat, data] of Object.entries(categories)) {
+    result[cat] = {
+      executions: data.total,
+      successRate: data.total > 0 ? Math.round((data.completed / data.total) * 100) / 100 : 0,
+      avgTime: data.completed > 0 ? Math.round((data.totalTime / data.completed) * 10) / 10 : 0,
+    };
+  }
+
+  return result;
 }
 
 async function getTopPerformingWorkflows(ctx: any, tenantId: string, cutoffTime: number) {
-  // Mock top performers - would calculate from actual execution data
-  return [
-    {
-      workflowId: "workflow_3",
-      workflowName: "Student Data Backup",
-      executions: 365,
-      successRate: 0.989,
-      avgDuration: 0.1,
-      efficiency: 0.95,
-    },
-    {
-      workflowId: "workflow_2",
-      workflowName: "Monthly Compliance Check",
-      executions: 12,
-      successRate: 1.0,
-      avgDuration: 0.5,
-      efficiency: 0.92,
-    },
-    {
-      workflowId: "workflow_1",
-      workflowName: "New Employee Onboarding",
-      executions: 45,
-      successRate: 0.956,
-      avgDuration: 2.5,
-      efficiency: 0.88,
-    },
-  ];
+  const executions: any[] = await ctx.db
+    .query("workflowExecutions")
+    .filter((q: any) =>
+      q.and(
+        q.eq(q.field("tenantId"), tenantId),
+        q.gte(q.field("startedAt"), cutoffTime)
+      )
+    )
+    .collect();
+
+  const workflows: any[] = await ctx.db
+    .query("workflows")
+    .filter((q: any) => q.eq(q.field("tenantId"), tenantId))
+    .collect();
+
+  const workflowMap = new Map(workflows.map((w: any) => [w._id.toString(), w]));
+
+  // Group executions by workflow
+  const byWorkflow: Record<string, { total: number; completed: number; totalDuration: number }> = {};
+  executions.forEach((exec: any) => {
+    const wfId = exec.workflowId?.toString() || "unknown";
+    if (!byWorkflow[wfId]) {
+      byWorkflow[wfId] = { total: 0, completed: 0, totalDuration: 0 };
+    }
+    byWorkflow[wfId].total++;
+    if (exec.status === "completed") {
+      byWorkflow[wfId].completed++;
+      byWorkflow[wfId].totalDuration += (exec.duration || 0);
+    }
+  });
+
+  // Calculate performance and sort
+  const performers = Object.entries(byWorkflow).map(([wfId, data]) => {
+    const workflow = workflowMap.get(wfId);
+    const successRate = data.total > 0 ? data.completed / data.total : 0;
+    const avgDuration = data.completed > 0 ? data.totalDuration / data.completed : 0;
+    const efficiency = successRate * (1 - Math.min(avgDuration / 10, 1)); // Penalize slow workflows
+    return {
+      workflowId: wfId,
+      workflowName: workflow?.name || "Unknown Workflow",
+      executions: data.total,
+      successRate: Math.round(successRate * 1000) / 1000,
+      avgDuration: Math.round(avgDuration * 10) / 10,
+      efficiency: Math.round(efficiency * 100) / 100,
+    };
+  });
+
+  return performers.sort((a, b) => b.efficiency - a.efficiency).slice(0, 10);
 }
 
 async function calculateTrends(ctx: any, tenantId: string, timeRange: string) {
   const points = timeRange === "24h" ? 24 : timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
-  const interval = timeRange === "24h" ? "hourly" : timeRange === "7d" ? "daily" : "daily";
-  
-  const trends = [];
   const now = Date.now();
-  const intervalMs = getTimeRangeMs(timeRange) / points;
+  const totalMs = getTimeRangeMs(timeRange);
+  const intervalMs = totalMs / points;
 
+  // Fetch data for the entire time range
+  const cutoffTime = now - totalMs;
+
+  const [sessions, tickets, executions] = await Promise.all([
+    ctx.db.query("sessions")
+      .filter((q: any) =>
+        q.and(
+          q.eq(q.field("tenantId"), tenantId),
+          q.gte(q.field("createdAt"), cutoffTime)
+        )
+      ).collect(),
+    ctx.db.query("tickets")
+      .filter((q: any) =>
+        q.and(
+          q.eq(q.field("tenantId"), tenantId),
+          q.gte(q.field("createdAt"), cutoffTime)
+        )
+      ).collect(),
+    ctx.db.query("workflowExecutions")
+      .filter((q: any) =>
+        q.and(
+          q.eq(q.field("tenantId"), tenantId),
+          q.gte(q.field("startedAt"), cutoffTime)
+        )
+      ).collect(),
+  ]);
+
+  const trends = [];
   for (let i = points - 1; i >= 0; i--) {
-    const timestamp = now - (i * intervalMs);
+    const bucketEnd = now - (i * intervalMs);
+    const bucketStart = bucketEnd - intervalMs;
+
+    const bucketSessions = sessions.filter((s: any) => s.createdAt >= bucketStart && s.createdAt < bucketEnd);
+    const uniqueUsers = new Set(bucketSessions.map((s: any) => s.userId)).size;
+    const bucketTickets = tickets.filter((t: any) => t.createdAt >= bucketStart && t.createdAt < bucketEnd);
+    const bucketExecs = executions.filter((e: any) => e.startedAt >= bucketStart && e.startedAt < bucketEnd);
+    const failedExecs = bucketExecs.filter((e: any) => e.status === "failed").length;
+
     trends.push({
-      timestamp,
-      date: new Date(timestamp).toISOString(),
-      users: Math.floor(Math.random() * 100) + 50,
-      tickets: Math.floor(Math.random() * 50) + 10,
-      workflows: Math.floor(Math.random() * 20) + 5,
-      systemHealth: 0.9 + Math.random() * 0.1,
+      timestamp: bucketEnd,
+      date: new Date(bucketEnd).toISOString(),
+      users: uniqueUsers,
+      tickets: bucketTickets.length,
+      workflows: bucketExecs.length,
+      systemHealth: bucketExecs.length > 0 ? Math.round((1 - failedExecs / bucketExecs.length) * 100) / 100 : 1,
     });
   }
 
@@ -453,7 +633,7 @@ async function generateCustomReportData(ctx: any, config: any, tenantId: string,
         data.systemPerformance = await getSystemAnalytics(ctx, cutoffTime);
         break;
       default:
-        data[metric] = { value: Math.random() * 100, trend: "up" };
+        data[metric] = { value: 0, trend: "stable", note: "Custom metric not yet configured" };
     }
   }
 

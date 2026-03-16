@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "convex/react";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelativeTime } from "@/lib/utils";
@@ -151,51 +152,51 @@ export default function SecurityDashboardPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Get security overview
-  const { data: securityOverview, isLoading: overviewLoading } = useQuery(
-    api.platform.security.getSecurityOverview,
-    { sessionToken, timeRange: selectedTimeRange },
+  const securityOverview = usePlatformQuery(
+    api.platform.security.queries.getSecurityOverview,
+    { sessionToken: sessionToken || "", timeRange: selectedTimeRange },
     !!sessionToken
   );
 
   // Get security incidents
-  const { data: incidents, isLoading: incidentsLoading } = useQuery(
-    api.platform.security.getSecurityIncidents,
-    { sessionToken, status: "open", limit: 20 },
+  const incidents = usePlatformQuery(
+    api.platform.security.queries.getSecurityIncidents,
+    { sessionToken: sessionToken || "", status: "open", limit: 20 },
     !!sessionToken
   );
 
   // Get active threats
-  const { data: threats, isLoading: threatsLoading } = useQuery(
-    api.platform.security.getActiveThreats,
-    { sessionToken, status: "active", limit: 50 },
+  const threats = usePlatformQuery(
+    api.platform.security.queries.getActiveThreats,
+    { sessionToken: sessionToken || "", status: "active", limit: 50 },
     !!sessionToken
   );
 
   // Get compliance status
-  const { data: compliance, isLoading: complianceLoading } = useQuery(
-    api.platform.security.getComplianceStatus,
-    { sessionToken },
+  const compliance = usePlatformQuery(
+    api.platform.security.queries.getComplianceStatus,
+    { sessionToken: sessionToken || "" },
     !!sessionToken
   );
 
   // Get access logs
-  const { data: accessLogs, isLoading: accessLogsLoading } = useQuery(
-    api.platform.security.getAccessLogs,
-    { sessionToken, timeRange: selectedTimeRange, limit: 100 },
+  const accessLogs = usePlatformQuery(
+    api.platform.security.queries.getAccessLogs,
+    { sessionToken: sessionToken || "", timeRange: selectedTimeRange, limit: 100 },
     !!sessionToken
   );
 
   // Get vulnerability scan results
-  const { data: vulnerabilityScan, isLoading: vulnerabilityLoading } = useQuery(
-    api.platform.security.getVulnerabilityScan,
-    { sessionToken },
+  const vulnerabilityScan = usePlatformQuery(
+    api.platform.security.queries.getVulnerabilityScan,
+    { sessionToken: sessionToken || "" },
     !!sessionToken
   );
 
   // Mutations
-  const acknowledgeThreatMutation = useMutation(api.platform.security.acknowledgeThreat);
-  const mitigateThreatMutation = useMutation(api.platform.security.mitigateThreat);
-  const blockIPMutation = useMutation(api.platform.security.blockIP);
+  const acknowledgeThreatMutation = useMutation(api.platform.security.mutations.acknowledgeThreat);
+  const mitigateThreatMutation = useMutation(api.platform.security.mutations.mitigateThreat);
+  const blockIPMutation = useMutation(api.platform.security.mutations.blockIP);
 
   // Get severity color
   const getSeverityColor = (severity: string) => {

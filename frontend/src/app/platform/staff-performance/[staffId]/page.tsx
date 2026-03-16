@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -181,189 +184,105 @@ interface WorkSchedule {
   timezone: string;
 }
 
-const mockStaffDetail: StaffDetail = {
-  _id: "1",
-  firstName: "Michael",
-  lastName: "Chen",
-  email: "michael.chen@edumyles.com",
-  phone: "+254 712 345 678",
-  role: "super_admin",
-  department: "Management",
-  location: "Nairobi",
-  isActive: true,
-  joinedAt: Date.now() - 365 * 24 * 60 * 60 * 1000,
-  lastActivity: Date.now() - 2 * 60 * 60 * 1000,
-  performance: {
-    ticketsResolved: 145,
-    ticketsCreated: 89,
-    responseTime: 15,
-    satisfactionScore: 4.8,
-    productivity: 8.5,
-    attendance: 98,
-    qualityScore: 92,
-    efficiency: 88,
-    collaboration: 95,
-    innovation: 85,
-    communication: 90,
-    leadership: 93,
-    weeklyStats: [
-      { week: "2024-W01", ticketsResolved: 28, responseTime: 12, satisfactionScore: 4.9, productivity: 9.2, efficiency: 90 },
-      { week: "2024-W02", ticketsResolved: 32, responseTime: 14, satisfactionScore: 4.7, productivity: 8.8, efficiency: 87 },
-      { week: "2024-W03", ticketsResolved: 30, responseTime: 13, satisfactionScore: 4.8, productivity: 9.0, efficiency: 89 },
-      { week: "2024-W04", ticketsResolved: 35, responseTime: 15, satisfactionScore: 4.9, productivity: 9.5, efficiency: 92 }
-    ],
-    monthlyStats: [
-      { month: "2024-01", ticketsResolved: 125, revenue: 2500000, clientSatisfaction: 4.8, efficiency: 87, qualityScore: 90 },
-      { month: "2024-02", ticketsResolved: 145, revenue: 2900000, clientSatisfaction: 4.9, efficiency: 90, qualityScore: 92 }
-    ],
-    skillAssessments: [
-      { skill: "Communication", level: 9, lastAssessed: Date.now() - 30 * 24 * 60 * 60 * 1000, assessor: "Sarah Wilson", notes: "Excellent client communication skills" },
-      { skill: "Problem Solving", level: 8, lastAssessed: Date.now() - 60 * 24 * 60 * 60 * 1000, assessor: "David Kim", notes: "Strong analytical thinking" },
-      { skill: "Leadership", level: 9, lastAssessed: Date.now() - 90 * 24 * 60 * 60 * 1000, assessor: "System", notes: "Natural leader with great team management" },
-      { skill: "Technical Skills", level: 7, lastAssessed: Date.now() - 45 * 24 * 60 * 60 * 1000, assessor: "Sarah Wilson", notes: "Good technical knowledge, room for improvement" }
-    ]
-  },
-  activities: [
-    {
-      _id: "1",
-      type: "ticket_resolved",
-      description: "Resolved critical tenant issue",
-      details: "Fixed billing system bug for Nairobi International Academy",
-      timestamp: Date.now() - 2 * 60 * 60 * 1000,
-      duration: 45,
-      impact: "high",
-      category: "support"
+function mapBackendToStaffDetail(data: any): StaffDetail {
+  const nameParts = (data.userName || "Unknown").split(" ");
+  const firstName = nameParts[0] || "Unknown";
+  const lastName = nameParts.slice(1).join(" ") || "";
+  const latestMetrics = data.periods?.[0]?.metrics || {};
+  const latestScore = data.currentScore ?? 0;
+
+  return {
+    _id: data.userId,
+    firstName,
+    lastName,
+    email: data.userEmail || "",
+    role: (data.role as any) || "agent",
+    department: data.department || "General",
+    location: "",
+    isActive: true,
+    joinedAt: Date.now() - 365 * 24 * 60 * 60 * 1000,
+    lastActivity: Date.now(),
+    performance: {
+      ticketsResolved: latestMetrics.ticketsResolved ?? 0,
+      ticketsCreated: 0,
+      responseTime: latestMetrics.avgResponseTime ?? 0,
+      satisfactionScore: (latestMetrics.satisfactionScore ?? 0) / 20, // scale 0-100 to 0-5
+      productivity: (latestMetrics.ticketsResolved ?? 0) / 5,
+      attendance: 95,
+      qualityScore: latestScore,
+      efficiency: latestMetrics.slaCompliance ?? 0,
+      collaboration: 80,
+      innovation: 80,
+      communication: 80,
+      leadership: 80,
+      weeklyStats: [],
+      monthlyStats: (data.periods || []).map((p: any) => ({
+        month: p.period,
+        ticketsResolved: p.metrics?.ticketsResolved ?? 0,
+        revenue: 0,
+        clientSatisfaction: (p.metrics?.satisfactionScore ?? 0) / 20,
+        efficiency: p.metrics?.slaCompliance ?? 0,
+        qualityScore: p.overallScore ?? 0,
+      })),
+      skillAssessments: [],
     },
-    {
-      _id: "2",
-      type: "meeting_attended",
-      description: "Weekly management meeting",
-      details: "Discussed Q1 targets and team performance",
-      timestamp: Date.now() - 4 * 60 * 60 * 1000,
-      duration: 60,
-      impact: "medium",
-      category: "management"
-    },
-    {
-      _id: "3",
-      type: "training_completed",
-      description: "Advanced leadership training",
-      details: "Completed 8-hour leadership development course",
-      timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      duration: 480,
-      impact: "high",
-      category: "training"
-    }
-  ],
-  achievements: [
-    {
-      _id: "1",
-      title: "Top Performer",
-      description: "Highest satisfaction score this month",
-      icon: "trophy",
-      category: "performance",
-      earnedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      points: 100,
-      level: "gold",
-      criteria: "Achieve satisfaction score above 4.7"
-    },
-    {
-      _id: "2",
-      title: "Quick Responder",
-      description: "Average response time under 15 minutes",
-      icon: "zap",
-      category: "efficiency",
-      earnedAt: Date.now() - 14 * 24 * 60 * 60 * 1000,
-      points: 75,
-      level: "silver",
-      criteria: "Maintain response time below 15 minutes for 4 weeks"
-    },
-    {
-      _id: "3",
-      title: "Training Champion",
-      description: "Completed 5 training courses this quarter",
+    activities: [],
+    achievements: (data.achievements || []).map((a: string, i: number) => ({
+      _id: String(i),
+      title: a,
+      description: a,
       icon: "award",
-      category: "training",
-      earnedAt: Date.now() - 21 * 24 * 60 * 60 * 1000,
-      points: 120,
-      level: "platinum",
-      criteria: "Complete 5 or more training courses in a quarter"
-    }
-  ],
-  goals: [
-    {
+      category: "performance" as const,
+      earnedAt: Date.now(),
+      points: 50,
+      level: "silver" as const,
+      criteria: "",
+    })),
+    goals: data.goals ? [{
       _id: "1",
-      title: "Improve Response Time",
-      description: "Reduce average response time to under 10 minutes",
-      type: "performance",
-      target: "Response time < 10 minutes",
-      progress: 75,
+      title: "Tickets Target",
+      description: `Target: ${data.goals.ticketsTarget ?? "N/A"} tickets`,
+      type: "performance" as const,
+      target: `${data.goals.ticketsTarget ?? 0} tickets`,
+      progress: data.goals.ticketsTarget ? Math.min(100, Math.round((latestMetrics.ticketsResolved ?? 0) / data.goals.ticketsTarget * 100)) : 0,
       dueDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
-      status: "active",
-      priority: "high",
-      createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000
+      status: "active" as const,
+      priority: "high" as const,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }] : [],
+    feedback: [],
+    schedule: {
+      monday: { start: "09:00", end: "17:00", active: true },
+      tuesday: { start: "09:00", end: "17:00", active: true },
+      wednesday: { start: "09:00", end: "17:00", active: true },
+      thursday: { start: "09:00", end: "17:00", active: true },
+      friday: { start: "09:00", end: "17:00", active: true },
+      saturday: { start: "10:00", end: "14:00", active: false },
+      sunday: { start: "10:00", end: "14:00", active: false },
+      timezone: "Africa/Nairobi",
     },
-    {
-      _id: "2",
-      title: "Complete Advanced Certification",
-      description: "Complete advanced system administration certification",
-      type: "training",
-      target: "Certification completed",
-      progress: 40,
-      dueDate: Date.now() + 60 * 24 * 60 * 60 * 1000,
-      status: "active",
-      priority: "medium",
-      createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000
-    }
-  ],
-  feedback: [
-    {
-      _id: "1",
-      from: "Sarah Wilson",
-      fromRole: "Admin",
-      type: "peer",
-      rating: 5,
-      comment: "Excellent team player and always willing to help",
-      strengths: ["Teamwork", "Problem solving", "Communication"],
-      improvements: ["Could delegate more tasks"],
-      timestamp: Date.now() - 14 * 24 * 60 * 60 * 1000,
-      isAnonymous: false
-    },
-    {
-      _id: "2",
-      from: "Client Feedback",
-      fromRole: "Client",
-      type: "client",
-      rating: 5,
-      comment: "Very professional and quick to resolve issues",
-      strengths: ["Professionalism", "Efficiency", "Technical knowledge"],
-      improvements: [],
-      timestamp: Date.now() - 21 * 24 * 60 * 60 * 1000,
-      isAnonymous: true
-    }
-  ],
-  schedule: {
-    monday: { start: "09:00", end: "17:00", active: true },
-    tuesday: { start: "09:00", end: "17:00", active: true },
-    wednesday: { start: "09:00", end: "17:00", active: true },
-    thursday: { start: "09:00", end: "17:00", active: true },
-    friday: { start: "09:00", end: "17:00", active: true },
-    saturday: { start: "10:00", end: "14:00", active: false },
-    sunday: { start: "10:00", end: "14:00", active: false },
-    timezone: "Africa/Nairobi"
-  }
-};
+  };
+}
 
 export default function StaffDetailPage() {
   const params = useParams();
   const staffId = params.staffId as string;
-  
-  const [staff, setStaff] = useState<StaffDetail>(mockStaffDetail);
+  const { sessionToken } = useAuth();
+
   const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
   const [isGoalDialogOpen, setIsGoalDialogOpen] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<string>("week");
+
+  // Real Convex query
+  const staffDetailData = usePlatformQuery(
+    api.platform.staffPerformance.queries.getStaffDetail,
+    { sessionToken: sessionToken || "", userId: staffId }
+  );
+
+  if (!staffDetailData) return <div className="p-6">Loading...</div>;
+
+  const staff: StaffDetail = mapBackendToStaffDetail(staffDetailData);
 
   const getRoleColor = (role: string) => {
     switch (role) {

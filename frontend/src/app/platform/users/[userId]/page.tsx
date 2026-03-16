@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useAuth } from "@/hooks/useAuth";
+import { api } from "../../../../../convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,8 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  User, 
+import {
+  User,
   Edit,
   Mail,
   Phone,
@@ -43,6 +46,10 @@ import {
   History,
   X
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 
 interface UserDetail {
   _id: string;
@@ -50,20 +57,13 @@ interface UserDetail {
   lastName: string;
   email: string;
   phone?: string;
-  role: "super_admin" | "admin" | "manager" | "agent" | "viewer";
-  status: "active" | "inactive" | "suspended" | "pending";
+  role: string;
+  isActive: boolean;
   tenantId?: string;
-  tenantName?: string;
-  department?: string;
   location?: string;
-  lastLogin?: number;
   createdAt: number;
-  updatedAt: number;
-  createdBy: string;
   permissions: string[];
   twoFactorEnabled: boolean;
-  emailVerified: boolean;
-  profilePicture?: string;
   loginHistory: LoginRecord[];
   sessions: ActiveSession[];
   securitySettings: SecuritySettings;
@@ -223,9 +223,21 @@ const mockUser: UserDetail = {
 export default function UserDetailPage() {
   const params = useParams();
   const userId = params.userId as string;
-  
-  const [user, setUser] = useState<UserDetail>(mockUser);
+  const { sessionToken } = useAuth();
+
+  const userData = usePlatformQuery(
+    api.platform.users.queries.getUserById,
+    { sessionToken: sessionToken || "", userId },
+    !!sessionToken
+  );
+
+  const [user, setUser] = useState<UserDetail | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Sync query data to local state for editing
+  if (userData && !user) {
+    setUser(userData as any);
+  }
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [is2FADialogOpen, setIs2FADialogOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -302,9 +314,11 @@ export default function UserDetailPage() {
     });
   };
 
+  if (!user) return <div className="p-6 text-center text-muted-foreground">Loading user details...</div>;
+
   return (
     <div className="space-y-6">
-      <PageHeader 
+      <PageHeader
         title={`${user.firstName} ${user.lastName}`} 
         description="User profile and security management"
         breadcrumbs={[

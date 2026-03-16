@@ -35,7 +35,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 
 interface Campaign {
   _id: string;
@@ -80,61 +82,57 @@ export default function CommunicationsPage() {
   const [isCreateCampaignOpen, setIsCreateCampaignOpen] = useState(false);
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
 
-  // Mock data - replace with actual queries
-  const campaigns: Campaign[] = [
-    {
-      _id: "campaign_1",
-      name: "Welcome Message Series",
-      description: "Onboarding campaign for new schools",
-      status: "running",
-      channels: ["email", "sms"],
-      createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      scheduledFor: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      stats: {
-        totalRecipients: 1250,
-        sent: 1180,
-        delivered: 1120,
-        opened: 890,
-        clicked: 234,
-        failed: 6,
-      },
-    },
-    {
-      _id: "campaign_2",
-      name: "Monthly Newsletter",
-      description: "Platform updates and announcements",
-      status: "scheduled",
-      channels: ["email"],
-      createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      scheduledFor: Date.now() + 3 * 24 * 60 * 60 * 1000,
-      stats: {
-        totalRecipients: 5000,
-        sent: 0,
-        delivered: 0,
-        opened: 0,
-        clicked: 0,
-        failed: 0,
-      },
-    },
-  ];
+  // Real Convex queries
+  const campaignsData = usePlatformQuery(
+    api.platform.communications.queries.listCampaigns,
+    { sessionToken: sessionToken || "" }
+  );
 
-  const templates: Template[] = [
-    {
-      _id: "template_1",
-      name: "Welcome Email",
-      description: "Standard welcome message for new users",
-      category: "onboarding",
-      channels: ["email"],
-      subject: "Welcome to EduMyles",
-      content: "Dear {{firstName}}, welcome to EduMyles!",
-      variables: [
-        { name: "firstName", type: "text", defaultValue: "User", required: true },
-        { name: "schoolName", type: "text", defaultValue: "Your School", required: true },
-      ],
-      usageCount: 145,
-      createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
+  const templatesData = usePlatformQuery(
+    api.platform.communications.queries.listTemplates,
+    { sessionToken: sessionToken || "" }
+  );
+
+  const deliveryAnalytics = usePlatformQuery(
+    api.platform.communications.queries.getDeliveryAnalytics,
+    { sessionToken: sessionToken || "" }
+  );
+
+  const createCampaign = useMutation(api.platform.communications.mutations.createCampaign);
+  const createTemplate = useMutation(api.platform.communications.mutations.createTemplate);
+
+  if (!campaignsData) return <LoadingSkeleton variant="page" />;
+
+  const campaigns: Campaign[] = (campaignsData || []).map((c: any) => ({
+    _id: c._id,
+    name: c.name,
+    description: c.description || "",
+    status: c.status,
+    channels: c.channels || [],
+    createdAt: c.createdAt,
+    scheduledFor: c.scheduledFor || c.createdAt,
+    stats: c.stats || {
+      totalRecipients: 0,
+      sent: 0,
+      delivered: 0,
+      opened: 0,
+      clicked: 0,
+      failed: 0,
     },
-  ];
+  }));
+
+  const templates: Template[] = (templatesData || []).map((t: any) => ({
+    _id: t._id,
+    name: t.name,
+    description: t.description || "",
+    category: t.category || "general",
+    channels: t.channels || [],
+    subject: t.subject,
+    content: t.content || "",
+    variables: t.variables || [],
+    usageCount: t.usageCount || 0,
+    createdAt: t.createdAt,
+  }));
 
   const getStatusColor = (status: string) => {
     switch (status) {

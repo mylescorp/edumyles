@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,51 +39,34 @@ interface Ticket {
 
 export default function TicketsPage() {
   const router = useRouter();
+  const { sessionToken } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewType, setViewType] = useState<"table" | "kanban" | "calendar">("table");
 
-  // Mock data
-  const mockTickets: Ticket[] = [
-    {
-      _id: "1",
-      title: "Unable to access student attendance reports",
-      category: "Technical",
-      priority: "P1",
-      status: "in_progress",
-      tenantName: "Nairobi International Academy",
-      createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      slaResolutionDL: Date.now() + 3 * 24 * 60 * 60 * 1000,
-      slaBreached: false,
-      assignedTo: "agent1@edumyles.com"
-    },
-    {
-      _id: "2",
-      title: "Billing invoice not generated for March",
-      category: "Billing",
-      priority: "P2",
-      status: "open",
-      tenantName: "Mombasa Primary School",
-      createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-      slaResolutionDL: Date.now() + 5 * 24 * 60 * 60 * 1000,
-      slaBreached: false,
-      assignedTo: "agent2@edumyles.com"
-    },
-    {
-      _id: "3",
-      title: "Request for additional user licenses",
-      category: "Account",
-      priority: "P3",
-      status: "pending_school",
-      tenantName: "Kisumu High School",
-      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-      slaResolutionDL: Date.now() + 7 * 24 * 60 * 60 * 1000,
-      slaBreached: false,
-      assignedTo: "agent3@edumyles.com"
-    }
-  ];
+  // Real Convex query
+  const ticketsData = usePlatformQuery(
+    api.platform.support.queries.getAISupportTickets,
+    { sessionToken: sessionToken || "" }
+  );
+
+  if (!ticketsData) return <div className="p-6">Loading...</div>;
+
+  // Map backend data to component Ticket shape
+  const allTickets: Ticket[] = ticketsData.map((t: any) => ({
+    _id: t._id,
+    title: t.title ?? t.subject ?? "Untitled",
+    category: t.category ?? "general",
+    priority: t.priority === "urgent" ? "P0" : t.priority === "high" ? "P1" : t.priority === "medium" ? "P2" : "P3",
+    status: t.status ?? "open",
+    tenantName: t.tenantName ?? t.tenantId ?? "Unknown",
+    createdAt: t.createdAt ?? Date.now(),
+    slaResolutionDL: t.slaResolutionDL ?? t.createdAt + 7 * 24 * 60 * 60 * 1000,
+    slaBreached: t.slaBreached ?? false,
+    assignedTo: t.assignedTo,
+  }));
 
   // Filter tickets based on search
-  const filteredTickets = mockTickets.filter(ticket => 
+  const filteredTickets = allTickets.filter(ticket =>
     ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     ticket.tenantName.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -228,18 +214,18 @@ export default function TicketsPage() {
           {/* SLA Stats */}
           <div className="grid grid-cols-5 gap-4 mb-6 p-4 bg-green-50 rounded-lg">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{mockTickets.length}</div>
+              <div className="text-2xl font-bold text-green-600">{allTickets.length}</div>
               <div className="text-sm text-muted-foreground">Total Tickets</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
-                {mockTickets.filter(t => t.status === "open").length}
+                {allTickets.filter(t => t.status === "open").length}
               </div>
               <div className="text-sm text-muted-foreground">Open</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">
-                {mockTickets.filter(t => t.priority === "P0" || t.priority === "P1").length}
+                {allTickets.filter(t => t.priority === "P0" || t.priority === "P1").length}
               </div>
               <div className="text-sm text-muted-foreground">High Priority</div>
             </div>

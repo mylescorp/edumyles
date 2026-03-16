@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useAuth } from "@/hooks/useAuth";
+import { api } from "../../../../../convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -139,8 +142,21 @@ const pipelineStages = [
 export default function DealDetailPage() {
   const params = useParams();
   const dealId = params.dealId as string;
-  
-  const [deal, setDeal] = useState<Deal>(mockDeal);
+  const { sessionToken } = useAuth();
+
+  const dealData = usePlatformQuery(
+    api.platform.crm.queries.getDealById,
+    { sessionToken: sessionToken || "", dealId },
+    !!sessionToken
+  );
+
+  const [deal, setDeal] = useState<Deal | null>(null);
+
+  // Sync query data to local state for editing
+  if (dealData && !deal) {
+    setDeal(dealData as any);
+  }
+
   const [newActivity, setNewActivity] = useState({
     type: "note" as const,
     title: "",
@@ -211,9 +227,11 @@ export default function DealDetailPage() {
     setEditedDeal(updatedDeal);
   };
 
+  if (!deal) return <div className="p-6 text-center text-muted-foreground">Loading deal details...</div>;
+
   return (
     <div className="space-y-6">
-      <PageHeader 
+      <PageHeader
         title={deal.schoolName} 
         description="Manage deal details and track activities"
         breadcrumbs={[

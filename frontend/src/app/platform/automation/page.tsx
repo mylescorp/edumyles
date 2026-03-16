@@ -53,7 +53,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 
 interface Workflow {
   _id: string;
@@ -130,424 +132,86 @@ export default function AutomationCenterPage() {
   const [isCreateWorkflowOpen, setIsCreateWorkflowOpen] = useState(false);
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
 
-  // Mock data - replace with actual queries
-  const workflows: Workflow[] = [
-    {
-      _id: "workflow_1",
-      name: "New Employee Onboarding",
-      description: "Automated onboarding process for new staff members including account setup, training assignments, and equipment allocation",
-      category: "onboarding",
-      trigger: "manual",
-      status: "active",
-      steps: [
-        {
-          id: "step_1",
-          name: "Create User Account",
-          type: "action",
-          config: {
-            action: "create_user",
-            parameters: {
-              role: "staff",
-              send_welcome_email: true,
-            },
-          },
-          position: 1,
-        },
-        {
-          id: "step_2",
-          name: "Assign Required Training",
-          type: "action",
-          config: {
-            action: "assign_training",
-            courses: ["safety_training", "system_training", "compliance_training"],
-            due_date: "30_days",
-          },
-          position: 2,
-        },
-        {
-          id: "step_3",
-          name: "Notify IT Department",
-          type: "notification",
-          config: {
-            recipients: ["it@edumyles.com"],
-            subject: "New Employee Equipment Setup",
-            template: "equipment_setup_notification",
-          },
-          position: 3,
-        },
-        {
-          id: "step_4",
-          name: "Schedule Welcome Meeting",
-          type: "action",
-          config: {
-            action: "create_meeting",
-            attendees: ["hr", "manager", "department_head"],
-            duration: "1_hour",
-          },
-          position: 4,
-        },
-      ],
-      isActive: true,
-      createdBy: "hr_admin@edumyles.com",
-      createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
-      executionCount: 45,
-      successRate: 95.6,
-      averageDuration: 2.5,
-    },
-    {
-      _id: "workflow_2",
-      name: "Monthly Compliance Check",
-      description: "Automated monthly compliance verification and reporting for regulatory requirements",
-      category: "compliance",
-      trigger: "scheduled",
-      status: "active",
-      steps: [
-        {
-          id: "step_1",
-          name: "Generate Compliance Report",
-          type: "data_operation",
-          config: {
-            operation: "generate_report",
-            report_type: "compliance_summary",
-            time_range: "monthly",
-          },
-          position: 1,
-        },
-        {
-          id: "step_2",
-          name: "Check Policy Compliance",
-          type: "condition",
-          config: {
-            condition: "compliance_score >= 90",
-            on_true: "step_3",
-            on_false: "step_4",
-          },
-          position: 2,
-        },
-        {
-          id: "step_3",
-          name: "Send Compliance Confirmation",
-          type: "notification",
-          config: {
-            recipients: ["compliance_officer@edumyles.com"],
-            subject: "Monthly Compliance Check - PASSED",
-            template: "compliance_success_notification",
-          },
-          position: 3,
-        },
-        {
-          id: "step_4",
-          name: "Create Compliance Tasks",
-          type: "action",
-          config: {
-            action: "create_tasks",
-            priority: "high",
-            assignee: "compliance_team@edumyles.com",
-            due_date: "7_days",
-          },
-          position: 4,
-        },
-      ],
-      isActive: true,
-      createdBy: "compliance_admin@edumyles.com",
-      createdAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      executionCount: 12,
-      successRate: 100,
-      averageDuration: 0.5,
-    },
-    {
-      _id: "workflow_3",
-      name: "Student Data Backup",
-      description: "Automated daily backup of critical student data with verification and notification",
-      category: "data_management",
-      trigger: "scheduled",
-      status: "active",
-      steps: [
-        {
-          id: "step_1",
-          name: "Initiate Database Backup",
-          type: "integration",
-          config: {
-            integration: "database_backup",
-            backup_type: "full",
-            compression: true,
-          },
-          position: 1,
-        },
-        {
-          id: "step_2",
-          name: "Verify Backup Integrity",
-          type: "condition",
-          config: {
-            condition: "backup_verification.success",
-            on_true: "step_3",
-            on_false: "step_4",
-          },
-          position: 2,
-        },
-        {
-          id: "step_3",
-          name: "Store Backup to Cloud Storage",
-          type: "integration",
-          config: {
-            integration: "cloud_storage",
-            storage_location: "backups/student_data",
-            encryption: true,
-          },
-          position: 3,
-        },
-        {
-          id: "step_4",
-          name: "Send Backup Failure Alert",
-          type: "notification",
-          config: {
-            recipients: ["admin@edumyles.com", "it@edumyles.com"],
-            subject: "BACKUP FAILURE - Student Data",
-            priority: "high",
-          },
-          position: 4,
-        },
-      ],
-      isActive: true,
-      createdBy: "it_admin@edumyles.com",
-      createdAt: Date.now() - 90 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      executionCount: 365,
-      successRate: 98.9,
-      averageDuration: 0.1,
-    },
-  ];
+  // Real Convex queries
+  const workflowsData = usePlatformQuery(
+    api.platform.automation.queries.getWorkflows,
+    { sessionToken: sessionToken || "" }
+  );
 
-  const workflowExecutions: WorkflowExecution[] = [
-    {
-      _id: "execution_1",
-      workflowId: "workflow_1",
-      workflowName: "New Employee Onboarding",
-      executionId: "exec_123456",
-      status: "completed",
-      startedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      completedAt: Date.now() - 1.8 * 24 * 60 * 60 * 1000,
-      duration: 4.8,
-      triggeredBy: "hr_admin@edumyles.com",
-      triggerData: {
-        employeeId: "emp_789",
-        employeeName: "John Doe",
-        department: "Academics",
-        position: "Teacher",
-      },
-      steps: [
-        {
-          id: "step_1",
-          name: "Create User Account",
-          status: "completed",
-          startedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-          completedAt: Date.now() - 1.95 * 24 * 60 * 60 * 1000,
-          duration: 0.3,
-          output: {
-            userId: "user_456",
-            email: "john.doe@edumyles.com",
-            accountCreated: true,
-          },
-        },
-        {
-          id: "step_2",
-          name: "Assign Required Training",
-          status: "completed",
-          startedAt: Date.now() - 1.95 * 24 * 60 * 60 * 1000,
-          completedAt: Date.now() - 1.8 * 24 * 60 * 60 * 1000,
-          duration: 0.15,
-          output: {
-            coursesAssigned: 3,
-            trainingIds: ["course_1", "course_2", "course_3"],
-            dueDate: "2024-04-15",
-          },
-        },
-        {
-          id: "step_3",
-          name: "Notify IT Department",
-          status: "completed",
-          startedAt: Date.now() - 1.8 * 24 * 60 * 60 * 1000,
-          completedAt: Date.now() - 1.75 * 24 * 60 * 60 * 1000,
-          duration: 0.05,
-          output: {
-            notificationSent: true,
-            recipients: ["it@edumyles.com"],
-            emailId: "email_789",
-          },
-        },
-        {
-          id: "step_4",
-          name: "Schedule Welcome Meeting",
-          status: "completed",
-          startedAt: Date.now() - 1.75 * 24 * 60 * 60 * 1000,
-          completedAt: Date.now() - 1.8 * 24 * 60 * 60 * 1000,
-          duration: 0.03,
-          output: {
-            meetingScheduled: true,
-            meetingId: "meeting_123",
-            attendees: ["hr", "manager", "department_head"],
-            startTime: "2024-03-20T10:00:00Z",
-          },
-        },
-      ],
-      error: null,
-    },
-    {
-      _id: "execution_2",
-      workflowId: "workflow_2",
-      workflowName: "Monthly Compliance Check",
-      executionId: "exec_123457",
-      status: "running",
-      startedAt: Date.now() - 1 * 60 * 60 * 1000,
-      completedAt: null,
-      duration: 1.0,
-      triggeredBy: "system",
-      triggerData: {
-        scheduleType: "monthly",
-        runDate: "2024-03-15",
-      },
-      steps: [
-        {
-          id: "step_1",
-          name: "Generate Compliance Report",
-          status: "completed",
-          startedAt: Date.now() - 1 * 60 * 60 * 1000,
-          completedAt: Date.now() - 0.9 * 60 * 60 * 1000,
-          duration: 0.1,
-          output: {
-            reportGenerated: true,
-            reportId: "report_456",
-            complianceScore: 92,
-          },
-        },
-        {
-          id: "step_2",
-          name: "Check Policy Compliance",
-          status: "running",
-          startedAt: Date.now() - 0.9 * 60 * 60 * 1000,
-          completedAt: null,
-          duration: 0.9,
-          output: null,
-        },
-        {
-          id: "step_3",
-          name: "Send Compliance Confirmation",
-          status: "pending",
-          startedAt: null,
-          completedAt: null,
-          duration: null,
-          output: null,
-        },
-        {
-          id: "step_4",
-          name: "Create Compliance Tasks",
-          status: "pending",
-          startedAt: null,
-          completedAt: null,
-          duration: null,
-          output: null,
-        },
-      ],
-      error: null,
-    },
-  ];
+  const executionsData = usePlatformQuery(
+    api.platform.automation.queries.getWorkflowExecutions,
+    { sessionToken: sessionToken || "" }
+  );
 
-  const workflowTemplates: WorkflowTemplate[] = [
-    {
-      _id: "template_1",
-      name: "Standard Employee Onboarding",
-      description: "Complete onboarding workflow template for new staff members",
-      category: "onboarding",
-      templateSteps: [
-        {
-          id: "step_1",
-          name: "Create User Account",
-          type: "action",
-          config: {
-            action: "create_user",
-            parameters: {
-              role: "staff",
-              send_welcome_email: true,
-            },
-          },
-          position: 1,
-        },
-        {
-          id: "step_2",
-          name: "Assign Required Training",
-          type: "action",
-          config: {
-            action: "assign_training",
-            courses: ["safety_training", "system_training"],
-          },
-          position: 2,
-        },
-        {
-          id: "step_3",
-          name: "Notify IT Department",
-          type: "notification",
-          config: {
-            recipients: ["it@edumyles.com"],
-            subject: "New Employee Equipment Setup",
-          },
-          position: 3,
-        },
-      ],
-      isPublic: true,
-      tags: ["onboarding", "hr", "staff"],
-      usageCount: 156,
-      rating: 4.8,
-      createdBy: "hr_admin@edumyles.com",
-      createdAt: Date.now() - 180 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    },
-    {
-      _id: "template_2",
-      name: "Data Backup Verification",
-      description: "Automated backup workflow with integrity verification",
-      category: "data_management",
-      templateSteps: [
-        {
-          id: "step_1",
-          name: "Initiate Database Backup",
-          type: "integration",
-          config: {
-            integration: "database_backup",
-            backup_type: "full",
-          },
-          position: 1,
-        },
-        {
-          id: "step_2",
-          name: "Verify Backup Integrity",
-          type: "condition",
-          config: {
-            condition: "backup_verification.success",
-          },
-          position: 2,
-        },
-        {
-          id: "step_3",
-          name: "Store to Cloud Storage",
-          type: "integration",
-          config: {
-            integration: "cloud_storage",
-            encryption: true,
-          },
-          position: 3,
-        },
-      ],
-      isPublic: true,
-      tags: ["backup", "data", "security"],
-      usageCount: 89,
-      rating: 4.6,
-      createdBy: "it_admin@edumyles.com",
-      createdAt: Date.now() - 120 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 60 * 24 * 60 * 60 * 1000,
-    },
-  ];
+  const templatesData = usePlatformQuery(
+    api.platform.automation.queries.getWorkflowTemplates,
+    { sessionToken: sessionToken || "" }
+  );
+
+  const metricsData = usePlatformQuery(
+    api.platform.automation.queries.getAutomationMetrics,
+    { sessionToken: sessionToken || "" }
+  );
+
+  const triggerWorkflow = useMutation(api.platform.automation.mutations.triggerWorkflow);
+  const updateWorkflowStatus = useMutation(api.platform.automation.mutations.updateWorkflowStatus);
+
+  if (!workflowsData) return <LoadingSkeleton variant="page" />;
+
+  const workflows: Workflow[] = (workflowsData || []).map((w: any) => ({
+    _id: w._id,
+    name: w.name,
+    description: w.description,
+    category: w.category,
+    trigger: w.trigger,
+    status: w.isActive ? "active" : "inactive",
+    steps: w.steps || [],
+    isActive: w.isActive,
+    createdBy: w.createdBy,
+    createdAt: w.createdAt,
+    updatedAt: w.updatedAt,
+    executionCount: w.executionCount || 0,
+    successRate: w.successRate || 0,
+    averageDuration: w.averageDuration || 0,
+  }));
+
+  const workflowExecutions: WorkflowExecution[] = (executionsData || []).map((e: any) => ({
+    _id: e._id,
+    workflowId: e.workflowId,
+    workflowName: e.workflowName,
+    executionId: e.executionId,
+    status: e.status,
+    startedAt: e.startedAt,
+    completedAt: e.completedAt || null,
+    duration: e.duration || 0,
+    triggeredBy: e.triggeredBy,
+    triggerData: e.triggerData || {},
+    steps: (e.steps || []).map((s: any) => ({
+      id: s.id,
+      name: s.name,
+      status: s.status,
+      startedAt: s.startedAt,
+      completedAt: s.completedAt || null,
+      duration: s.duration || 0,
+      output: s.output || null,
+    })),
+    error: e.error || null,
+  }));
+
+  const workflowTemplates: WorkflowTemplate[] = (templatesData || []).map((t: any) => ({
+    _id: t._id,
+    name: t.name,
+    description: t.description,
+    category: t.category,
+    templateSteps: t.templateSteps || [],
+    isPublic: t.isPublic,
+    tags: t.tags || [],
+    usageCount: t.usageCount || 0,
+    rating: t.rating || 0,
+    createdBy: t.createdBy,
+    createdAt: t.createdAt,
+    updatedAt: t.updatedAt,
+  }));
 
   const getStepIcon = (stepType: string) => {
     switch (stepType) {
@@ -746,8 +410,8 @@ export default function AutomationCenterPage() {
             <Workflow className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
-            <p className="text-xs text-muted-foreground">18 active</p>
+            <div className="text-2xl font-bold">{metricsData?.overview?.totalWorkflows ?? workflows.length}</div>
+            <p className="text-xs text-muted-foreground">{metricsData?.overview?.activeWorkflows ?? workflows.filter(w => w.isActive).length} active</p>
           </CardContent>
         </Card>
         <Card>
@@ -756,8 +420,8 @@ export default function AutomationCenterPage() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,245</div>
-            <p className="text-xs text-muted-foreground">+156 this week</p>
+            <div className="text-2xl font-bold">{(metricsData?.overview?.totalExecutions ?? workflowExecutions.length).toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">{metricsData?.overview?.successfulExecutions ?? 0} successful</p>
           </CardContent>
         </Card>
         <Card>
@@ -766,8 +430,8 @@ export default function AutomationCenterPage() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">95.5%</div>
-            <p className="text-xs text-muted-foreground">+2.3% from last month</p>
+            <div className="text-2xl font-bold text-green-600">{metricsData?.overview?.successRate ?? 0}%</div>
+            <p className="text-xs text-muted-foreground">Avg duration: {metricsData?.overview?.averageExecutionTime ?? 0}h</p>
           </CardContent>
         </Card>
         <Card>
@@ -776,8 +440,8 @@ export default function AutomationCenterPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,240h</div>
-            <p className="text-xs text-muted-foreground">≈ KES 15,600 saved</p>
+            <div className="text-2xl font-bold">{(metricsData?.timeSaved?.totalHoursSaved ?? 0).toLocaleString()}h</div>
+            <p className="text-xs text-muted-foreground">≈ KES {(metricsData?.timeSaved?.estimatedCostSavings ?? 0).toLocaleString()} saved</p>
           </CardContent>
         </Card>
       </div>

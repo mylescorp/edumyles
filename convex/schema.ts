@@ -2362,4 +2362,575 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_category", ["category"]),
+
+  // ─── CRM Tables ─────────────────────────────────────────────────────────────
+  crmDeals: defineTable({
+    tenantId: v.optional(v.string()),
+    schoolName: v.string(),
+    contactPerson: v.string(),
+    email: v.string(),
+    phone: v.optional(v.string()),
+    county: v.optional(v.string()),
+    schoolType: v.optional(v.string()),
+    currentStudents: v.optional(v.number()),
+    potentialStudents: v.optional(v.number()),
+    stage: v.union(
+      v.literal("lead"),
+      v.literal("qualified"),
+      v.literal("proposal"),
+      v.literal("negotiation"),
+      v.literal("closed_won"),
+      v.literal("closed_lost")
+    ),
+    value: v.number(),
+    currency: v.string(),
+    source: v.optional(v.string()),
+    assignedTo: v.optional(v.string()),
+    expectedCloseDate: v.optional(v.number()),
+    probability: v.optional(v.number()),
+    tags: v.array(v.string()),
+    notes: v.optional(v.string()),
+    lostReason: v.optional(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_stage", ["stage"])
+    .index("by_assignedTo", ["assignedTo"])
+    .index("by_createdAt", ["createdAt"]),
+
+  crmLeads: defineTable({
+    tenantId: v.optional(v.string()),
+    schoolName: v.string(),
+    contactPerson: v.string(),
+    email: v.string(),
+    phone: v.optional(v.string()),
+    county: v.optional(v.string()),
+    schoolType: v.optional(v.string()),
+    source: v.string(),
+    status: v.union(
+      v.literal("new"),
+      v.literal("contacted"),
+      v.literal("qualified"),
+      v.literal("converted"),
+      v.literal("lost")
+    ),
+    notes: v.optional(v.string()),
+    convertedDealId: v.optional(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_createdAt", ["createdAt"]),
+
+  crmActivities: defineTable({
+    tenantId: v.optional(v.string()),
+    dealId: v.optional(v.string()),
+    leadId: v.optional(v.string()),
+    type: v.union(
+      v.literal("call"),
+      v.literal("email"),
+      v.literal("meeting"),
+      v.literal("note"),
+      v.literal("task"),
+      v.literal("stage_change"),
+      v.literal("proposal_sent"),
+      v.literal("follow_up")
+    ),
+    title: v.string(),
+    description: v.optional(v.string()),
+    outcome: v.optional(v.string()),
+    scheduledAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_deal", ["dealId", "createdAt"])
+    .index("by_lead", ["leadId", "createdAt"])
+    .index("by_type", ["type"]),
+
+  proposalTemplates: defineTable({
+    name: v.string(),
+    description: v.string(),
+    category: v.union(
+      v.literal("standard"),
+      v.literal("custom"),
+      v.literal("legal"),
+      v.literal("pricing")
+    ),
+    sections: v.array(v.object({
+      id: v.string(),
+      title: v.string(),
+      content: v.string(),
+      order: v.number(),
+      isRequired: v.boolean(),
+      variables: v.array(v.string()),
+    })),
+    variables: v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("date"), v.literal("currency"), v.literal("select")),
+      defaultValue: v.optional(v.string()),
+      options: v.optional(v.array(v.string())),
+      description: v.string(),
+      required: v.boolean(),
+    })),
+    terms: v.array(v.object({
+      id: v.string(),
+      title: v.string(),
+      content: v.string(),
+      category: v.union(v.literal("payment"), v.literal("service"), v.literal("legal"), v.literal("termination"), v.literal("confidentiality")),
+      isDefault: v.boolean(),
+    })),
+    pricing: v.object({
+      currency: v.string(),
+      oneTime: v.boolean(),
+      recurring: v.boolean(),
+      customPricing: v.boolean(),
+      priceTiers: v.array(v.object({
+        id: v.string(),
+        name: v.string(),
+        minStudents: v.number(),
+        maxStudents: v.number(),
+        setupFee: v.number(),
+        monthlyFee: v.number(),
+        perStudentFee: v.number(),
+        features: v.array(v.string()),
+      })),
+    }),
+    isDefault: v.boolean(),
+    usageCount: v.number(),
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_category", ["category"])
+    .index("by_active", ["isActive"]),
+
+  proposals: defineTable({
+    templateId: v.string(),
+    dealId: v.optional(v.string()),
+    schoolName: v.string(),
+    contactEmail: v.optional(v.string()),
+    contactPhone: v.optional(v.string()),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("sent"),
+      v.literal("viewed"),
+      v.literal("signed"),
+      v.literal("rejected"),
+      v.literal("expired")
+    ),
+    variables: v.any(),
+    content: v.string(),
+    amount: v.optional(v.number()),
+    currency: v.optional(v.string()),
+    validUntil: v.optional(v.number()),
+    sentAt: v.optional(v.number()),
+    viewedAt: v.optional(v.number()),
+    signedAt: v.optional(v.number()),
+    rejectedAt: v.optional(v.number()),
+    signatureUrl: v.optional(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_dealId", ["dealId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  // ─── Staff Performance ──────────────────────────────────────────────────────
+  staffPerformanceRecords: defineTable({
+    userId: v.string(),
+    userName: v.string(),
+    userEmail: v.string(),
+    role: v.string(),
+    department: v.optional(v.string()),
+    period: v.string(),
+    metrics: v.object({
+      ticketsResolved: v.number(),
+      avgResponseTime: v.number(),
+      avgResolutionTime: v.number(),
+      satisfactionScore: v.number(),
+      slaCompliance: v.number(),
+      escalationRate: v.number(),
+      firstContactResolution: v.number(),
+    }),
+    goals: v.optional(v.object({
+      ticketsTarget: v.optional(v.number()),
+      satisfactionTarget: v.optional(v.number()),
+      responseTimeTarget: v.optional(v.number()),
+    })),
+    achievements: v.array(v.string()),
+    trend: v.union(v.literal("up"), v.literal("down"), v.literal("stable")),
+    overallScore: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_period", ["period"])
+    .index("by_overallScore", ["overallScore"]),
+
+  // ── Knowledge Base ──────────────────────────────────────────────────
+  knowledgeBaseArticles: defineTable({
+    title: v.string(),
+    content: v.string(),
+    category: v.string(),
+    tags: v.array(v.string()),
+    status: v.union(v.literal("draft"), v.literal("published")),
+    author: v.string(),
+    authorName: v.optional(v.string()),
+    viewCount: v.number(),
+    helpfulCount: v.number(),
+    notHelpfulCount: v.number(),
+    tenantId: v.optional(v.string()), // null = platform-wide
+    deleted: v.optional(v.boolean()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_category", ["category"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_author", ["author"])
+    .index("by_viewCount", ["viewCount"])
+    .index("by_status_category", ["status", "category"]),
+
+  knowledgeBaseCategories: defineTable({
+    name: v.string(),
+    description: v.string(),
+    icon: v.optional(v.string()),
+    order: v.number(),
+    parentId: v.optional(v.string()),
+    articleCount: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_order", ["order"])
+    .index("by_parent", ["parentId"]),
+
+  // ── Data Exports ────────────────────────────────────────────────────
+  dataExports: defineTable({
+    tenantId: v.string(),
+    exportType: v.union(
+      v.literal("users"),
+      v.literal("tenants"),
+      v.literal("tickets"),
+      v.literal("deals"),
+      v.literal("analytics")
+    ),
+    format: v.union(v.literal("csv"), v.literal("json")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("failed")
+    ),
+    filters: v.optional(v.object({
+      dateFrom: v.optional(v.number()),
+      dateTo: v.optional(v.number()),
+      status: v.optional(v.string()),
+      search: v.optional(v.string()),
+    })),
+    fileUrl: v.optional(v.string()),
+    dataContent: v.optional(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    completedAt: v.optional(v.number()),
+    rowCount: v.optional(v.number()),
+    errorMessage: v.optional(v.string()),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_status", ["tenantId", "status"])
+    .index("by_createdBy", ["createdBy", "createdAt"]),
+
+  // ── SLA Management ──────────────────────────────────────────────────
+  slaConfigurations: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    priority: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    ),
+    responseTimeHours: v.number(),
+    resolutionTimeHours: v.number(),
+    escalationRules: v.array(v.object({
+      afterHours: v.number(),
+      action: v.string(),
+      notifyRole: v.string(),
+    })),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_priority", ["tenantId", "priority"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
+
+  slaBreaches: defineTable({
+    tenantId: v.string(),
+    ticketId: v.string(),
+    slaConfigId: v.string(),
+    breachType: v.union(v.literal("response"), v.literal("resolution")),
+    breachedAt: v.number(),
+    acknowledgedAt: v.optional(v.number()),
+    acknowledgedBy: v.optional(v.string()),
+  })
+    .index("by_tenant", ["tenantId", "breachedAt"])
+    .index("by_ticket", ["ticketId"])
+    .index("by_slaConfig", ["slaConfigId"]),
+
+  // ─── Webhook Management ──────────────────────────────────────────────────
+  webhookEndpoints: defineTable({
+    tenantId: v.string(),
+    url: v.string(),
+    events: v.array(v.string()),
+    secret: v.string(),
+    isActive: v.boolean(),
+    description: v.optional(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastTriggeredAt: v.optional(v.number()),
+    failureCount: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
+
+  webhookDeliveries: defineTable({
+    tenantId: v.string(),
+    endpointId: v.id("webhookEndpoints"),
+    event: v.string(),
+    payload: v.string(),
+    statusCode: v.optional(v.number()),
+    response: v.optional(v.string()),
+    status: v.union(v.literal("pending"), v.literal("success"), v.literal("failed")),
+    attemptCount: v.number(),
+    createdAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_endpoint", ["endpointId", "createdAt"])
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_status", ["tenantId", "status"]),
+
+  // ─── API Key Management ─────────────────────────────────────────────────
+  apiKeys: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    keyHash: v.string(),
+    keyPrefix: v.string(),
+    permissions: v.array(v.string()),
+    rateLimit: v.number(),
+    lastUsedAt: v.optional(v.number()),
+    expiresAt: v.optional(v.number()),
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_keyHash", ["keyHash"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
+
+  apiKeyUsage: defineTable({
+    keyId: v.id("apiKeys"),
+    tenantId: v.string(),
+    endpoint: v.string(),
+    method: v.string(),
+    statusCode: v.number(),
+    responseTime: v.number(),
+    timestamp: v.number(),
+  })
+    .index("by_key", ["keyId", "timestamp"])
+    .index("by_tenant", ["tenantId", "timestamp"]),
+
+  // ─── White-Label Configuration ──────────────────────────────────────────
+  whiteLabelConfigs: defineTable({
+    tenantId: v.string(),
+    brandName: v.string(),
+    logoUrl: v.optional(v.string()),
+    primaryColor: v.string(),
+    secondaryColor: v.string(),
+    accentColor: v.string(),
+    favicon: v.optional(v.string()),
+    customDomain: v.optional(v.string()),
+    emailFromName: v.optional(v.string()),
+    emailFromAddress: v.optional(v.string()),
+    footerText: v.optional(v.string()),
+    customCSS: v.optional(v.string()),
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_customDomain", ["customDomain"]),
+
+  // ── Changelog ───────────────────────────────────────────────────────
+  changelogEntries: defineTable({
+    version: v.string(),
+    title: v.string(),
+    description: v.string(),
+    type: v.union(
+      v.literal("feature"),
+      v.literal("fix"),
+      v.literal("improvement")
+    ),
+    date: v.number(),
+    author: v.string(),
+    tags: v.array(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_date", ["date"])
+    .index("by_type", ["type", "date"])
+    .index("by_version", ["version"]),
+
+  // ── Tenant Onboarding Wizard ──────────────────────────────────────
+  onboardingProgress: defineTable({
+    tenantId: v.string(),
+    currentStep: v.number(),
+    completedSteps: v.array(v.number()),
+    status: v.union(v.literal("in_progress"), v.literal("completed"), v.literal("abandoned")),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+    data: v.record(v.string(), v.any()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["status"]),
+
+  // ── Role-Based Access Builder ─────────────────────────────────────
+  customRoles: defineTable({
+    name: v.string(),
+    description: v.string(),
+    tenantId: v.optional(v.string()),
+    permissions: v.array(v.string()),
+    isSystem: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_name", ["tenantId", "name"])
+    .index("by_system", ["isSystem"]),
+
+  permissionGroups: defineTable({
+    name: v.string(),
+    description: v.string(),
+    permissions: v.array(v.string()),
+    module: v.string(),
+  })
+    .index("by_module", ["module"]),
+
+  // ── Scheduled Reports ─────────────────────────────────────────────
+  scheduledReports: defineTable({
+    name: v.string(),
+    reportType: v.string(),
+    schedule: v.string(),
+    filters: v.record(v.string(), v.any()),
+    format: v.union(v.literal("csv"), v.literal("excel"), v.literal("pdf")),
+    recipients: v.array(v.string()),
+    lastRun: v.optional(v.number()),
+    nextRun: v.optional(v.number()),
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    tenantId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_active", ["tenantId", "isActive"])
+    .index("by_nextRun", ["nextRun"]),
+
+  scheduledReportRuns: defineTable({
+    reportId: v.string(),
+    status: v.union(v.literal("running"), v.literal("completed"), v.literal("failed")),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+    resultUrl: v.optional(v.string()),
+    error: v.optional(v.string()),
+    tenantId: v.string(),
+  })
+    .index("by_report", ["reportId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["tenantId", "status"]),
+
+  // ── Platform Billing ─────────────────────────────────────────────────
+  subscriptionPlans: defineTable({
+    planId: v.string(),
+    name: v.string(),
+    tier: v.union(
+      v.literal("free"),
+      v.literal("starter"),
+      v.literal("growth"),
+      v.literal("enterprise")
+    ),
+    monthlyPriceCents: v.number(),
+    annualPriceCents: v.number(),
+    currency: v.string(),
+    features: v.array(v.string()),
+    maxUsers: v.optional(v.number()),
+    maxStudents: v.optional(v.number()),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_planId", ["planId"])
+    .index("by_tier", ["tier"])
+    .index("by_active", ["isActive"]),
+
+  platformInvoices: defineTable({
+    invoiceNumber: v.string(),
+    tenantId: v.string(),
+    tenantName: v.string(),
+    plan: v.string(),
+    amountCents: v.number(),
+    currency: v.string(),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("sent"),
+      v.literal("paid"),
+      v.literal("overdue"),
+      v.literal("void"),
+      v.literal("refunded")
+    ),
+    billingPeriodStart: v.number(),
+    billingPeriodEnd: v.number(),
+    dueDate: v.number(),
+    paidAt: v.optional(v.number()),
+    paymentMethod: v.optional(v.string()),
+    paymentReference: v.optional(v.string()),
+    lineItems: v.array(v.object({
+      description: v.string(),
+      quantity: v.number(),
+      unitPriceCents: v.number(),
+      totalCents: v.number(),
+    })),
+    notes: v.optional(v.string()),
+    creditAppliedCents: v.optional(v.number()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_status", ["status", "createdAt"])
+    .index("by_invoiceNumber", ["invoiceNumber"])
+    .index("by_dueDate", ["dueDate"]),
+
+  billingCredits: defineTable({
+    tenantId: v.string(),
+    amountCents: v.number(),
+    currency: v.string(),
+    reason: v.string(),
+    appliedToInvoice: v.optional(v.string()),
+    status: v.union(v.literal("available"), v.literal("applied"), v.literal("expired")),
+    expiresAt: v.optional(v.number()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_status", ["tenantId", "status"]),
 });
