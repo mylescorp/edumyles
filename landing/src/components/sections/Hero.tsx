@@ -133,7 +133,7 @@ export default function Hero() {
                 </a>
                 {/* CTA 2 — Secondary */}
                 <Link
-                  href="https://edumyles.vercel.app/auth/signup/api"
+                  href="/auth/signup/api"
                   className="border-2 border-navy text-navy hover:bg-navy hover:text-white font-inter font-semibold text-base px-8 py-3.5 rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Start Free Trial
