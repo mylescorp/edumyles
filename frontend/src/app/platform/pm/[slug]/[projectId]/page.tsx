@@ -136,7 +136,6 @@ export default function ProjectPage() {
   const workspaceSlug = params.slug as string;
   const projectId = params.projectId as string;
 
-  const [selectedView, setSelectedView] = useState<"kanban" | "list" | "timeline" | "calendar">("kanban");
   const [tasks, setTasks] = useState(mockTasks);
 
   // Group tasks by status
@@ -180,52 +179,46 @@ export default function ProjectPage() {
           </div>
         </div>
 
-        {/* View Tabs */}
-        <div className="flex items-center gap-4 border-b border-border">
-          <Link href={`/platform/pm/${workspaceSlug}/${projectId}`}>
-            <button
-              className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                selectedView === "kanban"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Kanban Board
-            </button>
-          </Link>
-          <Link href={`/platform/pm/${workspaceSlug}/${projectId}/list`}>
-            <button
-              className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                selectedView === "list"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              List View
-            </button>
-          </Link>
-          <Link href={`/platform/pm/${workspaceSlug}/${projectId}/timeline`}>
-            <button
-              className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                selectedView === "timeline"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Timeline
-            </button>
-          </Link>
-          <Link href={`/platform/pm/${workspaceSlug}/${projectId}/calendar`}>
-            <button
-              className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                selectedView === "calendar"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Calendar
-            </button>
-          </Link>
+        {/* Stats Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{tasks.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {getTasksForColumn("In Progress").length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {getTasksForColumn("Done").length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Hours Logged</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {Math.round(tasks.reduce((sum, task) => sum + task.loggedMinutes, 0) / 60)}h
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Kanban Board */}
