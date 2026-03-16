@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useMutation } from "convex/react";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,16 +13,34 @@ import { useRouter } from "next/navigation";
 
 type AudienceType = "all_tenants" | "single_tenant";
 
-// Temporary frontend-only tenant list.
-// Replace later with backend query data.
-const tenantOptions = [
-  { id: "tenant_001", name: "Green Valley School" },
-  { id: "tenant_002", name: "Sunrise Academy" },
-  { id: "tenant_003", name: "Nairobi Junior School" },
-];
+type TenantOption = {
+  _id: string;
+  tenantId: string;
+  name: string;
+  subdomain?: string;
+  plan?: string;
+  status?: string;
+  email?: string;
+  county?: string;
+  country?: string;
+  createdAt?: number;
+};
 
 export default function BroadcastPage() {
   const router = useRouter();
+  const { sessionToken, isLoading: authLoading } = useAuth();
+
+  const { data: tenants, isLoading: tenantsLoading } = useQuery(
+    api.platform.tenants.queries.listAllTenants,
+    { sessionToken: sessionToken || "" }
+  );
+
+  const createPlatformMessage = useMutation(
+    api.platform.communications.mutations.createPlatformMessage
+  );
+  const sendPlatformMessageNow = useMutation(
+    api.platform.communications.mutations.sendPlatformMessageNow
+  );
 
   const [audienceType, setAudienceType] = useState<AudienceType>("all_tenants");
   const [tenantId, setTenantId] = useState("");
@@ -32,9 +52,14 @@ export default function BroadcastPage() {
     text: string;
   }>({ type: "", text: "" });
 
+  const tenantOptions: TenantOption[] = useMemo(() => {
+    if (!Array.isArray(tenants)) return [];
+    return tenants;
+  }, [tenants]);
+
   const selectedTenant = useMemo(() => {
-    return tenantOptions.find((tenant) => tenant.id === tenantId);
-  }, [tenantId]);
+    return tenantOptions.find((tenant) => tenant.tenantId === tenantId);
+  }, [tenantOptions, tenantId]);
 
   const isFormValid = useMemo(() => {
     const hasBasicFields = title.trim().length > 0 && message.trim().length > 0;
@@ -56,6 +81,14 @@ export default function BroadcastPage() {
     e.preventDefault();
     setFormMessage({ type: "", text: "" });
 
+    if (!sessionToken) {
+      setFormMessage({
+        type: "error",
+        text: "Your platform session is missing. Please log in again.",
+      });
+      return;
+    }
+
     if (!title.trim() || !message.trim()) {
       setFormMessage({
         type: "error",
@@ -75,43 +108,53 @@ export default function BroadcastPage() {
     try {
       setIsSubmitting(true);
 
-      // TODO: replace this with backend mutation later.
-      // Example future payload:
-      // await sendBroadcast({
-      //   audienceType,
-      //   tenantId: audienceType === "single_tenant" ? tenantId : undefined,
-      //   title: title.trim(),
-      //   message: message.trim(),
-      // });
+      const segment = audienceType === "single_tenant" ? { tenantIds: [tenantId] } : {};
 
-      console.log("Broadcast payload:", {
-        audienceType,
-        tenantId: audienceType === "single_tenant" ? tenantId : null,
-        title: title.trim(),
-        message: message.trim(),
+      const messageId = await createPlatformMessage({
+        sessionToken,
+        type: "broadcast",
+        subject: title.trim(),
+        inAppBody: message.trim(),
+        channels: ["in_app"],
+        segment,
+        status: "draft",
+      });
+
+      const result = await sendPlatformMessageNow({
+        sessionToken,
+        messageId,
       });
 
       setFormMessage({
         type: "success",
         text:
           audienceType === "all_tenants"
-            ? "Broadcast is ready to send to all tenants once backend is connected."
-            : `Broadcast is ready to send to ${selectedTenant?.name ?? "the selected tenant"} once backend is connected.`,
+            ? `Broadcast sent successfully to ${result.delivered} tenant(s).`
+            : `Broadcast sent successfully to ${selectedTenant?.name ?? "the selected tenant"}.`,
       });
+
+      resetForm();
     } catch (error) {
-      console.error("Failed to prepare broadcast:", error);
+      console.error("Failed to send broadcast:", error);
+
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while sending the broadcast.";
+
       setFormMessage({
         type: "error",
-        text: "Something went wrong while preparing the broadcast.",
+        text: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const isPageLoading = authLoading || tenantsLoading;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button
@@ -124,12 +167,14 @@ export default function BroadcastPage() {
             Back
           </Button>
 
-          <PageHeader title="Send Broadcast" description="Send in-app communication to tenants" />
+          <PageHeader
+            title="Send Broadcast"
+            description="Send in-app communication from master admin to tenants"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Main form */}
         <Card className="xl:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
@@ -137,13 +182,12 @@ export default function BroadcastPage() {
               Broadcast Form
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Create a version 1 broadcast for all tenants or a single tenant.
+              Send an in-app broadcast to all tenants or to one tenant.
             </p>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Audience Type */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Audience Type</label>
                 <div className="relative">
@@ -153,11 +197,10 @@ export default function BroadcastPage() {
                     onChange={(e) => {
                       const value = e.target.value as AudienceType;
                       setAudienceType(value);
-                      if (value === "all_tenants") {
-                        setTenantId("");
-                      }
+                      if (value === "all_tenants") setTenantId("");
                     }}
                     className="w-full h-11 rounded-md border border-input bg-background pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                    disabled={isPageLoading || isSubmitting}
                   >
                     <option value="all_tenants">All tenants</option>
                     <option value="single_tenant">Single tenant</option>
@@ -165,7 +208,6 @@ export default function BroadcastPage() {
                 </div>
               </div>
 
-              {/* Tenant Selector */}
               {audienceType === "single_tenant" && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Tenant</label>
@@ -175,22 +217,21 @@ export default function BroadcastPage() {
                       value={tenantId}
                       onChange={(e) => setTenantId(e.target.value)}
                       className="w-full h-11 rounded-md border border-input bg-background pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                      disabled={isPageLoading || isSubmitting}
                     >
-                      <option value="">Select a tenant</option>
+                      <option value="">
+                        {tenantsLoading ? "Loading tenants..." : "Select a tenant"}
+                      </option>
                       {tenantOptions.map((tenant) => (
-                        <option key={tenant.id} value={tenant.id}>
+                        <option key={tenant._id} value={tenant.tenantId}>
                           {tenant.name}
                         </option>
                       ))}
                     </select>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    This field only appears when sending to one tenant.
-                  </p>
                 </div>
               )}
 
-              {/* Title */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Title</label>
                 <div className="relative">
@@ -202,12 +243,11 @@ export default function BroadcastPage() {
                     placeholder="e.g. System Maintenance Notice"
                     maxLength={120}
                     className="w-full h-11 rounded-md border border-input bg-background pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                    disabled={isSubmitting}
                   />
                 </div>
-                <div className="text-xs text-muted-foreground text-right">{title.length}/120</div>
               </div>
 
-              {/* Message */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Message</label>
                 <div className="relative">
@@ -219,34 +259,11 @@ export default function BroadcastPage() {
                     rows={6}
                     maxLength={1000}
                     className="w-full rounded-md border border-input bg-background pl-10 pr-3 py-3 text-sm outline-none focus:ring-2 focus:ring-ring resize-none"
+                    disabled={isSubmitting}
                   />
-                </div>
-                <div className="text-xs text-muted-foreground text-right">
-                  {message.length}/1000
                 </div>
               </div>
 
-              {/* Preview */}
-              <Card className="bg-muted/30 border-border/60">
-                <CardContent className="pt-4 space-y-2">
-                  <h4 className="text-sm font-semibold">Preview</h4>
-                  <div className="text-sm">
-                    <span className="font-medium">Audience:</span>{" "}
-                    {audienceType === "all_tenants"
-                      ? "All tenants"
-                      : selectedTenant?.name || "No tenant selected"}
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-medium">Title:</span> {title.trim() || "No title yet"}
-                  </div>
-                  <div className="text-sm whitespace-pre-wrap">
-                    <span className="font-medium">Message:</span>{" "}
-                    {message.trim() || "No message yet"}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Form status */}
               {formMessage.text && (
                 <div
                   className={`rounded-md border px-4 py-3 text-sm ${
@@ -259,7 +276,6 @@ export default function BroadcastPage() {
                 </div>
               )}
 
-              {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                 <Button type="button" variant="outline" onClick={resetForm} disabled={isSubmitting}>
                   Clear Form
@@ -276,57 +292,16 @@ export default function BroadcastPage() {
 
                 <Button
                   type="submit"
-                  disabled={!isFormValid || isSubmitting}
+                  disabled={!isFormValid || isSubmitting || isPageLoading}
                   className="bg-em-accent hover:bg-em-accent-dark"
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  {isSubmitting ? "Preparing..." : "Send Broadcast"}
+                  {isSubmitting ? "Sending..." : "Send Broadcast"}
                 </Button>
               </div>
             </form>
           </CardContent>
         </Card>
-
-        {/* Side notes */}
-        <div className="space-y-6">
-          <Card className="border-em-info/20 bg-em-info/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Info className="h-4 w-4 text-em-info" />
-                Version 1 Scope
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p>Currently supports in-app notification delivery only.</p>
-              <p>SMS and email delivery can be added later.</p>
-              <p>Message history, filters, and templates are not included yet.</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Frontend State</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p>• audienceType</p>
-              <p>• tenantId</p>
-              <p>• title</p>
-              <p>• message</p>
-              <p>• isSubmitting</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Next Backend Hookup</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p>1. Query tenant list for the dropdown</p>
-              <p>2. Mutation to create notifications</p>
-              <p>3. Restrict sender to master_admin / super_admin</p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   );

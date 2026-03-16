@@ -4,3 +4,4 @@ export * from "./dashboard";
 export * from "./impersonation";
 export * from "./tenants";
 export * from "./users";
+export * from "./communications";
