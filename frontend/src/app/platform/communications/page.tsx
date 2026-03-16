@@ -34,7 +34,6 @@ export default function PlatformCommunicationsPage() {
       ...(status ? { status } : {}),
       ...(type ? { type } : {}),
       ...(channel ? { channel } : {}),
-      ...(search.trim() ? { search: search.trim() } : {}),
       limit: 50,
     }
   );
@@ -42,8 +41,14 @@ export default function PlatformCommunicationsPage() {
   const isLoading = authLoading || statsLoading || messagesLoading;
 
   const safeMessages = useMemo(() => {
-    return Array.isArray(messages) ? messages : [];
-  }, [messages]);
+    const all = Array.isArray(messages) ? messages : [];
+    if (!search.trim()) return all;
+
+    const searchLower = search.trim().toLowerCase();
+    return all.filter((message: any) =>
+      (message.subject || "").toLowerCase().includes(searchLower)
+    );
+  }, [messages, search]);
 
   return (
     <div className="space-y-6">
