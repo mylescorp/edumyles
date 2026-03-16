@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { TopModuleBar } from "@/components/admin/TopModuleBar";
 import { adminNavItems } from "@/lib/routes";
 import { useTenant } from "@/hooks/useTenant";
 
@@ -31,7 +32,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background relative z-[500] admin-layout">
       <Header onMobileMenuToggle={handleMobileMenuToggle} />
-      <div className="flex min-h-[calc(100vh-4rem)]">
+      
+      {/* Top Module Bar */}
+      <TopModuleBar />
+      
+      <div className="flex min-h-[calc(100vh-8rem)]">
         {/* Desktop Sidebar */}
         <div className="hidden md:block">
           <Sidebar navItems={adminNavItems} installedModules={installedModules} />

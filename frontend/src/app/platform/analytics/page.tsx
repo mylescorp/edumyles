@@ -12,7 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import {
   BarChart3,
   TrendingUp,
   TrendingDown,
@@ -42,163 +43,90 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-
-interface BusinessIntelligence {
-  overview: {
-    totalRevenue: number;
-    revenueGrowth: number;
-    activeTenants: number;
-    newTenants: number;
-    churnRate: number;
-    customerLifetimeValue: number;
-    averageRevenuePerUser: number;
-    netPromoterScore: number;
-  };
-  revenueAnalytics: {
-    monthlyRecurringRevenue: number;
-    annualRecurringRevenue: number;
-    revenueByPlan: Array<{
-      plan: string;
-      revenue: number;
-      tenants: number;
-      growth: number;
-    }>;
-    revenueByRegion: Array<{
-      region: string;
-      revenue: number;
-      tenants: number;
-    }>;
-    revenueTrends: Array<{
-      month: string;
-      revenue: number;
-      growth: number;
-    }>;
-  };
-  tenantAnalytics: {
-    cohortAnalysis: Array<{
-      cohort: string;
-      size: number;
-      retention1Month: number;
-      retention3Month: number;
-      retention6Month: number | null;
-    }>;
-    tenantLifecycle: Array<{
-      stage: string;
-      count: number;
-      conversionRate?: number;
-      avgLifetime?: number;
-      churnRisk?: number;
-      recoveryRate?: number;
-    }>;
-    healthScores: Array<{
-      tenantId: string;
-      name: string;
-      score: number;
-      trend: string;
-    }>;
-  };
-  usageAnalytics: {
-    featureAdoption: Array<{
-      feature: string;
-      adoption: number;
-      growth: number;
-    }>;
-    userEngagement: {
-      dailyActiveUsers: number;
-      monthlyActiveUsers: number;
-      averageSessionDuration: number;
-      pagesPerSession: number;
-      bounceRate: number;
-    };
-    moduleUsage: Array<{
-      module: string;
-      usage: number;
-      growth: number;
-    }>;
-  };
-}
 
 export default function AdvancedAnalyticsPage() {
   const { sessionToken } = useAuth();
-  const [timeRange, setTimeRange] = useState("30d");
+  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "1y">("30d");
   const [selectedReport, setSelectedReport] = useState("");
   const [isCreateReportOpen, setIsCreateReportOpen] = useState(false);
 
-  // Mock data - replace with actual queries
-  const businessIntelligence: BusinessIntelligence = {
-    overview: {
-      totalRevenue: 2456780,
-      revenueGrowth: 15.6,
-      activeTenants: 124,
-      newTenants: 8,
-      churnRate: 2.1,
-      customerLifetimeValue: 12450,
-      averageRevenuePerUser: 198,
-      netPromoterScore: 72,
-    },
-    revenueAnalytics: {
-      monthlyRecurringRevenue: 245678,
-      annualRecurringRevenue: 2948136,
-      revenueByPlan: [
-        { plan: "starter", revenue: 45678, tenants: 45, growth: 12.3 },
-        { plan: "growth", revenue: 123456, tenants: 56, growth: 18.7 },
-        { plan: "enterprise", revenue: 76544, tenants: 23, growth: 22.1 },
-      ],
-      revenueByRegion: [
-        { region: "Nairobi", revenue: 98765, tenants: 48 },
-        { region: "Mombasa", revenue: 65432, tenants: 32 },
-        { region: "Kisumu", revenue: 43210, tenants: 21 },
-        { region: "Nakuru", revenue: 38471, tenants: 23 },
-      ],
-      revenueTrends: [
-        { month: "Jan", revenue: 198765, growth: 0 },
-        { month: "Feb", revenue: 212345, growth: 6.8 },
-        { month: "Mar", revenue: 234567, growth: 10.5 },
-        { month: "Apr", revenue: 245678, growth: 4.7 },
-      ],
-    },
-    tenantAnalytics: {
-      cohortAnalysis: [
-        { cohort: "2024-01", size: 12, retention1Month: 91.7, retention3Month: 83.3, retention6Month: 75.0 },
-        { cohort: "2024-02", size: 15, retention1Month: 93.3, retention3Month: 86.7, retention6Month: null },
-        { cohort: "2024-03", size: 18, retention1Month: 94.4, retention3Month: 88.9, retention6Month: null },
-      ],
-      tenantLifecycle: [
-        { stage: "trial", count: 8, conversionRate: 75.0 },
-        { stage: "active", count: 124, avgLifetime: 18.5 },
-        { stage: "at_risk", count: 6, churnRisk: 45.2 },
-        { stage: "churned", count: 3, recoveryRate: 12.5 },
-      ],
-      healthScores: [
-        { tenantId: "tenant_1", name: "St. John's Academy", score: 92, trend: "improving" },
-        { tenantId: "tenant_2", name: "Elite High School", score: 78, trend: "stable" },
-        { tenantId: "tenant_3", name: "Sunshine Primary", score: 65, trend: "declining" },
-      ],
-    },
-    usageAnalytics: {
-      featureAdoption: [
-        { feature: "academics", adoption: 98.5, growth: 2.1 },
-        { feature: "communications", adoption: 87.3, growth: 8.7 },
-        { feature: "billing", adoption: 92.1, growth: 1.5 },
-        { feature: "hr", adoption: 67.8, growth: 12.3 },
-        { feature: "library", adoption: 45.2, growth: 15.6 },
-      ],
-      userEngagement: {
-        dailyActiveUsers: 8456,
-        monthlyActiveUsers: 12450,
-        averageSessionDuration: 23.5,
-        pagesPerSession: 8.7,
-        bounceRate: 23.4,
-      },
-      moduleUsage: [
-        { module: "Student Management", usage: 12450, growth: 5.6 },
-        { module: "Gradebook", usage: 11234, growth: 8.9 },
-        { module: "Attendance", usage: 10987, growth: 3.2 },
-        { module: "Timetable", usage: 9876, growth: 12.1 },
-      ],
-    },
+  // Report form state
+  const [reportName, setReportName] = useState("");
+  const [reportDescription, setReportDescription] = useState("");
+  const [reportType, setReportType] = useState<string>("");
+  const [reportFormat, setReportFormat] = useState<string>("");
+  const [reportSchedule, setReportSchedule] = useState<string>("");
+  const [reportRecipients, setReportRecipients] = useState("");
+
+  // Backend queries
+  const businessIntelligence = usePlatformQuery(
+    api.platform.analytics.queries.getBusinessIntelligence,
+    { sessionToken: sessionToken || "", timeRange },
+    !!sessionToken
+  );
+
+  const predictiveData = usePlatformQuery(
+    api.platform.analytics.queries.getPredictiveAnalytics,
+    { sessionToken: sessionToken || "", modelType: "churn" as const },
+    !!sessionToken
+  );
+
+  const reportsData = usePlatformQuery(
+    api.platform.analytics.queries.getCustomReports,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
+
+  // Backend mutations
+  const createCustomReport = useMutation(api.platform.analytics.mutations.createCustomReport);
+  const exportReport = useMutation(api.platform.analytics.mutations.exportReport);
+
+  const handleCreateReport = async () => {
+    if (!sessionToken || !reportName || !reportType) return;
+    try {
+      await createCustomReport({
+        sessionToken,
+        name: reportName,
+        description: reportDescription,
+        reportType: reportType as any,
+        config: {
+          timeRange: timeRange as "7d" | "30d" | "90d",
+          metrics: ["all"],
+          chartType: "table" as const,
+        },
+        schedule: reportSchedule && reportSchedule !== "once" ? {
+          enabled: true,
+          frequency: reportSchedule as "daily" | "weekly" | "monthly",
+          recipients: reportRecipients.split(",").map((e) => e.trim()).filter(Boolean),
+        } : undefined,
+      });
+      setIsCreateReportOpen(false);
+      setReportName("");
+      setReportDescription("");
+      setReportType("");
+      setReportFormat("");
+      setReportSchedule("");
+      setReportRecipients("");
+    } catch (err) {
+      console.error("Failed to create report:", err);
+    }
   };
+
+  const handleExportReport = async (reportId: string, format: "csv" | "excel" | "pdf") => {
+    if (!sessionToken) return;
+    try {
+      const result = await exportReport({ sessionToken, reportId, format });
+      if (result?.exportUrl) {
+        window.open(result.exportUrl, "_blank");
+      }
+    } catch (err) {
+      console.error("Failed to export report:", err);
+    }
+  };
+
+  if (!businessIntelligence) return <LoadingSkeleton variant="page" />;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-KE', {
@@ -233,14 +161,14 @@ export default function AdvancedAnalyticsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">Monthly Revenue (MRR)</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(businessIntelligence.overview.totalRevenue)}</div>
             <p className="text-xs text-muted-foreground flex items-center">
               {getTrendIcon(businessIntelligence.overview.revenueGrowth)}
-              <span className="ml-1">+{businessIntelligence.overview.revenueGrowth}% from last period</span>
+              <span className="ml-1">{businessIntelligence.overview.revenueGrowth}% from last period</span>
             </p>
           </CardContent>
         </Card>
@@ -253,7 +181,7 @@ export default function AdvancedAnalyticsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{businessIntelligence.overview.activeTenants}</div>
             <p className="text-xs text-muted-foreground">
-              +{businessIntelligence.overview.newTenants} new this month
+              +{businessIntelligence.overview.newTenants} new this period
             </p>
           </CardContent>
         </Card>
@@ -266,20 +194,20 @@ export default function AdvancedAnalyticsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{businessIntelligence.overview.churnRate}%</div>
             <p className="text-xs text-muted-foreground">
-              Below industry average
+              CLV: {formatCurrency(businessIntelligence.overview.customerLifetimeValue)}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">NPS Score</CardTitle>
+            <CardTitle className="text-sm font-medium">Avg Revenue / Tenant</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{businessIntelligence.overview.netPromoterScore}</div>
+            <div className="text-2xl font-bold">{formatCurrency(businessIntelligence.overview.avgRevenuePerUser)}</div>
             <p className="text-xs text-muted-foreground">
-              Good customer satisfaction
+              ARR: {formatCurrency(businessIntelligence.revenueAnalytics.arr)}
             </p>
           </CardContent>
         </Card>
@@ -292,26 +220,18 @@ export default function AdvancedAnalyticsPage() {
             <CardTitle>Revenue by Plan</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {businessIntelligence.revenueAnalytics.revenueByPlan.map((plan) => (
+            {businessIntelligence.revenueAnalytics.revenueByPlan.map((plan: any) => (
               <div key={plan.plan} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="capitalize font-medium">{plan.plan}</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-muted-foreground">{plan.tenants} tenants</span>
-                    <div className="flex items-center space-x-1">
-                      {getTrendIcon(plan.growth)}
-                      <span className="text-sm">{plan.growth}%</span>
-                    </div>
-                  </div>
+                  <span className="font-medium">{formatCurrency(plan.revenue)}</span>
                 </div>
                 <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span>Revenue</span>
-                    <span className="font-medium">{formatCurrency(plan.revenue)}</span>
-                  </div>
-                  <Progress 
-                    value={(plan.revenue / businessIntelligence.revenueAnalytics.monthlyRecurringRevenue) * 100} 
-                    className="h-2" 
+                  <Progress
+                    value={businessIntelligence.revenueAnalytics.mrr > 0
+                      ? (plan.revenue / businessIntelligence.revenueAnalytics.mrr) * 100
+                      : 0}
+                    className="h-2"
                   />
                 </div>
               </div>
@@ -321,18 +241,17 @@ export default function AdvancedAnalyticsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Revenue by Region</CardTitle>
+            <CardTitle>Tenant Growth by Month</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {businessIntelligence.revenueAnalytics.revenueByRegion.map((region) => (
-              <div key={region.region} className="flex items-center justify-between">
+            {businessIntelligence.revenueAnalytics.tenantGrowth.map((item: any) => (
+              <div key={item.month} className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{region.region}</span>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{item.month}</span>
                 </div>
                 <div className="text-right">
-                  <div className="font-medium">{formatCurrency(region.revenue)}</div>
-                  <div className="text-sm text-muted-foreground">{region.tenants} schools</div>
+                  <div className="font-medium">{item.count} new tenants</div>
                 </div>
               </div>
             ))}
@@ -340,170 +259,188 @@ export default function AdvancedAnalyticsPage() {
         </Card>
       </div>
 
-      {/* Tenant Health Scores */}
+      {/* Tenant Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Tenant Health Scores</CardTitle>
+          <CardTitle>Tenant Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {businessIntelligence.tenantAnalytics.healthScores.map((tenant) => (
-              <div key={tenant.tenantId} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${getHealthScoreColor(tenant.score)}`}>
-                    {tenant.score}
-                  </div>
-                  <div>
-                    <div className="font-medium">{tenant.name}</div>
-                    <div className="text-sm text-muted-foreground capitalize">{tenant.trend}</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Progress value={tenant.score} className="w-20 h-2" />
-                  <Button variant="outline" size="sm">
-                    <Eye className="h-4 w-4 mr-1" />
-                    View Details
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-3 border rounded-lg text-center">
+              <div className="text-2xl font-bold">{businessIntelligence.tenantAnalytics.total}</div>
+              <div className="text-sm text-muted-foreground">Total</div>
+            </div>
+            <div className="p-3 border rounded-lg text-center">
+              <div className="text-2xl font-bold text-green-600">{businessIntelligence.tenantAnalytics.active}</div>
+              <div className="text-sm text-muted-foreground">Active</div>
+            </div>
+            <div className="p-3 border rounded-lg text-center">
+              <div className="text-2xl font-bold text-blue-600">{businessIntelligence.tenantAnalytics.new}</div>
+              <div className="text-sm text-muted-foreground">New</div>
+            </div>
+            <div className="p-3 border rounded-lg text-center">
+              <div className="text-2xl font-bold text-red-600">{businessIntelligence.tenantAnalytics.churned}</div>
+              <div className="text-sm text-muted-foreground">Churned</div>
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Feature Adoption */}
+      {businessIntelligence.usageAnalytics.featureAdoption.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Feature Adoption</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {businessIntelligence.usageAnalytics.featureAdoption.map((item: any) => (
+              <div key={item.feature} className="flex items-center justify-between p-3 border rounded-lg">
+                <span className="capitalize font-medium">{item.feature}</span>
+                <Badge variant="secondary">{item.count} installations</Badge>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 
-  const PredictiveAnalyticsTab = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Churn Prediction */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-              <span>Churn Risk Analysis</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Predicted Churn (Next Month)</span>
-                <span className="text-2xl font-bold text-orange-600">2.1%</span>
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                85% confidence level
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <h4 className="font-medium">At-Risk Tenants</h4>
-              {[
-                { name: "Hillside Academy", risk: 78, factors: ["Low Usage", "Support Tickets"] },
-                { name: "Kisumu International", risk: 65, factors: ["Declining Engagement"] },
-                { name: "Nakuru Day School", risk: 52, factors: ["Payment Issues"] },
-              ].map((tenant, index) => (
-                <div key={index} className="flex items-center justify-between p-2 border rounded">
-                  <div>
-                    <div className="font-medium text-sm">{tenant.name}</div>
-                    <div className="text-xs text-muted-foreground">{tenant.factors.join(", ")}</div>
-                  </div>
-                  <div className={`px-2 py-1 rounded text-xs font-medium ${
-                    tenant.risk > 70 ? 'bg-red-100 text-red-700' :
-                    tenant.risk > 50 ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-green-100 text-green-700'
-                  }`}>
-                    {tenant.risk}% risk
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+  const PredictiveAnalyticsTab = () => {
+    if (!predictiveData) return <LoadingSkeleton variant="page" />;
 
-        {/* Revenue Forecast */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              <span>Revenue Forecast</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              {[
-                { month: "May", predicted: 256789, confidence: 92 },
-                { month: "Jun", predicted: 268901, confidence: 88 },
-                { month: "Jul", predicted: 275432, confidence: 85 },
-              ].map((forecast, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{forecast.month}</div>
-                    <div className="text-sm text-muted-foreground">{forecast.confidence}% confidence</div>
+    const churnPrediction = predictiveData.churnPrediction;
+    const atRiskTenants = predictiveData.atRiskTenants || [];
+    const retentionOpportunities = predictiveData.retentionOpportunities || [];
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Churn Prediction */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <AlertTriangle className="h-5 w-5 text-orange-600" />
+                <span>Churn Risk Analysis</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {churnPrediction && (
+                <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Predicted Churn (Next Month)</span>
+                    <span className="text-2xl font-bold text-orange-600">
+                      {Math.round(churnPrediction.nextMonthChurnRate * 10) / 10}%
+                    </span>
                   </div>
-                  <div className="text-right">
-                    <div className="font-medium">{formatCurrency(forecast.predicted)}</div>
-                    <Progress value={forecast.confidence} className="w-16 h-1" />
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {churnPrediction.highRiskCount} high-risk tenants identified
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <h4 className="font-medium">At-Risk Tenants</h4>
+                {atRiskTenants.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No at-risk tenants detected.</p>
+                )}
+                {atRiskTenants.map((tenant: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between p-2 border rounded">
+                    <div>
+                      <div className="font-medium text-sm">{tenant.tenantName}</div>
+                      <div className="text-xs text-muted-foreground">{tenant.riskFactors.join(", ")}</div>
+                    </div>
+                    <div className={`px-2 py-1 rounded text-xs font-medium ${
+                      tenant.churnProbability > 0.7 ? 'bg-red-100 text-red-700' :
+                      tenant.churnProbability > 0.5 ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-green-100 text-green-700'
+                    }`}>
+                      {Math.round(tenant.churnProbability * 100)}% risk
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Retention Opportunities */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                <span>Retention Opportunities</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {retentionOpportunities.length === 0 && (
+                <p className="text-sm text-muted-foreground">No retention opportunities at this time.</p>
+              )}
+              {retentionOpportunities.map((opp: any, index: number) => (
+                <div key={index} className="p-3 border rounded-lg space-y-2">
+                  <div className="font-medium">{opp.tenantName}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {opp.recommendedActions?.map((action: string, i: number) => (
+                      <div key={i}>&#8226; {action}</div>
+                    ))}
                   </div>
                 </div>
               ))}
-            </div>
-            
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <div className="font-medium text-green-800">Growth Opportunities</div>
-              <div className="text-sm text-green-600 mt-1">
-                • Upsell potential: KES 45,678<br/>
-                • Cross-sell potential: KES 23,456<br/>
-                • Market expansion: KES 67,890
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* AI Insights */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Brain className="h-5 w-5 text-purple-600" />
+              <span>AI-Powered Insights</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center space-x-2 mb-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="font-medium">Tenant Health</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {businessIntelligence.tenantAnalytics.active} of {businessIntelligence.tenantAnalytics.total} tenants
+                  are active ({businessIntelligence.tenantAnalytics.total > 0
+                    ? Math.round((businessIntelligence.tenantAnalytics.active / businessIntelligence.tenantAnalytics.total) * 100)
+                    : 0}% health rate).
+                </div>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center space-x-2 mb-2">
+                  <AlertTriangle className="h-4 w-4 text-orange-600" />
+                  <span className="font-medium">Churn Alert</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {businessIntelligence.overview.churnRate}% churn rate detected.
+                  {businessIntelligence.tenantAnalytics.churned > 0
+                    ? ` ${businessIntelligence.tenantAnalytics.churned} tenants have churned this period.`
+                    : " No churned tenants this period."}
+                </div>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Target className="h-4 w-4 text-blue-600" />
+                  <span className="font-medium">Growth Opportunity</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {businessIntelligence.tenantAnalytics.new > 0
+                    ? `${businessIntelligence.tenantAnalytics.new} new tenants this period. Continue onboarding momentum.`
+                    : "Focus on acquisition to grow tenant base."}
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* AI Insights */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Brain className="h-5 w-5 text-purple-600" />
-            <span>AI-Powered Insights</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 border rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <span className="font-medium">High-Performing Feature</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Communications module shows 87.3% adoption with 8.7% growth. Consider expanding features.
-              </div>
-            </div>
-            
-            <div className="p-4 border rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <AlertTriangle className="h-4 w-4 text-orange-600" />
-                <span className="font-medium">Engagement Alert</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                HR module adoption at 67.8% but growing 12.3%. Invest in training to accelerate adoption.
-              </div>
-            </div>
-            
-            <div className="p-4 border rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <Target className="h-4 w-4 text-blue-600" />
-                <span className="font-medium">Growth Opportunity</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Rural schools show 45% lower adoption. Create targeted marketing campaign.
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+    );
+  };
 
   const CustomReportsTab = () => (
     <div className="space-y-6">

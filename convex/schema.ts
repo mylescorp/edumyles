@@ -2933,4 +2933,21 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId", "createdAt"])
     .index("by_status", ["tenantId", "status"]),
+
+  // Feature Flags — platform-wide feature toggles and rollout controls
+  featureFlags: defineTable({
+    name: v.string(),
+    key: v.string(),
+    description: v.optional(v.string()),
+    enabled: v.boolean(),
+    targetType: v.optional(v.string()), // "all", "percentage", "tenants", "users"
+    targetValue: v.optional(v.any()), // percentage number, tenant IDs array, user IDs array
+    tenantId: v.optional(v.string()),
+    environment: v.optional(v.string()), // "production", "staging", "development"
+    createdBy: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_key", ["key"])
+    .index("by_environment", ["environment"]),
 });

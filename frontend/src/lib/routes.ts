@@ -33,6 +33,7 @@ import {
   Rocket,
   Lock,
   Clock,
+  Package,
   type LucideIcon,
 } from "lucide-react";
 
@@ -95,6 +96,7 @@ export const adminNavItems: NavItem[] = [
   { label: "eWallet", href: "/admin/ewallet", icon: Wallet, module: "ewallet" },
   { label: "eCommerce", href: "/admin/ecommerce", icon: ShoppingCart, module: "ecommerce" },
   { label: "Users", href: "/admin/users", icon: Users, module: "users" },
+  { label: "Modules", href: "/admin/modules", icon: Package },
   { label: "Marketplace", href: "/admin/marketplace", icon: ShoppingCart },
   { label: "Settings", href: "/admin/settings", icon: Settings },
   { label: "Audit Log", href: "/admin/audit", icon: FileText },
