@@ -155,6 +155,47 @@ export const sendBroadcast = mutation({
   },
 });
 
+export const sendCampaign = mutation({
+  args: {
+    sessionToken: v.string(),
+    campaignId: v.id("campaigns"),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign) throw new Error("Campaign not found");
+    if (campaign.status === "completed") throw new Error("Campaign already completed");
+
+    const now = Date.now();
+    await ctx.db.patch(args.campaignId, {
+      status: "running",
+      startedAt: now,
+      updatedAt: now,
+    });
+
+    return { success: true, message: "Campaign sent" };
+  },
+});
+
+export const deleteCampaign = mutation({
+  args: {
+    sessionToken: v.string(),
+    campaignId: v.id("campaigns"),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign) throw new Error("Campaign not found");
+    if (campaign.status === "running") throw new Error("Cannot delete a running campaign");
+
+    await ctx.db.delete(args.campaignId);
+
+    return { success: true, message: "Campaign deleted" };
+  },
+});
+
 export const createTemplate = mutation({
   args: {
     sessionToken: v.string(),
@@ -249,5 +290,40 @@ export const deleteTemplate = mutation({
     });
 
     return { success: true };
+  },
+});
+
+export const duplicateTemplate = mutation({
+  args: {
+    sessionToken: v.string(),
+    templateId: v.id("messageTemplates"),
+    newName: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
+
+    const template = await ctx.db.get(args.templateId);
+    if (!template) throw new Error("Template not found");
+
+    const now = Date.now();
+    const newTemplateId = await ctx.db.insert("messageTemplates", {
+      tenantId: template.tenantId,
+      name: args.newName ?? `${template.name} (Copy)`,
+      description: template.description,
+      category: template.category,
+      channels: template.channels,
+      subject: template.subject,
+      content: template.content,
+      htmlContent: template.htmlContent,
+      variables: template.variables,
+      isGlobal: template.isGlobal,
+      status: "draft",
+      usageCount: 0,
+      createdBy: session.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return { success: true, templateId: newTemplateId, message: "Template duplicated" };
   },
 });
