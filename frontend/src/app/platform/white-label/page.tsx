@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { useMutation } from "convex/react";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import {
   Palette,
   Save,

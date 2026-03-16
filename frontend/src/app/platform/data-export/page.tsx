@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "convex/react";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import {
   Download,
   FileText,
