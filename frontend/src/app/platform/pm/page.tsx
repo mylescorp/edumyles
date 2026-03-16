@@ -8,27 +8,28 @@ import { Plus, Settings, BarChart3, Users, Clock } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { LayoutDashboard } from "@/components/layout/Layout";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { platformNavItems } from "@/lib/routes";
 
 export default function PMPage() {
   const [selectedWorkspace, setSelectedWorkspace] = useState<string | null>(null);
 
-  const { data: workspaces, isLoading } = useQuery(api.pm.workspaces.getWorkspaces, {
+  const { data: workspaces, isLoading } = useQuery(api.modules.pm.workspaces.getWorkspaces, {
     sessionToken: "dummy-token", // TODO: Get from auth context
   });
 
   if (isLoading) {
     return (
-      <LayoutDashboard>
+      <DashboardLayout navItems={platformNavItems}>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </LayoutDashboard>
+      </DashboardLayout>
     );
   }
 
   return (
-    <LayoutDashboard>
+    <DashboardLayout navItems={platformNavItems}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -162,6 +163,6 @@ export default function PMPage() {
           </Card>
         )}
       </div>
-    </LayoutDashboard>
+    </DashboardLayout>
   );
 }
