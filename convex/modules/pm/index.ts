@@ -5,5 +5,6 @@ export * from "./projects";
 export * from "./epics";
 export * from "./tasks";
 export * from "./timeLogs";
-export * from "./github";
-export * from "./deploys";
+// GitHub and deploy integrations temporarily excluded due to type issues
+// export * from "./github";
+// export * from "./deploys";

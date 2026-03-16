@@ -144,7 +144,7 @@ export const listTenantUsers = query({
 });
 
 // List audit logs for a tenant
-export const listAuditLogs = query({
+export const listUserAuditLogs = query({
   args: {
     tenantId: v.string(),
     action: v.optional(v.string()),
