@@ -36,6 +36,41 @@ const segmentValidator = v.object({
   excludeTenantIds: v.optional(v.array(v.string())),
 });
 
+function normalizeString(value?: string) {
+  return value?.trim() || undefined;
+}
+
+function validateMessagePayload(args: {
+  subject?: string;
+  emailBody?: string;
+  smsBody?: string;
+  inAppBody?: string;
+  channels?: Array<"in_app" | "email" | "sms">;
+}) {
+  const subject = args.subject?.trim() || "";
+  const channels = args.channels ?? [];
+
+  if (!subject) {
+    throw new Error("Subject is required.");
+  }
+
+  if (channels.length === 0) {
+    throw new Error("At least one channel must be selected.");
+  }
+
+  if (channels.includes("in_app") && !args.inAppBody?.trim()) {
+    throw new Error("In-app body is required when in_app channel is selected.");
+  }
+
+  if (channels.includes("email") && !args.emailBody?.trim()) {
+    throw new Error("Email body is required when email channel is selected.");
+  }
+
+  if (channels.includes("sms") && !args.smsBody?.trim()) {
+    throw new Error("SMS body is required when sms channel is selected.");
+  }
+}
+
 async function resolveTargetTenantIds(
   ctx: any,
   segment: {
@@ -47,7 +82,7 @@ async function resolveTargetTenantIds(
     excludeTenantIds?: string[];
   }
 ): Promise<string[]> {
-  const explicitTenantIds = segment.tenantIds ?? [];
+  const explicitTenantIds = [...new Set(segment.tenantIds ?? [])];
   const excludeTenantIds = new Set(segment.excludeTenantIds ?? []);
 
   if (explicitTenantIds.length > 0) {
@@ -70,9 +105,11 @@ async function resolveTargetTenantIds(
 
   // schoolTypes intentionally not applied yet until tenant schema confirms support
 
-  return tenants
-    .map((t: any) => t.tenantId)
+  const filteredTenantIds = tenants
+    .map((t: any) => String(t.tenantId))
     .filter((tenantId: string) => !excludeTenantIds.has(tenantId));
+
+  return Array.from(new Set<string>(filteredTenantIds));
 }
 
 function inferNotificationType(
@@ -99,21 +136,7 @@ export const createPlatformMessage = mutation({
   handler: async (ctx, args) => {
     const actor = await requirePlatformSession(ctx, args);
 
-    if (args.channels.length === 0) {
-      throw new Error("At least one channel must be selected.");
-    }
-
-    if (args.channels.includes("in_app") && !args.inAppBody?.trim()) {
-      throw new Error("In-app body is required when in_app channel is selected.");
-    }
-
-    if (args.channels.includes("email") && !args.emailBody?.trim()) {
-      throw new Error("Email body is required when email channel is selected.");
-    }
-
-    if (args.channels.includes("sms") && !args.smsBody?.trim()) {
-      throw new Error("SMS body is required when sms channel is selected.");
-    }
+    validateMessagePayload(args);
 
     const now = Date.now();
 
@@ -121,9 +144,9 @@ export const createPlatformMessage = mutation({
       senderId: actor.userId,
       type: args.type,
       subject: args.subject.trim(),
-      emailBody: args.emailBody?.trim(),
-      smsBody: args.smsBody?.trim(),
-      inAppBody: args.inAppBody?.trim(),
+      emailBody: normalizeString(args.emailBody),
+      smsBody: normalizeString(args.smsBody),
+      inAppBody: normalizeString(args.inAppBody),
       channels: args.channels,
       segment: args.segment,
       scheduledAt: args.scheduledAt,
@@ -167,15 +190,25 @@ export const updatePlatformMessage = mutation({
       throw new Error("Sent messages cannot be edited.");
     }
 
+    const nextPayload = {
+      subject: args.subject ?? message.subject,
+      emailBody: args.emailBody ?? message.emailBody,
+      smsBody: args.smsBody ?? message.smsBody,
+      inAppBody: args.inAppBody ?? message.inAppBody,
+      channels: args.channels ?? message.channels,
+    };
+
+    validateMessagePayload(nextPayload);
+
     const patch: Record<string, unknown> = {
       updatedAt: Date.now(),
     };
 
     if (args.type !== undefined) patch.type = args.type;
     if (args.subject !== undefined) patch.subject = args.subject.trim();
-    if (args.emailBody !== undefined) patch.emailBody = args.emailBody.trim();
-    if (args.smsBody !== undefined) patch.smsBody = args.smsBody.trim();
-    if (args.inAppBody !== undefined) patch.inAppBody = args.inAppBody.trim();
+    if (args.emailBody !== undefined) patch.emailBody = normalizeString(args.emailBody);
+    if (args.smsBody !== undefined) patch.smsBody = normalizeString(args.smsBody);
+    if (args.inAppBody !== undefined) patch.inAppBody = normalizeString(args.inAppBody);
     if (args.channels !== undefined) patch.channels = args.channels;
     if (args.segment !== undefined) patch.segment = args.segment;
     if (args.scheduledAt !== undefined) patch.scheduledAt = args.scheduledAt;
@@ -245,6 +278,23 @@ export const sendPlatformMessageNow = mutation({
       throw new Error("Platform message not found.");
     }
 
+    if (message.status === "sent") {
+      throw new Error("This message has already been sent.");
+    }
+
+    validateMessagePayload({
+      subject: message.subject,
+      emailBody: message.emailBody,
+      smsBody: message.smsBody,
+      inAppBody: message.inAppBody,
+      channels: message.channels,
+    });
+
+    await ctx.db.patch(args.messageId, {
+      status: "sending",
+      updatedAt: Date.now(),
+    });
+
     const tenantIds = await resolveTargetTenantIds(ctx, message.segment);
     const now = Date.now();
     let delivered = 0;
@@ -310,7 +360,7 @@ export const createTenantNotification = mutation({
       title: args.title.trim(),
       body: args.body.trim(),
       read: false,
-      ctaUrl: args.ctaUrl,
+      ctaUrl: normalizeString(args.ctaUrl),
       createdAt: now,
       updatedAt: now,
     });

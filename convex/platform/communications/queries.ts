@@ -20,18 +20,25 @@ const messageTypeValidator = v.union(
 
 const channelValidator = v.union(v.literal("in_app"), v.literal("email"), v.literal("sms"));
 
+function normalizeLimit(limit?: number) {
+  const value = limit ?? 50;
+  return Math.min(Math.max(value, 1), 100);
+}
+
 export const listPlatformMessages = query({
   args: {
     ...platformSessionArg,
     status: v.optional(statusValidator),
     type: v.optional(messageTypeValidator),
     channel: v.optional(channelValidator),
+    senderId: v.optional(v.string()),
+    search: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    const limit = args.limit ?? 50;
+    const limit = normalizeLimit(args.limit);
     let messages = await ctx.db.query("platform_messages").collect();
 
     if (args.status) {
@@ -46,6 +53,15 @@ export const listPlatformMessages = query({
       messages = messages.filter((m: any) => m.channels.includes(args.channel));
     }
 
+    if (args.senderId) {
+      messages = messages.filter((m: any) => m.senderId === args.senderId);
+    }
+
+    if (args.search?.trim()) {
+      const search = args.search.trim().toLowerCase();
+      messages = messages.filter((m: any) => (m.subject ?? "").toLowerCase().includes(search));
+    }
+
     return messages.sort((a: any, b: any) => b.createdAt - a.createdAt).slice(0, limit);
   },
 });
@@ -57,7 +73,11 @@ export const getPlatformMessage = query({
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
-    return await ctx.db.get(args.messageId);
+
+    const message = await ctx.db.get(args.messageId);
+    if (!message) return null;
+
+    return message;
   },
 });
 
@@ -74,9 +94,13 @@ export const getPlatformCommunicationStats = query({
       total: messages.length,
       drafts: messages.filter((m: any) => m.status === "draft").length,
       scheduled: messages.filter((m: any) => m.status === "scheduled").length,
+      sending: messages.filter((m: any) => m.status === "sending").length,
       sent: messages.filter((m: any) => m.status === "sent").length,
       failed: messages.filter((m: any) => m.status === "failed").length,
       delivered: messages.reduce((sum: number, m: any) => sum + (m.stats?.delivered ?? 0), 0),
+      opened: messages.reduce((sum: number, m: any) => sum + (m.stats?.opened ?? 0), 0),
+      clicked: messages.reduce((sum: number, m: any) => sum + (m.stats?.clicked ?? 0), 0),
+      bounced: messages.reduce((sum: number, m: any) => sum + (m.stats?.bounced ?? 0), 0),
     };
   },
 });
@@ -85,17 +109,24 @@ export const listTenantNotifications = query({
   args: {
     ...platformSessionArg,
     tenantId: v.optional(v.string()),
+    platformMessageId: v.optional(v.id("platform_messages")),
     read: v.optional(v.boolean()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    const limit = args.limit ?? 50;
+    const limit = normalizeLimit(args.limit);
     let notifications = await ctx.db.query("tenant_notifications").collect();
 
     if (args.tenantId) {
       notifications = notifications.filter((n: any) => n.tenantId === args.tenantId);
+    }
+
+    if (args.platformMessageId) {
+      notifications = notifications.filter(
+        (n: any) => n.platformMessageId === args.platformMessageId
+      );
     }
 
     if (args.read !== undefined) {
@@ -103,5 +134,27 @@ export const listTenantNotifications = query({
     }
 
     return notifications.sort((a: any, b: any) => b.createdAt - a.createdAt).slice(0, limit);
+  },
+});
+
+export const getTenantNotificationStats = query({
+  args: {
+    ...platformSessionArg,
+    tenantId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let notifications = await ctx.db.query("tenant_notifications").collect();
+
+    if (args.tenantId) {
+      notifications = notifications.filter((n: any) => n.tenantId === args.tenantId);
+    }
+
+    return {
+      total: notifications.length,
+      unread: notifications.filter((n: any) => !n.read).length,
+      read: notifications.filter((n: any) => n.read).length,
+    };
   },
 });

@@ -175,3 +175,20 @@ npm run clean        # Remove build artifacts
 ## License
 
 Proprietary — Mylesoft Technologies. All rights reserved.
+
+
+
+
+
+
+SMALL NOTES 
+Phase 1: communications send flow
+finish broadcast page
+test create + send
+verify records appear in platform_message
+verify records appear in tenant_notifications
+Phase 2: notifications receive flow
+list tenant notifications
+unread count
+mark as read
+tenant admin-only inbox UI
