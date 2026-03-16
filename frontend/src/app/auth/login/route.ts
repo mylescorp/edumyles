@@ -4,9 +4,9 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const error = searchParams.get("error");
   
-  // If there's an error, redirect to platform dashboard
+  // If there's an error, redirect to home page (avoid redirect loop)
   if (error) {
-    return NextResponse.redirect(new URL("/platform", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
   
   // Get returnTo parameter or default to platform

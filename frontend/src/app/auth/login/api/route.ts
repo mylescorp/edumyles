@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("[auth/login] Failed to build sign-in URL:", error);
     return NextResponse.redirect(
-      new URL("/auth/login?error=not_configured", req.url)
+      new URL("/", req.url)
     );
   }
 }
