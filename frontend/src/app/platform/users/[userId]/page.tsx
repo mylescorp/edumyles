@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -112,111 +113,6 @@ interface ActivityLog {
   timestamp: number;
 }
 
-const mockUser: UserDetail = {
-  _id: "1",
-  firstName: "Michael",
-  lastName: "Chen",
-  email: "michael.chen@edumyles.com",
-  phone: "+254 712 345 678",
-  role: "super_admin",
-  status: "active",
-  department: "Management",
-  location: "Nairobi",
-  lastLogin: Date.now() - 2 * 60 * 60 * 1000,
-  createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000,
-  updatedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-  createdBy: "system",
-  permissions: ["all"],
-  twoFactorEnabled: true,
-  emailVerified: true,
-  loginHistory: [
-    {
-      _id: "1",
-      timestamp: Date.now() - 2 * 60 * 60 * 1000,
-      ipAddress: "192.168.1.100",
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      location: "Nairobi, Kenya",
-      success: true
-    },
-    {
-      _id: "2",
-      timestamp: Date.now() - 24 * 60 * 60 * 1000,
-      ipAddress: "192.168.1.100",
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      location: "Nairobi, Kenya",
-      success: true
-    },
-    {
-      _id: "3",
-      timestamp: Date.now() - 48 * 60 * 60 * 1000,
-      ipAddress: "192.168.1.101",
-      userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X)",
-      location: "Mombasa, Kenya",
-      success: false,
-      failureReason: "Invalid password"
-    }
-  ],
-  sessions: [
-    {
-      _id: "1",
-      device: "Chrome on Windows",
-      location: "Nairobi, Kenya",
-      ipAddress: "192.168.1.100",
-      lastActivity: Date.now() - 30 * 60 * 1000,
-      createdAt: Date.now() - 2 * 60 * 60 * 1000
-    },
-    {
-      _id: "2",
-      device: "Safari on iPhone",
-      location: "Nairobi, Kenya",
-      ipAddress: "192.168.1.100",
-      lastActivity: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000
-    }
-  ],
-  securitySettings: {
-    passwordChangedAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    twoFactorEnabled: true,
-    backupCodes: ["123456", "789012", "345678", "901234"],
-    trustedDevices: [
-      {
-        _id: "1",
-        deviceName: "Michael's Laptop",
-        deviceType: "Windows PC",
-        lastUsed: Date.now() - 2 * 60 * 60 * 1000,
-        addedAt: Date.now() - 60 * 24 * 60 * 60 * 1000
-      }
-    ],
-    loginNotifications: true
-  },
-  activityLogs: [
-    {
-      _id: "1",
-      action: "login",
-      resource: "system",
-      details: "Successful login from Nairobi",
-      ipAddress: "192.168.1.100",
-      timestamp: Date.now() - 2 * 60 * 60 * 1000
-    },
-    {
-      _id: "2",
-      action: "user_updated",
-      resource: "users",
-      details: "Updated own profile information",
-      ipAddress: "192.168.1.100",
-      timestamp: Date.now() - 4 * 60 * 60 * 1000
-    },
-    {
-      _id: "3",
-      action: "password_changed",
-      resource: "security",
-      details: "Password changed successfully",
-      ipAddress: "192.168.1.100",
-      timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000
-    }
-  ]
-};
-
 export default function UserDetailPage() {
   const params = useParams();
   const userId = params.userId as string;
@@ -228,13 +124,29 @@ export default function UserDetailPage() {
     !!sessionToken
   );
 
+  const updateProfile = useMutation(api.platform.users.mutations.updateUserProfile);
+  const deactivateUser = useMutation(api.platform.users.mutations.deactivatePlatformAdmin);
+
   const [user, setUser] = useState<UserDetail | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Sync query data to local state for editing
+  // Edit form state
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editLocation, setEditLocation] = useState("");
+
+  // Sync query data to local state
   if (userData && !user) {
-    setUser(userData as any);
+    const u = userData as any;
+    setUser(u);
+    setEditFirstName(u.firstName ?? "");
+    setEditLastName(u.lastName ?? "");
+    setEditPhone(u.phone ?? "");
+    setEditLocation(u.location ?? "");
   }
+
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [is2FADialogOpen, setIs2FADialogOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -272,9 +184,23 @@ export default function UserDetailPage() {
     return new Date(timestamp).toLocaleString('en-KE');
   };
 
-  const handleUpdateUser = () => {
-    // Update user logic here
-    setIsEditing(false);
+  const handleUpdateUser = async () => {
+    if (!sessionToken) return;
+    setIsSaving(true);
+    try {
+      await updateProfile({
+        sessionToken,
+        firstName: editFirstName || undefined,
+        lastName: editLastName || undefined,
+        phone: editPhone || undefined,
+        location: editLocation || undefined,
+      });
+      setIsEditing(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleResetPassword = () => {
@@ -561,6 +487,20 @@ export default function UserDetailPage() {
                 <History className="h-4 w-4 mr-2" />
                 View History
               </Button>
+              {user.isActive !== false && (
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-red-600 hover:text-red-700"
+                  onClick={async () => {
+                    if (!sessionToken) return;
+                    try { await deactivateUser({ sessionToken, userId: userId as any }); }
+                    catch (err) { console.error(err); }
+                  }}
+                >
+                  <Lock className="h-4 w-4 mr-2" />
+                  Deactivate User
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -628,37 +568,37 @@ export default function UserDetailPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" defaultValue={user.firstName} />
+                <Input id="firstName" value={editFirstName} onChange={(e) => setEditFirstName(e.target.value)} />
               </div>
               <div>
                 <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" defaultValue={user.lastName} />
+                <Input id="lastName" value={editLastName} onChange={(e) => setEditLastName(e.target.value)} />
               </div>
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" defaultValue={user.email} />
+                <Input id="email" type="email" defaultValue={user.email} disabled />
               </div>
               <div>
                 <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" defaultValue={user.phone} />
+                <Input id="phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
               </div>
               <div>
                 <Label htmlFor="department">Department</Label>
-                <Input id="department" defaultValue={user.department} />
+                <Input id="department" defaultValue={user.department} disabled />
               </div>
               <div>
                 <Label htmlFor="location">Location</Label>
-                <Input id="location" defaultValue={user.location} />
+                <Input id="location" value={editLocation} onChange={(e) => setEditLocation(e.target.value)} />
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsEditing(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleUpdateUser}>
+              <Button onClick={handleUpdateUser} disabled={isSaving}>
                 <Edit className="h-4 w-4 mr-1" />
-                Update Profile
+                {isSaving ? "Saving..." : "Update Profile"}
               </Button>
             </div>
           </div>

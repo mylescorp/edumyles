@@ -34,6 +34,7 @@ import {
   Lock,
   Clock,
   Package,
+  Kanban,
   type LucideIcon,
 } from "lucide-react";
 
@@ -60,6 +61,7 @@ export const platformNavItems: NavItem[] = [
   { label: "Tenant Success", href: "/platform/tenant-success", icon: TrendingUp },
   { label: "Analytics", href: "/platform/analytics", icon: BarChart3 },
   { label: "Marketplace", href: "/platform/marketplace", icon: ShoppingCart },
+  { label: "Project Management", href: "/platform/pm", icon: Kanban },
   { label: "Billing", href: "/platform/billing", icon: DollarSign },
   { label: "Feature Flags", href: "/platform/feature-flags", icon: Flag },
   { label: "Impersonation", href: "/platform/impersonation", icon: Eye },

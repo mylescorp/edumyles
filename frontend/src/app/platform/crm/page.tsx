@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 
