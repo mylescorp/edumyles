@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
