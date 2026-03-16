@@ -46,19 +46,19 @@ export async function GET(req: NextRequest) {
   if (error) {
     console.error("[auth/callback] WorkOS returned error:", error);
     return NextResponse.redirect(
-      new URL("/auth/login?error=" + encodeURIComponent(error), req.url)
+      new URL("/?auth_error=" + encodeURIComponent(error), req.url)
     );
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL("/auth/login?error=no_code", req.url));
+    return NextResponse.redirect(new URL("/?auth_error=no_code", req.url));
   }
 
   const savedState = req.cookies.get("workos_state")?.value;
   // Only validate state when we explicitly set one (CSRF protection for POST-initiated flows)
   if (savedState && returnedState !== savedState) {
     console.error("[auth/callback] Invalid state - mismatch:", { savedState, returnedState });
-    return NextResponse.redirect(new URL("/auth/login?error=invalid_state", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   try {
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
         hasClientId: !!clientId,
         hasConvexUrl: !!convexUrl,
       });
-      return NextResponse.redirect(new URL("/auth/login?error=config_error", req.url));
+      return NextResponse.redirect(new URL("/?auth_error=config_error", req.url));
     }
 
     const workos = new WorkOS(apiKey);
@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
       console.log("[auth/callback] Session created and stored");
     } catch (error) {
       console.error("[auth/callback] Session creation failed:", error);
-      return NextResponse.redirect(new URL("/auth/login?error=session_failed", req.url));
+      return NextResponse.redirect(new URL("/?auth_error=session_failed", req.url));
     }
 
     // --- Set cookies & redirect -------------------------------------------
@@ -180,6 +180,6 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (err) {
     console.error("[auth/callback] ❌ Token exchange failed:", err);
-    return NextResponse.redirect(new URL("/auth/login?error=callback_failed", req.url));
+    return NextResponse.redirect(new URL("/?auth_error=callback_failed", req.url));
   }
 }
