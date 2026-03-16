@@ -395,6 +395,90 @@ export default defineSchema({
     .index("by_user_unread", ["userId", "isRead"])
     .index("by_tenant", ["tenantId", "createdAt"]),
 
+  platform_messages: defineTable({
+    senderId: v.string(),
+
+    type: v.union(
+      v.literal("broadcast"),
+      v.literal("campaign"),
+      v.literal("alert"),
+      v.literal("transactional"),
+      v.literal("drip_step")
+    ),
+
+    subject: v.string(),
+
+    emailBody: v.optional(v.string()),
+    smsBody: v.optional(v.string()),
+    inAppBody: v.optional(v.string()),
+
+    channels: v.array(v.union(v.literal("in_app"), v.literal("email"), v.literal("sms"))),
+
+    segment: v.object({
+      planTiers: v.optional(v.array(v.string())),
+      tenantIds: v.optional(v.array(v.string())),
+      statuses: v.optional(v.array(v.string())),
+      counties: v.optional(v.array(v.string())),
+      schoolTypes: v.optional(v.array(v.string())),
+      excludeTenantIds: v.optional(v.array(v.string())),
+    }),
+
+    scheduledAt: v.optional(v.number()),
+    sentAt: v.optional(v.number()),
+
+    status: v.union(
+      v.literal("draft"),
+      v.literal("scheduled"),
+      v.literal("sending"),
+      v.literal("sent"),
+      v.literal("failed")
+    ),
+
+    stats: v.optional(
+      v.object({
+        delivered: v.number(),
+        opened: v.number(),
+        clicked: v.number(),
+        bounced: v.number(),
+      })
+    ),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_type", ["type"])
+    .index("by_created", ["createdAt"])
+    .index("by_scheduled", ["scheduledAt"])
+    .index("by_sender", ["senderId"]),
+
+  tenant_notifications: defineTable({
+    tenantId: v.string(),
+
+    platformMessageId: v.optional(v.id("platform_messages")),
+
+    type: v.union(
+      v.literal("info"),
+      v.literal("warning"),
+      v.literal("success"),
+      v.literal("alert")
+    ),
+
+    title: v.string(),
+    body: v.string(),
+
+    read: v.boolean(),
+
+    ctaUrl: v.optional(v.string()),
+
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_read", ["tenantId", "read"])
+    .index("by_created", ["createdAt"])
+    .index("by_platform_message", ["platformMessageId"]),
+
   subjects: defineTable({
     tenantId: v.string(),
     name: v.string(),
@@ -612,8 +696,7 @@ export default defineSchema({
     stops: v.array(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"]),
+  }).index("by_tenant", ["tenantId"]),
 
   vehicles: defineTable({
     tenantId: v.string(),
@@ -724,11 +807,13 @@ export default defineSchema({
     tenantId: v.string(),
     customerId: v.string(),
     customerType: v.string(),
-    items: v.array(v.object({
-      productId: v.string(),
-      quantity: v.number(),
-      unitPriceCents: v.number(),
-    })),
+    items: v.array(
+      v.object({
+        productId: v.string(),
+        quantity: v.number(),
+        unitPriceCents: v.number(),
+      })
+    ),
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
@@ -754,12 +839,24 @@ export default defineSchema({
     tenantId: v.string(),
     title: v.string(),
     body: v.string(),
-    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
-      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
-      v.literal("legal"), v.literal("other")),
+    category: v.union(
+      v.literal("billing"),
+      v.literal("technical"),
+      v.literal("data"),
+      v.literal("feature"),
+      v.literal("onboarding"),
+      v.literal("account"),
+      v.literal("legal"),
+      v.literal("other")
+    ),
     priority: v.union(v.literal("P0"), v.literal("P1"), v.literal("P2"), v.literal("P3")),
-    status: v.union(v.literal("open"), v.literal("in_progress"),
-      v.literal("pending_school"), v.literal("resolved"), v.literal("closed")),
+    status: v.union(
+      v.literal("open"),
+      v.literal("in_progress"),
+      v.literal("pending_school"),
+      v.literal("resolved"),
+      v.literal("closed")
+    ),
     assignedTo: v.optional(v.string()),
     createdBy: v.string(),
     attachments: v.optional(v.array(v.string())),
@@ -775,8 +872,10 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_tenant", ["tenantId"]).index("by_status", ["status"])
-    .index("by_priority", ["priority"]).index("by_assigned", ["assignedTo"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_priority", ["priority"])
+    .index("by_assigned", ["assignedTo"])
     .index("by_sla", ["slaResolutionDL"]),
 
   ticketComments: defineTable({
@@ -795,9 +894,16 @@ export default defineSchema({
   cannedResponses: defineTable({
     title: v.string(),
     content: v.string(),
-    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
-      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
-      v.literal("legal"), v.literal("other")),
+    category: v.union(
+      v.literal("billing"),
+      v.literal("technical"),
+      v.literal("data"),
+      v.literal("feature"),
+      v.literal("onboarding"),
+      v.literal("account"),
+      v.literal("legal"),
+      v.literal("other")
+    ),
     variables: v.optional(v.array(v.string())), // Variable names like {{school_name}}
     isActive: v.boolean(),
     usageCount: v.number(),
@@ -809,9 +915,16 @@ export default defineSchema({
     .index("by_active", ["isActive"]),
 
   slaRules: defineTable({
-    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
-      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
-      v.literal("legal"), v.literal("other")),
+    category: v.union(
+      v.literal("billing"),
+      v.literal("technical"),
+      v.literal("data"),
+      v.literal("feature"),
+      v.literal("onboarding"),
+      v.literal("account"),
+      v.literal("legal"),
+      v.literal("other")
+    ),
     priority: v.union(v.literal("P0"), v.literal("P1"), v.literal("P2"), v.literal("P3")),
     firstResponseHours: v.number(),
     resolutionHours: v.number(),

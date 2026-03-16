@@ -46,5 +46,21 @@
   "dependencies": {
     "@vercel/speed-insights": "^1.3.1",
     "convex": "^1.32.0"
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mylesoft-Technologies/edumyles.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Mylesoft-Technologies/edumyles/issues"
+  },
+  "homepage": "https://github.com/Mylesoft-Technologies/edumyles#readme"
 }
