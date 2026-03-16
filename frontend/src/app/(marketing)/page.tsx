@@ -323,9 +323,9 @@ function LandingPageContent() {
                   </li>
                 ))}
               </ul>
-              <Link className="btn btn-primary" href="/auth/signup">
+              <a className="btn btn-primary" href="/auth/signup/api">
                 {plan.price === "Free" ? "Start Free" : "Start Free Trial"}
-              </Link>
+              </a>
             </div>
           ))}
         </div>
@@ -388,9 +388,9 @@ function LandingPageContent() {
             Start your free 30-day trial today - no credit card required.
           </p>
           <div className="actions" style={{ justifyContent: "center" }}>
-            <Link className="btn btn-primary" href="/auth/signup">
+            <a className="btn btn-primary" href="/auth/signup/api">
               Activate Free Trial
-            </Link>
+            </a>
             <Link className="btn btn-outline" href="/concierge">
               Talk to an Expert
             </Link>

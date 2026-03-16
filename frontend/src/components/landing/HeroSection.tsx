@@ -40,9 +40,9 @@ export default function HeroSection() {
           </p>
 
           <div className="actions">
-            <Link className="btn btn-primary" href="/auth/signup">
+            <a className="btn btn-primary" href="/auth/signup/api">
               Get Started Free
-            </Link>
+            </a>
             <Link className="btn btn-secondary" href="/concierge">
               Book a Demo
             </Link>

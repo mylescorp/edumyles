@@ -140,7 +140,7 @@ export default function ContactPage() {
           <h2>Ready to get started?</h2>
           <p>Start your free trial today or book a personalized demo with our team.</p>
           <div className="centered-actions">
-            <Link className="btn btn-primary" href="/auth/signup">Start Free Trial</Link>
+            <Link className="btn btn-primary" href="/auth/signup/api">Start Free Trial</Link>
             <Link className="btn btn-outline" href="/concierge">Book a Demo</Link>
           </div>
         </div>

@@ -12,7 +12,7 @@ export default function ResourcesPage() {
             teachers, finance teams, and IT staff.
           </p>
           <div className="actions">
-            <Link className="btn btn-primary" href="/auth/signup">Get Started Free</Link>
+            <Link className="btn btn-primary" href="/auth/signup/api">Get Started Free</Link>
             <Link className="btn btn-secondary" href="/concierge">Request a Walkthrough</Link>
           </div>
         </div>

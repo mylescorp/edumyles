@@ -105,7 +105,7 @@ export default function ModulesSection() {
         <div className="module-tab-text">
           <h3>{activeCategory.label}</h3>
           <p>{activeCategory.description}</p>
-          <Link className="btn btn-primary" href="/auth/signup">
+          <Link className="btn btn-primary" href="/auth/signup/api">
             Try It Free
           </Link>
         </div>

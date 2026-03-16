@@ -24,7 +24,7 @@ const FOOTER_COLUMNS = [
     links: [
       { label: "Guides & Demos", href: "/resources" },
       { label: "Terms & Privacy", href: "/terms" },
-      { label: "Log In", href: "/auth/login" },
+      { label: "Sign In", href: "/auth/login/api" },
     ],
   },
 ];
@@ -39,9 +39,9 @@ export default function LandingFooter() {
             <p>
               Start using EduMyles today with no credit card. Full access to all modules during your trial.
             </p>
-            <Link href="/auth/signup" className="btn btn-primary btn-sm">
+            <a href="/auth/signup/api" className="btn btn-primary btn-sm">
               Start Free Trial
-            </Link>
+            </a>
           </div>
           <div className="promo-card">
             <h4>Talk to an Expert</h4>
