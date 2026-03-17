@@ -7,7 +7,7 @@ export const createChangelogEntry = mutation({
     version: v.string(),
     title: v.string(),
     description: v.string(),
-    type: v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement"), v.literal("breaking")),
+    type: v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement"), v.literal("breaking"), v.literal("breaking")),
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
