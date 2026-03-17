@@ -148,13 +148,11 @@ export async function GET(req: NextRequest) {
     const isProduction = process.env.NODE_ENV === "production";
 
     // Debug logging
-    console.log(`[auth/callback] Redirecting to: ${dashboard}`);
-    console.log(`[auth/callback] Full URL: ${req.url}`);
-    console.log(`[auth/callback] Base URL: ${req.nextUrl.origin}`);
-    console.log(`[auth/callback] isProduction: ${isProduction}`);
-    console.log(`[auth/callback] Setting cookies: session=${sessionToken.substring(0, 8)}..., role=${role}`);
+    console.log(`[auth/callback] Dashboard determined: ${dashboard}`);
+    console.log(`[auth/callback] Redirecting to: / (root will handle role-based redirect)`);
 
-    const response = NextResponse.redirect(new URL(dashboard, req.url));
+    // Redirect to root - let the root page handle role-based redirect after cookies are committed
+    const response = NextResponse.redirect(new URL("/", req.url));
 
     // Save the WorkOS AuthKit session (enables useAuth() / withAuth() on the frontend)
     if (process.env.WORKOS_COOKIE_PASSWORD) {
