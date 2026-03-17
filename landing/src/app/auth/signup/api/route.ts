@@ -61,22 +61,20 @@ export async function POST(req: NextRequest) {
     const workos = new WorkOS(apiKey);
     
     // Configure provider based on selection
-    let providerConfig: any = {
+    const baseConfig = {
       clientId,
       redirectUri,
-      screenHint: "sign-up",
+      screenHint: "sign-up" as const,
       ...(email ? { loginHint: email } : {}),
       ...(state ? { state } : {}),
     };
 
     // Set specific provider if Google or Microsoft is selected
-    if (provider === "google") {
-      providerConfig.provider = "Google";
-    } else if (provider === "microsoft") {
-      providerConfig.provider = "Microsoft";
-    } else {
-      providerConfig.provider = "authkit"; // Default to AuthKit for email
-    }
+    const providerConfig = provider === "google" 
+      ? { ...baseConfig, provider: "Google" as const }
+      : provider === "microsoft"
+      ? { ...baseConfig, provider: "Microsoft" as const }
+      : { ...baseConfig, provider: "authkit" as const };
 
     const authUrl = workos.userManagement.getAuthorizationUrl(providerConfig);
 

@@ -112,7 +112,7 @@ export default function Navbar() {
           </nav>
           <div className="flex flex-col gap-3 pb-safe">
             <a
-              href="/auth/login/api"
+href="/auth/login/api"
               onClick={() => setMobileOpen(false)}
               className="text-center text-navy dark:text-off-white border border-light-grey dark:border-navy-light/50 rounded-lg py-3 font-inter font-medium transition-colors hover:border-gold hover:text-gold"
             >
