@@ -68,12 +68,12 @@ export default function Navbar() {
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-3">
             {mounted && <ThemeToggle />}
-            <a
+            <Link
               href="/auth/login/api"
               className="font-inter font-medium text-[15px] px-4 py-2 transition-colors text-navy dark:text-off-white hover:text-gold"
             >
               Sign In
-            </a>
+            </Link>
             <a
               href="/auth/signup/api"
               className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-[15px] px-6 py-2.5 rounded-lg transition-all duration-200 hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98]"
@@ -111,13 +111,13 @@ export default function Navbar() {
             ))}
           </nav>
           <div className="flex flex-col gap-3 pb-safe">
-            <a
-href="/auth/login/api"
+            <Link
+              href="/auth/login/api"
               onClick={() => setMobileOpen(false)}
               className="text-center text-navy dark:text-off-white border border-light-grey dark:border-navy-light/50 rounded-lg py-3 font-inter font-medium transition-colors hover:border-gold hover:text-gold"
             >
               Sign In
-            </a>
+            </Link>
             <a
               href="/auth/signup/api"
               onClick={() => setMobileOpen(false)}
