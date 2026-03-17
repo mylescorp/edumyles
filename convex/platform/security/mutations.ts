@@ -323,6 +323,13 @@ export const createThreat = mutation({
         ip: args.source?.ip ?? "0.0.0.0",
         userAgent: args.source?.userAgent ?? "Unknown",
       },
+      target: {
+        system: args.affectedSystems?.[0] ?? "unknown",
+        user: args.source?.email ?? undefined,
+        data: undefined,
+      },
+      indicators: [],
+      confidence: 0.8,
       detectedAt: Date.now(),
       createdBy: userId,
       tenantId,
