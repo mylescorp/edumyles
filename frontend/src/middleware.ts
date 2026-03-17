@@ -61,6 +61,11 @@ export async function middleware(request: NextRequest) {
   const session = request.cookies.get("edumyles_session");
   const role = request.cookies.get("edumyles_role")?.value;
 
+  // Debug logging for protected routes
+  if (pathname.startsWith("/platform") || pathname.startsWith("/admin")) {
+    console.log(`[middleware] ${pathname} - session: ${session ? "present" : "missing"}, role: ${role || "none"}`);
+  }
+
   // Dev bypass — skip all auth checks when explicitly enabled
   if (process.env.ENABLE_DEV_AUTH_BYPASS === "true" && pathname.startsWith("/admin")) {
     return NextResponse.next();
@@ -80,6 +85,7 @@ export async function middleware(request: NextRequest) {
 
   // 1. Unauthenticated → landing page
   if (isProtected && !session) {
+    console.log(`[middleware] Redirecting unauthenticated user from ${pathname} to landing`);
     const authBase = process.env.NEXT_PUBLIC_AUTH_BASE_URL || request.nextUrl.origin;
     const loginUrl = new URL("/landing", authBase);
     return NextResponse.redirect(loginUrl.toString());
