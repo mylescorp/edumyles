@@ -118,13 +118,6 @@ export default function Navbar() {
             >
               Sign In
             </Link>
-            <a
-              href="/auth/signup/api"
-              onClick={() => setMobileOpen(false)}
-              className="text-center bg-gold hover:bg-gold-dark text-white rounded-lg py-3.5 font-inter font-semibold transition-colors"
-            >
-              Get Started Free
-            </a>
           </div>
         </div>
       )}
