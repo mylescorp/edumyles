@@ -28,7 +28,8 @@ export type AuditAction =
   | "marketplace.featured_updated"
   | "marketplace.dispute_filed" | "marketplace.dispute_resolved"
   | "marketplace.review_submitted" | "marketplace.review_moderated"
-  | "marketplace.publisher_registered" | "marketplace.publisher_verified";
+  | "marketplace.publisher_registered" | "marketplace.publisher_verified"
+  | "marketplace.module_suspended" | "marketplace.module_deprecated" | "marketplace.module_installed" | "marketplace.module_uninstalled";
 
 export async function logAction(
   ctx: MutationCtx,
