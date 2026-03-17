@@ -29,6 +29,7 @@ export function useQuery(query: any, args?: any, enabled?: boolean) {
     // Convex useQuery throws during render on server errors.
     // Catch and return undefined so the component can render gracefully.
     console.warn("[useQuery] Convex query error caught:", (error as Error)?.message);
+    console.warn("[useQuery] Query details:", { query: query?.name, args, enabled });
     return undefined;
   }
 }
