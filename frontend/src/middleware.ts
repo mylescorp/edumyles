@@ -78,11 +78,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Unauthenticated → login
+  // 1. Unauthenticated → landing page
   if (isProtected && !session) {
     const authBase = process.env.NEXT_PUBLIC_AUTH_BASE_URL || request.nextUrl.origin;
-    const loginUrl = new URL("/auth/login/api", authBase);
-    loginUrl.searchParams.set("returnTo", request.url);
+    const loginUrl = new URL("/landing", authBase);
     return NextResponse.redirect(loginUrl.toString());
   }
 
