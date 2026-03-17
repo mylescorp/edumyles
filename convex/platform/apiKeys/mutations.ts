@@ -37,13 +37,13 @@ export const createApiKey = mutation({
       name: args.name,
       keyHash: hash,
       keyPrefix: prefix,
-      keySuffix: suffix,
       tenantId: args.tenantId || session.tenantId,
       permissions: args.permissions,
       rateLimit: args.rateLimit || 1000,
       isActive: true,
       createdBy: session.userId,
       createdAt: Date.now(),
+      updatedAt: Date.now(),
       expiresAt: args.expiresInDays ? Date.now() + args.expiresInDays * 86400000 : undefined,
     });
 
@@ -63,7 +63,7 @@ export const revokeApiKey = mutation({
       .first();
     if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
 
-    await ctx.db.patch(args.keyId, { isActive: false, revokedAt: Date.now() });
+    await ctx.db.patch(args.keyId, { isActive: false });
     return { success: true };
   },
 });
@@ -88,8 +88,7 @@ export const rotateApiKey = mutation({
     await ctx.db.patch(args.keyId, {
       keyHash: hash,
       keyPrefix: prefix,
-      keySuffix: suffix,
-      rotatedAt: Date.now(),
+      updatedAt: Date.now(),
     });
 
     return { apiKey: full };

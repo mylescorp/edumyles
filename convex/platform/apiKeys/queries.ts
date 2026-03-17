@@ -22,7 +22,7 @@ export const listApiKeys = query({
 
     return filtered.map((k) => ({
       ...k,
-      key: k.keyPrefix + "..." + (k.keySuffix || "****"),
+      key: k.keyPrefix + "************************",
     }));
   },
 });
