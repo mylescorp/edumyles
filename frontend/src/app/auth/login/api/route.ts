@@ -6,6 +6,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
+    console.log("[auth/login/api] GET received, returnTo:", req.nextUrl.searchParams.get("returnTo"));
+    
     // Dev bypass — only when ENABLE_DEV_AUTH_BYPASS=true is explicitly set
     if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
       console.log("[auth/login] Dev bypass: redirecting to /admin");
@@ -13,6 +15,7 @@ export async function GET(req: NextRequest) {
     }
 
     const returnTo = req.nextUrl.searchParams.get("returnTo") ?? "/platform";
+    console.log("[auth/login/api] Redirecting to WorkOS with returnTo:", returnTo);
     
     // Generate CSRF state for consistency with POST
     const state = crypto.randomBytes(16).toString("hex");
