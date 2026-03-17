@@ -105,7 +105,7 @@ export const getTimeLogStats = query({
 
       timeLogs = await ctx.db
         .query("pmTimeLogs")
-        .withIndex("by_task", (q) => q.eq("taskId", args.taskId))
+        .withIndex("by_task", (q) => q.eq("taskId", args.taskId!))
         .collect();
     } else if (args.userId) {
       // Get time logs for specific user
@@ -113,7 +113,7 @@ export const getTimeLogStats = query({
 
       timeLogs = await ctx.db
         .query("pmTimeLogs")
-        .withIndex("by_user", (q) => q.eq("userId", args.userId))
+        .withIndex("by_user", (q) => q.eq("userId", args.userId!))
         .collect();
     } else {
       // Get all time logs the user has access to
@@ -134,9 +134,10 @@ export const getTimeLogStats = query({
 
     // Filter by project if specified
     if (args.projectId) {
+      const projectId = args.projectId;
       const taskIds = await ctx.db
         .query("pmTasks")
-        .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+        .withIndex("by_project", (q) => q.eq("projectId", projectId))
         .collect()
         .then(tasks => tasks.map(t => t._id));
 

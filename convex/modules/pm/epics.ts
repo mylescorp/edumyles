@@ -186,10 +186,10 @@ export async function updateEpicProgress(ctx: any, epicId: string) {
 
   const tasks = await ctx.db
     .query("pmTasks")
-    .withIndex("by_epic", (q) => q.eq("epicId", epicId))
+    .withIndex("by_epic", (q: any) => q.eq("epicId", epicId))
     .collect();
 
-  const completedTasks = tasks.filter(task => task.status === "Done").length;
+  const completedTasks = tasks.filter((task: any) => task.status === "Done").length;
   const totalTasks = tasks.length;
   const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
