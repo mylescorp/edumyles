@@ -7,36 +7,6 @@ Changelog: https://github.com/get-convex/convex-js/blob/main/CHANGELOG.md#change
 To ignore failing typecheck, use `--typecheck=disable`.
 - Collecting TypeScript errors
 
-convex/modules/pm/epics.ts:189:28 - error TS7006: Parameter 'q' implicitly has an 'any' type.
-
-189     .withIndex("by_epic", (q) => q.eq("epicId", epicId))
-                               ~
-convex/modules/pm/epics.ts:192:39 - error TS7006: Parameter 'task' implicitly has an 'any' type.
-
-192   const completedTasks = tasks.filter(task => task.status === "Done").length;
-                                          ~~~~
-
-convex/modules/pm/timeLogs.ts:108:53 - error TS2345: Argument of type 'Id<"pmTasks"> | undefined' is not assignable to parameter of type 'Id<"pmTasks">'.
-  Type 'undefined' is not assignable to type 'Id<"pmTasks">'.
-    Type 'undefined' is not assignable to type 'string'.
-
-108         .withIndex("by_task", (q) => q.eq("taskId", args.taskId))
-                                                        ~~~~~~~~~~~
-convex/modules/pm/timeLogs.ts:116:53 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-
-116         .withIndex("by_user", (q) => q.eq("userId", args.userId))
-                                                        ~~~~~~~~~~~
-convex/modules/pm/timeLogs.ts:139:59 - error TS2345: Argument of type 'Id<"pmProjects"> | undefined' is not assignable to parameter of type 'Id<"pmProjects">'.
-  Type 'undefined' is not assignable to type 'Id<"pmProjects">'.
-    Type 'undefined' is not assignable to type 'string'.
-
-139         .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
-                                                              ~~~~~~~~~~~~~~
-convex/platform/apiKeys/queries.ts:44:18 - error TS2345: Argument of type '"by_keyId"' is not assignable to parameter of type '"by_tenant" | "by_key" | keyof SystemIndexes'.
-
-44       .withIndex("by_keyId", (q) => q.eq("keyId", args.keyId))
-                    ~~~~~~~~~~
 convex/platform/changelog/mutations.ts:24:7 - error TS2322: Type '"feature" | "fix" | "improvement" | "breaking"' is not assignable to type '"feature" | "fix" | "improvement"'.
   Type '"breaking"' is not assignable to type '"feature" | "fix" | "improvement"'.
 
@@ -67,37 +37,31 @@ convex/platform/communications/mutations.ts:220:17 - error TS2339: Property 'sta
 
 220     if (message.status === "sent") {
                     ~~~~~~
-
 convex/platform/communications/mutations.ts:225:40 - error TS2339: Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 225       subject: args.subject ?? message.subject,
                                            ~~~~~~~
-
 convex/platform/communications/mutations.ts:226:44 - error TS2339: Property 'emailBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'emailBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 226       emailBody: args.emailBody ?? message.emailBody,
                                                ~~~~~~~~~
-
 convex/platform/communications/mutations.ts:227:40 - error TS2339: Property 'smsBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'smsBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 227       smsBody: args.smsBody ?? message.smsBody,
                                            ~~~~~~~
-
 convex/platform/communications/mutations.ts:228:44 - error TS2339: Property 'inAppBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'inAppBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 228       inAppBody: args.inAppBody ?? message.inAppBody,
                                                ~~~~~~~~~
-
 convex/platform/communications/mutations.ts:229:42 - error TS2339: Property 'channels' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'channels' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 229       channels: args.channels ?? message.channels,
                                              ~~~~~~~~
-
 convex/platform/communications/mutations.ts:253:24 - error TS2345: Argument of type 'Id<"platform_messages">' is not assignable to parameter of type 'Id<TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; indexes: { ...; ...'.
   Type 'Id<"platform_messages">' is not assignable to type '{ __tableName: TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; inde...'.
     Types of property '__tableName' are incompatible.
@@ -105,13 +69,11 @@ convex/platform/communications/mutations.ts:253:24 - error TS2345: Argument of t
 
 253     await ctx.db.patch(args.messageId, patch);
                            ~~~~~~~~~~~~~~
-
 convex/platform/communications/mutations.ts:264:26 - error TS2339: Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 264         subject: message.subject,
                              ~~~~~~~
-
 convex/platform/communications/mutations.ts:265:25 - error TS2339: Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -123,7 +85,6 @@ convex/platform/communications/mutations.ts:266:23 - error TS2339: Property 'typ
 
 266         type: message.type,
                           ~~~~
-
 convex/platform/communications/mutations.ts:269:50 - error TS2339: Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -141,7 +102,6 @@ convex/platform/communications/mutations.ts:271:36 - error TS2339: Property 'typ
 
 271         type: args.type ?? message.type,
                                        ~~~~
-
 convex/platform/communications/mutations.ts:287:38 - error TS2345: Argument of type 'Id<"platform_messages">' is not assignable to parameter of type 'Id<TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; indexes: { ...; ...'.
   Type 'Id<"platform_messages">' is not assignable to type '{ __tableName: TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; inde...'.
     Types of property '__tableName' are incompatible.
@@ -161,7 +121,6 @@ convex/platform/communications/mutations.ts:305:26 - error TS2339: Property 'sub
 
 305         subject: message.subject,
                              ~~~~~~~
-
 convex/platform/communications/mutations.ts:306:25 - error TS2339: Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -189,13 +148,11 @@ convex/platform/communications/mutations.ts:325:38 - error TS2345: Argument of t
 
 325     const message = await ctx.db.get(args.messageId);
                                          ~~~~~~~~~~~~~~
-
 convex/platform/communications/mutations.ts:330:17 - error TS2339: Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 330     if (message.status === "sent") {
                     ~~~~~~
-
 convex/platform/communications/mutations.ts:334:24 - error TS2345: Argument of type 'Id<"platform_messages">' is not assignable to parameter of type 'Id<TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; indexes: { ...; ...'.
   Type 'Id<"platform_messages">' is not assignable to type '{ __tableName: TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; inde...'.
     Types of property '__tableName' are incompatible.
@@ -203,7 +160,6 @@ convex/platform/communications/mutations.ts:334:24 - error TS2345: Argument of t
 
 334     await ctx.db.patch(args.messageId, {
                            ~~~~~~~~~~~~~~
-
 convex/platform/communications/mutations.ts:349:25 - error TS2339: Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -215,7 +171,6 @@ convex/platform/communications/mutations.ts:350:30 - error TS2339: Property 'sch
 
 350         scheduledAt: message.scheduledAt,
                                  ~~~~~~~~~~~
-
 convex/platform/communications/mutations.ts:370:38 - error TS2345: Argument of type 'Id<"platform_messages">' is not assignable to parameter of type 'Id<TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; indexes: { ...; ...'.
   Type 'Id<"platform_messages">' is not assignable to type '{ __tableName: TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; inde...'.
     Types of property '__tableName' are incompatible.
@@ -229,7 +184,6 @@ convex/platform/communications/mutations.ts:375:17 - error TS2339: Property 'sta
 
 375     if (message.status === "sent") {
                     ~~~~~~
-
 convex/platform/communications/mutations.ts:380:24 - error TS2339: Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -241,7 +195,6 @@ convex/platform/communications/mutations.ts:381:26 - error TS2339: Property 'ema
 
 381       emailBody: message.emailBody,
                              ~~~~~~~~~
-
 convex/platform/communications/mutations.ts:382:24 - error TS2339: Property 'smsBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'smsBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -253,7 +206,6 @@ convex/platform/communications/mutations.ts:383:26 - error TS2339: Property 'inA
 
 383       inAppBody: message.inAppBody,
                              ~~~~~~~~~
-
 convex/platform/communications/mutations.ts:384:25 - error TS2339: Property 'channels' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'channels' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -267,7 +219,6 @@ convex/platform/communications/mutations.ts:387:24 - error TS2345: Argument of t
 
 387     await ctx.db.patch(args.messageId, {
                            ~~~~~~~~~~~~~~
-
 convex/platform/communications/mutations.ts:392:65 - error TS2339: Property 'segment' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'segment' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -279,24 +230,20 @@ convex/platform/communications/mutations.ts:396:17 - error TS2339: Property 'cha
 
 396     if (message.channels.includes("in_app")) {
                     ~~~~~~~~
-
 convex/platform/communications/mutations.ts:397:62 - error TS2339: Property 'type' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'type' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 397       const notificationType = inferNotificationType(message.type);
                                                                  ~~~~
-
 convex/platform/communications/mutations.ts:400:29 - error TS2345: Argument of type '"tenant_notifications"' is not assignable to parameter of type 'TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; indexes: { ...; }; ...'.
 
 400         await ctx.db.insert("tenant_notifications", {
                                 ~~~~~~~~~~~~~~~~~~~~~~
-
 convex/platform/communications/mutations.ts:404:26 - error TS2339: Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'subject' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 404           title: message.subject,
                              ~~~~~~~
-
 convex/platform/communications/mutations.ts:405:25 - error TS2339: Property 'inAppBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'inAppBody' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -316,25 +263,21 @@ convex/platform/communications/mutations.ts:420:25 - error TS2339: Property 'sta
 
 420         opened: message.stats?.opened ?? 0,
                             ~~~~~
-
 convex/platform/communications/mutations.ts:421:26 - error TS2339: Property 'stats' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'stats' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 421         clicked: message.stats?.clicked ?? 0,
                              ~~~~~
-
 convex/platform/communications/mutations.ts:422:26 - error TS2339: Property 'stats' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'stats' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 422         bounced: message.stats?.bounced ?? 0,
                              ~~~~~
-
 convex/platform/communications/mutations.ts:436:25 - error TS2339: Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'status' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
 436         status: message.status,
                             ~~~~~~
-
 convex/platform/communications/mutations.ts:437:24 - error TS2339: Property 'stats' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; } | ... 141 more ... | { ...; }'.
   Property 'stats' does not exist on type '{ _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; isActive?: boolean | undefined; ... 6 more ...; createdAt: number; }'.
 
@@ -345,34 +288,26 @@ convex/platform/communications/mutations.ts:469:48 - error TS2345: Argument of t
 
 469     const notificationId = await ctx.db.insert("tenant_notifications", {
                                                    ~~~~~~~~~~~~~~~~~~~~~~
-
 convex/platform/dataExport/mutations.ts:96:20 - error TS2345: Argument of type '"supportTickets"' is not assignable to parameter of type 'TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; indexes: { ...; }; ...'.
 
 96             .query("supportTickets")
                       ~~~~~~~~~~~~~~~~
-
 convex/platform/dataExport/mutations.ts:130:20 - error TS2345: Argument of type '"platformAnalytics"' is not assignable to parameter of type 'TableNamesInDataModel<{ sessions: { document: { _id: Id<"sessions">; _creationTime: number; sessionToken?: string | undefined; token?: string | undefined; email?: string | undefined; deviceInfo?: string | undefined; ... 7 more ...; createdAt: number; }; fieldPaths: ExtractFieldPaths<...> | "_id"; indexes: { ...; }; ...'.
 
 130             .query("platformAnalytics")
                        ~~~~~~~~~~~~~~~~~~~
-
 convex/platform/dataExport/queries.ts:1:17 - error TS2305: Module '"../../_generated/server"' has no exported member 'Id'.
 
 1 import { query, Id } from "../../_generated/server";
                   ~~
-
 convex/platform/security/mutations.ts:328:28 - error TS2339: Property 'email' does not exist on type '{ country?: string | undefined; ip?: string | undefined; userAgent?: string | undefined; }'.
 
 328         user: args.source?.email ?? undefined,
                                ~~~~~
 
-
-Found 58 errors in 8 files.
+Found 52 errors in 5 files.
 
 Errors  Files
-     2  convex/modules/pm/epics.ts:189
-     3  convex/modules/pm/timeLogs.ts:108
-     1  convex/platform/apiKeys/queries.ts:44
      1  convex/platform/changelog/mutations.ts:24
     47  convex/platform/communications/mutations.ts:156
      2  convex/platform/dataExport/mutations.ts:96

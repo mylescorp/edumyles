@@ -2777,7 +2777,8 @@ export default defineSchema({
     type: v.union(
       v.literal("feature"),
       v.literal("fix"),
-      v.literal("improvement")
+      v.literal("improvement"),
+      v.literal("breaking")
     ),
     date: v.number(),
     author: v.string(),
@@ -2788,6 +2789,31 @@ export default defineSchema({
     .index("by_date", ["date"])
     .index("by_type", ["type", "date"])
     .index("by_version", ["version"]),
+
+  // ─── Platform Communications ───────────────────────────────────────────
+  platform_messages: defineTable({
+    senderId: v.string(),
+    type: v.union(v.literal("broadcast"), v.literal("targeted")),
+    subject: v.string(),
+    emailBody: v.string(),
+    smsBody: v.string(),
+    inAppBody: v.string(),
+    channels: v.array(v.string()),
+    segment: v.optional(v.string()),
+    scheduledAt: v.optional(v.number()),
+    sentAt: v.optional(v.number()),
+    status: v.union(v.literal("draft"), v.literal("scheduled"), v.literal("sent")),
+    stats: v.object({
+      delivered: v.number(),
+      opened: v.number(),
+      clicked: v.number(),
+      bounced: v.number(),
+    }),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status", "createdAt"])
+    .index("by_sender", ["senderId", "createdAt"]),
 
   // ── Tenant Onboarding Wizard ──────────────────────────────────────
   onboardingProgress: defineTable({
