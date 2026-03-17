@@ -39,14 +39,14 @@ export const getExportStatus = query({
 
     return {
       _id: exp._id,
-      status: exp.status,
-      exportType: exp.exportType,
-      format: exp.format,
-      rowCount: exp.rowCount,
-      completedAt: exp.completedAt,
-      errorMessage: exp.errorMessage,
-      fileUrl: exp.fileUrl,
-      dataContent: exp.dataContent,
+      status: (exp as any).status,
+      exportType: (exp as any).exportType,
+      format: (exp as any).format,
+      rowCount: (exp as any).rowCount,
+      completedAt: (exp as any).completedAt,
+      errorMessage: (exp as any).errorMessage,
+      fileUrl: (exp as any).fileUrl,
+      dataContent: (exp as any).dataContent,
     };
   },
 });
