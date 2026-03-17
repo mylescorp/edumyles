@@ -41,7 +41,7 @@ export const getKeyUsageStats = query({
 
     const usage = await ctx.db
       .query("apiKeyUsage")
-      .withIndex("by_keyId", (q) => q.eq("keyId", args.keyId))
+      .withIndex("by_key", (q) => q.eq("keyId", args.keyId))
       .collect();
 
     const last24h = usage.filter((u) => u.timestamp >= Date.now() - 86400000);
