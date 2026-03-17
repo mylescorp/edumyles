@@ -17,6 +17,8 @@ export type AuditAction =
   | "class.created" | "class.updated"
   | "assignment.submitted" | "assignment.graded"
   | "communication.email_sent" | "communication.sms_sent"
+  | "platform_message.created" | "platform_message.updated" | "platform_message.deleted" | "platform_message.sent"
+  | "platform_notification.created"
   | "alumni.profile_updated" | "alumni.transcript_requested" | "alumni.event_rsvp"
   | "timetable.slot_created" | "timetable.slot_updated" | "timetable.slot_deleted" | "timetable.substitute_assigned"
   | "message.sent";

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { platformSessionArg, requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 const messageTypeValidator = v.union(
   v.literal("broadcast"),
@@ -36,8 +37,20 @@ const segmentValidator = v.object({
   excludeTenantIds: v.optional(v.array(v.string())),
 });
 
+function sanitizeHtml(value?: string): string | undefined {
+  if (!value) return undefined;
+  
+  // Basic XSS prevention - remove HTML tags and dangerous characters
+  return value
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+    .replace(/<[^>]*>/g, '') // Remove all HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .trim();
+}
+
 function normalizeString(value?: string) {
-  return value?.trim() || undefined;
+  return sanitizeHtml(value?.trim() || undefined);
 }
 
 function validateMessagePayload(args: {
@@ -140,7 +153,7 @@ export const createPlatformMessage = mutation({
 
     const now = Date.now();
 
-    return await ctx.db.insert("platform_messages", {
+    const messageId = await ctx.db.insert("platform_messages", {
       senderId: actor.userId,
       type: args.type,
       subject: args.subject.trim(),
@@ -161,6 +174,24 @@ export const createPlatformMessage = mutation({
       createdAt: now,
       updatedAt: now,
     });
+
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.created",
+      entityType: "platform_message",
+      entityId: messageId,
+      after: {
+        type: args.type,
+        subject: args.subject.trim(),
+        channels: args.channels,
+        status: args.status,
+      },
+    });
+
+    return messageId;
   },
 });
 
@@ -179,7 +210,7 @@ export const updatePlatformMessage = mutation({
     status: v.optional(statusValidator),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
     const message = await ctx.db.get(args.messageId);
     if (!message) {
@@ -212,9 +243,35 @@ export const updatePlatformMessage = mutation({
     if (args.channels !== undefined) patch.channels = args.channels;
     if (args.segment !== undefined) patch.segment = args.segment;
     if (args.scheduledAt !== undefined) patch.scheduledAt = args.scheduledAt;
-    if (args.status !== undefined) patch.status = args.status;
+    if (args.status !== undefined) {
+      if (["sent", "sending"].includes(args.status)) {
+        throw new Error("Cannot manually set status to 'sent' or 'sending'. Use the send action instead.");
+      }
+      patch.status = args.status;
+    }
 
     await ctx.db.patch(args.messageId, patch);
+
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.updated",
+      entityType: "platform_message",
+      entityId: args.messageId,
+      before: {
+        subject: message.subject,
+        status: message.status,
+        type: message.type,
+      },
+      after: {
+        subject: args.subject?.trim() ?? message.subject,
+        status: args.status ?? message.status,
+        type: args.type ?? message.type,
+      },
+    });
+
     return args.messageId;
   },
 });
@@ -225,12 +282,31 @@ export const deletePlatformMessage = mutation({
     messageId: v.id("platform_messages"),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
     const message = await ctx.db.get(args.messageId);
     if (!message) {
       throw new Error("Platform message not found.");
     }
+
+    if (message.status === "sent") {
+      throw new Error("Sent messages cannot be deleted.");
+    }
+
+    // Log audit action before deletion
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.deleted",
+      entityType: "platform_message",
+      entityId: args.messageId,
+      before: {
+        subject: message.subject,
+        status: message.status,
+        type: message.type,
+      },
+    });
 
     await ctx.db.delete(args.messageId);
     return { success: true };
@@ -244,7 +320,7 @@ export const schedulePlatformMessage = mutation({
     scheduledAt: v.number(),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
     const message = await ctx.db.get(args.messageId);
     if (!message) {
@@ -261,6 +337,24 @@ export const schedulePlatformMessage = mutation({
       updatedAt: Date.now(),
     });
 
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.updated",
+      entityType: "platform_message",
+      entityId: args.messageId,
+      before: {
+        status: message.status,
+        scheduledAt: message.scheduledAt,
+      },
+      after: {
+        status: "scheduled",
+        scheduledAt: args.scheduledAt,
+      },
+    });
+
     return args.messageId;
   },
 });
@@ -271,7 +365,7 @@ export const sendPlatformMessageNow = mutation({
     messageId: v.id("platform_messages"),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
     const message = await ctx.db.get(args.messageId);
     if (!message) {
@@ -330,6 +424,25 @@ export const sendPlatformMessageNow = mutation({
       updatedAt: now,
     });
 
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.sent",
+      entityType: "platform_message",
+      entityId: args.messageId,
+      before: {
+        status: message.status,
+        stats: message.stats,
+      },
+      after: {
+        status: "sent",
+        delivered,
+        tenantCount: tenantIds.length,
+      },
+    });
+
     return {
       success: true,
       delivered,
@@ -349,11 +462,11 @@ export const createTenantNotification = mutation({
     platformMessageId: v.optional(v.id("platform_messages")),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
     const now = Date.now();
 
-    return await ctx.db.insert("tenant_notifications", {
+    const notificationId = await ctx.db.insert("tenant_notifications", {
       tenantId: args.tenantId,
       platformMessageId: args.platformMessageId,
       type: args.type,
@@ -364,5 +477,22 @@ export const createTenantNotification = mutation({
       createdAt: now,
       updatedAt: now,
     });
+
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_notification.created",
+      entityType: "platform_notification",
+      entityId: notificationId,
+      after: {
+        tenantId: args.tenantId,
+        type: args.type,
+        title: args.title.trim(),
+      },
+    });
+
+    return notificationId;
   },
 });
