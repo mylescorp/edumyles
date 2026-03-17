@@ -83,23 +83,47 @@ export const getInstalledModules = query({
 export const getInstalledModuleIds = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
+    console.log("getInstalledModuleIds called with:", {
+      sessionToken: args.sessionToken ? "present" : "missing"
+    });
+
     const { tenantId } = await requireTenantSession(ctx, args);
+
+    console.log("getInstalledModuleIds tenant context:", { tenantId });
 
     // Platform admins are not tenants — return all module IDs as "installed"
     if (tenantId === "PLATFORM") {
+      console.log("Platform admin detected, returning all module IDs");
       return ALL_MODULES.map((m) => m.moduleId);
     }
 
-    const installed = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_status", (q) =>
-        q.eq("tenantId", tenantId).eq("status", "active")
-      )
-      .collect();
+    try {
+      const installed = await ctx.db
+        .query("installedModules")
+        .withIndex("by_tenant_status", (q) =>
+          q.eq("tenantId", tenantId).eq("status", "active")
+        )
+        .collect();
 
-    const installedIds = installed.map((m) => m.moduleId);
-    const allIds = new Set([...CORE_MODULE_IDS, ...installedIds]);
-    return Array.from(allIds);
+      console.log("getInstalledModuleIds found installed modules:", installed.length);
+
+      const installedIds = installed.map((m) => m.moduleId);
+      const allIds = new Set([...CORE_MODULE_IDS, ...installedIds]);
+      const result = Array.from(allIds);
+      
+      console.log("getInstalledModuleIds returning:", {
+        coreModules: CORE_MODULE_IDS.length,
+        installedModules: installedIds.length,
+        totalModules: result.length
+      });
+
+      return result;
+    } catch (error) {
+      console.error("getInstalledModuleIds error:", error);
+      // Fallback to core modules if installedModules table doesn't exist
+      console.log("Falling back to core modules only");
+      return CORE_MODULE_IDS;
+    }
   },
 });
 
