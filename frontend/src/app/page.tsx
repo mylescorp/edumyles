@@ -5,10 +5,16 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function RootPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    // Wait for auth state to finish loading
+    if (isLoading) {
+      console.log("[root page] Auth state still loading, waiting...");
+      return;
+    }
+
     // Redirect authenticated users to their appropriate dashboard
     if (isAuthenticated && user) {
       const getRoleDashboard = (role: string) => {
@@ -47,7 +53,7 @@ export default function RootPage() {
     // Redirect unauthenticated users to landing page
     console.log("[root page] Redirecting unauthenticated user to landing page");
     router.replace("/landing");
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, isLoading, router]);
 
   // Show loading while redirecting
   return (
