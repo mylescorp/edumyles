@@ -319,7 +319,11 @@ export const createThreat = mutation({
       type: args.type,
       severity: args.severity,
       status: "active",
-      source: args.source ?? {},
+      source: {
+        country: args.source?.country ?? "Unknown",
+        ip: args.source?.ip ?? "0.0.0.0",
+        userAgent: args.source?.userAgent ?? "Unknown",
+      },
       affectedSystems: args.affectedSystems ?? [],
       detectedAt: Date.now(),
       reportedBy: userId,
@@ -443,6 +447,7 @@ export const createVulnerability = mutation({
       recommendation: args.recommendation,
       tenantId,
       createdAt: Date.now(),
+      scanId: `manual_${Date.now()}`,
     });
 
     return { success: true, vulnerabilityId: vulnId, message: "Vulnerability created" };

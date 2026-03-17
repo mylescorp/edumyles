@@ -87,9 +87,22 @@ export const getInstalledModuleIds = query({
       sessionToken: args.sessionToken ? "present" : "missing"
     });
 
-    const { tenantId } = await requireTenantSession(ctx, args);
+    // First validate sessionToken exists
+    if (!args.sessionToken || args.sessionToken.trim() === "") {
+      console.log("No session token provided, returning core modules");
+      return CORE_MODULE_IDS;
+    }
 
-    console.log("getInstalledModuleIds tenant context:", { tenantId });
+    let tenantId;
+    try {
+      const tenantContext = await requireTenantSession(ctx, args);
+      tenantId = tenantContext.tenantId;
+      console.log("getInstalledModuleIds tenant context:", { tenantId });
+    } catch (sessionError) {
+      console.error("Session validation failed:", sessionError);
+      console.log("Falling back to core modules due to session error");
+      return CORE_MODULE_IDS;
+    }
 
     // Platform admins are not tenants — return all module IDs as "installed"
     if (tenantId === "PLATFORM") {
@@ -98,6 +111,9 @@ export const getInstalledModuleIds = query({
     }
 
     try {
+      // Check if installedModules table exists by attempting a simple query first
+      console.log("Attempting to query installedModules table...");
+      
       const installed = await ctx.db
         .query("installedModules")
         .withIndex("by_tenant_status", (q) =>
@@ -118,10 +134,9 @@ export const getInstalledModuleIds = query({
       });
 
       return result;
-    } catch (error) {
-      console.error("getInstalledModuleIds error:", error);
-      // Fallback to core modules if installedModules table doesn't exist
-      console.log("Falling back to core modules only");
+    } catch (dbError) {
+      console.error("Database query failed:", dbError);
+      console.log("Falling back to core modules only due to database error");
       return CORE_MODULE_IDS;
     }
   },
