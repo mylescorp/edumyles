@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform"];
-const PUBLIC_ROUTES = ["/auth/login", "/auth/callback", "/auth/forgot-password", "/auth/reset-password"];
+const PUBLIC_ROUTES = ["/auth/callback", "/auth/forgot-password", "/auth/reset-password"];
 
 // ── RBAC: Which roles can access which route prefixes ─────────
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
@@ -81,15 +81,12 @@ export async function middleware(request: NextRequest) {
   // 1. Unauthenticated → login
   if (isProtected && !session) {
     const authBase = process.env.NEXT_PUBLIC_AUTH_BASE_URL || request.nextUrl.origin;
-    const loginUrl = new URL("/auth/login", authBase);
+    const loginUrl = new URL("/auth/login/api", authBase);
     loginUrl.searchParams.set("returnTo", request.url);
     return NextResponse.redirect(loginUrl.toString());
   }
 
-  // 2. Already authenticated → skip login page
-  if (isPublic && session && pathname === "/auth/login") {
-    return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
-  }
+  // 2. Already authenticated users are handled by their respective routes
 
   // 3. Root → role dashboard
   if (pathname === "/" && session) {

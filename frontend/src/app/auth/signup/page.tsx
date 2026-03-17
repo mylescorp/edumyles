@@ -101,7 +101,7 @@ function SignupForm() {
 
         <p className="auth-footer-text">
           Already have an account?{" "}
-          <Link href="/auth/login" className="auth-link">Sign in →</Link>
+          <Link href="/auth/login/api" className="auth-link">Sign in →</Link>
         </p>
       </div>
 

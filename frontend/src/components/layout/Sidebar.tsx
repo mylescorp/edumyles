@@ -5,12 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstalledModules } from "@/hooks/useInstalledModules";
 import {
   ChevronLeft,
   ChevronRight,
   GraduationCap,
   LogOut,
-  X
+  X,
+  Package,
+  Star,
+  Zap
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,16 +29,38 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-export function Sidebar({ navItems, installedModules, isMobile = false, onClose }: SidebarProps) {
+export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { isModuleInstalled, isModuleActive, isLoading } = useInstalledModules();
 
-  const filteredItems = navItems.filter((item) => {
-    if (!item.module) return true;
-    if (!installedModules) return true;
-    return installedModules.includes(item.module);
-  });
+  // Core module IDs that should always be visible
+  const coreModuleIds = ["sis", "communications", "users"];
+
+  // Filter and sort navigation items based on module installation status
+  const filteredItems = navItems
+    .filter((item) => {
+      // Always show items without module association (Dashboard, Settings, etc.)
+      if (!item.module) return true;
+      
+      // Always show core modules
+      if (coreModuleIds.includes(item.module)) return true;
+      
+      // Show optional modules only if installed
+      return isModuleInstalled(item.module);
+    })
+    .sort((a, b) => {
+      // Core modules first
+      const aIsCore = a.module ? coreModuleIds.includes(a.module) : false;
+      const bIsCore = b.module ? coreModuleIds.includes(b.module) : false;
+      
+      if (aIsCore && !bIsCore) return -1;
+      if (!aIsCore && bIsCore) return 1;
+      
+      // Maintain original order for same category
+      return 0;
+    });
 
   const SidebarContent = () => (
     <>
@@ -110,8 +136,37 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
                     <Icon className="h-4 w-4" />
                   </div>
                   {!collapsed && <span className="truncate">{item.label}</span>}
-                  {!collapsed && badgeCount && (
-                    <Badge variant="destructive" className="ml-auto h-5 w-5 rounded-full p-0 text-xs bg-em-danger border-0 shadow-sm">
+                  
+                  {/* Module status indicators */}
+                  {!collapsed && item.module && (
+                    <div className="ml-auto flex items-center gap-1">
+                      {/* Core module indicator */}
+                      {coreModuleIds.includes(item.module) && (
+                        <div className="flex items-center">
+                          <Star className="h-3 w-3 text-em-amber-500" />
+                        </div>
+                      )}
+                      
+                      {/* Active/inactive indicator for optional modules */}
+                      {!coreModuleIds.includes(item.module) && (
+                        <div className={cn(
+                          "w-2 h-2 rounded-full",
+                          isModuleActive(item.module) ? "bg-em-success" : "bg-gray-400"
+                        )} />
+                      )}
+                      
+                      {/* Badge counts */}
+                      {badgeCount && (
+                        <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 text-xs bg-em-danger border-0 shadow-sm">
+                          {badgeCount}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Badge counts for collapsed state */}
+                  {collapsed && badgeCount && (
+                    <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 rounded-full p-0 text-[10px]">
                       {badgeCount}
                     </Badge>
                   )}
@@ -125,11 +180,18 @@ export function Sidebar({ navItems, installedModules, isMobile = false, onClose 
                     <TooltipContent side="right">
                       <div className="flex items-center gap-2">
                         <span>{item.label}</span>
-                        {badgeCount && (
-                          <Badge variant="destructive" className="h-4 w-4 rounded-full p-0 text-[10px]">
-                            {badgeCount}
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-1">
+                          {/* Core module indicator in tooltip */}
+                          {item.module && coreModuleIds.includes(item.module) && (
+                            <Star className="h-3 w-3 text-em-amber-500" />
+                          )}
+                          {/* Badge count */}
+                          {badgeCount && (
+                            <Badge variant="destructive" className="h-4 w-4 rounded-full p-0 text-[10px]">
+                              {badgeCount}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </TooltipContent>
                   </Tooltip>

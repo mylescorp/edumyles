@@ -98,8 +98,113 @@ export default function CommunicationsPage() {
     { sessionToken: sessionToken || "" }
   );
 
-  const createCampaign = useMutation(api.platform.communications.mutations.createCampaign);
-  const createTemplate = useMutation(api.platform.communications.mutations.createTemplate);
+  const createCampaignMutation = useMutation(api.platform.communications.mutations.createCampaign);
+  const sendCampaignMutation = useMutation(api.platform.communications.mutations.sendCampaign);
+  const deleteCampaignMutation = useMutation(api.platform.communications.mutations.deleteCampaign);
+  const createTemplateMutation = useMutation(api.platform.communications.mutations.createTemplate);
+  const deleteTemplateMutation = useMutation(api.platform.communications.mutations.deleteTemplate);
+
+  // Campaign form state
+  const [campaignName, setCampaignName] = useState("");
+  const [campaignDescription, setCampaignDescription] = useState("");
+  const [campaignChannels, setCampaignChannels] = useState<string[]>([]);
+  const [campaignMessage, setCampaignMessage] = useState("");
+
+  // Template form state
+  const [templateName, setTemplateName] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("");
+  const [templateCategory, setTemplateCategory] = useState("");
+  const [templateChannel, setTemplateChannel] = useState("");
+  const [templateSubject, setTemplateSubject] = useState("");
+  const [templateContent, setTemplateContent] = useState("");
+
+  const toggleCampaignChannel = (channel: string) => {
+    setCampaignChannels((prev) =>
+      prev.includes(channel) ? prev.filter((c) => c !== channel) : [...prev, channel]
+    );
+  };
+
+  const handleCreateCampaign = async () => {
+    if (!sessionToken || !campaignName || !campaignMessage || campaignChannels.length === 0) return;
+    try {
+      await createCampaignMutation({
+        sessionToken,
+        name: campaignName,
+        description: campaignDescription || undefined,
+        channels: campaignChannels,
+        message: campaignMessage,
+        targetAudience: { type: "all" },
+      });
+      setCampaignName("");
+      setCampaignDescription("");
+      setCampaignChannels([]);
+      setCampaignMessage("");
+      setIsCreateCampaignOpen(false);
+    } catch (e) {
+      console.error("Failed to create campaign:", e);
+    }
+  };
+
+  const handleSendCampaign = async (campaignId: string) => {
+    if (!sessionToken) return;
+    try {
+      await sendCampaignMutation({
+        sessionToken,
+        campaignId: campaignId as any,
+      });
+    } catch (e) {
+      console.error("Failed to send campaign:", e);
+    }
+  };
+
+  const handleDeleteCampaign = async (campaignId: string) => {
+    if (!sessionToken) return;
+    try {
+      await deleteCampaignMutation({
+        sessionToken,
+        campaignId: campaignId as any,
+      });
+    } catch (e) {
+      console.error("Failed to delete campaign:", e);
+    }
+  };
+
+  const handleCreateTemplate = async () => {
+    if (!sessionToken || !templateName || !templateContent || !templateCategory || !templateChannel) return;
+    try {
+      await createTemplateMutation({
+        sessionToken,
+        name: templateName,
+        description: templateDescription || undefined,
+        category: templateCategory,
+        channels: [templateChannel],
+        subject: templateSubject || undefined,
+        content: templateContent,
+        variables: [],
+      });
+      setTemplateName("");
+      setTemplateDescription("");
+      setTemplateCategory("");
+      setTemplateChannel("");
+      setTemplateSubject("");
+      setTemplateContent("");
+      setIsCreateTemplateOpen(false);
+    } catch (e) {
+      console.error("Failed to create template:", e);
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    if (!sessionToken) return;
+    try {
+      await deleteTemplateMutation({
+        sessionToken,
+        templateId: templateId as any,
+      });
+    } catch (e) {
+      console.error("Failed to delete template:", e);
+    }
+  };
 
   if (!campaignsData) return <LoadingSkeleton variant="page" />;
 
@@ -193,24 +298,24 @@ export default function CommunicationsPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="campaign-name">Campaign Name</Label>
-                <Input id="campaign-name" placeholder="Enter campaign name" />
+                <Input id="campaign-name" placeholder="Enter campaign name" value={campaignName} onChange={(e) => setCampaignName(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="campaign-description">Description</Label>
-                <Textarea id="campaign-description" placeholder="Describe your campaign" />
+                <Textarea id="campaign-description" placeholder="Describe your campaign" value={campaignDescription} onChange={(e) => setCampaignDescription(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label>Channels</Label>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant={campaignChannels.includes("email") ? "default" : "outline"} size="sm" onClick={() => toggleCampaignChannel("email")}>
                     <Mail className="h-4 w-4 mr-1" />
                     Email
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant={campaignChannels.includes("sms") ? "default" : "outline"} size="sm" onClick={() => toggleCampaignChannel("sms")}>
                     <Smartphone className="h-4 w-4 mr-1" />
                     SMS
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant={campaignChannels.includes("push") ? "default" : "outline"} size="sm" onClick={() => toggleCampaignChannel("push")}>
                     <Bell className="h-4 w-4 mr-1" />
                     Push
                   </Button>
@@ -218,14 +323,14 @@ export default function CommunicationsPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="campaign-message">Message</Label>
-                <Textarea id="campaign-message" placeholder="Enter your message" rows={4} />
+                <Textarea id="campaign-message" placeholder="Enter your message" rows={4} value={campaignMessage} onChange={(e) => setCampaignMessage(e.target.value)} />
               </div>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsCreateCampaignOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setIsCreateCampaignOpen(false)}>
+              <Button onClick={handleCreateCampaign}>
                 Create Campaign
               </Button>
             </div>
@@ -262,10 +367,16 @@ export default function CommunicationsPage() {
                       <Pause className="h-4 w-4 mr-1" />
                       Pause
                     </Button>
-                  ) : (
-                    <Button variant="outline" size="sm">
-                      <Play className="h-4 w-4 mr-1" />
-                      Resume
+                  ) : campaign.status !== "completed" ? (
+                    <Button variant="outline" size="sm" onClick={() => handleSendCampaign(campaign._id)}>
+                      <Send className="h-4 w-4 mr-1" />
+                      Send
+                    </Button>
+                  ) : null}
+                  {campaign.status !== "running" && (
+                    <Button variant="outline" size="sm" onClick={() => handleDeleteCampaign(campaign._id)}>
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
                     </Button>
                   )}
                 </div>
@@ -334,16 +445,16 @@ export default function CommunicationsPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="template-name">Template Name</Label>
-                <Input id="template-name" placeholder="Enter template name" />
+                <Input id="template-name" placeholder="Enter template name" value={templateName} onChange={(e) => setTemplateName(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="template-description">Description</Label>
-                <Textarea id="template-description" placeholder="Describe your template" />
+                <Textarea id="template-description" placeholder="Describe your template" value={templateDescription} onChange={(e) => setTemplateDescription(e.target.value)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>Category</Label>
-                  <Select>
+                  <Select value={templateCategory} onValueChange={setTemplateCategory}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -357,7 +468,7 @@ export default function CommunicationsPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label>Channels</Label>
-                  <Select>
+                  <Select value={templateChannel} onValueChange={setTemplateChannel}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select channels" />
                     </SelectTrigger>
@@ -371,18 +482,18 @@ export default function CommunicationsPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="template-subject">Subject (Email)</Label>
-                <Input id="template-subject" placeholder="Email subject" />
+                <Input id="template-subject" placeholder="Email subject" value={templateSubject} onChange={(e) => setTemplateSubject(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="template-content">Content</Label>
-                <Textarea id="template-content" placeholder="Template content with {{variables}}" rows={6} />
+                <Textarea id="template-content" placeholder="Template content with {{variables}}" rows={6} value={templateContent} onChange={(e) => setTemplateContent(e.target.value)} />
               </div>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsCreateTemplateOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setIsCreateTemplateOpen(false)}>
+              <Button onClick={handleCreateTemplate}>
                 Create Template
               </Button>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 
@@ -96,7 +96,27 @@ const pipelineStages = [
 ];
 
 export default function CompleteCRMPage() {
-  const [deals, setDeals] = useState<Deal[]>(initialDeals);
+  const { sessionToken } = useAuth();
+
+  const dealsData = usePlatformQuery(
+    api.platform.crm.queries.listDeals,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
+
+  const pipelineStats = usePlatformQuery(
+    api.platform.crm.queries.getPipelineStats,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
+
+  const createDeal = useMutation(api.platform.crm.mutations.createDeal);
+  const updateDeal = useMutation(api.platform.crm.mutations.updateDeal);
+  const moveDealStage = useMutation(api.platform.crm.mutations.moveDealStage);
+  const deleteDealMutation = useMutation(api.platform.crm.mutations.deleteDeal);
+
+  const deals: Deal[] = (dealsData as any[]) || [];
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStage, setSelectedStage] = useState<string>("all");
   const [selectedAssignee, setSelectedAssignee] = useState<string>("all");
@@ -107,7 +127,7 @@ export default function CompleteCRMPage() {
   const [editingDeal, setEditingDeal] = useState<DealFormData | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [draggedDeal, setDraggedDeal] = useState<Deal | null>(null);
-  
+
   const [newDeal, setNewDeal] = useState<DealFormData>({
     _id: "",
     schoolName: "",
@@ -209,79 +229,82 @@ export default function CompleteCRMPage() {
     return Math.round((Date.now() - deal.lastActivity) / (1000 * 60 * 60 * 24));
   };
 
-  const handleAddDeal = () => {
-    if (!newDeal.schoolName || !newDeal.contactPerson || !newDeal.email) {
+  const handleAddDeal = async () => {
+    if (!sessionToken || !newDeal.schoolName || !newDeal.contactPerson || !newDeal.email) {
       alert("Please fill in required fields");
       return;
     }
 
-    const deal: Deal = {
-      _id: Date.now().toString(),
-      schoolName: newDeal.schoolName,
-      contactPerson: newDeal.contactPerson,
-      email: newDeal.email,
-      phone: newDeal.phone,
-      county: newDeal.county,
-      schoolType: newDeal.schoolType,
-      currentStudents: newDeal.currentStudents,
-      potentialStudents: newDeal.potentialStudents,
-      stage: newDeal.stage,
-      value: newDeal.value,
-      currency: newDeal.currency,
-      source: newDeal.source,
-      assignedTo: newDeal.assignedTo,
-      createdAt: Date.now(),
-      lastActivity: Date.now(),
-      expectedCloseDate: newDeal.expectedCloseDate ? new Date(newDeal.expectedCloseDate).getTime() : Date.now() + 30 * 24 * 60 * 60 * 1000,
-      probability: newDeal.probability,
-      tags: newDeal.tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0),
-      notes: newDeal.notes
-    };
-
-    setDeals([deal, ...deals]);
-    setIsAddDialogOpen(false);
-    resetNewDeal();
+    try {
+      await createDeal({
+        sessionToken,
+        schoolName: newDeal.schoolName,
+        contactPerson: newDeal.contactPerson,
+        email: newDeal.email,
+        phone: newDeal.phone || undefined,
+        county: newDeal.county || undefined,
+        schoolType: newDeal.schoolType || undefined,
+        currentStudents: newDeal.currentStudents || undefined,
+        potentialStudents: newDeal.potentialStudents || undefined,
+        stage: newDeal.stage,
+        value: newDeal.value,
+        currency: newDeal.currency || "KES",
+        source: newDeal.source || undefined,
+        assignedTo: newDeal.assignedTo || undefined,
+        expectedCloseDate: newDeal.expectedCloseDate ? new Date(newDeal.expectedCloseDate).getTime() : undefined,
+        probability: newDeal.probability || undefined,
+        tags: newDeal.tags ? newDeal.tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0) : undefined,
+        notes: newDeal.notes || undefined,
+      });
+      setIsAddDialogOpen(false);
+      resetNewDeal();
+    } catch (err) {
+      console.error("Failed to create deal:", err);
+      alert("Failed to create deal. Please try again.");
+    }
   };
 
-  const handleEditDeal = () => {
-    if (!editingDeal) return;
-    
-    // Find the original deal and update it
-    const updatedDeals = deals.map(deal => {
-      if (deal._id === editingDeal._id) {
-        return {
-          ...deal,
-          schoolName: editingDeal.schoolName,
-          contactPerson: editingDeal.contactPerson,
-          email: editingDeal.email,
-          phone: editingDeal.phone,
-          county: editingDeal.county,
-          schoolType: editingDeal.schoolType,
-          currentStudents: editingDeal.currentStudents,
-          potentialStudents: editingDeal.potentialStudents,
-          stage: editingDeal.stage,
-          value: editingDeal.value,
-          currency: editingDeal.currency,
-          source: editingDeal.source,
-          assignedTo: editingDeal.assignedTo,
-          expectedCloseDate: editingDeal.expectedCloseDate ? new Date(editingDeal.expectedCloseDate).getTime() : deal.expectedCloseDate,
-          probability: editingDeal.probability,
-          tags: editingDeal.tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0),
-          notes: editingDeal.notes,
-          lastActivity: Date.now()
-        };
-      }
-      return deal;
-    });
-    
-    setDeals(updatedDeals);
-    setIsEditDialogOpen(false);
-    setEditingDeal(null);
+  const handleEditDeal = async () => {
+    if (!editingDeal || !sessionToken) return;
+
+    try {
+      await updateDeal({
+        sessionToken,
+        dealId: editingDeal._id,
+        schoolName: editingDeal.schoolName,
+        contactPerson: editingDeal.contactPerson,
+        email: editingDeal.email,
+        phone: editingDeal.phone || undefined,
+        county: editingDeal.county || undefined,
+        schoolType: editingDeal.schoolType || undefined,
+        currentStudents: editingDeal.currentStudents || undefined,
+        potentialStudents: editingDeal.potentialStudents || undefined,
+        value: editingDeal.value,
+        currency: editingDeal.currency || undefined,
+        source: editingDeal.source || undefined,
+        assignedTo: editingDeal.assignedTo || undefined,
+        expectedCloseDate: editingDeal.expectedCloseDate ? new Date(editingDeal.expectedCloseDate).getTime() : undefined,
+        probability: editingDeal.probability || undefined,
+        tags: editingDeal.tags ? editingDeal.tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0) : undefined,
+        notes: editingDeal.notes || undefined,
+      });
+      setIsEditDialogOpen(false);
+      setEditingDeal(null);
+    } catch (err) {
+      console.error("Failed to update deal:", err);
+      alert("Failed to update deal. Please try again.");
+    }
   };
 
-  const handleDeleteDeal = (dealId: string) => {
+  const handleDeleteDeal = async (dealId: string) => {
+    if (!sessionToken) return;
     if (confirm("Are you sure you want to delete this deal?")) {
-      setDeals(deals.filter(deal => deal._id !== dealId));
+      try {
+        await deleteDealMutation({ sessionToken, dealId });
+      } catch (err) {
+        console.error("Failed to delete deal:", err);
+        alert("Failed to delete deal. Please try again.");
+      }
     }
   };
 
@@ -295,51 +318,27 @@ export default function CompleteCRMPage() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent, targetStage: string) => {
+  const handleDrop = async (e: React.DragEvent, targetStage: string) => {
     e.preventDefault();
-    if (!draggedDeal) return;
+    if (!draggedDeal || !sessionToken) return;
 
-    // Update probability based on stage
-    const stageProbabilities: Record<string, number> = {
-      "lead": 20,
-      "qualified": 40,
-      "proposal": 60,
-      "negotiation": 80,
-      "closed_won": 100,
-      "closed_lost": 0
-    };
-
-    console.log("Dropping deal:", draggedDeal.schoolName, "from", draggedDeal.stage, "to", targetStage);
-    console.log("Old probability:", draggedDeal.probability, "New probability:", stageProbabilities[targetStage]);
-
-    const updatedDeals = deals.map(deal => 
-      deal._id === draggedDeal._id 
-        ? { 
-            ...deal, 
-            stage: targetStage as Deal['stage'], 
-            lastActivity: Date.now(),
-            probability: stageProbabilities[targetStage] || deal.probability
-          }
-        : deal
-    );
-    
-    console.log("Updated deals:", updatedDeals.map(d => ({name: d.schoolName, stage: d.stage, prob: d.probability, value: d.value})));
-    
-    setDeals(updatedDeals);
+    try {
+      await moveDealStage({
+        sessionToken,
+        dealId: draggedDeal._id,
+        newStage: targetStage as any,
+      });
+    } catch (err) {
+      console.error("Failed to move deal stage:", err);
+    }
     setDraggedDeal(null);
-    
-    // Force a re-render by updating a dummy state
-    setTimeout(() => {
-      console.log("Total value after drop:", getTotalValue(updatedDeals));
-      console.log("Weighted value after drop:", getWeightedValue(updatedDeals));
-    }, 100);
   };
 
-  const handleRefresh = async () => {
+  const handleRefresh = () => {
+    // Convex queries are reactive - data refreshes automatically
+    // This button is kept for UX continuity
     setIsRefreshing(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsRefreshing(false);
+    setTimeout(() => setIsRefreshing(false), 500);
   };
 
   const handleExport = () => {
@@ -1050,10 +1049,12 @@ export default function CompleteCRMPage() {
     </div>
   );
 
+  if (!dealsData) return <div className="p-6">Loading...</div>;
+
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="CRM Pipeline" 
+      <PageHeader
+        title="CRM Pipeline"
         description="Manage sales pipeline and track deal progression"
         breadcrumbs={[{ label: "CRM", href: "/platform/crm" }]}
       />

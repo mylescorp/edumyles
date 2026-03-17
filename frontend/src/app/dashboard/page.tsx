@@ -46,9 +46,9 @@ export default function DashboardRedirectPage() {
     } else if (!isLoading && !role) {
       const authBase = process.env.NEXT_PUBLIC_AUTH_BASE_URL;
       if (authBase) {
-        window.location.href = `${authBase}/auth/login`;
+        window.location.href = `${authBase}/auth/login/api`;
       } else {
-        router.push("/auth/login");
+        router.push("/auth/login/api");
       }
     }
   }, [isLoading, role, router]);

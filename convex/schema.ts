@@ -2933,4 +2933,149 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId", "createdAt"])
     .index("by_status", ["tenantId", "status"]),
+
+  // Feature Flags — platform-wide feature toggles and rollout controls
+  featureFlags: defineTable({
+    name: v.string(),
+    key: v.string(),
+    description: v.optional(v.string()),
+    enabled: v.boolean(),
+    targetType: v.optional(v.string()), // "all", "percentage", "tenants", "users"
+    targetValue: v.optional(v.any()), // percentage number, tenant IDs array, user IDs array
+    tenantId: v.optional(v.string()),
+    environment: v.optional(v.string()), // "production", "staging", "development"
+    createdBy: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_key", ["key"])
+    .index("by_environment", ["environment"]),
+
+  // ─── Project Management System ────────────────────────────────────────
+
+  // PM Workspaces - Top-level containers for different workflow types
+  pmWorkspaces: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    type: v.union(v.literal("engineering"), v.literal("onboarding"), v.literal("bugs"), v.literal("okrs")),
+    icon: v.string(),
+    customFieldSchema: v.array(v.object({
+      key: v.string(),
+      name: v.string(),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("select"), v.literal("multi_select"), v.literal("date"), v.literal("user"), v.literal("checkbox")),
+      options: v.optional(v.array(v.string())),
+      required: v.boolean(),
+    })),
+    defaultStatuses: v.array(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_type", ["type"])
+    .index("by_createdBy", ["createdBy"]),
+
+  // PM Projects - Scoped initiatives within workspaces
+  pmProjects: defineTable({
+    workspaceId: v.id("pmWorkspaces"),
+    name: v.string(),
+    description: v.string(),
+    status: v.union(v.literal("active"), v.literal("paused"), v.literal("completed"), v.literal("archived")),
+    startDate: v.number(),
+    dueDate: v.number(),
+    ownerId: v.string(),
+    memberIds: v.array(v.string()),
+    githubRepo: v.optional(v.string()),
+    customFields: v.optional(v.record(v.string(), v.any())),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_owner", ["ownerId"])
+    .index("by_status", ["status"])
+    .index("by_workspace_status", ["workspaceId", "status"]),
+
+  // PM Epics - Large bodies of work grouping related tasks
+  pmEpics: defineTable({
+    projectId: v.id("pmProjects"),
+    title: v.string(),
+    status: v.union(v.literal("open"), v.literal("in_progress"), v.literal("done")),
+    startDate: v.optional(v.number()),
+    dueDate: v.optional(v.number()),
+    progress: v.number(), // 0-100 computed from child task completion
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_project", ["projectId"])
+    .index("by_status", ["status"])
+    .index("by_project_status", ["projectId", "status"]),
+
+  // PM Tasks - Primary unit of work
+  pmTasks: defineTable({
+    projectId: v.id("pmProjects"),
+    epicId: v.optional(v.id("pmEpics")),
+    parentTaskId: v.optional(v.id("pmTasks")),
+    title: v.string(),
+    description: v.string(),
+    status: v.string(),
+    priority: v.union(v.literal("urgent"), v.literal("high"), v.literal("medium"), v.literal("low"), v.literal("none")),
+    assigneeId: v.optional(v.string()),
+    reporterId: v.string(),
+    dueDate: v.optional(v.number()),
+    estimateMinutes: v.optional(v.number()),
+    loggedMinutes: v.number(),
+    githubPrNumbers: v.array(v.number()),
+    githubIssueNumbers: v.array(v.number()),
+    convexDeployId: v.optional(v.string()),
+    customFields: v.optional(v.record(v.string(), v.any())),
+    labels: v.array(v.string()),
+    position: v.number(), // Float for drag-drop ordering within status column
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_project", ["projectId"])
+    .index("by_epic", ["epicId", "status"])
+    .index("by_assignee", ["assigneeId", "updatedAt"])
+    .index("by_due_date", ["dueDate"])
+    .index("by_project_status", ["projectId", "status", "position"])
+    .index("by_parent", ["parentTaskId"])
+    .index("by_reporter", ["reporterId"]),
+
+  // PM Time Logs - Time tracking for tasks
+  pmTimeLogs: defineTable({
+    taskId: v.id("pmTasks"),
+    userId: v.string(),
+    minutes: v.number(),
+    description: v.optional(v.string()),
+    loggedAt: v.number(), // Unix timestamp of the work date
+    createdAt: v.number(),
+  })
+    .index("by_task", ["taskId", "loggedAt"])
+    .index("by_user", ["userId", "loggedAt"]),
+
+  // PM Roles - Role-based access control for PM system
+  pmRoles: defineTable({
+    userId: v.string(),
+    scope: v.union(v.literal("global"), v.literal("workspace"), v.literal("project")),
+    scopeId: v.optional(v.string()), // workspaceId or projectId if scoped
+    role: v.union(v.literal("admin"), v.literal("member"), v.literal("viewer")),
+    createdAt: v.number(),
+  })
+    .index("by_user_scope", ["userId", "scope", "scopeId"])
+    .index("by_scope", ["scope", "scopeId"]),
+
+  // PM Deploy Logs - Integration with Convex deploy system
+  pmDeploys: defineTable({
+    deployId: v.string(),
+    timestamp: v.number(),
+    gitSha: v.string(),
+    deployer: v.string(),
+    environment: v.string(),
+    modifiedFunctions: v.array(v.string()),
+    taskIds: v.array(v.string()), // Tasks linked to this deploy
+    createdAt: v.number(),
+  })
+    .index("by_deployId", ["deployId"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_task", ["taskIds"]),
 });

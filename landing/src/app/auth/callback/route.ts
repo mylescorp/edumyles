@@ -124,12 +124,7 @@ export async function GET(request: NextRequest) {
     }
 
     const dashboard = getRoleDashboardPath(role);
-    
-    // Redirect to appropriate dashboard route with email parameter
-    // These routes will show temporary dashboards
-    const redirectUrl = `${dashboard}?email=${encodeURIComponent(email)}`;
-    
-    const response = NextResponse.redirect(new URL(redirectUrl, request.url));
+    const response = NextResponse.redirect(new URL(dashboard, request.url));
 
     response.cookies.set("edumyles_session", sessionToken, {
       httpOnly: true,
@@ -167,7 +162,7 @@ export async function GET(request: NextRequest) {
       path: "/",
     });
 
-    console.log(`[auth/callback] ${email} → ${role} → ${redirectUrl}`);
+    console.log(`[auth/callback] ${email} → ${role} → ${dashboard}`);
     return response;
   } catch (err) {
     console.error("[auth/callback] Full error details:", {

@@ -15,7 +15,7 @@ function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
 
-  const resetPassword = useAction(api.actions.auth.password.resetPassword);
+  const resetPassword = useAction(api.auth.actions.password.resetPassword);
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -74,7 +74,7 @@ function ResetPasswordForm() {
           </p>
         </div>
         <Button className="w-full" asChild>
-          <Link href="/auth/login">Go to Login</Link>
+          <Link href="/auth/login/api">Go to Login</Link>
         </Button>
       </div>
     );
@@ -138,7 +138,7 @@ function ResetPasswordForm() {
       </Button>
 
       <Button variant="ghost" className="w-full" asChild>
-        <Link href="/auth/login">
+        <Link href="/auth/login/api">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Login
         </Link>
