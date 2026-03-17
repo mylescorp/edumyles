@@ -27,6 +27,7 @@ export const createSLAConfig = mutation({
       isActive: true,
       tenantId: args.tenantId || session.tenantId,
       createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
   },
 });

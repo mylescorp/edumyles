@@ -324,7 +324,7 @@ export const createThreat = mutation({
         userAgent: args.source?.userAgent ?? "Unknown",
       },
       detectedAt: Date.now(),
-      reportedBy: userId,
+      createdBy: userId,
       tenantId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
