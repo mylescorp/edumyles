@@ -34,7 +34,7 @@ export const getExportStatus = query({
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const exp = await ctx.db.get(args.exportId as any);
+    const exp = await ctx.db.get(args.exportId as Id<"dataExports">);
     if (!exp) throw new Error("Export not found");
 
     return {
