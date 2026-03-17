@@ -1,5 +1,4 @@
-import { query } from "../../_generated/server";
-import { v } from "convex/values";
+import { query, Id } from "../../_generated/server";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
 /**
