@@ -303,7 +303,6 @@ export const createAlertSuppression = mutation({
       suppressedAt: Date.now(),
       expiresAt,
       tenantId,
-      reason: args.reason,
     });
 
     return { success: true, suppressionId, message: "Alert suppression created" };

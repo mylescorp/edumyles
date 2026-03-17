@@ -301,7 +301,7 @@ export const getAccessLogs = query({
       const loginAttempts = await ctx.db
         .query("loginAttempts")
         .order("desc")
-        .filter((q) => q.gte(q.field("timestamp"), cutoff))
+        .filter((q) => q.gte(q.field("lastAttemptAt"), cutoff))
         .take(args.limit ?? 100);
 
       if (loginAttempts.length > 0) {
@@ -386,7 +386,7 @@ export const listVulnerabilities = query({
 
     let vulnQuery = ctx.db
       .query("vulnerabilities")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId));
+      .withIndex("by_category", (q) => q.eq("tenantId", tenantId));
 
     if (args.severity) {
       const severity = args.severity;

@@ -314,7 +314,6 @@ export const createThreat = mutation({
     const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const threatId = await ctx.db.insert("threats", {
-      title: args.title,
       description: args.description,
       type: args.type,
       severity: args.severity,

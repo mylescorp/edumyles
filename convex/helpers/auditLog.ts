@@ -29,7 +29,8 @@ export type AuditAction =
   | "marketplace.dispute_filed" | "marketplace.dispute_resolved"
   | "marketplace.review_submitted" | "marketplace.review_moderated"
   | "marketplace.publisher_registered" | "marketplace.publisher_verified"
-  | "marketplace.module_suspended" | "marketplace.module_deprecated" | "marketplace.module_installed" | "marketplace.module_uninstalled";
+  | "marketplace.module_suspended" | "marketplace.module_deprecated" | "marketplace.module_installed" | "marketplace.module_uninstalled"
+  | "marketplace.module_submitted" | "marketplace.module_approved" | "marketplace.module_rejected" | "marketplace.module_published";
 
 export async function logAction(
   ctx: MutationCtx,
