@@ -5,7 +5,7 @@ export const createSLAConfig = mutation({
   args: {
     sessionToken: v.string(),
     name: v.string(),
-    priority: v.string(),
+    priority: v.union(v.literal("critical"), v.literal("high"), v.literal("medium"), v.literal("low")),
     responseTimeHours: v.number(),
     resolutionTimeHours: v.number(),
     escalationRules: v.optional(v.any()),
