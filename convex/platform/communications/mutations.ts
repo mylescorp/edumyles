@@ -1,329 +1,498 @@
-import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
-import { requirePlatformSession } from "../../helpers/platformGuard";
+import { mutation } from "../../_generated/server";
+import { platformSessionArg, requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
-export const createCampaign = mutation({
+const messageTypeValidator = v.union(
+  v.literal("broadcast"),
+  v.literal("campaign"),
+  v.literal("alert"),
+  v.literal("transactional"),
+  v.literal("drip_step")
+);
+
+const channelValidator = v.union(v.literal("in_app"), v.literal("email"), v.literal("sms"));
+
+const statusValidator = v.union(
+  v.literal("draft"),
+  v.literal("scheduled"),
+  v.literal("sending"),
+  v.literal("sent"),
+  v.literal("failed")
+);
+
+const notificationTypeValidator = v.union(
+  v.literal("info"),
+  v.literal("warning"),
+  v.literal("success"),
+  v.literal("alert")
+);
+
+const segmentValidator = v.object({
+  planTiers: v.optional(v.array(v.string())),
+  tenantIds: v.optional(v.array(v.string())),
+  statuses: v.optional(v.array(v.string())),
+  counties: v.optional(v.array(v.string())),
+  schoolTypes: v.optional(v.array(v.string())),
+  excludeTenantIds: v.optional(v.array(v.string())),
+});
+
+function sanitizeHtml(value?: string): string | undefined {
+  if (!value) return undefined;
+  
+  // Basic XSS prevention - remove HTML tags and dangerous characters
+  return value
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+    .replace(/<[^>]*>/g, '') // Remove all HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .trim();
+}
+
+function normalizeString(value?: string) {
+  return sanitizeHtml(value?.trim() || undefined);
+}
+
+function validateMessagePayload(args: {
+  subject?: string;
+  emailBody?: string;
+  smsBody?: string;
+  inAppBody?: string;
+  channels?: Array<"in_app" | "email" | "sms">;
+}) {
+  const subject = args.subject?.trim() || "";
+  const channels = args.channels ?? [];
+
+  if (!subject) {
+    throw new Error("Subject is required.");
+  }
+
+  if (channels.length === 0) {
+    throw new Error("At least one channel must be selected.");
+  }
+
+  if (channels.includes("in_app") && !args.inAppBody?.trim()) {
+    throw new Error("In-app body is required when in_app channel is selected.");
+  }
+
+  if (channels.includes("email") && !args.emailBody?.trim()) {
+    throw new Error("Email body is required when email channel is selected.");
+  }
+
+  if (channels.includes("sms") && !args.smsBody?.trim()) {
+    throw new Error("SMS body is required when sms channel is selected.");
+  }
+}
+
+async function resolveTargetTenantIds(
+  ctx: any,
+  segment: {
+    planTiers?: string[];
+    tenantIds?: string[];
+    statuses?: string[];
+    counties?: string[];
+    schoolTypes?: string[];
+    excludeTenantIds?: string[];
+  }
+): Promise<string[]> {
+  const explicitTenantIds = [...new Set(segment.tenantIds ?? [])];
+  const excludeTenantIds = new Set(segment.excludeTenantIds ?? []);
+
+  if (explicitTenantIds.length > 0) {
+    return explicitTenantIds.filter((tenantId) => !excludeTenantIds.has(tenantId));
+  }
+
+  let tenants = await ctx.db.query("tenants").collect();
+
+  if (segment.planTiers?.length) {
+    tenants = tenants.filter((t: any) => segment.planTiers!.includes(t.plan));
+  }
+
+  if (segment.statuses?.length) {
+    tenants = tenants.filter((t: any) => segment.statuses!.includes(t.status));
+  }
+
+  if (segment.counties?.length) {
+    tenants = tenants.filter((t: any) => segment.counties!.includes(t.county));
+  }
+
+  // schoolTypes intentionally not applied yet until tenant schema confirms support
+
+  const filteredTenantIds = tenants
+    .map((t: any) => String(t.tenantId))
+    .filter((tenantId: string) => !excludeTenantIds.has(tenantId));
+
+  return Array.from(new Set<string>(filteredTenantIds));
+}
+
+function inferNotificationType(
+  messageType: "broadcast" | "campaign" | "alert" | "transactional" | "drip_step"
+): "info" | "warning" | "success" | "alert" {
+  if (messageType === "alert") return "alert";
+  if (messageType === "transactional") return "success";
+  return "info";
+}
+
+export const createPlatformMessage = mutation({
   args: {
-    sessionToken: v.string(),
-    name: v.string(),
-    description: v.optional(v.string()),
-    channels: v.array(v.string()),
-    message: v.string(),
-    subject: v.optional(v.string()),
-    targetAudience: v.object({
-      type: v.optional(v.string()),
-      tenantIds: v.optional(v.array(v.string())),
-      roles: v.optional(v.array(v.string())),
-      tenantStatuses: v.optional(v.array(v.string())),
-      tenantPlans: v.optional(v.array(v.string())),
-      excludeTenantIds: v.optional(v.array(v.string())),
-    }),
-    scheduledFor: v.optional(v.number()),
-    templateId: v.optional(v.id("messageTemplates")),
+    ...platformSessionArg,
+    type: messageTypeValidator,
+    subject: v.string(),
+    emailBody: v.optional(v.string()),
+    smsBody: v.optional(v.string()),
+    inAppBody: v.optional(v.string()),
+    channels: v.array(channelValidator),
+    segment: segmentValidator,
+    scheduledAt: v.optional(v.number()),
+    status: statusValidator,
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
+
+    validateMessagePayload(args);
+
     const now = Date.now();
 
-    const campaignId = await ctx.db.insert("campaigns", {
-      name: args.name,
-      description: args.description,
+    const messageId = await ctx.db.insert("platform_messages", {
+      senderId: actor.userId,
+      type: args.type,
+      subject: args.subject.trim(),
+      emailBody: normalizeString(args.emailBody),
+      smsBody: normalizeString(args.smsBody),
+      inAppBody: normalizeString(args.inAppBody),
       channels: args.channels,
-      message: args.message,
-      subject: args.subject,
-      templateId: args.templateId,
-      targetAudience: {
-        type: args.targetAudience.type ?? "custom",
-        tenantIds: args.targetAudience.tenantIds,
-        roles: args.targetAudience.roles,
-        tenantStatuses: args.targetAudience.tenantStatuses,
-        tenantPlans: args.targetAudience.tenantPlans,
-        excludeTenantIds: args.targetAudience.excludeTenantIds,
-      },
-      scheduledFor: args.scheduledFor,
-      status: args.scheduledFor ? "scheduled" : "draft",
-      isPlatformLevel: true,
+      segment: args.segment,
+      scheduledAt: args.scheduledAt,
+      sentAt: undefined,
+      status: args.status,
       stats: {
-        totalRecipients: 0,
-        sent: 0,
         delivered: 0,
         opened: 0,
         clicked: 0,
-        failed: 0,
         bounced: 0,
       },
-      createdBy: session.userId,
       createdAt: now,
       updatedAt: now,
     });
 
-    return { success: true, campaignId };
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.created",
+      entityType: "platform_message",
+      entityId: messageId,
+      after: {
+        type: args.type,
+        subject: args.subject.trim(),
+        channels: args.channels,
+        status: args.status,
+      },
+    });
+
+    return messageId;
   },
 });
 
-export const updateCampaign = mutation({
+export const updatePlatformMessage = mutation({
   args: {
-    sessionToken: v.string(),
-    campaignId: v.id("campaigns"),
-    updates: v.object({
-      name: v.optional(v.string()),
-      description: v.optional(v.string()),
-      message: v.optional(v.string()),
-      subject: v.optional(v.string()),
-      status: v.optional(v.string()),
-      scheduledFor: v.optional(v.number()),
-    }),
+    ...platformSessionArg,
+    messageId: v.id("platform_messages"),
+    type: v.optional(messageTypeValidator),
+    subject: v.optional(v.string()),
+    emailBody: v.optional(v.string()),
+    smsBody: v.optional(v.string()),
+    inAppBody: v.optional(v.string()),
+    channels: v.optional(v.array(channelValidator)),
+    segment: v.optional(segmentValidator),
+    scheduledAt: v.optional(v.number()),
+    status: v.optional(statusValidator),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
-    const campaign = await ctx.db.get(args.campaignId);
-    if (!campaign) throw new Error("Campaign not found");
+    const message = await ctx.db.get(args.messageId);
+    if (!message) {
+      throw new Error("Platform message not found.");
+    }
 
-    await ctx.db.patch(args.campaignId, {
-      ...args.updates,
+    if (message.status === "sent") {
+      throw new Error("Sent messages cannot be edited.");
+    }
+
+    const nextPayload = {
+      subject: args.subject ?? message.subject,
+      emailBody: args.emailBody ?? message.emailBody,
+      smsBody: args.smsBody ?? message.smsBody,
+      inAppBody: args.inAppBody ?? message.inAppBody,
+      channels: args.channels ?? message.channels,
+    };
+
+    validateMessagePayload(nextPayload);
+
+    const patch: Record<string, unknown> = {
       updatedAt: Date.now(),
+    };
+
+    if (args.type !== undefined) patch.type = args.type;
+    if (args.subject !== undefined) patch.subject = args.subject.trim();
+    if (args.emailBody !== undefined) patch.emailBody = normalizeString(args.emailBody);
+    if (args.smsBody !== undefined) patch.smsBody = normalizeString(args.smsBody);
+    if (args.inAppBody !== undefined) patch.inAppBody = normalizeString(args.inAppBody);
+    if (args.channels !== undefined) patch.channels = args.channels;
+    if (args.segment !== undefined) patch.segment = args.segment;
+    if (args.scheduledAt !== undefined) patch.scheduledAt = args.scheduledAt;
+    if (args.status !== undefined) {
+      if (["sent", "sending"].includes(args.status)) {
+        throw new Error("Cannot manually set status to 'sent' or 'sending'. Use the send action instead.");
+      }
+      patch.status = args.status;
+    }
+
+    await ctx.db.patch(args.messageId, patch);
+
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.updated",
+      entityType: "platform_message",
+      entityId: args.messageId,
+      before: {
+        subject: message.subject,
+        status: message.status,
+        type: message.type,
+      },
+      after: {
+        subject: args.subject?.trim() ?? message.subject,
+        status: args.status ?? message.status,
+        type: args.type ?? message.type,
+      },
     });
 
+    return args.messageId;
+  },
+});
+
+export const deletePlatformMessage = mutation({
+  args: {
+    ...platformSessionArg,
+    messageId: v.id("platform_messages"),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
+
+    const message = await ctx.db.get(args.messageId);
+    if (!message) {
+      throw new Error("Platform message not found.");
+    }
+
+    if (message.status === "sent") {
+      throw new Error("Sent messages cannot be deleted.");
+    }
+
+    // Log audit action before deletion
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.deleted",
+      entityType: "platform_message",
+      entityId: args.messageId,
+      before: {
+        subject: message.subject,
+        status: message.status,
+        type: message.type,
+      },
+    });
+
+    await ctx.db.delete(args.messageId);
     return { success: true };
   },
 });
 
-export const sendBroadcast = mutation({
+export const schedulePlatformMessage = mutation({
   args: {
-    sessionToken: v.string(),
-    campaignId: v.id("campaigns"),
-    channels: v.array(v.string()),
-    message: v.string(),
-    recipients: v.array(v.object({
-      userId: v.string(),
-      tenantId: v.string(),
-      email: v.string(),
-      phone: v.optional(v.string()),
-    })),
-    sendImmediately: v.boolean(),
+    ...platformSessionArg,
+    messageId: v.id("platform_messages"),
+    scheduledAt: v.number(),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
+    const message = await ctx.db.get(args.messageId);
+    if (!message) {
+      throw new Error("Platform message not found.");
+    }
+
+    if (message.status === "sent") {
+      throw new Error("Sent messages cannot be scheduled.");
+    }
+
+    await ctx.db.patch(args.messageId, {
+      scheduledAt: args.scheduledAt,
+      status: "scheduled",
+      updatedAt: Date.now(),
+    });
+
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.updated",
+      entityType: "platform_message",
+      entityId: args.messageId,
+      before: {
+        status: message.status,
+        scheduledAt: message.scheduledAt,
+      },
+      after: {
+        status: "scheduled",
+        scheduledAt: args.scheduledAt,
+      },
+    });
+
+    return args.messageId;
+  },
+});
+
+export const sendPlatformMessageNow = mutation({
+  args: {
+    ...platformSessionArg,
+    messageId: v.id("platform_messages"),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
+
+    const message = await ctx.db.get(args.messageId);
+    if (!message) {
+      throw new Error("Platform message not found.");
+    }
+
+    if (message.status === "sent") {
+      throw new Error("This message has already been sent.");
+    }
+
+    validateMessagePayload({
+      subject: message.subject,
+      emailBody: message.emailBody,
+      smsBody: message.smsBody,
+      inAppBody: message.inAppBody,
+      channels: message.channels,
+    });
+
+    await ctx.db.patch(args.messageId, {
+      status: "sending",
+      updatedAt: Date.now(),
+    });
+
+    const tenantIds = await resolveTargetTenantIds(ctx, message.segment);
     const now = Date.now();
-    let queued = 0;
+    let delivered = 0;
 
-    // Insert a messageRecord for each recipient × channel
-    for (const recipient of args.recipients) {
-      for (const channel of args.channels) {
-        if (channel === "sms" && !recipient.phone) continue;
-        await ctx.db.insert("messageRecords", {
-          tenantId: recipient.tenantId,
-          campaignId: args.campaignId,
-          channel,
-          recipientId: recipient.userId,
-          recipientEmail: recipient.email,
-          recipientPhone: recipient.phone,
-          content: args.message,
-          status: "queued",
+    if (message.channels.includes("in_app")) {
+      const notificationType = inferNotificationType(message.type);
+
+      for (const tenantId of tenantIds) {
+        await ctx.db.insert("tenant_notifications", {
+          tenantId,
+          platformMessageId: args.messageId,
+          type: notificationType,
+          title: message.subject,
+          body: message.inAppBody ?? "",
+          read: false,
+          ctaUrl: undefined,
           createdAt: now,
+          updatedAt: now,
         });
-        queued++;
+        delivered += 1;
       }
     }
 
-    // Update campaign stats and status
-    await ctx.db.patch(args.campaignId, {
-      status: args.sendImmediately ? "running" : "scheduled",
-      startedAt: args.sendImmediately ? now : undefined,
+    await ctx.db.patch(args.messageId, {
+      status: "sent",
+      sentAt: now,
       stats: {
-        totalRecipients: args.recipients.length,
-        sent: 0,
-        delivered: 0,
-        opened: 0,
-        clicked: 0,
-        failed: 0,
-        bounced: 0,
+        delivered,
+        opened: message.stats?.opened ?? 0,
+        clicked: message.stats?.clicked ?? 0,
+        bounced: message.stats?.bounced ?? 0,
       },
       updatedAt: now,
+    });
+
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_message.sent",
+      entityType: "platform_message",
+      entityId: args.messageId,
+      before: {
+        status: message.status,
+        stats: message.stats,
+      },
+      after: {
+        status: "sent",
+        delivered,
+        tenantCount: tenantIds.length,
+      },
     });
 
     return {
       success: true,
-      results: args.channels.map((channel) => ({
-        channel,
-        queued: args.recipients.filter((r) => channel !== "sms" || !!r.phone).length,
-        messageId: `msg_${now}_${channel}`,
-      })),
+      delivered,
+      tenantCount: tenantIds.length,
     };
   },
 });
 
-export const sendCampaign = mutation({
+export const createTenantNotification = mutation({
   args: {
-    sessionToken: v.string(),
-    campaignId: v.id("campaigns"),
+    ...platformSessionArg,
+    tenantId: v.string(),
+    type: notificationTypeValidator,
+    title: v.string(),
+    body: v.string(),
+    ctaUrl: v.optional(v.string()),
+    platformMessageId: v.optional(v.id("platform_messages")),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
-
-    const campaign = await ctx.db.get(args.campaignId);
-    if (!campaign) throw new Error("Campaign not found");
-    if (campaign.status === "completed") throw new Error("Campaign already completed");
+    const actor = await requirePlatformSession(ctx, args);
 
     const now = Date.now();
-    await ctx.db.patch(args.campaignId, {
-      status: "running",
-      startedAt: now,
-      updatedAt: now,
-    });
 
-    return { success: true, message: "Campaign sent" };
-  },
-});
-
-export const deleteCampaign = mutation({
-  args: {
-    sessionToken: v.string(),
-    campaignId: v.id("campaigns"),
-  },
-  handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
-
-    const campaign = await ctx.db.get(args.campaignId);
-    if (!campaign) throw new Error("Campaign not found");
-    if (campaign.status === "running") throw new Error("Cannot delete a running campaign");
-
-    await ctx.db.delete(args.campaignId);
-
-    return { success: true, message: "Campaign deleted" };
-  },
-});
-
-export const createTemplate = mutation({
-  args: {
-    sessionToken: v.string(),
-    name: v.string(),
-    description: v.optional(v.string()),
-    category: v.string(),
-    channels: v.array(v.string()),
-    subject: v.optional(v.string()),
-    content: v.string(),
-    htmlContent: v.optional(v.string()),
-    variables: v.array(v.object({
-      name: v.string(),
-      type: v.string(),
-      defaultValue: v.optional(v.string()),
-      required: v.boolean(),
-    })),
-  },
-  handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
-    const now = Date.now();
-
-    const templateId = await ctx.db.insert("messageTemplates", {
-      name: args.name,
-      description: args.description,
-      category: args.category,
-      channels: args.channels,
-      subject: args.subject,
-      content: args.content,
-      htmlContent: args.htmlContent,
-      variables: args.variables,
-      isGlobal: true,
-      status: "active",
-      usageCount: 0,
-      createdBy: session.userId,
+    const notificationId = await ctx.db.insert("tenant_notifications", {
+      tenantId: args.tenantId,
+      platformMessageId: args.platformMessageId,
+      type: args.type,
+      title: args.title.trim(),
+      body: args.body.trim(),
+      read: false,
+      ctaUrl: normalizeString(args.ctaUrl),
       createdAt: now,
       updatedAt: now,
     });
 
-    return { success: true, templateId };
-  },
-});
-
-export const updateTemplate = mutation({
-  args: {
-    sessionToken: v.string(),
-    templateId: v.id("messageTemplates"),
-    updates: v.object({
-      name: v.optional(v.string()),
-      description: v.optional(v.string()),
-      content: v.optional(v.string()),
-      htmlContent: v.optional(v.string()),
-      subject: v.optional(v.string()),
-      status: v.optional(v.string()),
-      variables: v.optional(v.array(v.object({
-        name: v.string(),
-        type: v.string(),
-        defaultValue: v.optional(v.string()),
-        required: v.boolean(),
-      }))),
-    }),
-  },
-  handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
-
-    const template = await ctx.db.get(args.templateId);
-    if (!template) throw new Error("Template not found");
-
-    await ctx.db.patch(args.templateId, {
-      ...args.updates,
-      updatedAt: Date.now(),
+    // Log audit action
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "platform_notification.created",
+      entityType: "platform_notification",
+      entityId: notificationId,
+      after: {
+        tenantId: args.tenantId,
+        type: args.type,
+        title: args.title.trim(),
+      },
     });
 
-    return { success: true };
-  },
-});
-
-export const deleteTemplate = mutation({
-  args: {
-    sessionToken: v.string(),
-    templateId: v.id("messageTemplates"),
-  },
-  handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
-
-    const template = await ctx.db.get(args.templateId);
-    if (!template) throw new Error("Template not found");
-
-    // Soft delete — mark as archived rather than deleting
-    await ctx.db.patch(args.templateId, {
-      status: "archived",
-      updatedAt: Date.now(),
-    });
-
-    return { success: true };
-  },
-});
-
-export const duplicateTemplate = mutation({
-  args: {
-    sessionToken: v.string(),
-    templateId: v.id("messageTemplates"),
-    newName: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
-
-    const template = await ctx.db.get(args.templateId);
-    if (!template) throw new Error("Template not found");
-
-    const now = Date.now();
-    const newTemplateId = await ctx.db.insert("messageTemplates", {
-      tenantId: template.tenantId,
-      name: args.newName ?? `${template.name} (Copy)`,
-      description: template.description,
-      category: template.category,
-      channels: template.channels,
-      subject: template.subject,
-      content: template.content,
-      htmlContent: template.htmlContent,
-      variables: template.variables,
-      isGlobal: template.isGlobal,
-      status: "draft",
-      usageCount: 0,
-      createdBy: session.userId,
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    return { success: true, templateId: newTemplateId, message: "Template duplicated" };
+    return notificationId;
   },
 });
