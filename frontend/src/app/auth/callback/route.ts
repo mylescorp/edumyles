@@ -149,10 +149,10 @@ export async function GET(req: NextRequest) {
 
     // Debug logging
     console.log(`[auth/callback] Dashboard determined: ${dashboard}`);
-    console.log(`[auth/callback] Redirecting to: / (root will handle role-based redirect)`);
+    console.log(`[auth/callback] Redirecting to: ${dashboard}`);
 
-    // Redirect to root - let the root page handle role-based redirect after cookies are committed
-    const response = NextResponse.redirect(new URL("/", req.url));
+    // Redirect directly to dashboard - avoid root page race condition
+    const response = NextResponse.redirect(new URL(dashboard, req.url));
 
     // Save the WorkOS AuthKit session (enables useAuth() / withAuth() on the frontend)
     if (process.env.WORKOS_COOKIE_PASSWORD) {
