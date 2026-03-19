@@ -34,11 +34,13 @@ export default function InvoicesPage() {
 
     const invoices = usePlatformQuery(
         api.modules.finance.queries.listInvoices,
-        statusFilter === "all" ? { sessionToken } : { sessionToken, status: statusFilter as any },
+        sessionToken
+            ? (statusFilter === "all" ? { sessionToken } : { sessionToken, status: statusFilter as any })
+            : "skip",
         !!sessionToken
     );
 
-    const students = usePlatformQuery(api.modules.sis.queries.listStudents, { sessionToken }, !!sessionToken);
+    const students = usePlatformQuery(api.modules.sis.queries.listStudents, sessionToken ? { sessionToken } : "skip", !!sessionToken);
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 

@@ -49,8 +49,8 @@ export default function CreateBookPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission - would integrate with API
-    console.log("Creating book:", formData);
+    // TODO: wire to createBook mutation when library module is configured
+    alert("Book creation will be available once the library module is configured.");
   };
 
   return (

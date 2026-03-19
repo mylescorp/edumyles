@@ -78,8 +78,8 @@ export default function CreateRoutePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission - would integrate with API
-    console.log("Creating route:", { ...formData, stops });
+    // TODO: wire to createRoute mutation when transport module is configured
+    alert("Route creation will be available once the transport module is configured.");
   };
 
   const totalEstimatedTime = stops.reduce((total, stop) => total + stop.estimatedTime, 0);

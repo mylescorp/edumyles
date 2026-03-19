@@ -32,8 +32,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gray-50 relative z-[500] admin-layout">
-      {/* Top Navigation */}
-      <AdminTopNav />
+      {/* Top Navigation — receives mobile menu toggle */}
+      <AdminTopNav
+        onMobileMenuToggle={handleMobileMenuToggle}
+        mobileMenuOpen={mobileMenuOpen}
+      />
       
       {/* Top Module Bar */}
       <TopModuleBar />

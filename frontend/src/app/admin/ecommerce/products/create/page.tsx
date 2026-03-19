@@ -112,8 +112,8 @@ export default function CreateProductPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission - would integrate with API
-    console.log("Creating product:", { ...formData, variants, images });
+    // TODO: wire to createProduct mutation when ecommerce module is configured
+    alert("Product creation will be available once the ecommerce module is configured.");
   };
 
   return (

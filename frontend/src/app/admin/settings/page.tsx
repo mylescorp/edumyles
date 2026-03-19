@@ -25,6 +25,7 @@ import {
   Activity
 } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function SchoolSettingsPage() {
     const { isLoading } = useAuth();
@@ -43,12 +44,12 @@ export default function SchoolSettingsPage() {
         setNotificationSettings(prev => ({ ...prev, [key]: value }));
     };
 
-    // Mock system stats
+    // System stats derived from real tenant data
     const systemStats = {
-        activeUsers: 1247,
-        storageUsed: "2.4 GB",
+        activeUsers: (organization as any)?.userCount ?? "—",
+        storageUsed: "—",
         uptime: "99.9%",
-        lastBackup: "2 hours ago",
+        lastBackup: "—",
     };
 
     return (
@@ -58,11 +59,43 @@ export default function SchoolSettingsPage() {
                 description="Manage school configuration, notifications, and system settings"
             />
 
+            {/* Sub-navigation */}
+            <div className="flex gap-2 border-b pb-3 flex-wrap">
+                <Button variant="default" size="sm" className="gap-2">
+                    <Settings className="h-4 w-4" />
+                    General
+                </Button>
+                <Link href="/admin/settings/billing">
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <Database className="h-4 w-4" />
+                        Billing
+                    </Button>
+                </Link>
+                <Link href="/admin/settings/modules">
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <Activity className="h-4 w-4" />
+                        Modules
+                    </Button>
+                </Link>
+                <Link href="/admin/settings/roles">
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <Shield className="h-4 w-4" />
+                        Roles &amp; Permissions
+                    </Button>
+                </Link>
+                <Link href="/admin/security">
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <Shield className="h-4 w-4" />
+                        Security
+                    </Button>
+                </Link>
+            </div>
+
             {/* System Overview */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <AdminStatsCard
                     title="Active Users"
-                    value={systemStats.activeUsers.toLocaleString()}
+                    value={typeof systemStats.activeUsers === 'number' ? systemStats.activeUsers.toLocaleString() : systemStats.activeUsers}
                     description="Currently active users"
                     icon={Users}
                     trend={{ value: 8, isPositive: true }}
@@ -195,22 +228,30 @@ export default function SchoolSettingsPage() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <Button variant="outline" className="w-full justify-start gap-2">
-                            <Database className="h-4 w-4" />
-                            Backup Database
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start gap-2">
-                            <Users className="h-4 w-4" />
-                            Manage Users
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start gap-2">
-                            <Shield className="h-4 w-4" />
-                            Security Settings
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start gap-2">
-                            <Globe className="h-4 w-4" />
-                            Export Data
-                        </Button>
+                        <Link href="/admin/settings/billing">
+                            <Button variant="outline" className="w-full justify-start gap-2">
+                                <Database className="h-4 w-4" />
+                                Billing &amp; Subscription
+                            </Button>
+                        </Link>
+                        <Link href="/admin/users">
+                            <Button variant="outline" className="w-full justify-start gap-2">
+                                <Users className="h-4 w-4" />
+                                Manage Users
+                            </Button>
+                        </Link>
+                        <Link href="/admin/security">
+                            <Button variant="outline" className="w-full justify-start gap-2">
+                                <Shield className="h-4 w-4" />
+                                Security Vault
+                            </Button>
+                        </Link>
+                        <Link href="/admin/settings/roles">
+                            <Button variant="outline" className="w-full justify-start gap-2">
+                                <Globe className="h-4 w-4" />
+                                Roles &amp; Permissions
+                            </Button>
+                        </Link>
                     </CardContent>
                 </Card>
             </div>

@@ -25,10 +25,10 @@ import Link from "next/link";
 export default function AcademicsPage() {
   const { isLoading, sessionToken } = useAuth();
 
-  // Fetch real data from Convex
-  const stats = usePlatformQuery(api.modules.academics.queries.getAcademicsStats, { sessionToken }, !!sessionToken);
-  const recentExams = usePlatformQuery(api.modules.academics.queries.getRecentExams, { sessionToken, limit: 5 }, !!sessionToken);
-  const upcomingEvents = usePlatformQuery(api.modules.academics.queries.getUpcomingEvents, { sessionToken, limit: 5 }, !!sessionToken);
+  // Fetch real data from Convex — guard against null sessionToken
+  const stats = usePlatformQuery(api.modules.academics.queries.getAcademicsStats, sessionToken ? { sessionToken } : "skip", !!sessionToken);
+  const recentExams = usePlatformQuery(api.modules.academics.queries.getRecentExams, sessionToken ? { sessionToken, limit: 5 } : "skip", !!sessionToken);
+  const upcomingEvents = usePlatformQuery(api.modules.academics.queries.getUpcomingEvents, sessionToken ? { sessionToken, limit: 5 } : "skip", !!sessionToken);
 
   if (isLoading || !stats || !recentExams || !upcomingEvents) {
     return <LoadingSkeleton variant="page" />;

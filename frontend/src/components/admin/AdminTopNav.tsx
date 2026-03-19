@@ -25,8 +25,8 @@ import {
   ChevronDown,
   Search,
   Grid3x3,
-  HelpCircle,
-  Lightbulb
+  Menu,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
@@ -43,7 +43,12 @@ const APP_ICONS = [
   { name: "Vault", icon: Shield, href: "/admin/security", color: "text-gray-600" },
 ];
 
-export function AdminTopNav() {
+interface AdminTopNavProps {
+  onMobileMenuToggle?: () => void;
+  mobileMenuOpen?: boolean;
+}
+
+export function AdminTopNav({ onMobileMenuToggle, mobileMenuOpen = false }: AdminTopNavProps) {
   const { user, logout } = useAuth();
   const { tenant } = useTenant();
   const pathname = usePathname();
@@ -51,7 +56,10 @@ export function AdminTopNav() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const anyUser = user as any;
-  const displayName = `${anyUser?.firstName || ""} ${anyUser?.lastName || ""}`.trim() || anyUser?.email || "User";
+  const displayName =
+    `${anyUser?.firstName || ""} ${anyUser?.lastName || ""}`.trim() ||
+    anyUser?.email ||
+    "User";
 
   const handleHome = () => {
     router.push("/admin");
@@ -59,18 +67,36 @@ export function AdminTopNav() {
 
   return (
     <header className="flex h-14 items-center justify-between border-b bg-white px-4 shadow-sm">
-      {/* Left side - Personal dropdown + Home + App icons */}
+      {/* Left side — Hamburger (mobile) + Personal dropdown + Home + App icons */}
       <div className="flex items-center gap-2">
+        {/* Mobile hamburger button — only visible on small screens */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="md:hidden h-8 w-8 p-0"
+          onClick={onMobileMenuToggle}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+        >
+          {mobileMenuOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
+        </Button>
+
         {/* Personal dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2 h-8 px-3 hover:bg-gray-100">
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 h-8 px-3 hover:bg-gray-100"
+            >
               <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                 <span className="text-xs text-white font-medium">
                   {displayName.charAt(0).toUpperCase()}
                 </span>
               </div>
-              <span className="text-sm font-medium">Personal</span>
+              <span className="hidden sm:inline text-sm font-medium">Personal</span>
               <ChevronDown className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
@@ -95,7 +121,10 @@ export function AdminTopNav() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout} className="flex items-center gap-2 text-red-600">
+            <DropdownMenuItem
+              onClick={logout}
+              className="flex items-center gap-2 text-red-600"
+            >
               <LogOut className="h-4 w-4" />
               Sign out
             </DropdownMenuItem>
@@ -107,7 +136,7 @@ export function AdminTopNav() {
           variant="ghost"
           onClick={handleHome}
           className={cn(
-            "flex items-center gap-2 h-8 px-3 hover:bg-gray-100",
+            "hidden sm:flex items-center gap-2 h-8 px-3 hover:bg-gray-100",
             pathname === "/admin" && "bg-gray-100"
           )}
         >
@@ -115,17 +144,18 @@ export function AdminTopNav() {
           <span className="text-sm font-medium">Home</span>
         </Button>
 
-        {/* App icons */}
-        <div className="flex items-center gap-1">
+        {/* App icons — hidden on very small screens */}
+        <div className="hidden sm:flex items-center gap-1">
           {APP_ICONS.map((app) => {
             const Icon = app.icon;
             const isActive = pathname?.startsWith(app.href);
-            
+
             return (
               <Link key={app.name} href={app.href}>
                 <Button
                   variant="ghost"
                   size="sm"
+                  title={app.name}
                   className={cn(
                     "h-8 w-8 p-0 hover:bg-gray-100",
                     isActive && "bg-gray-100"
@@ -139,11 +169,11 @@ export function AdminTopNav() {
         </div>
       </div>
 
-      {/* Right side - Search + Tenant info */}
+      {/* Right side — Search + Tenant info */}
       <div className="flex items-center gap-3">
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="relative hidden sm:block">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search..."
@@ -155,8 +185,8 @@ export function AdminTopNav() {
 
         {/* Tenant info */}
         <div className="flex items-center gap-2">
-          <Grid3x3 className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">
+          <Grid3x3 className="h-4 w-4 text-gray-500 hidden sm:block" />
+          <span className="hidden sm:inline text-sm font-medium text-gray-700">
             {tenant?.name || "EduMyles"}
           </span>
           <Badge variant="secondary" className="text-xs">

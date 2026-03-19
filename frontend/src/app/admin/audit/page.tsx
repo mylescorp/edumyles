@@ -5,8 +5,7 @@ import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useTenant } from "@/hooks/useTenant";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -102,19 +101,17 @@ function getCategoryIcon(category?: string) {
 
 export default function AuditLogPage() {
     const { isLoading, sessionToken } = useAuth();
-    const { tenantId } = useTenant();
     const [actionFilter, setActionFilter] = useState<string>("all");
     const [severityFilter, setSeverityFilter] = useState<string>("all");
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
     const [searchTerm, setSearchTerm] = useState("");
     const [dateRange, setDateRange] = useState<string>("7");
 
-    const auditLogs = usePlatformQuery(
-        api.platform.audit.queries.listAuditLogs,
-        sessionToken && tenantId
-            ? { sessionToken, tenantId, action: actionFilter === "all" ? undefined : actionFilter }
-            : "skip",
-        !!(sessionToken && tenantId)
+    const auditLogs = useQuery(
+        api.platform.audit.queries.listTenantAuditLogs,
+        sessionToken
+            ? { sessionToken, action: actionFilter === "all" ? undefined : actionFilter }
+            : "skip"
     );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;

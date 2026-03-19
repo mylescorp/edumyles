@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, LayoutGrid, Settings, Filter } from "lucide-react";
+import { Plus, LayoutGrid, List, Settings, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminDashboardHeaderProps {
@@ -10,14 +11,29 @@ interface AdminDashboardHeaderProps {
   subtitle?: string;
   showAddWidget?: boolean;
   onAddWidget?: () => void;
+  widgetCount?: number;
+  onViewChange?: (view: "grid" | "list") => void;
+  onFilter?: () => void;
+  onCustomize?: () => void;
 }
 
 export function AdminDashboardHeader({
   title = "My Dashboard",
   subtitle = "Welcome back! Here's what's happening with your school today.",
   showAddWidget = true,
-  onAddWidget
+  onAddWidget,
+  widgetCount,
+  onViewChange,
+  onFilter,
+  onCustomize,
 }: AdminDashboardHeaderProps) {
+  const [view, setView] = useState<"grid" | "list">("grid");
+
+  const handleViewChange = (v: "grid" | "list") => {
+    setView(v);
+    onViewChange?.(v);
+  };
+
   return (
     <div className="mb-6">
       {/* Page title and subtitle */}
@@ -27,14 +43,15 @@ export function AdminDashboardHeader({
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {/* View options */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* View toggle */}
           <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 px-3 bg-white shadow-sm"
+              onClick={() => handleViewChange("grid")}
+              className={cn("h-7 px-3", view === "grid" ? "bg-white shadow-sm" : "hover:bg-gray-200")}
             >
               <LayoutGrid className="h-3 w-3 mr-1" />
               Grid
@@ -42,8 +59,10 @@ export function AdminDashboardHeader({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 px-3 hover:bg-gray-200"
+              onClick={() => handleViewChange("list")}
+              className={cn("h-7 px-3", view === "list" ? "bg-white shadow-sm" : "hover:bg-gray-200")}
             >
+              <List className="h-3 w-3 mr-1" />
               List
             </Button>
           </div>
@@ -53,33 +72,32 @@ export function AdminDashboardHeader({
             variant="outline"
             size="sm"
             className="h-8 px-3 border-gray-300"
+            onClick={onFilter}
           >
             <Filter className="h-3 w-3 mr-1" />
             Filter
           </Button>
 
-          {/* Status badges */}
-          <Badge variant="secondary" className="text-xs">
-            12 Active Widgets
-          </Badge>
-          <Badge variant="outline" className="text-xs border-green-200 text-green-700">
-            Last updated: 2 mins ago
-          </Badge>
+          {/* Dynamic widget count badge */}
+          {widgetCount !== undefined && (
+            <Badge variant="secondary" className="text-xs">
+              {widgetCount} Active Widget{widgetCount !== 1 ? "s" : ""}
+            </Badge>
+          )}
         </div>
 
         {/* Right side actions */}
         <div className="flex items-center gap-2">
-          {/* Settings button */}
           <Button
             variant="outline"
             size="sm"
             className="h-8 px-3 border-gray-300"
+            onClick={onCustomize}
           >
             <Settings className="h-3 w-3 mr-1" />
             Customize
           </Button>
 
-          {/* Add widget button */}
           {showAddWidget && (
             <Button
               onClick={onAddWidget}

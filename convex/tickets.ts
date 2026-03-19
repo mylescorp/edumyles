@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query, action } from "./_generated/server";
+import { requireTenantSession } from "./helpers/tenantGuard";
 
 // SLA Rules based on specification
 const SLA_RULES = {
@@ -303,6 +304,33 @@ export const getTenantTickets = query({
     }
     
     // Sort by creation date (newest first)
+    return tenantTickets.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+// ─── Session-based tenant tickets query (for school admin panel) ─────────────
+export const listTenantTickets = query({
+  args: {
+    sessionToken: v.string(),
+    status: v.optional(v.union(
+      v.literal("open"),
+      v.literal("in_progress"),
+      v.literal("pending_school"),
+      v.literal("resolved"),
+      v.literal("closed")
+    )),
+  },
+  handler: async (ctx, args) => {
+    const { sessionToken, status } = args;
+    const tenantCtx = await requireTenantSession(ctx, { sessionToken });
+
+    const tickets = await ctx.db.query("tickets").collect();
+    let tenantTickets = tickets.filter((t) => t.tenantId === tenantCtx.tenantId);
+
+    if (status) {
+      tenantTickets = tenantTickets.filter((t) => t.status === status);
+    }
+
     return tenantTickets.sort((a, b) => b.createdAt - a.createdAt);
   },
 });

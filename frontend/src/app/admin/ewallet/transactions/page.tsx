@@ -306,8 +306,7 @@ export default function TransactionsPage() {
 
   const handleNewTransaction = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle transaction creation
-    console.log("Creating transaction:", newTransaction);
+    // TODO: wire to createTransaction mutation when eWallet module is configured
     setShowNewTransaction(false);
     setNewTransaction({
       type: "credit",
