@@ -1,78 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSignInUrl } from "@workos-inc/authkit-nextjs";
+import { WorkOS } from "@workos-inc/node";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  try {
-    console.log("[auth/login/api] GET received, returnTo:", req.nextUrl.searchParams.get("returnTo"));
-    
-    // Dev bypass — only when ENABLE_DEV_AUTH_BYPASS=true is explicitly set
-    if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
-      console.log("[auth/login] Dev bypass: redirecting to /admin");
-      return NextResponse.redirect(new URL("/admin", req.url));
-    }
-
-    const returnTo = req.nextUrl.searchParams.get("returnTo") ?? "/platform";
-    console.log("[auth/login/api] Redirecting to WorkOS with returnTo:", returnTo);
-    
-    // Generate CSRF state for consistency with POST
-    const state = crypto.randomBytes(16).toString("hex");
-    
-    const authUrl = await getSignInUrl({ returnTo, state });
-    
-    const response = NextResponse.redirect(authUrl);
-    // Set state cookie for validation on callback
-    response.cookies.set("workos_state", state, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 600,
-      path: "/",
-    });
-    
-    return response;
-  } catch (error) {
-    console.error("[auth/login] Failed to build sign-in URL:", error);
-    return NextResponse.redirect(
-      new URL("/", req.url)
-    );
+  // Dev bypass
+  if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
+    return NextResponse.redirect(new URL("/admin", req.url));
   }
-}
 
-export async function POST(req: NextRequest) {
-  try {
-    // Dev bypass — only when ENABLE_DEV_AUTH_BYPASS=true is explicitly set
-    if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
-      console.log("[auth/login] Dev bypass: returning /admin");
-      return NextResponse.json({ redirectUrl: "/admin" });
-    }
+  const apiKey = process.env.WORKOS_API_KEY;
+  const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
+  const redirectUri =
+    process.env.WORKOS_REDIRECT_URI || `${req.nextUrl.origin}/auth/callback`;
 
-    const body = await req.json().catch(() => ({}));
-    const email: string | undefined = body?.email;
-    const returnTo: string = body?.returnTo ?? "/platform";
-
-    // Generate CSRF state
-    const state = crypto.randomBytes(16).toString("hex");
-    const authUrl = await getSignInUrl({
-      loginHint: email,
-      returnTo,
-      state,
-    });
-
-    const response = NextResponse.json({ authUrl });
-    response.cookies.set("workos_state", state, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 600,
-      path: "/",
-    });
-    return response;
-  } catch (error) {
-    console.error("[auth/login] POST failed:", error);
-    const message = error instanceof Error ? error.message : "Auth service unavailable";
-    return NextResponse.json({ error: message }, { status: 500 });
+  if (!apiKey || !clientId) {
+    console.error("[auth/login/api] Missing WORKOS_API_KEY or client ID");
+    return NextResponse.redirect(new URL("/?auth_error=not_configured", req.url));
   }
+
+  const returnTo = req.nextUrl.searchParams.get("returnTo");
+  const state = Buffer.from(
+    JSON.stringify({
+      nonce: crypto.randomBytes(16).toString("hex"),
+      returnTo: returnTo?.startsWith("/") ? returnTo : undefined,
+    })
+  ).toString("base64url");
+
+  const workos = new WorkOS(apiKey);
+  const authUrl = workos.userManagement.getAuthorizationUrl({
+    clientId,
+    redirectUri,
+    provider: "authkit",
+    screenHint: "sign-in",
+    state,
+  });
+
+  const response = NextResponse.redirect(authUrl);
+  response.cookies.set("workos_state", state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600,
+    path: "/",
+  });
+  return response;
 }

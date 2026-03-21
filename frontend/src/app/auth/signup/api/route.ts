@@ -1,41 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSignUpUrl } from "@workos-inc/authkit-nextjs";
+import { WorkOS } from "@workos-inc/node";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  try {
-    // Dev bypass — only when ENABLE_DEV_AUTH_BYPASS=true is explicitly set
-    if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
-      console.log("[auth/signup] Dev bypass: redirecting to /admin");
-      return NextResponse.redirect(new URL("/admin", req.url));
-    }
-
-    const email = req.nextUrl.searchParams.get("email") ?? undefined;
-    const plan = req.nextUrl.searchParams.get("plan") ?? undefined;
-
-    // Encode plan in state so the callback can read it
-    const statePayload = plan ? Buffer.from(JSON.stringify({ plan })).toString("base64url") : undefined;
-    const state = statePayload ? `${crypto.randomBytes(8).toString("hex")}.${statePayload}` : undefined;
-
-    const authUrl = await getSignUpUrl({ loginHint: email, state, returnTo: "/admin" });
-
-    const response = NextResponse.redirect(authUrl);
-    if (state) {
-      response.cookies.set("workos_state", state.split(".")[0]!, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 600,
-        path: "/",
-      });
-    }
-    return response;
-  } catch (error) {
-    console.error("[auth/signup] Failed to build sign-up URL:", error);
-    return NextResponse.redirect(
-      new URL("/auth/signup?error=not_configured", req.url)
-    );
+  // Dev bypass
+  if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
+    return NextResponse.redirect(new URL("/admin", req.url));
   }
+
+  const apiKey = process.env.WORKOS_API_KEY;
+  const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
+  const redirectUri =
+    process.env.WORKOS_REDIRECT_URI || `${req.nextUrl.origin}/auth/callback`;
+
+  if (!apiKey || !clientId) {
+    console.error("[auth/signup/api] Missing WORKOS_API_KEY or client ID");
+    return NextResponse.redirect(new URL("/?auth_error=not_configured", req.url));
+  }
+
+  const email = req.nextUrl.searchParams.get("email") ?? undefined;
+  const state = Buffer.from(
+    JSON.stringify({
+      nonce: crypto.randomBytes(16).toString("hex"),
+      mode: "sign-up",
+    })
+  ).toString("base64url");
+
+  const workos = new WorkOS(apiKey);
+  const authUrl = workos.userManagement.getAuthorizationUrl({
+    clientId,
+    redirectUri,
+    provider: "authkit",
+    screenHint: "sign-up",
+    ...(email ? { loginHint: email } : {}),
+    state,
+  });
+
+  const response = NextResponse.redirect(authUrl);
+  response.cookies.set("workos_state", state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600,
+    path: "/",
+  });
+  return response;
 }
