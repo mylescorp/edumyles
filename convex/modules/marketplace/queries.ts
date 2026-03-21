@@ -71,12 +71,29 @@ export const getModuleRegistry = query({
 export const getInstalledModules = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    const { tenantId } = await requireTenantSession(ctx, args);
+    if (!args.sessionToken || args.sessionToken.trim() === "") {
+      console.log("getInstalledModules called without a session token, returning []");
+      return [];
+    }
 
-    return await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
-      .collect();
+    let tenantId: string;
+    try {
+      const tenantContext = await requireTenantSession(ctx, args);
+      tenantId = tenantContext.tenantId;
+    } catch (sessionError) {
+      console.error("getInstalledModules session validation failed:", sessionError);
+      return [];
+    }
+
+    try {
+      return await ctx.db
+        .query("installedModules")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+        .collect();
+    } catch (dbError) {
+      console.error("getInstalledModules query failed:", dbError);
+      return [];
+    }
   },
 });
 
