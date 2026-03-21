@@ -4,21 +4,27 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-// Lazy load heavy components
+
 const HeroSection = dynamic(() => import("@/components/landing/HeroSection"), {
   loading: () => <div className="loading-state">Loading hero...</div>,
-  ssr: false
+  ssr: false,
 });
 
-const HighlightsSection = dynamic(() => import("@/components/landing/HighlightsSection"), {
-  loading: () => <div className="loading-state">Loading highlights...</div>,
-  ssr: false
-});
+const HighlightsSection = dynamic(
+  () => import("@/components/landing/HighlightsSection"),
+  {
+    loading: () => <div className="loading-state">Loading highlights...</div>,
+    ssr: false,
+  }
+);
 
-const ModulesSection = dynamic(() => import("@/components/landing/ModulesSection"), {
-  loading: () => <div className="loading-state">Loading modules...</div>,
-  ssr: false
-});
+const ModulesSection = dynamic(
+  () => import("@/components/landing/ModulesSection"),
+  {
+    loading: () => <div className="loading-state">Loading modules...</div>,
+    ssr: false,
+  }
+);
 
 const integrations = [
   { name: "M-Pesa", category: "Payments" },
@@ -68,7 +74,6 @@ function LandingPageContent() {
         <ModulesSection />
       </Suspense>
 
-      {/* ── Integrations ── */}
       <section className="content-section alt">
         <div className="content-inner">
           <div className="section-header centered" data-reveal>
@@ -89,7 +94,6 @@ function LandingPageContent() {
         </div>
       </section>
 
-      {/* ── Concierge CTA ── */}
       <section className="concierge-section" id="concierge">
         <div className="concierge-content" data-reveal>
           <span className="concierge-label">EduMyles Concierge</span>
@@ -105,7 +109,6 @@ function LandingPageContent() {
         </div>
       </section>
 
-      {/* ── Success Stories ── */}
       <section className="stories-section" id="stories">
         <div className="section-header centered" data-reveal>
           <h2>Schools thriving with EduMyles</h2>
@@ -142,10 +145,17 @@ function LandingPageContent() {
               person: "Amina Hassan, Director",
             },
           ].map((story, i) => (
-            <div key={story.name} className="story-card" data-reveal data-reveal-delay={String(i * 150)}>
+            <div
+              key={story.name}
+              className="story-card"
+              data-reveal
+              data-reveal-delay={String(i * 150)}
+            >
               <div className="story-metric">
                 <span className="story-metric-value">{story.result.split(" ")[0]}</span>
-                <span className="story-metric-label">{story.result.split(" ").slice(1).join(" ")}</span>
+                <span className="story-metric-label">
+                  {story.result.split(" ").slice(1).join(" ")}
+                </span>
               </div>
               <p className="story-quote">&ldquo;{story.quote}&rdquo;</p>
               <div className="story-author">
@@ -161,13 +171,13 @@ function LandingPageContent() {
         </div>
       </section>
 
-      {/* ── How It Works ── */}
       <section className="content-section">
         <div className="content-inner">
           <div className="section-header centered" data-reveal>
             <h2>Get started in 3 steps</h2>
             <p className="section-subtitle">
-              From sign-up to fully operational in under a week. Our team guides you every step of the way.
+              From sign-up to fully operational in under a week. Our team guides you every step of
+              the way.
             </p>
           </div>
           <div className="highlights">
@@ -196,7 +206,6 @@ function LandingPageContent() {
         </div>
       </section>
 
-      {/* ── Brand & Values ── */}
       <section className="brand-section" id="brand">
         <div className="section-header centered" data-reveal>
           <h2>The M.Y.L.E.S. Principle</h2>
@@ -231,27 +240,26 @@ function LandingPageContent() {
                 and serve.
               </li>
               <li>
-                <strong>Y - Youth Empowerment:</strong> Design every decision to unlock the potential
-                of Africa&apos;s young people.
+                <strong>Y - Youth Empowerment:</strong> Design every decision to unlock the
+                potential of Africa&apos;s young people.
               </li>
               <li>
-                <strong>L - Leadership:</strong> Lead with integrity, courage, and accountability to
-                every stakeholder.
+                <strong>L - Leadership:</strong> Lead with integrity, courage, and accountability
+                to every stakeholder.
               </li>
               <li>
                 <strong>E - Entrepreneurship:</strong> Think like founders - innovate boldly, own
                 outcomes fully.
               </li>
               <li>
-                <strong>S - Service:</strong> Serve schools, students, and communities with purpose,
-                humility, and heart.
+                <strong>S - Service:</strong> Serve schools, students, and communities with
+                purpose, humility, and heart.
               </li>
             </ul>
           </div>
         </div>
       </section>
 
-      {/* ── Pricing ── */}
       <section className="pricing-section" id="pricing">
         <div className="section-header centered" data-reveal>
           <h2>Simple, transparent pricing</h2>
@@ -302,7 +310,12 @@ function LandingPageContent() {
               featured: false,
             },
           ].map((plan, i) => (
-            <div key={plan.name} className={`pricing-card ${plan.featured ? "featured" : ""}`} data-reveal data-reveal-delay={String(i * 150)}>
+            <div
+              key={plan.name}
+              className={`pricing-card ${plan.featured ? "featured" : ""}`}
+              data-reveal
+              data-reveal-delay={String(i * 150)}
+            >
               {plan.featured && <span className="pricing-badge">Most Popular</span>}
               <h3>{plan.name}</h3>
               <div className="pricing-price">
@@ -337,7 +350,6 @@ function LandingPageContent() {
         </div>
       </section>
 
-      {/* ── FAQ Preview ── */}
       <section className="content-section">
         <div className="content-inner">
           <div className="section-header centered" data-reveal>
@@ -370,7 +382,12 @@ function LandingPageContent() {
                 a: "Yes. Parents get a dedicated portal to view grades, attendance, fee balances, make payments, and communicate with teachers.",
               },
             ].map((faq, i) => (
-              <div key={faq.q} className="faq-item" data-reveal data-reveal-delay={String(i * 80)}>
+              <div
+                key={faq.q}
+                className="faq-item"
+                data-reveal
+                data-reveal-delay={String(i * 80)}
+              >
                 <h4>{faq.q}</h4>
                 <p>{faq.a}</p>
               </div>
@@ -379,7 +396,6 @@ function LandingPageContent() {
         </div>
       </section>
 
-      {/* ── Final CTA ── */}
       <section className="final-cta">
         <div className="final-cta-card" data-reveal>
           <h2>Choose EduMyles. Transform your school.</h2>
