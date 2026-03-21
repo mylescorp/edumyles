@@ -6,25 +6,18 @@ const footerLinks = {
     { label: "Modules", href: "#modules" },
     { label: "Pricing", href: "#pricing" },
     { label: "Book a Demo", href: "#demo" },
-{ label: "Start Free Trial", href: "/auth/signup/api" },
+    { label: "Start Free Trial", href: "/auth/signup/api" },
   ],
   Company: [
-    { label: "About", href: "/about" },
-    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
-    { label: "Careers", href: "/careers" },
-  ],
-  Resources: [
-    { label: "Documentation", href: "/docs" },
-    { label: "Guides", href: "/resources" },
-    { label: "Concierge", href: "/concierge" },
-    { label: "API Reference", href: "/api-docs" },
+    { label: "Features", href: "/features" },
+    { label: "Pricing", href: "/pricing" },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Privacy Policy", href: "/terms#privacy" },
     { label: "Terms of Service", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookies" },
-    { label: "Kenya DPA 2019", href: "/compliance" },
+    { label: "Cookie Policy", href: "/terms#cookies" },
+    { label: "Additional Policies", href: "/terms#other" },
   ],
 };
 
@@ -35,7 +28,7 @@ export default function Footer() {
       <div className="h-1 w-full bg-gold-gradient" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
             <Link

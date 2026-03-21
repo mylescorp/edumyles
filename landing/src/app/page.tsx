@@ -4,7 +4,6 @@ import Features from "@/components/sections/Features";
 import Modules from "@/components/sections/Modules";
 import HowItWorks from "@/components/sections/HowItWorks";
 import Pricing from "@/components/sections/Pricing";
-import Testimonials from "@/components/sections/Testimonials";
 import FinalCTA from "@/components/sections/FinalCTA";
 
 export default function LandingPage() {
@@ -18,7 +17,6 @@ export default function LandingPage() {
         <Modules />
         <HowItWorks />
         <Pricing />
-        <Testimonials />
         <FinalCTA />
       </div>
     </>

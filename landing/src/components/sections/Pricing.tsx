@@ -230,10 +230,10 @@ export default function Pricing() {
           </p>
           <div className="flex justify-center gap-4 mt-4">
             <Link
-              href="/pricing"
+              href="/contact?subject=pricing"
               className="font-inter text-sm text-gold hover:underline"
             >
-              Compare all features →
+              Request custom pricing →
             </Link>
             <span className="text-light-grey">·</span>
             <Link

@@ -86,9 +86,9 @@ export default function ContactPage() {
                   <a href="tel:+254743993715">+254 743 993 715</a>
                 </div>
               </div>
-              <Link className="btn btn-secondary" href="/concierge">
+              <a className="btn btn-secondary" href="mailto:contact@edumyles.com?subject=Demo%20Request">
                 Book Consultation
-              </Link>
+              </a>
             </div>
           </div>
         </div>

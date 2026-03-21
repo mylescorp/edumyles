@@ -149,13 +149,6 @@ export default function Hero() {
                   Request a Quote
                 </a>
                 <span className="text-light-grey">·</span>
-                <a
-                  href="/early-access"
-                  className="font-inter text-sm font-medium text-gold hover:text-gold-dark transition-colors"
-                >
-                  ✦ Get Early Access
-                </a>
-                <span className="text-light-grey">·</span>
                 <button
                   type="button"
                   onClick={() => setVideoOpen(true)}
@@ -174,7 +167,7 @@ export default function Hero() {
                   ))}
                 </div>
                 <p className="font-inter text-sm text-mid-grey">
-                  <strong className="text-navy font-semibold">Trusted by 500+ schools</strong> across Kenya
+                  <strong className="text-navy font-semibold">Built for growing schools</strong> across East Africa
                 </p>
               </div>
             </div>

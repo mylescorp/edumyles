@@ -197,9 +197,9 @@ export default function TermsPage() {
             <Link className="btn btn-primary" href="/contact">
               Activate Free Trial
             </Link>
-            <Link className="btn btn-secondary" href="/concierge">
+            <a className="btn btn-secondary" href="mailto:contact@edumyles.com?subject=Demo%20Request">
               Book a Demo
-            </Link>
+            </a>
           </div>
         </div>
       </section>

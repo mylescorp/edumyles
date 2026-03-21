@@ -42,7 +42,7 @@ export default function CookieBanner() {
     >
       <p className="font-inter text-sm text-white/80 mb-4 leading-relaxed">
         We use cookies to improve your experience and analyse site performance. See our{" "}
-        <a href="/privacy" className="text-gold underline">
+        <a href="/terms#privacy" className="text-gold underline">
           Privacy Policy
         </a>
         .
