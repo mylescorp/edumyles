@@ -1,9 +1,19 @@
+type AnalyticsEventHandler = (
+  command: "event",
+  name: string,
+  properties?: Record<string, unknown>
+) => void;
+
+type WindowWithGtag = Window & {
+  gtag?: AnalyticsEventHandler;
+};
+
 export function trackEvent(name: string, properties?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   try {
-    // GA4
-    if (typeof (window as unknown as { gtag?: Function }).gtag === "function") {
-      (window as unknown as { gtag: Function }).gtag("event", name, properties);
+    const analyticsWindow = window as WindowWithGtag;
+    if (typeof analyticsWindow.gtag === "function") {
+      analyticsWindow.gtag("event", name, properties);
     }
   } catch {
     // silently ignore tracking errors

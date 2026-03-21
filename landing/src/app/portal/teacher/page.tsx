@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function TeacherRedirectPage() {
-  const router = useRouter();
+  const frontendUrl =
+    process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
 
   useEffect(() => {
-    // For now, redirect to frontend app on localhost
-    // In production, this should be the deployed frontend URL
-    const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
     window.location.href = `${frontendUrl}/portal/teacher`;
-  }, [router]);
+  }, [frontendUrl]);
 
   return (
     <div style={{ 
@@ -24,8 +21,8 @@ export default function TeacherRedirectPage() {
     }}>
       <div>Redirecting to teacher dashboard...</div>
       <div style={{ fontSize: "0.875rem", opacity: 0.7 }}>
-        If you're not redirected automatically, 
-        <a href="http://localhost:3000/portal/teacher" style={{ color: "#007bff" }}>
+        If you&apos;re not redirected automatically,{" "}
+        <a href={`${frontendUrl}/portal/teacher`} style={{ color: "#007bff" }}>
           click here
         </a>
       </div>

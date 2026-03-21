@@ -47,7 +47,7 @@ export default function ParentDashboardPage() {
           }}>
             <h3 style={{ margin: "0 0 0.5rem 0", color: "#1a1a1a" }}>👶 My Children</h3>
             <p style={{ margin: 0, color: "#666", fontSize: "0.875rem" }}>
-              View your children's profiles and progress
+              View your children&apos;s profiles and progress
             </p>
           </div>
 
