@@ -114,6 +114,20 @@ export const deleteSessionById = mutation({
   },
 });
 
+export const updateSessionRole = mutation({
+  args: { sessionToken: v.string(), role: v.string() },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+    if (!session || session.expiresAt < Date.now()) {
+      throw new Error("UNAUTHENTICATED");
+    }
+    await ctx.db.patch(session._id, { role: args.role });
+  },
+});
+
 export const deleteAllUserSessions = mutation({
   args: { sessionToken: v.string(), exceptCurrent: v.optional(v.boolean()) },
   handler: async (ctx, args) => {
