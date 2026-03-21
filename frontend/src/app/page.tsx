@@ -3,33 +3,20 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { getMarketingSiteUrl } from "@/lib/marketingSite";
 
 export default function RootPage() {
   const { isAuthenticated, user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Wait for auth state to finish loading
-    if (isLoading) {
-      console.log("[root page] Auth state still loading, waiting...");
-      return;
-    }
+    if (isLoading) return;
 
-    // Redirect authenticated users to their appropriate dashboard
     if (isAuthenticated && user) {
       const getRoleDashboard = (role: string) => {
         switch (role) {
           case "master_admin":
           case "super_admin":
             return "/platform";
-          case "school_admin":
-          case "principal":
-          case "bursar":
-          case "hr_manager":
-          case "librarian":
-          case "transport_manager":
-            return "/admin";
           case "teacher":
             return "/portal/teacher";
           case "parent":
@@ -44,24 +31,19 @@ export default function RootPage() {
             return "/admin";
         }
       };
-
-      const dashboard = getRoleDashboard(user.role);
-      console.log(`[root page] Redirecting authenticated user ${user.email} to ${dashboard}`);
-      router.replace(dashboard);
+      router.replace(getRoleDashboard(user.role));
       return;
     }
 
-    // Redirect unauthenticated users to landing page
-    console.log("[root page] Redirecting unauthenticated user to marketing site");
-    window.location.replace(getMarketingSiteUrl(window.location.origin));
+    // Unauthenticated — go to sign in
+    router.replace("/auth/login/api");
   }, [isAuthenticated, user, isLoading, router]);
 
-  // Show loading while redirecting
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-300"></div>
-        <p className="mt-4 text-muted-foreground">Redirecting...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-300 mx-auto" />
+        <p className="mt-4 text-muted-foreground text-sm">Loading...</p>
       </div>
     </div>
   );
