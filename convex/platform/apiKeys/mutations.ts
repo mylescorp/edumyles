@@ -1,20 +1,31 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
-import { createHash } from "node:crypto";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
-function generateApiKey(): { full: string; prefix: string; suffix: string; hash: string } {
+// Web Crypto API — available in Convex runtime (no node:crypto needed)
+async function sha256Hex(input: string): Promise<string> {
+  const encoded = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function generateRawKey(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let key = "edu_";
-  for (let i = 0; i < 40; i++) {
-    key += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+  const bytes = new Uint8Array(40);
+  crypto.getRandomValues(bytes);
+  return "edu_" + Array.from(bytes).map((b) => chars[b % chars.length]).join("");
+}
+
+async function generateApiKey(): Promise<{ full: string; prefix: string; suffix: string; hash: string }> {
+  const full = generateRawKey();
   return {
-    full: key,
-    prefix: key.substring(0, 8),
-    suffix: key.substring(key.length - 4),
-    hash: createHash("sha256").update(key).digest("hex"),
+    full,
+    prefix: full.substring(0, 8),
+    suffix: full.substring(full.length - 4),
+    hash: await sha256Hex(full),
   };
 }
 
@@ -30,7 +41,7 @@ export const createApiKey = mutation({
   handler: async (ctx, args) => {
     const platform = await requirePlatformSession(ctx, args);
 
-    const { full, prefix, suffix, hash } = generateApiKey();
+    const { full, prefix, suffix, hash } = await generateApiKey();
 
     const keyId = await ctx.db.insert("apiKeys", {
       name: args.name,
@@ -106,7 +117,7 @@ export const rotateApiKey = mutation({
     const existing = await ctx.db.get(args.keyId);
     if (!existing) throw new Error("API key not found");
 
-    const { full, prefix, suffix, hash } = generateApiKey();
+    const { full, prefix, hash } = await generateApiKey();
 
     await ctx.db.patch(args.keyId, {
       keyHash: hash,
