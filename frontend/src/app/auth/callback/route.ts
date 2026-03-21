@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Look up existing role from Convex — don't overwrite roles set by admins.
-    // Fall back: master_admin if email matches env var, otherwise school_admin.
+    // Fall back: master_admin if email matches env var OR no master_admin exists yet (first user).
     let role = "school_admin";
     let tenantId = organizationId ?? "PLATFORM";
     try {
@@ -92,11 +92,19 @@ export async function GET(req: NextRequest) {
         workosUserId: user.id,
       });
       if (existing?.role) {
+        // Known user — use their stored role
         role = existing.role;
         if (existing.tenantId) tenantId = existing.tenantId;
       } else if (isMasterAdmin(user.email)) {
         role = "master_admin";
         tenantId = "PLATFORM";
+      } else {
+        // New user — check if any master_admin exists; if not, this is the first user → auto-promote
+        const hasMasterAdmin = await convex.query(api.users.hasMasterAdmin, {});
+        if (!hasMasterAdmin) {
+          role = "master_admin";
+          tenantId = "PLATFORM";
+        }
       }
     } catch {
       // Convex lookup failed — fall back to env-based check
