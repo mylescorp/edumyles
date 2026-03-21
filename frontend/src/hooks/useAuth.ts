@@ -103,9 +103,7 @@ export function useAuth() {
       if (response.ok) {
         setSession(null);
         setIsLoading(false);
-      }
 
-      if (response.ok) {
         // Clear local storage and session storage
         localStorage.clear();
         sessionStorage.clear();

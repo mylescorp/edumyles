@@ -1,6 +1,7 @@
 import { query, mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 // Plan pricing in KES (monthly)
 const PLAN_PRICES: Record<string, number> = {
@@ -240,7 +241,7 @@ export const generateReport = mutation({
     emailRecipients: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const platformCtx = await requirePlatformSession(ctx, args);
     const now = Date.now();
 
     // Determine report type from reportId
@@ -267,6 +268,15 @@ export const generateReport = mutation({
       createdBy: "platform_admin",
       createdAt: now,
       exportFormat: args.format,
+    });
+
+    await logAction(ctx, {
+      tenantId: platformCtx.tenantId,
+      actorId: platformCtx.userId,
+      actorEmail: platformCtx.email,
+      action: "analytics.report_generated",
+      entityType: "report",
+      entityId: newReportId,
     });
 
     return {

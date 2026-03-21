@@ -28,7 +28,7 @@ export const createApiKey = mutation({
     expiresInDays: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
 
     const { full, prefix, suffix, hash } = generateApiKey();
 
@@ -36,26 +36,26 @@ export const createApiKey = mutation({
       name: args.name,
       keyHash: hash,
       keyPrefix: prefix,
-      tenantId: args.tenantId || session.tenantId,
+      tenantId: args.tenantId || platform.tenantId,
       permissions: args.permissions,
       rateLimit: args.rateLimit || 1000,
       isActive: true,
-      createdBy: session.userId,
+      createdBy: platform.userId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       expiresAt: args.expiresInDays ? Date.now() + args.expiresInDays * 86400000 : undefined,
     });
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "api_key.created",
       entityType: "api_key",
       entityId: keyId,
       after: {
         name: args.name,
-        tenantId: args.tenantId || session.tenantId,
+        tenantId: args.tenantId || platform.tenantId,
         permissions: args.permissions,
         rateLimit: args.rateLimit || 1000,
         keyPrefix: prefix,
@@ -73,7 +73,7 @@ export const revokeApiKey = mutation({
     keyId: v.id("apiKeys"),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
 
     const existing = await ctx.db.get(args.keyId);
     if (!existing) throw new Error("API key not found");
@@ -81,9 +81,9 @@ export const revokeApiKey = mutation({
     await ctx.db.patch(args.keyId, { isActive: false, updatedAt: Date.now() });
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "api_key.revoked",
       entityType: "api_key",
       entityId: args.keyId,
@@ -101,7 +101,7 @@ export const rotateApiKey = mutation({
     keyId: v.id("apiKeys"),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
 
     const existing = await ctx.db.get(args.keyId);
     if (!existing) throw new Error("API key not found");
@@ -115,9 +115,9 @@ export const rotateApiKey = mutation({
     });
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "api_key.rotated",
       entityType: "api_key",
       entityId: args.keyId,
