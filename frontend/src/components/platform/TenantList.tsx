@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ import {
   Plus
 } from "lucide-react";
 import { formatDate } from "@/lib/formatters";
+import { buildCsv } from "@/lib/csv";
 import Link from "next/link";
 
 interface Tenant {
@@ -106,7 +107,7 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
 
   // Filter and sort tenants
   const filteredAndSortedTenants = useMemo(() => {
-    let filtered = tenants.filter(tenant => {
+    const filtered = tenants.filter(tenant => {
       // Search filter
       const matchesSearch = searchTerm === "" || 
         tenant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,7 +125,9 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
       const matchesCounty = countyFilter === "all" || tenant.county === countyFilter;
 
       // School type filter (placeholder - would need to be added to tenant schema)
-      const matchesSchoolType = schoolTypeFilter === "all" || true; // Placeholder
+      const matchesSchoolType =
+        schoolTypeFilter === "all" ||
+        ((tenant as Tenant & { schoolType?: string }).schoolType === schoolTypeFilter);
 
       return matchesSearch && matchesStatus && matchesPlan && matchesCounty && matchesSchoolType;
     });
@@ -180,9 +183,7 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
       (tenant.modules || []).join("; ")
     ]);
 
-    const csvContent = [headers, ...csvData]
-      .map(row => row.map(cell => `"${cell}"`).join(","))
-      .join("\n");
+    const csvContent = buildCsv([headers, ...csvData]);
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -308,7 +309,7 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
               )}
               {searchTerm !== "" && (
                 <Badge variant="secondary" className="gap-1">
-                  Search: "{searchTerm}"
+                  Search: &quot;{searchTerm}&quot;
                   <X className="h-3 w-3 cursor-pointer" onClick={() => setSearchTerm("")} />
                 </Badge>
               )}

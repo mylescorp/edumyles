@@ -1,6 +1,7 @@
 import { query, mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { Id } from "../../_generated/dataModel";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 // Real-time analytics aggregation
 export const getRealTimeAnalytics = query({
@@ -9,15 +10,7 @@ export const getRealTimeAnalytics = query({
     timeRange: v.optional(v.union(v.literal("1h"), v.literal("24h"), v.literal("7d"), v.literal("30d"), v.literal("90d"))),
   },
   handler: async (ctx, args) => {
-    // Verify session
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (!session || session.expiresAt < Date.now()) {
-      throw new Error("Invalid or expired session");
-    }
+    const session = await requirePlatformSession(ctx, args);
 
     const timeRange = args.timeRange || "24h";
     const timeRangeMs = getTimeRangeMs(timeRange);
@@ -279,8 +272,8 @@ async function getSystemAnalytics(ctx: any, cutoffTime: number) {
     .query("loginAttempts")
     .filter((q: any) =>
       q.and(
-        q.eq(q.field("success"), false),
-        q.gte(q.field("timestamp"), cutoffTime)
+        q.gte(q.field("lastAttemptAt"), cutoffTime),
+        q.gt(q.field("attempts"), 0)
       )
     )
     .collect();
@@ -717,7 +710,7 @@ function groupTicketsByDay(tickets: any[]): any {
 }
 
 function calculateVolumeTrend(dailyVolume: any): string {
-  const volumes = Object.values(dailyVolume);
+  const volumes = Object.values(dailyVolume) as number[];
   if (volumes.length < 2) return "stable";
 
   const recent = volumes.slice(-7);

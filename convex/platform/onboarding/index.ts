@@ -9,3 +9,12 @@ import {
   skipStep,
   resetOnboarding,
 } from "./mutations";
+export {
+  getOnboardingProgress,
+  listOnboardingStatuses,
+  startOnboarding,
+  completeStep,
+  saveStepData,
+  skipStep,
+  resetOnboarding,
+};

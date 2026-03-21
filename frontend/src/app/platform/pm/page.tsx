@@ -1,29 +1,47 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, Settings, BarChart3, Users, Clock } from "lucide-react";
 import Link from "next/link";
-import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { platformNavItems } from "@/lib/routes";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 
 export default function PMPage() {
-  const [selectedWorkspace, setSelectedWorkspace] = useState<string | null>(null);
+  const { sessionToken, isLoading: authLoading } = useAuth();
 
-  const { data: workspaces, isLoading } = useQuery(api.modules.pm.workspaces.getWorkspaces, {
-    sessionToken: "dummy-token", // TODO: Get from auth context
-  });
+  const workspaces = useQuery(
+    api.modules.pm.workspaces.getWorkspaces,
+    sessionToken ? { sessionToken } : "skip"
+  );
 
-  if (isLoading) {
+  if (authLoading || (sessionToken && workspaces === undefined)) {
     return (
       <DashboardLayout navItems={platformNavItems}>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!sessionToken) {
+    return (
+      <DashboardLayout navItems={platformNavItems}>
+        <Card className="max-w-xl mx-auto mt-8">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Sign in with your normal platform session to access project management.
+            </p>
+          </CardContent>
+        </Card>
       </DashboardLayout>
     );
   }
@@ -103,7 +121,6 @@ export default function PMPage() {
             <Card 
               key={workspace._id} 
               className="hover:shadow-lg transition-all duration-200 cursor-pointer"
-              onClick={() => setSelectedWorkspace(workspace._id)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">

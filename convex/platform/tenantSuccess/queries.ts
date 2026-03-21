@@ -1,5 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const getTenantHealthScores = query({
   args: {
@@ -17,6 +18,7 @@ export const getTenantHealthScores = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 50;
 
     let scores;
@@ -77,6 +79,7 @@ export const getSuccessInitiatives = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 50;
 
     let initiatives;
@@ -140,6 +143,7 @@ export const getSuccessMetrics = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 50;
 
     let metrics;
@@ -186,6 +190,7 @@ export const getTenantSuccessOverview = query({
     timeRange: v.optional(v.union(v.literal("30d"), v.literal("90d"), v.literal("180d"), v.literal("365d"))),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const allTenants = await ctx.db.query("tenants").collect();
     const activeTenants = allTenants.filter((t) => t.status === "active");
 

@@ -1,5 +1,7 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 export const createTenantHealthScore = mutation({
   args: {
@@ -27,6 +29,7 @@ export const createTenantHealthScore = mutation({
     calculatedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     // Find previous score for delta tracking
     const previous = await ctx.db
       .query("tenantHealthScores")
@@ -51,6 +54,21 @@ export const createTenantHealthScore = mutation({
       scoreChange: previous ? args.score - previous.score : undefined,
     });
 
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "tenant_health_score.created",
+      entityType: "tenant_health_score",
+      entityId: healthScoreId,
+      after: {
+        tenantId: args.tenantId,
+        category: args.category,
+        score: args.score,
+        grade: args.grade,
+      },
+    });
+
     return { success: true, healthScoreId, message: "Health score created" };
   },
 });
@@ -73,6 +91,7 @@ export const updateTenantHealthScore = mutation({
     updatedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const existing = await ctx.db.get(args.healthScoreId as any);
     if (!existing) throw new Error("Health score not found");
 
@@ -88,6 +107,18 @@ export const updateTenantHealthScore = mutation({
     if (args.recommendations !== undefined) patch.recommendations = args.recommendations;
 
     await ctx.db.patch(args.healthScoreId as any, patch);
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "tenant_health_score.updated",
+      entityType: "tenant_health_score",
+      entityId: args.healthScoreId,
+      before: existing,
+      after: patch,
+    });
+
     return { success: true, message: "Health score updated" };
   },
 });
@@ -135,6 +166,7 @@ export const createSuccessInitiative = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const now = Date.now();
     const initiativeId = await ctx.db.insert("successInitiatives", {
       tenantId: args.tenantId,
@@ -154,6 +186,20 @@ export const createSuccessInitiative = mutation({
       status: args.status,
       createdAt: now,
       updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "success_initiative.created",
+      entityType: "success_initiative",
+      entityId: initiativeId,
+      after: {
+        tenantId: args.tenantId,
+        title: args.title,
+        status: args.status,
+      },
     });
 
     return { success: true, initiativeId, message: "Initiative created" };
@@ -179,6 +225,7 @@ export const updateInitiativeProgress = mutation({
     updatedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const initiative = await ctx.db.get(args.initiativeId as any);
     if (!initiative) throw new Error("Initiative not found");
 
@@ -209,6 +256,19 @@ export const updateInitiativeProgress = mutation({
       updatedAt: Date.now(),
     });
 
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "success_initiative.updated",
+      entityType: "success_initiative",
+      entityId: args.initiativeId,
+      after: {
+        progress,
+        currentScore: args.newScore ?? init.currentScore,
+      },
+    });
+
     return { success: true, message: "Initiative progress updated" };
   },
 });
@@ -236,6 +296,7 @@ export const createSuccessMetric = mutation({
     createdBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const now = Date.now();
     const metricId = await ctx.db.insert("successMetrics", {
       tenantId: args.tenantId,
@@ -257,6 +318,20 @@ export const createSuccessMetric = mutation({
       updatedAt: now,
     });
 
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "success_metric.created",
+      entityType: "success_metric",
+      entityId: metricId,
+      after: {
+        tenantId: args.tenantId,
+        name: args.name,
+        category: args.category,
+      },
+    });
+
     return { success: true, metricId, message: "Metric created" };
   },
 });
@@ -271,6 +346,7 @@ export const recordMetricValue = mutation({
     recordedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const metric = await ctx.db.get(args.metricId as any);
     if (!metric) throw new Error("Metric not found");
 
@@ -295,6 +371,20 @@ export const recordMetricValue = mutation({
       updatedAt: Date.now(),
     });
 
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "success_metric.recorded",
+      entityType: "success_metric",
+      entityId: args.metricId,
+      after: {
+        value: args.value,
+        recordedAt: args.recordedAt,
+        trend,
+      },
+    });
+
     return { success: true, recordId: `record_${Date.now()}`, message: "Metric value recorded" };
   },
 });
@@ -316,6 +406,7 @@ export const generateSuccessReport = mutation({
     requestedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const reportId = await ctx.db.insert("reports", {
       tenantId: args.tenantId,
       name: `${args.reportType} report`,

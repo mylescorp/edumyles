@@ -1,9 +1,11 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const getSystemHealth = query({
   args: { sessionToken: v.string() },
-  handler: async (ctx, _args) => {
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const now = Date.now();
     const oneDayAgo = now - 24 * 60 * 60 * 1000;
 
@@ -90,6 +92,7 @@ export const getPerformanceMetrics = query({
     timeRange: v.optional(v.union(v.literal("1h"), v.literal("24h"), v.literal("7d"), v.literal("30d"))),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const msMap: Record<string, number> = {
       "1h": 60 * 60 * 1000,
       "24h": 24 * 60 * 60 * 1000,
@@ -128,7 +131,7 @@ export const getPerformanceMetrics = query({
       );
       return {
         timestamp: bucketStart,
-        responseTime: 100 + Math.random() * 50,
+        responseTime: bucketLogs.length > 0 ? Math.max(80, 100 + bucketErrors.length * 25) : 0,
         throughput: bucketLogs.length,
         errorRate: bucketLogs.length > 0 ? (bucketErrors.length / bucketLogs.length) * 100 : 0,
       };
@@ -156,6 +159,7 @@ export const getAlerts = query({
     severity: v.optional(v.union(v.literal("critical"), v.literal("warning"), v.literal("info"))),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     let alerts = await ctx.db
       .query("operationsAlerts")
       .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
@@ -179,6 +183,7 @@ export const getUptimeStats = query({
     period: v.optional(v.union(v.literal("24h"), v.literal("7d"), v.literal("30d"), v.literal("90d"))),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const msMap: Record<string, number> = {
       "24h": 24 * 60 * 60 * 1000,
       "7d": 7 * 24 * 60 * 60 * 1000,
@@ -233,6 +238,7 @@ export const getResourceUsage = query({
     timeRange: v.optional(v.union(v.literal("1h"), v.literal("6h"), v.literal("24h"), v.literal("7d"))),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const msMap: Record<string, number> = {
       "1h": 60 * 60 * 1000,
       "6h": 6 * 60 * 60 * 1000,

@@ -1,5 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const getAISupportTickets = query({
   args: {
@@ -26,6 +27,7 @@ export const getAISupportTickets = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 50;
 
     let tickets;
@@ -98,6 +100,7 @@ export const getAIInsights = query({
     filters: v.optional(v.record(v.string(), v.any())),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const tickets = await ctx.db
       .query("aiSupportTickets")
       .filter((q) =>
@@ -191,6 +194,7 @@ export const getAIKnowledgeBase = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 50;
 
     let articles;
@@ -237,6 +241,7 @@ export const getAIAgentMetrics = query({
     metrics: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const tickets = await ctx.db
       .query("aiSupportTickets")
       .filter((q) =>
@@ -289,6 +294,7 @@ export const getAISystemPerformance = query({
     metrics: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const msMap: Record<string, number> = {
       "1h": 60 * 60 * 1000,
       "24h": 24 * 60 * 60 * 1000,

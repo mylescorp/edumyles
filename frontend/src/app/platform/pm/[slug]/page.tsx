@@ -1,43 +1,77 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings, BarChart3, Users, Clock, Filter } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import Link from "next/link";
-import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { platformNavItems } from "@/lib/routes";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 
 export default function WorkspacePage() {
   const params = useParams();
   const workspaceSlug = params.slug as string;
+  const { sessionToken, isLoading: authLoading } = useAuth();
 
-  const [selectedView, setSelectedView] = useState<"kanban" | "list" | "timeline" | "calendar">("kanban");
-
-  const { data: workspace, isLoading: workspaceLoading } = useQuery(
+  const workspace = useQuery(
     api.modules.pm.workspaces.getWorkspaceBySlug,
-    { slug: workspaceSlug, sessionToken: "dummy-token" }
+    sessionToken ? { slug: workspaceSlug, sessionToken } : "skip"
   );
 
-  const { data: projects, isLoading: projectsLoading } = useQuery(
+  const projects = useQuery(
     api.modules.pm.projects.getProjects,
-    { 
-      workspaceId: workspace?._id || "dummy", 
-      sessionToken: "dummy-token" 
-    },
-    { skip: !workspace }
+    sessionToken && workspace
+      ? {
+          workspaceId: workspace._id,
+          sessionToken,
+        }
+      : "skip"
   );
 
-  if (workspaceLoading || !workspace) {
+  if (authLoading || (sessionToken && workspace === undefined)) {
     return (
       <DashboardLayout navItems={platformNavItems}>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!sessionToken) {
+    return (
+      <DashboardLayout navItems={platformNavItems}>
+        <Card className="max-w-xl mx-auto mt-8">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Sign in with your normal platform session to access this workspace.
+            </p>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
+
+  if (!workspace) {
+    return (
+      <DashboardLayout navItems={platformNavItems}>
+        <Card className="max-w-xl mx-auto mt-8">
+          <CardHeader>
+            <CardTitle>Workspace Unavailable</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              The requested workspace could not be loaded.
+            </p>
+          </CardContent>
+        </Card>
       </DashboardLayout>
     );
   }
@@ -74,9 +108,8 @@ export default function WorkspacePage() {
         {/* View Tabs */}
         <div className="flex items-center gap-4 border-b border-border">
           <button
-            onClick={() => setSelectedView("kanban")}
             className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              selectedView === "kanban"
+              true
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
@@ -84,9 +117,8 @@ export default function WorkspacePage() {
             Kanban Board
           </button>
           <button
-            onClick={() => setSelectedView("list")}
             className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              selectedView === "list"
+              false
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
@@ -94,9 +126,8 @@ export default function WorkspacePage() {
             List View
           </button>
           <button
-            onClick={() => setSelectedView("timeline")}
             className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              selectedView === "timeline"
+              false
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
@@ -104,9 +135,8 @@ export default function WorkspacePage() {
             Timeline
           </button>
           <button
-            onClick={() => setSelectedView("calendar")}
             className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              selectedView === "calendar"
+              false
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}

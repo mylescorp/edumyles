@@ -1,5 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const listApiKeys = query({
   args: {
@@ -7,11 +8,7 @@ export const listApiKeys = query({
     tenantId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    await requirePlatformSession(ctx, args);
 
     let q = ctx.db.query("apiKeys");
     const keys = await q.collect();
@@ -33,11 +30,7 @@ export const getKeyUsageStats = query({
     keyId: v.id("apiKeys"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    await requirePlatformSession(ctx, args);
 
     const usage = await ctx.db
       .query("apiKeyUsage")

@@ -24,4 +24,8 @@ export * from "./scheduledReports";
 export * from "./operations";
 export * from "./dataExport";
 export * from "./webhooks";
-// Note: apiKeys, changelog, sla, whiteLabel, featureFlags exports removed to avoid conflicts with webhooks
+export * from "./apiKeys";
+export * from "./changelog";
+export * from "./sla";
+export * from "./whiteLabel";
+export * from "./featureFlags";

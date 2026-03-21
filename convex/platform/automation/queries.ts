@@ -1,5 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const getWorkflows = query({
   args: {
@@ -19,6 +20,7 @@ export const getWorkflows = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 50;
 
     let workflows;
@@ -54,6 +56,7 @@ export const getWorkflowExecutions = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 50;
 
     let executions;
@@ -93,6 +96,7 @@ export const getWorkflowTemplates = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 50;
 
     let templates;
@@ -124,6 +128,7 @@ export const getAutomationMetrics = query({
     timeRange: v.optional(v.union(v.literal("24h"), v.literal("7d"), v.literal("30d"), v.literal("90d"))),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const timeRange = args.timeRange ?? "30d";
     const msMap: Record<string, number> = {
       "24h": 24 * 60 * 60 * 1000,

@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export type AuditAction =
   | "user.created" | "user.updated" | "user.deleted" | "user.login" | "user.logout"
+  | "file.created" | "file.deleted"
   | "student.created" | "student.updated" | "student.deleted" | "student.graduated" | "student.enrolled"
   | "payment.initiated" | "payment.completed" | "payment.failed" | "payment.recorded" | "payment.bulk_invoices" | "payment.status_updated"
   | "grade.entered" | "grade.updated"
@@ -22,6 +23,15 @@ export type AuditAction =
   | "communication.segment_created" | "communication.segment_updated" | "communication.segment_deleted"
   | "platform_message.created" | "platform_message.updated" | "platform_message.deleted" | "platform_message.sent"
   | "platform_notification.created"
+  | "api_key.created" | "api_key.revoked" | "api_key.rotated"
+  | "changelog.created" | "changelog.updated" | "changelog.deleted"
+  | "sla.created" | "sla.updated" | "sla.deleted"
+  | "white_label.updated" | "white_label.reset"
+  | "workflow.created" | "workflow.executed" | "workflow.cancelled" | "workflow.status_updated" | "workflow.template_created" | "workflow.scheduled"
+  | "tenant_health_score.created" | "tenant_health_score.updated"
+  | "success_initiative.created" | "success_initiative.updated"
+  | "success_metric.created" | "success_metric.recorded"
+  | "support.ticket.created" | "support.ticket.updated" | "support.ticket.escalated" | "support.ai_response.generated" | "support.ai_insights.generated" | "support.knowledge_base.created"
   | "alumni.profile_updated" | "alumni.transcript_requested" | "alumni.event_rsvp"
   | "timetable.slot_created" | "timetable.slot_updated" | "timetable.slot_deleted" | "timetable.substitute_assigned"
   | "message.sent"

@@ -2793,7 +2793,14 @@ export default defineSchema({
   // ─── Platform Communications ───────────────────────────────────────────
   platform_messages: defineTable({
     senderId: v.string(),
-    type: v.union(v.literal("broadcast"), v.literal("targeted")),
+    type: v.union(
+      v.literal("broadcast"),
+      v.literal("targeted"),
+      v.literal("campaign"),
+      v.literal("alert"),
+      v.literal("transactional"),
+      v.literal("drip_step")
+    ),
     subject: v.string(),
     emailBody: v.string(),
     smsBody: v.string(),

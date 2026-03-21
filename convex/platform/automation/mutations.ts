@@ -1,5 +1,7 @@
 import { mutation, query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 // Workflow execution engine
 export const executeWorkflow = mutation({
@@ -10,15 +12,7 @@ export const executeWorkflow = mutation({
     manualTrigger: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    // Verify session and permissions
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (!session || session.expiresAt < Date.now()) {
-      throw new Error("Invalid or expired session");
-    }
+    const session = await requirePlatformSession(ctx, args);
 
     // Get workflow definition
     const workflow = await ctx.db
@@ -402,15 +396,7 @@ export const getWorkflowExecutionStatus = query({
     executionId: v.string(),
   },
   handler: async (ctx, args) => {
-    // Verify session
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (!session || session.expiresAt < Date.now()) {
-      throw new Error("Invalid or expired session");
-    }
+    await requirePlatformSession(ctx, args);
 
     // Get execution record
     const execution = await ctx.db
@@ -433,15 +419,7 @@ export const cancelWorkflowExecution = mutation({
     executionId: v.string(),
   },
   handler: async (ctx, args) => {
-    // Verify session
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (!session || session.expiresAt < Date.now()) {
-      throw new Error("Invalid or expired session");
-    }
+    const session = await requirePlatformSession(ctx, args);
 
     // Get execution record
     const execution = await ctx.db
@@ -462,6 +440,17 @@ export const cancelWorkflowExecution = mutation({
       status: "cancelled",
       completedAt: Date.now(),
       duration: (Date.now() - execution.startedAt) / 1000 / 60 / 60,
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "workflow.cancelled",
+      entityType: "workflow_execution",
+      entityId: execution._id,
+      before: { status: execution.status },
+      after: { status: "cancelled" },
     });
 
     return {
@@ -514,6 +503,7 @@ export const createWorkflow = mutation({
     createdBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
     const now = Date.now();
     const workflowId = await ctx.db.insert("workflows", {
       tenantId: "PLATFORM",
@@ -532,6 +522,16 @@ export const createWorkflow = mutation({
       averageDuration: 0,
     });
 
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "workflow.created",
+      entityType: "workflow",
+      entityId: workflowId,
+      after: { name: args.name, category: args.category, trigger: args.trigger },
+    });
+
     return {
       success: true,
       workflowId,
@@ -548,13 +548,7 @@ export const triggerWorkflow = mutation({
     executionId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) {
-      throw new Error("Invalid or expired session");
-    }
+    const session = await requirePlatformSession(ctx, args);
 
     const workflow = await ctx.db.get(args.workflowId as any);
     if (!workflow) throw new Error("Workflow not found");
@@ -571,6 +565,16 @@ export const triggerWorkflow = mutation({
       triggerData: args.triggerData ?? {},
       steps: [],
       tenantId: session.tenantId,
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "workflow.executed",
+      entityType: "workflow_execution",
+      entityId: executionDocId,
+      after: { workflowId: args.workflowId, executionId: execId },
     });
 
     return {
@@ -590,12 +594,25 @@ export const updateWorkflowStatus = mutation({
     isActive: v.boolean(),
   },
   handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
     const workflow = await ctx.db.get(args.workflowId as any);
     if (!workflow) throw new Error("Workflow not found");
+    const workflowDoc = workflow as any;
 
     await ctx.db.patch(args.workflowId as any, {
       isActive: args.isActive,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "workflow.status_updated",
+      entityType: "workflow",
+      entityId: args.workflowId,
+      before: { isActive: workflowDoc.isActive },
+      after: { isActive: args.isActive },
     });
 
     return {
@@ -623,6 +640,7 @@ export const createWorkflowTemplate = mutation({
     createdBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
     const now = Date.now();
     const templateId = await ctx.db.insert("workflowTemplates", {
       name: args.name,
@@ -636,6 +654,16 @@ export const createWorkflowTemplate = mutation({
       createdBy: args.createdBy,
       createdAt: now,
       updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "workflow.template_created",
+      entityType: "workflow_template",
+      entityId: templateId,
+      after: { name: args.name, category: args.category, isPublic: args.isPublic },
     });
 
     return {
@@ -660,6 +688,7 @@ export const scheduleWorkflow = mutation({
     parameters: v.optional(v.record(v.string(), v.any())),
   },
   handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
     const workflow = await ctx.db.get(args.workflowId as any);
     if (!workflow) throw new Error("Workflow not found");
 
@@ -670,6 +699,16 @@ export const scheduleWorkflow = mutation({
         parameters: args.parameters ?? {},
       },
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "workflow.scheduled",
+      entityType: "workflow",
+      entityId: args.workflowId,
+      after: { schedule: args.schedule },
     });
 
     const scheduleId = `schedule_${Date.now()}`;
@@ -688,6 +727,7 @@ export const getWorkflowExecutionHistory = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const limit = args.limit ?? 20;
     const executions = await ctx.db
       .query("workflowExecutions")

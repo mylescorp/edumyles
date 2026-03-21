@@ -1,5 +1,7 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 export const createChangelogEntry = mutation({
   args: {
@@ -7,17 +9,13 @@ export const createChangelogEntry = mutation({
     version: v.string(),
     title: v.string(),
     description: v.string(),
-    type: v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement"), v.literal("breaking"), v.literal("breaking")),
+    type: v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement"), v.literal("breaking")),
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
 
-    return await ctx.db.insert("changelogEntries", {
+    const entryId = await ctx.db.insert("changelogEntries", {
       version: args.version,
       title: args.title,
       description: args.description,
@@ -26,7 +24,24 @@ export const createChangelogEntry = mutation({
       author: session.userId,
       date: Date.now(),
       createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "changelog.created",
+      entityType: "changelog_entry",
+      entityId: entryId,
+      after: {
+        version: args.version,
+        title: args.title,
+        type: args.type,
+      },
+    });
+
+    return entryId;
   },
 });
 
@@ -40,11 +55,10 @@ export const updateChangelogEntry = mutation({
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
+
+    const existing = await ctx.db.get(args.entryId);
+    if (!existing) throw new Error("Changelog entry not found");
 
     const updates: any = {};
     if (args.title) updates.title = args.title;
@@ -53,6 +67,28 @@ export const updateChangelogEntry = mutation({
     if (args.tags) updates.tags = args.tags;
 
     await ctx.db.patch(args.entryId, updates);
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "changelog.updated",
+      entityType: "changelog_entry",
+      entityId: args.entryId,
+      before: {
+        title: existing.title,
+        description: existing.description,
+        type: existing.type,
+        tags: existing.tags,
+      },
+      after: {
+        title: updates.title ?? existing.title,
+        description: updates.description ?? existing.description,
+        type: updates.type ?? existing.type,
+        tags: updates.tags ?? existing.tags,
+      },
+    });
+
     return { success: true };
   },
 });
@@ -63,13 +99,27 @@ export const deleteChangelogEntry = mutation({
     entryId: v.id("changelogEntries"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
+
+    const existing = await ctx.db.get(args.entryId);
+    if (!existing) throw new Error("Changelog entry not found");
 
     await ctx.db.delete(args.entryId);
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "changelog.deleted",
+      entityType: "changelog_entry",
+      entityId: args.entryId,
+      before: {
+        version: existing.version,
+        title: existing.title,
+        type: existing.type,
+      },
+    });
+
     return { success: true };
   },
 });
