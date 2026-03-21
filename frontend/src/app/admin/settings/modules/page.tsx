@@ -13,7 +13,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Package,
   Settings,
@@ -47,11 +46,12 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
 };
 
 export default function ModuleSettingsPage() {
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, sessionToken } = useAuth();
   const { tenantId, isLoading: tenantLoading } = useTenant();
 
   const installedModules = useQuery(
-    api.modules.marketplace.queries.getInstalledModules
+    api.modules.marketplace.queries.getInstalledModules,
+    sessionToken ? { sessionToken } : "skip"
   );
 
   const toggleStatus = useMutation(api.modules.marketplace.mutations.toggleModuleStatus);
