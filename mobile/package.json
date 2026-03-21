@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@edumyles/shared": "*",
+    "@expo/server": "^0.7.5",
     "@workos-inc/authkit-nextjs": "2.15.0",
     "convex": "^1.14.0",
     "expo": "^55.0.4",

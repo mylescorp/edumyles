@@ -50,5 +50,9 @@
     "convex": "^1.32.0",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0"
+  },
+  "overrides": {
+    "@expo/server": "^0.7.5",
+    "undici": "^7.24.5"
   }
 }
