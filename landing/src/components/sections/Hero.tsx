@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Play, Star, ChevronDown } from "lucide-react";
 import DemoModal from "@/components/ui/DemoModal";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 const heroModules = [
   {
@@ -132,7 +131,7 @@ export default function Hero() {
                   Book a Free Demo
                 </a>
                 <a
-                  href={`${APP_URL}/auth/signup/api`}
+                  href="/auth/signup/api"
                   className="border-2 border-navy text-navy hover:bg-navy hover:text-white font-inter font-semibold text-base px-8 py-3.5 rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Start Free Trial
