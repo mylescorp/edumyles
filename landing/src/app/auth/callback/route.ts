@@ -1,40 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
+import { saveSession } from "@workos-inc/authkit-nextjs";
 import { ConvexHttpClient } from "convex/browser";
-import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
+import { api } from "@/convex/_generated/api";
+import {
+  buildPostAuthRedirectUrl,
+  decodeAuthState,
+  resolveRole,
+} from "@/lib/auth";
 
-const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL ?? "ayany004@gmail.com";
-
-function resolveRole(email: string, _orgId?: string): string {
-  if (
-    MASTER_ADMIN_EMAIL &&
-    email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase()
-  ) {
-    return "master_admin";
-  }
-  return "school_admin";
-}
-
-/** Returns the dashboard path for the role (e.g. /platform, /admin). */
-function getRoleDashboardPath(role: string): string {
-  switch (role) {
-    case "master_admin":
-    case "super_admin":
-      return "/platform";
-    case "teacher":
-      return "/portal/teacher";
-    case "parent":
-      return "/portal/parent";
-    case "student":
-      return "/portal/student";
-    case "alumni":
-      return "/portal/alumni";
-    case "partner":
-      return "/portal/partner";
-    default:
-      return "/admin";
-  }
+function clearStateCookie(response: NextResponse) {
+  response.cookies.set("workos_state", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -42,93 +25,85 @@ export async function GET(request: NextRequest) {
   const stateParam = request.nextUrl.searchParams.get("state");
   const error = request.nextUrl.searchParams.get("error");
   const errorDescription = request.nextUrl.searchParams.get("error_description");
+  const savedState = request.cookies.get("workos_state")?.value;
   const baseUrl = request.nextUrl.origin;
 
   if (error) {
-    console.error("[auth/callback] WorkOS error:", error, errorDescription);
-    return NextResponse.redirect(
-      `${baseUrl}/auth/login?error=${encodeURIComponent(errorDescription || error)}`
+    const response = NextResponse.redirect(
+      new URL(`/auth/login?error=${encodeURIComponent(errorDescription || error)}`, request.url)
     );
+    clearStateCookie(response);
+    return response;
   }
 
   if (!code) {
-    return NextResponse.redirect(`${baseUrl}/auth/login?error=no_code`);
+    const response = NextResponse.redirect(new URL("/auth/login?error=no_code", request.url));
+    clearStateCookie(response);
+    return response;
   }
 
-  let signupState: { schoolName?: string } = {};
-  if (stateParam) {
-    try {
-      signupState = JSON.parse(
-        Buffer.from(stateParam, "base64url").toString("utf-8")
-      );
-    } catch {
-      // ignore invalid state
-    }
+  if (savedState && stateParam !== savedState) {
+    console.error("[landing auth callback] Invalid WorkOS state");
+    const response = NextResponse.redirect(new URL("/auth/login?error=invalid_state", request.url));
+    clearStateCookie(response);
+    return response;
   }
 
+  const authState = decodeAuthState(stateParam);
   const apiKey = process.env.WORKOS_API_KEY;
   const clientId =
     process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
-  // Debug logging for production
-  console.log("[auth/callback] Environment check:", {
-    hasApiKey: !!apiKey,
-    hasClientId: !!clientId,
-    hasConvexUrl: !!convexUrl,
-    redirectUri: process.env.WORKOS_REDIRECT_URI,
-    publicRedirectUri: process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI,
-  });
-
-  if (!apiKey || !clientId) {
-    console.error("[auth/callback] Missing WORKOS_API_KEY or WORKOS_CLIENT_ID");
-    return NextResponse.redirect(`${baseUrl}/auth/login?error=config_error`);
+  if (!apiKey || !clientId || !convexUrl) {
+    console.error("[landing auth callback] Missing required environment variables", {
+      hasApiKey: !!apiKey,
+      hasClientId: !!clientId,
+      hasConvexUrl: !!convexUrl,
+    });
+    const response = NextResponse.redirect(new URL("/auth/login?error=config_error", request.url));
+    clearStateCookie(response);
+    return response;
   }
 
   try {
     const workos = new WorkOS(apiKey);
-    const { user, organizationId } =
+    const convex = new ConvexHttpClient(convexUrl);
+    const { user, accessToken, refreshToken, organizationId } =
       await workos.userManagement.authenticateWithCode({
-        code,
         clientId,
+        code,
       });
 
-    const email = user.email;
-    const firstName = user.firstName ?? "";
-    const lastName = user.lastName ?? "";
-    const workosUserId = user.id;
-    const role = resolveRole(email, organizationId ?? undefined);
+    const role = resolveRole(user.email, organizationId ?? undefined);
     const tenantId = organizationId ?? "PLATFORM";
-
     const sessionToken = crypto.randomBytes(32).toString("hex");
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-    const isProduction = process.env.NODE_ENV === "production";
 
-    if (convexUrl) {
-      try {
-        const convex = new ConvexHttpClient(convexUrl);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await convex.mutation((api as any).sessions.createSession, {
-          sessionToken,
-          tenantId,
-          userId: workosUserId,
-          email,
-          role,
-          expiresAt: Date.now() + thirtyDays,
-        });
-        console.log("[auth/callback] ✅ Session created in Convex");
-      } catch (convexErr) {
-        console.error("[auth/callback] Convex session creation failed (non-fatal):", convexErr);
-        // Continue — cookies will still be set for the cookie-based fallback
-      }
+    await convex.mutation(api.sessions.createSession, {
+      sessionToken,
+      tenantId,
+      userId: user.id,
+      email: user.email,
+      role,
+      expiresAt: Date.now() + thirtyDays,
+    });
+
+    const redirectUrl = buildPostAuthRedirectUrl({
+      origin: baseUrl,
+      role,
+      returnTo: authState?.returnTo,
+    });
+
+    const response = NextResponse.redirect(redirectUrl);
+
+    if (process.env.WORKOS_COOKIE_PASSWORD) {
+      await saveSession(response as never, { accessToken, refreshToken } as never);
     }
-
-    const dashboard = getRoleDashboardPath(role);
-    const response = NextResponse.redirect(new URL(dashboard, request.url));
 
     response.cookies.set("edumyles_session", sessionToken, {
       httpOnly: true,
-      secure: isProduction,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
@@ -137,17 +112,17 @@ export async function GET(request: NextRequest) {
     response.cookies.set(
       "edumyles_user",
       JSON.stringify({
-        email,
-        firstName,
-        lastName,
+        email: user.email,
+        firstName: user.firstName ?? "",
+        lastName: user.lastName ?? "",
         avatar: user.profilePictureUrl ?? "",
         role,
         tenantId,
-        ...(signupState.schoolName ? { schoolName: signupState.schoolName } : {}),
+        ...(authState?.schoolName ? { schoolName: authState.schoolName } : {}),
       }),
       {
         httpOnly: false,
-        secure: isProduction,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 30 * 24 * 60 * 60,
         path: "/",
@@ -156,24 +131,21 @@ export async function GET(request: NextRequest) {
 
     response.cookies.set("edumyles_role", role, {
       httpOnly: false,
-      secure: isProduction,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
     });
 
-    console.log(`[auth/callback] ${email} → ${role} → ${dashboard}`);
+    clearStateCookie(response);
     return response;
   } catch (err) {
-    console.error("[auth/callback] Full error details:", {
-      error: err,
-      message: err instanceof Error ? err.message : "Unknown error",
-      stack: err instanceof Error ? err.stack : undefined,
-      name: err instanceof Error ? err.name : undefined,
-    });
+    console.error("[landing auth callback] Authentication failed:", err);
     const message = err instanceof Error ? err.message : "callback_failed";
-    return NextResponse.redirect(
-      `${baseUrl}/auth/login?error=${encodeURIComponent(message)}`
+    const response = NextResponse.redirect(
+      new URL(`/auth/login?error=${encodeURIComponent(message)}`, request.url)
     );
+    clearStateCookie(response);
+    return response;
   }
 }

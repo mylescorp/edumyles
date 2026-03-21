@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import SignUpForm from "./SignUpForm";
+import LoginForm from "./LoginForm";
 
 export const metadata: Metadata = {
-  title: "Sign up — EduMyles",
-  description:
-    "Create your EduMyles account and start managing your school.",
+  title: "Sign in — EduMyles",
+  description: "Sign in to EduMyles and continue to your school dashboard.",
 };
 
-export default async function SignUpPage({
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ returnTo?: string; error?: string }>;
@@ -24,14 +23,14 @@ export default async function SignUpPage({
           <Link href="/" className="auth-logo">
             EduMyles
           </Link>
-          <p>Create your account and start managing your school</p>
+          <p>Sign in to continue to your school dashboard</p>
         </div>
         {error ? (
           <div className="auth-error" role="alert">
             {decodeURIComponent(error)}
           </div>
         ) : null}
-        <SignUpForm returnTo={returnTo} />
+        <LoginForm returnTo={returnTo} />
       </div>
     </div>
   );

@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
+import crypto from "crypto";
+import { encodeAuthState, getLandingRedirectUri, sanitizeReturnTo } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
     const email = req.nextUrl.searchParams.get("email") ?? undefined;
+    const returnTo = req.nextUrl.searchParams.get("returnTo") ?? undefined;
     const apiKey = process.env.WORKOS_API_KEY;
     const clientId =
       process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
-    const redirectUri =
-      process.env.WORKOS_REDIRECT_URI ||
-      process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
-      req.nextUrl.origin + "/auth/callback";
+    const redirectUri = getLandingRedirectUri(req.nextUrl.origin);
 
     if (!clientId || !apiKey) {
-      return NextResponse.redirect(new URL("/?authError=not_configured", req.url));
+      return NextResponse.redirect(new URL("/auth/signup?error=not_configured", req.url));
     }
+
+    const state = encodeAuthState({
+      nonce: crypto.randomBytes(16).toString("hex"),
+      mode: "sign-up",
+      returnTo: sanitizeReturnTo(returnTo, "/admin"),
+    });
 
     const workos = new WorkOS(apiKey);
     const authUrl = workos.userManagement.getAuthorizationUrl({
@@ -23,12 +29,21 @@ export async function GET(req: NextRequest) {
       provider: "authkit",
       screenHint: "sign-up",
       ...(email ? { loginHint: email } : {}),
+      state,
     });
 
-    return NextResponse.redirect(authUrl);
+    const response = NextResponse.redirect(authUrl);
+    response.cookies.set("workos_state", state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600,
+      path: "/",
+    });
+    return response;
   } catch (error) {
     console.error("Signup GET redirect error:", error);
-    return NextResponse.redirect(new URL("/?authError=signup_unavailable", req.url));
+    return NextResponse.redirect(new URL("/auth/signup?error=signup_unavailable", req.url));
   }
 }
 
@@ -38,14 +53,12 @@ export async function POST(req: NextRequest) {
     const email = body?.email;
     const schoolName = body?.schoolName;
     const provider = body?.provider || "authkit";
+    const returnTo = body?.returnTo;
     const apiKey = process.env.WORKOS_API_KEY;
     const clientId =
       process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID ||
       process.env.WORKOS_CLIENT_ID;
-    const redirectUri =
-      process.env.WORKOS_REDIRECT_URI ||
-      process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ||
-      req.nextUrl.origin + "/auth/callback";
+    const redirectUri = getLandingRedirectUri(req.nextUrl.origin);
 
     if (!clientId || !apiKey) {
       return NextResponse.json(
@@ -54,9 +67,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const state = schoolName
-      ? Buffer.from(JSON.stringify({ schoolName })).toString("base64url")
-      : undefined;
+    const state = encodeAuthState({
+      nonce: crypto.randomBytes(16).toString("hex"),
+      mode: "sign-up",
+      returnTo: sanitizeReturnTo(returnTo, "/admin"),
+      ...(schoolName ? { schoolName } : {}),
+    });
 
     const workos = new WorkOS(apiKey);
     
@@ -66,7 +82,7 @@ export async function POST(req: NextRequest) {
       redirectUri,
       screenHint: "sign-up" as const,
       ...(email ? { loginHint: email } : {}),
-      ...(state ? { state } : {}),
+      state,
     };
 
     // Set specific provider if Google or Microsoft is selected
@@ -78,7 +94,16 @@ export async function POST(req: NextRequest) {
 
     const authUrl = workos.userManagement.getAuthorizationUrl(providerConfig);
 
-    return NextResponse.json({ authUrl });
+    const response = NextResponse.json({ authUrl });
+    response.cookies.set("workos_state", state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600,
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Signup API error:", error);
     return NextResponse.json(

@@ -6,7 +6,7 @@ const footerLinks = {
     { label: "Modules", href: "#modules" },
     { label: "Pricing", href: "#pricing" },
     { label: "Book a Demo", href: "#demo" },
-    { label: "Start Free Trial", href: "/auth/signup/api" },
+    { label: "Start Free Trial", href: "/auth/signup" },
   ],
   Company: [
     { label: "Contact", href: "/contact" },

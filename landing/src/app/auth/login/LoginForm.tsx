@@ -3,39 +3,40 @@
 import { useState } from "react";
 import Link from "next/link";
 
-interface SignUpFormProps {
+interface LoginFormProps {
   returnTo?: string;
 }
 
-export default function SignUpForm({ returnTo }: SignUpFormProps) {
+export default function LoginForm({ returnTo }: LoginFormProps) {
   const [email, setEmail] = useState("");
-  const [schoolName, setSchoolName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSSOSignup(provider: string) {
+  async function startLogin(provider: string) {
     setError("");
     setIsLoading(true);
+
     try {
-      const res = await fetch("/auth/signup/api", {
+      const res = await fetch("/auth/login/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email || undefined,
-          schoolName: schoolName || undefined,
           provider,
           returnTo,
         }),
       });
+
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Sign-up could not be started");
+        throw new Error(data.error || "Sign-in could not be started");
       }
-      if (data.authUrl) {
-        window.location.href = data.authUrl;
-        return;
+
+      if (!data.authUrl) {
+        throw new Error("No redirect URL received");
       }
-      throw new Error("No redirect URL received");
+
+      window.location.href = data.authUrl;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setIsLoading(false);
@@ -44,13 +45,13 @@ export default function SignUpForm({ returnTo }: SignUpFormProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    handleSSOSignup("email");
+    await startLogin("email");
   }
 
   return (
     <div className="auth-card">
-      <h2>Create your account</h2>
-      <p className="auth-subtitle">Get started with a free trial</p>
+      <h2>Sign in to EduMyles</h2>
+      <p className="auth-subtitle">Access your school dashboard with WorkOS AuthKit</p>
 
       {error && (
         <div className="auth-error" role="alert">
@@ -58,11 +59,10 @@ export default function SignUpForm({ returnTo }: SignUpFormProps) {
         </div>
       )}
 
-      {/* SSO Provider Buttons */}
       <div className="auth-sso-buttons">
         <button
           type="button"
-          onClick={() => handleSSOSignup("google")}
+          onClick={() => startLogin("google")}
           disabled={isLoading}
           className="btn btn-sso btn-google"
         >
@@ -77,7 +77,7 @@ export default function SignUpForm({ returnTo }: SignUpFormProps) {
 
         <button
           type="button"
-          onClick={() => handleSSOSignup("microsoft")}
+          onClick={() => startLogin("microsoft")}
           disabled={isLoading}
           className="btn btn-sso btn-microsoft"
         >
@@ -97,21 +97,9 @@ export default function SignUpForm({ returnTo }: SignUpFormProps) {
 
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
-          <label htmlFor="signup-school">School name (optional)</label>
+          <label htmlFor="login-email">Work email</label>
           <input
-            id="signup-school"
-            type="text"
-            value={schoolName}
-            onChange={(e) => setSchoolName(e.target.value)}
-            placeholder="e.g. Greenfield Academy"
-            disabled={isLoading}
-            autoComplete="organization"
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="signup-email">Work email</label>
-          <input
-            id="signup-email"
+            id="login-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -126,21 +114,18 @@ export default function SignUpForm({ returnTo }: SignUpFormProps) {
           disabled={isLoading}
           className="btn btn-primary auth-submit"
         >
-          {isLoading ? "Creating account…" : "Continue with email"}
+          {isLoading ? "Redirecting…" : "Continue with email"}
         </button>
       </form>
 
       <p className="auth-footer-text">
-        Already have an account?{" "}
-        <Link
-          href={returnTo ? `/auth/login?returnTo=${encodeURIComponent(returnTo)}` : "/auth/login"}
-          className="auth-link"
-        >
-          Sign in
+        Need an account?{" "}
+        <Link href={returnTo ? `/auth/signup?returnTo=${encodeURIComponent(returnTo)}` : "/auth/signup"} className="auth-link">
+          Start free trial
         </Link>
       </p>
       <p className="auth-legal">
-        By signing up, you agree to our{" "}
+        By continuing, you agree to our{" "}
         <Link href="/terms" className="auth-link">Terms of Service</Link>
         {" "}and{" "}
         <Link href="/terms#privacy" className="auth-link">Privacy Policy</Link>.

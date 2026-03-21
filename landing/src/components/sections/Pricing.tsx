@@ -20,7 +20,7 @@ const plans = [
       "1 campus",
     ],
     cta: "Get Started Free",
-    href: "/auth/signup/api",
+    href: "/auth/signup",
     featured: false,
   },
   {
@@ -41,7 +41,7 @@ const plans = [
       "NEMIS integration",
     ],
     cta: "Get Started",
-    href: "/auth/signup/api",
+    href: "/auth/signup",
     featured: true,
   },
   {
