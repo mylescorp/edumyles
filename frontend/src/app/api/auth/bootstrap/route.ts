@@ -23,34 +23,21 @@ export async function POST(req: NextRequest) {
   const convex = new ConvexHttpClient(convexUrl);
 
   try {
-    // Get the current session
-    const session = await convex.query(api.sessions.getSession, { sessionToken });
-    if (!session) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+    // Atomically check + promote in Convex (updates both session and users table)
+    try {
+      await convex.mutation(api.users.bootstrapMasterAdmin, { sessionToken });
+    } catch (err: any) {
+      if (err?.message?.includes("UNAUTHENTICATED")) {
+        return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+      }
+      if (err?.message?.includes("ALREADY_EXISTS")) {
+        return NextResponse.json(
+          { error: "A master admin already exists. Contact them to grant you access." },
+          { status: 403 }
+        );
+      }
+      throw err;
     }
-
-    // Check if any master_admin already exists in the users table
-    const allUsers = await convex.query(api.users.listTenantUsers, {
-      sessionToken,
-      tenantId: "PLATFORM",
-    });
-
-    const hasMasterAdmin = allUsers?.some(
-      (u: { role: string }) => u.role === "master_admin" || u.role === "super_admin"
-    );
-
-    if (hasMasterAdmin) {
-      return NextResponse.json(
-        { error: "A master admin already exists. Contact them to grant you access." },
-        { status: 403 }
-      );
-    }
-
-    // Promote: update the session role and upsert user record
-    await convex.mutation(api.sessions.updateSessionRole, {
-      sessionToken,
-      role: "master_admin",
-    });
 
     // Update the response cookies
     const response = NextResponse.json({ success: true, role: "master_admin" });

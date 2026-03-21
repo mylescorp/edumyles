@@ -74,6 +74,75 @@ export const getUserByWorkosId = query({
   },
 });
 
+// Get user by WorkOS ID across all tenants — used during auth callback
+export const getUserByWorkosIdGlobal = query({
+  args: { workosUserId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
+      .first();
+  },
+});
+
+// Atomically promote the signed-in user to master_admin if none exists yet.
+// Updates both the session record and the users record so the role persists across sign-ins.
+export const bootstrapMasterAdmin = mutation({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) {
+      throw new Error("UNAUTHENTICATED");
+    }
+
+    // Check if any master_admin already exists
+    const existingAdmin = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_role", (q) =>
+        q.eq("tenantId", "PLATFORM").eq("role", "master_admin")
+      )
+      .first();
+
+    if (existingAdmin) {
+      throw new Error("ALREADY_EXISTS");
+    }
+
+    // Update session role
+    await ctx.db.patch(session._id, { role: "master_admin", tenantId: "PLATFORM" });
+
+    // Upsert user record so next sign-in preserves the role
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", session.userId))
+      .first();
+
+    if (existingUser) {
+      await ctx.db.patch(existingUser._id, {
+        role: "master_admin",
+        tenantId: "PLATFORM",
+      });
+    } else {
+      await ctx.db.insert("users", {
+        tenantId: "PLATFORM",
+        eduMylesUserId: `USR-PLATFORM-${session.userId}`,
+        workosUserId: session.userId,
+        email: session.email ?? "",
+        role: "master_admin",
+        permissions: ["*"],
+        organizationId: "PLATFORM" as any,
+        isActive: true,
+        createdAt: Date.now(),
+      });
+    }
+
+    return { success: true };
+  },
+});
+
 // Get current user by session token — used by useAuth hook
 export const getCurrentUser = query({
   args: { sessionToken: v.string() },

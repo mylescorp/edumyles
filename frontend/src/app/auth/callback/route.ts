@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
     let role = "school_admin";
     let tenantId = organizationId ?? "PLATFORM";
     try {
-      const existing = await convex.query(api.users.getUserByWorkosId, {
+      const existing = await convex.query(api.users.getUserByWorkosIdGlobal, {
         workosUserId: user.id,
       });
       if (existing?.role) {
