@@ -110,18 +110,18 @@ export function useAuth() {
         localStorage.clear();
         sessionStorage.clear();
 
-        // Redirect to login page
+        // Redirect to the login route so auth can preserve the next destination
         const returnTo = encodeURIComponent(window.location.pathname);
-        window.location.href = `/auth/login?returnTo=${returnTo}`;
+        window.location.href = `/auth/login/api?returnTo=${returnTo}`;
       } else {
         console.error("Logout failed");
         // Fallback: still redirect to login
-        window.location.href = "/auth/login";
+        window.location.href = "/auth/login/api";
       }
     } catch (error) {
       console.error("Logout error:", error);
       // Fallback: still redirect to login
-      window.location.href = "/auth/login";
+      window.location.href = "/auth/login/api";
     }
   }, []);
 
