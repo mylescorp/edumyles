@@ -303,32 +303,6 @@
   .faq-item p, .faq-answer { font-size: 0.9375rem; color: #545454; line-height: 1.7; margin-top: 0.5rem; }
   details[open] .faq-question { color: #C79639; }
 
-  /* ── Blog ──────────────────────────────────────────────────── */
-  .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-  .blog-card { background: #ffffff; border: 1px solid #E8EDF4; border-radius: 1rem; overflow: hidden; transition: all 0.3s; }
-  .blog-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.1); transform: translateY(-3px); }
-  .blog-card-image { height: 180px; background: linear-gradient(135deg, #1A395B 0%, #2A4F7C 100%); position: relative; overflow: hidden; }
-  .blog-card-placeholder { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
-  .blog-card-content { padding: 1.25rem 1.5rem; }
-  .blog-card-meta { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; }
-  .blog-category-badge { font-size: 0.75rem; font-weight: 600; background: rgba(199,150,57,0.1); color: #C79639; padding: 0.2rem 0.75rem; border-radius: 9999px; }
-  .blog-date-info { font-size: 0.8125rem; color: #545454; }
-  .blog-dot { color: #E8EDF4; margin: 0 0.25rem; }
-  .blog-card h3 { font-family: var(--font-jakarta), sans-serif; font-size: 1.0625rem; font-weight: 600; color: #1A395B; margin-bottom: 0.5rem; line-height: 1.4; }
-  .blog-card p { font-size: 0.9rem; color: #545454; line-height: 1.6; margin-bottom: 1rem; }
-  .blog-card-author { display: flex; align-items: center; gap: 0.5rem; padding-top: 0.75rem; border-top: 1px solid #E8EDF4; }
-  .blog-author-avatar { width: 2rem; height: 2rem; border-radius: 9999px; background: #1A395B; color: #C79639; font-weight: 700; font-size: 0.8125rem; display: flex; align-items: center; justify-content: center; }
-  .blog-author-name { font-size: 0.875rem; font-weight: 600; color: #212121; }
-  .blog-author-role { font-size: 0.75rem; color: #545454; }
-  .blog-featured { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; background: #F8FAFC; border-radius: 1.25rem; overflow: hidden; margin-bottom: 2rem; border: 1px solid #E8EDF4; }
-  @media(max-width: 768px) { .blog-featured { grid-template-columns: 1fr; } }
-  .blog-featured-image { height: 280px; background: linear-gradient(135deg, #1A395B 0%, #C79639 100%); display: flex; align-items: center; justify-content: center; font-size: 5rem; }
-  .blog-featured-content { padding: 2rem; display: flex; flex-direction: column; justify-content: center; }
-  .blog-meta { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
-  .blog-categories-section { padding: 1.5rem; background: #F8FAFC; border-radius: 0.875rem; border: 1px solid #E8EDF4; }
-  .blog-categories { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-  .blog-author { display: flex; align-items: center; gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #E8EDF4; }
-
   /* ── Contact ───────────────────────────────────────────────── */
   .contact-options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 3rem; }
   .contact-option-card { background: #ffffff; border: 1px solid #E8EDF4; border-radius: 1rem; padding: 1.5rem; text-align: center; transition: all 0.3s; }
@@ -611,26 +585,6 @@ html.dark .faq-item h4,
 html.dark .faq-question { color: #F8FAFC; }
 html.dark .faq-item p,
 html.dark .faq-answer { color: #C7D7EF; }
-
-/* Blog */
-html.dark .blog-card {
-  background: #122843;
-  border-color: rgba(255,255,255,0.08);
-}
-html.dark .blog-card h3 { color: #F8FAFC; }
-html.dark .blog-card p { color: #C7D7EF; }
-html.dark .blog-date-info { color: #C7D7EF; }
-html.dark .blog-card-author { border-top-color: rgba(255,255,255,0.08); }
-html.dark .blog-author-name { color: #F8FAFC; }
-html.dark .blog-author-role { color: #C7D7EF; }
-html.dark .blog-featured {
-  background: #122843;
-  border-color: rgba(255,255,255,0.08);
-}
-html.dark .blog-categories-section {
-  background: #122843;
-  border-color: rgba(255,255,255,0.08);
-}
 
 /* Contact */
 html.dark .contact-option-card {

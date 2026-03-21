@@ -9,7 +9,6 @@ import { platformNavItems } from "@/lib/routes";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
-import { PlatformMetricsProvider } from "@/components/platform/PlatformMetrics";
 
 // Must be a class component to catch render errors from Convex queries
 class PlatformErrorBoundary extends React.Component<
@@ -63,9 +62,7 @@ export default function PlatformLayout({ children }: { children: ReactNode }) {
       <RoleGuard allowedRoles={PLATFORM_ROLES}>
         <AppShell navItems={platformNavItems}>
           <PlatformErrorBoundary>
-            <PlatformMetricsProvider>
-              {children}
-            </PlatformMetricsProvider>
+            {children}
           </PlatformErrorBoundary>
         </AppShell>
       </RoleGuard>
