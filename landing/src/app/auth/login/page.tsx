@@ -1,37 +1,13 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import LoginForm from "./LoginForm";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Sign in — EduMyles",
-  description: "Sign in to EduMyles and continue to your school dashboard.",
-};
-
-export default async function LoginPage({
+// All auth is handled by the main app — redirect directly to WorkOS sign-in.
+export default function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ returnTo?: string; error?: string }>;
+  searchParams: { returnTo?: string };
 }) {
-  const params = await searchParams;
-  const returnTo = params.returnTo;
-  const error = params.error;
-
-  return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <Link href="/" className="auth-logo">
-            EduMyles
-          </Link>
-          <p>Sign in to continue to your school dashboard</p>
-        </div>
-        {error ? (
-          <div className="auth-error" role="alert">
-            {decodeURIComponent(error)}
-          </div>
-        ) : null}
-        <LoginForm returnTo={returnTo} />
-      </div>
-    </div>
-  );
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const qs = new URLSearchParams();
+  if (searchParams.returnTo) qs.set("returnTo", searchParams.returnTo);
+  redirect(`${appUrl}/auth/login/api?${qs.toString()}`);
 }

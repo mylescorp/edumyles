@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
-import { saveSession } from "@workos-inc/authkit-nextjs";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
 
 const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL;
-if (!MASTER_ADMIN_EMAIL) {
-  console.error("[auth/callback] MASTER_ADMIN_EMAIL env var is not set — master admin login will not work");
-}
 
 function resolveRole(email: string, _orgId?: string): string {
   if (MASTER_ADMIN_EMAIL && email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase()) {
     return "master_admin";
   }
-  // Default new users to school_admin — refine once user records exist
   return "school_admin";
 }
 
@@ -38,15 +33,25 @@ function getRoleDashboard(role: string): string {
   }
 }
 
+function decodeState(raw: string | null): Record<string, string> {
+  if (!raw) return {};
+  try {
+    return JSON.parse(Buffer.from(raw, "base64url").toString("utf-8"));
+  } catch {
+    // state may be a plain hex nonce — not JSON
+    return {};
+  }
+}
+
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const error = req.nextUrl.searchParams.get("error");
   const returnedState = req.nextUrl.searchParams.get("state");
 
   if (error) {
-    console.error("[auth/callback] WorkOS returned error:", error);
+    console.error("[auth/callback] WorkOS error:", error);
     return NextResponse.redirect(
-      new URL("/?auth_error=" + encodeURIComponent(error), req.url)
+      new URL(`/?auth_error=${encodeURIComponent(error)}`, req.url)
     );
   }
 
@@ -54,110 +59,56 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/?auth_error=no_code", req.url));
   }
 
+  // CSRF: only validate when the cookie is present (same-origin flows).
+  // Cross-origin flows (landing → frontend) won't have the cookie — that's OK.
   const savedState = req.cookies.get("workos_state")?.value;
-  // Only validate state when we explicitly set one (CSRF protection for POST-initiated flows)
   if (savedState && returnedState !== savedState) {
-    console.error("[auth/callback] Invalid state - mismatch:", { savedState, returnedState });
-    return NextResponse.redirect(new URL("/", req.url));
+    console.error("[auth/callback] CSRF state mismatch");
+    return NextResponse.redirect(new URL("/?auth_error=invalid_state", req.url));
+  }
+
+  const apiKey = process.env.WORKOS_API_KEY;
+  const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+
+  if (!apiKey || !clientId || !convexUrl) {
+    console.error("[auth/callback] Missing env vars", { apiKey: !!apiKey, clientId: !!clientId, convexUrl: !!convexUrl });
+    return NextResponse.redirect(new URL("/?auth_error=config_error", req.url));
   }
 
   try {
-    const apiKey = process.env.WORKOS_API_KEY;
-    const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
-    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-
-    if (!apiKey || !clientId || !convexUrl) {
-      console.error("[auth/callback] Missing required auth environment variables", {
-        hasApiKey: !!apiKey,
-        hasClientId: !!clientId,
-        hasConvexUrl: !!convexUrl,
-      });
-      return NextResponse.redirect(new URL("/?auth_error=config_error", req.url));
-    }
-
     const workos = new WorkOS(apiKey);
     const convex = new ConvexHttpClient(convexUrl);
 
-    // --- Exchange authorization code for user profile ----------------------
-    const { user, accessToken, refreshToken, organizationId } = await workos.userManagement.authenticateWithCode({
+    const { user, organizationId } = await workos.userManagement.authenticateWithCode({
       clientId,
       code,
     });
 
-    const email = user.email;
-    const firstName = user.firstName ?? "";
-    const lastName = user.lastName ?? "";
-    const workosUserId = user.id;
-
-    // --- Determine role & tenant ------------------------------------------
-    const role = resolveRole(email, organizationId ?? undefined);
+    const role = resolveRole(user.email, organizationId ?? undefined);
     const tenantId = organizationId ?? "PLATFORM";
+    const sessionToken = crypto.randomBytes(32).toString("hex");
 
-    console.log("[auth/callback] Role resolution:", {
-      email,
-      masterAdminEmail: MASTER_ADMIN_EMAIL,
-      isMasterAdmin: MASTER_ADMIN_EMAIL && email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase(),
-      assignedRole: role,
-      organizationId
+    await convex.mutation(api.sessions.createSession, {
+      sessionToken,
+      tenantId,
+      userId: user.id,
+      email: user.email,
+      role,
+      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
     });
 
-    // --- Decode optional state (e.g. schoolName from signup) --------------
-    let _stateData: Record<string, string> = {};
-    if (returnedState) {
-      try {
-        // Fix base64url decoding - replace URL-safe chars first
-        const base64 = returnedState.replace(/-/g, "+").replace(/_/g, "/");
-        const paddedBase64 = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
-        _stateData = JSON.parse(Buffer.from(paddedBase64, "base64").toString());
-      } catch (err) {
-        console.log("[auth/callback] Failed to decode state:", err);
-        // non-critical — ignore bad state
-      }
-    }
+    // Use returnTo from state if present, else role dashboard
+    const stateData = decodeState(returnedState);
+    const returnTo =
+      stateData.returnTo && stateData.returnTo.startsWith("/")
+        ? stateData.returnTo
+        : getRoleDashboard(role);
 
-    // --- Create session in Convex -----------------------------------------
-    const sessionToken = crypto.randomBytes(32).toString("hex");
-    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+    console.log(`[auth/callback] ✅ ${user.email} → ${role} → ${returnTo}`);
 
-    try {
-      console.log("[auth/callback] Attempting to create session with:", {
-        sessionToken,
-        tenantId,
-        userId: workosUserId,
-        email,
-        role,
-        expiresAt: Date.now() + thirtyDays,
-      });
-      await convex.mutation(api.sessions.createSession, {
-        sessionToken,
-        tenantId,
-        userId: workosUserId,
-        email,
-        role,
-        expiresAt: Date.now() + thirtyDays,
-      });
-      console.log("[auth/callback] ✅ Session created successfully");
-      console.log("[auth/callback] Session created and stored");
-    } catch (error) {
-      console.error("[auth/callback] Session creation failed:", error);
-      return NextResponse.redirect(new URL("/?auth_error=session_failed", req.url));
-    }
-
-    // --- Set cookies & redirect -------------------------------------------
-    const dashboard = getRoleDashboard(role);
     const isProduction = process.env.NODE_ENV === "production";
-
-    // Debug logging
-    console.log(`[auth/callback] Dashboard determined: ${dashboard}`);
-    console.log(`[auth/callback] Redirecting to: ${dashboard}`);
-
-    // Redirect directly to dashboard - avoid root page race condition
-    const response = NextResponse.redirect(new URL(dashboard, req.url));
-
-    // Save the WorkOS AuthKit session (enables useAuth() / withAuth() on the frontend)
-    if (process.env.WORKOS_COOKIE_PASSWORD) {
-      await saveSession(response as any, { accessToken, refreshToken } as any);
-    }
+    const response = NextResponse.redirect(new URL(returnTo, req.url));
 
     response.cookies.set("edumyles_session", sessionToken, {
       httpOnly: true,
@@ -167,13 +118,23 @@ export async function GET(req: NextRequest) {
       path: "/",
     });
 
-    response.cookies.set("edumyles_user", JSON.stringify({ email, firstName, lastName, role }), {
-      httpOnly: false,
-      secure: isProduction,
-      sameSite: "lax",
-      maxAge: 30 * 24 * 60 * 60,
-      path: "/",
-    });
+    response.cookies.set(
+      "edumyles_user",
+      JSON.stringify({
+        email: user.email,
+        firstName: user.firstName ?? "",
+        lastName: user.lastName ?? "",
+        role,
+        tenantId,
+      }),
+      {
+        httpOnly: false,
+        secure: isProduction,
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60,
+        path: "/",
+      }
+    );
 
     response.cookies.set("edumyles_role", role, {
       httpOnly: false,
@@ -183,8 +144,9 @@ export async function GET(req: NextRequest) {
       path: "/",
     });
 
-    console.log(`[auth/callback] ✅ ${email} authenticated as ${role} → ${dashboard}`);
-    console.log(`[auth/callback] Cookies set: session=${!!sessionToken}, role=${role}`);
+    // Clear CSRF state cookie
+    response.cookies.set("workos_state", "", { maxAge: 0, path: "/" });
+
     return response;
   } catch (err) {
     console.error("[auth/callback] ❌ Token exchange failed:", err);

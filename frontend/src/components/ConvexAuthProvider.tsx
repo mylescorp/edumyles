@@ -1,8 +1,7 @@
 "use client";
 
 import { ConvexReactClient } from "convex/react";
-import { ConvexProviderWithAuthKit } from "@convex-dev/workos";
-import { AuthKitProvider, useAuth } from "@workos-inc/authkit-nextjs/components";
+import { ConvexProvider } from "convex/react";
 import { type ReactNode, useEffect, useState } from "react";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL ?? "";
@@ -17,18 +16,12 @@ function getClient(): ConvexReactClient {
   return _client;
 }
 
-function ConvexWithAuthKit({ children }: { children: ReactNode }) {
-  return (
-    <ConvexProviderWithAuthKit client={getClient()} useAuth={useAuth as any}>
-      {children}
-    </ConvexProviderWithAuthKit>
-  );
-}
-
 /**
- * Wraps the app with:
- *  1. AuthKitProvider           — manages WorkOS AuthKit session state
- *  2. ConvexProviderWithAuthKit — passes WorkOS access tokens to Convex
+ * Wraps the app with a plain ConvexProvider.
+ *
+ * We use custom cookie-based sessions (edumyles_session) — auth tokens are
+ * passed directly as query/mutation arguments, not via WorkOS JWT sessions.
+ * A plain ConvexProvider is all that's needed here.
  *
  * Defers rendering until client-side to avoid SSR issues
  * (Convex requires browser environment).
@@ -41,12 +34,7 @@ export function ConvexAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // During SSR / static generation, render nothing to avoid Convex context errors.
-  // Pages that need server-side data should use direct Convex HTTP client calls.
   if (!mounted) return null;
 
-  return (
-    <AuthKitProvider>
-      <ConvexWithAuthKit>{children}</ConvexWithAuthKit>
-    </AuthKitProvider>
-  );
+  return <ConvexProvider client={getClient()}>{children}</ConvexProvider>;
 }

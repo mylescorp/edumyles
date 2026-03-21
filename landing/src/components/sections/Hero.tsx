@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { Play, Star, ChevronDown } from "lucide-react";
 import DemoModal from "@/components/ui/DemoModal";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 const heroModules = [
   {
@@ -124,20 +125,18 @@ export default function Hero() {
 
               {/* CTAs */}
               <div className="flex flex-wrap gap-3 mb-6">
-                {/* CTA 1 — Primary */}
                 <a
                   href="#demo"
                   className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-base px-8 py-3.5 rounded-lg transition-all duration-200 hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98] shadow-md"
                 >
                   Book a Free Demo
                 </a>
-                {/* CTA 2 — Secondary */}
-                <Link
-                  href="/auth/signup"
+                <a
+                  href={`${APP_URL}/auth/signup/api`}
                   className="border-2 border-navy text-navy hover:bg-navy hover:text-white font-inter font-semibold text-base px-8 py-3.5 rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Start Free Trial
-                </Link>
+                </a>
               </div>
 
               {/* Ghost CTAs */}
