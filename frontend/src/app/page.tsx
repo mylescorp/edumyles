@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { getMarketingSiteUrl } from "@/lib/marketingSite";
 
 export default function RootPage() {
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -51,8 +52,8 @@ export default function RootPage() {
     }
 
     // Redirect unauthenticated users to landing page
-    console.log("[root page] Redirecting unauthenticated user to landing page");
-    router.replace("/landing");
+    console.log("[root page] Redirecting unauthenticated user to marketing site");
+    window.location.replace(getMarketingSiteUrl(window.location.origin));
   }, [isAuthenticated, user, isLoading, router]);
 
   // Show loading while redirecting

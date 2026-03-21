@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
+import { getMarketingSitePath } from "@/lib/marketingSite";
 
 const PLAN_LABELS: Record<string, string> = {
   starter: "Starter — KES 2,500/mo",
@@ -24,6 +25,8 @@ function SignupForm() {
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const termsUrl = getMarketingSitePath("/terms");
+  const privacyUrl = getMarketingSitePath("/terms#privacy");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -107,8 +110,8 @@ function SignupForm() {
 
       <p className="auth-legal">
         By creating an account you agree to our{" "}
-        <Link href="/terms" className="auth-link">Terms</Link>{" "}and{" "}
-        <Link href="/privacy" className="auth-link">Privacy Policy</Link>.
+        <a href={termsUrl} className="auth-link">Terms</a>{" "}and{" "}
+        <a href={privacyUrl} className="auth-link">Privacy Policy</a>.
       </p>
     </div>
   );

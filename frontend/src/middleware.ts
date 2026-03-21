@@ -83,12 +83,14 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Unauthenticated → landing page
+  // 1. Unauthenticated users on protected app routes must sign in first.
   if (isProtected && !session) {
-    console.log(`[middleware] Redirecting unauthenticated user from ${pathname} to landing`);
-    const authBase = process.env.NEXT_PUBLIC_AUTH_BASE_URL || request.nextUrl.origin;
-    const loginUrl = new URL("/landing", authBase);
-    return NextResponse.redirect(loginUrl.toString());
+    console.log(
+      `[middleware] Redirecting unauthenticated user from ${pathname} to login`
+    );
+    const loginUrl = new URL("/auth/login/api", request.nextUrl.origin);
+    loginUrl.searchParams.set("returnTo", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   // 2. Already authenticated users are handled by their respective routes
