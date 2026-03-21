@@ -1,5 +1,6 @@
 import { query, mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 // Plan pricing in KES (monthly)
 const PLAN_PRICES: Record<string, number> = {
@@ -16,6 +17,7 @@ export const getBusinessIntelligence = query({
     metrics: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const timeRange = args.timeRange ?? "30d";
     const msMap: Record<string, number> = {
       "7d": 7 * 24 * 60 * 60 * 1000,
@@ -118,6 +120,7 @@ export const getPredictiveAnalytics = query({
     modelType: v.optional(v.union(v.literal("churn"), v.literal("revenue"), v.literal("growth"))),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const modelType = args.modelType ?? "churn";
 
     const allTenants = await ctx.db.query("tenants").collect();
@@ -202,6 +205,7 @@ export const getCustomReports = query({
     dateRange: v.optional(v.object({ start: v.number(), end: v.number() })),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const savedReports = await ctx.db
       .query("reports")
       .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
@@ -236,6 +240,7 @@ export const generateReport = mutation({
     emailRecipients: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const now = Date.now();
 
     // Determine report type from reportId

@@ -5,6 +5,7 @@ import { logAction } from "../../helpers/auditLog";
 
 const messageTypeValidator = v.union(
   v.literal("broadcast"),
+  v.literal("targeted"),
   v.literal("campaign"),
   v.literal("alert"),
   v.literal("transactional"),
@@ -16,9 +17,7 @@ const channelValidator = v.union(v.literal("in_app"), v.literal("email"), v.lite
 const statusValidator = v.union(
   v.literal("draft"),
   v.literal("scheduled"),
-  v.literal("sending"),
-  v.literal("sent"),
-  v.literal("failed")
+  v.literal("sent")
 );
 
 const notificationTypeValidator = v.union(
@@ -58,7 +57,7 @@ function validateMessagePayload(args: {
   emailBody?: string;
   smsBody?: string;
   inAppBody?: string;
-  channels?: Array<"in_app" | "email" | "sms">;
+  channels?: string[];
 }) {
   const subject = args.subject?.trim() || "";
   const channels = args.channels ?? [];
@@ -86,7 +85,9 @@ function validateMessagePayload(args: {
 
 async function resolveTargetTenantIds(
   ctx: any,
-  segment: {
+  segmentValue?: string
+): Promise<string[]> {
+  const segment: {
     planTiers?: string[];
     tenantIds?: string[];
     statuses?: string[];
@@ -94,7 +95,7 @@ async function resolveTargetTenantIds(
     schoolTypes?: string[];
     excludeTenantIds?: string[];
   }
-): Promise<string[]> {
+    = segmentValue ? JSON.parse(segmentValue) : {};
   const explicitTenantIds = [...new Set(segment.tenantIds ?? [])];
   const excludeTenantIds = new Set(segment.excludeTenantIds ?? []);
 
@@ -126,7 +127,7 @@ async function resolveTargetTenantIds(
 }
 
 function inferNotificationType(
-  messageType: "broadcast" | "campaign" | "alert" | "transactional" | "drip_step"
+  messageType: "broadcast" | "targeted" | "campaign" | "alert" | "transactional" | "drip_step"
 ): "info" | "warning" | "success" | "alert" {
   if (messageType === "alert") return "alert";
   if (messageType === "transactional") return "success";
@@ -161,7 +162,7 @@ export const createPlatformMessage = mutation({
       smsBody: normalizeString(args.smsBody),
       inAppBody: normalizeString(args.inAppBody),
       channels: args.channels,
-      segment: args.segment,
+      segment: JSON.stringify(args.segment),
       scheduledAt: args.scheduledAt,
       sentAt: undefined,
       status: args.status,
@@ -186,8 +187,8 @@ export const createPlatformMessage = mutation({
       after: {
         type: args.type,
         subject: args.subject.trim(),
-        channels: args.channels,
-        status: args.status,
+      channels: args.channels,
+      status: args.status,
       },
     });
 
@@ -226,7 +227,7 @@ export const updatePlatformMessage = mutation({
       emailBody: args.emailBody ?? message.emailBody,
       smsBody: args.smsBody ?? message.smsBody,
       inAppBody: args.inAppBody ?? message.inAppBody,
-      channels: args.channels ?? message.channels,
+      channels: (args.channels ?? message.channels) as string[],
     };
 
     validateMessagePayload(nextPayload);
@@ -241,7 +242,7 @@ export const updatePlatformMessage = mutation({
     if (args.smsBody !== undefined) patch.smsBody = normalizeString(args.smsBody);
     if (args.inAppBody !== undefined) patch.inAppBody = normalizeString(args.inAppBody);
     if (args.channels !== undefined) patch.channels = args.channels;
-    if (args.segment !== undefined) patch.segment = args.segment;
+    if (args.segment !== undefined) patch.segment = JSON.stringify(args.segment);
     if (args.scheduledAt !== undefined) patch.scheduledAt = args.scheduledAt;
     if (args.status !== undefined) {
       if (["sent", "sending"].includes(args.status)) {
@@ -385,7 +386,7 @@ export const sendPlatformMessageNow = mutation({
     });
 
     await ctx.db.patch(args.messageId, {
-      status: "sending",
+      status: "scheduled",
       updatedAt: Date.now(),
     });
 
@@ -394,19 +395,22 @@ export const sendPlatformMessageNow = mutation({
     let delivered = 0;
 
     if (message.channels.includes("in_app")) {
+      if (!message.inAppBody?.trim()) {
+        throw new Error("In-app delivery requires an in-app body.");
+      }
+
       const notificationType = inferNotificationType(message.type);
 
       for (const tenantId of tenantIds) {
-        await ctx.db.insert("tenant_notifications", {
+        await ctx.db.insert("notifications", {
           tenantId,
-          platformMessageId: args.messageId,
-          type: notificationType,
+          userId: `platform:${tenantId}`,
           title: message.subject,
-          body: message.inAppBody ?? "",
-          read: false,
-          ctaUrl: undefined,
+          message: message.inAppBody,
+          type: notificationType,
+          isRead: false,
+          link: undefined,
           createdAt: now,
-          updatedAt: now,
         });
         delivered += 1;
       }
@@ -466,16 +470,15 @@ export const createTenantNotification = mutation({
 
     const now = Date.now();
 
-    const notificationId = await ctx.db.insert("tenant_notifications", {
+    const notificationId = await ctx.db.insert("notifications", {
       tenantId: args.tenantId,
-      platformMessageId: args.platformMessageId,
-      type: args.type,
+      userId: `platform:${args.tenantId}`,
       title: args.title.trim(),
-      body: args.body.trim(),
-      read: false,
-      ctaUrl: normalizeString(args.ctaUrl),
+      message: args.body.trim(),
+      type: args.type,
+      isRead: false,
+      link: normalizeString(args.ctaUrl),
       createdAt: now,
-      updatedAt: now,
     });
 
     // Log audit action
@@ -490,6 +493,7 @@ export const createTenantNotification = mutation({
         tenantId: args.tenantId,
         type: args.type,
         title: args.title.trim(),
+        platformMessageId: args.platformMessageId,
       },
     });
 

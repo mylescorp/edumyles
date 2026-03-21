@@ -9,3 +9,12 @@ import {
   toggleActive,
   runNow,
 } from "./mutations";
+export {
+  listScheduledReports,
+  getReportRunHistory,
+  createScheduledReport,
+  updateScheduledReport,
+  deleteScheduledReport,
+  toggleActive,
+  runNow,
+};

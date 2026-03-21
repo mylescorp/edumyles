@@ -93,7 +93,7 @@ export const generateExportData = mutation({
         }
         case "tickets": {
           const tickets = await ctx.db
-            .query("supportTickets")
+            .query("tickets")
             .filter((q) => q.eq(q.field("tenantId"), tenantId))
             .collect();
           rows = tickets.map((t: any) => ({
@@ -126,16 +126,25 @@ export const generateExportData = mutation({
           break;
         }
         case "analytics": {
-          const analytics = await ctx.db
-            .query("platformAnalytics")
-            .filter((q) => q.eq(q.field("tenantId"), tenantId))
-            .take(500);
-          rows = analytics.map((a: any) => ({
-            id: a._id,
-            metric: a.metric ?? a.name ?? "",
-            value: a.value ?? 0,
-            date: a.date ?? (a.createdAt ? new Date(a.createdAt).toISOString() : ""),
-          }));
+          const [auditLogs, sessions] = await Promise.all([
+            ctx.db
+              .query("auditLogs")
+              .filter((q) =>
+                q.and(
+                  q.eq(q.field("tenantId"), tenantId),
+                  q.gte(q.field("timestamp"), Date.now() - 30 * 24 * 60 * 60 * 1000)
+                )
+              )
+              .collect(),
+            ctx.db
+              .query("sessions")
+              .filter((q) => q.eq(q.field("tenantId"), tenantId))
+              .collect(),
+          ]);
+          rows = [
+            { metric: "audit_events_30d", value: auditLogs.length, createdAt: new Date().toISOString() },
+            { metric: "active_sessions", value: sessions.filter((s) => s.expiresAt > Date.now()).length, createdAt: new Date().toISOString() },
+          ];
           break;
         }
       }

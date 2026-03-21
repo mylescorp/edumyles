@@ -1,5 +1,15 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
+
+const escalationRuleValidator = v.array(
+  v.object({
+    afterHours: v.number(),
+    action: v.string(),
+    notifyRole: v.string(),
+  })
+);
 
 export const createSLAConfig = mutation({
   args: {
@@ -8,27 +18,39 @@ export const createSLAConfig = mutation({
     priority: v.union(v.literal("critical"), v.literal("high"), v.literal("medium"), v.literal("low")),
     responseTimeHours: v.number(),
     resolutionTimeHours: v.number(),
-    escalationRules: v.optional(v.any()),
+    escalationRules: v.optional(escalationRuleValidator),
     tenantId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
 
-    return await ctx.db.insert("slaConfigurations", {
+    const configId = await ctx.db.insert("slaConfigurations", {
       name: args.name,
       priority: args.priority,
       responseTimeHours: args.responseTimeHours,
       resolutionTimeHours: args.resolutionTimeHours,
-      escalationRules: args.escalationRules || {},
+      escalationRules: args.escalationRules || [],
       isActive: true,
       tenantId: args.tenantId || session.tenantId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "sla.created",
+      entityType: "sla_configuration",
+      entityId: configId,
+      after: {
+        name: args.name,
+        priority: args.priority,
+        tenantId: args.tenantId || session.tenantId,
+      },
+    });
+
+    return configId;
   },
 });
 
@@ -39,15 +61,13 @@ export const updateSLAConfig = mutation({
     name: v.optional(v.string()),
     responseTimeHours: v.optional(v.number()),
     resolutionTimeHours: v.optional(v.number()),
-    escalationRules: v.optional(v.any()),
+    escalationRules: v.optional(escalationRuleValidator),
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
+    const existing = await ctx.db.get(args.configId);
+    if (!existing) throw new Error("SLA config not found");
 
     const updates: any = {};
     if (args.name !== undefined) updates.name = args.name;
@@ -57,6 +77,30 @@ export const updateSLAConfig = mutation({
     if (args.isActive !== undefined) updates.isActive = args.isActive;
 
     await ctx.db.patch(args.configId, updates);
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "sla.updated",
+      entityType: "sla_configuration",
+      entityId: args.configId,
+      before: {
+        name: existing.name,
+        responseTimeHours: existing.responseTimeHours,
+        resolutionTimeHours: existing.resolutionTimeHours,
+        escalationRules: existing.escalationRules,
+        isActive: existing.isActive,
+      },
+      after: {
+        name: updates.name ?? existing.name,
+        responseTimeHours: updates.responseTimeHours ?? existing.responseTimeHours,
+        resolutionTimeHours: updates.resolutionTimeHours ?? existing.resolutionTimeHours,
+        escalationRules: updates.escalationRules ?? existing.escalationRules,
+        isActive: updates.isActive ?? existing.isActive,
+      },
+    });
+
     return { success: true };
   },
 });
@@ -67,13 +111,25 @@ export const deleteSLAConfig = mutation({
     configId: v.id("slaConfigurations"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
+    const existing = await ctx.db.get(args.configId);
+    if (!existing) throw new Error("SLA config not found");
 
     await ctx.db.delete(args.configId);
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "sla.deleted",
+      entityType: "sla_configuration",
+      entityId: args.configId,
+      before: {
+        name: existing.name,
+        priority: existing.priority,
+      },
+    });
+
     return { success: true };
   },
 });

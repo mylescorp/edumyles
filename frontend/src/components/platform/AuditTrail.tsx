@@ -2,10 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, Filter } from "lucide-react";
-import { formatDate } from "@/lib/formatters";
+import { buildCsv } from "@/lib/csv";
 
 interface AuditLog {
   _id: string;
@@ -78,8 +77,10 @@ export function AuditTrail({ logs }: { logs: AuditLog[] }) {
       JSON.stringify(log.details || '')
     ]);
     
-    const csvContent = 'Timestamp,Action,Actor,Tenant ID,Details\n' + 
-      rows.map(row => row.join(',')).join('\n');
+    const csvContent = buildCsv([
+      ["Timestamp", "Action", "Actor", "Tenant ID", "Details"],
+      ...rows,
+    ]);
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -88,20 +89,6 @@ export function AuditTrail({ logs }: { logs: AuditLog[] }) {
     a.download = `audit-log-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  };
-
-  const getActionColor = (action: string) => {
-    const colors = {
-      'created': 'bg-success-bg text-success',
-      'updated': 'bg-info-bg text-info',
-      'deleted': 'bg-danger-bg text-danger',
-      'suspended': 'bg-em-accent/10 text-em-accent-dark',
-      'impersonation.started': 'bg-[#EDE9FE] text-role-student',
-      'impersonation.ended': 'bg-[#E0E7FF] text-info',
-      'login': 'bg-muted text-muted-foreground',
-      'logout': 'bg-muted text-muted-foreground'
-    };
-    return colors[action as keyof typeof colors] || 'bg-muted text-muted-foreground';
   };
 
   return (

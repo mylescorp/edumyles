@@ -111,8 +111,8 @@ export function useAuth() {
         sessionStorage.clear();
 
         // Redirect to login page
-        const returnUrl = encodeURIComponent(window.location.pathname);
-        window.location.href = `/auth/login?returnUrl=${returnUrl}`;
+        const returnTo = encodeURIComponent(window.location.pathname);
+        window.location.href = `/auth/login?returnTo=${returnTo}`;
       } else {
         console.error("Logout failed");
         // Fallback: still redirect to login

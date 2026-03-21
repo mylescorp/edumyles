@@ -1,5 +1,8 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { createHash } from "node:crypto";
+import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 function generateApiKey(): { full: string; prefix: string; suffix: string; hash: string } {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -11,7 +14,7 @@ function generateApiKey(): { full: string; prefix: string; suffix: string; hash:
     full: key,
     prefix: key.substring(0, 8),
     suffix: key.substring(key.length - 4),
-    hash: key, // In production, store a proper hash
+    hash: createHash("sha256").update(key).digest("hex"),
   };
 }
 
@@ -25,11 +28,7 @@ export const createApiKey = mutation({
     expiresInDays: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
 
     const { full, prefix, suffix, hash } = generateApiKey();
 
@@ -47,6 +46,23 @@ export const createApiKey = mutation({
       expiresAt: args.expiresInDays ? Date.now() + args.expiresInDays * 86400000 : undefined,
     });
 
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "api_key.created",
+      entityType: "api_key",
+      entityId: keyId,
+      after: {
+        name: args.name,
+        tenantId: args.tenantId || session.tenantId,
+        permissions: args.permissions,
+        rateLimit: args.rateLimit || 1000,
+        keyPrefix: prefix,
+        keySuffix: suffix,
+      },
+    });
+
     return { keyId, apiKey: full };
   },
 });
@@ -57,13 +73,24 @@ export const revokeApiKey = mutation({
     keyId: v.id("apiKeys"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
 
-    await ctx.db.patch(args.keyId, { isActive: false });
+    const existing = await ctx.db.get(args.keyId);
+    if (!existing) throw new Error("API key not found");
+
+    await ctx.db.patch(args.keyId, { isActive: false, updatedAt: Date.now() });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "api_key.revoked",
+      entityType: "api_key",
+      entityId: args.keyId,
+      before: { isActive: existing.isActive, name: existing.name },
+      after: { isActive: false, name: existing.name },
+    });
+
     return { success: true };
   },
 });
@@ -74,11 +101,7 @@ export const rotateApiKey = mutation({
     keyId: v.id("apiKeys"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const session = await requirePlatformSession(ctx, args);
 
     const existing = await ctx.db.get(args.keyId);
     if (!existing) throw new Error("API key not found");
@@ -89,6 +112,17 @@ export const rotateApiKey = mutation({
       keyHash: hash,
       keyPrefix: prefix,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "api_key.rotated",
+      entityType: "api_key",
+      entityId: args.keyId,
+      before: { keyPrefix: existing.keyPrefix, updatedAt: existing.updatedAt },
+      after: { keyPrefix: prefix, updatedAt: Date.now() },
     });
 
     return { apiKey: full };

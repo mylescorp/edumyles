@@ -1,5 +1,7 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 // Rule-based analysis helpers
 function analyzeSentiment(text: string): string {
@@ -76,6 +78,7 @@ export const createAISupportTicket = mutation({
     submittedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const fullText = `${args.title} ${args.description}`;
     const sentiment = analyzeSentiment(fullText);
     const inferredCategory = inferCategory(fullText);
@@ -118,6 +121,21 @@ export const createAISupportTicket = mutation({
       updatedAt: now,
     });
 
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "support.ticket.created",
+      entityType: "ai_support_ticket",
+      entityId: docId,
+      after: {
+        title: args.title,
+        category: args.category,
+        priority: args.priority,
+        tenantId: args.tenantId,
+      },
+    });
+
     return { success: true, ticketId: docId, message: "Support ticket created" };
   },
 });
@@ -136,6 +154,7 @@ export const analyzeTicketWithAI = mutation({
     requestedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const ticket = await ctx.db.get(args.ticketId as any);
     if (!ticket) throw new Error("Ticket not found");
 
@@ -181,6 +200,7 @@ export const generateAIResponse = mutation({
     requestedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const ticket = await ctx.db.get(args.ticketId as any);
     if (!ticket) throw new Error("Ticket not found");
 
@@ -199,6 +219,19 @@ export const generateAIResponse = mutation({
     await ctx.db.patch(args.ticketId as any, {
       aiResponses: updatedResponses,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "support.ai_response.generated",
+      entityType: "ai_support_ticket",
+      entityId: args.ticketId,
+      after: {
+        responseType: args.responseType,
+        tone: args.tone,
+      },
     });
 
     return {
@@ -221,6 +254,7 @@ export const escalateToHumanAgent = mutation({
     escalatedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const ticket = await ctx.db.get(args.ticketId as any);
     if (!ticket) throw new Error("Ticket not found");
 
@@ -245,6 +279,19 @@ export const escalateToHumanAgent = mutation({
       assignedTo: args.assignedAgentId,
       escalationHistory: [...(t.escalationHistory ?? []), escalation],
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "support.ticket.escalated",
+      entityType: "ai_support_ticket",
+      entityId: args.ticketId,
+      after: {
+        urgency: args.urgency,
+        assignedAgentId: args.assignedAgentId,
+      },
     });
 
     return {
@@ -272,6 +319,7 @@ export const updateTicketWithAI = mutation({
     updatedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const ticket = await ctx.db.get(args.ticketId as any);
     if (!ticket) throw new Error("Ticket not found");
 
@@ -305,6 +353,7 @@ export const trainAIModel = mutation({
     trainedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     // Log the training request — actual ML training would be done via external service
     await ctx.db.insert("auditLogs", {
       tenantId: "PLATFORM",
@@ -341,6 +390,7 @@ export const createAIKnowledgeBase = mutation({
     createdBy: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
     const wordCount = args.content.split(/\s+/).length;
     const readTime = Math.ceil(wordCount / 200);
 
@@ -364,6 +414,20 @@ export const createAIKnowledgeBase = mutation({
       updatedAt: Date.now(),
     });
 
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "support.knowledge_base.created",
+      entityType: "ai_knowledge_base",
+      entityId: kbId,
+      after: {
+        title: args.title,
+        category: args.category,
+        isPublic: args.isPublic,
+      },
+    });
+
     return { success: true, kbId, message: "Knowledge base article created" };
   },
 });
@@ -383,6 +447,7 @@ export const generateAIInsights = mutation({
     requestedBy: v.string(),
   },
   handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
     const tickets = await ctx.db
       .query("aiSupportTickets")
       .filter((q) =>

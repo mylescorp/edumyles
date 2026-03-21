@@ -10,3 +10,13 @@ import {
   duplicateRole,
   createPermissionGroup,
 } from "./mutations";
+export {
+  listCustomRoles,
+  listPermissionGroups,
+  getRoleById,
+  createRole,
+  updateRole,
+  deleteRole,
+  duplicateRole,
+  createPermissionGroup,
+};
