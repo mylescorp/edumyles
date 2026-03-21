@@ -83,11 +83,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Unauthenticated users on protected app routes must sign in first.
+  // 1. Unauthenticated → login
   if (isProtected && !session) {
-    console.log(
-      `[middleware] Redirecting unauthenticated user from ${pathname} to login`
-    );
+    console.log(`[middleware] Redirecting unauthenticated user from ${pathname} to login`);
     const loginUrl = new URL("/auth/login/api", request.nextUrl.origin);
     loginUrl.searchParams.set("returnTo", pathname);
     return NextResponse.redirect(loginUrl);

@@ -19,9 +19,9 @@ function getConvexClient() {
  */
 export async function GET(req: NextRequest) {
   try {
-    // Development bypass - create mock session for testing
-    if (process.env.NODE_ENV === "development" && !req.cookies.get("edumyles_session")?.value) {
-      console.log("[api/auth/session] Development mode: Creating mock session");
+    // Development bypass - only when explicitly enabled via env var
+    if (process.env.ENABLE_DEV_AUTH_BYPASS === "true" && !req.cookies.get("edumyles_session")?.value) {
+      console.log("[api/auth/session] Dev bypass: Creating mock session");
       return NextResponse.json({
         session: {
           sessionToken: "dev_session_token",

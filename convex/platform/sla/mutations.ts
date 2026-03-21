@@ -22,7 +22,7 @@ export const createSLAConfig = mutation({
     tenantId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
 
     const configId = await ctx.db.insert("slaConfigurations", {
       name: args.name,
@@ -31,22 +31,22 @@ export const createSLAConfig = mutation({
       resolutionTimeHours: args.resolutionTimeHours,
       escalationRules: args.escalationRules || [],
       isActive: true,
-      tenantId: args.tenantId || session.tenantId,
+      tenantId: args.tenantId || platform.tenantId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "sla.created",
       entityType: "sla_configuration",
       entityId: configId,
       after: {
         name: args.name,
         priority: args.priority,
-        tenantId: args.tenantId || session.tenantId,
+        tenantId: args.tenantId || platform.tenantId,
       },
     });
 
@@ -65,11 +65,11 @@ export const updateSLAConfig = mutation({
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
     const existing = await ctx.db.get(args.configId);
     if (!existing) throw new Error("SLA config not found");
 
-    const updates: any = {};
+    const updates: any = { updatedAt: Date.now() };
     if (args.name !== undefined) updates.name = args.name;
     if (args.responseTimeHours !== undefined) updates.responseTimeHours = args.responseTimeHours;
     if (args.resolutionTimeHours !== undefined) updates.resolutionTimeHours = args.resolutionTimeHours;
@@ -79,9 +79,9 @@ export const updateSLAConfig = mutation({
     await ctx.db.patch(args.configId, updates);
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "sla.updated",
       entityType: "sla_configuration",
       entityId: args.configId,
@@ -111,16 +111,16 @@ export const deleteSLAConfig = mutation({
     configId: v.id("slaConfigurations"),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
     const existing = await ctx.db.get(args.configId);
     if (!existing) throw new Error("SLA config not found");
 
     await ctx.db.delete(args.configId);
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "sla.deleted",
       entityType: "sla_configuration",
       entityId: args.configId,

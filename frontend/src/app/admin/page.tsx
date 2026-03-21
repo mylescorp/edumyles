@@ -1,247 +1,301 @@
 "use client";
 
-import { useState } from "react";
-import { AdminDashboardHeader } from "@/components/admin/AdminDashboardHeader";
-import { AdminWidgetGrid } from "@/components/admin/AdminWidgetGrid";
-import { AdminQuickActions } from "@/components/admin/AdminQuickActions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
+import { AdminRecentActivity } from "@/components/admin/AdminRecentActivity";
+import { AdminQuickActions } from "@/components/admin/AdminQuickActions";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Users,
+  GraduationCap,
   DollarSign,
-  BookOpen,
-  Clock,
+  UserCheck,
   FileText,
+  Clock,
   ArrowRight,
+  CalendarDays,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 
 export default function AdminDashboard() {
-  const { isLoading, sessionToken } = useAuth();
-  const [widgets, setWidgets] = useState<any[]>([]);
+  const { isLoading, user, sessionToken } = useAuth();
 
-  // Real data queries
-  const studentStats = useQuery(
-    api.modules.sis.queries.getStudentStats,
+  // — Real data from Convex ——————————————————————————————
+  const students = useQuery(
+    api.modules.sis.queries.listStudents,
     sessionToken ? { sessionToken } : "skip"
   );
-  const financialReport = useQuery(
-    api.modules.finance.queries.getFinancialReport,
+
+  const staffStats = useQuery(
+    api.modules.hr.queries.getStaffStats,
     sessionToken ? { sessionToken } : "skip"
   );
-  const classes = useQuery(
-    api.modules.sis.queries.listClasses,
+
+  const pendingAdmissions = useQuery(
+    api.modules.admissions.queries.listApplications,
+    sessionToken ? { sessionToken, status: "pending" } : "skip"
+  );
+
+  const paidInvoices = useQuery(
+    api.modules.finance.queries.listInvoices,
+    sessionToken ? { sessionToken, status: "paid" } : "skip"
+  );
+
+  const pendingInvoices = useQuery(
+    api.modules.finance.queries.listInvoices,
+    sessionToken ? { sessionToken, status: "pending" } : "skip"
+  );
+
+  const recentAdmissions = useQuery(
+    api.modules.admissions.queries.listApplications,
     sessionToken ? { sessionToken } : "skip"
   );
-  const auditLogs = useQuery(
-    api.platform.audit.queries.listTenantAuditLogs,
-    sessionToken ? { sessionToken, limit: 5 } : "skip"
-  );
-
-  const handleAddWidget = () => {
-    const newWidget = {
-      id: `widget-${Date.now()}`,
-      title: "New Widget",
-      content: (
-        <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">
-          Widget content coming soon
-        </div>
-      ),
-      isMinimized: false,
-    };
-    setWidgets((prev) => [...prev, newWidget]);
-  };
-
-  const handleRemoveWidget = (id: string) => {
-    setWidgets((prev) => prev.filter((w) => w.id !== id));
-  };
-
-  const handleToggleMinimize = (id: string) => {
-    setWidgets((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, isMinimized: !w.isMinimized } : w))
-    );
-  };
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
-  // Derive stats from real data (fall back to "—" while loading)
-  const totalStudents = (studentStats as any)?.total ?? null;
-  const activeStudents = (studentStats as any)?.active ?? null;
-  const totalClasses = classes ? (classes as any[]).length : null;
-  const revenueCollected = (financialReport as any)?.totalPaid ?? null;
-  const outstandingFees = (financialReport as any)?.outstanding ?? null;
+  // — Derived stats ————————————————————————————————————
+  const studentList = (students as any[]) ?? [];
+  const activeStudents = studentList.filter((s) => s.status === "active").length;
+  const totalStudents = studentList.length;
 
-  const quickStats = [
-    {
-      title: "Total Students",
-      value: totalStudents !== null ? totalStudents.toLocaleString() : "—",
-      sub: activeStudents !== null ? `${activeStudents} active` : "Loading…",
-      icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      href: "/admin/students",
-    },
-    {
-      title: "Fees Collected",
-      value:
-        revenueCollected !== null
-          ? `KES ${Number(revenueCollected / 100).toLocaleString()}`
-          : "—",
-      sub:
-        outstandingFees !== null
-          ? `KES ${Number(outstandingFees / 100).toLocaleString()} outstanding`
-          : "Loading…",
-      icon: DollarSign,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      href: "/admin/finance",
-    },
-    {
-      title: "Active Classes",
-      value: totalClasses !== null ? totalClasses.toString() : "—",
-      sub: "This academic year",
-      icon: BookOpen,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      href: "/admin/classes",
-    },
-    {
-      title: "Audit Events",
-      value: (auditLogs as any[])?.length?.toString() ?? "—",
-      sub: "Last 200 recorded actions",
-      icon: Clock,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      href: "/admin/audit",
-    },
-  ];
+  const totalStaff = staffStats?.active ?? 0;
+  const onLeaveStaff = staffStats?.on_leave ?? 0;
 
-  const recentActivities = (auditLogs as any[]) ?? [];
+  const paidInvoiceList = (paidInvoices as any[]) ?? [];
+  const pendingInvoiceList = (pendingInvoices as any[]) ?? [];
 
-  const getActivityColor = (action: string) => {
-    if (action.includes("created") || action.includes("enrolled")) return "bg-green-500";
-    if (action.includes("deleted") || action.includes("suspended")) return "bg-red-500";
-    if (action.includes("updated") || action.includes("status")) return "bg-blue-500";
-    return "bg-gray-400";
-  };
+  // Revenue: sum of paid invoices this month
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const monthlyRevenue = paidInvoiceList
+    .filter((inv) => inv.paidAt && inv.paidAt >= startOfMonth.getTime())
+    .reduce((sum: number, inv: any) => sum + (inv.amount ?? 0), 0);
+  const totalRevenue = paidInvoiceList.reduce(
+    (sum: number, inv: any) => sum + (inv.amount ?? 0),
+    0
+  );
+  const pendingFees = pendingInvoiceList.reduce(
+    (sum: number, inv: any) => sum + (inv.amount ?? 0),
+    0
+  );
 
-  const formatAction = (action: string) =>
-    action
-      .replace(/\./g, " ")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase());
+  const pendingApplicationCount = (pendingAdmissions as any[])?.length ?? 0;
+
+  // Recent applications for activity feed
+  const recentAppList = ((recentAdmissions as any[]) ?? []).slice(0, 5);
+
+  const activities = recentAppList.map((app: any) => ({
+    id: app._id,
+    type: "application_submitted" as const,
+    title: `Admission: ${app.firstName ?? ""} ${app.lastName ?? ""}`.trim() || "New Application",
+    description: app.grade ? `Grade ${app.grade} application` : "Application received",
+    timestamp: app.createdAt ?? Date.now(),
+    href: `/admin/admissions/${app._id}`,
+  }));
 
   return (
     <div className="space-y-6">
-      {/* Dashboard Header */}
-      <AdminDashboardHeader
-        title="My Dashboard"
-        subtitle="Welcome back! Here's what's happening with your school today."
-        showAddWidget={true}
-        onAddWidget={handleAddWidget}
-        widgetCount={widgets.length}
-      />
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {quickStats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Link key={index} href={stat.href}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                      <p className="text-xs text-gray-500 mt-1">{stat.sub}</p>
-                    </div>
-                    <div className={cn("p-3 rounded-lg", stat.bgColor)}>
-                      <Icon className={cn("h-6 w-6", stat.color)} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          );
-        })}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Here&apos;s what&apos;s happening with your school today.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+            Live
+          </Badge>
+        </div>
       </div>
 
-      {/* Widget Grid */}
-      <AdminWidgetGrid
-        widgets={widgets}
-        onAddWidget={handleAddWidget}
-        onRemoveWidget={handleRemoveWidget}
-        onToggleMinimize={handleToggleMinimize}
-      />
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <AdminStatsCard
+          title="Active Students"
+          value={activeStudents}
+          description={`${totalStudents} total enrolled`}
+          icon={GraduationCap}
+          variant="default"
+        />
+        <AdminStatsCard
+          title="Active Staff"
+          value={totalStaff}
+          description={onLeaveStaff > 0 ? `${onLeaveStaff} on leave` : "All present"}
+          icon={UserCheck}
+          variant={onLeaveStaff > 0 ? "warning" : "success"}
+        />
+        <AdminStatsCard
+          title="Revenue This Month"
+          value={
+            monthlyRevenue > 0
+              ? `KSh ${monthlyRevenue.toLocaleString()}`
+              : totalRevenue > 0
+              ? `KSh ${totalRevenue.toLocaleString()}`
+              : "—"
+          }
+          description={
+            pendingFees > 0 ? `KSh ${pendingFees.toLocaleString()} pending` : "All fees cleared"
+          }
+          icon={DollarSign}
+          variant={pendingFees > 0 ? "warning" : "success"}
+        />
+        <AdminStatsCard
+          title="Pending Admissions"
+          value={pendingApplicationCount}
+          description={pendingApplicationCount > 0 ? "Awaiting review" : "No pending applications"}
+          icon={FileText}
+          variant={pendingApplicationCount > 0 ? "warning" : "default"}
+        />
+      </div>
 
-      {/* Bottom Sections */}
+      {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Activity — real data from audit log */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin/audit" className="flex items-center gap-1 text-sm">
-                  View all <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {recentActivities.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  No recent activity recorded yet.
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {recentActivities.map((log: any, index: number) => (
+        {/* Recent Activity — 2 cols */}
+        <div className="lg:col-span-2 space-y-6">
+          <AdminRecentActivity
+            activities={activities}
+            showViewAll={true}
+            viewAllHref="/admin/admissions"
+          />
+
+          {/* Pending Fee Summary */}
+          {pendingInvoiceList.length > 0 && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  Outstanding Invoices
+                </CardTitle>
+                <Button asChild size="sm" variant="ghost">
+                  <Link href="/admin/finance/invoices" className="inline-flex items-center gap-1">
+                    View all <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {pendingInvoiceList.slice(0, 5).map((inv: any) => (
                     <div
-                      key={log._id ?? index}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      key={inv._id}
+                      className="flex items-center justify-between p-2 rounded-md bg-muted/30 text-sm"
                     >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            "w-2 h-2 rounded-full shrink-0",
-                            getActivityColor(log.action)
-                          )}
-                        />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {formatAction(log.action)}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {log.userName ?? log.actorEmail ?? log.actorId} •{" "}
-                            {formatDistanceToNow(new Date(log.timestamp), {
-                              addSuffix: true,
-                            })}
-                          </p>
-                        </div>
+                      <div>
+                        <span className="font-medium">{inv.invoiceNumber ?? inv._id.slice(-6)}</span>
+                        <span className="text-muted-foreground ml-2 text-xs">
+                          {inv.dueDate
+                            ? `Due ${new Date(inv.dueDate).toLocaleDateString()}`
+                            : "Due date not set"}
+                        </span>
                       </div>
-                      <Badge variant="outline" className="text-xs shrink-0">
-                        {log.entityType ?? "system"}
+                      <Badge variant="outline" className="text-orange-600 border-orange-300">
+                        KSh {(inv.amount ?? 0).toLocaleString()}
                       </Badge>
                     </div>
                   ))}
+                  {pendingInvoiceList.length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center pt-1">
+                      +{pendingInvoiceList.length - 5} more outstanding invoices
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Empty state when no data at all */}
+          {activities.length === 0 && pendingInvoiceList.length === 0 && (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <CalendarDays className="h-10 w-10 text-muted-foreground/40 mb-3" />
+                <h3 className="font-medium text-foreground mb-1">No activity yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Start by enrolling students or adding staff members.
+                </p>
+                <div className="flex gap-2">
+                  <Button asChild size="sm">
+                    <Link href="/admin/students/create">Enroll Student</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline">
+                    <Link href="/admin/staff/create">Add Staff</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Sidebar — Quick Actions + Student breakdown */}
+        <div className="space-y-6">
+          <AdminQuickActions />
+
+          {/* Student breakdown */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                Student Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {totalStudents === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No students enrolled yet.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {[
+                    {
+                      label: "Active",
+                      count: studentList.filter((s) => s.status === "active").length,
+                      color: "bg-green-500",
+                    },
+                    {
+                      label: "Graduated",
+                      count: studentList.filter((s) => s.status === "graduated").length,
+                      color: "bg-blue-500",
+                    },
+                    {
+                      label: "Suspended",
+                      count: studentList.filter((s) => s.status === "suspended").length,
+                      color: "bg-red-500",
+                    },
+                    {
+                      label: "Transferred",
+                      count: studentList.filter((s) => s.status === "transferred").length,
+                      color: "bg-gray-400",
+                    },
+                  ]
+                    .filter((row) => row.count > 0)
+                    .map((row) => (
+                      <div key={row.label} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${row.color}`} />
+                          <span className="text-muted-foreground">{row.label}</span>
+                        </div>
+                        <span className="font-semibold">{row.count}</span>
+                      </div>
+                    ))}
+                  <div className="pt-2 border-t">
+                    <Button asChild variant="outline" size="sm" className="w-full">
+                      <Link href="/admin/students">View all students</Link>
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Quick Actions */}
-        <AdminQuickActions />
       </div>
     </div>
   );

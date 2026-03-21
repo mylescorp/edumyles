@@ -43,7 +43,30 @@ export type AuditAction =
   | "marketplace.review_submitted" | "marketplace.review_moderated"
   | "marketplace.publisher_registered" | "marketplace.publisher_verified"
   | "marketplace.module_suspended" | "marketplace.module_deprecated" | "marketplace.module_installed" | "marketplace.module_uninstalled"
-  | "marketplace.module_submitted" | "marketplace.module_approved" | "marketplace.module_rejected" | "marketplace.module_published";
+  | "marketplace.module_submitted" | "marketplace.module_approved" | "marketplace.module_rejected" | "marketplace.module_published"
+  | "api_key.created" | "api_key.revoked" | "api_key.rotated"
+  | "changelog.created" | "changelog.updated" | "changelog.deleted"
+  | "automation.workflow_created" | "automation.workflow_updated" | "automation.workflow_deleted" | "automation.workflow_toggled" | "automation.workflow_executed"
+  | "feature_flag.created" | "feature_flag.updated" | "feature_flag.toggled" | "feature_flag.deleted"
+  | "data_export.created" | "data_export.generated"
+  | "role.created" | "role.updated" | "role.deleted" | "role.duplicated"
+  | "permission_group.created"
+  | "report.created" | "report.updated" | "report.deleted" | "report.executed"
+  | "security.threat_created" | "security.threat_updated" | "security.ip_blocked" | "security.ip_unblocked" | "security.incident_created" | "security.incident_updated" | "security.vulnerability_scan"
+  | "webhook.created" | "webhook.updated" | "webhook.deleted" | "webhook.tested" | "webhook.retried"
+  | "white_label.updated" | "white_label.reset"
+  | "sla.created" | "sla.updated" | "sla.deleted"
+  | "integration.installed" | "integration.uninstalled" | "integration.configured" | "integration.activated" | "integration.tested" | "integration.synced"
+  | "knowledge_base.article_created" | "knowledge_base.article_updated" | "knowledge_base.article_deleted" | "knowledge_base.article_published" | "knowledge_base.category_created" | "knowledge_base.category_updated"
+  | "onboarding.started" | "onboarding.step_completed" | "onboarding.step_skipped" | "onboarding.reset"
+  | "ticket.created" | "ticket.updated" | "ticket.comment_added" | "ticket.resolved" | "ticket.escalated" | "ticket.assigned"
+  | "tenant_success.score_created" | "tenant_success.score_updated" | "tenant_success.initiative_created" | "tenant_success.initiative_updated" | "tenant_success.metric_created" | "tenant_success.metric_recorded" | "tenant_success.report_generated"
+  | "staff_performance.record_created" | "staff_performance.record_updated" | "staff_performance.goals_set" | "staff_performance.review_completed"
+  | "file.uploaded" | "file.deleted"
+  | "notification.created"
+  | "operations.incident_created" | "operations.incident_updated" | "operations.incident_resolved"
+  | "analytics.report_generated" | "analytics.report_exported"
+  | "crm.deal_created" | "crm.deal_updated" | "crm.lead_created" | "crm.lead_updated" | "crm.activity_added" | "crm.proposal_created" | "crm.proposal_updated" | "crm.proposal_sent";
 
 export async function logAction(
   ctx: MutationCtx,

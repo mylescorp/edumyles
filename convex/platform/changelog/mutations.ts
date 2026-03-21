@@ -13,7 +13,7 @@ export const createChangelogEntry = mutation({
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
 
     const entryId = await ctx.db.insert("changelogEntries", {
       version: args.version,
@@ -21,16 +21,16 @@ export const createChangelogEntry = mutation({
       description: args.description,
       type: args.type,
       tags: args.tags || [],
-      author: session.userId,
+      author: platform.userId,
       date: Date.now(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "changelog.created",
       entityType: "changelog_entry",
       entityId: entryId,
@@ -55,12 +55,12 @@ export const updateChangelogEntry = mutation({
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
 
     const existing = await ctx.db.get(args.entryId);
     if (!existing) throw new Error("Changelog entry not found");
 
-    const updates: any = {};
+    const updates: any = { updatedAt: Date.now() };
     if (args.title) updates.title = args.title;
     if (args.description) updates.description = args.description;
     if (args.type) updates.type = args.type;
@@ -69,9 +69,9 @@ export const updateChangelogEntry = mutation({
     await ctx.db.patch(args.entryId, updates);
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "changelog.updated",
       entityType: "changelog_entry",
       entityId: args.entryId,
@@ -99,7 +99,7 @@ export const deleteChangelogEntry = mutation({
     entryId: v.id("changelogEntries"),
   },
   handler: async (ctx, args) => {
-    const session = await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
 
     const existing = await ctx.db.get(args.entryId);
     if (!existing) throw new Error("Changelog entry not found");
@@ -107,9 +107,9 @@ export const deleteChangelogEntry = mutation({
     await ctx.db.delete(args.entryId);
 
     await logAction(ctx, {
-      tenantId: session.tenantId,
-      actorId: session.userId,
-      actorEmail: session.email,
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
       action: "changelog.deleted",
       entityType: "changelog_entry",
       entityId: args.entryId,

@@ -37,8 +37,8 @@ export function redirectToLogin(): void {
   const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
   const authBase = process.env.NEXT_PUBLIC_AUTH_BASE_URL;
   const loginPath = authBase
-    ? `${authBase}/auth/login?returnTo=${returnTo}`
-    : `/auth/login?returnTo=${returnTo}`;
+    ? `${authBase}/auth/login/api?returnTo=${returnTo}`
+    : `/auth/login/api?returnTo=${returnTo}`;
   window.location.href = loginPath;
 }
 
