@@ -6,11 +6,9 @@ import crypto from "crypto";
 
 const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL;
 
-function resolveRole(email: string, _orgId?: string): string {
-  if (MASTER_ADMIN_EMAIL && email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase()) {
-    return "master_admin";
-  }
-  return "school_admin";
+function isMasterAdmin(email: string): boolean {
+  if (!MASTER_ADMIN_EMAIL) return false;
+  return email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase();
 }
 
 function getRoleDashboard(role: string): string {
@@ -85,8 +83,28 @@ export async function GET(req: NextRequest) {
       code,
     });
 
-    const role = resolveRole(user.email, organizationId ?? undefined);
-    const tenantId = organizationId ?? "PLATFORM";
+    // Look up existing role from Convex — don't overwrite roles set by admins.
+    // Fall back: master_admin if email matches env var, otherwise school_admin.
+    let role = "school_admin";
+    let tenantId = organizationId ?? "PLATFORM";
+    try {
+      const existing = await convex.query(api.users.getUserByWorkosId, {
+        workosUserId: user.id,
+      });
+      if (existing?.role) {
+        role = existing.role;
+        if (existing.tenantId) tenantId = existing.tenantId;
+      } else if (isMasterAdmin(user.email)) {
+        role = "master_admin";
+        tenantId = "PLATFORM";
+      }
+    } catch {
+      // Convex lookup failed — fall back to env-based check
+      if (isMasterAdmin(user.email)) {
+        role = "master_admin";
+        tenantId = "PLATFORM";
+      }
+    }
     const sessionToken = crypto.randomBytes(32).toString("hex");
 
     await convex.mutation(api.sessions.createSession, {
