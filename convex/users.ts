@@ -74,6 +74,20 @@ export const getUserByWorkosId = query({
   },
 });
 
+// Check whether any master_admin exists in the system — used during first sign-in auto-bootstrap
+export const hasMasterAdmin = query({
+  args: {},
+  handler: async (ctx) => {
+    const admin = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_role", (q) =>
+        q.eq("tenantId", "PLATFORM").eq("role", "master_admin")
+      )
+      .first();
+    return admin !== null;
+  },
+});
+
 // Get user by WorkOS ID across all tenants — used during auth callback
 export const getUserByWorkosIdGlobal = query({
   args: { workosUserId: v.string() },
