@@ -16,6 +16,7 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { MarketplaceErrorBoundary } from "../MarketplaceErrorBoundary";
+import { toast } from "sonner";
 
 function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" });
@@ -60,7 +61,7 @@ function ReviewModerationContent() {
     try {
       await moderateReview({ sessionToken, reviewId: reviewId as any, decision: "approved" });
     } catch (e: any) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -76,7 +77,7 @@ function ReviewModerationContent() {
       setIsRejectOpen(false);
       setRejectionReason("");
     } catch (e: any) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 

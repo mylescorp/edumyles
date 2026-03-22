@@ -5,8 +5,11 @@ import crypto from "crypto";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  // Dev bypass
-  if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
+  // Dev bypass — only permitted outside production to prevent redirect loops
+  if (
+    process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
+    process.env.NODE_ENV !== "production"
+  ) {
     return NextResponse.redirect(new URL("/admin", req.url));
   }
 
@@ -17,7 +20,7 @@ export async function GET(req: NextRequest) {
 
   if (!apiKey || !clientId) {
     console.error("[auth/signup/api] Missing WORKOS_API_KEY or client ID");
-    return NextResponse.redirect(new URL("/?auth_error=not_configured", req.url));
+    return NextResponse.redirect(new URL("/auth/error?reason=not_configured", req.url));
   }
 
   const email = req.nextUrl.searchParams.get("email") ?? undefined;

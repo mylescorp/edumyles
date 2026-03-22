@@ -91,36 +91,24 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
+    // Clear client state immediately so UI reacts right away
+    setSession(null);
+    setIsLoading(false);
+    localStorage.clear();
+    sessionStorage.clear();
+
     try {
-      // Call the logout API route
-      const response = await fetch("/auth/logout", {
+      // Invalidate server session + clear cookies
+      await fetch("/auth/logout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        credentials: "same-origin",
       });
-
-      if (response.ok) {
-        setSession(null);
-        setIsLoading(false);
-
-        // Clear local storage and session storage
-        localStorage.clear();
-        sessionStorage.clear();
-
-        // Redirect to login page
-        const returnTo = encodeURIComponent(window.location.pathname);
-        window.location.href = `/auth/login?returnTo=${returnTo}`;
-      } else {
-        console.error("Logout failed");
-        // Fallback: still redirect to login
-        window.location.href = "/auth/login";
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Fallback: still redirect to login
-      window.location.href = "/auth/login";
+    } catch {
+      // Ignore — we still redirect to login regardless
     }
+
+    // Go directly to login; skip the /auth/login page redirect hop
+    window.location.href = "/auth/login/api";
   }, []);
 
   // Build user object based on role and available profile data
