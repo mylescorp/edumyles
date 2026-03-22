@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Inter, Playfair_Display, DM_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
@@ -11,33 +11,53 @@ export const metadata: Metadata = {
     description:
         "Replace disconnected spreadsheets and messaging groups with one unified platform for admissions, billing, academics, HR, and communication across East Africa.",
     other: {
-        // EduMyles v3 brand primary — Dark Green
-        "msapplication-TileColor": "#1A4731",
+        // EduMyles 2026 brand primary — Forest Deep
+        "msapplication-TileColor": "#061A12",
     },
 };
 
 /**
- * EduMyles Design System v3.0 — Typography
+ * EduMyles Brand Guidelines 2026 — Typography System
  *
- * Inter  → product dashboard UI (14px body, clean, highly legible)
- * Poppins → marketing / landing pages & H1 headings (bold, expressive)
+ * Plus Jakarta Sans → product dashboard UI (all panel body text & UI)
+ * Playfair Display  → section headings, display text, pull quotes
+ * DM Mono           → student IDs, codes, data tables, monospace data
+ * Inter             → fallback for product UI
  *
  * Usage:
- *   font-sans    → Inter (default for all product UI)
- *   font-poppins → Poppins (headings on marketing pages)
+ *   font-sans    → Plus Jakarta Sans (default for all product UI)
+ *   font-serif   → Playfair Display (headings, hero text)
+ *   font-mono    → DM Mono (codes, IDs, tables)
  */
-const inter = Inter({
+const plusJakartaSans = Plus_Jakarta_Sans({
     subsets: ["latin"],
     weight: ["300", "400", "500", "600", "700"],
-    variable: "--font-inter",
+    variable: "--font-plus-jakarta",
     display: "swap",
     preload: true,
 });
 
-const poppins = Poppins({
+const playfairDisplay = Playfair_Display({
     subsets: ["latin"],
-    weight: ["300", "400", "500", "600", "700", "800"],
-    variable: "--font-poppins",
+    weight: ["400", "600", "700"],
+    style: ["normal", "italic"],
+    variable: "--font-playfair",
+    display: "swap",
+    preload: false,
+});
+
+const dmMono = DM_Mono({
+    subsets: ["latin"],
+    weight: ["400", "500"],
+    variable: "--font-dm-mono",
+    display: "swap",
+    preload: false,
+});
+
+const inter = Inter({
+    subsets: ["latin"],
+    weight: ["300", "400", "500", "600", "700"],
+    variable: "--font-inter",
     display: "swap",
     preload: true,
 });
@@ -56,11 +76,13 @@ export default function RootLayout({
                 <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('em-theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();` }} />
             </head>
             {/*
-             * font-sans resolves to Inter (product UI default).
-             * Components that need Poppins can use className="font-poppins".
+             * font-sans  → Plus Jakarta Sans (brand UI font — all panels)
+             * font-serif → Playfair Display (headings, display)
+             * font-mono  → DM Mono (IDs, codes, data)
+             * font-inter → Inter (legacy fallback)
              */}
             <body
-                className={`${inter.variable} ${poppins.variable} font-sans antialiased`}
+                className={`${plusJakartaSans.variable} ${playfairDisplay.variable} ${dmMono.variable} ${inter.variable} font-sans antialiased`}
             >
                 <ErrorBoundary>
                     <ConvexAuthProvider>
