@@ -318,7 +318,7 @@ export default function FeaturesPage() {
               <em className="italic" style={{ color: "#E8A020" }}>the repetitive tasks.</em>
             </h2>
             <p className="font-jakarta text-[16px] leading-[1.7]" style={{ color: "#A8E6C3", maxWidth: "540px", margin: "0 auto" }}>
-              EduMyles automates the work that eats your team's time — so you can focus on what matters: educating students.
+              EduMyles automates the work that eats your team&apos;s time — so you can focus on what matters: educating students.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
