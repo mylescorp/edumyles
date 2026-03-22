@@ -10,11 +10,36 @@ if (!MASTER_ADMIN_EMAIL) {
   console.error("[auth/callback] MASTER_ADMIN_EMAIL env var is not set — master admin login will not work");
 }
 
-function resolveRole(email: string, _orgId?: string): string {
+async function resolveRole(email: string, organizationId?: string, convex?: ConvexHttpClient): Promise<string> {
+  // First check if user exists in database (for emergency admin users)
+  if (convex) {
+    try {
+      const user = await convex.query(api.users.getUserByWorkosId, {
+        tenantId: "PLATFORM",
+        workosUserId: "pending", // We need to check by email instead
+      });
+      
+      // If that doesn't work, try a different approach
+      const allUsers = await convex.query(api.users.listTenantUsers, {
+        tenantId: "PLATFORM",
+      });
+      
+      const existingUser = allUsers.find((u: any) => u.email === email);
+      if (existingUser) {
+        console.log("[auth/callback] Found existing user:", existingUser.role);
+        return existingUser.role;
+      }
+    } catch (error) {
+      console.log("[auth/callback] Database role check failed, using fallback:", error);
+    }
+  }
+  
+  // Check MASTER_ADMIN_EMAIL environment variable fallback
   if (MASTER_ADMIN_EMAIL && email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase()) {
     return "master_admin";
   }
-  // Default new users to school_admin — refine once user records exist
+  
+  // Default new users to school_admin
   return "school_admin";
 }
 
@@ -90,7 +115,7 @@ export async function GET(req: NextRequest) {
     const workosUserId = user.id;
 
     // --- Determine role & tenant ------------------------------------------
-    const role = resolveRole(email, organizationId ?? undefined);
+    const role = await resolveRole(email, organizationId ?? undefined, convex);
     const tenantId = organizationId ?? "PLATFORM";
 
     console.log("[auth/callback] Role resolution:", {
