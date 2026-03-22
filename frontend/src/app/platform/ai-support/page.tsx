@@ -103,6 +103,7 @@ interface AITicket {
   ticketId: string;
   title: string;
   description: string;
+  body?: string;
   category: string;
   priority: string;
   status: string;

@@ -60,6 +60,7 @@ interface User {
   email: string;
   phone?: string;
   role: string;
+  status?: string;
   tenantId: string;
   isActive: boolean;
   permissions: string[];

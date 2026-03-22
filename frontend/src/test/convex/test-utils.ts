@@ -138,7 +138,7 @@ export function createMockUser(overrides: Partial<DataModel['users']> = {}) {
   };
 }
 
-export function createMockStudent(overrides: Partial<DataModel['students']> = {}) {
+export function createMockStudent(overrides: Record<string, any> = {}) {
   return {
     tenantId: 'test-tenant-id',
     studentId: 'student-id',

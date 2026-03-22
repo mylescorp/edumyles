@@ -105,7 +105,7 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
-            Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
+            Welcome back{(user as any)?.firstName ? `, ${(user as any).firstName}` : ""}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Here&apos;s what&apos;s happening with your school today.

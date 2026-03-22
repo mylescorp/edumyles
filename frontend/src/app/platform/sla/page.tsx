@@ -82,7 +82,7 @@ export default function SLAManagementPage() {
       <PageHeader
         title="SLA Management"
         description="Configure and monitor Service Level Agreements"
-        action={
+        actions={
           <Button onClick={() => setIsCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" /> New SLA Configuration
           </Button>
