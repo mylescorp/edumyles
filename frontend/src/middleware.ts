@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform", "/student"];
-const PUBLIC_ROUTES = ["/auth/callback"];
+const PUBLIC_ROUTES = ["/auth/callback", "/auth/error"];
 
 // ── RBAC: Which roles can access which route prefixes ─────────
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
@@ -24,13 +24,6 @@ function getRoleDashboard(role: string): string {
     case "master_admin":
     case "super_admin":
       return "/platform";
-    case "school_admin":
-    case "principal":
-    case "bursar":
-    case "hr_manager":
-    case "librarian":
-    case "transport_manager":
-      return "/admin";
     case "teacher":
       return "/portal/teacher";
     case "parent":
@@ -59,17 +52,22 @@ function isRoleAllowedForPath(pathname: string, role: string): boolean {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Dev bypass — skip ALL auth checks. Only allowed outside production to prevent
+  // the redirect loop: /admin → login → bypass → /admin → login → ...
+  if (
+    process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    return NextResponse.next();
+  }
+
   const session = request.cookies.get("edumyles_session");
   const role = request.cookies.get("edumyles_role")?.value;
 
   // Debug logging for protected routes
   if (pathname.startsWith("/platform") || pathname.startsWith("/admin")) {
     console.log(`[middleware] ${pathname} - session: ${session ? "present" : "missing"}, role: ${role || "none"}`);
-  }
-
-  // Dev bypass — skip all auth checks when explicitly enabled
-  if (process.env.ENABLE_DEV_AUTH_BYPASS === "true" && pathname.startsWith("/admin")) {
-    return NextResponse.next();
   }
 
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
@@ -92,14 +90,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 2. Already authenticated users are handled by their respective routes
-
-  // 3. Root → role dashboard
+  // 2. Root redirect
   if (pathname === "/" && session) {
     return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
   }
 
-  // 4. RBAC enforcement
+  // 3. RBAC enforcement
   if (isProtected && session && role) {
     if (!isRoleAllowedForPath(pathname, role)) {
       const correctDashboard = getRoleDashboard(role);
@@ -111,7 +107,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 5. Tenant slug from subdomain
+  // 4. Tenant slug from subdomain
   const host = request.headers.get("host") ?? "";
   const parts = host.split(".");
   const firstPart = parts[0] ?? "";
@@ -132,7 +128,7 @@ export const config = {
     "/dashboard/:path*",
     "/portal/:path*",
     "/platform/:path*",
-    "/student/:path*",
     "/auth/:path*",
+    "/student/:path*",
   ],
 };
