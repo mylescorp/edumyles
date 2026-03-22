@@ -87,6 +87,13 @@ export default function Navbar() {
             >
               Log In
             </a>
+            <a
+              href="/auth/signup/api"
+              className="text-[14px] font-bold no-underline whitespace-nowrap px-6 py-3 rounded-[50px] transition-colors duration-200 hover:bg-[#0F4C2A]"
+              style={{ background: "#061A12", color: "#ffffff" }}
+            >
+              Get Started
+            </a>
             <Link
               href="#demo"
               className="text-[14px] font-bold text-[#061A12] no-underline whitespace-nowrap transition-colors duration-300 hover:bg-[#F5C453] px-6 py-3 rounded-[50px]"
@@ -146,6 +153,14 @@ export default function Navbar() {
             </Link>
           ))}
           <div className="flex flex-col gap-3 mt-6">
+            <a
+              href="/auth/signup/api"
+              onClick={() => setMobileOpen(false)}
+              className="block text-center font-bold no-underline py-3 px-6 rounded-[50px]"
+              style={{ background: "#061A12", color: "#ffffff" }}
+            >
+              Get Started
+            </a>
             <a
               href="/auth/login/api"
               onClick={() => setMobileOpen(false)}
