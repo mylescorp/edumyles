@@ -46,8 +46,10 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(`${pathname}${search}`, appOrigin));
     }
 
-    // Authenticated but no separate frontend (same domain or APP_URL not set) — let Next.js handle it
-    return NextResponse.next();
+    // Authenticated but frontend is on this same domain (no separate app yet).
+    // These routes don't exist on the landing — redirect to the welcome hub
+    // instead of letting Next.js 404.
+    return NextResponse.redirect(new URL("/auth/welcome", request.url));
   }
 
   if (sessionToken && AUTH_PAGES.includes(pathname)) {
