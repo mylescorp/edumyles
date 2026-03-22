@@ -128,7 +128,6 @@ export const config = {
     "/dashboard/:path*",
     "/portal/:path*",
     "/platform/:path*",
-    "/student/:path*",
     "/auth/:path*",
     "/student/:path*",
   ],
