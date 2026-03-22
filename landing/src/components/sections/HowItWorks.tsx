@@ -59,22 +59,29 @@ export default function HowItWorks() {
         </h2>
 
         {/* Steps */}
-        <div className="grid sm:grid-cols-3 gap-8 relative">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 relative">
           {steps.map((step, i) => (
             <div
               key={step.number}
               ref={(el) => { stepRefs.current[i] = el; }}
-              className="fade-in text-center relative"
+              className="fade-in text-center md:text-left relative flex flex-col items-center md:items-start"
               style={{ transitionDelay: `${i * 0.15}s` }}
             >
               {/* Arrow between steps (desktop only) */}
               {i < steps.length - 1 && (
                 <span
-                  className="hidden sm:block absolute top-[30px] text-[28px] font-bold"
+                  className="hidden md:block absolute top-[30px] text-[28px] font-bold"
                   style={{ right: "-2rem", color: "#E8A020", zIndex: 1 }}
                 >
                   →
                 </span>
+              )}
+              {/* Connector line for mobile */}
+              {i < steps.length - 1 && (
+                <div
+                  className="md:hidden w-px h-8 mt-4"
+                  style={{ background: "rgba(232,160,32,0.3)" }}
+                />
               )}
 
               {/* Step number */}
@@ -86,12 +93,12 @@ export default function HowItWorks() {
               </div>
 
               <h3
-                className="font-playfair font-bold text-[20px] mb-3"
+                className="font-playfair font-bold text-[20px] mb-3 mt-4"
                 style={{ color: "#ffffff" }}
               >
                 {step.title}
               </h3>
-              <p className="text-[14px] leading-[1.6]" style={{ color: "rgba(255,255,255,0.8)" }}>
+              <p className="text-[14px] leading-[1.6] max-w-[280px] md:max-w-none" style={{ color: "rgba(255,255,255,0.8)" }}>
                 {step.description}
               </p>
             </div>
