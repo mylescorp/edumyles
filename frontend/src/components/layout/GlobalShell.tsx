@@ -41,6 +41,7 @@ import {
   Lock,
   PanelLeftClose,
   PanelLeftOpen,
+=======
 } from "lucide-react";
 import {
   Tooltip,
@@ -902,6 +903,15 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
       {/* ══ Bottom bar — full Zoho-style ══════════════════════════════ */}
       <footer
         className="flex-shrink-0 flex items-center justify-between px-3 h-[44px] text-xs border-t gap-2"
+=======
+      {/* ── Page content ─────────────────────────────────────────────── */}
+      <main className="flex-1 overflow-y-auto bg-[#F3FBF6]">
+        {children}
+      </main>
+
+      {/* ══ Bottom status bar — Zoho-style Smart Chat hint ════════════ */}
+      <footer
+        className="flex-shrink-0 flex items-center justify-between px-4 h-[38px] text-xs border-t"
         style={{
           background: "#061A12",
           borderColor: "rgba(232,160,32,0.13)",
@@ -986,6 +996,25 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
           >
             <Lock className="h-3.5 w-3.5" />
           </Link>
+=======
+        {/* Left: Tagline */}
+        <span className="hidden sm:block font-serif italic text-[#E8A020]/70 text-[11px]">
+          &ldquo;Empowering Schools. Elevating Learning.&rdquo;
+        </span>
+
+        {/* Right: Need Support */}
+        <div className="flex items-center gap-3 ml-auto">
+          <Link
+            href={sectionHref("tickets")}
+            className="flex items-center gap-1.5 text-[#6B9E83] hover:text-[#E8A020] transition-colors duration-150"
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            <span>Need Support?</span>
+          </Link>
+          <div className="h-3.5 w-px bg-white/10" />
+          <span className="text-[#6B9E83]/60 text-[10px] font-mono">
+            EduMyles v2026
+          </span>
         </div>
       </footer>
     </div>
