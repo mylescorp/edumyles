@@ -329,10 +329,10 @@ export default function TenantSuccessPage() {
               <div key={grade} className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Badge className={getGradeColor(grade)}>{grade}</Badge>
-                  <span className="text-sm text-muted-foreground">{count} tenants</span>
+                  <span className="text-sm text-muted-foreground">{String(count)} tenants</span>
                 </div>
-                <Progress 
-                  value={(count / tenantSuccessOverview.overview.totalTenants) * 100} 
+                <Progress
+                  value={(Number(count) / tenantSuccessOverview.overview.totalTenants) * 100}
                   className="w-32"
                 />
               </div>

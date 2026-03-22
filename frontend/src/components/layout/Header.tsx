@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, LogOut, User, Settings, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
-import { useNotifications } from "@/hooks/useSSRSafeConvex";
+import { useNotifications } from "@/hooks/useNotifications";
 import { usePathname } from "next/navigation";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";

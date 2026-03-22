@@ -1,2 +1,6 @@
-export * from "./queries";
-export * from "./mutations";
+export {
+  getSystemHealth,
+  getPerformanceMetrics,
+  getUptimeStats,
+  getResourceUsage,
+} from "./queries";

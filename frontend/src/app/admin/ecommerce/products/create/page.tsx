@@ -13,6 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Save, Package, Plus, X, Upload } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 
 interface ProductVariant {
   id: string;
@@ -30,6 +33,10 @@ interface ProductImage {
 
 export default function CreateProductPage() {
   const { isLoading } = useAuth();
+  const router = useRouter();
+  const createProduct = useMutation(api.modules.ecommerce.mutations.createProduct);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -110,10 +117,25 @@ export default function CreateProductPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire to createProduct mutation when ecommerce module is configured
-    alert("Product creation will be available once the ecommerce module is configured.");
+    if (!formData.name || formData.price < 0) return;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await createProduct({
+        name: formData.name,
+        description: formData.description || undefined,
+        priceCents: Math.round(formData.price * 100),
+        stock: formData.stock,
+        category: formData.category || undefined,
+      });
+      router.push("/admin/ecommerce/products");
+    } catch (err: any) {
+      setSubmitError(err.message ?? "Failed to create product");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -523,10 +545,11 @@ export default function CreateProductPage() {
               </CardContent>
             </Card>
 
+            {submitError && <p className="text-sm text-destructive">{submitError}</p>}
             <div className="flex gap-2">
-              <Button type="submit" className="flex-1 gap-2">
+              <Button type="submit" className="flex-1 gap-2" disabled={isSubmitting}>
                 <Save className="h-4 w-4" />
-                Create Product
+                {isSubmitting ? "Creating..." : "Create Product"}
               </Button>
               <Link href="/admin/ecommerce/products">
                 <Button type="button" variant="outline">
