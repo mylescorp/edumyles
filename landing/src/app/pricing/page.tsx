@@ -1,263 +1,427 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Pricing — EduMyles",
-  description:
-    "Simple, transparent pricing for schools of every size. Start free and scale as you grow.",
-};
-
-const tiers = [
+const plans = [
   {
     name: "Starter",
-    price: "Free",
-    period: "",
-    description: "For small schools getting started with digital management.",
-    modules: [
+    tagline: "Up to 500 students",
+    monthlyPrice: 12900,
+    annualPrice: 10320,
+    description: "Perfect for small schools getting started with digital management.",
+    features: [
       "Student Information System",
-      "Admissions",
-      "Finance & Fees",
-      "Communications",
-      "Up to 100 students",
+      "Basic fee tracking",
+      "Parent communication (SMS)",
+      "Attendance management",
+      "Basic gradebook",
       "Email support",
+      "1 campus",
     ],
-    cta: "Get Started Free",
-    ctaStyle: "btn-outline",
-    highlight: false,
-    href: "/contact",
+    notIncluded: ["M-Pesa / mobile money", "Multi-campus", "Advanced analytics", "API access"],
+    cta: "Start Free Trial",
+    href: "/auth/signup/api",
+    featured: false,
+    highlight: null,
   },
   {
-    name: "Standard",
-    price: "$3",
-    period: "/student/month",
-    description: "For growing schools that need scheduling and academics.",
-    modules: [
-      "Everything in Starter",
-      "Timetable & Scheduling",
-      "Academics & Gradebook",
-      "Unlimited students",
-      "Priority email support",
-      "Onboarding assistance",
+    name: "Professional",
+    tagline: "501 – 2,000 students",
+    monthlyPrice: 38900,
+    annualPrice: 31120,
+    description: "For growing schools needing all modules, M-Pesa payments, and priority support.",
+    features: [
+      "All 11 modules included",
+      "M-Pesa & Airtel Money",
+      "Multi-campus support",
+      "Parent & teacher portals",
+      "Advanced analytics dashboard",
+      "Priority support & training",
+      "Unlimited admin users",
+      "CBC & 8-4-4 gradebook",
+      "NEMIS integration",
     ],
+    notIncluded: [],
     cta: "Start Free Trial",
-    ctaStyle: "btn-primary",
-    highlight: true,
-    href: "/contact",
-  },
-  {
-    name: "Pro",
-    price: "$5",
-    period: "/student/month",
-    description: "For established institutions needing full operations.",
-    modules: [
-      "Everything in Standard",
-      "HR & Payroll",
-      "Library Management",
-      "Transport Management",
-      "Phone & email support",
-      "Dedicated account manager",
-    ],
-    cta: "Start Free Trial",
-    ctaStyle: "btn-outline",
-    highlight: false,
-    href: "/contact",
+    href: "/auth/signup/api",
+    featured: true,
+    highlight: "⭐ Most Popular",
   },
   {
     name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "For multi-campus networks and partners needing white-label.",
-    modules: [
-      "Everything in Pro",
-      "eWallet",
-      "School Shop",
-      "White-label & API access",
-      "Custom integrations",
-      "Dedicated support & SLA",
+    tagline: "2,000+ students",
+    monthlyPrice: null,
+    annualPrice: null,
+    description: "For large institutions, county networks, and multi-school groups needing custom SLAs.",
+    features: [
+      "Everything in Professional",
+      "Custom SLA agreement",
+      "Dedicated Customer Success Manager",
+      "API access & custom integrations",
+      "SSO / WorkOS enterprise auth",
+      "County & MoE reporting",
+      "White-label options",
+      "On-site training & setup",
     ],
+    notIncluded: [],
     cta: "Contact Sales",
-    ctaStyle: "btn-outline",
-    highlight: false,
-    href: "mailto:sales@edumyles.com?subject=Enterprise%20Inquiry",
+    href: "/contact?subject=enterprise",
+    featured: false,
+    highlight: null,
   },
 ];
 
 const faqs = [
   {
-    q: "Is there really a free plan?",
-    a: "Yes. The Starter plan is completely free for schools with up to 100 students. No credit card required, no time limit.",
+    q: "Is there a free trial?",
+    a: "Yes — every plan comes with a free 30-day trial with full access to all features. No credit card required to start.",
   },
   {
     q: "How is pricing calculated?",
-    a: "Pricing is per active student per month, billed annually. Only count students who are currently enrolled — alumni and inactive records don't count.",
-  },
-  {
-    q: "Can I switch plans later?",
-    a: "Absolutely. Upgrade or downgrade at any time. When you upgrade, you get immediate access to the new modules. When you downgrade, changes take effect at your next billing cycle.",
+    a: "Pricing is per school per month, not per student. You get unlimited users within your student cap. Annual billing saves you 20%.",
   },
   {
     q: "What payment methods do you accept?",
-    a: "We accept M-Pesa, Airtel Money, Stripe (credit/debit cards), and direct bank transfers. We'll work with whatever's easiest for your school.",
+    a: "We accept M-Pesa, Airtel Money, Stripe (credit/debit cards), and direct bank transfers. We'll work with whatever is easiest for your school.",
   },
   {
-    q: "Is there a free trial for paid plans?",
-    a: "Yes. Every paid plan comes with a free 30-day trial with full access to all features. No credit card required to start.",
+    q: "Can I switch plans later?",
+    a: "Absolutely. Upgrade at any time and get immediate access to new features. Downgrade takes effect at the next billing cycle.",
   },
   {
-    q: "What about the Enterprise white-label option?",
-    a: "Our Enterprise plan includes full white-labeling capabilities for partners who want to offer EduMyles under their own brand. Contact our sales team for custom pricing and setup.",
+    q: "Do you offer discounts for NGOs or government schools?",
+    a: "Yes. We work with CBOs, NGOs, county education departments, and government schools with special pricing. Contact our sales team for details.",
   },
   {
-    q: "Do you offer discounts for large schools?",
-    a: "Yes. Schools with more than 500 students get volume discounts. Contact our sales team at sales@edumyles.com for a custom quote.",
+    q: "What is included in onboarding?",
+    a: "All plans include a free onboarding session where our team helps you set up your school, import data, and train your staff. Professional and Enterprise get extended training.",
   },
   {
-    q: "What kind of support is included?",
-    a: "All plans include email support. Standard adds priority support, Pro adds phone support, and Enterprise gets a dedicated support team with SLA guarantees.",
+    q: "Is there a money-back guarantee?",
+    a: "Yes. We offer a 30-day money-back guarantee on all paid plans. If EduMyles doesn't work for your school, we'll refund in full — no questions asked.",
+  },
+  {
+    q: "What does NEMIS integration mean?",
+    a: "EduMyles can export student data in formats compatible with the Kenya National Education Management Information System (NEMIS), saving hours of manual data entry.",
   },
 ];
 
-const supportPlans = [
-  {
-    name: "Basic Support",
-    description: "Included with all plans",
-    features: ["Email support", "Knowledge base access", "Community forums", "Response within 48 hours"],
-  },
-  {
-    name: "Priority Support",
-    description: "Included with Standard and above",
-    features: ["Priority email support", "Response within 24 hours", "Onboarding assistance", "Video call support"],
-  },
-  {
-    name: "Premium Support",
-    description: "Included with Pro and above",
-    features: ["Phone & email support", "Response within 4 hours", "Dedicated account manager", "Quarterly reviews"],
-  },
-  {
-    name: "Enterprise Support",
-    description: "Custom SLA",
-    features: ["24/7 support", "Response within 1 hour", "Dedicated support team", "On-site training available"],
-  },
+const comparisonRows = [
+  { feature: "Student Information System", starter: true, pro: true, enterprise: true },
+  { feature: "Admissions Management", starter: true, pro: true, enterprise: true },
+  { feature: "Finance & Fee Tracking", starter: "Basic", pro: true, enterprise: true },
+  { feature: "M-Pesa / Airtel Money", starter: false, pro: true, enterprise: true },
+  { feature: "Timetable & Scheduling", starter: false, pro: true, enterprise: true },
+  { feature: "Academics & Gradebook", starter: "Basic", pro: true, enterprise: true },
+  { feature: "HR & Payroll", starter: false, pro: true, enterprise: true },
+  { feature: "Library Management", starter: false, pro: true, enterprise: true },
+  { feature: "Transport Management", starter: false, pro: true, enterprise: true },
+  { feature: "Communications (SMS/Email)", starter: "SMS only", pro: true, enterprise: true },
+  { feature: "eWallet", starter: false, pro: true, enterprise: true },
+  { feature: "School Shop", starter: false, pro: true, enterprise: true },
+  { feature: "Multi-campus support", starter: false, pro: true, enterprise: true },
+  { feature: "Parent & Teacher Portals", starter: false, pro: true, enterprise: true },
+  { feature: "Advanced Analytics", starter: false, pro: true, enterprise: true },
+  { feature: "API Access", starter: false, pro: false, enterprise: true },
+  { feature: "White-label", starter: false, pro: false, enterprise: true },
+  { feature: "Dedicated CSM", starter: false, pro: false, enterprise: true },
+  { feature: "Custom SLA", starter: false, pro: false, enterprise: true },
 ];
+
+function formatKES(n: number) {
+  return "KES " + n.toLocaleString("en-KE");
+}
+
+function Cell({ val }: { val: boolean | string }) {
+  if (val === true) return <span style={{ color: "#26A65B", fontSize: 18 }}>✓</span>;
+  if (val === false) return <span style={{ color: "#ccc" }}>—</span>;
+  return <span style={{ color: "#E8A020", fontSize: 13, fontWeight: 600 }}>{val}</span>;
+}
 
 export default function PricingPage() {
+  const [annual, setAnnual] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
   return (
-    <>
-      {/* Hero */}
-      <section className="page-hero green-hero">
-        <div className="page-hero-inner">
-          <p className="eyebrow light">Pricing</p>
-          <h1 className="light-heading">Simple, transparent pricing</h1>
-          <p className="subtext light">
-            Start free. Scale as you grow. Every plan includes onboarding
-            support and a 30-day free trial.
+    <div style={{ color: "#212121" }}>
+
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section
+        className="relative flex items-center overflow-hidden"
+        style={{
+          background: "#061A12",
+          borderTop: "3px solid #E8A020",
+          padding: "6rem 2rem 5rem",
+          minHeight: "420px",
+        }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundSize: "50px 50px",
+          }}
+        />
+        <div className="relative max-w-[1200px] mx-auto w-full text-center">
+          <div
+            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+          >
+            Transparent Pricing
+          </div>
+          <h1
+            className="font-playfair font-bold leading-[1.15] mb-5"
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
+          >
+            Simple pricing.{" "}
+            <em className="italic" style={{ color: "#E8A020" }}>No surprises.</em>
+          </h1>
+          <p
+            className="font-jakarta font-light leading-[1.8] mb-6 mx-auto"
+            style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "560px" }}
+          >
+            No per-user fees. No hidden charges. Pay per school, per month. Cancel anytime.
+          </p>
+          {/* Toggle */}
+          <div className="flex items-center justify-center gap-4">
+            <span className="font-jakarta text-[14px] font-medium" style={{ color: annual ? "#6B9E83" : "#ffffff" }}>Monthly</span>
+            <button
+              type="button"
+              onClick={() => setAnnual(!annual)}
+              className="relative w-12 h-6 rounded-full transition-colors duration-300"
+              style={{ background: annual ? "#E8A020" : "rgba(255,255,255,0.2)" }}
+              aria-label="Toggle annual billing"
+            >
+              <div
+                className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300"
+                style={{ transform: annual ? "translateX(24px)" : "translateX(0)" }}
+              />
+            </button>
+            <span className="font-jakarta text-[14px] font-medium" style={{ color: annual ? "#ffffff" : "#6B9E83" }}>
+              Annual{" "}
+              <span
+                className="text-[11px] font-bold px-2 py-0.5 rounded-[20px] ml-1"
+                style={{ background: "#E8A020", color: "#061A12" }}
+              >
+                Save 20%
+              </span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing Cards ─────────────────────────────────── */}
+      <section className="py-16 px-4" style={{ background: "#F3FBF6" }}>
+        <div className="max-w-[1200px] mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-start">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className="relative rounded-2xl flex flex-col"
+                style={{
+                  background: plan.featured ? "#061A12" : "#ffffff",
+                  border: plan.featured ? "2px solid #E8A020" : "1px solid #e8f4ec",
+                  padding: "2rem",
+                  boxShadow: plan.featured ? "0 20px 60px rgba(6,26,18,0.3)" : "0 4px 20px rgba(6,26,18,0.06)",
+                  transform: plan.featured ? "scale(1.02)" : "none",
+                }}
+              >
+                {plan.highlight && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span
+                      className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-[20px] whitespace-nowrap"
+                      style={{ background: "#E8A020", color: "#061A12" }}
+                    >
+                      {plan.highlight}
+                    </span>
+                  </div>
+                )}
+
+                <h3
+                  className="font-playfair font-bold text-[24px] mb-1"
+                  style={{ color: plan.featured ? "#E8A020" : "#061A12" }}
+                >
+                  {plan.name}
+                </h3>
+                <p className="font-jakarta text-[13px] mb-4" style={{ color: plan.featured ? "#6B9E83" : "#6B9E83" }}>
+                  {plan.tagline}
+                </p>
+
+                <div className="mb-4">
+                  {plan.monthlyPrice === null ? (
+                    <div className="font-playfair font-bold text-[40px]" style={{ color: plan.featured ? "#E8A020" : "#061A12" }}>
+                      Custom
+                    </div>
+                  ) : (
+                    <>
+                      <div className="font-playfair font-bold text-[38px]" style={{ color: plan.featured ? "#E8A020" : "#061A12" }}>
+                        {formatKES(annual ? plan.annualPrice! : plan.monthlyPrice)}
+                      </div>
+                      <div className="font-jakarta text-[13px]" style={{ color: plan.featured ? "rgba(255,255,255,0.5)" : "#8a8a8a" }}>
+                        per school / month {annual ? "(billed annually)" : ""}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <p
+                  className="font-jakarta text-[14px] leading-[1.7] mb-6"
+                  style={{ color: plan.featured ? "rgba(255,255,255,0.65)" : "#5a5a5a" }}
+                >
+                  {plan.description}
+                </p>
+
+                <ul className="flex flex-col gap-2.5 mb-8 flex-1">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2">
+                      <span className="font-bold text-[14px] flex-shrink-0 mt-0.5" style={{ color: "#26A65B" }}>✓</span>
+                      <span className="font-jakarta text-[14px]" style={{ color: plan.featured ? "rgba(255,255,255,0.8)" : "#3d3d3d" }}>
+                        {f}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href={plan.href}
+                  className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-[50px] no-underline transition-all duration-200"
+                  style={
+                    plan.featured
+                      ? { background: "#E8A020", color: "#061A12" }
+                      : { background: "#061A12", color: "#ffffff" }
+                  }
+                >
+                  {plan.cta}
+                </a>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center font-jakarta text-[13px] mt-8" style={{ color: "#8a8a8a" }}>
+            30-day money-back guarantee · No setup fees · Prices in KES · M-Pesa or bank transfer
           </p>
         </div>
       </section>
 
-      {/* Pricing Grid */}
-      <section className="pricing-section">
-        <div className="pricing-grid">
-          {tiers.map((tier) => (
-            <div
-              key={tier.name}
-              className={`pricing-card ${tier.highlight ? "featured" : ""}`}
+      {/* ── Comparison Table ──────────────────────────────── */}
+      <section className="py-16 px-4" style={{ background: "#ffffff" }} id="compare">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="text-center mb-10">
+            <h2
+              className="font-playfair font-bold leading-[1.2]"
+              style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#061A12" }}
             >
-              {tier.highlight && (
-                <span className="pricing-badge">Most Popular</span>
-              )}
-              <h3>{tier.name}</h3>
-              <div className="price">
-                {tier.price === "Free" ? (
-                  <span className="amount">Free</span>
-                ) : (
-                  <>
-                    <span className="currency">{tier.price.includes("$") ? "" : tier.price.split("/")[0]}</span>
-                    <span className="amount">{tier.price.includes("$") ? tier.price.replace("$", "") : tier.price}</span>
-                  </>
-                )}
-                {tier.period && (
-                  <span className="period">{tier.period}</span>
-                )}
-              </div>
-              <p>{tier.description}</p>
-              <ul className="features">
-                {tier.modules.map((m) => (
-                  <li key={m}>
-                    {m}
-                  </li>
-                ))}
-              </ul>
-              <Link className={`btn ${tier.ctaStyle}`} href={tier.href}>
-                {tier.cta}
-              </Link>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Support Plans */}
-      <section className="content-section alt" id="support">
-        <div className="content-inner">
-          <div className="section-header centered">
-            <h2>Support plans</h2>
-            <p className="section-subtitle">
-              Every school deserves great support. Here&apos;s what&apos;s included at each level.
-            </p>
+              Compare <em className="italic" style={{ color: "#E8A020" }}>all features</em>
+            </h2>
           </div>
-          <div className="features-grid four-col">
-            {supportPlans.map((plan) => (
-              <div key={plan.name} className="feature-card">
-                <h3>{plan.name}</h3>
-                <p className="support-plan-desc">{plan.description}</p>
-                <ul className="module-features-list">
-                  {plan.features.map((f) => (
-                    <li key={f}>
-                      <span className="check-icon">&#10003;</span> {f}
-                    </li>
+          <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid #e8f4ec" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "#061A12" }}>
+                  <th className="font-jakarta font-bold text-[14px] text-left py-4 px-5" style={{ color: "#ffffff", width: "40%" }}>Feature</th>
+                  {["Starter", "Professional", "Enterprise"].map((p) => (
+                    <th key={p} className="font-jakarta font-bold text-[14px] text-center py-4 px-5" style={{ color: p === "Professional" ? "#E8A020" : "#ffffff" }}>
+                      {p}
+                    </th>
                   ))}
-                </ul>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonRows.map((row, i) => (
+                  <tr
+                    key={row.feature}
+                    style={{
+                      background: i % 2 === 0 ? "#ffffff" : "#F3FBF6",
+                      borderBottom: "1px solid #e8f4ec",
+                    }}
+                  >
+                    <td className="font-jakarta text-[14px] py-3.5 px-5" style={{ color: "#3d3d3d" }}>{row.feature}</td>
+                    <td className="text-center py-3.5 px-5"><Cell val={row.starter} /></td>
+                    <td className="text-center py-3.5 px-5"><Cell val={row.pro} /></td>
+                    <td className="text-center py-3.5 px-5"><Cell val={row.enterprise} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ───────────────────────────────────────────── */}
+      <section className="py-16 px-4" style={{ background: "#F3FBF6" }} id="faq">
+        <div className="max-w-[760px] mx-auto">
+          <div className="text-center mb-10">
+            <h2
+              className="font-playfair font-bold leading-[1.2]"
+              style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#061A12" }}
+            >
+              Pricing <em className="italic" style={{ color: "#E8A020" }}>FAQs</em>
+            </h2>
+          </div>
+          <div className="flex flex-col gap-3">
+            {faqs.map((faq, i) => (
+              <div
+                key={faq.q}
+                className="rounded-2xl overflow-hidden"
+                style={{ border: "1px solid #d4eade", background: "#ffffff" }}
+              >
+                <button
+                  type="button"
+                  className="w-full flex justify-between items-center gap-4 text-left font-jakarta font-semibold text-[15px] py-5 px-6 transition-colors duration-200"
+                  style={{ color: openFaq === i ? "#E8A020" : "#061A12", background: "transparent", cursor: "pointer" }}
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  {faq.q}
+                  <span
+                    className="flex-shrink-0 text-[20px] transition-transform duration-300"
+                    style={{ transform: openFaq === i ? "rotate(45deg)" : "none", color: "#E8A020" }}
+                  >
+                    +
+                  </span>
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-5">
+                    <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#5a5a5a" }}>{faq.a}</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="content-section" id="faq">
-        <div className="content-inner">
-          <div className="section-header centered">
-            <h2>Pricing FAQs</h2>
-            <p className="section-subtitle">
-              Common questions about our pricing and plans.
-            </p>
-          </div>
-          <div className="faq-list">
-            {faqs.map((faq) => (
-              <details key={faq.q} className="faq-item">
-                <summary className="faq-question">{faq.q}</summary>
-                <p className="faq-answer">{faq.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="final-cta">
-        <div className="final-cta-card">
-          <h2>Ready to get started?</h2>
-          <p>Start your free trial today — no credit card required.</p>
-          <div className="actions centered-actions">
-            <Link className="btn btn-primary" href="/contact">
-              Activate Free Trial
-            </Link>
-            <Link className="btn btn-secondary" href="mailto:sales@edumyles.com">
-              Contact Sales
+      {/* ── Final CTA ─────────────────────────────────────── */}
+      <section className="py-20 px-4" style={{ background: "#0F4C2A" }}>
+        <div className="max-w-[700px] mx-auto text-center">
+          <h2
+            className="font-playfair font-bold leading-[1.2] mb-4"
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
+          >
+            Ready to get started?{" "}
+            <em className="italic" style={{ color: "#E8A020" }}>It&apos;s free for 30 days.</em>
+          </h2>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
+            No credit card required. No setup fees. Full access from day one.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a
+              href="/auth/signup/api"
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              style={{ background: "#E8A020", color: "#061A12" }}
+            >
+              Start Free Trial →
+            </a>
+            <Link
+              href="/contact?subject=pricing"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+            >
+              Talk to Sales
             </Link>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
