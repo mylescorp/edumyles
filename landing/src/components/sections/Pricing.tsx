@@ -76,18 +76,20 @@ export default function Pricing() {
   return (
     <section
       id="pricing"
-      className="py-20 lg:py-32 bg-off-white relative overflow-hidden"
+      className="py-16 px-4 sm:px-8 relative overflow-hidden"
       aria-label="Pricing plans"
+      style={{ background: "#F3FBF6" }}
     >
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <p className="font-inter font-semibold text-gold uppercase tracking-widest text-sm mb-3">
-            Pricing
-          </p>
-          <h2 className="font-jakarta font-bold text-4xl lg:text-5xl text-navy mb-4">
-            Simple, transparent pricing
+          <div className="section-eyebrow justify-center mb-2">Pricing</div>
+          <h2
+            className="font-playfair font-bold leading-[1.2] mb-4"
+            style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
+          >
+            Simple, <em className="italic" style={{ color: "#E8A020" }}>Transparent Pricing</em>
           </h2>
-          <p className="font-inter text-lg text-mid-grey max-w-2xl mx-auto mb-8">
+          <p className="font-jakarta text-lg text-mid-grey max-w-2xl mx-auto mb-8">
             No hidden fees. Pay per school per month. Cancel anytime. Start free for 30 days.
           </p>
 

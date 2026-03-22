@@ -5,7 +5,22 @@
 @layer base {
   :root {
     --font-jakarta: 'Plus Jakarta Sans', sans-serif;
-    --font-inter: 'Inter', sans-serif;
+    --font-inter: 'Plus Jakarta Sans', sans-serif;
+    --font-playfair: 'Playfair Display', Georgia, serif;
+    --font-mono: 'DM Mono', 'Cascadia Code', 'Fira Code', monospace;
+
+    /* Brand colour tokens */
+    --forest-deep: #061A12;
+    --forest-dark: #0C3020;
+    --forest: #0F4C2A;
+    --emerald: #1A7A4A;
+    --leaf: #26A65B;
+    --mint: #A8E6C3;
+    --gold: #E8A020;
+    --gold-light: #F5C453;
+    --gold-pale: #FEF3DC;
+    --sky: #90CAF9;
+    --muted: #6B9E83;
   }
 
   * {
@@ -17,19 +32,16 @@
   }
 
   body {
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-jakarta), sans-serif;
     color: #212121;
     background: #ffffff;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-jakarta), sans-serif;
+    overflow-x: hidden;
   }
 
   /* Focus visible */
   :focus-visible {
-    outline: 2px solid #C79639;
-    outline-offset: 2px;
+    outline: 3px solid #E8A020;
+    outline-offset: 3px;
   }
 
   /* Skip link */
@@ -37,11 +49,11 @@
     position: absolute;
     top: -100%;
     left: 0;
-    background: #C79639;
-    color: white;
+    background: #E8A020;
+    color: #061A12;
     padding: 0.5rem 1rem;
     z-index: 9999;
-    font-weight: 600;
+    font-weight: 700;
   }
   .skip-link:focus {
     top: 0;
@@ -49,9 +61,57 @@
 
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #F8FAFC; }
-  ::-webkit-scrollbar-thumb { background: #C7D7EF; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #1A395B; }
+  ::-webkit-scrollbar-track { background: #F3FBF6; }
+  ::-webkit-scrollbar-thumb { background: #1A7A4A; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #E8A020; }
+
+  /* ── Brand utility: Playfair serif headings ── */
+  .font-playfair {
+    font-family: var(--font-playfair);
+  }
+  .font-mono-brand {
+    font-family: var(--font-mono);
+  }
+
+  /* ── Section eyebrow label ── */
+  .section-eyebrow {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 0.625rem;
+  }
+  .section-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 1.625rem;
+    height: 2px;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ── Fade-in scroll animation ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Text gradient gold ── */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #E8A020, #F5C453);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
 @layer components {
