@@ -99,6 +99,38 @@ export const getUserByWorkosIdGlobal = query({
   },
 });
 
+// Force-set a user's role to master_admin by WorkOS ID.
+// Called from the auth callback when MASTER_ADMIN_EMAIL matches — ensures the
+// stored Convex record is always in sync with the env-configured override.
+export const syncMasterAdminRole = mutation({
+  args: { workosUserId: v.string(), email: v.string() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
+      .first();
+
+    if (existing) {
+      if (existing.role !== "master_admin" || existing.tenantId !== "PLATFORM") {
+        await ctx.db.patch(existing._id, { role: "master_admin", tenantId: "PLATFORM" });
+      }
+    } else {
+      await ctx.db.insert("users", {
+        tenantId: "PLATFORM",
+        eduMylesUserId: `USR-PLATFORM-${args.workosUserId}`,
+        workosUserId: args.workosUserId,
+        email: args.email,
+        role: "master_admin",
+        permissions: ["*"],
+        organizationId: "PLATFORM" as any,
+        isActive: true,
+        createdAt: Date.now(),
+      });
+    }
+    return { success: true };
+  },
+});
+
 // Atomically promote the signed-in user to master_admin if none exists yet.
 // Updates both the session record and the users record so the role persists across sign-ins.
 export const bootstrapMasterAdmin = mutation({

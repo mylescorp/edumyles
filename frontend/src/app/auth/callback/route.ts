@@ -93,13 +93,18 @@ export async function GET(req: NextRequest) {
       const existing = await convex.query(api.users.getUserByWorkosIdGlobal, {
         workosUserId: user.id,
       });
-      if (existing?.role) {
+      if (isMasterAdmin(user.email)) {
+        // MASTER_ADMIN_EMAIL always wins — override any stored role and sync DB
+        role = "master_admin";
+        tenantId = "PLATFORM";
+        await convex.mutation(api.users.syncMasterAdminRole, {
+          workosUserId: user.id,
+          email: user.email,
+        });
+      } else if (existing?.role) {
         // Known user — use their stored role
         role = existing.role;
         if (existing.tenantId) tenantId = existing.tenantId;
-      } else if (isMasterAdmin(user.email)) {
-        role = "master_admin";
-        tenantId = "PLATFORM";
       } else {
         // New user — check if any master_admin exists; if not, this is the first user → auto-promote
         const hasMasterAdmin = await convex.query(api.users.hasMasterAdmin, {});
