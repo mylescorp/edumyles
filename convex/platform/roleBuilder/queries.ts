@@ -13,16 +13,20 @@ export const listCustomRoles = query({
     includeSystem: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    // Always scope to a tenantId: use the provided one or fall back to the actor's own tenant.
+    // master_admin with no tenantId arg will see platform-level roles (tenantId undefined/null),
+    // but should not see every other tenant's roles; callers must pass tenantId explicitly for
+    // cross-tenant queries.
+    const scopedTenantId = args.tenantId ?? actor.tenantId;
 
     let rolesQuery;
-    if (args.tenantId) {
-      const tenantId = args.tenantId;
+    {
+      const tenantId = scopedTenantId;
       rolesQuery = ctx.db
         .query("customRoles")
         .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId));
-    } else {
-      rolesQuery = ctx.db.query("customRoles");
     }
 
     const roles = await rolesQuery.order("desc").collect();

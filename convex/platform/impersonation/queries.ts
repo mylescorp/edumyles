@@ -14,9 +14,19 @@ export const listImpersonationSessions = query({
                 return [];
             }
 
-            await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+            const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-            let sessions = await ctx.db.query("impersonationSessions").order("desc").collect();
+            // master_admin sees all sessions; other platform admins see only their own
+            let sessions;
+            if (actor.role === "master_admin") {
+                sessions = await ctx.db.query("impersonationSessions").order("desc").collect();
+            } else {
+                sessions = await ctx.db
+                    .query("impersonationSessions")
+                    .withIndex("by_admin", (q) => q.eq("adminId", actor.userId))
+                    .order("desc")
+                    .collect();
+            }
 
             if (args.activeOnly) {
                 sessions = sessions.filter((s) => s.active);

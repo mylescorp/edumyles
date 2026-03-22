@@ -12,7 +12,7 @@ export type AuditAction =
   | "impersonation.started" | "impersonation.ended"
   | "settings.updated"
   | "module.installed" | "module.uninstalled" | "module.config_updated" | "module.access_requested" | "module.status_toggled"
-  | "tenant.created" | "tenant.suspended" | "tenant.activated"
+  | "tenant.created" | "tenant.suspended" | "tenant.activated" | "tenant.updated"
   | "admission.submitted" | "admission.status_updated" | "admission.enrolled"
   | "staff.created" | "staff.updated" | "staff.role_assigned"
   | "class.created" | "class.updated"
@@ -65,6 +65,9 @@ export type AuditAction =
   | "file.uploaded" | "file.deleted"
   | "notification.created"
   | "operations.incident_created" | "operations.incident_updated" | "operations.incident_resolved"
+  | "operations.maintenance_window_created" | "operations.maintenance_window_updated" | "operations.alert_created"
+  | "scheduled_report.created" | "scheduled_report.updated" | "scheduled_report.deleted" | "scheduled_report.executed"
+  | "onboarding.initialized" | "onboarding.completed"
   | "analytics.report_generated" | "analytics.report_exported"
   | "crm.deal_created" | "crm.deal_updated" | "crm.lead_created" | "crm.lead_updated" | "crm.activity_added" | "crm.proposal_created" | "crm.proposal_updated" | "crm.proposal_sent";
 
