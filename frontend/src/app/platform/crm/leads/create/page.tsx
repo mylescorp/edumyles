@@ -1,143 +1,213 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Users, 
-  ArrowLeft,
-  Target,
-  TrendingUp,
-  Clock,
-  CheckCircle
-} from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, UserPlus } from "lucide-react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function CreateLeadPage() {
   const router = useRouter();
+  const { sessionToken } = useAuth();
+  const createLead = useMutation(api.platform.crm.mutations.createLead);
+
+  const [form, setForm] = useState({
+    schoolName: "",
+    contactPerson: "",
+    email: "",
+    phone: "",
+    county: "",
+    schoolType: "",
+    source: "",
+    notes: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sessionToken || !form.schoolName || !form.contactPerson || !form.email || !form.source) return;
+
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      await createLead({
+        sessionToken,
+        schoolName: form.schoolName,
+        contactPerson: form.contactPerson,
+        email: form.email,
+        phone: form.phone || undefined,
+        county: form.county || undefined,
+        schoolType: form.schoolType || undefined,
+        source: form.source,
+        notes: form.notes || undefined,
+      });
+      router.push("/platform/crm");
+    } catch (err: any) {
+      setError(err.message ?? "Failed to create lead");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <PageHeader
-              title="Add Lead"
-              description="Add new lead to CRM pipeline"
-            />
-          </div>
-        </div>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <PageHeader title="Create Lead" description="Add a new school lead to the CRM pipeline" />
       </div>
 
-      {/* Coming Soon Card */}
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-em-success-bg/20 rounded-full flex items-center justify-center mb-4">
-            <Users className="h-8 w-8 text-em-success" />
-          </div>
-          <CardTitle className="text-2xl">CRM Lead Management</CardTitle>
-          <p className="text-muted-foreground">
-            Manage sales pipeline and track potential customers
-          </p>
+      <Card className="max-w-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserPlus className="h-5 w-5" />
+            Lead Details
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-muted/30 border-border/50">
-              <CardContent className="pt-4 text-center">
-                <Target className="h-8 w-8 text-em-info mx-auto mb-2" />
-                <h3 className="font-medium text-sm">Lead Tracking</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Track leads through sales pipeline stages
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-muted/30 border-border/50">
-              <CardContent className="pt-4 text-center">
-                <TrendingUp className="h-8 w-8 text-em-success mx-auto mb-2" />
-                <h3 className="font-medium text-sm">Conversion Analytics</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Monitor conversion rates and pipeline health
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-muted/30 border-border/50">
-              <CardContent className="pt-4 text-center">
-                <Users className="h-8 w-8 text-em-accent-dark mx-auto mb-2" />
-                <h3 className="font-medium text-sm">Contact Management</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Centralized contact information and history
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Pipeline Stages */}
-          <Card className="bg-muted/30 border-border/50">
-            <CardContent className="pt-4">
-              <h4 className="font-medium text-sm mb-3">Sales Pipeline Stages</h4>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                {[
-                  { stage: "Lead", color: "bg-em-info-bg text-em-info" },
-                  { stage: "Qualified", color: "bg-em-accent-bg text-em-accent-dark" },
-                  { stage: "Proposal", color: "bg-em-warning-bg text-em-accent-dark" },
-                  { stage: "Negotiation", color: "bg-em-warning-bg text-em-accent-dark" },
-                  { stage: "Closed Won", color: "bg-em-success-bg text-em-success" },
-                  { stage: "Closed Lost", color: "bg-em-danger-bg text-em-danger" },
-                ].map((item) => (
-                  <div key={item.stage} className="flex items-center space-x-2">
-                    <Badge className={item.color} variant="secondary">
-                      {item.stage}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      Track progress through this stage
-                    </span>
-                  </div>
-                ))}
+                <Label htmlFor="schoolName">School Name *</Label>
+                <Input
+                  id="schoolName"
+                  value={form.schoolName}
+                  onChange={set("schoolName")}
+                  placeholder="e.g. Greenfield Academy"
+                  required
+                />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Status */}
-          <Card className="bg-em-warning-bg/10 border-em-warning/20">
-            <CardContent className="pt-4">
-              <div className="flex items-center space-x-3">
-                <Clock className="h-5 w-5 text-em-warning" />
-                <div>
-                  <h4 className="font-medium text-sm">Coming Soon</h4>
-                  <p className="text-xs text-muted-foreground">
-                    CRM lead management system is currently under development and will be available in the next release.
-                  </p>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="contactPerson">Contact Person *</Label>
+                <Input
+                  id="contactPerson"
+                  value={form.contactPerson}
+                  onChange={set("contactPerson")}
+                  placeholder="e.g. John Doe"
+                  required
+                />
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-center space-x-4">
-            <Button variant="outline" onClick={() => router.back()}>
-              Go Back
-            </Button>
-            <Button 
-              onClick={() => router.push("/platform/crm")}
-              className="bg-em-accent hover:bg-em-accent-dark"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              View CRM
-            </Button>
-          </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={form.email}
+                  onChange={set("email")}
+                  placeholder="contact@school.edu"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  value={form.phone}
+                  onChange={set("phone")}
+                  placeholder="+254 700 000 000"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="county">County</Label>
+                <Input
+                  id="county"
+                  value={form.county}
+                  onChange={set("county")}
+                  placeholder="e.g. Nairobi"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>School Type</Label>
+                <Select
+                  value={form.schoolType}
+                  onValueChange={(v) => setForm((p) => ({ ...p, schoolType: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="primary">Primary School</SelectItem>
+                    <SelectItem value="secondary">Secondary School</SelectItem>
+                    <SelectItem value="mixed">Mixed (Primary + Secondary)</SelectItem>
+                    <SelectItem value="international">International School</SelectItem>
+                    <SelectItem value="university">University / College</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Lead Source *</Label>
+              <Select
+                value={form.source}
+                onValueChange={(v) => setForm((p) => ({ ...p, source: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="How did you find this lead?" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="website">Website</SelectItem>
+                  <SelectItem value="referral">Referral</SelectItem>
+                  <SelectItem value="cold_call">Cold Call</SelectItem>
+                  <SelectItem value="event">Event / Conference</SelectItem>
+                  <SelectItem value="social_media">Social Media</SelectItem>
+                  <SelectItem value="partnership">Partnership</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={form.notes}
+                onChange={set("notes")}
+                placeholder="Any additional context about this lead..."
+                rows={3}
+              />
+            </div>
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <div className="flex gap-3 pt-2">
+              <Button type="button" variant="outline" onClick={() => router.back()}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !form.schoolName || !form.contactPerson || !form.email || !form.source}
+              >
+                {isSubmitting ? "Creating..." : "Create Lead"}
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>
