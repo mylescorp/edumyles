@@ -27,6 +27,16 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
+      - name: Link or create frontend Vercel project
+        # vercel link --yes will create the project if it doesn't exist yet,
+        # or reuse the existing one. The VERCEL_PROJECT_ID env var overrides
+        # the project.json lookup so we don't need a committed .vercel folder.
+        run: vercel link --yes --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: frontend
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_FRONTEND_PROJECT_ID }}
+
       - name: Pull Vercel environment info (frontend)
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: frontend
@@ -46,7 +56,7 @@ jobs:
         run: |
           url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "frontend_url=$url" >> $GITHUB_OUTPUT
-          echo "Deployed frontend to: $url"
+          echo "✅ Frontend deployed to: $url"
         working-directory: frontend
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -81,7 +91,7 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          # Pass the just-deployed frontend URL so the landing can link to it
+          # Inject the just-deployed frontend URL so the landing knows where to redirect
           NEXT_PUBLIC_APP_URL: ${{ needs.deploy-frontend.outputs.frontend_url }}
 
       - name: Deploy landing to production
