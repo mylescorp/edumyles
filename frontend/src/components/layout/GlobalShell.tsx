@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
-import { useNotifications } from "@/hooks/useSSRSafeConvex";
+import { useNotifications } from "@/hooks/useNotifications";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,9 +31,10 @@ import {
   Settings,
   User,
   Menu,
-  GraduationCap,
   ChevronDown,
   X,
+  HelpCircle,
+  Zap,
 } from "lucide-react";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import type { NavItem } from "@/lib/routes";
@@ -42,11 +43,10 @@ import type { NavItem } from "@/lib/routes";
 
 export interface NavGroup {
   label: string;
-  href?: string; // direct link (no dropdown)
+  href?: string;
   items?: { label: string; href: string }[];
 }
 
-// Platform-admin nav groups matching the screenshot layout
 export const PLATFORM_NAV_GROUPS: NavGroup[] = [
   { label: "Home", href: "/platform" },
   {
@@ -165,7 +165,6 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-// Flat-item nav for simpler roles (shown as horizontal tabs)
 function navItemsToGroups(items: NavItem[]): NavGroup[] {
   return items.map((item) => ({ label: item.label, href: item.href }));
 }
@@ -181,37 +180,15 @@ function getNavGroups(role: string, navItems: NavItem[]): NavGroup[] {
     role === "transport_manager"
   )
     return ADMIN_NAV_GROUPS;
-  // Teachers, students, parents, alumni, partners — simple horizontal tabs
   return navItemsToGroups(navItems);
 }
 
-// ─── Role accent colour ───────────────────────────────────────────────────────
+// ─── Role label for workspace pill ───────────────────────────────────────────
 
-function getRoleAccent(role: string): string {
-  switch (role) {
-    case "master_admin":
-    case "super_admin":
-      return "bg-[#1A4731]";
-    case "school_admin":
-    case "principal":
-    case "bursar":
-    case "hr_manager":
-    case "librarian":
-    case "transport_manager":
-      return "bg-blue-900";
-    case "teacher":
-      return "bg-teal-900";
-    case "student":
-      return "bg-purple-900";
-    case "parent":
-      return "bg-orange-900";
-    case "alumni":
-      return "bg-rose-900";
-    case "partner":
-      return "bg-indigo-900";
-    default:
-      return "bg-[#1A4731]";
-  }
+function getRoleWorkspaceLabel(role: string, tenantName?: string): string {
+  if (role === "master_admin" || role === "super_admin") return "Platform Admin";
+  if (tenantName) return tenantName;
+  return "My School";
 }
 
 // ─── Dropdown nav group ───────────────────────────────────────────────────────
@@ -232,17 +209,23 @@ function NavGroupDropdown({
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            "flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded transition-colors whitespace-nowrap",
+            "relative flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap outline-none",
             isGroupActive
-              ? "bg-white/20 text-white"
-              : "text-white/75 hover:text-white hover:bg-white/10"
+              ? "text-white bg-[rgba(232,160,32,0.18)]"
+              : "text-white/70 hover:text-white hover:bg-white/8"
           )}
         >
           {group.label}
-          <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+          {isGroupActive && (
+            <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[#E8A020]" />
+          )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-52">
+      <DropdownMenuContent
+        align="start"
+        className="w-52 border-[rgba(232,160,32,0.2)] bg-[#0C3020] text-white shadow-xl"
+      >
         {group.items?.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + "/");
@@ -251,10 +234,15 @@ function NavGroupDropdown({
               <Link
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-2 cursor-pointer",
-                  isActive && "font-medium text-primary"
+                  "flex items-center gap-2 cursor-pointer rounded-md text-sm py-2 px-3",
+                  isActive
+                    ? "text-[#E8A020] font-semibold bg-[rgba(232,160,32,0.1)]"
+                    : "text-white/80 hover:text-white hover:bg-white/8"
                 )}
               >
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E8A020] flex-shrink-0" />
+                )}
                 {item.label}
               </Link>
             </DropdownMenuItem>
@@ -269,7 +257,6 @@ function NavGroupDropdown({
 
 function MobileDrawer({
   groups,
-  role,
   user,
   tenant,
   logout,
@@ -282,29 +269,32 @@ function MobileDrawer({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const accent = getRoleAccent(role);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-white/70 hover:text-white hover:bg-white/10"
+        >
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0 flex flex-col">
+      <SheetContent side="left" className="w-72 p-0 flex flex-col border-r border-[rgba(232,160,32,0.15)] bg-[#0C3020]">
         {/* Drawer header */}
-        <div className={cn("flex items-center gap-3 p-4", accent)}>
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
-            <GraduationCap className="h-5 w-5 text-white" />
+        <div className="flex items-center gap-3 p-4 border-b border-[rgba(232,160,32,0.15)]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[rgba(232,160,32,0.15)] border border-[rgba(232,160,32,0.3)]">
+            <span className="font-serif font-bold text-[#E8A020] text-base leading-none">E</span>
           </div>
           <div>
             <p className="text-sm font-bold text-white">EduMyles</p>
-            <p className="text-xs text-white/60">{tenant?.name ?? "Platform"}</p>
+            <p className="text-xs text-[#E8A020]/80">{tenant?.name ?? "School Management"}</p>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="ml-auto h-7 w-7 p-0 text-white/70 hover:text-white hover:bg-white/10"
+            className="ml-auto h-7 w-7 p-0 text-white/50 hover:text-white hover:bg-white/10"
             onClick={() => setOpen(false)}
           >
             <X className="h-4 w-4" />
@@ -325,17 +315,16 @@ function MobileDrawer({
                     href={group.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground hover:bg-accent"
+                        ? "bg-[rgba(232,160,32,0.15)] text-[#E8A020] border-l-2 border-[#E8A020]"
+                        : "text-white/70 hover:text-white hover:bg-white/8"
                     )}
                   >
                     {group.label}
                   </Link>
                 );
               }
-              // Group with sub-items
               const isGroupActive = group.items?.some(
                 (item) =>
                   pathname === item.href || pathname.startsWith(item.href + "/")
@@ -344,8 +333,8 @@ function MobileDrawer({
                 <div key={group.label} className="mb-1">
                   <p
                     className={cn(
-                      "px-3 py-1.5 text-xs font-semibold uppercase tracking-wider",
-                      isGroupActive ? "text-primary" : "text-muted-foreground"
+                      "px-3 py-1.5 text-xs font-bold uppercase tracking-widest",
+                      isGroupActive ? "text-[#E8A020]" : "text-white/35"
                     )}
                   >
                     {group.label}
@@ -360,10 +349,10 @@ function MobileDrawer({
                         href={item.href}
                         onClick={() => setOpen(false)}
                         className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ml-1",
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-150 ml-1",
                           isActive
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "text-foreground hover:bg-accent"
+                            ? "bg-[rgba(232,160,32,0.12)] text-[#E8A020] font-semibold border-l-2 border-[#E8A020]"
+                            : "text-white/65 hover:text-white hover:bg-white/8"
                         )}
                       >
                         {item.label}
@@ -377,25 +366,30 @@ function MobileDrawer({
         </ScrollArea>
 
         {/* User footer */}
-        <div className="border-t p-4">
+        <div className="border-t border-[rgba(232,160,32,0.15)] p-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9">
               <AvatarImage src={user?.avatarUrl} />
-              <AvatarFallback className="text-xs bg-primary text-white">
+              <AvatarFallback className="text-xs bg-[rgba(232,160,32,0.2)] text-[#E8A020] font-bold border border-[rgba(232,160,32,0.3)]">
                 {getInitials(user?.firstName, user?.lastName)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">
+              <p className="text-sm font-semibold text-white truncate">
                 {formatName(user?.firstName, user?.lastName) || user?.email}
               </p>
-              <p className="text-xs text-muted-foreground">{getRoleLabel(role)}</p>
+              <p className="text-xs text-[#6B9E83]">
+                {getRoleLabel(user?.role ?? "")}
+              </p>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-              onClick={() => { setOpen(false); logout(); }}
+              className="h-8 w-8 p-0 text-white/40 hover:text-red-400 hover:bg-red-500/10"
+              onClick={() => {
+                setOpen(false);
+                logout();
+              }}
             >
               <LogOut className="h-4 w-4" />
             </Button>
@@ -428,30 +422,80 @@ function GlobalSearch() {
   return (
     <div className="relative">
       {open ? (
-        <div className="flex items-center gap-1 rounded-md bg-white/15 border border-white/20 pl-2 pr-1 h-8">
-          <Search className="h-3.5 w-3.5 text-white/60 shrink-0" />
+        <div className="flex items-center gap-1.5 rounded-md bg-white/12 border border-[rgba(232,160,32,0.3)] pl-2.5 pr-1 h-8 focus-within:border-[#E8A020] transition-colors">
+          <Search className="h-3.5 w-3.5 text-[#E8A020] shrink-0" />
           <Input
             ref={inputRef}
             autoFocus
             placeholder="Search..."
-            className="h-7 w-40 border-0 bg-transparent text-white text-sm placeholder:text-white/50 focus-visible:ring-0 p-0"
+            className="h-7 w-44 border-0 bg-transparent text-white text-sm placeholder:text-white/40 focus-visible:ring-0 p-0"
             onBlur={() => setOpen(false)}
           />
-          <button onClick={() => setOpen(false)} className="text-white/60 hover:text-white p-0.5">
+          <button
+            onClick={() => setOpen(false)}
+            className="text-white/50 hover:text-white p-0.5 transition-colors"
+          >
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
       ) : (
         <button
-          onClick={() => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
-          className="flex items-center gap-2 rounded-md bg-white/10 border border-white/15 px-2.5 h-8 text-white/70 hover:text-white hover:bg-white/15 transition-colors text-sm"
+          onClick={() => {
+            setOpen(true);
+            setTimeout(() => inputRef.current?.focus(), 50);
+          }}
+          className="flex items-center gap-2 rounded-md bg-white/8 border border-white/12 px-2.5 h-8 text-white/60 hover:text-white hover:bg-white/12 hover:border-[rgba(232,160,32,0.3)] transition-all duration-150 text-sm"
         >
           <Search className="h-3.5 w-3.5" />
-          <span className="hidden sm:block">Search</span>
-          <kbd className="hidden sm:block text-[10px] bg-white/10 px-1 rounded">⌘K</kbd>
+          <span className="hidden sm:block text-xs">Search</span>
+          <kbd className="hidden sm:block text-[9px] bg-white/10 px-1 rounded font-mono">⌘K</kbd>
         </button>
       )}
     </div>
+  );
+}
+
+// ─── Icon button helper ───────────────────────────────────────────────────────
+
+function TopNavIconBtn({
+  onClick,
+  title,
+  children,
+  href,
+  badge,
+}: {
+  onClick?: () => void;
+  title?: string;
+  children: React.ReactNode;
+  href?: string;
+  badge?: number;
+}) {
+  const cls =
+    "relative h-8 w-8 flex items-center justify-center rounded-md text-white/60 hover:text-white hover:bg-white/10 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8A020] focus-visible:ring-offset-1 focus-visible:ring-offset-[#061A12]";
+
+  const inner = (
+    <>
+      {children}
+      {badge != null && badge > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border border-[#061A12]">
+          {badge > 9 ? "9+" : badge}
+        </span>
+      )}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={cls} title={title}>
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <button onClick={onClick} className={cls} title={title}>
+      {inner}
+    </button>
   );
 }
 
@@ -472,42 +516,36 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const anyUser = user as any;
   const displayName = formatName(anyUser?.firstName, anyUser?.lastName);
   const initials = getInitials(anyUser?.firstName, anyUser?.lastName);
-  const accent = getRoleAccent(role ?? "");
   const groups = getNavGroups(role ?? "", navItems);
+  const workspaceLabel = getRoleWorkspaceLabel(role ?? "", tenant?.name);
 
-  const notificationsHref = pathname?.startsWith("/platform")
-    ? "/platform/notifications"
-    : pathname?.startsWith("/portal/student")
-    ? "/portal/student/notifications"
-    : pathname?.startsWith("/portal/teacher")
-    ? "/portal/teacher/notifications"
-    : pathname?.startsWith("/portal/parent")
-    ? "/portal/parent/notifications"
-    : pathname?.startsWith("/portal/alumni")
-    ? "/portal/alumni/notifications"
-    : pathname?.startsWith("/portal/partner")
-    ? "/portal/partner/notifications"
-    : "/admin/notifications";
+  // Derive notification / profile hrefs from current section
+  const sectionHref = (suffix: string) => {
+    if (pathname?.startsWith("/platform")) return `/platform/${suffix}`;
+    if (pathname?.startsWith("/portal/student")) return `/portal/student/${suffix}`;
+    if (pathname?.startsWith("/portal/teacher")) return `/portal/teacher/${suffix}`;
+    if (pathname?.startsWith("/portal/parent")) return `/portal/parent/${suffix}`;
+    if (pathname?.startsWith("/portal/alumni")) return `/portal/alumni/${suffix}`;
+    if (pathname?.startsWith("/portal/partner")) return `/portal/partner/${suffix}`;
+    return `/admin/${suffix}`;
+  };
 
-  const profileHref = pathname?.startsWith("/platform")
-    ? "/platform/profile"
-    : pathname?.startsWith("/portal/student")
-    ? "/portal/student/profile"
-    : pathname?.startsWith("/portal/teacher")
-    ? "/portal/teacher/profile"
-    : pathname?.startsWith("/portal/parent")
-    ? "/portal/parent/profile"
-    : pathname?.startsWith("/portal/alumni")
-    ? "/portal/alumni/profile"
-    : pathname?.startsWith("/portal/partner")
-    ? "/portal/partner/profile"
-    : "/admin/profile";
+  const notificationsHref = sectionHref("notifications");
+  const profileHref = sectionHref("profile");
+  const settingsHref = pathname?.startsWith("/platform")
+    ? "/platform/settings"
+    : "/admin/settings";
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-muted/30">
-      {/* ── Top navigation bar ─────────────────────────────────────────────── */}
-      <header className={cn("flex-shrink-0 z-[2000]", accent)}>
-        <div className="flex h-14 items-center gap-2 px-3 md:px-4">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#F3FBF6]">
+
+      {/* ══ Top navigation bar — Zoho-style, EduMyles 2026 brand ══════════ */}
+      <header
+        className="flex-shrink-0 z-[2000]"
+        style={{ background: "#061A12", borderBottom: "1px solid rgba(232,160,32,0.13)" }}
+      >
+        <div className="flex h-[52px] items-center gap-1.5 px-3 md:px-4">
+
           {/* Mobile menu */}
           <div className="flex md:hidden">
             <MobileDrawer
@@ -519,123 +557,203 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
             />
           </div>
 
-          {/* Logo + org switcher */}
+          {/* ── Logo mark (Zoho-style: "E" monogram + name) ── */}
           <Link
-            href={role === "master_admin" || role === "super_admin" ? "/platform" : role === "school_admin" ? "/admin" : "/"}
-            className="flex items-center gap-2 shrink-0 mr-2"
+            href={
+              role === "master_admin" || role === "super_admin"
+                ? "/platform"
+                : role === "school_admin" || role === "principal"
+                ? "/admin"
+                : "/"
+            }
+            className="flex items-center gap-2 shrink-0 mr-1"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20">
-              <GraduationCap className="h-4 w-4 text-white" />
+            <div
+              className="flex h-[30px] w-[30px] items-center justify-center rounded-lg border border-[rgba(232,160,32,0.45)]"
+              style={{ background: "linear-gradient(135deg,#0F4C2A,#0C3020)" }}
+            >
+              <span className="font-serif font-bold text-[#E8A020] text-[15px] leading-none">
+                E
+              </span>
             </div>
-            <span className="hidden sm:block text-sm font-bold text-white">EduMyles</span>
+            <span className="hidden sm:block text-sm font-bold text-white tracking-tight">
+              EduMyles
+            </span>
           </Link>
 
-          {/* Org context pill */}
-          {tenant?.name && (
-            <div className="hidden md:flex items-center gap-1 bg-white/10 border border-white/15 rounded-md px-2 h-7 text-xs text-white/80">
-              <span>{tenant.name}</span>
-              <ChevronDown className="h-3 w-3 opacity-60" />
-            </div>
-          )}
+          {/* ── Workspace / school selector pill (like Zoho "Personal ▾") ── */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="hidden md:flex items-center gap-1 rounded-md border border-white/12 bg-white/6 px-2.5 h-[28px] text-xs font-medium text-white/75 hover:text-white hover:bg-white/10 hover:border-[rgba(232,160,32,0.3)] transition-all duration-150 mr-1 max-w-[160px]">
+                <span className="truncate">{workspaceLabel}</span>
+                <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="w-56 border-[rgba(232,160,32,0.2)] bg-[#0C3020] text-white shadow-xl"
+            >
+              <DropdownMenuLabel className="text-[#6B9E83] text-xs font-bold uppercase tracking-wider">
+                Workspace
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-[rgba(232,160,32,0.12)]" />
+              <DropdownMenuItem className="text-white/80 hover:text-white hover:bg-white/8 cursor-pointer">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#E8A020]" />
+                  <span className="font-medium">{workspaceLabel}</span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          {/* ── Horizontal navigation (desktop) ── */}
-          <nav className="hidden md:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-none mx-2">
+          {/* Separator */}
+          <div className="hidden md:block w-px h-5 bg-white/10 mx-0.5" />
+
+          {/* ── Horizontal navigation tabs (desktop) ── */}
+          <nav className="hidden md:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-none mx-1">
             {groups.map((group) => {
               if (group.href && !group.items?.length) {
                 const isActive =
                   pathname === group.href ||
-                  (group.href.length > 1 && pathname.startsWith(group.href + "/"));
+                  (group.href.length > 1 &&
+                    pathname.startsWith(group.href + "/"));
                 return (
                   <Link
                     key={group.href}
                     href={group.href}
                     className={cn(
-                      "px-3 py-1.5 text-sm font-medium rounded transition-colors whitespace-nowrap",
+                      "relative px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap",
                       isActive
-                        ? "bg-white/20 text-white"
-                        : "text-white/75 hover:text-white hover:bg-white/10"
+                        ? "text-white bg-[rgba(232,160,32,0.18)]"
+                        : "text-white/70 hover:text-white hover:bg-white/8"
                     )}
                   >
                     {group.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[#E8A020]" />
+                    )}
                   </Link>
                 );
               }
               return (
-                <NavGroupDropdown key={group.label} group={group} pathname={pathname ?? ""} />
+                <NavGroupDropdown
+                  key={group.label}
+                  group={group}
+                  pathname={pathname ?? ""}
+                />
               );
             })}
           </nav>
 
           {/* ── Right controls ── */}
-          <div className="flex items-center gap-1.5 ml-auto">
+          <div className="flex items-center gap-1 ml-auto">
             <GlobalSearch />
 
-            {/* Refresh */}
-            <button
+            <TopNavIconBtn
               onClick={() => router.refresh()}
-              className="h-8 w-8 flex items-center justify-center rounded text-white/70 hover:text-white hover:bg-white/10 transition-colors"
               title="Refresh"
             >
               <RefreshCw className="h-4 w-4" />
-            </button>
+            </TopNavIconBtn>
 
-            {/* Notifications */}
-            <Link
+            <TopNavIconBtn
               href={notificationsHref}
-              className="relative h-8 w-8 flex items-center justify-center rounded text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+              title="Notifications"
+              badge={unreadCount}
             >
               <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border border-white/20">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </Link>
+            </TopNavIconBtn>
 
-            {/* User dropdown */}
+            {/* Help icon */}
+            <TopNavIconBtn title="Help & Support">
+              <HelpCircle className="h-4 w-4" />
+            </TopNavIconBtn>
+
+            {/* Divider */}
+            <div className="w-px h-5 bg-white/10 mx-0.5" />
+
+            {/* ── User dropdown ── */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-md pl-1 pr-2 py-1 text-white hover:bg-white/10 transition-colors ml-1">
+                <button className="flex items-center gap-2 rounded-lg pl-1.5 pr-2 py-1 text-white hover:bg-white/8 transition-all duration-150 ml-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8A020]">
                   <Avatar className="h-7 w-7">
-                    <AvatarImage src={anyUser?.avatarUrl ?? undefined} alt={displayName} />
-                    <AvatarFallback className="text-[10px] bg-white/20 text-white">
+                    <AvatarImage
+                      src={anyUser?.avatarUrl ?? undefined}
+                      alt={displayName}
+                    />
+                    <AvatarFallback className="text-[10px] bg-[rgba(232,160,32,0.2)] text-[#E8A020] font-bold border border-[rgba(232,160,32,0.35)]">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden sm:flex flex-col items-start leading-tight">
-                    <span className="text-xs font-medium">{displayName || anyUser?.email}</span>
-                    <span className="text-[10px] text-white/60">{getRoleLabel(role ?? "")}</span>
+                    <span className="text-xs font-semibold text-white">
+                      {displayName || anyUser?.email}
+                    </span>
+                    <span className="text-[10px] text-[#6B9E83]">
+                      {getRoleLabel(role ?? "")}
+                    </span>
                   </div>
-                  <ChevronDown className="h-3 w-3 text-white/60 hidden sm:block" />
+                  <ChevronDown className="h-3 w-3 text-white/40 hidden sm:block" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+
+              <DropdownMenuContent
+                align="end"
+                className="w-60 border-[rgba(232,160,32,0.2)] bg-[#0C3020] text-white shadow-xl"
+              >
                 <DropdownMenuLabel>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{displayName || anyUser?.email}</span>
-                    <span className="text-xs text-muted-foreground">{user?.email}</span>
-                    <Badge variant="secondary" className="mt-1 w-fit text-[10px]">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-semibold text-white">
+                      {displayName || anyUser?.email}
+                    </span>
+                    <span className="text-xs text-[#6B9E83]">
+                      {user?.email}
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className="mt-0.5 w-fit text-[10px] bg-[rgba(232,160,32,0.15)] text-[#E8A020] border border-[rgba(232,160,32,0.3)] font-semibold"
+                    >
                       {getRoleLabel(role ?? "")}
                     </Badge>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-[rgba(232,160,32,0.12)]" />
                 <DropdownMenuItem asChild>
-                  <Link href={profileHref} className="flex items-center gap-2 cursor-pointer">
-                    <User className="h-4 w-4" />
+                  <Link
+                    href={profileHref}
+                    className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                  >
+                    <User className="h-4 w-4 text-[#6B9E83]" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={profileHref} className="flex items-center gap-2 cursor-pointer">
-                    <Settings className="h-4 w-4" />
+                  <Link
+                    href={settingsHref}
+                    className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                  >
+                    <Settings className="h-4 w-4 text-[#6B9E83]" />
                     Settings
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={notificationsHref}
+                    className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                  >
+                    <Zap className="h-4 w-4 text-[#6B9E83]" />
+                    Notifications
+                    {unreadCount > 0 && (
+                      <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-white border-0 text-[10px] font-bold">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </Badge>
+                    )}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-[rgba(232,160,32,0.12)]" />
                 <DropdownMenuItem
                   onClick={logout}
-                  className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+                  className="flex items-center gap-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer py-2"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
@@ -646,13 +764,42 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
         </div>
       </header>
 
-      {/* ── Impersonation banner (below nav) ────────────────────────────────── */}
+      {/* ── Impersonation banner (below nav) ──────────────────────────── */}
       <ImpersonationBanner />
 
-      {/* ── Page content ────────────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-y-auto">
+      {/* ── Page content ─────────────────────────────────────────────── */}
+      <main className="flex-1 overflow-y-auto bg-[#F3FBF6]">
         {children}
       </main>
+
+      {/* ══ Bottom status bar — Zoho-style Smart Chat hint ════════════ */}
+      <footer
+        className="flex-shrink-0 flex items-center justify-between px-4 h-[38px] text-xs border-t"
+        style={{
+          background: "#061A12",
+          borderColor: "rgba(232,160,32,0.13)",
+        }}
+      >
+        {/* Left: Tagline */}
+        <span className="hidden sm:block font-serif italic text-[#E8A020]/70 text-[11px]">
+          &ldquo;Empowering Schools. Elevating Learning.&rdquo;
+        </span>
+
+        {/* Right: Need Support */}
+        <div className="flex items-center gap-3 ml-auto">
+          <Link
+            href={sectionHref("tickets")}
+            className="flex items-center gap-1.5 text-[#6B9E83] hover:text-[#E8A020] transition-colors duration-150"
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            <span>Need Support?</span>
+          </Link>
+          <div className="h-3.5 w-px bg-white/10" />
+          <span className="text-[#6B9E83]/60 text-[10px] font-mono">
+            EduMyles v2026
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }

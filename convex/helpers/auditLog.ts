@@ -69,7 +69,8 @@ export type AuditAction =
   | "scheduled_report.created" | "scheduled_report.updated" | "scheduled_report.deleted" | "scheduled_report.executed"
   | "onboarding.initialized" | "onboarding.completed"
   | "analytics.report_generated" | "analytics.report_exported"
-  | "crm.deal_created" | "crm.deal_updated" | "crm.lead_created" | "crm.lead_updated" | "crm.activity_added" | "crm.proposal_created" | "crm.proposal_updated" | "crm.proposal_sent";
+  | "crm.deal_created" | "crm.deal_updated" | "crm.lead_created" | "crm.lead_updated" | "crm.activity_added" | "crm.proposal_created" | "crm.proposal_updated" | "crm.proposal_sent"
+  | "billing.invoice.created" | "billing.invoice.status_updated" | "billing.subscription_updated";
 
 export async function logAction(
   ctx: MutationCtx,

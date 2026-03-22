@@ -13,7 +13,11 @@ export async function GET(req: NextRequest) {
 
   if (!apiKey || !clientId) {
     console.error("[landing/auth/signup/api] Missing WorkOS env vars");
-    return NextResponse.redirect(new URL("/?auth_error=not_configured", req.url));
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+    const errorUrl = appUrl
+      ? `${appUrl}/auth/error?reason=not_configured`
+      : `${req.nextUrl.origin}/auth/error?reason=not_configured`;
+    return NextResponse.redirect(errorUrl);
   }
 
   const email = req.nextUrl.searchParams.get("email");

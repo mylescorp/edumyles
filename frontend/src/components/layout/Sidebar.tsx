@@ -9,12 +9,9 @@ import { useInstalledModules } from "@/hooks/useInstalledModules";
 import {
   ChevronLeft,
   ChevronRight,
-  GraduationCap,
   LogOut,
   X,
-  Package,
   Star,
-  Zap
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -65,12 +62,16 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   const SidebarContent = () => (
     <>
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4 bg-gradient-to-r from-sidebar-bg to-sidebar-active/20">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent/20">
-          <GraduationCap className="h-4 w-4 text-sidebar-icon" />
+      <div className="flex h-14 items-center gap-2.5 border-b border-sidebar-border px-4"
+           style={{ background: "linear-gradient(135deg,#061A12,#0C3020)" }}>
+        <div
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[rgba(232,160,32,0.4)]"
+          style={{ background: "linear-gradient(135deg,#0F4C2A,#0C3020)" }}
+        >
+          <span className="font-serif font-bold text-[#E8A020] text-sm leading-none">E</span>
         </div>
         {!collapsed && (
-          <span className="text-lg font-bold text-sidebar-text-active transition-all duration-200">EduMyles</span>
+          <span className="text-sm font-bold text-white tracking-tight transition-all duration-200">EduMyles</span>
         )}
         {!isMobile && (
           <Button
@@ -122,16 +123,16 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                   href={item.href}
                   onClick={isMobile ? onClose : undefined}
                   className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 relative",
-                    "hover:bg-sidebar-accent/50 hover:translate-x-0.5",
+                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 relative",
+                    "hover:bg-[rgba(232,160,32,0.1)] hover:translate-x-0.5",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-text-active shadow-sm border-l-2 border-em-primary-light"
-                      : "text-sidebar-text hover:text-sidebar-text-hover"
+                      ? "bg-[rgba(232,160,32,0.15)] text-white shadow-sm border-l-2 border-[#E8A020]"
+                      : "text-sidebar-text hover:text-white"
                   )}
                 >
                   <div className={cn(
-                    "flex h-4 w-4 items-center justify-center rounded transition-all duration-200",
-                    isActive ? "bg-em-primary-light/20 text-em-primary-light" : "text-sidebar-icon group-hover:text-sidebar-icon-hover"
+                    "flex h-4 w-4 items-center justify-center rounded transition-all duration-150",
+                    isActive ? "text-[#E8A020]" : "text-sidebar-icon group-hover:text-[#E8A020]"
                   )}>
                     <Icon className="h-4 w-4" />
                   </div>
@@ -206,16 +207,16 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
 
       {/* User section at bottom */}
       {!isMobile && (
-        <div className="border-t border-sidebar-border p-4 bg-gradient-to-t from-sidebar-accent/10 to-transparent">
+        <div className="border-t border-sidebar-border p-4" style={{ background: "linear-gradient(to top, rgba(6,26,18,0.6), transparent)" }}>
           <div className={cn(
             "flex items-center gap-3 transition-all duration-200",
             collapsed ? "justify-center" : ""
           )}>
-            <div className="relative h-8 w-8 rounded-full bg-gradient-to-br from-em-primary-light to-em-primary flex items-center justify-center shadow-sm">
-              <span className="text-xs font-medium text-sidebar-text-active">
+            <div className="relative h-8 w-8 rounded-full border border-[rgba(232,160,32,0.35)] bg-[rgba(232,160,32,0.15)] flex items-center justify-center shadow-sm">
+              <span className="text-xs font-bold text-[#E8A020]">
                 {(user as any)?.firstName?.[0]?.toUpperCase() ?? (user as any)?.email?.[0]?.toUpperCase() ?? "U"}
               </span>
-              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-em-success border-2 border-sidebar-bg"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#26A65B] border-2 border-[#0C3020]"></div>
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">

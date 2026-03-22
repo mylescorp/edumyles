@@ -13,9 +13,12 @@ const config: Config = {
     extend: {
       /* ── Fonts ────────────────────────────────────────────────────── */
       fontFamily: {
-        sans:    ["var(--font-inter)", "system-ui", "sans-serif"],   // product UI
-        poppins: ["var(--font-poppins)", '"Poppins"', "sans-serif"], // marketing / headings
-        mono:    ['"JetBrains Mono"', "monospace"],                  // code blocks
+        sans:    ["var(--font-plus-jakarta)", "var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif:   ["var(--font-playfair)", "Georgia", '"Times New Roman"', "serif"],
+        mono:    ["var(--font-dm-mono)", '"JetBrains Mono"', '"Fira Code"', "monospace"],
+        inter:   ["var(--font-inter)", "system-ui", "sans-serif"],
+        // legacy alias kept for existing components
+        poppins: ["var(--font-playfair)", "var(--font-plus-jakarta)", "sans-serif"],
       },
 
       /* ── Colours ──────────────────────────────────────────────────── */
@@ -23,7 +26,7 @@ const config: Config = {
         /* ── Shadcn/ui semantic tokens — point to v3 CSS vars ─────── */
         border:     "var(--em-border)",
         input:      "var(--em-border)",
-        ring:       "var(--em-primary-light)",
+        ring:       "var(--em-gold, #E8A020)",
         background: "var(--em-bg-base)",
         foreground: "var(--em-text-primary)",
 
@@ -63,36 +66,51 @@ const config: Config = {
           ring:                 "var(--sidebar-active)",
         },
 
-        /* ── EduMyles Brand Primary ───────────────────────────────── */
-        /* Merged with shadcn `primary` — foreground required by shadcn */
+        /* ── EduMyles 2026 Brand Primary — Forest Green Family ─────── */
         primary: {
-          DEFAULT:    "#1A4731",               // Dark Green  — navbar, sidebar, headers
-          foreground: "#FFFFFF",               // white text on primary bg (shadcn compat)
-          light:      "#16A34A",               // Emerald     — ALL primary CTAs, success
-          dark:       "#0F2E20",               // Deep Green  — sidebar dark, footer
-          "10":       "rgba(26,71,49,0.10)",   // overlay tint for hover states
+          DEFAULT:    "#0F4C2A",               // Forest      — brand primary
+          foreground: "#FFFFFF",               // white text on primary bg
+          light:      "#26A65B",               // Leaf Green  — success, CTAs
+          dark:       "#061A12",               // Forest Deep — sidebar dark, footer
+          "10":       "rgba(15,76,42,0.10)",   // overlay tint for hover states
+          emerald:    "#1A7A4A",               // Emerald     — hover / interactive
+          mint:       "#A8E6C3",               // Mint        — light text on dark
         },
 
-        /* ── EduMyles Accent — Amber/Gold ─────────────────────────── */
-        /* Separate key from shadcn `accent` to avoid conflicts */
+        /* ── EduMyles Accent — Gold Family ─────────────────────────── */
         "em-accent": {
-          DEFAULT: "#F59E0B",  // Warnings, fee due, announcements, pending badges
-          light:   "#FDE68A",
-          dark:    "#B45309",
+          DEFAULT:  "#E8A020",   // Gold — primary CTA, active nav, accents
+          light:    "#F5C453",   // Gold Light — hover / gradient end
+          dark:     "#9A5D00",   // Gold Deep — on light backgrounds
+          pale:     "#FEF3DC",   // Gold Pale — alert callout backgrounds
+        },
+
+        /* ── Sunshine Yellow — Achievement / Celebration ONLY ───────── */
+        "em-yellow": {
+          DEFAULT:  "#F5D800",   // Sunshine Yellow — badges, awards, top student
+          light:    "#FFF176",   // Yellow Light — pale celebration tint
+        },
+
+        /* ── Ocean Blue Family ──────────────────────────────────────── */
+        "em-ocean": {
+          deep:    "#001535",    // Ocean Deep — blue card surfaces
+          DEFAULT: "#1565C0",    // Ocean — links, informational
+          sky:     "#90CAF9",    // Sky — body text on dark backgrounds
+          pale:    "#E3F2FD",    // Sky Pale — info callout backgrounds
         },
 
         /* ── Semantic ─────────────────────────────────────────────── */
         info: {
-          DEFAULT: "#1E3A8A",
-          bg:      "#DBEAFE",
+          DEFAULT: "#1565C0",    // Ocean Blue
+          bg:      "#E3F2FD",
         },
         success: {
-          DEFAULT: "#16A34A",
-          bg:      "#DCFCE7",
+          DEFAULT: "#26A65B",    // Leaf Green
+          bg:      "#E8F5EE",
         },
         warning: {
-          DEFAULT: "#F59E0B",
-          bg:      "#FEF9C3",
+          DEFAULT: "#E8A020",    // Gold
+          bg:      "#FEF3DC",
         },
         danger: {
           DEFAULT: "#DC2626",
@@ -101,38 +119,38 @@ const config: Config = {
 
         /* ── Neutral Scale ────────────────────────────────────────── */
         neutral: {
-          50:  "#F8FAFC",  // page background, outer wrapper
-          100: "#F1F5F9",  // input backgrounds, zebra rows, muted surfaces
-          200: "#E2E8F0",  // borders, dividers, skeleton base
-          400: "#94A3B8",  // disabled text, placeholders
-          500: "#64748B",  // secondary / helper text
-          700: "#334155",  // dark borders in dark mode
-          900: "#0F172A",  // code block backgrounds, tooltips
+          50:  "#F3FBF6",  // off-white page background
+          100: "#E8F5EE",  // ice surface / zebra rows
+          200: "#A8E6C3",  // mint borders / dividers
+          400: "#6B9E83",  // sage muted / helper text
+          500: "#3D6E54",  // medium green text
+          700: "#0F4C2A",  // forest for dark contexts
+          900: "#061A12",  // forest deep
         },
 
         /* ── Role-based identity colours ─────────────────────────── */
         role: {
-          "super-admin": "#1A4731",
-          "school-admin":"#1E3A8A",
-          teacher:       "#16A34A",
-          finance:       "#F59E0B",
-          parent:        "#0D9488",
+          "super-admin": "#061A12",
+          "school-admin":"#0F4C2A",
+          teacher:       "#1A7A4A",
+          finance:       "#E8A020",
+          parent:        "#1565C0",
           student:       "#7C3AED",
         },
 
         /* ── Data Visualisation chart palette ─────────────────────── */
         chart: {
-          "1": "#16A34A",  // present / paid / pass
-          "2": "#1E3A8A",  // second series / enrolment
-          "3": "#F59E0B",  // pending / partial / in-progress
-          "4": "#7C3AED",  // student metrics
-          "5": "#0D9488",  // parent engagement
+          "1": "#E8A020",  // primary — gold (fees, enrolment totals)
+          "2": "#26A65B",  // present / paid / pass
+          "3": "#90CAF9",  // informational / comparison series
+          "4": "#F5D800",  // achievement highlight (use sparingly)
+          "5": "#6B9E83",  // baseline / low-emphasis
           "6": "#DC2626",  // absent / overdue / failed — use last
         },
 
         /* ── Marketing accent (landing pages ONLY, not product UI) ── */
         marketing: {
-          amber: "#FFD731",
+          amber: "#E8A020",
         },
       },
 

@@ -47,6 +47,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
@@ -285,11 +286,11 @@ export default function UsersPage() {
   const handleDeleteRole = (roleId: string) => {
     const role = roles.find(r => r._id === roleId);
     if (role?.isSystem) {
-      alert("Cannot delete system roles");
+      toast.error("Cannot delete system roles");
       return;
     }
     if (role?.userCount && role.userCount > 0) {
-      alert("Cannot delete role with assigned users");
+      toast.error("Cannot delete role with assigned users");
       return;
     }
     if (confirm("Are you sure you want to delete this role?")) {
