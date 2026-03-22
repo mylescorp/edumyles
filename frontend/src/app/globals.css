@@ -6,104 +6,154 @@
 
 :root {
   /* ================================================= */
-  /* EduMyles Design Tokens v3.0 — globals.css         */
+  /* EduMyles Brand Guidelines 2026 v2.0 — globals.css */
   /* Single source of truth. Never hardcode hex values */
   /* ================================================= */
 
-  /* Brand */
-  --em-primary:       #1A4731;
-  --em-primary-light: #16A34A;
-  --em-primary-dark:  #0F2E20;
-  --em-primary-10:    rgba(26,71,49,0.10);
+  /* ── Forest Green Family ── */
+  --em-forest-deep:     #061A12;   /* page backgrounds (dark panels) */
+  --em-forest-dark:     #0C3020;   /* section panels, sidebar */
+  --em-forest:          #0F4C2A;   /* primary brand, navbars */
+  --em-emerald:         #1A7A4A;   /* hover / interactive states */
+  --em-leaf:            #26A65B;   /* success states */
+  --em-mint:            #A8E6C3;   /* light text on dark */
 
-  /* Accent */
-  --em-accent:        #F59E0B;
-  --em-accent-light:  #FDE68A;
-  --em-accent-dark:   #B45309;
+  /* ── Gold & Achievement Family ── */
+  --em-gold-deep:       #9A5D00;   /* gold text on light backgrounds */
+  --em-gold:            #E8A020;   /* primary CTA, accents, active states */
+  --em-gold-light:      #F5C453;   /* hover / gradient end */
+  --em-gold-pale:       #FEF3DC;   /* alert/callout backgrounds */
 
-  /* Semantic */
-  --em-info:          #1E3A8A;
-  --em-info-bg:       #DBEAFE;
-  --em-success:       #16A34A;
-  --em-success-bg:    #DCFCE7;
-  --em-warning:       #F59E0B;
-  --em-warning-bg:    #FEF9C3;
-  --em-danger:        #DC2626;
-  --em-danger-bg:     #FEE2E2;
+  /* ── Sunshine Yellow — celebration ONLY ── */
+  --em-yellow:          #F5D800;   /* achievement badges, star awards */
+  --em-yellow-light:    #FFF176;   /* pale celebration tint */
 
-  /* Text */
-  --em-text-primary:   #1E293B;
-  --em-text-secondary: #64748B;
-  --em-text-disabled:  #94A3B8;
-  --em-text-inverse:   #FFFFFF;
+  /* ── Ocean Blue Family ── */
+  --em-ocean-deep:      #001535;   /* blue card surfaces */
+  --em-ocean:           #1565C0;   /* links, informational */
+  --em-sky:             #90CAF9;   /* body text on dark backgrounds */
+  --em-sky-pale:        #E3F2FD;   /* info callout backgrounds */
 
-  /* Surfaces */
-  --em-bg-base:        #FFFFFF;
-  --em-bg-subtle:      #F8FAFC;
-  --em-bg-muted:       #F1F5F9;
-  --em-border:         #E2E8F0;
-  --em-border-strong:  #CBD5E1;
+  /* ── Neutral / Support Tones ── */
+  --em-sage-muted:      #6B9E83;   /* secondary / helper text */
+  --em-off-white:       #F3FBF6;   /* light page backgrounds */
+  --em-ice:             #E8F5EE;   /* light surface tint */
+  --em-dark:            #0A1F14;   /* rich dark text */
+  --em-med:             #3D6E54;   /* medium green text */
 
-  /* Elevation Shadows */
-  --em-shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --em-shadow-md: 0 4px 12px rgba(0,0,0,0.10);
-  --em-shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  /* ── Brand Role Aliases (v3 compatibility) ── */
+  --em-primary:         #0F4C2A;
+  --em-primary-light:   #26A65B;
+  --em-primary-dark:    #061A12;
+  --em-primary-10:      rgba(15,76,42,0.10);
+
+  /* ── Accent — Gold (replaces amber) ── */
+  --em-accent:          #E8A020;
+  --em-accent-light:    #F5C453;
+  --em-accent-dark:     #9A5D00;
+
+  /* ── Semantic States ── */
+  --em-info:            #1565C0;
+  --em-info-bg:         #E3F2FD;
+  --em-success:         #26A65B;
+  --em-success-bg:      #E8F5EE;
+  --em-warning:         #E8A020;
+  --em-warning-bg:      #FEF3DC;
+  --em-danger:          #DC2626;
+  --em-danger-bg:       #FEE2E2;
+
+  /* ── Text ── */
+  --em-text-primary:    #0A1F14;
+  --em-text-secondary:  #6B9E83;
+  --em-text-disabled:   #A8E6C3;
+  --em-text-inverse:    #FFFFFF;
+
+  /* ── Light UI Surfaces ── */
+  --em-bg-base:         #FFFFFF;
+  --em-bg-subtle:       #F3FBF6;
+  --em-bg-muted:        #E8F5EE;
+  --em-border:          #A8E6C3;
+  --em-border-strong:   #6B9E83;
+
+  /* ── Elevation Shadows ── */
+  --em-shadow-sm: 0 1px 3px rgba(15,76,42,0.08);
+  --em-shadow-md: 0 4px 12px rgba(15,76,42,0.10);
+  --em-shadow-lg: 0 8px 24px rgba(15,76,42,0.12);
   --em-shadow-xl: 0 16px 40px rgba(0,0,0,0.15);
 
-  /* Spacing tokens — use these for all margin/padding/gap */
+  /* ── Spacing Scale (4px base unit) ── */
   --space-1:  4px;
   --space-2:  8px;
+  --space-3:  12px;
   --space-4:  16px;
-  --space-6:  24px;
-  --space-8:  32px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+  /* legacy aliases */
   --space-12: 48px;
   --space-16: 64px;
 
-  /* Layout */
+  /* ── Motion Tokens ── */
+  --ease-default: cubic-bezier(0.2,0,0,1);
+  --ease-in:      cubic-bezier(0.4,0,1,1);
+  --ease-out:     cubic-bezier(0,0,0.4,1);
+  --ease-spring:  cubic-bezier(0.34,1.56,0.64,1);
+  --dur-fast:     100ms;
+  --dur-normal:   200ms;
+  --dur-slow:     300ms;
+  --dur-page:     500ms;
+
+  /* ── Layout ── */
   --section-padding:        5rem 3rem;
   --section-padding-mobile: 3rem 1.5rem;
   --max-width:              1200px;
 
-  /* ------------------------------------------------- */
-  /* Legacy aliases — map old names → v3 tokens        */
-  /* Allows existing component classes to keep working */
-  /* ------------------------------------------------- */
-  --forest-green:       var(--em-primary);
-  --forest:             var(--em-primary);
-  --forest-dark:        var(--em-primary-dark);
-  --crimson-red:        var(--em-danger);
-  --crimson:            var(--em-danger);
-  --crimson-dark:       #b91c1c;
-  --charcoal:           var(--em-text-primary);
-  --off-white:          var(--em-bg-subtle);
-  --white:              #FFFFFF;
-  --black:              #000000;
-  --zoho-blue:          var(--em-info);
-  --blue:               var(--em-info);
-  --muted:              var(--em-text-secondary);
+  /* ── Sidebar (Forest Dark Theme) ── */
+  --sidebar-bg:           #0C3020;
+  --sidebar-active:       #0F4C2A;
+  --sidebar-accent:       rgba(232,160,32,0.12);
+  --sidebar-accent-hover: rgba(232,160,32,0.18);
+  --sidebar-text:         rgba(255,255,255,0.70);
+  --sidebar-text-active:  #FFFFFF;
+  --sidebar-text-hover:   rgba(255,255,255,0.90);
+  --sidebar-border:       rgba(232,160,32,0.15);
+  --sidebar-icon:         rgba(255,255,255,0.60);
+  --sidebar-icon-hover:   #E8A020;
 
-  /* Marketing accent — landing pages ONLY, never inside product UI */
-  --amber-yellow:       #FFD731;
-  --amber:              #FFD731;
-  --amber-dark:         #e6c12c;
+  /* ── Topnav (Forest Deep Theme) ── */
+  --topnav-bg:            #061A12;
+  --topnav-border:        rgba(232,160,32,0.15);
+  --topnav-text:          rgba(255,255,255,0.75);
+  --topnav-text-active:   #FFFFFF;
+  --topnav-active-bg:     rgba(232,160,32,0.18);
+  --topnav-active-border: #E8A020;
+  --topnav-hover-bg:      rgba(255,255,255,0.08);
 
-  /* Shadcn/ui & semantic surface mappings */
-  --background:         var(--em-bg-base);
-  --foreground:         var(--em-text-primary);
-  --surface:            var(--em-bg-muted);
-  --border:             var(--em-border);
+  /* ── Shadcn/ui surface mappings ── */
+  --background:   var(--em-bg-base);
+  --foreground:   var(--em-text-primary);
+  --surface:      var(--em-bg-muted);
+  --border:       var(--em-border);
 
-  /* Sidebar */
-  --sidebar-bg:          var(--em-primary-dark);
-  --sidebar-active:      var(--em-primary);
-  --sidebar-accent:      rgba(255, 255, 255, 0.1);
-  --sidebar-accent-hover: rgba(255, 255, 255, 0.15);
-  --sidebar-text:        rgba(255, 255, 255, 0.8);
-  --sidebar-text-active: #FFFFFF;
-  --sidebar-text-hover:  rgba(255, 255, 255, 0.9);
-  --sidebar-border:      rgba(255, 255, 255, 0.12);
-  --sidebar-icon:        rgba(255, 255, 255, 0.7);
-  --sidebar-icon-hover:  rgba(255, 255, 255, 0.9);
+  /* ── Legacy aliases — keep existing components working ── */
+  --forest-green:   var(--em-forest);
+  --forest:         var(--em-forest);
+  --forest-dark:    var(--em-forest-dark);
+  --crimson-red:    var(--em-danger);
+  --crimson:        var(--em-danger);
+  --crimson-dark:   #b91c1c;
+  --charcoal:       var(--em-text-primary);
+  --off-white:      var(--em-off-white);
+  --white:          #FFFFFF;
+  --black:          #000000;
+  --zoho-blue:      var(--em-ocean);
+  --blue:           var(--em-ocean);
+  --muted:          var(--em-sage-muted);
+  --amber-yellow:   var(--em-gold);
+  --amber:          var(--em-gold);
+  --amber-dark:     var(--em-gold-deep);
 }
 
 * {
@@ -130,7 +180,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(26, 71, 49, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(15, 76, 42, 0.05) 0%, rgba(232, 160, 32, 0.05) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -138,8 +188,8 @@
 
 .premium-card:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
-  border-color: rgba(26, 71, 49, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(15, 76, 42, 0.08);
+  border-color: rgba(232, 160, 32, 0.35);
 }
 
 .premium-card:hover::before {
