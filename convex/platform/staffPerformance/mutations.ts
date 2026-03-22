@@ -125,7 +125,7 @@ export const updatePerformanceRecord = mutation({
       action: "staff_performance.record_updated",
       entityType: "staff_performance_record",
       entityId: args.recordId,
-      before: { overallScore: record.overallScore, trend: record.trend },
+      before: { overallScore: (record as any).overallScore, trend: (record as any).trend },
       after: updates,
     });
 
@@ -161,7 +161,7 @@ export const setPerformanceGoals = mutation({
       action: "staff_performance.goals_set",
       entityType: "staff_performance_record",
       entityId: args.recordId,
-      before: { goals: record.goals },
+      before: { goals: (record as any).goals },
       after: { goals: args.goals },
     });
 
