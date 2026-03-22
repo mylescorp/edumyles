@@ -476,14 +476,32 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const groups = getNavGroups(role ?? "", navItems);
 
   const notificationsHref = pathname?.startsWith("/platform")
-    ? "/platform/audit"
+    ? "/platform/notifications"
+    : pathname?.startsWith("/portal/student")
+    ? "/portal/student/notifications"
+    : pathname?.startsWith("/portal/teacher")
+    ? "/portal/teacher/notifications"
+    : pathname?.startsWith("/portal/parent")
+    ? "/portal/parent/notifications"
+    : pathname?.startsWith("/portal/alumni")
+    ? "/portal/alumni/notifications"
+    : pathname?.startsWith("/portal/partner")
+    ? "/portal/partner/notifications"
     : "/admin/notifications";
 
   const profileHref = pathname?.startsWith("/platform")
-    ? "/platform/settings"
-    : pathname?.startsWith("/admin")
-    ? "/admin/settings"
-    : "/admin/settings";
+    ? "/platform/profile"
+    : pathname?.startsWith("/portal/student")
+    ? "/portal/student/profile"
+    : pathname?.startsWith("/portal/teacher")
+    ? "/portal/teacher/profile"
+    : pathname?.startsWith("/portal/parent")
+    ? "/portal/parent/profile"
+    : pathname?.startsWith("/portal/alumni")
+    ? "/portal/alumni/profile"
+    : pathname?.startsWith("/portal/partner")
+    ? "/portal/partner/profile"
+    : "/admin/profile";
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-muted/30">

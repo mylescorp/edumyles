@@ -40,42 +40,40 @@ export default function LibraryDashboardPage() {
         sessionToken ? { sessionToken } : "skip"
     );
 
+    const allBooks = useQuery(
+        api.modules.library.queries.listBooks,
+        sessionToken ? { sessionToken } : "skip"
+    );
+
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
-    // Mock enhanced data for better dashboard
     const stats = {
-        totalBooks: 1250,
-        totalBorrowers: 335,
-        monthlyCirculation: 892,
-        averageRating: 4.6,
+        totalBooks: allBooks?.length ?? 0,
+        totalBorrowers: (activeBorrows as any[])?.map((b: any) => b.borrowerId).filter((v: any, i: number, a: any[]) => a.indexOf(v) === i).length ?? 0,
+        monthlyCirculation: activeBorrows?.length ?? 0,
+        averageRating: 0,
     };
 
+    const overdueList = (overdue as any[]) ?? [];
+    const activeBorrowList = (activeBorrows as any[]) ?? [];
     const recentActivity = [
-        {
-            id: "1",
+        ...overdueList.slice(0, 2).map((b: any) => ({
+            id: String(b._id),
+            type: "overdue",
+            title: "Overdue Book",
+            description: `"${b.bookTitle ?? b.bookId}" is overdue`,
+            time: b.dueDate ? `Due ${new Date(b.dueDate).toLocaleDateString()}` : "Overdue",
+            user: b.borrowerName ?? "Student",
+        })),
+        ...activeBorrowList.slice(0, 3).map((b: any) => ({
+            id: String(b._id),
             type: "borrow",
             title: "Book Borrowed",
-            description: "Alice Johnson borrowed 'Introduction to Mathematics'",
-            time: "2 hours ago",
-            user: "Student Portal",
-        },
-        {
-            id: "2", 
-            type: "return",
-            title: "Book Returned",
-            description: "Bob Wilson returned 'Science Explorations'",
-            time: "4 hours ago",
-            user: "Library Staff",
-        },
-        {
-            id: "3",
-            type: "overdue",
-            title: "Overdue Notice",
-            description: "3 books are now overdue for return",
-            time: "1 day ago",
-            user: "System",
-        },
-    ];
+            description: `"${b.bookTitle ?? b.bookId}" borrowed`,
+            time: b.borrowedAt ? new Date(b.borrowedAt).toLocaleDateString() : "Recently",
+            user: b.borrowerName ?? "Student",
+        })),
+    ].slice(0, 5);
 
     const quickActions = [
         {
