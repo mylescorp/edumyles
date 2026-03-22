@@ -337,7 +337,7 @@ export default function TeamPage() {
             style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}
           >
             Want to know more about{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>what we're building?</em>
+            <em className="italic" style={{ color: "#E8A020" }}>what we&apos;re building?</em>
           </h2>
           <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
             Book a demo, read our blog, or just say hello. We love talking to schools.
