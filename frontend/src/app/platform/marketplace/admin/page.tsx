@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -108,7 +109,7 @@ function MarketplaceAdminContent() {
       setIsReviewOpen(false);
       setReviewNotes("");
     } catch (e: any) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -118,7 +119,7 @@ function MarketplaceAdminContent() {
       await seedCategories({ sessionToken });
       setIsSeedDialogOpen(false);
     } catch (e: any) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 

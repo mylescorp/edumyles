@@ -41,6 +41,7 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { toast } from "sonner";
 
 interface Deal {
   _id: string;
@@ -231,7 +232,7 @@ export default function CompleteCRMPage() {
 
   const handleAddDeal = async () => {
     if (!sessionToken || !newDeal.schoolName || !newDeal.contactPerson || !newDeal.email) {
-      alert("Please fill in required fields");
+      toast.error("Please fill in required fields");
       return;
     }
 
@@ -260,7 +261,7 @@ export default function CompleteCRMPage() {
       resetNewDeal();
     } catch (err) {
       console.error("Failed to create deal:", err);
-      alert("Failed to create deal. Please try again.");
+      toast.error("Failed to create deal. Please try again.");
     }
   };
 
@@ -292,7 +293,7 @@ export default function CompleteCRMPage() {
       setEditingDeal(null);
     } catch (err) {
       console.error("Failed to update deal:", err);
-      alert("Failed to update deal. Please try again.");
+      toast.error("Failed to update deal. Please try again.");
     }
   };
 
@@ -303,7 +304,7 @@ export default function CompleteCRMPage() {
         await deleteDealMutation({ sessionToken, dealId });
       } catch (err) {
         console.error("Failed to delete deal:", err);
-        alert("Failed to delete deal. Please try again.");
+        toast.error("Failed to delete deal. Please try again.");
       }
     }
   };

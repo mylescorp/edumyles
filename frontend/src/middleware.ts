@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
-const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform"];
+const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform", "/student"];
 const PUBLIC_ROUTES = ["/auth/callback"];
 
 // ── RBAC: Which roles can access which route prefixes ─────────
@@ -16,6 +16,7 @@ const ROUTE_ROLE_MAP: Record<string, string[]> = {
   "/portal/parent": ["parent", "master_admin", "super_admin", "school_admin", "principal"],
   "/portal/alumni": ["alumni", "master_admin", "super_admin", "school_admin"],
   "/portal/partner": ["partner", "master_admin", "super_admin", "school_admin"],
+  "/student": ["student", "master_admin", "super_admin", "school_admin", "principal", "teacher"],
 };
 
 function getRoleDashboard(role: string): string {
@@ -131,6 +132,7 @@ export const config = {
     "/dashboard/:path*",
     "/portal/:path*",
     "/platform/:path*",
+    "/student/:path*",
     "/auth/:path*",
   ],
 };
