@@ -68,7 +68,26 @@ export default function Navbar() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center">
+          <div className="hidden lg:flex items-center gap-3">
+            <a
+              href="/auth/login/api"
+              className="text-[14px] font-semibold no-underline px-5 py-2.5 rounded-[50px] transition-all duration-200"
+              style={{
+                color: "#061A12",
+                border: "1.5px solid #061A12",
+                background: "transparent",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#061A12";
+                e.currentTarget.style.color = "#ffffff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "#061A12";
+              }}
+            >
+              Log In
+            </a>
             <Link
               href="#demo"
               className="text-[14px] font-bold text-[#061A12] no-underline whitespace-nowrap transition-colors duration-300 hover:bg-[#F5C453] px-6 py-3 rounded-[50px]"
@@ -127,14 +146,24 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="#demo"
-            onClick={() => setMobileOpen(false)}
-            className="block mt-4 text-center font-bold text-[#061A12] no-underline py-3 px-6 rounded-[50px]"
-            style={{ background: "#E8A020" }}
-          >
-            Book a Demo
-          </Link>
+          <div className="flex flex-col gap-3 mt-6">
+            <a
+              href="/auth/login/api"
+              onClick={() => setMobileOpen(false)}
+              className="block text-center font-semibold no-underline py-3 px-6 rounded-[50px] transition-colors"
+              style={{ border: "1.5px solid #061A12", color: "#061A12" }}
+            >
+              Log In
+            </a>
+            <Link
+              href="#demo"
+              onClick={() => setMobileOpen(false)}
+              className="block text-center font-bold text-[#061A12] no-underline py-3 px-6 rounded-[50px]"
+              style={{ background: "#E8A020" }}
+            >
+              Book a Demo
+            </Link>
+          </div>
         </div>
       )}
     </>
