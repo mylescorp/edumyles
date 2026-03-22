@@ -137,15 +137,35 @@ export async function GET(req: NextRequest) {
 
     // Decode returnTo from state
     const stateData = decodeState(returnedState);
-    const returnTo =
+    const dashboardPath =
       stateData.returnTo && stateData.returnTo.startsWith("/")
         ? stateData.returnTo
         : getRoleDashboardPath(role);
 
-    console.log(`[landing/auth/callback] ✅ ${user.email} → ${role} → ${returnTo}`);
+    console.log(`[landing/auth/callback] ✅ ${user.email} → ${role} → ${dashboardPath}`);
 
     const isProduction = process.env.NODE_ENV === "production";
-    const response = NextResponse.redirect(new URL(returnTo, req.url));
+
+    // Build the final destination URL:
+    // - If APP_URL is a different domain, send the user there (frontend app)
+    // - If same domain or not set, stay on the landing's /auth/welcome page
+    //   (avoids 404s since the dashboard routes don't exist on the landing)
+    const currentHost = req.nextUrl.host;
+    const isCrossDomain =
+      appUrl &&
+      (() => {
+        try {
+          return new URL(appUrl).host !== currentHost;
+        } catch {
+          return false;
+        }
+      })();
+
+    const destination = isCrossDomain
+      ? `${appUrl}${dashboardPath}`
+      : new URL("/auth/welcome", req.url).toString();
+
+    const response = NextResponse.redirect(destination);
 
     response.cookies.set("edumyles_session", sessionToken, {
       httpOnly: true,
