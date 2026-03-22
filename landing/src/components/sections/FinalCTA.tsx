@@ -43,12 +43,12 @@ export default function FinalCTA() {
           Join 50+ schools already running on EduMyles. Setup is free. Support is local.
         </p>
 
-        <div className="flex flex-wrap gap-4 justify-center mb-4">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center mb-4">
           <a
             href="https://wa.me/254743993715?text=Hi%2C%20I%27d%20like%20to%20book%20a%20free%20demo%20of%20EduMyles"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-colors duration-300 no-underline"
+            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-colors duration-300 no-underline"
             style={{ background: "#E8A020", color: "#061A12" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#F5C453")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "#E8A020")}
@@ -57,7 +57,7 @@ export default function FinalCTA() {
           </a>
           <a
             href="#pricing"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-all duration-300 no-underline"
+            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-all duration-300 no-underline"
             style={{ background: "transparent", color: "#ffffff", border: "2px solid #ffffff" }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "#ffffff";

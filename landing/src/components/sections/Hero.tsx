@@ -26,13 +26,12 @@ export default function Hero() {
     <section
       id="hero"
       ref={sectionRef}
-      className="relative flex items-center overflow-hidden"
+      className="relative flex items-center overflow-hidden px-4 sm:px-8 py-20 sm:py-24"
       aria-label="Hero section"
       style={{
         background: "#061A12",
         minHeight: "90vh",
         borderTop: "3px solid #E8A020",
-        padding: "5rem 2rem",
       }}
     >
       {/* Grid background pattern */}
@@ -61,7 +60,7 @@ export default function Hero() {
       />
 
       <div className="relative z-[3] max-w-[1200px] mx-auto w-full">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
 
           {/* Left — Text content */}
           <div className="fade-in">
@@ -99,10 +98,10 @@ export default function Hero() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4 mb-10">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-10">
               <a
                 href="#demo"
-                className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-colors duration-300 no-underline"
+                className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-colors duration-300 no-underline"
                 style={{ background: "#E8A020", color: "#061A12" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#F5C453")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "#E8A020")}
@@ -111,7 +110,7 @@ export default function Hero() {
               </a>
               <a
                 href="#pricing"
-                className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-all duration-300 no-underline"
+                className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-all duration-300 no-underline"
                 style={{ background: "transparent", color: "#ffffff", border: "2px solid #ffffff" }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "#ffffff";
@@ -127,7 +126,7 @@ export default function Hero() {
             </div>
 
             {/* Stat badges */}
-            <div className="flex flex-wrap gap-4">
+            <div className="grid grid-cols-3 gap-3">
               {[
                 { value: "15 hrs/week", label: "saved per school" },
                 { value: "50+ Schools", label: "trust us" },
@@ -135,13 +134,13 @@ export default function Hero() {
               ].map((stat) => (
                 <div
                   key={stat.value}
-                  className="flex-1 min-w-[100px] text-center px-4 py-3 rounded-[12px]"
+                  className="text-center px-2 sm:px-4 py-3 rounded-[12px]"
                   style={{
                     background: "rgba(255,255,255,0.05)",
                     border: "1px solid rgba(232,160,32,0.2)",
                   }}
                 >
-                  <strong className="block text-[18px] font-bold" style={{ color: "#E8A020" }}>
+                  <strong className="block text-[14px] sm:text-[18px] font-bold" style={{ color: "#E8A020" }}>
                     {stat.value}
                   </strong>
                   <small className="text-[12px]" style={{ color: "#6B9E83" }}>
