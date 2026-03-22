@@ -25,9 +25,11 @@ export function middleware(request: NextRequest) {
   }
 
   if (sessionToken && AUTH_PAGES.includes(pathname)) {
+    // Redirect to the frontend app, not the landing domain
+    const appOrigin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
     return NextResponse.redirect(
       buildPostAuthRedirectUrl({
-        origin: request.nextUrl.origin,
+        origin: appOrigin,
         role,
       })
     );
