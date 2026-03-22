@@ -236,22 +236,22 @@ export default function AISupportPage() {
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
 
   // Real AI mutations
-  const analyzeSentiment = useMutation(api.ai.support.analyzeSentiment);
-  const categorizeTicket = useMutation(api.ai.support.categorizeTicket);
-  const generateResponse = useMutation(api.ai.support.generateResponse);
+  const analyzeSentiment = useMutation(api.platform.support.mutations.analyzeTicketWithAI);
+  const categorizeTicket = useMutation(api.platform.support.mutations.updateTicketWithAI);
+  const generateResponse = useMutation(api.platform.support.mutations.generateAIResponse);
   const createTicket = useMutation(api.platform.support.mutations.createAISupportTicket);
 
-  // Real AI insights query - usePlatformQuery returns T | undefined
+  // Real AI insights query
   const aiInsights = usePlatformQuery(
-    api.ai.support.getAIInsights,
-    { sessionToken },
+    api.platform.support.queries.getAIInsights,
+    sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   );
 
   // Get AI-analyzed tickets
   const aiTickets = usePlatformQuery(
-    api.platform.tickets.queries.listTickets,
-    { sessionToken, limit: 50 },
+    api.platform.support.queries.getAISupportTickets,
+    sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   );
 
