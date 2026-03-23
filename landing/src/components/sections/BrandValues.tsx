@@ -1,28 +1,33 @@
 const coreValues = [
   {
-    icon: "🔍",
-    title: "Clarity",
-    desc: "We build tools that are simple, intuitive, and free of unnecessary complexity. Clear software leads to clear thinking — and better schools.",
+    letter: "M",
+    icon: "🏆",
+    title: "Mastery",
+    desc: "We pursue deep craft in everything we build — simple interfaces, reliable systems, and features that genuinely work for real schools.",
   },
   {
+    letter: "Y",
+    icon: "🎓",
+    title: "Youth-Centered",
+    desc: "Education exists for students. Every feature and design decision is ultimately in service of better outcomes for young learners.",
+  },
+  {
+    letter: "L",
+    icon: "🧭",
+    title: "Leadership",
+    desc: "We build tools that make school leaders more effective — and we lead internally with clarity, accountability, and ambition.",
+  },
+  {
+    letter: "E",
     icon: "🚀",
     title: "Empowerment",
-    desc: "Every feature we ship exists to give school administrators, teachers, and parents more control, more time, and more confidence.",
+    desc: "We give educators, administrators, and parents the tools to take control of their time, their data, and their schools.",
   },
   {
-    icon: "🤝",
-    title: "Integrity",
-    desc: "We are honest about what EduMyles can and cannot do. We protect student data, price fairly, and stand behind every promise we make.",
-  },
-  {
-    icon: "💡",
-    title: "Innovation",
-    desc: "The African education landscape is evolving fast. We stay ahead of it — shipping weekly, listening to schools, and solving real problems.",
-  },
-  {
-    icon: "🌍",
-    title: "Community",
-    desc: "EduMyles is built with and for the communities it serves. Schools aren't customers — they're partners in building better education.",
+    letter: "S",
+    icon: "✨",
+    title: "Simplicity",
+    desc: "Complexity is the enemy of adoption. We relentlessly simplify so any school, any staff member, can use EduMyles without a manual.",
   },
 ];
 
@@ -102,10 +107,15 @@ export default function BrandValues() {
           {coreValues.map((v) => (
             <div
               key={v.title}
-              className="rounded-2xl p-6 text-center"
+              className="rounded-2xl p-6 text-center flex flex-col items-center"
               style={{ background: "#ffffff", border: "1px solid rgba(38,166,91,0.15)", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
             >
-              <div className="text-3xl mb-3">{v.icon}</div>
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[18px] mb-3"
+                style={{ background: "#E8A020", color: "#061A12" }}
+              >
+                {v.letter}
+              </div>
               <h4 className="font-playfair font-bold text-[17px] mb-2" style={{ color: "#061A12" }}>{v.title}</h4>
               <p className="font-jakarta text-[13px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{v.desc}</p>
             </div>
