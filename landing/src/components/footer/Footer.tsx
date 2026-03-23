@@ -120,7 +120,18 @@ export default function Footer() {
           className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-[13px]"
           style={{ borderTop: "1px solid rgba(255,255,255,0.1)", color: "#6B9E83" }}
         >
-          <div>© 2026 EduMyles · All rights reserved. Built with ❤️ for African schools.</div>
+          <div>
+            © 2026 EduMyles — A{" "}
+            <a
+              href="https://mylesoft.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#E8A020", textDecoration: "none" }}
+            >
+              MylesCorp Technologies Ltd
+            </a>{" "}
+            Product · All Rights Reserved
+          </div>
           <div>📞 0743 993 715 · 📧 mylesoftafrica@gmail.com</div>
         </div>
       </div>
