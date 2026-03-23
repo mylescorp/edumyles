@@ -1,33 +1,33 @@
 const coreValues = [
   {
     letter: "M",
-    icon: "🏆",
     title: "Mastery",
-    desc: "We pursue deep craft in everything we build — simple interfaces, reliable systems, and features that genuinely work for real schools.",
+    desc: "Relentless pursuit of excellence, expertise, and continuous improvement — committing to the highest standards in every feature we ship.",
+    keywords: ["Excellence", "Expertise", "Growth"],
   },
   {
     letter: "Y",
-    icon: "🎓",
-    title: "Youth-Centered",
-    desc: "Education exists for students. Every feature and design decision is ultimately in service of better outcomes for young learners.",
+    title: "Youth Empowerment",
+    desc: "A profound belief in Africa's youth. Investing in the next generation through education, mentorship, and technology that unlocks their potential.",
+    keywords: ["Education", "Mentorship", "Africa"],
   },
   {
     letter: "L",
-    icon: "🧭",
     title: "Leadership",
-    desc: "We build tools that make school leaders more effective — and we lead internally with clarity, accountability, and ambition.",
+    desc: "Leading with integrity, courage, and responsibility — setting a positive example and holding ourselves accountable to every school we serve.",
+    keywords: ["Integrity", "Courage", "Accountability"],
   },
   {
     letter: "E",
-    icon: "🚀",
-    title: "Empowerment",
-    desc: "We give educators, administrators, and parents the tools to take control of their time, their data, and their schools.",
+    title: "Entrepreneurship",
+    desc: "Fostering innovation, ownership, and proactive problem-solving — taking calculated risks and identifying new opportunities to create real value.",
+    keywords: ["Innovation", "Ownership", "Growth"],
   },
   {
     letter: "S",
-    icon: "✨",
-    title: "Simplicity",
-    desc: "Complexity is the enemy of adoption. We relentlessly simplify so any school, any staff member, can use EduMyles without a manual.",
+    title: "Service",
+    desc: "Purpose-driven commitment to positive societal impact. Our business success is always shared with Africa's people and communities.",
+    keywords: ["Impact", "Community", "Purpose"],
   },
 ];
 
@@ -117,7 +117,18 @@ export default function BrandValues() {
                 {v.letter}
               </div>
               <h4 className="font-playfair font-bold text-[17px] mb-2" style={{ color: "#061A12" }}>{v.title}</h4>
-              <p className="font-jakarta text-[13px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{v.desc}</p>
+              <p className="font-jakarta text-[13px] leading-[1.7] mb-3" style={{ color: "#5a5a5a" }}>{v.desc}</p>
+              <div className="flex flex-wrap justify-center gap-1 mt-auto">
+                {v.keywords.map((kw) => (
+                  <span
+                    key={kw}
+                    className="font-jakarta font-semibold text-[10px] px-2 py-0.5 rounded-full"
+                    style={{ background: "rgba(232,160,32,0.1)", border: "1px solid rgba(232,160,32,0.25)", color: "#9A5D00" }}
+                  >
+                    {kw}
+                  </span>
+                ))}
+              </div>
             </div>
           ))}
         </div>
