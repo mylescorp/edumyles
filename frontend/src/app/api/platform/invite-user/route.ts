@@ -56,36 +56,35 @@ export async function POST(req: NextRequest) {
     // ── 2. Send the WorkOS invitation email ──────────────────────────────────
     const workosApiKey = process.env.WORKOS_API_KEY;
     if (!workosApiKey) {
-      // No WorkOS key — still return success (record was created), just warn
       console.warn("[invite-user] WORKOS_API_KEY not set — invitation email not sent");
       return NextResponse.json({
         success: true,
         emailSent: false,
         userId: convexResult.userId,
-        warning: "WorkOS API key not configured — no invitation email was sent.",
+        workosError: "WORKOS_API_KEY environment variable is not set on this deployment. Add it in Vercel → Project Settings → Environment Variables.",
       });
     }
 
     const workos = new WorkOS(workosApiKey);
 
-    // WorkOS invitation: creates/finds the user and sends a magic-link style invite.
-    // The invitee clicks the link, sets a password, and completes sign-in.
     try {
-      await workos.userManagement.sendInvitation({
+      const invitation = await workos.userManagement.sendInvitation({
         email,
-        // Optionally scope the invite to a WorkOS organisation if you have one
-        // organizationId: process.env.WORKOS_PLATFORM_ORG_ID,
         expiresInDays: 7,
-        inviterUserId: undefined, // platform system invite
       });
+      console.info("[invite-user] WorkOS invitation sent:", invitation.id, "state:", invitation.state);
     } catch (workosErr: any) {
-      // Log but don't fail — the Convex record already exists
-      console.error("[invite-user] WorkOS invitation error:", workosErr?.message ?? workosErr);
+      const errMsg: string =
+        workosErr?.rawData?.message ??
+        workosErr?.message ??
+        String(workosErr);
+      const errCode: string = workosErr?.rawData?.code ?? workosErr?.code ?? "";
+      console.error("[invite-user] WorkOS sendInvitation failed:", errCode, errMsg);
       return NextResponse.json({
         success: true,
         emailSent: false,
         userId: convexResult.userId,
-        warning: "User created but invitation email could not be sent. Share the login link manually.",
+        workosError: errCode ? `${errCode}: ${errMsg}` : errMsg,
       });
     }
 
