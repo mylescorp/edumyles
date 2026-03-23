@@ -1,45 +1,46 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { GraduationCap, Wallet, CalendarDays, FileText, Users, BarChart2, type LucideIcon } from "lucide-react";
 
-const modules = [
+const modules: { icon: LucideIcon; title: string; benefit: string; description: string }[] = [
   {
-    icon: "🎓",
+    icon: GraduationCap,
     title: "Student Info System",
     benefit: "Centralized Records",
     description:
       "Complete student profiles, academic history, and custom fields all in one secure place.",
   },
   {
-    icon: "💰",
+    icon: Wallet,
     title: "Fee & Billing",
     benefit: "Payment Tracking",
     description:
       "M-Pesa integration, automated receipts, and real-time outstanding balance alerts.",
   },
   {
-    icon: "📅",
+    icon: CalendarDays,
     title: "Attendance",
     benefit: "One-Tap Marking",
     description:
       "Daily and per-subject attendance tracking with automated parent alerts.",
   },
   {
-    icon: "📝",
+    icon: FileText,
     title: "Exams & Gradebook",
     benefit: "Auto-Calculated Grades",
     description:
       "Mark entry, automatic grading, rank generation, and performance trend analysis.",
   },
   {
-    icon: "👨‍👩‍👧",
+    icon: Users,
     title: "Parent Portal",
     benefit: "Real-Time Access",
     description:
       "Parents see grades, fees, attendance, and can communicate with teachers instantly.",
   },
   {
-    icon: "📊",
+    icon: BarChart2,
     title: "Reports & Analytics",
     benefit: "One-Click Insights",
     description:
@@ -110,12 +111,12 @@ export default function Modules() {
             >
               {/* Icon */}
               <div
-                className="w-[70px] h-[70px] rounded-[12px] flex items-center justify-center text-[36px] mx-auto mb-4"
+                className="w-[70px] h-[70px] rounded-[12px] flex items-center justify-center mx-auto mb-4"
                 style={{
                   background: "linear-gradient(135deg, #26A65B, #1A7A4A)",
                 }}
               >
-                {mod.icon}
+                <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "#ffffff" }} />
               </div>
 
               {/* Title */}

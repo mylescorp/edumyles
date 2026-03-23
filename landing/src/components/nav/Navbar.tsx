@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { School, GraduationCap, Globe, Building2, Info, Users, Briefcase, Handshake } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 // Point auth actions at the frontend app (different domain in production)
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
@@ -10,16 +12,86 @@ const SIGNUP_URL = `${APP_URL}/auth/signup/api`;
 
 const navLinks = [
   { label: "Features", href: "/features" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Blog", href: "/blog" },
-  { label: "About", href: "/about" },
-  { label: "Team", href: "/team" },
-  { label: "Contact", href: "/contact" },
+  { label: "Pricing",  href: "/pricing" },
+  { label: "Blog",     href: "/blog" },
+  { label: "Contact",  href: "/contact" },
+];
+
+type SolutionItem = {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  subtitle: string;
+};
+
+const solutionItems: SolutionItem[] = [
+  {
+    icon: School,
+    label: "Primary Schools",
+    href: "/solutions/primary-schools",
+    subtitle: "CBC-ready, M-Pesa fees",
+  },
+  {
+    icon: GraduationCap,
+    label: "Secondary Schools",
+    href: "/solutions/secondary-schools",
+    subtitle: "KCSE, timetabling, HR & payroll",
+  },
+  {
+    icon: Globe,
+    label: "International Schools",
+    href: "/solutions/international-schools",
+    subtitle: "IGCSE, IB, SSO, white-label",
+  },
+  {
+    icon: Building2,
+    label: "School Groups",
+    href: "/solutions/school-groups",
+    subtitle: "Multi-campus, network reporting",
+  },
+];
+
+type CompanyItem = {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  subtitle: string;
+};
+
+const companyItems: CompanyItem[] = [
+  {
+    icon: Info,
+    label: "About Us",
+    href: "/about",
+    subtitle: "Our mission & story",
+  },
+  {
+    icon: Users,
+    label: "Our Team",
+    href: "/team",
+    subtitle: "Meet the builders",
+  },
+  {
+    icon: Briefcase,
+    label: "Careers",
+    href: "/careers",
+    subtitle: "Join our team",
+  },
+  {
+    icon: Handshake,
+    label: "Partners",
+    href: "/partners",
+    subtitle: "Resell & earn",
+  },
 ];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("");
+  const [solutionsOpen, setSolutionsOpen] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
+  const solutionsRef = useRef<HTMLDivElement>(null);
+  const companyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const path = window.location.pathname.split("/").pop() || "index";
@@ -29,8 +101,31 @@ export default function Navbar() {
   useEffect(() => {
     if (mobileOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [mobileOpen]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        solutionsRef.current &&
+        !solutionsRef.current.contains(event.target as Node)
+      ) {
+        setSolutionsOpen(false);
+      }
+      if (
+        companyRef.current &&
+        !companyRef.current.contains(event.target as Node)
+      ) {
+        setCompanyOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -41,7 +136,11 @@ export default function Navbar() {
       >
         <div className="max-w-[1200px] mx-auto flex justify-between items-center gap-8 h-[70px]">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 text-[#061A12] no-underline flex-shrink-0" aria-label="EduMyles — home">
+          <Link
+            href="/"
+            className="flex items-center gap-3 text-[#061A12] no-underline flex-shrink-0"
+            aria-label="EduMyles — home"
+          >
             <div
               className="w-10 h-10 flex items-center justify-center rounded-[14px] font-playfair font-bold text-2xl flex-shrink-0"
               style={{
@@ -54,59 +153,237 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col gap-0 leading-none">
               <strong className="text-[16px] font-bold text-[#061A12]">EduMyles</strong>
-              <small className="text-[10px] font-medium text-[#6B9E83]">School Management, Simplified</small>
+              <small className="text-[10px] font-medium text-[#6B9E83]">
+                Empowering Schools, One Mile at a Time.
+              </small>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
           <div className="hidden lg:flex items-center gap-8 flex-1 justify-center">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
-                style={activeLink === link.href.replace("/", "") ? { color: "#E8A020" } : {}}
+            {/* Features */}
+            <Link
+              href="/features"
+              className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
+              style={activeLink === "features" ? { color: "#E8A020" } : {}}
+            >
+              Features
+            </Link>
+
+            {/* Solutions dropdown */}
+            <div className="relative" ref={solutionsRef}>
+              <button
+                type="button"
+                onClick={() => setSolutionsOpen((prev) => !prev)}
+                className="flex items-center gap-1 text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020] bg-transparent border-none cursor-pointer p-0"
+                style={
+                  solutionsOpen ||
+                  activeLink.startsWith("solutions")
+                    ? { color: "#E8A020" }
+                    : {}
+                }
+                aria-haspopup="true"
+                aria-expanded={solutionsOpen}
               >
-                {link.label}
-              </Link>
-            ))}
+                Solutions
+                <span
+                  className="text-[10px] transition-transform duration-200 inline-block"
+                  style={{
+                    transform: solutionsOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                >
+                  ▾
+                </span>
+              </button>
+
+              {solutionsOpen && (
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-xl border border-gray-100 shadow-lg z-50 p-3 grid grid-cols-2 gap-2"
+                  style={{ minWidth: "340px" }}
+                >
+                  {solutionItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setSolutionsOpen(false)}
+                      className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-[#F3FBF6] group"
+                    >
+                      <div
+                        className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
+                        style={{ background: "rgba(26,122,74,0.08)" }}
+                      >
+                        <item.icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-jakarta font-semibold text-[13px] text-[#061A12] leading-tight group-hover:text-[#1A7A4A] transition-colors duration-150">
+                          {item.label}
+                        </span>
+                        <span className="font-jakarta text-[11px] leading-snug mt-0.5" style={{ color: "#6B9E83" }}>
+                          {item.subtitle}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Remaining nav links (Pricing, Blog) */}
+            {navLinks
+              .filter((link) => link.label !== "Features" && link.label !== "Contact")
+              .map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
+                  style={
+                    activeLink === link.href.replace("/", "")
+                      ? { color: "#E8A020" }
+                      : {}
+                  }
+                >
+                  {link.label}
+                </Link>
+              ))}
+
+            {/* Company dropdown */}
+            <div className="relative" ref={companyRef}>
+              <button
+                type="button"
+                onClick={() => setCompanyOpen((prev) => !prev)}
+                className="flex items-center gap-1 text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020] bg-transparent border-none cursor-pointer p-0"
+                style={
+                  companyOpen ||
+                  activeLink === "about" ||
+                  activeLink === "team" ||
+                  activeLink === "careers" ||
+                  activeLink === "partners"
+                    ? { color: "#E8A020" }
+                    : {}
+                }
+                aria-haspopup="true"
+                aria-expanded={companyOpen}
+              >
+                Company
+                <span
+                  className="text-[10px] transition-transform duration-200 inline-block"
+                  style={{
+                    transform: companyOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                >
+                  ▾
+                </span>
+              </button>
+
+              {companyOpen && (
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-xl border border-gray-100 shadow-lg z-50 p-3 grid grid-cols-2 gap-2"
+                  style={{ minWidth: "260px" }}
+                >
+                  {companyItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setCompanyOpen(false)}
+                      className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-[#F3FBF6] group"
+                    >
+                      <div
+                        className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
+                        style={{ background: "rgba(26,122,74,0.08)" }}
+                      >
+                        <item.icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-jakarta font-semibold text-[13px] text-[#061A12] leading-tight group-hover:text-[#1A7A4A] transition-colors duration-150">
+                          {item.label}
+                        </span>
+                        <span className="font-jakarta text-[11px] leading-snug mt-0.5" style={{ color: "#6B9E83" }}>
+                          {item.subtitle}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Contact */}
+            <Link
+              href="/contact"
+              className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
+              style={activeLink === "contact" ? { color: "#E8A020" } : {}}
+            >
+              Contact
+            </Link>
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2.5 flex-shrink-0">
+            {/* Log In — ghost outline */}
             <a
               href={LOGIN_URL}
-              className="text-[14px] font-semibold no-underline px-5 py-2.5 rounded-[50px] transition-all duration-200"
+              className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
-                color: "#061A12",
-                border: "1.5px solid #061A12",
+                color: "#1A7A4A",
+                border: "1.5px solid #1A7A4A",
                 background: "transparent",
+                lineHeight: "1",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#061A12";
+                e.currentTarget.style.background = "#1A7A4A";
                 e.currentTarget.style.color = "#ffffff";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#061A12";
+                e.currentTarget.style.color = "#1A7A4A";
               }}
             >
               Log In
             </a>
+
+            {/* Get Started — emerald solid */}
             <a
               href={SIGNUP_URL}
-              className="text-[14px] font-bold no-underline whitespace-nowrap px-6 py-3 rounded-[50px] transition-colors duration-200 hover:bg-[#0F4C2A]"
-              style={{ background: "#061A12", color: "#ffffff" }}
+              className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
+              style={{
+                background: "#0F4C2A",
+                color: "#ffffff",
+                border: "1.5px solid #0F4C2A",
+                lineHeight: "1",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#061A12";
+                e.currentTarget.style.borderColor = "#061A12";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#0F4C2A";
+                e.currentTarget.style.borderColor = "#0F4C2A";
+              }}
             >
               Get Started
             </a>
-            <Link
-              href="#demo"
-              className="text-[14px] font-bold text-[#061A12] no-underline whitespace-nowrap transition-colors duration-300 hover:bg-[#F5C453] px-6 py-3 rounded-[50px]"
-              style={{ background: "#E8A020" }}
+
+            {/* Book a Demo — gold primary */}
+            <a
+              href="/contact?subject=demo"
+              className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
+              style={{
+                background: "#E8A020",
+                color: "#061A12",
+                border: "1.5px solid #E8A020",
+                lineHeight: "1",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#F5C453";
+                e.currentTarget.style.borderColor = "#F5C453";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#E8A020";
+                e.currentTarget.style.borderColor = "#E8A020";
+              }}
             >
               Book a Demo
-            </Link>
+            </a>
           </div>
 
           {/* Hamburger */}
@@ -121,7 +398,9 @@ export default function Navbar() {
               className="w-6 h-[3px] rounded-sm transition-all duration-300"
               style={{
                 background: "#061A12",
-                transform: mobileOpen ? "rotate(45deg) translate(8px, 8px)" : "none",
+                transform: mobileOpen
+                  ? "rotate(45deg) translate(8px, 8px)"
+                  : "none",
               }}
             />
             <span
@@ -135,7 +414,9 @@ export default function Navbar() {
               className="w-6 h-[3px] rounded-sm transition-all duration-300"
               style={{
                 background: "#061A12",
-                transform: mobileOpen ? "rotate(-45deg) translate(7px, -7px)" : "none",
+                transform: mobileOpen
+                  ? "rotate(-45deg) translate(7px, -7px)"
+                  : "none",
               }}
             />
           </button>
@@ -148,40 +429,117 @@ export default function Navbar() {
           className="lg:hidden fixed inset-0 z-[999] flex flex-col p-8 overflow-y-auto"
           style={{ top: "70px", background: "#ffffff" }}
         >
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="block py-3 text-[#061A12] no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-[#E8A020]"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {/* Features */}
+          <Link
+            href="/features"
+            onClick={() => setMobileOpen(false)}
+            className="block py-3 text-[#061A12] no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-[#E8A020]"
+          >
+            Features
+          </Link>
+
+          {/* Solutions section — expanded list (no dropdown) */}
+          <div className="border-b border-gray-100">
+            <span className="block py-3 text-[#061A12] font-medium text-lg">
+              Solutions
+            </span>
+            <div className="flex flex-col pb-2">
+              {solutionItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 pl-5 py-2 text-[#061A12] no-underline text-base transition-colors hover:text-[#E8A020]"
+                >
+                  <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+                  <span className="font-medium">{item.label}</span>
+                  <span className="text-xs text-gray-400 ml-1">— {item.subtitle}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Remaining nav links (Pricing, Blog, Contact — skip Features) */}
+          {navLinks
+            .filter((link) => link.label !== "Features")
+            .map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="block py-3 text-[#061A12] no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-[#E8A020]"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+          {/* Company section — expanded list (no dropdown) */}
+          <div className="border-b border-gray-100">
+            <span className="block py-3 text-[#061A12] font-medium text-lg">
+              Company
+            </span>
+            <div className="flex flex-col pb-2">
+              {companyItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 pl-5 py-2 text-[#061A12] no-underline text-base transition-colors hover:text-[#E8A020]"
+                >
+                  <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+                  <span className="font-medium">{item.label}</span>
+                  <span className="text-xs text-gray-400 ml-1">— {item.subtitle}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
           <div className="flex flex-col gap-3 mt-6">
+            {/* Book a Demo — gold primary (most important, first on mobile) */}
+            <a
+              href="/contact?subject=demo"
+              onClick={() => setMobileOpen(false)}
+              className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
+              style={{ background: "#E8A020", color: "#061A12", border: "1.5px solid #E8A020" }}
+            >
+              Book a Demo
+            </a>
+            {/* Get Started — emerald solid */}
             <a
               href={SIGNUP_URL}
               onClick={() => setMobileOpen(false)}
-              className="block text-center font-bold no-underline py-3 px-6 rounded-[50px]"
-              style={{ background: "#061A12", color: "#ffffff" }}
+              className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
+              style={{ background: "#0F4C2A", color: "#ffffff", border: "1.5px solid #0F4C2A" }}
             >
               Get Started
             </a>
+            {/* Log In — ghost outline */}
             <a
               href={LOGIN_URL}
               onClick={() => setMobileOpen(false)}
-              className="block text-center font-semibold no-underline py-3 px-6 rounded-[50px] transition-colors"
-              style={{ border: "1.5px solid #061A12", color: "#061A12" }}
+              className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
+              style={{ background: "transparent", color: "#1A7A4A", border: "1.5px solid #1A7A4A" }}
             >
               Log In
             </a>
+          </div>
+
+          {/* Footer-style quick links */}
+          <div className="flex justify-center gap-6 mt-6 pt-4 border-t border-gray-100">
             <Link
-              href="#demo"
+              href="/case-studies"
               onClick={() => setMobileOpen(false)}
-              className="block text-center font-bold text-[#061A12] no-underline py-3 px-6 rounded-[50px]"
-              style={{ background: "#E8A020" }}
+              className="text-sm text-gray-500 no-underline hover:text-[#061A12] transition-colors"
             >
-              Book a Demo
+              Case Studies
+            </Link>
+            <Link
+              href="/partners"
+              onClick={() => setMobileOpen(false)}
+              className="text-sm text-gray-500 no-underline hover:text-[#061A12] transition-colors"
+            >
+              Partner Programme
             </Link>
           </div>
         </div>

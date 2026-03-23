@@ -26,7 +26,9 @@
     "test": "node node_modules/turbo/bin/turbo run test",
     "clean": "node node_modules/turbo/bin/turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "add-master-admin": "node scripts/add-master-admin.js",
+    "verify-master-admin": "node scripts/verify-master-admin.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
