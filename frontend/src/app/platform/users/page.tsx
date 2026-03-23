@@ -177,6 +177,7 @@ export default function UsersPage() {
   });
   const [createSubmitting, setCreateSubmitting] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [createResult, setCreateResult] = useState<{ emailSent: boolean; signUpUrl: string; workosError?: string; invitedEmail: string } | null>(null);
 
   // Fetch users from Convex backend
   const usersData = usePlatformQuery(
@@ -273,6 +274,7 @@ export default function UsersPage() {
   const handleCreateUser = () => {
     setCreateForm({ firstName: "", lastName: "", email: "", role: "super_admin" });
     setCreateError(null);
+    setCreateResult(null);
     setIsCreateDialogOpen(true);
   };
 
@@ -294,17 +296,17 @@ export default function UsersPage() {
         setCreateError(data.error ?? "Failed to create user.");
         return;
       }
-      setIsCreateDialogOpen(false);
       if (data.emailSent) {
+        setIsCreateDialogOpen(false);
         toast.success(`Invitation email sent to ${createForm.email}`);
-      } else if (data.workosError) {
-        // User was created but email failed — show as a warning toast with the real reason
-        toast.warning(
-          `User created but invitation email failed: ${data.workosError}`,
-          { duration: 10000 }
-        );
       } else {
-        toast.info(`User created. Share the login link manually: /auth/login/api`);
+        // Stay open and show the sign-up link so admin can share it manually
+        setCreateResult({
+          emailSent: false,
+          signUpUrl: data.signUpUrl ?? `${window.location.origin}/auth/login/api`,
+          workosError: data.workosError,
+          invitedEmail: createForm.email,
+        });
       }
     } catch (err: any) {
       setCreateError(err.message ?? "Unexpected error");
@@ -778,81 +780,128 @@ export default function UsersPage() {
       </Tabs>
 
       {/* Create User Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog open={isCreateDialogOpen} onOpenChange={(open) => { setIsCreateDialogOpen(open); if (!open) setCreateResult(null); }}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle>Invite Platform Admin</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {createError && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                {createError}
+
+          {createResult ? (
+            /* ── Email failed: show copy-able sign-up link ── */
+            <div className="space-y-4 py-2">
+              <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 flex items-start gap-2">
+                <CheckCircle className="h-4 w-4 mt-0.5 shrink-0 text-green-600" />
+                <span>User <strong>{createResult.invitedEmail}</strong> created successfully.</span>
               </div>
-            )}
-            <div className="grid grid-cols-2 gap-4">
+
+              {createResult.workosError && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                  <p className="font-semibold mb-1">Invitation email not sent</p>
+                  <p>{createResult.workosError}</p>
+                </div>
+              )}
+
               <div>
-                <Label htmlFor="create-firstName">First Name *</Label>
+                <p className="text-sm font-medium mb-2">Share this sign-up link directly:</p>
+                <div className="flex gap-2">
+                  <Input readOnly value={createResult.signUpUrl} className="font-mono text-xs" />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      navigator.clipboard.writeText(createResult.signUpUrl);
+                      toast.success("Link copied!");
+                    }}
+                  >
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Send this link to <strong>{createResult.invitedEmail}</strong> via email, WhatsApp, or Slack.
+                  It will take them directly to the sign-up page.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <Button variant="outline" onClick={() => { setCreateResult(null); setCreateForm({ firstName: "", lastName: "", email: "", role: "super_admin" }); }}>
+                  <UserPlus className="h-4 w-4 mr-1" /> Invite Another
+                </Button>
+                <Button onClick={() => setIsCreateDialogOpen(false)}>Done</Button>
+              </div>
+            </div>
+          ) : (
+            /* ── Invite form ── */
+            <div className="grid gap-4 py-4">
+              {createError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  {createError}
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="create-firstName">First Name *</Label>
+                  <Input
+                    id="create-firstName"
+                    placeholder="John"
+                    value={createForm.firstName}
+                    onChange={(e) => setCreateForm(p => ({ ...p, firstName: e.target.value }))}
+                    disabled={createSubmitting}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="create-lastName">Last Name *</Label>
+                  <Input
+                    id="create-lastName"
+                    placeholder="Doe"
+                    value={createForm.lastName}
+                    onChange={(e) => setCreateForm(p => ({ ...p, lastName: e.target.value }))}
+                    disabled={createSubmitting}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="create-email">Email *</Label>
                 <Input
-                  id="create-firstName"
-                  placeholder="John"
-                  value={createForm.firstName}
-                  onChange={(e) => setCreateForm(p => ({ ...p, firstName: e.target.value }))}
+                  id="create-email"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={createForm.email}
+                  onChange={(e) => setCreateForm(p => ({ ...p, email: e.target.value }))}
                   disabled={createSubmitting}
                 />
               </div>
               <div>
-                <Label htmlFor="create-lastName">Last Name *</Label>
-                <Input
-                  id="create-lastName"
-                  placeholder="Doe"
-                  value={createForm.lastName}
-                  onChange={(e) => setCreateForm(p => ({ ...p, lastName: e.target.value }))}
+                <Label htmlFor="create-role">Role *</Label>
+                <Select
+                  value={createForm.role}
+                  onValueChange={(v) => setCreateForm(p => ({ ...p, role: v as "master_admin" | "super_admin" }))}
                   disabled={createSubmitting}
-                />
+                >
+                  <SelectTrigger id="create-role">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                    <SelectItem value="master_admin">Master Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {createForm.role === "master_admin"
+                    ? "Full platform control including billing and tenant management."
+                    : "Can view tenants and audit logs; limited platform access."}
+                </p>
+              </div>
+              <div className="flex justify-end space-x-2 pt-2">
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={createSubmitting}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateUserSubmit} disabled={createSubmitting}>
+                  <UserPlus className="h-4 w-4 mr-1" />
+                  {createSubmitting ? "Sending…" : "Send Invitation"}
+                </Button>
               </div>
             </div>
-            <div>
-              <Label htmlFor="create-email">Email *</Label>
-              <Input
-                id="create-email"
-                type="email"
-                placeholder="john@example.com"
-                value={createForm.email}
-                onChange={(e) => setCreateForm(p => ({ ...p, email: e.target.value }))}
-                disabled={createSubmitting}
-              />
-            </div>
-            <div>
-              <Label htmlFor="create-role">Role *</Label>
-              <Select
-                value={createForm.role}
-                onValueChange={(v) => setCreateForm(p => ({ ...p, role: v as "master_admin" | "super_admin" }))}
-                disabled={createSubmitting}
-              >
-                <SelectTrigger id="create-role">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="super_admin">Super Admin</SelectItem>
-                  <SelectItem value="master_admin">Master Admin</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">
-                {createForm.role === "master_admin"
-                  ? "Full platform control including billing and tenant management."
-                  : "Can view tenants and audit logs; limited platform access."}
-              </p>
-            </div>
-            <div className="flex justify-end space-x-2 pt-2">
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={createSubmitting}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreateUserSubmit} disabled={createSubmitting}>
-                <UserPlus className="h-4 w-4 mr-1" />
-                {createSubmitting ? "Sending…" : "Send Invitation"}
-              </Button>
-            </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
 
