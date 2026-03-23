@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,8 +41,8 @@ export default function SchoolTicketsPage() {
   });
   const [searchQuery, setSearchQuery] = useState("");
 
-  // TODO: Get actual tenant ID from auth context
-  const tenantId = "temp-tenant-id" as any;
+  const { tenantId: rawTenantId } = useAuth();
+  const tenantId = (rawTenantId ?? "temp-tenant-id") as any;
   
   const { data: tickets, isLoading } = useQuery(api.tickets.getTenantTickets, {
     tenantId,

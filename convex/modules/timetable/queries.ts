@@ -178,3 +178,31 @@ export const getConflicts = query({
         return conflicts;
     },
 });
+
+export const listEvents = query({
+    args: {
+        startDate: v.optional(v.string()),
+        endDate: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "timetable");
+        requirePermission(tenant, "timetable:read");
+
+        let q = ctx.db
+            .query("schoolEvents")
+            .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId));
+
+        const events = await q.order("asc").collect();
+
+        if (args.startDate || args.endDate) {
+            return events.filter((e) => {
+                if (args.startDate && e.startDate < args.startDate) return false;
+                if (args.endDate && e.startDate > args.endDate) return false;
+                return true;
+            });
+        }
+
+        return events;
+    },
+});

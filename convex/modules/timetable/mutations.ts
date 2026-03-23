@@ -138,3 +138,49 @@ export const assignSubstitute = mutation({
         return args.slotId;
     },
 });
+
+export const createEvent = mutation({
+    args: {
+        title: v.string(),
+        description: v.optional(v.string()),
+        eventType: v.string(),
+        startDate: v.string(),
+        endDate: v.optional(v.string()),
+        startTime: v.optional(v.string()),
+        endTime: v.optional(v.string()),
+        location: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "timetable");
+        requirePermission(tenant, "timetable:write");
+
+        const now = Date.now();
+        const id = await ctx.db.insert("schoolEvents", {
+            tenantId: tenant.tenantId,
+            title: args.title,
+            description: args.description,
+            eventType: args.eventType,
+            startDate: args.startDate,
+            endDate: args.endDate,
+            startTime: args.startTime,
+            endTime: args.endTime,
+            location: args.location,
+            createdBy: tenant.userId,
+            createdAt: now,
+            updatedAt: now,
+        });
+
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "timetable.event_created",
+            entityType: "schoolEvents",
+            entityId: id,
+            after: args,
+        });
+
+        return id;
+    },
+});

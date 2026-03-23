@@ -41,6 +41,10 @@ function decodeState(raw: string | null): Record<string, string> {
   }
 }
 
+function authError(req: NextRequest, reason: string): NextResponse {
+  return NextResponse.redirect(new URL(`/auth/error?reason=${encodeURIComponent(reason)}`, req.url));
+}
+
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const error = req.nextUrl.searchParams.get("error");
@@ -48,13 +52,11 @@ export async function GET(req: NextRequest) {
 
   if (error) {
     console.error("[auth/callback] WorkOS error:", error);
-    return NextResponse.redirect(
-      new URL(`/?auth_error=${encodeURIComponent(error)}`, req.url)
-    );
+    return authError(req, encodeURIComponent(error));
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL("/?auth_error=no_code", req.url));
+    return authError(req, "no_code");
   }
 
   // CSRF: only validate when the cookie is present (same-origin flows).
@@ -62,7 +64,7 @@ export async function GET(req: NextRequest) {
   const savedState = req.cookies.get("workos_state")?.value;
   if (savedState && returnedState !== savedState) {
     console.error("[auth/callback] CSRF state mismatch");
-    return NextResponse.redirect(new URL("/?auth_error=invalid_state", req.url));
+    return authError(req, "invalid_state");
   }
 
   const apiKey = process.env.WORKOS_API_KEY;
@@ -71,7 +73,7 @@ export async function GET(req: NextRequest) {
 
   if (!apiKey || !clientId || !convexUrl) {
     console.error("[auth/callback] Missing env vars", { apiKey: !!apiKey, clientId: !!clientId, convexUrl: !!convexUrl });
-    return NextResponse.redirect(new URL("/?auth_error=config_error", req.url));
+    return authError(req, "config_error");
   }
 
   try {
@@ -91,13 +93,18 @@ export async function GET(req: NextRequest) {
       const existing = await convex.query(api.users.getUserByWorkosIdGlobal, {
         workosUserId: user.id,
       });
-      if (existing?.role) {
+      if (isMasterAdmin(user.email)) {
+        // MASTER_ADMIN_EMAIL always wins — override any stored role and sync DB
+        role = "master_admin";
+        tenantId = "PLATFORM";
+        await convex.mutation(api.users.syncMasterAdminRole, {
+          workosUserId: user.id,
+          email: user.email,
+        });
+      } else if (existing?.role) {
         // Known user — use their stored role
         role = existing.role;
         if (existing.tenantId) tenantId = existing.tenantId;
-      } else if (isMasterAdmin(user.email)) {
-        role = "master_admin";
-        tenantId = "PLATFORM";
       } else {
         // New user — check if any master_admin exists; if not, this is the first user → auto-promote
         const hasMasterAdmin = await convex.query(api.users.hasMasterAdmin, {});
@@ -113,6 +120,7 @@ export async function GET(req: NextRequest) {
         tenantId = "PLATFORM";
       }
     }
+
     const sessionToken = crypto.randomBytes(32).toString("hex");
 
     await convex.mutation(api.sessions.createSession, {
@@ -176,6 +184,6 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (err) {
     console.error("[auth/callback] ❌ Token exchange failed:", err);
-    return NextResponse.redirect(new URL("/?auth_error=callback_failed", req.url));
+    return authError(req, "callback_failed");
   }
 }

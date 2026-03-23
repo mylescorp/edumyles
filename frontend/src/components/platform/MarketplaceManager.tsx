@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -558,12 +559,12 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
     setModules([...modules, ...additionalModules]);
     
     // Show success message
-    alert(`Successfully seeded ${additionalModules.length} new modules to the registry!`);
+    toast.success(`Successfully seeded ${additionalModules.length} new modules to the registry!`);
   };
 
   const createNewModule = () => {
     if (!newModuleData.name || !newModuleData.description || !newModuleData.developer) {
-      alert("Please fill in all required fields (Name, Description, Developer)");
+      toast.error("Please fill in all required fields (Name, Description, Developer)");
       return;
     }
 
@@ -629,7 +630,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
       }
     });
 
-    alert(`Module "${newModule.name}" has been created and is pending approval!`);
+    toast.success(`Module "${newModule.name}" has been created and is pending approval!`);
   };
 
   const updateNewModuleField = (field: string, value: any) => {

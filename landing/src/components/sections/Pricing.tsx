@@ -80,7 +80,7 @@ export default function Pricing() {
       aria-label="Pricing plans"
       style={{ background: "#F3FBF6" }}
     >
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-[1200px] mx-auto">
         <div className="text-center mb-12">
           <div className="section-eyebrow justify-center mb-2">Pricing</div>
           <h2
@@ -133,7 +133,7 @@ export default function Pricing() {
               key={plan.name}
               className={`relative rounded-2xl p-6 lg:p-8 flex flex-col ${
                 plan.featured
-                  ? "bg-navy shadow-2xl border-2 border-gold md:scale-[1.02]"
+                  ? "bg-navy shadow-2xl border-2 border-gold lg:scale-[1.02]"
                   : "bg-white border border-light-grey shadow-card"
               }`}
             >

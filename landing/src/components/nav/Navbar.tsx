@@ -3,12 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
+// Point auth actions at the frontend app (different domain in production)
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
+const LOGIN_URL = `${APP_URL}/auth/login/api`;
+const SIGNUP_URL = `${APP_URL}/auth/signup/api`;
+
 const navLinks = [
   { label: "Features", href: "/features" },
-  { label: "Solutions", href: "#modules" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Blog", href: "#" },
-  { label: "About", href: "#" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Blog", href: "/blog" },
+  { label: "About", href: "/about" },
+  { label: "Team", href: "/team" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -70,7 +75,7 @@ export default function Navbar() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
             <a
-              href="/auth/login/api"
+              href={LOGIN_URL}
               className="text-[14px] font-semibold no-underline px-5 py-2.5 rounded-[50px] transition-all duration-200"
               style={{
                 color: "#061A12",
@@ -87,6 +92,13 @@ export default function Navbar() {
               }}
             >
               Log In
+            </a>
+            <a
+              href={SIGNUP_URL}
+              className="text-[14px] font-bold no-underline whitespace-nowrap px-6 py-3 rounded-[50px] transition-colors duration-200 hover:bg-[#0F4C2A]"
+              style={{ background: "#061A12", color: "#ffffff" }}
+            >
+              Get Started
             </a>
             <Link
               href="#demo"
@@ -148,7 +160,15 @@ export default function Navbar() {
           ))}
           <div className="flex flex-col gap-3 mt-6">
             <a
-              href="/auth/login/api"
+              href={SIGNUP_URL}
+              onClick={() => setMobileOpen(false)}
+              className="block text-center font-bold no-underline py-3 px-6 rounded-[50px]"
+              style={{ background: "#061A12", color: "#ffffff" }}
+            >
+              Get Started
+            </a>
+            <a
+              href={LOGIN_URL}
               onClick={() => setMobileOpen(false)}
               className="block text-center font-semibold no-underline py-3 px-6 rounded-[50px] transition-colors"
               style={{ border: "1.5px solid #061A12", color: "#061A12" }}

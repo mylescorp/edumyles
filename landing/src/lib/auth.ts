@@ -22,7 +22,7 @@ export function getRoleDashboardPath(role: string): string {
   switch (role) {
     case "master_admin":
     case "super_admin":
-      return "/admin";
+      return "/platform";
     case "teacher":
       return "/portal/teacher";
     case "parent":

@@ -3,9 +3,8 @@ import Link from "next/link";
 const footerLinks = {
   Product: [
     { label: "Features", href: "/features" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Integrations", href: "#" },
-    { label: "Security", href: "#" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Contact", href: "/contact" },
     { label: "Demo", href: "#demo" },
   ],
   Solutions: [
@@ -16,8 +15,9 @@ const footerLinks = {
     { label: "For Parents", href: "#" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Blog", href: "#" },
+    { label: "About", href: "/about" },
+    { label: "Team", href: "/team" },
+    { label: "Blog", href: "/blog" },
     { label: "Case Studies", href: "#" },
     { label: "Contact", href: "/contact" },
     { label: "Privacy Policy", href: "/terms#privacy" },

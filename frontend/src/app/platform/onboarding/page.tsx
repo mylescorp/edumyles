@@ -36,6 +36,7 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { toast } from "sonner";
 
 const ONBOARDING_STEPS = [
   { id: 0, label: "School Info", icon: Building2, description: "Basic school information and contact details" },
@@ -419,7 +420,7 @@ export default function OnboardingPage() {
       setStartDialogOpen(false);
       setNewTenantId("");
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -433,7 +434,7 @@ export default function OnboardingPage() {
       setStepData({});
       setWizardStep((s) => s + 1);
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -444,7 +445,7 @@ export default function OnboardingPage() {
       setStepData({});
       setWizardStep((s) => s + 1);
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -456,7 +457,7 @@ export default function OnboardingPage() {
       setWizardStep(0);
       setStepData({});
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
