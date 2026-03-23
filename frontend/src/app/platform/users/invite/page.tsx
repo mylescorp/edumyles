@@ -64,7 +64,7 @@ export default function InviteAdminPage() {
       setResult({
         email: form.email,
         emailSent: data.emailSent ?? false,
-        warning: data.warning,
+        warning: data.workosError ?? data.warning,
       });
     } catch (err: any) {
       setError(err.message || "Failed to invite admin");

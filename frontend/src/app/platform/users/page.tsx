@@ -296,9 +296,15 @@ export default function UsersPage() {
       }
       setIsCreateDialogOpen(false);
       if (data.emailSent) {
-        toast.success(`Invitation sent to ${createForm.email}`);
+        toast.success(`Invitation email sent to ${createForm.email}`);
+      } else if (data.workosError) {
+        // User was created but email failed — show as a warning toast with the real reason
+        toast.warning(
+          `User created but invitation email failed: ${data.workosError}`,
+          { duration: 10000 }
+        );
       } else {
-        toast.success(`User created. Share the login link manually: /auth/login/api`);
+        toast.info(`User created. Share the login link manually: /auth/login/api`);
       }
     } catch (err: any) {
       setCreateError(err.message ?? "Unexpected error");
