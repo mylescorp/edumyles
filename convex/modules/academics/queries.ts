@@ -217,43 +217,23 @@ export const getRecentExams = query({
 
     const limit = args.limit || 10;
 
-    // Since we don't have examinations table yet, return mock data
-    // This will be implemented when we create the examinations table
-    return [
-      {
-        _id: "exam1",
-        name: "Mid-Term Examinations",
-        className: "Grade 5",
-        date: "2024-03-15",
-        status: "completed",
-        submissions: 38,
-        total: 40,
-        tenantId: tenant.tenantId,
-        createdAt: Date.now() - 86400000,
-      },
-      {
-        _id: "exam2",
-        name: "Science Practical Test",
-        className: "Grade 8",
-        date: "2024-03-18",
-        status: "ongoing",
-        submissions: 25,
-        total: 35,
-        tenantId: tenant.tenantId,
-        createdAt: Date.now() - 43200000,
-      },
-      {
-        _id: "exam3",
-        name: "Mathematics Assessment",
-        className: "Grade 3",
-        date: "2024-03-20",
-        status: "scheduled",
-        submissions: 0,
-        total: 42,
-        tenantId: tenant.tenantId,
-        createdAt: Date.now(),
-      },
-    ].slice(0, limit);
+    const exams = await ctx.db
+      .query("examinations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .order("desc")
+      .take(limit);
+
+    return exams.map((e) => ({
+      _id: e._id,
+      name: e.name,
+      className: e.className ?? "N/A",
+      date: e.date,
+      status: e.status,
+      submissions: 0,
+      total: 0,
+      tenantId: e.tenantId,
+      createdAt: e.createdAt,
+    }));
   },
 });
 
@@ -271,36 +251,24 @@ export const getUpcomingEvents = query({
 
     const limit = args.limit || 10;
 
-    // Since we don't have academicEvents table yet, return mock data
-    // This will be implemented when we create the academicEvents table
-    return [
-      {
-        _id: "event1",
-        title: "Parent-Teacher Meeting",
-        date: "2024-03-25",
-        time: "2:00 PM",
-        type: "meeting",
-        tenantId: tenant.tenantId,
-        createdAt: Date.now(),
-      },
-      {
-        _id: "event2",
-        title: "Science Fair",
-        date: "2024-03-28",
-        time: "9:00 AM",
-        type: "event",
-        tenantId: tenant.tenantId,
-        createdAt: Date.now(),
-      },
-      {
-        _id: "event3",
-        title: "End of Term Exams",
-        date: "2024-04-10",
-        time: "8:00 AM",
-        type: "exam",
-        tenantId: tenant.tenantId,
-        createdAt: Date.now(),
-      },
-    ].slice(0, limit);
+    const today = new Date().toISOString().split("T")[0] ?? "";
+    const events = await ctx.db
+      .query("schoolEvents")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .order("asc")
+      .collect();
+
+    return events
+      .filter((e) => e.startDate >= today)
+      .slice(0, limit)
+      .map((e) => ({
+        _id: e._id,
+        title: e.title,
+        date: e.startDate,
+        time: e.startTime ?? "All Day",
+        type: e.eventType,
+        tenantId: e.tenantId,
+        createdAt: e.createdAt,
+      }));
   },
 });
