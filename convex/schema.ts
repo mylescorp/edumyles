@@ -559,6 +559,23 @@ export default defineSchema({
     .index("by_room", ["tenantId", "room", "dayOfWeek"])
     .index("by_tenant_day", ["tenantId", "dayOfWeek"]),
 
+  schoolEvents: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    description: v.optional(v.string()),
+    eventType: v.string(), // "academic" | "sports" | "cultural" | "holiday" | "meeting" | "other"
+    startDate: v.string(), // ISO date string
+    endDate: v.optional(v.string()),
+    startTime: v.optional(v.string()),
+    endTime: v.optional(v.string()),
+    location: v.optional(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_date", ["tenantId", "startDate"]),
+
   announcements: defineTable({
     tenantId: v.string(),
     title: v.string(),

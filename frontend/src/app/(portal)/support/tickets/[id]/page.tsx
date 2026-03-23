@@ -58,9 +58,6 @@ export default function SchoolTicketDetailPage() {
   
   const [newComment, setNewComment] = useState("");
 
-  // TODO: Get actual tenant ID from auth context
-  const tenantId = "temp-tenant-id" as any;
-  
   const { data: ticket, isLoading } = useQuery(api.tickets.getTicket, { ticketId });
   const addComment = useMutation(api.tickets.addComment);
 
