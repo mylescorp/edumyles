@@ -1,12 +1,19 @@
-const badges = [
-  { icon: "🇰🇪", name: "M-Pesa Daraja", subtitle: "Mobile Money" },
-  { icon: "🌍", name: "Airtel Money", subtitle: "East Africa" },
-  { icon: "📡", name: "Africa's Talking", subtitle: "SMS & USSD" },
-  { icon: "💳", name: "Stripe", subtitle: "Card Payments" },
-  { icon: "🏫", name: "NEMIS", subtitle: "Kenya MoE" },
-  { icon: "📚", name: "CBC / KICD", subtitle: "Curriculum" },
-  { icon: "🔑", name: "WorkOS", subtitle: "SSO & Auth" },
-  { icon: "⚡", name: "Convex", subtitle: "Real-Time Sync" },
+import { Radio, CreditCard, Building2, BookOpen, KeyRound, Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+type Badge =
+  | { isEmoji: true;  icon: string;      name: string; subtitle: string }
+  | { isEmoji: false; icon: LucideIcon;  name: string; subtitle: string };
+
+const badges: Badge[] = [
+  { isEmoji: true,  icon: "🇰🇪", name: "M-Pesa Daraja",     subtitle: "Mobile Money" },
+  { isEmoji: true,  icon: "🌍",  name: "Airtel Money",       subtitle: "East Africa" },
+  { isEmoji: false, icon: Radio,    name: "Africa's Talking", subtitle: "SMS & USSD" },
+  { isEmoji: false, icon: CreditCard, name: "Stripe",         subtitle: "Card Payments" },
+  { isEmoji: false, icon: Building2,  name: "NEMIS",          subtitle: "Kenya MoE" },
+  { isEmoji: false, icon: BookOpen,   name: "CBC / KICD",     subtitle: "Curriculum" },
+  { isEmoji: false, icon: KeyRound,   name: "WorkOS",         subtitle: "SSO & Auth" },
+  { isEmoji: false, icon: Zap,        name: "Convex",         subtitle: "Real-Time Sync" },
 ];
 
 export default function Integrations() {
@@ -27,7 +34,11 @@ export default function Integrations() {
               key={badge.name}
               className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 shadow-sm"
             >
-              <span className="text-lg leading-none">{badge.icon}</span>
+              {badge.isEmoji ? (
+                <span className="text-lg leading-none">{badge.icon}</span>
+              ) : (
+                <badge.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              )}
               <span className="text-sm font-semibold text-[#061A12]">{badge.name}</span>
               <span className="text-xs text-gray-400">{badge.subtitle}</span>
             </div>

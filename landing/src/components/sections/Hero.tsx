@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { BarChart2 } from "lucide-react";
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -164,7 +165,7 @@ export default function Hero() {
                 padding: "4px 12px",
               }}
             >
-              📊 Sample data — see your real numbers after setup
+              <BarChart2 className="w-4 h-4" strokeWidth={1.5} /> Sample data — see your real numbers after setup
             </div>
             {/* Card 1 — Total Students */}
             <div

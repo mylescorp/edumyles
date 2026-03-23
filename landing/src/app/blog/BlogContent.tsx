@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { Rocket, CreditCard, BookOpen, BarChart2, Users, CalendarDays, Mail } from "lucide-react";
 
 const featured = {
   category: "Product Update",
@@ -15,7 +17,17 @@ const featured = {
   tag: "New",
 };
 
-const posts = [
+type Post = {
+  category: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime: string;
+  author: string;
+  slug: string;
+} & ({ icon: LucideIcon; flagEmoji?: never } | { flagEmoji: string; icon?: never });
+
+const posts: Post[] = [
   {
     category: "Finance",
     title: "How to Set Up M-Pesa Fee Collection for Your School in Under 30 Minutes",
@@ -23,8 +35,8 @@ const posts = [
     date: "February 2026",
     readTime: "6 min read",
     author: "EduMyles Team",
-    slug: "#",
-    emoji: "💳",
+    slug: "/blog/mpesa-fee-collection-guide",
+    icon: CreditCard,
   },
   {
     category: "CBC",
@@ -33,8 +45,8 @@ const posts = [
     date: "February 2026",
     readTime: "9 min read",
     author: "EduMyles Team",
-    slug: "#",
-    emoji: "📚",
+    slug: "/blog/cbc-grading-guide-2026",
+    icon: BookOpen,
   },
   {
     category: "School Management",
@@ -44,7 +56,7 @@ const posts = [
     readTime: "5 min read",
     author: "EduMyles Team",
     slug: "#",
-    emoji: "📊",
+    icon: BarChart2,
   },
   {
     category: "Parent Engagement",
@@ -54,7 +66,7 @@ const posts = [
     readTime: "4 min read",
     author: "EduMyles Team",
     slug: "#",
-    emoji: "👨‍👩‍👧",
+    icon: Users,
   },
   {
     category: "Operations",
@@ -64,7 +76,7 @@ const posts = [
     readTime: "7 min read",
     author: "EduMyles Team",
     slug: "#",
-    emoji: "📅",
+    icon: CalendarDays,
   },
   {
     category: "Regional",
@@ -74,7 +86,7 @@ const posts = [
     readTime: "6 min read",
     author: "EduMyles Team",
     slug: "#",
-    emoji: "🇺🇬",
+    flagEmoji: "🇺🇬",
   },
 ];
 
@@ -160,10 +172,10 @@ export default function BlogContent() {
                 </a>
               </div>
               <div
-                className="hidden md:flex w-[200px] h-[200px] flex-shrink-0 rounded-2xl items-center justify-center text-[80px]"
+                className="hidden md:flex w-[200px] h-[200px] flex-shrink-0 rounded-2xl items-center justify-center"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(232,160,32,0.2)" }}
               >
-                🚀
+                <Rocket className="w-20 h-20" strokeWidth={1.5} style={{ color: "#E8A020" }} />
               </div>
             </div>
           </div>
@@ -197,10 +209,14 @@ export default function BlogContent() {
                   }}
                 >
                   <div
-                    className="flex items-center justify-center text-5xl"
+                    className="flex items-center justify-center"
                     style={{ background: "#F3FBF6", height: "160px", borderBottom: "1px solid #e8f4ec" }}
                   >
-                    {post.emoji}
+                    {post.flagEmoji ? (
+                      <span className="text-5xl">{post.flagEmoji}</span>
+                    ) : (
+                      post.icon && <post.icon className="w-12 h-12" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
+                    )}
                   </div>
                   <div className="flex flex-col gap-3 p-6 flex-1">
                     <div className="flex items-center gap-2">
@@ -236,7 +252,9 @@ export default function BlogContent() {
       {/* ── Newsletter ────────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "#0C3020" }}>
         <div className="max-w-[660px] mx-auto text-center">
-          <div className="text-4xl mb-4">📬</div>
+          <div className="flex justify-center mb-4">
+            <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "#A8E6C3" }} />
+          </div>
           <h2
             className="font-playfair font-bold leading-[1.2] mb-3"
             style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}

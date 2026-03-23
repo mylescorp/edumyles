@@ -18,6 +18,7 @@ const caseStudies = [
       { value: "800", label: "Students" },
       { value: "3 weeks", label: "To go live" },
     ],
+    slug: "nairobi-green-academy",
   },
   {
     tag: "Secondary School · Kisumu, Kenya",
@@ -29,6 +30,7 @@ const caseStudies = [
       { value: "1,200", label: "Students" },
       { value: "CBC + 8-4-4", label: "Support" },
     ],
+    slug: "st-francis-kisumu",
   },
   {
     tag: "International Prep · Nairobi, Kenya",
@@ -40,6 +42,7 @@ const caseStudies = [
       { value: "450", label: "Students" },
       { value: "98%", label: "Parent portal adoption" },
     ],
+    slug: "brookside-prep",
   },
 ];
 
@@ -159,13 +162,13 @@ export default function CaseStudiesPage() {
                       </div>
                     ))}
                   </div>
-                  <a
-                    href="#"
+                  <Link
+                    href={`/case-studies/${cs.slug}`}
                     className="font-jakarta font-bold text-[14px] no-underline"
                     style={{ color: "#0F4C2A" }}
                   >
                     Read Case Study →
-                  </a>
+                  </Link>
                 </div>
               </div>
             ))}

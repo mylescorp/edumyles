@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import { Globe, Smartphone, UserCheck, GraduationCap, Zap, Wallet, Mail, MessageSquare, CheckCircle2 } from "lucide-react";
 
-const services = [
-  { name: "Web Application", icon: "🌐", ms: "42ms" },
-  { name: "Parent Portal", icon: "📱", ms: "38ms" },
-  { name: "Teacher Portal", icon: "👨‍🏫", ms: "35ms" },
-  { name: "Student Portal", icon: "🎓", ms: "41ms" },
-  { name: "Real-Time Sync (Convex)", icon: "⚡", ms: "12ms" },
-  { name: "M-Pesa Integration", icon: "💰", ms: "67ms" },
-  { name: "Email Delivery (Resend)", icon: "📧", ms: "88ms" },
-  { name: "SMS Gateway (Africa's Talking)", icon: "📲", ms: "54ms" },
+const services: { name: string; icon: LucideIcon; ms: string }[] = [
+  { name: "Web Application", icon: Globe, ms: "42ms" },
+  { name: "Parent Portal", icon: Smartphone, ms: "38ms" },
+  { name: "Teacher Portal", icon: UserCheck, ms: "35ms" },
+  { name: "Student Portal", icon: GraduationCap, ms: "41ms" },
+  { name: "Real-Time Sync (Convex)", icon: Zap, ms: "12ms" },
+  { name: "M-Pesa Integration", icon: Wallet, ms: "67ms" },
+  { name: "Email Delivery (Resend)", icon: Mail, ms: "88ms" },
+  { name: "SMS Gateway (Africa's Talking)", icon: MessageSquare, ms: "54ms" },
 ];
 
 const incidents = [
@@ -142,7 +144,7 @@ export default function StatusPage() {
                 }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-[20px]">{svc.icon}</span>
+                  <svc.icon className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
                   <span className="font-jakarta font-medium text-[15px]" style={{ color: "#212121" }}>
                     {svc.name}
                   </span>
@@ -194,7 +196,7 @@ export default function StatusPage() {
             {services.map((svc) => (
               <div key={svc.name}>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[15px]">{svc.icon}</span>
+                  <svc.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
                   <span className="font-jakarta font-medium text-[13px]" style={{ color: "#3a3a3a" }}>
                     {svc.name}
                   </span>
@@ -229,7 +231,7 @@ export default function StatusPage() {
             className="rounded-2xl mb-6 p-5 flex items-center gap-3"
             style={{ background: "rgba(38,166,91,0.06)", border: "1px solid rgba(38,166,91,0.2)" }}
           >
-            <span className="text-[20px]">✅</span>
+            <CheckCircle2 className="w-4 h-4 inline mr-1" style={{ color: "#26A65B" }} strokeWidth={1.5} />
             <span className="font-jakarta font-medium text-[14px]" style={{ color: "#0F4C2A" }}>
               No incidents in the last 30 days.
             </span>
@@ -257,7 +259,7 @@ export default function StatusPage() {
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1.5 rounded-full flex-shrink-0"
                     style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A", border: "1px solid rgba(38,166,91,0.2)" }}
                   >
-                    ✅ Resolved
+                    <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} /> Resolved
                   </span>
                 </div>
               </div>

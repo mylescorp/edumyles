@@ -56,8 +56,8 @@ export default function BrandValues() {
           className="font-playfair font-bold text-center leading-[1.2] mb-4"
           style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
         >
-          Empowering Schools.{" "}
-          <em className="italic" style={{ color: "#E8A020" }}>Elevating Learning.</em>
+          Empowering Schools,{" "}
+          <em className="italic" style={{ color: "#E8A020" }}>One Mile at a Time.</em>
         </h2>
 
         {/* Mission & Vision */}

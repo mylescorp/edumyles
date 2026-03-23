@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Clock, Banknote, CalendarDays, Trophy } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 function formatNumber(n: number): string {
   return n.toLocaleString("en-KE");
@@ -21,27 +23,27 @@ export default function ROICalculator() {
   const annualHours = hoursSavedPerMonth * 12;
   const annualCost = costSavedPerMonth * 12;
 
-  const metrics = [
+  const metrics: { icon: LucideIcon; value: string; label: string; title: string }[] = [
     {
-      icon: "⏰",
+      icon: Clock,
       value: `${formatNumber(hoursSavedPerMonth)} hrs/month`,
       label: "hours freed up for teaching",
       title: "Hours Saved / Month",
     },
     {
-      icon: "💰",
+      icon: Banknote,
       value: formatKES(costSavedPerMonth) + "/month",
       label: "in admin labour costs",
       title: "Cost Saved / Month",
     },
     {
-      icon: "📅",
+      icon: CalendarDays,
       value: `${formatNumber(annualHours)} hrs/year`,
       label: "hours per year",
       title: "Annual Hours Saved",
     },
     {
-      icon: "🏆",
+      icon: Trophy,
       value: formatKES(annualCost) + "/year",
       label: "total annual saving",
       title: "Annual KES Saved",
@@ -170,7 +172,7 @@ export default function ROICalculator() {
                   className="rounded-2xl p-5 flex flex-col gap-1"
                   style={{ background: "#F3FBF6", border: "1px solid #d1fae5" }}
                 >
-                  <span className="text-2xl">{metric.icon}</span>
+                  <metric.icon className="w-5 h-5 mb-0.5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
                   <span
                     className="font-playfair font-bold text-lg leading-tight"
                     style={{ color: "#E8A020" }}

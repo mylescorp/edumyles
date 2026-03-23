@@ -67,7 +67,7 @@ export default function Testimonial() {
     };
   }, []);
 
-  const t = testimonials[current];
+  const t = testimonials[current]!;
 
   return (
     <section

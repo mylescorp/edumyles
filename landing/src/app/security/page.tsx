@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import React from "react";
+import { LockKeyhole, Building2, KeyRound, ShieldCheck, ClipboardCheck, Lock } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Security & Privacy — EduMyles",
@@ -6,24 +9,24 @@ export const metadata: Metadata = {
     "How EduMyles protects student data and school information. SOC 2, encryption, GDPR and Kenya Data Protection Act compliance.",
 };
 
-const features = [
+const features: { icon: LucideIcon | string; title: string; body: string }[] = [
   {
-    icon: "🔐",
+    icon: LockKeyhole,
     title: "End-to-End Encryption",
     body: "All data is encrypted in transit (TLS 1.3) and at rest (AES-256). Student records, fee data, and communications are never stored in plain text.",
   },
   {
-    icon: "🏫",
+    icon: Building2,
     title: "School Data Isolation",
     body: "Strict multi-tenant architecture. Each school's data is completely isolated — no school can ever access another school's information.",
   },
   {
-    icon: "🔑",
+    icon: KeyRound,
     title: "Role-Based Access",
     body: "14 granular user roles. Every user sees only what they need. Principals see everything; students see only their own records.",
   },
   {
-    icon: "🛡️",
+    icon: ShieldCheck,
     title: "SOC 2 Type I Certified",
     body: "We have completed our SOC 2 Type I audit, covering security, availability, and confidentiality. Type II audit in progress.",
   },
@@ -33,7 +36,7 @@ const features = [
     body: "Fully compliant with Kenya's Data Protection Act 2019. We process student data only for legitimate school management purposes.",
   },
   {
-    icon: "📋",
+    icon: ClipboardCheck,
     title: "GDPR Ready",
     body: "For international schools with EU-connected families, we support GDPR data subject requests, deletion, and export.",
   },
@@ -101,13 +104,17 @@ export default function SecurityPage() {
               Student data is sacred. We&apos;ve built EduMyles from the ground up with security, privacy, and compliance at every layer.
             </p>
             <div className="flex flex-wrap gap-3">
-              {["🔒 SOC 2 Type I", "🇰🇪 Kenya DPA Compliant", "🔐 End-to-End Encrypted"].map((badge) => (
+              {([
+                { icon: <Lock className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />, label: "SOC 2 Type I" },
+                { icon: <span className="flex-shrink-0">🇰🇪</span>, label: "Kenya DPA Compliant" },
+                { icon: <LockKeyhole className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />, label: "End-to-End Encrypted" },
+              ] as { icon: React.ReactNode; label: string }[]).map((badge) => (
                 <span
-                  key={badge}
-                  className="inline-flex items-center font-jakarta font-semibold text-[13px] px-4 py-2 rounded-[50px]"
+                  key={badge.label}
+                  className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-4 py-2 rounded-[50px]"
                   style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.2)", color: "#E8E8E8" }}
                 >
-                  {badge}
+                  {badge.icon}{badge.label}
                 </span>
               ))}
             </div>
@@ -144,7 +151,11 @@ export default function SecurityPage() {
                   className="w-12 h-12 rounded-xl flex items-center justify-center text-[22px] mb-4"
                   style={{ background: "#F3FBF6" }}
                 >
-                  {f.icon}
+                  {typeof f.icon === "string" ? (
+                    f.icon
+                  ) : (
+                    <f.icon className="w-6 h-6" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
+                  )}
                 </div>
                 <h3 className="font-playfair font-bold text-[18px] mb-3" style={{ color: "#061A12" }}>
                   {f.title}
@@ -205,10 +216,10 @@ export default function SecurityPage() {
       <section className="py-20 px-4" style={{ background: "#061A12" }}>
         <div className="max-w-[620px] mx-auto text-center">
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-[24px] mx-auto mb-6"
+            className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6"
             style={{ background: "rgba(232,160,32,0.15)", border: "1px solid rgba(232,160,32,0.3)" }}
           >
-            🔒
+            <Lock className="w-6 h-6" strokeWidth={1.5} style={{ color: "#E8A020" }} />
           </div>
           <h2
             className="font-playfair font-bold leading-[1.2] mb-4"

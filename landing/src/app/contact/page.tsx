@@ -1,4 +1,18 @@
 import type { Metadata } from "next";
+import type { LucideIcon } from "lucide-react";
+import {
+  Mail,
+  Wrench,
+  MessageCircle,
+  Phone,
+  Rocket,
+  CalendarDays,
+  Briefcase,
+  MapPin,
+  Clock,
+  Globe,
+  Map,
+} from "lucide-react";
 import ContactForm from "@/components/ui/ContactForm";
 
 export const metadata: Metadata = {
@@ -7,30 +21,36 @@ export const metadata: Metadata = {
     "Get in touch with EduMyles. Start your free trial, book a demo, or reach our sales and support teams. Based in Nairobi, Kenya.",
 };
 
-const contactChannels = [
+const contactChannels: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  href: string;
+  desc: string;
+}[] = [
   {
-    icon: "📧",
+    icon: Mail,
     label: "Sales",
     value: "sales@edumyles.com",
     href: "mailto:sales@edumyles.com",
     desc: "Pricing, plans, and enterprise enquiries",
   },
   {
-    icon: "🛠️",
+    icon: Wrench,
     label: "Support",
     value: "support@edumyles.com",
     href: "mailto:support@edumyles.com",
     desc: "Technical help for existing customers",
   },
   {
-    icon: "💬",
+    icon: MessageCircle,
     label: "General",
     value: "contact@edumyles.com",
     href: "mailto:contact@edumyles.com",
     desc: "General questions, press, partnerships",
   },
   {
-    icon: "📞",
+    icon: Phone,
     label: "Phone",
     value: "+254 743 993 715",
     href: "tel:+254743993715",
@@ -38,9 +58,17 @@ const contactChannels = [
   },
 ];
 
-const options = [
+const options: {
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+  bullets: string[];
+  cta: string;
+  href: string;
+  primary: boolean;
+}[] = [
   {
-    icon: "🚀",
+    icon: Rocket,
     title: "Start Free Trial",
     desc: "Get full access to EduMyles for free — no credit card, no commitment. Set your school up in under an hour.",
     bullets: ["30 days completely free", "No credit card required", "Free onboarding support", "Cancel anytime"],
@@ -49,7 +77,7 @@ const options = [
     primary: true,
   },
   {
-    icon: "📅",
+    icon: CalendarDays,
     title: "Book a Demo",
     desc: "See EduMyles in action with a personalised walkthrough from our school-tech team. Not a sales pitch — a genuine consultation.",
     bullets: ["45-minute live demo", "Tailored to your school type", "Q&A session included", "No obligation"],
@@ -58,7 +86,7 @@ const options = [
     primary: false,
   },
   {
-    icon: "💼",
+    icon: Briefcase,
     title: "Talk to Sales",
     desc: "Questions about pricing, enterprise plans, multi-campus deals, or the partner programme? Our sales team can help.",
     bullets: ["Custom pricing available", "Multi-campus discounts", "Partner programme", "NGO / government rates"],
@@ -145,7 +173,9 @@ export default function ContactPage() {
                   boxShadow: opt.primary ? "0 16px 48px rgba(6,26,18,0.25)" : "0 4px 16px rgba(6,26,18,0.06)",
                 }}
               >
-                <div className="text-4xl">{opt.icon}</div>
+                <div style={{ color: opt.primary ? "#E8A020" : "#1A7A4A" }}>
+                  <opt.icon className="w-8 h-8" strokeWidth={1.5} />
+                </div>
                 <h3
                   className="font-playfair font-bold text-[22px]"
                   style={{ color: opt.primary ? "#E8A020" : "#061A12" }}
@@ -192,7 +222,9 @@ export default function ContactPage() {
             className="rounded-2xl p-8 flex flex-col md:flex-row items-center gap-6"
             style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)", boxShadow: "0 8px 32px rgba(6,26,18,0.2)" }}
           >
-            <div className="text-5xl">💬</div>
+            <div style={{ color: "#A8E6C3" }}>
+              <MessageCircle className="w-12 h-12" strokeWidth={1.5} />
+            </div>
             <div className="flex-1 text-center md:text-left">
               <h3 className="font-playfair font-bold text-[24px] mb-2" style={{ color: "#ffffff" }}>
                 Chat with us on WhatsApp
@@ -236,10 +268,10 @@ export default function ContactPage() {
                     style={{ background: "#ffffff", border: "1px solid #e8f4ec" }}
                   >
                     <div
-                      className="w-10 h-10 rounded-[12px] flex items-center justify-center text-xl flex-shrink-0"
-                      style={{ background: "rgba(38,166,91,0.1)" }}
+                      className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
+                      style={{ background: "rgba(38,166,91,0.1)", color: "#1A7A4A" }}
                     >
-                      {c.icon}
+                      <c.icon className="w-5 h-5" strokeWidth={1.5} />
                     </div>
                     <div>
                       <div className="font-jakarta font-bold text-[13px] mb-0.5" style={{ color: "#6B9E83" }}>{c.label}</div>
@@ -265,14 +297,18 @@ export default function ContactPage() {
               >
                 <div className="flex flex-col gap-5">
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">📍</span>
+                    <span style={{ color: "#1A7A4A", marginTop: "2px" }}>
+                      <MapPin className="w-5 h-5" strokeWidth={1.5} />
+                    </span>
                     <div>
                       <div className="font-jakarta font-bold text-[15px] mb-0.5" style={{ color: "#061A12" }}>WesternHeights</div>
                       <div className="font-jakarta text-[14px]" style={{ color: "#5a5a5a" }}>Nairobi, Kenya</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">⏰</span>
+                    <span style={{ color: "#1A7A4A", marginTop: "2px" }}>
+                      <Clock className="w-5 h-5" strokeWidth={1.5} />
+                    </span>
                     <div>
                       <div className="font-jakarta font-bold text-[15px] mb-0.5" style={{ color: "#061A12" }}>Business Hours</div>
                       <div className="font-jakarta text-[14px]" style={{ color: "#5a5a5a" }}>Monday – Friday: 8:00 AM – 6:00 PM EAT</div>
@@ -280,7 +316,9 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">🌍</span>
+                    <span style={{ color: "#1A7A4A", marginTop: "2px" }}>
+                      <Globe className="w-5 h-5" strokeWidth={1.5} />
+                    </span>
                     <div>
                       <div className="font-jakarta font-bold text-[15px] mb-0.5" style={{ color: "#061A12" }}>Service Area</div>
                       <div className="font-jakarta text-[14px]" style={{ color: "#5a5a5a" }}>Kenya · Uganda · Tanzania · Rwanda · Zambia</div>
@@ -293,8 +331,8 @@ export default function ContactPage() {
                   className="mt-6 rounded-xl flex items-center justify-center"
                   style={{ background: "#F3FBF6", border: "1px dashed #A8E6C3", height: "160px" }}
                 >
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">🗺️</div>
+                  <div className="text-center flex flex-col items-center gap-2">
+                    <Map className="w-12 h-12" strokeWidth={1.5} style={{ color: "#6B9E83" }} />
                     <p className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>Nairobi, Kenya</p>
                   </div>
                 </div>

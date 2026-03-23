@@ -1,6 +1,8 @@
+import React from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Code2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About EduMyles — School Management for African Schools",
@@ -95,9 +97,22 @@ const team = [
     name: "Engineering & Design",
     role: "Product Team",
     bio: "A distributed team of engineers and designers across Nairobi and Kampala, obsessed with building software that works for real African schools.",
-    emoji: "⚙️",
+    icon: Code2,
   },
 ];
+
+function TeamIconAvatar({ member }: { member: { icon?: unknown } }) {
+  if (!member.icon) return null;
+  const Icon = member.icon as React.ComponentType<{ className?: string; strokeWidth?: number; style?: React.CSSProperties }>;
+  return (
+    <div
+      className="w-full flex items-center justify-center"
+      style={{ height: "120px", background: "linear-gradient(135deg, #0F4C2A, #1A7A4A)" }}
+    >
+      <Icon className="w-12 h-12" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+    </div>
+  );
+}
 
 export default function AboutPage() {
   return (
@@ -356,12 +371,7 @@ export default function AboutPage() {
                     />
                   </div>
                 ) : (
-                  <div
-                    className="w-full flex items-center justify-center text-4xl"
-                    style={{ height: "120px", background: "rgba(38,166,91,0.1)" }}
-                  >
-                    {"emoji" in t ? t.emoji : ""}
-                  </div>
+                  <TeamIconAvatar member={t} />
                 )}
                 <div className="p-6">
                   <h3 className="font-playfair font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>{t.name}</h3>

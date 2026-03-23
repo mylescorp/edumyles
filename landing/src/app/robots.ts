@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/auth/", "/portal/", "/admin/", "/api/"],
+        disallow: ["/auth/", "/api/", "/portal/", "/platform"],
       },
     ],
     sitemap: "https://edumyles.com/sitemap.xml",

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import type { LucideIcon } from "lucide-react";
+import { Sparkles, Star, Bug, ShieldCheck, Rocket, CalendarDays } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Changelog — EduMyles | Product Updates",
@@ -79,11 +81,11 @@ const releases: Release[] = [
   },
 ];
 
-const tagConfig: Record<ChangeTag, { emoji: string; label: string; bg: string; color: string; border: string }> = {
-  new: { emoji: "🆕", label: "New", bg: "rgba(38,166,91,0.1)", color: "#0F4C2A", border: "rgba(38,166,91,0.25)" },
-  improved: { emoji: "✨", label: "Improved", bg: "rgba(232,160,32,0.1)", color: "#9A5D00", border: "rgba(232,160,32,0.25)" },
-  fixed: { emoji: "🐛", label: "Fixed", bg: "rgba(59,130,246,0.1)", color: "#1e40af", border: "rgba(59,130,246,0.25)" },
-  security: { emoji: "🔒", label: "Security", bg: "rgba(139,92,246,0.1)", color: "#6b21a8", border: "rgba(139,92,246,0.25)" },
+const tagConfig: Record<ChangeTag, { icon: LucideIcon; label: string; bg: string; color: string; border: string }> = {
+  new: { icon: Sparkles, label: "New", bg: "rgba(38,166,91,0.1)", color: "#0F4C2A", border: "rgba(38,166,91,0.25)" },
+  improved: { icon: Star, label: "Improved", bg: "rgba(232,160,32,0.1)", color: "#9A5D00", border: "rgba(232,160,32,0.25)" },
+  fixed: { icon: Bug, label: "Fixed", bg: "rgba(59,130,246,0.1)", color: "#1e40af", border: "rgba(59,130,246,0.25)" },
+  security: { icon: ShieldCheck, label: "Security", bg: "rgba(139,92,246,0.1)", color: "#6b21a8", border: "rgba(139,92,246,0.25)" },
 };
 
 export default function ChangelogPage() {
@@ -129,15 +131,18 @@ export default function ChangelogPage() {
               We ship improvements every week. Here&apos;s everything that&apos;s been updated, fixed, or launched.
             </p>
             <div className="flex flex-wrap gap-3">
-              {["🚀 Latest release: v2.4.0", "📅 Last updated: March 2026"].map((badge) => (
-                <span
-                  key={badge}
-                  className="inline-flex items-center font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
-                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#E8E8E8" }}
-                >
-                  {badge}
-                </span>
-              ))}
+              <span
+                className="inline-flex items-center gap-1.5 font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
+                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#E8E8E8" }}
+              >
+                <Rocket className="w-3.5 h-3.5" strokeWidth={1.5} /> Latest release: v2.4.0
+              </span>
+              <span
+                className="inline-flex items-center gap-1.5 font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
+                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#E8E8E8" }}
+              >
+                <CalendarDays className="w-3.5 h-3.5" strokeWidth={1.5} /> Last updated: March 2026
+              </span>
             </div>
           </div>
         </div>
@@ -198,7 +203,7 @@ export default function ChangelogPage() {
                               className="inline-flex items-center gap-1 font-jakarta font-semibold text-[11px] px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5"
                               style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}
                             >
-                              {cfg.emoji} {cfg.label}
+                              <cfg.icon className="w-3 h-3 inline mr-0.5" strokeWidth={1.5} /> {cfg.label}
                             </span>
                             <span className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#3a3a3a" }}>
                               {change.text}

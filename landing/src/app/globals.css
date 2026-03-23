@@ -167,6 +167,30 @@
   #progress-bar {
     background: linear-gradient(90deg, #1A7A4A, #E8A020);
   }
+
+  /* ── FAB pulse ring ── */
+  @keyframes fab-ping {
+    0%   { transform: scale(1);   opacity: 0.75; }
+    70%  { transform: scale(1.9); opacity: 0; }
+    100% { transform: scale(1.9); opacity: 0; }
+  }
+  .fab-ping-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    animation: fab-ping 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    pointer-events: none;
+  }
+  .fab-ping-ring-wa  { background: rgba(37, 211, 102, 0.5); }
+  .fab-ping-ring-chat { background: rgba(26, 122, 74, 0.5); }
+
+  /* ── Social icon hover transitions (no persistent animation) ── */
+  .social-icon-link {
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .social-icon-link:hover {
+    transform: translateY(-3px);
+  }
 }
 
 @layer components {

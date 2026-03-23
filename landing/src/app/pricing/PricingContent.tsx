@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Star } from "lucide-react";
 
 const plans = [
   {
@@ -46,7 +47,7 @@ const plans = [
     cta: "Start Free Trial",
     href: "/auth/signup/api",
     featured: true,
-    highlight: "⭐ Most Popular",
+    highlight: "Most Popular",
   },
   {
     name: "Enterprise",
@@ -193,6 +194,7 @@ export default function PricingContent() {
                       className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-[20px] whitespace-nowrap"
                       style={{ background: "#E8A020", color: "#061A12" }}
                     >
+                      <Star className="w-3 h-3 inline mr-1 -mt-0.5" strokeWidth={2} fill="currentColor" />
                       {plan.highlight}
                     </span>
                   </div>

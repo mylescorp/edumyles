@@ -124,14 +124,17 @@ export default function LiveChat() {
           if (!open) (e.currentTarget as HTMLButtonElement).style.background = "#0F4C2A";
         }}
       >
+        {/* Pulse ring — only when closed */}
+        {!open && <span className="fab-ping-ring fab-ping-ring-chat" />}
+
         {open ? (
           /* X icon */
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-5 h-5" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-5 h-5 relative z-10" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : (
           /* Chat bubble icon */
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 relative z-10" aria-hidden="true">
             <path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zm-2 10H6v-2h12v2zm0-3H6V7h12v2z" />
           </svg>
         )}

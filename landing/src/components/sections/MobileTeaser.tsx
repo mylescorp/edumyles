@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Home, BarChart2, User, Settings } from "lucide-react";
 
 const bullets = [
   "Works on 2G and 3G networks",
@@ -224,8 +225,8 @@ export default function MobileTeaser() {
                     marginTop: "auto",
                   }}
                 >
-                  {["🏠", "📊", "👤", "⚙️"].map((icon) => (
-                    <span key={icon} style={{ fontSize: "11px" }}>{icon}</span>
+                  {([Home, BarChart2, User, Settings] as const).map((Icon, i) => (
+                    <Icon key={i} style={{ width: "14px", height: "14px", color: i === 0 ? "#1A7A4A" : "#94a3b8" }} strokeWidth={1.5} />
                   ))}
                 </div>
               </div>

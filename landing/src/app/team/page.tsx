@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Globe, Handshake, Zap, ShieldCheck, MapPin } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Our Team — EduMyles",
@@ -32,7 +34,6 @@ const team = [
     name: "Aisha Kamau",
     role: "Head of Product",
     bio: "Education technology leader with 8 years experience building software for East African schools. Aisha obsesses over every workflow, making sure EduMyles saves time rather than adding to it.",
-    emoji: "👩🏿‍💼",
     linkedin: "#",
     location: "Nairobi, Kenya",
   },
@@ -40,7 +41,6 @@ const team = [
     name: "David Ochieng",
     role: "Lead Engineer",
     bio: "Full-stack developer and systems architect. David built EduMyles' real-time data engine and M-Pesa integrations, and has made sure the platform handles thousands of students without breaking a sweat.",
-    emoji: "👨🏿‍🔬",
     linkedin: "#",
     location: "Kisumu, Kenya",
   },
@@ -48,7 +48,6 @@ const team = [
     name: "Grace Wanjiku",
     role: "Customer Success Lead",
     bio: "Grace has onboarded over 40 schools onto EduMyles personally. She speaks the language of principals, bursars, and teachers — and makes sure every school goes live smoothly within two weeks.",
-    emoji: "👩🏿‍🏫",
     linkedin: "#",
     location: "Nairobi, Kenya",
   },
@@ -56,7 +55,6 @@ const team = [
     name: "Samuel Tarus",
     role: "Sales & Partnerships",
     bio: "Samuel works with county education offices, NGOs, and school networks to expand EduMyles across Kenya, Uganda, and Tanzania. He knows every school type from CBC primary to IGCSE international.",
-    emoji: "👨🏿‍💼",
     linkedin: "#",
     location: "Eldoret, Kenya",
   },
@@ -64,30 +62,29 @@ const team = [
     name: "Fatuma Hassan",
     role: "Design Lead",
     bio: "Product designer with a background in educational UX. Fatuma ensures that teachers who are not tech-savvy can still use EduMyles confidently from day one — no training manual required.",
-    emoji: "👩🏿‍🎨",
     linkedin: "#",
     location: "Mombasa, Kenya",
   },
 ];
 
-const values = [
+const values: { icon: LucideIcon; title: string; desc: string }[] = [
   {
-    icon: "🌍",
+    icon: Globe,
     title: "Built for Africa",
     desc: "Everything we build is designed for African schools — M-Pesa, CBC, UNEB, low-bandwidth environments, and local school culture.",
   },
   {
-    icon: "🤝",
+    icon: Handshake,
     title: "Schools First",
     desc: "We talk to principals and teachers every week. Product decisions come from real classrooms, not boardrooms.",
   },
   {
-    icon: "⚡",
+    icon: Zap,
     title: "Speed & Simplicity",
     desc: "If a feature takes more than 3 clicks, we rethink it. Schools are busy. EduMyles should save time, never add to it.",
   },
   {
-    icon: "🔒",
+    icon: ShieldCheck,
     title: "Trust & Reliability",
     desc: "Student data is sensitive. We hold ourselves to the highest standards of data privacy, uptime, and security.",
   },
@@ -200,8 +197,8 @@ export default function TeamPage() {
                     <h3 className="font-playfair font-bold text-[22px]" style={{ color: "#061A12" }}>
                       {founder.name}
                     </h3>
-                    <div className="font-jakarta text-[12px] mt-0.5" style={{ color: "#6B9E83" }}>
-                      📍 {founder.location}
+                    <div className="font-jakarta text-[12px] mt-0.5 flex items-center gap-1" style={{ color: "#6B9E83" }}>
+                      <MapPin className="w-3.5 h-3.5 inline" strokeWidth={1.5} />{founder.location}
                     </div>
                   </div>
                   <p className="font-jakarta text-[14px] leading-[1.75] flex-1" style={{ color: "#5a5a5a" }}>
@@ -260,13 +257,18 @@ export default function TeamPage() {
               >
                 {/* Avatar */}
                 <div
-                  className="flex items-center justify-center text-[64px]"
+                  className="flex items-center justify-center"
                   style={{
                     background: "linear-gradient(135deg, #061A12 0%, #0F4C2A 100%)",
                     height: "180px",
                   }}
                 >
-                  {member.emoji}
+                  <div
+                    className="w-20 h-20 rounded-full flex items-center justify-center font-bold text-2xl"
+                    style={{ background: "linear-gradient(135deg, #0F4C2A, #1A7A4A)", color: "#E8A020" }}
+                  >
+                    {member.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-3 p-6 flex-1">
@@ -277,8 +279,8 @@ export default function TeamPage() {
                     <div className="font-jakarta font-semibold text-[13px] mt-1" style={{ color: "#E8A020" }}>
                       {member.role}
                     </div>
-                    <div className="font-jakarta text-[12px] mt-0.5" style={{ color: "#6B9E83" }}>
-                      📍 {member.location}
+                    <div className="font-jakarta text-[12px] mt-0.5 flex items-center gap-1" style={{ color: "#6B9E83" }}>
+                      <MapPin className="w-3.5 h-3.5 inline" strokeWidth={1.5} />{member.location}
                     </div>
                   </div>
 
@@ -338,7 +340,7 @@ export default function TeamPage() {
                   border: "1px solid #d4eade",
                 }}
               >
-                <div className="text-[40px]">{v.icon}</div>
+                <v.icon className="w-10 h-10" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
                 <h3 className="font-playfair font-bold text-[18px]" style={{ color: "#061A12" }}>
                   {v.title}
                 </h3>
