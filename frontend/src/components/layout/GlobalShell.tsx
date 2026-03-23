@@ -35,7 +35,19 @@ import {
   X,
   HelpCircle,
   Zap,
+  MessageCircle,
+  Hash,
+  Users2,
+  Lock,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import type { NavItem } from "@/lib/routes";
 
@@ -506,12 +518,117 @@ interface GlobalShellProps {
   navItems: NavItem[];
 }
 
+// ─── Left Sidebar ─────────────────────────────────────────────────────────────
+
+function LeftSidebar({
+  navItems,
+  collapsed,
+  onToggle,
+}: {
+  navItems: NavItem[];
+  collapsed: boolean;
+  onToggle: () => void;
+}) {
+  const pathname = usePathname();
+
+  return (
+    <TooltipProvider delayDuration={200}>
+      <aside
+        className="hidden md:flex flex-col flex-shrink-0 border-r transition-all duration-200 overflow-hidden"
+        style={{
+          width: collapsed ? 52 : 220,
+          background: "#0C3020",
+          borderColor: "rgba(232,160,32,0.15)",
+        }}
+      >
+        {/* Scrollable nav items */}
+        <ScrollArea className="flex-1 overflow-hidden">
+          <nav className="flex flex-col gap-0.5 p-1.5 pt-2">
+            {navItems.map((item) => {
+              const isActive =
+                pathname === item.href ||
+                (item.href.length > 1 && pathname?.startsWith(item.href + "/"));
+              const Icon = item.icon;
+
+              const navBtn = (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium transition-all duration-150 min-w-0",
+                    collapsed ? "justify-center" : "",
+                    isActive
+                      ? "bg-[rgba(232,160,32,0.15)] text-white border-l-2 border-[#E8A020]"
+                      : "text-white/65 hover:text-white hover:bg-white/8 border-l-2 border-transparent"
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "h-[18px] w-[18px] flex-shrink-0",
+                      isActive ? "text-[#E8A020]" : "text-white/50 group-hover:text-[#E8A020]"
+                    )}
+                  />
+                  {!collapsed && (
+                    <span className="truncate leading-none">{item.label}</span>
+                  )}
+                </Link>
+              );
+
+              if (collapsed) {
+                return (
+                  <Tooltip key={item.href}>
+                    <TooltipTrigger asChild>{navBtn}</TooltipTrigger>
+                    <TooltipContent
+                      side="right"
+                      className="bg-[#0C3020] border border-[rgba(232,160,32,0.2)] text-white text-xs"
+                    >
+                      {item.label}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+              return navBtn;
+            })}
+          </nav>
+        </ScrollArea>
+
+        {/* Collapse toggle */}
+        <div
+          className="border-t p-1.5"
+          style={{ borderColor: "rgba(232,160,32,0.15)" }}
+        >
+          <button
+            onClick={onToggle}
+            className={cn(
+              "flex items-center gap-2 w-full rounded-md px-2 py-2 text-xs text-white/40 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150",
+              collapsed ? "justify-center" : ""
+            )}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <>
+                <PanelLeftClose className="h-4 w-4" />
+                <span>Collapse</span>
+              </>
+            )}
+          </button>
+        </div>
+      </aside>
+    </TooltipProvider>
+  );
+}
+
+// ─── Main GlobalShell ─────────────────────────────────────────────────────────
+
 export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, role, logout } = useAuth();
   const { tenant } = useTenant();
   const { unreadCount } = useNotifications();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const anyUser = user as any;
   const displayName = formatName(anyUser?.firstName, anyUser?.lastName);
@@ -767,37 +884,108 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
       {/* ── Impersonation banner (below nav) ──────────────────────────── */}
       <ImpersonationBanner />
 
-      {/* ── Page content ─────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-y-auto bg-[#F3FBF6]">
-        {children}
-      </main>
+      {/* ── Body: sidebar + content ───────────────────────────────────── */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left module sidebar */}
+        <LeftSidebar
+          navItems={navItems}
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed((v) => !v)}
+        />
 
-      {/* ══ Bottom status bar — Zoho-style Smart Chat hint ════════════ */}
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto bg-[#F3FBF6]">
+          {children}
+        </main>
+      </div>
+
+      {/* ══ Bottom bar — full Zoho-style ══════════════════════════════ */}
       <footer
-        className="flex-shrink-0 flex items-center justify-between px-4 h-[38px] text-xs border-t"
+        className="flex-shrink-0 flex items-center justify-between px-3 h-[44px] text-xs border-t gap-2"
         style={{
           background: "#061A12",
           borderColor: "rgba(232,160,32,0.13)",
         }}
       >
-        {/* Left: Tagline */}
-        <span className="hidden sm:block font-serif italic text-[#E8A020]/70 text-[11px]">
-          &ldquo;Empowering Schools. Elevating Learning.&rdquo;
-        </span>
+        {/* ── Left: Chats / Channels / Contacts ── */}
+        <div className="flex items-center gap-0.5 shrink-0">
+          <Link
+            href={sectionHref("communications")}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          >
+            <MessageCircle className="h-3.5 w-3.5" />
+            <span className="hidden sm:block">Chats</span>
+          </Link>
+          <Link
+            href={sectionHref("communications")}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          >
+            <Hash className="h-3.5 w-3.5" />
+            <span className="hidden sm:block">Channels</span>
+          </Link>
+          <Link
+            href={sectionHref("communications")}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          >
+            <Users2 className="h-3.5 w-3.5" />
+            <span className="hidden sm:block">Contacts</span>
+          </Link>
+        </div>
 
-        {/* Right: Need Support */}
-        <div className="flex items-center gap-3 ml-auto">
+        {/* ── Center: Smart Chat input ── */}
+        <button
+          className="flex-1 max-w-[360px] flex items-center gap-2 h-7 rounded-md bg-white/8 border border-white/12 px-3 text-white/40 hover:text-white/70 hover:bg-white/10 hover:border-[rgba(232,160,32,0.25)] transition-all duration-150 mx-2"
+          title="Smart Chat (Ctrl+Space)"
+        >
+          <Zap className="h-3.5 w-3.5 text-[#E8A020] shrink-0" />
+          <span className="text-[11px] truncate text-left">
+            Here is your Smart Chat
+          </span>
+          <kbd className="ml-auto text-[9px] bg-white/8 px-1 rounded font-mono shrink-0 hidden sm:block">
+            Ctrl+Space
+          </kbd>
+        </button>
+
+        {/* ── Right: Bell + Support + Version + Lock ── */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Notifications */}
+          <Link
+            href={notificationsHref}
+            className="relative h-7 w-7 flex items-center justify-center rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+            title="Notifications"
+          >
+            <Bell className="h-3.5 w-3.5" />
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white border border-[#061A12]">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </Link>
+
+          <div className="h-3.5 w-px bg-white/10" />
+
+          {/* Need Support */}
           <Link
             href={sectionHref("tickets")}
-            className="flex items-center gap-1.5 text-[#6B9E83] hover:text-[#E8A020] transition-colors duration-150"
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
           >
             <HelpCircle className="h-3.5 w-3.5" />
-            <span>Need Support?</span>
+            <span className="hidden sm:block">Need Support?</span>
           </Link>
-          <div className="h-3.5 w-px bg-white/10" />
-          <span className="text-[#6B9E83]/60 text-[10px] font-mono">
-            EduMyles v2026
+
+          {/* Version badge */}
+          <span className="hidden md:flex items-center h-5 px-1.5 rounded text-[9px] font-mono font-semibold bg-[rgba(232,160,32,0.12)] text-[#E8A020] border border-[rgba(232,160,32,0.2)]">
+            EduMyles 2026
           </span>
+
+          {/* Settings / lock */}
+          <Link
+            href={settingsHref}
+            className="h-7 w-7 flex items-center justify-center rounded-md text-white/30 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+            title="Settings"
+          >
+            <Lock className="h-3.5 w-3.5" />
+          </Link>
         </div>
       </footer>
     </div>
