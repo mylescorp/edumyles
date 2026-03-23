@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { ConvexError } from "convex/values";
 import { requireTenantContext } from "./helpers/tenantGuard";
 import { requirePermission } from "./helpers/authorize";
 import { logAction } from "./helpers/auditLog";
@@ -340,4 +341,72 @@ export const inviteTenantUser = mutation({
 
     return { id, eduMylesUserId };
   },
+});
+
+// Step 1: Generate upload URL for tenant user avatar
+export const generateAvatarUploadUrl = mutation({
+    args: { sessionToken: v.string() },
+    handler: async (ctx, args) => {
+        await requireTenantContext(ctx);
+        return await ctx.storage.generateUploadUrl();
+    },
+});
+
+// Step 2: Save tenant user avatar URL
+export const saveUserAvatar = mutation({
+    args: {
+        sessionToken: v.string(),
+        storageId: v.id("_storage"),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        const url = await ctx.storage.getUrl(args.storageId);
+        if (!url) throw new ConvexError("Failed to retrieve upload URL");
+
+        const user = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), tenant.userId))
+            .first();
+
+        if (!user) throw new ConvexError("User not found");
+        await ctx.db.patch(user._id, { avatarUrl: url });
+        return { url };
+    },
+});
+
+// Called by WorkOS webhook when a user profile is updated
+export const syncFromWorkOS = mutation({
+    args: {
+        eduMylesUserId: v.string(),
+        email: v.string(),
+        firstName: v.string(),
+        lastName: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
+            .first();
+        if (!user) return null;
+        await ctx.db.patch(user._id, {
+            email: args.email || user.email,
+            firstName: args.firstName || user.firstName,
+            lastName: args.lastName || user.lastName,
+        });
+        return user._id;
+    },
+});
+
+// Called by WorkOS webhook when a user is deleted
+export const deactivateByWorkOSId = mutation({
+    args: { eduMylesUserId: v.string() },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
+            .first();
+        if (!user) return null;
+        await ctx.db.patch(user._id, { isActive: false });
+        return user._id;
+    },
 });

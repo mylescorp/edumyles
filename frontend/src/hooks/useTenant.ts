@@ -8,7 +8,7 @@ import { useAuth } from "./useAuth";
 const CORE_MODULE_IDS = ["sis", "communications", "users"];
 
 export function useTenant() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, tenantId: sessionTenantId } = useAuth();
 
   const installedModuleIds = useQuery(
     api.modules.marketplace.queries.getInstalledModuleIds,
@@ -20,9 +20,9 @@ export function useTenant() {
   const resolvedModules = installedModuleIds ?? CORE_MODULE_IDS;
 
   return {
-    tenantId: "demo-tenant-001",
+    tenantId: sessionTenantId ?? "demo-tenant-001",
     tenant: {
-      _id: "demo-tenant-001",
+      _id: sessionTenantId ?? "demo-tenant-001",
       name: "Demo School",
       plan: "pro",
       status: "active",
