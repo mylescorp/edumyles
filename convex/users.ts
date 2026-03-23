@@ -19,6 +19,7 @@ export const upsertUser = mutation({
     organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
+    // ── 1. Try to find an existing record by real WorkOS ID ──────────────────
     const existing = await ctx.db
       .query("users")
       .withIndex("by_workos_user", (q) =>
@@ -40,6 +41,31 @@ export const upsertUser = mutation({
       return existing._id;
     }
 
+    // ── 2. Check for a pending invite record with the same email ─────────────
+    // When an admin is invited via createPlatformAdmin / inviteTenantUser the
+    // record is written with workosUserId = "pending-<eduMylesUserId>".  On
+    // first sign-in through WorkOS we arrive here with the real WorkOS user ID
+    // but the pending record has not been linked yet — so we find it by email
+    // and upgrade it in-place instead of creating a duplicate.
+    const pendingByEmail = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_email", (q) =>
+        q.eq("tenantId", args.tenantId).eq("email", args.email)
+      )
+      .first();
+
+    if (pendingByEmail && pendingByEmail.workosUserId.startsWith("pending-")) {
+      await ctx.db.patch(pendingByEmail._id, {
+        workosUserId: args.workosUserId,
+        firstName: args.firstName ?? pendingByEmail.firstName,
+        lastName: args.lastName ?? pendingByEmail.lastName,
+        permissions: args.permissions,
+        isActive: true,
+      });
+      return pendingByEmail._id;
+    }
+
+    // ── 3. Brand-new user — create a fresh record ────────────────────────────
     return await ctx.db.insert("users", {
       tenantId: args.tenantId,
       eduMylesUserId: args.eduMylesUserId,
