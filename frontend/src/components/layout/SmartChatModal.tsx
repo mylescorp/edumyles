@@ -104,11 +104,10 @@ export function SmartChatModal({ open, onClose, onSelectChat }: SmartChatModalPr
 
   // Close on Escape
   useEffect(() => {
-    if (!open) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", handler);
+    if (open) window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
 
