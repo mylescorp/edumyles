@@ -9,34 +9,29 @@ export const metadata: Metadata = {
 
 const values = [
   {
-    icon: "🌍",
-    title: "Africa-First",
-    desc: "Built for the realities of East African schools — M-Pesa payments, CBC curriculum, NEMIS integration, and infrastructure constraints. Not an import. Native.",
+    icon: "🔍",
+    title: "Clarity",
+    desc: "We build tools that are simple, intuitive, and free of unnecessary complexity. Clear software leads to clear thinking — and better schools.",
   },
   {
-    icon: "⚡",
-    title: "Speed Matters",
-    desc: "We obsess over performance. Every second of load time is a second a teacher isn't teaching. EduMyles is built to be fast on any connection.",
-  },
-  {
-    icon: "🔐",
-    title: "Trust First",
-    desc: "Student data is sensitive. We use enterprise-grade encryption, strict data isolation per school, and role-based access control that never compromises security.",
+    icon: "🚀",
+    title: "Empowerment",
+    desc: "Every feature we ship exists to give school administrators, teachers, and parents more control, more time, and more confidence.",
   },
   {
     icon: "🤝",
-    title: "Schools Win",
-    desc: "We price fairly, support generously, and don't lock schools into long contracts. If EduMyles doesn't work for you, we refund. Simple.",
+    title: "Integrity",
+    desc: "We are honest about what EduMyles can and cannot do. We protect student data, price fairly, and stand behind every promise we make.",
   },
   {
-    icon: "📈",
-    title: "Continuous Improvement",
-    desc: "We ship updates every week based on feedback from real schools. Your feature request doesn't go into a black hole — it gets built.",
+    icon: "💡",
+    title: "Innovation",
+    desc: "The African education landscape is evolving fast. We stay ahead of it — shipping weekly, listening to schools, and solving real problems.",
   },
   {
-    icon: "♿",
-    title: "Inclusive by Design",
-    desc: "Accessible to all staff regardless of tech experience. If a teacher can use a smartphone, they can use EduMyles — no training manual needed.",
+    icon: "🌍",
+    title: "Community",
+    desc: "EduMyles is built with and for the communities it serves. Schools aren't customers — they&apos;re partners in building better education.",
   },
 ];
 
@@ -79,9 +74,9 @@ const stats = [
 
 const team = [
   {
-    name: "Ayany",
-    role: "Founder & CEO",
-    bio: "Former school IT coordinator. Frustrated by the gap between what schools needed and what was available. Built EduMyles to fix it.",
+    name: "Jonathan Myles",
+    role: "CEO & Founder",
+    bio: "Founded EduMyles in Nairobi after witnessing a principal manage 1,200 students on WhatsApp and paper. Built the platform he wished existed — and never looked back.",
     emoji: "👨‍💻",
   },
   {
@@ -180,14 +175,25 @@ export default function AboutPage() {
                 className="font-playfair font-bold leading-[1.2] mb-5"
                 style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
               >
-                Empower every school in Africa with{" "}
-                <em className="italic" style={{ color: "#E8A020" }}>world-class tools.</em>
+                Simplify school administration so educators can{" "}
+                <em className="italic" style={{ color: "#E8A020" }}>focus on teaching.</em>
               </h2>
               <p className="font-jakarta text-[16px] leading-[1.8] mb-4" style={{ color: "#5a5a5a" }}>
-                We believe that a school in Nakuru deserves the same administrative efficiency as a school in London. Technology should equalise access to quality education infrastructure — not price it out of reach.
+                EduMyles exists to take the administrative burden off African schools — so that principals can lead, teachers can teach, and parents can stay informed. We believe that operational clarity unlocks academic excellence.
               </p>
-              <p className="font-jakarta text-[16px] leading-[1.8]" style={{ color: "#5a5a5a" }}>
-                EduMyles is priced for African schools, designed for African school staff, and integrated with African payment systems. It&apos;s not an adaptation — it&apos;s the original.
+              <p className="font-jakarta text-[16px] leading-[1.8] mb-4" style={{ color: "#5a5a5a" }}>
+                <strong style={{ color: "#061A12" }}>Our Vision:</strong> To be Africa&apos;s most trusted school management platform, powering institutions of every size — from single-classroom community schools to multi-campus international networks.
+              </p>
+              <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#6B9E83" }}>
+                EduMyles is a product of{" "}
+                <a
+                  href="https://mylesoft.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#0F4C2A", fontWeight: 600, textDecoration: "none" }}
+                >
+                  MylesCorp Technologies Ltd
+                </a>
               </p>
             </div>
             <div
@@ -205,14 +211,14 @@ export default function AboutPage() {
               </blockquote>
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[12px]"
                   style={{ background: "#E8A020", color: "#061A12" }}
                 >
-                  A
+                  JM
                 </div>
                 <div>
-                  <div className="font-jakarta font-bold text-[14px]" style={{ color: "#E8A020" }}>Ayany</div>
-                  <div className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>Founder, EduMyles</div>
+                  <div className="font-jakarta font-bold text-[14px]" style={{ color: "#E8A020" }}>Jonathan Myles</div>
+                  <div className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>CEO &amp; Founder, EduMyles</div>
                 </div>
               </div>
             </div>
@@ -279,10 +285,10 @@ export default function AboutPage() {
               className="font-playfair font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
-              Our <em className="italic" style={{ color: "#E8A020" }}>values</em>
+              Our Core <em className="italic" style={{ color: "#E8A020" }}>Values</em>
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {values.map((v) => (
               <div
                 key={v.title}

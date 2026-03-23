@@ -4,6 +4,7 @@ import Features from "@/components/sections/Features";
 import Modules from "@/components/sections/Modules";
 import Benefits from "@/components/sections/Benefits";
 import HowItWorks from "@/components/sections/HowItWorks";
+import BrandValues from "@/components/sections/BrandValues";
 import Testimonial from "@/components/sections/Testimonial";
 import Pricing from "@/components/sections/Pricing";
 import FinalCTA from "@/components/sections/FinalCTA";
@@ -25,6 +26,8 @@ export default function LandingPage() {
         <Benefits />
         {/* How it works — 3 steps */}
         <HowItWorks />
+        {/* Mission, Vision, Core Values & Founding Story */}
+        <BrandValues />
         {/* Testimonial — Mary K. quote */}
         <Testimonial />
         {/* Pricing plans */}
