@@ -88,27 +88,7 @@ export const getRecentActivities = query({
             }));
         } catch (error) {
             console.error("getRecentActivities failed", error);
-            // Return mock data as fallback
-            return [
-                {
-                    _id: "activity1",
-                    type: "leave_request",
-                    title: "Leave Request Submitted",
-                    employee: "system@example.com",
-                    department: "Mathematics",
-                    date: Date.now() - 1000 * 60 * 30,
-                    status: "pending",
-                },
-                {
-                    _id: "activity2",
-                    type: "new_hire",
-                    title: "New Teacher Onboarded",
-                    employee: "system@example.com",
-                    department: "Science",
-                    date: Date.now() - 1000 * 60 * 60 * 2,
-                    status: "completed",
-                },
-            ];
+            return [];
         }
     },
 });

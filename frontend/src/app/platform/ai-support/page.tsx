@@ -103,6 +103,7 @@ interface AITicket {
   ticketId: string;
   title: string;
   description: string;
+  body?: string;
   category: string;
   priority: string;
   status: string;
@@ -235,22 +236,22 @@ export default function AISupportPage() {
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
 
   // Real AI mutations
-  const analyzeSentiment = useMutation(api.ai.support.analyzeSentiment);
-  const categorizeTicket = useMutation(api.ai.support.categorizeTicket);
-  const generateResponse = useMutation(api.ai.support.generateResponse);
+  const analyzeSentiment = useMutation(api.platform.support.mutations.analyzeTicketWithAI);
+  const categorizeTicket = useMutation(api.platform.support.mutations.updateTicketWithAI);
+  const generateResponse = useMutation(api.platform.support.mutations.generateAIResponse);
   const createTicket = useMutation(api.platform.support.mutations.createAISupportTicket);
 
-  // Real AI insights query - usePlatformQuery returns T | undefined
+  // Real AI insights query
   const aiInsights = usePlatformQuery(
-    api.ai.support.getAIInsights,
-    { sessionToken },
+    api.platform.support.queries.getAIInsights,
+    sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   );
 
   // Get AI-analyzed tickets
   const aiTickets = usePlatformQuery(
-    api.platform.tickets.queries.listTickets,
-    { sessionToken, limit: 50 },
+    api.platform.support.queries.getAISupportTickets,
+    sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   );
 
@@ -289,8 +290,11 @@ export default function AISupportPage() {
     try {
       const response = await generateResponse({
         sessionToken,
-        ticketContent: `${selectedTicket.title} ${selectedTicket.body}`,
+        ticketId: String(selectedTicket._id),
         responseType: "resolution",
+        tone: "professional",
+        includeSuggestions: true,
+        requestedBy: "platform_admin",
       });
       if (response) {
         setIsAnalyzeDialogOpen(false);
@@ -303,21 +307,25 @@ export default function AISupportPage() {
   // Helper functions for AI operations
   const handleAnalyzeTicket = async (ticket: any) => {
     if (!sessionToken) return;
-    
+
     try {
-      // Analyze sentiment
+      // Analyze sentiment and category
       await analyzeSentiment({
         sessionToken,
-        text: `${ticket.title} ${ticket.body}`,
-        ticketId: ticket._id,
+        ticketId: String(ticket._id),
+        analysisType: "sentiment",
+        context: `${ticket.title} ${ticket.body}`,
+        requestedBy: "platform_admin",
       });
-      
+
       // Categorize ticket
       await categorizeTicket({
         sessionToken,
-        title: ticket.title,
-        description: ticket.body,
-        ticketId: ticket._id,
+        ticketId: String(ticket._id),
+        action: "classify",
+        aiInsights: { title: ticket.title, description: ticket.body },
+        confidence: 0.85,
+        updatedBy: "platform_admin",
       });
     } catch (error) {
       console.error("Failed to analyze ticket:", error);
@@ -326,14 +334,17 @@ export default function AISupportPage() {
 
   const handleGenerateResponse = async (ticket: any, responseType: "initial" | "follow_up" | "resolution") => {
     if (!sessionToken) return;
-    
+
     try {
       const response = await generateResponse({
         sessionToken,
-        ticketContent: `${ticket.title} ${ticket.body}`,
+        ticketId: String(ticket._id),
         responseType,
+        tone: "professional",
+        includeSuggestions: true,
+        requestedBy: "platform_admin",
       });
-      
+
       console.log("Generated AI response:", response);
       return response;
     } catch (error) {

@@ -153,278 +153,70 @@ export default function TenantSuccessPage() {
   const [isCreateInitiativeOpen, setIsCreateInitiativeOpen] = useState(false);
   const [isCreateMetricOpen, setIsCreateMetricOpen] = useState(false);
 
-  // Mock data - replace with actual queries
+  const rawOverview = usePlatformQuery(
+    api.platform.tenantSuccess.queries.getTenantSuccessOverview,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  );
+  const rawHealthScores = usePlatformQuery(
+    api.platform.tenantSuccess.queries.getTenantHealthScores,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  );
+  const rawInitiatives = usePlatformQuery(
+    api.platform.tenantSuccess.queries.getSuccessInitiatives,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  );
+
+  // Map API data to UI shape; fall back to zeros while loading
+  const overview = rawOverview as any;
   const tenantSuccessOverview = {
     overview: {
-      totalTenants: 156,
-      activeTenants: 142,
-      averageHealthScore: 83.7,
-      gradeDistribution: {
-        A: 45,
-        B: 67,
-        C: 28,
-        D: 12,
-        F: 4,
-      },
-      totalInitiatives: 89,
-      activeInitiatives: 34,
-      completedInitiatives: 45,
-      averageInitiativeProgress: 72.4,
+      totalTenants: overview?.overview?.totalTenants ?? 0,
+      activeTenants: overview?.overview?.activeTenants ?? 0,
+      averageHealthScore: overview?.overview?.averageHealthScore ?? 0,
+      gradeDistribution: overview?.overview?.gradeDistribution ?? { A: 0, B: 0, C: 0, D: 0, F: 0 },
+      totalInitiatives: overview?.overview?.initiatives?.total ?? 0,
+      activeInitiatives: overview?.overview?.initiatives?.active ?? 0,
+      completedInitiatives: overview?.overview?.initiatives?.completed ?? 0,
+      averageInitiativeProgress: (() => {
+        const inits = (rawInitiatives as any[]) ?? [];
+        if (!inits.length) return 0;
+        return Math.round(inits.reduce((s: number, i: any) => s + (i.progress ?? 0), 0) / inits.length * 10) / 10;
+      })(),
     },
-    trends: {
-      healthScores: [
-        { date: "2024-01-01", score: 81.2 },
-        { date: "2024-02-01", score: 82.5 },
-        { date: "2024-03-01", score: 83.1 },
-        { date: "2024-04-01", score: 83.7 },
-      ],
-      initiativeCompletions: [
-        { date: "2024-01-01", completed: 8 },
-        { date: "2024-02-01", completed: 12 },
-        { date: "2024-03-01", completed: 15 },
-        { date: "2024-04-01", completed: 10 },
-      ],
-      engagementMetrics: [
-        { date: "2024-01-01", adoption: 78.5, engagement: 71.2 },
-        { date: "2024-02-01", adoption: 81.3, engagement: 74.8 },
-        { date: "2024-03-01", adoption: 84.1, engagement: 78.5 },
-        { date: "2024-04-01", adoption: 86.7, engagement: 81.9 },
-      ],
-    },
+    trends: overview?.trends ?? { healthScores: [], initiativeCompletions: [], engagementMetrics: [] },
     topPerformers: {
-      tenants: [
-        {
-          tenantId: "tenant_2",
-          tenantName: "Mombasa International School",
-          healthScore: 91.8,
-          grade: "A",
-          initiativesCompleted: 8,
-          trend: "improving",
-        },
-        {
-          tenantId: "tenant_5",
-          tenantName: "Eldoret Academy",
-          healthScore: 89.4,
-          grade: "B",
-          initiativesCompleted: 6,
-          trend: "stable",
-        },
-        {
-          tenantId: "tenant_8",
-          tenantName: "Nakuru High School",
-          healthScore: 87.9,
-          grade: "B",
-          initiativesCompleted: 7,
-          trend: "improving",
-        },
-      ],
-      initiatives: [
-        {
-          initiativeId: "initiative_3",
-          title: "Support Optimization Initiative",
-          tenantName: "Mombasa International School",
-          progress: 94.2,
-          impact: "Reduced support tickets by 30%",
-          category: "support",
-        },
-        {
-          initiativeId: "initiative_7",
-          title: "User Training Program",
-          tenantName: "Eldoret Academy",
-          progress: 88.5,
-          impact: "Increased feature adoption by 25%",
-          category: "training",
-        },
-        {
-          initiativeId: "initiative_12",
-          title: "Engagement Campaign",
-          tenantName: "Nakuru High School",
-          progress: 82.1,
-          impact: "Daily active users increased by 40%",
-          category: "engagement",
-        },
-      ],
+      tenants: (overview?.topPerformers ?? []).map((t: any) => ({
+        tenantId: t.tenantId,
+        tenantName: t.tenantName,
+        healthScore: t.healthScore,
+        grade: t.grade,
+        initiativesCompleted: 0,
+        trend: "stable",
+      })),
+      initiatives: ((rawInitiatives as any[]) ?? []).sort((a: any, b: any) => b.progress - a.progress).slice(0, 3).map((i: any) => ({
+        initiativeId: i._id,
+        title: i.title,
+        tenantName: i.tenantName ?? i.tenantId,
+        progress: i.progress ?? 0,
+        impact: i.description ?? "",
+        category: i.category,
+      })),
     },
-    atRiskTenants: [
-      {
-        tenantId: "tenant_3",
-        tenantName: "Kisumu High School",
-        healthScore: 76.2,
-        grade: "C",
-        riskFactors: ["Low engagement", "High support volume", "Payment delays"],
-        recommendedActions: ["Training program", "Support optimization", "Financial review"],
-      },
-      {
-        tenantId: "tenant_11",
-        tenantName: "Thika Girls School",
-        healthScore: 71.8,
-        grade: "C",
-        riskFactors: ["Declining adoption", "Technical issues", "Low satisfaction"],
-        recommendedActions: ["Technical audit", "User training", "Feature optimization"],
-      },
-    ],
-    categoryBreakdown: [
-      {
-        category: "adoption",
-        averageScore: 85.3,
-        trend: "improving",
-        keyDrivers: ["Training programs", "Feature improvements", "User support"],
-      },
-      {
-        category: "engagement",
-        averageScore: 79.8,
-        trend: "stable",
-        keyDrivers: ["Gamification", "Content relevance", "User experience"],
-      },
-      {
-        category: "support",
-        averageScore: 81.4,
-        trend: "improving",
-        keyDrivers: ["Self-service resources", "Chatbot support", "Documentation"],
-      },
-      {
-        category: "technical",
-        averageScore: 88.7,
-        trend: "stable",
-        keyDrivers: ["System stability", "Performance optimization", "Uptime"],
-      },
-      {
-        category: "financial",
-        averageScore: 84.2,
-        trend: "stable",
-        keyDrivers: ["Payment processing", "Billing clarity", "Cost optimization"],
-      },
-    ],
+    atRiskTenants: (overview?.atRiskTenants ?? []).map((t: any) => ({
+      tenantId: t.tenantId,
+      tenantName: t.tenantName,
+      healthScore: t.healthScore,
+      grade: t.grade,
+      riskFactors: t.riskFactors ?? [],
+      recommendedActions: t.recommendedActions ?? [],
+    })),
+    categoryBreakdown: overview?.categoryBreakdown ?? [],
   };
 
-  const tenantHealthScores: TenantHealthScore[] = [
-    {
-      _id: "health_1",
-      tenantId: "tenant_1",
-      tenantName: "Nairobi Academy",
-      category: "overall",
-      score: 87.5,
-      grade: "B",
-      metrics: {
-        adoption: 92.3,
-        engagement: 85.7,
-        support: 78.9,
-        technical: 91.2,
-        financial: 88.4,
-      },
-      factors: [
-        {
-          name: "User Adoption Rate",
-          weight: 0.25,
-          value: 92.3,
-          impact: "High adoption of core features indicates successful onboarding",
-        },
-        {
-          name: "Daily Active Users",
-          weight: 0.20,
-          value: 85.7,
-          impact: "Good engagement levels with consistent daily usage",
-        },
-        {
-          name: "Support Ticket Volume",
-          weight: 0.15,
-          value: 78.9,
-          impact: "Moderate support needs indicate room for improvement",
-        },
-        {
-          name: "System Performance",
-          weight: 0.20,
-          value: 91.2,
-          impact: "Excellent technical performance with minimal downtime",
-        },
-        {
-          name: "Payment Timeliness",
-          weight: 0.20,
-          value: 88.4,
-          impact: "Good financial health with timely payments",
-        },
-      ],
-      recommendations: [
-        "Implement proactive user training to increase engagement",
-        "Create self-service help resources to reduce support volume",
-        "Develop advanced feature adoption campaigns",
-        "Schedule regular system health check-ins",
-      ],
-      trends: [
-        { date: "2024-01-01", score: 82.3 },
-        { date: "2024-02-01", score: 84.1 },
-        { date: "2024-03-01", score: 86.7 },
-        { date: "2024-04-01", score: 87.5 },
-      ],
-      calculatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      calculatedBy: "success_manager@edumyles.com",
-      previousScore: 86.7,
-      scoreChange: 0.8,
-    },
-    {
-      _id: "health_2",
-      tenantId: "tenant_2",
-      tenantName: "Mombasa International School",
-      category: "overall",
-      score: 91.8,
-      grade: "A",
-      metrics: {
-        adoption: 95.7,
-        engagement: 93.2,
-        support: 89.5,
-        technical: 94.1,
-        financial: 92.8,
-      },
-      factors: [
-        {
-          name: "User Adoption Rate",
-          weight: 0.25,
-          value: 95.7,
-          impact: "Exceptional adoption across all user groups",
-        },
-        {
-          name: "Daily Active Users",
-          weight: 0.20,
-          value: 93.2,
-          impact: "Outstanding engagement with high daily usage",
-        },
-        {
-          name: "Support Ticket Volume",
-          weight: 0.15,
-          value: 89.5,
-          impact: "Low support needs indicate high user satisfaction",
-        },
-        {
-          name: "System Performance",
-          weight: 0.20,
-          value: 94.1,
-          impact: "Superior technical performance with excellent uptime",
-        },
-        {
-          name: "Payment Timeliness",
-          weight: 0.20,
-          value: 92.8,
-          impact: "Excellent financial health with consistent payments",
-        },
-      ],
-      recommendations: [
-        "Maintain current success strategies",
-        "Share best practices with other tenants",
-        "Consider advanced feature adoption",
-        "Explore expansion opportunities",
-      ],
-      trends: [
-        { date: "2024-01-01", score: 88.2 },
-        { date: "2024-02-01", score: 89.7 },
-        { date: "2024-03-01", score: 90.5 },
-        { date: "2024-04-01", score: 91.8 },
-      ],
-      calculatedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-      calculatedBy: "success_manager@edumyles.com",
-      previousScore: 90.5,
-      scoreChange: 1.3,
-    },
-  ];
+  const tenantHealthScores: TenantHealthScore[] = ((rawHealthScores as any[]) ?? []) as TenantHealthScore[];
 
   const getGradeColor = (grade: string) => {
     switch (grade) {
@@ -537,10 +329,10 @@ export default function TenantSuccessPage() {
               <div key={grade} className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Badge className={getGradeColor(grade)}>{grade}</Badge>
-                  <span className="text-sm text-muted-foreground">{count} tenants</span>
+                  <span className="text-sm text-muted-foreground">{String(count)} tenants</span>
                 </div>
-                <Progress 
-                  value={(count / tenantSuccessOverview.overview.totalTenants) * 100} 
+                <Progress
+                  value={(Number(count) / tenantSuccessOverview.overview.totalTenants) * 100}
                   className="w-32"
                 />
               </div>

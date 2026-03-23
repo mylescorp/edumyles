@@ -78,7 +78,7 @@ export default function ScheduledReportsPage() {
       <PageHeader
         title="Scheduled Reports"
         description="Automate recurring reports delivered to your inbox"
-        action={
+        actions={
           <Button onClick={() => setIsCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" /> New Report Schedule
           </Button>

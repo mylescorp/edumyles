@@ -1,4 +1,4 @@
-import {
+export {
   createIncident,
   updateIncident,
   addIncidentTimeline,
@@ -11,7 +11,7 @@ import {
   createAlertSuppression,
   removeAlertSuppression,
 } from "./mutations";
-import {
+export {
   getIncidents,
   getIncidentDetails,
   getMaintenanceWindows,

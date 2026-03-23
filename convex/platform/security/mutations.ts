@@ -325,7 +325,7 @@ export const createThreat = mutation({
       },
       target: {
         system: args.affectedSystems?.[0] ?? "unknown",
-        user: args.source?.email ?? undefined,
+        user: undefined,
         data: undefined,
       },
       indicators: [],

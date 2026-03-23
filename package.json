@@ -44,6 +44,9 @@
     "trailingComma": "es5",
     "printWidth": 100
   },
+  "overrides": {
+    "@vitest/ui": "^4.0.0"
+  },
   "packageManager": "npm@10.8.2",
   "dependencies": {
     "@convex-dev/workos-authkit": "^0.1.7",

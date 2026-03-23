@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,19 +25,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, CheckSquare, Clock, AlertCircle } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Plus, Trash2, CheckSquare, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 type Priority = "low" | "medium" | "high";
-type Task = {
-  id: string;
-  title: string;
-  priority: Priority;
-  done: boolean;
-  dueDate?: string;
-  createdAt: number;
-};
-
 const priorityColors: Record<Priority, "outline" | "secondary" | "destructive"> = {
   low: "outline",
   medium: "secondary",
@@ -42,86 +36,70 @@ const priorityColors: Record<Priority, "outline" | "secondary" | "destructive"> 
 };
 
 export default function TasksPage() {
-  const { toast } = useToast();
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Review new student applications",
-      priority: "high",
-      done: false,
-      dueDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-      createdAt: Date.now() - 3600000,
-    },
-    {
-      id: "2",
-      title: "Approve payroll for March",
-      priority: "high",
-      done: false,
-      dueDate: new Date(Date.now() + 172800000).toISOString().split("T")[0],
-      createdAt: Date.now() - 7200000,
-    },
-    {
-      id: "3",
-      title: "Update school fee structure",
-      priority: "medium",
-      done: false,
-      createdAt: Date.now() - 86400000,
-    },
-    {
-      id: "4",
-      title: "Send term-end report to parents",
-      priority: "medium",
-      done: true,
-      createdAt: Date.now() - 172800000,
-    },
-  ]);
+  const tasks = useQuery(api.modules.tasks.queries.listTasks, {});
+  const createTask = useMutation(api.modules.tasks.mutations.createTask);
+  const toggleTask = useMutation(api.modules.tasks.mutations.toggleTask);
+  const deleteTask = useMutation(api.modules.tasks.mutations.deleteTask);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newPriority, setNewPriority] = useState<Priority>("medium");
   const [newDueDate, setNewDueDate] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "done">("all");
+  const [saving, setSaving] = useState(false);
 
-  const handleToggle = (id: string) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
-    );
+  const allTasks = tasks ?? [];
+
+  const handleToggle = async (id: Id<"adminTasks">) => {
+    try {
+      await toggleTask({ id });
+    } catch {
+      toast.error("Failed to update task");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    toast({ title: "Task deleted" });
+  const handleDelete = async (id: Id<"adminTasks">) => {
+    try {
+      await deleteTask({ id });
+      toast.success("Task deleted");
+    } catch {
+      toast.error("Failed to delete task");
+    }
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!newTitle.trim()) {
-      toast({ title: "Task title is required", variant: "destructive" });
+      toast.error("Task title is required");
       return;
     }
-    const task: Task = {
-      id: `task-${Date.now()}`,
-      title: newTitle.trim(),
-      priority: newPriority,
-      done: false,
-      dueDate: newDueDate || undefined,
-      createdAt: Date.now(),
-    };
-    setTasks((prev) => [task, ...prev]);
-    setNewTitle("");
-    setNewPriority("medium");
-    setNewDueDate("");
-    setShowAddDialog(false);
-    toast({ title: "Task added" });
+    setSaving(true);
+    try {
+      await createTask({
+        title: newTitle.trim(),
+        priority: newPriority,
+        dueDate: newDueDate || undefined,
+      });
+      setNewTitle("");
+      setNewPriority("medium");
+      setNewDueDate("");
+      setShowAddDialog(false);
+      toast.success("Task added");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to create task");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const filtered = tasks.filter((t) => {
+  const filtered = allTasks.filter((t) => {
     if (filter === "pending") return !t.done;
     if (filter === "done") return t.done;
     return true;
   });
 
-  const pendingCount = tasks.filter((t) => !t.done).length;
-  const doneCount = tasks.filter((t) => t.done).length;
+  const pendingCount = allTasks.filter((t) => !t.done).length;
+  const doneCount = allTasks.filter((t) => t.done).length;
+  const isLoading = tasks === undefined;
 
   return (
     <div className="space-y-6">
@@ -136,7 +114,6 @@ export default function TasksPage() {
         }
       />
 
-      {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -160,14 +137,13 @@ export default function TasksPage() {
           <CardContent className="p-4 flex items-center gap-3">
             <Clock className="h-8 w-8 text-blue-500" />
             <div>
-              <p className="text-2xl font-bold">{tasks.length}</p>
+              <p className="text-2xl font-bold">{allTasks.length}</p>
               <p className="text-sm text-muted-foreground">Total</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filter */}
       <div className="flex gap-2">
         {(["all", "pending", "done"] as const).map((f) => (
           <Button
@@ -182,7 +158,6 @@ export default function TasksPage() {
         ))}
       </div>
 
-      {/* Task List */}
       <Card>
         <CardHeader>
           <CardTitle>
@@ -190,39 +165,41 @@ export default function TasksPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : filtered.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6 text-center">
               No tasks found. Add one to get started.
             </p>
           ) : (
             filtered.map((task) => (
               <div
-                key={task.id}
+                key={task._id}
                 className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors"
               >
                 <Checkbox
                   checked={task.done}
-                  onCheckedChange={() => handleToggle(task.id)}
-                  id={`task-${task.id}`}
+                  onCheckedChange={() => handleToggle(task._id)}
+                  id={`task-${task._id}`}
                 />
                 <Label
-                  htmlFor={`task-${task.id}`}
+                  htmlFor={`task-${task._id}`}
                   className={`flex-1 cursor-pointer ${task.done ? "line-through text-muted-foreground" : ""}`}
                 >
                   {task.title}
                 </Label>
                 <div className="flex items-center gap-2 shrink-0">
                   {task.dueDate && (
-                    <span className="text-xs text-muted-foreground">
-                      Due {task.dueDate}
-                    </span>
+                    <span className="text-xs text-muted-foreground">Due {task.dueDate}</span>
                   )}
-                  <Badge variant={priorityColors[task.priority]}>{task.priority}</Badge>
+                  <Badge variant={priorityColors[task.priority as Priority]}>{task.priority}</Badge>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(task.id)}
+                    onClick={() => handleDelete(task._id)}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -233,7 +210,6 @@ export default function TasksPage() {
         </CardContent>
       </Card>
 
-      {/* Add Task Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
@@ -251,10 +227,7 @@ export default function TasksPage() {
             </div>
             <div className="space-y-1">
               <Label>Priority</Label>
-              <Select
-                value={newPriority}
-                onValueChange={(v) => setNewPriority(v as Priority)}
-              >
+              <Select value={newPriority} onValueChange={(v) => setNewPriority(v as Priority)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -275,10 +248,13 @@ export default function TasksPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)} disabled={saving}>
               Cancel
             </Button>
-            <Button onClick={handleAdd}>Add Task</Button>
+            <Button onClick={handleAdd} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Add Task
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

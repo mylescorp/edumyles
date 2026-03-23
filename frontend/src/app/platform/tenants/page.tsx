@@ -135,7 +135,7 @@ export default function TenantsPage() {
       </div>
 
       {/* Tenant List */}
-      <TenantList tenants={tenants as any} isLoading={false} />
+      <TenantList tenants={tenants as any} isLoading={false} sessionToken={sessionToken} />
     </div>
   );
 }

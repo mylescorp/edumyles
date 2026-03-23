@@ -2,6 +2,50 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
+export const listMessages = query({
+  args: {
+    sessionToken: v.string(),
+    status: v.optional(v.union(
+      v.literal("draft"),
+      v.literal("scheduled"),
+      v.literal("sent")
+    )),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const limit = args.limit ?? 100;
+    let messages;
+
+    if (args.status) {
+      messages = await ctx.db
+        .query("platform_messages")
+        .withIndex("by_status", (q) => q.eq("status", args.status!))
+        .order("desc")
+        .take(limit);
+    } else {
+      messages = await ctx.db
+        .query("platform_messages")
+        .order("desc")
+        .take(limit);
+    }
+
+    return messages;
+  },
+});
+
+export const getMessage = query({
+  args: {
+    sessionToken: v.string(),
+    messageId: v.id("platform_messages"),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+    return await ctx.db.get(args.messageId);
+  },
+});
+
 export const listCampaigns = query({
   args: {
     sessionToken: v.string(),

@@ -8,7 +8,7 @@ export const listApiKeys = query({
     tenantId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
 
     let q = ctx.db.query("apiKeys");
     const keys = await q.collect();

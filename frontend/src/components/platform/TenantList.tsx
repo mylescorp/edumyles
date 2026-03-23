@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
+import {
   Search,
   Filter,
   Download,
@@ -21,11 +21,25 @@ import {
   PauseCircle,
   FlaskConical,
   X,
-  Plus
+  Plus,
+  Eye,
+  Edit2,
+  Ban,
+  PlayCircle,
+  MoreHorizontal
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/formatters";
 import { buildCsv } from "@/lib/csv";
 import Link from "next/link";
+import { TenantDialog } from "@/app/platform/tenants/TenantDialog";
+import { SuspendDialog } from "@/app/platform/tenants/SuspendDialog";
 
 interface Tenant {
   _id: string;
@@ -47,6 +61,7 @@ interface TenantListProps {
   tenants: Tenant[];
   isLoading?: boolean;
   className?: string;
+  sessionToken?: string | null;
 }
 
 // Filter options
@@ -93,9 +108,9 @@ const SORT_OPTIONS = [
   { value: "status-desc", label: "Status (Suspended first)" },
 ];
 
-export function TenantList({ tenants, isLoading = false, className = "" }: TenantListProps) {
+export function TenantList({ tenants, isLoading = false, className = "", sessionToken }: TenantListProps) {
   const router = useRouter();
-  
+
   // Search and filter state
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -104,6 +119,30 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
   const [schoolTypeFilter, setSchoolTypeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("created-desc");
   const [showFilters, setShowFilters] = useState(false);
+
+  // Dialog state
+  const [tenantDialogOpen, setTenantDialogOpen] = useState(false);
+  const [tenantDialogMode, setTenantDialogMode] = useState<"create" | "edit">("create");
+  const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+  const [suspendDialogOpen, setSuspendDialogOpen] = useState(false);
+  const [suspendTarget, setSuspendTarget] = useState<Tenant | null>(null);
+
+  const openCreateDialog = () => {
+    setSelectedTenant(null);
+    setTenantDialogMode("create");
+    setTenantDialogOpen(true);
+  };
+
+  const openEditDialog = (tenant: Tenant) => {
+    setSelectedTenant(tenant);
+    setTenantDialogMode("edit");
+    setTenantDialogOpen(true);
+  };
+
+  const openSuspendDialog = (tenant: Tenant) => {
+    setSuspendTarget(tenant);
+    setSuspendDialogOpen(true);
+  };
 
   // Filter and sort tenants
   const filteredAndSortedTenants = useMemo(() => {
@@ -273,7 +312,7 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
             </Button>
 
             {/* Add Tenant */}
-            <Button onClick={() => router.push("/platform/tenants/create")}>
+            <Button onClick={openCreateDialog}>
               <Plus className="h-4 w-4 mr-2" />
               Add Tenant
             </Button>
@@ -425,7 +464,7 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
                 }
               </p>
               {activeFilterCount === 0 && (
-                <Button onClick={() => router.push("/platform/tenants/create")}>
+                <Button onClick={openCreateDialog}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add First Tenant
                 </Button>
@@ -486,12 +525,45 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
                       )}
                     </div>
 
-                    <div className="flex items-center space-x-2 ml-4">
+                    <div className="flex items-center gap-2 ml-4 shrink-0">
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/platform/tenants/${tenant.tenantId}`}>
-                          View Details
+                          <Eye className="h-3.5 w-3.5 mr-1.5" />
+                          View
                         </Link>
                       </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditDialog(tenant)}>
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Edit Details
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {tenant.status === "suspended" ? (
+                            <DropdownMenuItem
+                              onClick={() => openSuspendDialog(tenant)}
+                              className="text-em-success focus:text-em-success"
+                            >
+                              <PlayCircle className="h-4 w-4 mr-2" />
+                              Activate
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              onClick={() => openSuspendDialog(tenant)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Ban className="h-4 w-4 mr-2" />
+                              Suspend
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 </div>
@@ -500,6 +572,23 @@ export function TenantList({ tenants, isLoading = false, className = "" }: Tenan
           )}
         </CardContent>
       </Card>
+
+      {/* Create / Edit Tenant Dialog */}
+      <TenantDialog
+        open={tenantDialogOpen}
+        onOpenChange={setTenantDialogOpen}
+        sessionToken={sessionToken ?? ""}
+        tenant={selectedTenant}
+        mode={tenantDialogMode}
+      />
+
+      {/* Suspend / Activate Dialog */}
+      <SuspendDialog
+        open={suspendDialogOpen}
+        onOpenChange={setSuspendDialogOpen}
+        sessionToken={sessionToken ?? ""}
+        tenant={suspendTarget}
+      />
     </div>
   );
 }

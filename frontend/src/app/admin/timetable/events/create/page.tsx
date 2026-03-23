@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -43,6 +45,8 @@ export default function CreateEventPage() {
   const [location, setLocation] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const createEvent = useMutation(api.modules.timetable.mutations.createEvent);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !startDate) {
@@ -50,10 +54,24 @@ export default function CreateEventPage() {
       return;
     }
     setIsSubmitting(true);
-    // TODO: wire to createEvent mutation when available
-    toast.info("Event scheduling will be available once the timetable module is configured.");
-    setIsSubmitting(false);
-    router.push("/admin/timetable");
+    try {
+      await createEvent({
+        title,
+        description: description || undefined,
+        eventType,
+        startDate,
+        endDate: endDate || undefined,
+        startTime: startTime || undefined,
+        endTime: endTime || undefined,
+        location: location || undefined,
+      });
+      toast.success("Event scheduled successfully.");
+      router.push("/admin/timetable");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to schedule event.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

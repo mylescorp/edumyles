@@ -1,25 +1,33 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Playfair_Display, Plus_Jakarta_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/ConditionalLayout";
 
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-jakarta",
   display: "swap",
 });
 
-const inter = Inter({
+const dmMono = DM_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
+  weight: ["400", "500"],
+  variable: "--font-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "EduMyles — School Management System for East Africa | Powered by Mylesoft",
+  title: "EduMyles - School Management System for African Schools",
   description:
     "EduMyles is the all-in-one school management platform for Kenyan schools. M-Pesa fees, digital gradebooks, parent communication & more. Book a free demo.",
   openGraph: {
@@ -42,14 +50,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('em-theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
-          }}
-        />
-      </head>
-      <body className={`${jakarta.variable} ${inter.variable} font-inter antialiased bg-white dark:bg-[#0D1E30] text-dark-grey dark:text-[#E8EDF4]`}>
+      <head />
+      <body className={`${playfair.variable} ${jakarta.variable} ${dmMono.variable} font-jakarta antialiased bg-white text-dark-grey`}>
         <ConditionalLayout>{children}</ConditionalLayout>
         <SpeedInsights />
       </body>

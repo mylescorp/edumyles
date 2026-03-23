@@ -1,38 +1,13 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import SignUpForm from "./SignUpForm";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Sign up — EduMyles",
-  description:
-    "Create your EduMyles account and start managing your school.",
-};
-
+// All auth is handled via WorkOS — redirect directly to the auth API route.
 export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams: Promise<{ returnTo?: string; error?: string }>;
+  searchParams: Promise<{ email?: string }>;
 }) {
   const params = await searchParams;
-  const returnTo = params.returnTo;
-  const error = params.error;
-
-  return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <Link href="/" className="auth-logo">
-            EduMyles
-          </Link>
-          <p>Create your account and start managing your school</p>
-        </div>
-        {error ? (
-          <div className="auth-error" role="alert">
-            {decodeURIComponent(error)}
-          </div>
-        ) : null}
-        <SignUpForm returnTo={returnTo} />
-      </div>
-    </div>
-  );
+  const qs = new URLSearchParams();
+  if (params.email) qs.set("email", params.email);
+  redirect(`/auth/signup/api?${qs.toString()}`);
 }

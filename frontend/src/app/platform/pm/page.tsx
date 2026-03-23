@@ -19,6 +19,11 @@ export default function PMPage() {
     sessionToken ? { sessionToken } : "skip"
   );
 
+  const pmStats = useQuery(
+    api.modules.pm.workspaces.getPmStats,
+    sessionToken ? { sessionToken } : "skip"
+  );
+
   if (authLoading || (sessionToken && workspaces === undefined)) {
     return (
       <DashboardLayout navItems={platformNavItems}>
@@ -89,7 +94,9 @@ export default function PMPage() {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">247</div>
+              <div className="text-2xl font-bold">
+                {pmStats?.activeTasks ?? 0}
+              </div>
               <p className="text-xs text-muted-foreground">In progress</p>
             </CardContent>
           </Card>
@@ -99,7 +106,9 @@ export default function PMPage() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">12</div>
+              <div className="text-2xl font-bold">
+                {pmStats?.teamMembers ?? 0}
+              </div>
               <p className="text-xs text-muted-foreground">Active contributors</p>
             </CardContent>
           </Card>
@@ -109,7 +118,9 @@ export default function PMPage() {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
+              <div className="text-2xl font-bold">
+                {pmStats?.hoursLoggedThisMonth?.toLocaleString() ?? 0}
+              </div>
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
           </Card>

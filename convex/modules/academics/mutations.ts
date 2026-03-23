@@ -3,6 +3,7 @@ import { mutation } from "../../_generated/server";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { requireTenantContext } from "../../helpers/tenantGuard";
+import { logAction } from "../../helpers/auditLog";
 
 /**
  * Bulk enter or update grades for students.
@@ -200,4 +201,63 @@ export const generateReportCard = mutation({
 
     return reportCardId;
   },
+});
+
+export const createExamination = mutation({
+    args: {
+        name: v.string(),
+        classId: v.optional(v.string()),
+        className: v.optional(v.string()),
+        subjectId: v.optional(v.string()),
+        date: v.string(),
+        startTime: v.optional(v.string()),
+        endTime: v.optional(v.string()),
+        venue: v.optional(v.string()),
+        totalMarks: v.optional(v.number()),
+        passMark: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "academics");
+        requirePermission(tenant, "grades:write");
+
+        const now = Date.now();
+        const id = await ctx.db.insert("examinations", {
+            tenantId: tenant.tenantId,
+            ...args,
+            status: "scheduled",
+            createdBy: tenant.userId,
+            createdAt: now,
+            updatedAt: now,
+        });
+
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "exam.created" as any,
+            entityType: "examinations",
+            entityId: id,
+            after: args,
+        });
+
+        return id;
+    },
+});
+
+export const updateExaminationStatus = mutation({
+    args: {
+        id: v.id("examinations"),
+        status: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "academics");
+        requirePermission(tenant, "grades:write");
+
+        const exam = await ctx.db.get(args.id);
+        if (!exam || exam.tenantId !== tenant.tenantId) throw new Error("Examination not found");
+
+        await ctx.db.patch(args.id, { status: args.status, updatedAt: Date.now() });
+    },
 });

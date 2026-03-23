@@ -559,6 +559,23 @@ export default defineSchema({
     .index("by_room", ["tenantId", "room", "dayOfWeek"])
     .index("by_tenant_day", ["tenantId", "dayOfWeek"]),
 
+  schoolEvents: defineTable({
+    tenantId: v.string(),
+    title: v.string(),
+    description: v.optional(v.string()),
+    eventType: v.string(), // "academic" | "sports" | "cultural" | "holiday" | "meeting" | "other"
+    startDate: v.string(), // ISO date string
+    endDate: v.optional(v.string()),
+    startTime: v.optional(v.string()),
+    endTime: v.optional(v.string()),
+    location: v.optional(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_date", ["tenantId", "startDate"]),
+
   announcements: defineTable({
     tenantId: v.string(),
     title: v.string(),
@@ -3111,4 +3128,51 @@ export default defineSchema({
     .index("by_deployId", ["deployId"])
     .index("by_timestamp", ["timestamp"])
     .index("by_task", ["taskIds"]),
+
+  adminNotes: defineTable({
+    tenantId: v.string(),
+    userId: v.string(),           // owner — only visible to this user
+    title: v.string(),
+    content: v.optional(v.string()),
+    color: v.string(),
+    pinned: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant_user", ["tenantId", "userId"])
+    .index("by_user", ["userId"]),
+
+  adminTasks: defineTable({
+    tenantId: v.string(),
+    userId: v.string(),           // owner — personal task list
+    title: v.string(),
+    priority: v.string(),         // "low" | "medium" | "high"
+    done: v.boolean(),
+    dueDate: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant_user", ["tenantId", "userId"])
+    .index("by_user", ["userId"]),
+
+  examinations: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    classId: v.optional(v.string()),
+    className: v.optional(v.string()),
+    subjectId: v.optional(v.string()),
+    date: v.string(),
+    startTime: v.optional(v.string()),
+    endTime: v.optional(v.string()),
+    venue: v.optional(v.string()),
+    status: v.string(),           // "scheduled" | "ongoing" | "completed" | "cancelled"
+    totalMarks: v.optional(v.number()),
+    passMark: v.optional(v.number()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_date", ["tenantId", "date"])
+    .index("by_tenant_status", ["tenantId", "status"]),
 });

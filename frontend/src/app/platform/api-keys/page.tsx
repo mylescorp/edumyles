@@ -87,7 +87,7 @@ export default function ApiKeysPage() {
       <PageHeader
         title="API Key Management"
         description="Create and manage API keys for programmatic access"
-        action={
+        actions={
           <Button onClick={() => { setIsCreateOpen(true); setNewlyCreatedKey(null); setShowKey(false); }}>
             <Plus className="h-4 w-4 mr-2" /> Create API Key
           </Button>

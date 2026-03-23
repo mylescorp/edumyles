@@ -2,26 +2,28 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
-import ThemeToggle from "@/components/ui/ThemeToggle";
+
+// Point auth actions at the frontend app (different domain in production)
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
+const LOGIN_URL = `${APP_URL}/auth/login/api`;
+const SIGNUP_URL = `${APP_URL}/auth/signup/api`;
 
 const navLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Modules", href: "#modules" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Features", href: "/features" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Blog", href: "/blog" },
+  { label: "About", href: "/about" },
+  { label: "Team", href: "/team" },
   { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const [activeLink, setActiveLink] = useState("");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const path = window.location.pathname.split("/").pop() || "index";
+    setActiveLink(path);
   }, []);
 
   useEffect(() => {
@@ -31,112 +33,159 @@ export default function Navbar() {
   }, [mobileOpen]);
 
   return (
-    <header
-      role="banner"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/98 dark:bg-navy-dark/98 backdrop-blur-sm shadow-md border-b border-light-grey dark:border-navy-light/30"
-          : "bg-white/90 dark:bg-navy-dark/90 backdrop-blur-sm border-b border-light-grey/50 dark:border-navy-light/20"
-      }`}
-    >
-      <nav aria-label="Main navigation" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+    <>
+      <nav
+        role="banner"
+        className="sticky top-0 bg-white border-b border-gray-200 z-[1000] px-4 sm:px-8"
+        style={{ borderBottom: "1px solid #e0e0e0" }}
+      >
+        <div className="max-w-[1200px] mx-auto flex justify-between items-center gap-8 h-[70px]">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0" aria-label="EduMyles — home">
-            <div className="w-8 h-8 rounded-lg bg-navy-gradient flex items-center justify-center">
-              <span className="text-gold font-jakarta font-bold text-sm">E</span>
+          <Link href="/" className="flex items-center gap-3 text-[#061A12] no-underline flex-shrink-0" aria-label="EduMyles — home">
+            <div
+              className="w-10 h-10 flex items-center justify-center rounded-[14px] font-playfair font-bold text-2xl flex-shrink-0"
+              style={{
+                background: "#0F4C2A",
+                border: "2px solid #E8A020",
+                color: "#E8A020",
+              }}
+            >
+              E
             </div>
-            <span className="font-jakarta font-bold text-xl text-navy">
-              Edu<span className="text-gold">Myles</span>
-            </span>
+            <div className="flex flex-col gap-0 leading-none">
+              <strong className="text-[16px] font-bold text-[#061A12]">EduMyles</strong>
+              <small className="text-[10px] font-medium text-[#6B9E83]">School Management, Simplified</small>
+            </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-8 flex-1 justify-center">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="font-inter font-medium text-[15px] transition-colors text-navy dark:text-off-white hover:text-gold"
+                className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
+                style={activeLink === link.href.replace("/", "") ? { color: "#E8A020" } : {}}
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          {/* Desktop CTAs */}
+          {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
-            {mounted && <ThemeToggle />}
-            <Link
-              href="/auth/login"
-              className="font-inter font-medium text-[15px] px-4 py-2 transition-colors text-navy dark:text-off-white hover:text-gold"
+            <a
+              href={LOGIN_URL}
+              className="text-[14px] font-semibold no-underline px-5 py-2.5 rounded-[50px] transition-all duration-200"
+              style={{
+                color: "#061A12",
+                border: "1.5px solid #061A12",
+                background: "transparent",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#061A12";
+                e.currentTarget.style.color = "#ffffff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "#061A12";
+              }}
             >
-              Sign In
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-[15px] px-6 py-2.5 rounded-lg transition-all duration-200 hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98]"
+              Log In
+            </a>
+            <a
+              href={SIGNUP_URL}
+              className="text-[14px] font-bold no-underline whitespace-nowrap px-6 py-3 rounded-[50px] transition-colors duration-200 hover:bg-[#0F4C2A]"
+              style={{ background: "#061A12", color: "#ffffff" }}
             >
               Get Started
+            </a>
+            <Link
+              href="#demo"
+              className="text-[14px] font-bold text-[#061A12] no-underline whitespace-nowrap transition-colors duration-300 hover:bg-[#F5C453] px-6 py-3 rounded-[50px]"
+              style={{ background: "#E8A020" }}
+            >
+              Book a Demo
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Hamburger */}
           <button
             type="button"
-            className="lg:hidden p-2 rounded-lg transition-colors text-navy dark:text-off-white"
+            className="lg:hidden flex flex-col gap-[5px] cursor-pointer p-2"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            <span
+              className="w-6 h-[3px] rounded-sm transition-all duration-300"
+              style={{
+                background: "#061A12",
+                transform: mobileOpen ? "rotate(45deg) translate(8px, 8px)" : "none",
+              }}
+            />
+            <span
+              className="w-6 h-[3px] rounded-sm transition-all duration-300"
+              style={{
+                background: "#061A12",
+                opacity: mobileOpen ? 0 : 1,
+              }}
+            />
+            <span
+              className="w-6 h-[3px] rounded-sm transition-all duration-300"
+              style={{
+                background: "#061A12",
+                transform: mobileOpen ? "rotate(-45deg) translate(7px, -7px)" : "none",
+              }}
+            />
           </button>
         </div>
       </nav>
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 top-16 bg-white dark:bg-navy-dark z-40 flex flex-col p-6 border-t border-light-grey dark:border-navy-light/30">
-          <nav className="flex flex-col gap-2 flex-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="text-navy dark:text-off-white hover:text-gold font-inter font-medium text-xl py-3 border-b border-light-grey dark:border-navy-light/30 transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex flex-col gap-3 pb-safe">
+        <div
+          className="lg:hidden fixed inset-0 z-[999] flex flex-col p-8 overflow-y-auto"
+          style={{ top: "70px", background: "#ffffff" }}
+        >
+          {navLinks.map((link) => (
             <Link
-              href="/auth/login"
+              key={link.label}
+              href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="text-center text-navy dark:text-off-white border border-light-grey dark:border-navy-light/50 rounded-lg py-3 font-inter font-medium transition-colors hover:border-gold hover:text-gold"
+              className="block py-3 text-[#061A12] no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-[#E8A020]"
             >
-              Sign In
+              {link.label}
             </Link>
-            <Link
-              href="/auth/signup"
+          ))}
+          <div className="flex flex-col gap-3 mt-6">
+            <a
+              href={SIGNUP_URL}
               onClick={() => setMobileOpen(false)}
-              className="text-center bg-gold hover:bg-gold-dark text-white rounded-lg py-3 font-inter font-semibold transition-colors"
+              className="block text-center font-bold no-underline py-3 px-6 rounded-[50px]"
+              style={{ background: "#061A12", color: "#ffffff" }}
             >
               Get Started
+            </a>
+            <a
+              href={LOGIN_URL}
+              onClick={() => setMobileOpen(false)}
+              className="block text-center font-semibold no-underline py-3 px-6 rounded-[50px] transition-colors"
+              style={{ border: "1.5px solid #061A12", color: "#061A12" }}
+            >
+              Log In
+            </a>
+            <Link
+              href="#demo"
+              onClick={() => setMobileOpen(false)}
+              className="block text-center font-bold text-[#061A12] no-underline py-3 px-6 rounded-[50px]"
+              style={{ background: "#E8A020" }}
+            >
+              Book a Demo
             </Link>
           </div>
         </div>
       )}
-
-      {/* Mobile sticky bottom CTA */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-navy-dark border-t border-light-grey dark:border-navy-light/30 p-4 shadow-lg">
-        <Link
-          href="#demo"
-          className="block text-center bg-gold hover:bg-gold-dark text-white rounded-lg py-3.5 font-inter font-semibold transition-colors w-full"
-        >
-          Book a Free Demo
-        </Link>
-      </div>
-    </header>
+    </>
   );
 }

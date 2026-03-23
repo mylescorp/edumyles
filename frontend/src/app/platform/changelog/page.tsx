@@ -79,7 +79,7 @@ export default function ChangelogPage() {
       <PageHeader
         title="Changelog"
         description="Platform release notes and version history"
-        action={
+        actions={
           <Button onClick={() => setIsCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" /> New Entry
           </Button>

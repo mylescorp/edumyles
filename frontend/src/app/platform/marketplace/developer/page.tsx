@@ -18,6 +18,7 @@ import {
   Building, Award, Layers,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
@@ -84,7 +85,7 @@ function DeveloperPortalContent() {
       });
       setIsRegisterOpen(false);
     } catch (e: any) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -115,7 +116,7 @@ function DeveloperPortalContent() {
       });
       setIsSubmitOpen(false);
     } catch (e: any) {
-      alert(e.message);
+      toast.error(e.message);
     }
   };
 

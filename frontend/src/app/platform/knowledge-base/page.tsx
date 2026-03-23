@@ -70,6 +70,7 @@ interface Category {
   order: number;
   parentId?: string;
   articleCount: number;
+  createdAt?: number;
 }
 
 export default function KnowledgeBasePage() {

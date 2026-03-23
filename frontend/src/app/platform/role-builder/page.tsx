@@ -118,7 +118,7 @@ export default function RoleBuilderPage() {
       <PageHeader
         title="Role Builder"
         description="Create and manage custom roles with granular permissions"
-        action={
+        actions={
           <Button onClick={() => { setIsCreateOpen(true); setEditingRole(null); setRoleName(""); setRoleDescription(""); setSelectedPermissions([]); }}>
             <Plus className="h-4 w-4 mr-2" /> Create Role
           </Button>

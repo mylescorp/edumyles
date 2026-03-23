@@ -80,7 +80,7 @@ export default function WebhooksPage() {
       <PageHeader
         title="Webhook Management"
         description="Configure webhook endpoints for real-time event notifications"
-        action={
+        actions={
           <Button onClick={() => setIsCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" /> Add Endpoint
           </Button>
