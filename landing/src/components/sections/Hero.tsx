@@ -64,16 +64,12 @@ export default function Hero() {
 
           {/* Left — Text content */}
           <div className="fade-in">
-            {/* Badge */}
-            <div
-              className="inline-block font-jakarta font-semibold text-[14px] mb-6 px-6 py-3 rounded-[50px]"
-              style={{
-                background: "rgba(232,160,32,0.1)",
-                border: "1px solid #E8A020",
-                color: "#E8A020",
-              }}
-            >
-              🏫 Trusted by 50+ Schools Across Africa
+            {/* Eyebrow */}
+            <div className="flex items-center gap-[10px] mb-6">
+              <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "#E8A020" }} />
+              <div className="text-[10px] font-bold tracking-[2.5px] uppercase" style={{ color: "#E8A020" }}>
+                Trusted by 50+ Schools Across Africa
+              </div>
             </div>
 
             {/* Headline */}
@@ -101,7 +97,7 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-10">
               <a
                 href="#demo"
-                className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-colors duration-300 no-underline"
+                className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-colors duration-300 no-underline"
                 style={{ background: "#E8A020", color: "#061A12" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#F5C453")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "#E8A020")}
@@ -110,14 +106,14 @@ export default function Hero() {
               </a>
               <a
                 href="#pricing"
-                className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-all duration-300 no-underline"
-                style={{ background: "transparent", color: "#ffffff", border: "2px solid #ffffff" }}
+                className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-all duration-300 no-underline"
+                style={{ background: "transparent", color: "#ffffff", border: "1.5px solid rgba(255,255,255,0.2)" }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#ffffff";
-                  e.currentTarget.style.color = "#061A12";
+                  e.currentTarget.style.borderColor = "#E8A020";
+                  e.currentTarget.style.color = "#E8A020";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
                   e.currentTarget.style.color = "#ffffff";
                 }}
               >
@@ -153,6 +149,23 @@ export default function Hero() {
 
           {/* Right — Floating dashboard mockup */}
           <div className="relative hidden lg:block" style={{ height: "400px" }}>
+            {/* Sample data badge */}
+            <div
+              className="absolute z-10 rounded-full font-jakarta font-semibold"
+              style={{
+                top: "-28px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                whiteSpace: "nowrap",
+                background: "rgba(232,160,32,0.15)",
+                border: "1px solid #E8A020",
+                color: "#E8A020",
+                fontSize: "11px",
+                padding: "4px 12px",
+              }}
+            >
+              📊 Sample data — see your real numbers after setup
+            </div>
             {/* Card 1 — Total Students */}
             <div
               className="absolute rounded-[12px] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] animate-float"

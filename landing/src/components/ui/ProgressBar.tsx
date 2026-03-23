@@ -21,7 +21,7 @@ export default function ProgressBar() {
       className="fixed top-0 left-0 h-[3px] z-[9998] transition-[width] duration-200"
       style={{
         width: `${width}%`,
-        background: "#E8A020",
+        background: "linear-gradient(90deg, #1A7A4A, #E8A020)",
       }}
     />
   );

@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Features — EduMyles School Management System",
   description:
-    "Explore all 11 integrated modules of EduMyles — student information, admissions, M-Pesa finance, timetable, academics, HR, library, transport, communications, eWallet, and school shop.",
+    "Explore all 11 integrated modules of EduMyles — student information, admissions, M-Pesa finance, timetable, academics, HR, library, transport, communications, eWallet, and school shop. Built for schools in Kenya, Uganda, Tanzania, and across East Africa.",
 };
 
 const platformHighlights = [

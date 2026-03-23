@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -80,21 +81,21 @@ const stats = [
 const team = [
   {
     name: "Jonathan Myles",
-    role: "CEO & Founder",
-    bio: "Founded EduMyles in Nairobi after witnessing a principal manage 1,200 students on WhatsApp and paper. Built the platform he wished existed — and never looked back.",
-    emoji: "👨‍💻",
+    role: "Founder & CEO",
+    bio: "A visionary software engineer and entrepreneur, Jonathan founded Mylesoft Technologies in 2020. He leads strategy, product development, and technology architecture across all 20+ MylesCorp products.",
+    photo: "/team/jonathan-myles.jpeg",
   },
   {
-    name: "Product Team",
-    role: "Design & Engineering",
+    name: "Pauline Moraa",
+    role: "Co-Founder & COO",
+    bio: "Pauline drives day-to-day operations, sales, marketing, and customer partnerships — ensuring every EduMyles school delivers measurable impact across East Africa.",
+    photo: "/team/pauline-moraa.jpeg",
+  },
+  {
+    name: "Engineering & Design",
+    role: "Product Team",
     bio: "A distributed team of engineers and designers across Nairobi and Kampala, obsessed with building software that works for real African schools.",
     emoji: "⚙️",
-  },
-  {
-    name: "Customer Success",
-    role: "School Partnerships",
-    bio: "Former teachers and school administrators who understand the daily realities of running a school. They're your first call for anything.",
-    emoji: "🎓",
   },
 ];
 
@@ -340,18 +341,33 @@ export default function AboutPage() {
             {team.map((t) => (
               <div
                 key={t.name}
-                className="rounded-2xl p-7 text-center"
+                className="rounded-2xl overflow-hidden text-center"
                 style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
               >
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"
-                  style={{ background: "rgba(38,166,91,0.1)" }}
-                >
-                  {t.emoji}
+                {/* Photo or emoji avatar */}
+                {"photo" in t && t.photo ? (
+                  <div className="relative w-full" style={{ height: "220px" }}>
+                    <Image
+                      src={t.photo as string}
+                      alt={t.name}
+                      fill
+                      className="object-cover object-top"
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="w-full flex items-center justify-center text-4xl"
+                    style={{ height: "120px", background: "rgba(38,166,91,0.1)" }}
+                  >
+                    {"emoji" in t ? t.emoji : ""}
+                  </div>
+                )}
+                <div className="p-6">
+                  <h3 className="font-playfair font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>{t.name}</h3>
+                  <div className="font-jakarta text-[13px] font-medium mb-3" style={{ color: "#E8A020" }}>{t.role}</div>
+                  <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{t.bio}</p>
                 </div>
-                <h3 className="font-playfair font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>{t.name}</h3>
-                <div className="font-jakarta text-[13px] font-medium mb-3" style={{ color: "#E8A020" }}>{t.role}</div>
-                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{t.bio}</p>
               </div>
             ))}
           </div>

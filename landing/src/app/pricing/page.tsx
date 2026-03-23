@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import PricingContent from "./PricingContent";
 
 export const metadata: Metadata = {
-  title: "Pricing — EduMyles School Management",
+  title: "Pricing — EduMyles School Management | Transparent KES Pricing",
   description:
-    "Simple, transparent pricing for African schools. No per-user fees, no hidden charges. Start free for 30 days. Pay per school, per month.",
+    "Simple, transparent pricing for EduMyles school management. From KES 12,900/month. M-Pesa payment. Trusted by 50+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
 };
 
 export default function PricingPage() {

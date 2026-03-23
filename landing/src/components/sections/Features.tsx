@@ -53,7 +53,10 @@ export default function Features() {
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Eyebrow */}
-        <div className="section-eyebrow mb-2">The Problem</div>
+        <div className="flex items-center gap-[10px] mb-[10px]">
+          <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "#E8A020" }} />
+          <div className="text-[10px] font-bold tracking-[2.5px] uppercase" style={{ color: "#E8A020" }}>The Problem</div>
+        </div>
 
         {/* Heading */}
         <h2
@@ -80,7 +83,7 @@ export default function Features() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-5px)";
-                e.currentTarget.style.borderColor = "#E8A020";
+                e.currentTarget.style.borderColor = "rgba(232,160,32,0.45)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -94,7 +97,7 @@ export default function Features() {
               >
                 {problem.title}
               </h3>
-              <p className="text-[14px] leading-[1.6]" style={{ color: "rgba(255,255,255,0.8)" }}>
+              <p className="text-[14px] leading-[1.6]" style={{ color: "#90CAF9" }}>
                 {problem.description}
               </p>
             </div>

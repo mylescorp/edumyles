@@ -4,7 +4,7 @@ import BlogContent from "./BlogContent";
 export const metadata: Metadata = {
   title: "Blog — EduMyles School Management Insights",
   description:
-    "Insights, guides, and resources for school administrators, teachers, and education leaders across East Africa.",
+    "Insights, guides, and resources for school administrators, teachers, and education leaders across East Africa — Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
 };
 
 export default function BlogPage() {

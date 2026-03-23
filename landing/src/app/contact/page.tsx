@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ContactForm from "@/components/ui/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact Us — EduMyles",
@@ -180,6 +181,9 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Contact Form ──────────────────────────────────── */}
+      <ContactForm />
 
       {/* ── WhatsApp Quick Contact ─────────────────────────── */}
       <section className="py-14 px-4" style={{ background: "#ffffff" }}>

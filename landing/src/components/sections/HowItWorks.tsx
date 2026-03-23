@@ -98,14 +98,14 @@ export default function HowItWorks() {
               >
                 {step.title}
               </h3>
-              <p className="text-[14px] leading-[1.6] max-w-[280px] md:max-w-none" style={{ color: "rgba(255,255,255,0.8)" }}>
+              <p className="text-[14px] leading-[1.6] max-w-[280px] md:max-w-none" style={{ color: "#90CAF9" }}>
                 {step.description}
               </p>
             </div>
           ))}
         </div>
 
-        <p className="text-center mt-12 text-[14px]" style={{ color: "#A8E6C3" }}>
+        <p className="text-center mt-12 text-[14px]" style={{ color: "#6B9E83" }}>
           Our team supports you at every step. Most schools go live in under 2 weeks.
         </p>
       </div>
