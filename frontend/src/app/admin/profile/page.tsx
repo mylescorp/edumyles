@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useAction } from "@/hooks/useSSRSafeConvex";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation as useConvexMutation } from "convex/react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -26,7 +27,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { getRoleLabel } from "@/lib/routes";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -49,7 +50,6 @@ function ChangePasswordModal({
   onOpenChange: (v: boolean) => void;
   sessionToken: string | null;
 }) {
-  const { toast } = useToast();
   const changePassword = useAction(api["actions/auth/password"].changePassword);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -61,23 +61,23 @@ function ChangePasswordModal({
   const handleSubmit = async () => {
     if (!sessionToken) return;
     if (newPassword !== confirmPassword) {
-      toast({ title: "Passwords do not match", variant: "destructive" });
+      toast.error("Passwords do not match");
       return;
     }
     if (newPassword.length < 8) {
-      toast({ title: "Password must be at least 8 characters", variant: "destructive" });
+      toast.error("Password must be at least 8 characters");
       return;
     }
     setIsLoading(true);
     try {
       await changePassword({ sessionToken, currentPassword, newPassword });
-      toast({ title: "Password changed successfully" });
+      toast.success("Password changed successfully");
       onOpenChange(false);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      toast({ title: err.message ?? "Failed to change password", variant: "destructive" });
+      toast.error(err.message ?? "Failed to change password");
     } finally {
       setIsLoading(false);
     }
@@ -158,8 +158,9 @@ function ChangePasswordModal({
 // ─── Main Profile Page ───────────────────────────────────────────────────────
 export default function AdminProfilePage() {
   const { user, isLoading, sessionToken, logout } = useAuth();
-  const { toast } = useToast();
   const updateProfile = useMutation(api.platform.users.mutations.updateUserProfile);
+  const generateUploadUrl = useConvexMutation(api.users.generateAvatarUploadUrl);
+  const saveAvatar = useConvexMutation(api.users.saveUserAvatar);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -192,12 +193,30 @@ export default function AdminProfilePage() {
     setIsSaving(true);
     try {
       await updateProfile({ sessionToken, firstName, lastName, phone });
-      toast({ title: "Profile updated successfully" });
+      toast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (err: any) {
-      toast({ title: err.message ?? "Failed to update profile", variant: "destructive" });
+      toast.error(err.message ?? "Failed to update profile");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (file: File) => {
+    if (!sessionToken) return;
+    try {
+      const uploadUrl = await generateUploadUrl({ sessionToken });
+      const result = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!result.ok) throw new Error("Upload failed");
+      const { storageId } = await result.json();
+      await saveAvatar({ sessionToken, storageId });
+      toast.success("Profile photo updated successfully.");
+    } catch {
+      toast.error("Failed to upload profile photo. Please try again.");
     }
   };
 
@@ -266,6 +285,23 @@ export default function AdminProfilePage() {
                   <Badge variant="secondary" className="mt-1">
                     {getRoleLabel(anyUser?.role ?? "admin")}
                   </Badge>
+                  <div className="mt-2">
+                    <label htmlFor="avatar-upload" className="cursor-pointer">
+                      <Button variant="outline" size="sm" type="button" asChild>
+                        <span>Change Photo</span>
+                      </Button>
+                      <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleAvatarUpload(file);
+                        }}
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
 

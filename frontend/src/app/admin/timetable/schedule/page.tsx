@@ -40,6 +40,15 @@ type TimetableSlot = {
   createdAt: number;
 };
 
+type SchoolEvent = {
+  _id: string;
+  title: string;
+  description?: string;
+  startDate: string;
+  endDate?: string;
+  type?: string;
+};
+
 export default function SchedulePage() {
   const { isLoading, sessionToken } = useAuth();
   const [dayFilter, setDayFilter] = useState<string>("all");
@@ -51,6 +60,11 @@ export default function SchedulePage() {
           dayOfWeek: dayFilter !== "all" ? Number(dayFilter) : undefined,
         }
       : "skip"
+  );
+
+  const events = useQuery(
+    api.modules.timetable.queries.listEvents,
+    sessionToken ? {} : "skip"
   );
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
@@ -226,6 +240,59 @@ export default function SchedulePage() {
             emptyTitle="No schedule slots found"
             emptyDescription="No timetable slots have been created yet. Use the timetable builder to add slots."
           />
+        </CardContent>
+      </Card>
+
+      {/* School Events */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            School Events
+          </CardTitle>
+          <span className="text-sm text-muted-foreground">
+            {(events ?? []).length} event{(events ?? []).length !== 1 ? "s" : ""}
+          </span>
+        </CardHeader>
+        <CardContent>
+          {!events ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">Loading events...</p>
+          ) : (events as SchoolEvent[]).length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              No school events found. Events added to the timetable will appear here.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {(events as SchoolEvent[]).map((event) => (
+                <div
+                  key={event._id}
+                  className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/30 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{event.title}</p>
+                    {event.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {event.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                    {event.type && (
+                      <Badge variant="outline" className="text-xs">
+                        {event.type}
+                      </Badge>
+                    )}
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {event.startDate}
+                      {event.endDate && event.endDate !== event.startDate
+                        ? ` – ${event.endDate}`
+                        : ""}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
