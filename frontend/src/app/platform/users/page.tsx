@@ -168,6 +168,16 @@ export default function UsersPage() {
     permissions: [] as string[]
   });
 
+  // Create user form state
+  const [createForm, setCreateForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    role: "super_admin" as "master_admin" | "super_admin",
+  });
+  const [createSubmitting, setCreateSubmitting] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
   // Fetch users from Convex backend
   const usersData = usePlatformQuery(
     api.platform.users.queries.listAllUsers,
@@ -261,7 +271,40 @@ export default function UsersPage() {
   };
 
   const handleCreateUser = () => {
+    setCreateForm({ firstName: "", lastName: "", email: "", role: "super_admin" });
+    setCreateError(null);
     setIsCreateDialogOpen(true);
+  };
+
+  const handleCreateUserSubmit = async () => {
+    if (!createForm.email || !createForm.firstName || !createForm.lastName) {
+      setCreateError("First name, last name, and email are required.");
+      return;
+    }
+    setCreateError(null);
+    setCreateSubmitting(true);
+    try {
+      const res = await fetch("/api/platform/invite-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...createForm, sessionToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCreateError(data.error ?? "Failed to create user.");
+        return;
+      }
+      setIsCreateDialogOpen(false);
+      if (data.emailSent) {
+        toast.success(`Invitation sent to ${createForm.email}`);
+      } else {
+        toast.success(`User created. Share the login link manually: /auth/login/api`);
+      }
+    } catch (err: any) {
+      setCreateError(err.message ?? "Unexpected error");
+    } finally {
+      setCreateSubmitting(false);
+    }
   };
 
   const handleEditUser = (user: User) => {
@@ -730,83 +773,77 @@ export default function UsersPage() {
 
       {/* Create User Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>Create New User</DialogTitle>
+            <DialogTitle>Invite Platform Admin</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {createError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {createError}
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" placeholder="Enter first name" />
+                <Label htmlFor="create-firstName">First Name *</Label>
+                <Input
+                  id="create-firstName"
+                  placeholder="John"
+                  value={createForm.firstName}
+                  onChange={(e) => setCreateForm(p => ({ ...p, firstName: e.target.value }))}
+                  disabled={createSubmitting}
+                />
               </div>
               <div>
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" placeholder="Enter last name" />
-              </div>
-              <div>
-                <Label htmlFor="email">Email *</Label>
-                <Input id="email" type="email" placeholder="Enter email" />
-              </div>
-              <div>
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" placeholder="Enter phone number" />
-              </div>
-              <div>
-                <Label htmlFor="role">Role *</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="agent">Agent</SelectItem>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="tenant">Tenant</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Assign to tenant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tenant-1">Nairobi International Academy</SelectItem>
-                    <SelectItem value="tenant-2">Mombasa Primary School</SelectItem>
-                    <SelectItem value="tenant-3">Kisumu High School</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="department">Department</Label>
-                <Input id="department" placeholder="Enter department" />
-              </div>
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <Input id="location" placeholder="Enter location" />
+                <Label htmlFor="create-lastName">Last Name *</Label>
+                <Input
+                  id="create-lastName"
+                  placeholder="Doe"
+                  value={createForm.lastName}
+                  onChange={(e) => setCreateForm(p => ({ ...p, lastName: e.target.value }))}
+                  disabled={createSubmitting}
+                />
               </div>
             </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="sendWelcome" className="rounded" defaultChecked />
-                <Label htmlFor="sendWelcome">Send welcome email</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="require2FA" className="rounded" />
-                <Label htmlFor="require2FA">Require 2FA setup</Label>
-              </div>
+            <div>
+              <Label htmlFor="create-email">Email *</Label>
+              <Input
+                id="create-email"
+                type="email"
+                placeholder="john@example.com"
+                value={createForm.email}
+                onChange={(e) => setCreateForm(p => ({ ...p, email: e.target.value }))}
+                disabled={createSubmitting}
+              />
             </div>
-            
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+            <div>
+              <Label htmlFor="create-role">Role *</Label>
+              <Select
+                value={createForm.role}
+                onValueChange={(v) => setCreateForm(p => ({ ...p, role: v as "master_admin" | "super_admin" }))}
+                disabled={createSubmitting}
+              >
+                <SelectTrigger id="create-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="super_admin">Super Admin</SelectItem>
+                  <SelectItem value="master_admin">Master Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {createForm.role === "master_admin"
+                  ? "Full platform control including billing and tenant management."
+                  : "Can view tenants and audit logs; limited platform access."}
+              </p>
+            </div>
+            <div className="flex justify-end space-x-2 pt-2">
+              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={createSubmitting}>
                 Cancel
               </Button>
-              <Button onClick={() => setIsCreateDialogOpen(false)}>
+              <Button onClick={handleCreateUserSubmit} disabled={createSubmitting}>
                 <UserPlus className="h-4 w-4 mr-1" />
-                Create User
+                {createSubmitting ? "Sending…" : "Send Invitation"}
               </Button>
             </div>
           </div>
