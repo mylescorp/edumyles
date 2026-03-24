@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Clock, Users, CheckCircle, Star, Phone, Mail, MapPin, Send } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Users, CheckCircle, Star, Phone, Mail, MapPin } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Book a Demo — EduMyles | School Management System",
@@ -54,7 +54,7 @@ export default function BookDemoPage() {
               className="font-jakarta text-[18px] leading-[1.7] mb-8"
               style={{ color: "#A8E6C3" }}
             >
-              Get a personalized 30-minute demo tailored to your school's needs. 
+              Get a personalized 30-minute demo tailored to your school&apos;s needs. 
               See how our platform simplifies administration, enhances communication, 
               and improves student outcomes.
             </p>
@@ -95,7 +95,7 @@ export default function BookDemoPage() {
                 Schedule Your Demo
               </h2>
               <p className="font-jakarta text-[16px] mb-8" style={{ color: "#5a5a5a" }}>
-                Fill in your details and we'll contact you within 24 hours to schedule your personalized demo.
+                Fill in your details and we&apos;ll contact you within 24 hours to schedule your personalized demo.
               </p>
               
               <form className="space-y-6">
@@ -210,7 +210,7 @@ export default function BookDemoPage() {
 
                 <div>
                   <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
-                    Tell us about your school's needs (optional)
+                    Tell us about your school&apos;s needs (optional)
                   </label>
                   <textarea
                     rows={4}
@@ -252,7 +252,7 @@ export default function BookDemoPage() {
                       Personalized Walkthrough
                     </h4>
                     <p className="font-jakarta text-[14px] leading-[1.6]" style={{ color: "#5a5a5a" }}>
-                      We'll show you exactly how EduMyles addresses your specific challenges and workflows.
+                      We&apos;ll show you exactly how EduMyles addresses your specific challenges and workflows.
                     </p>
                   </div>
                 </div>
@@ -300,7 +300,7 @@ export default function BookDemoPage() {
                   ))}
                 </div>
                 <p className="font-playfair italic text-[16px] leading-[1.7] text-white mb-4">
-                  "The demo was incredibly helpful. They understood our challenges immediately and showed us exactly how EduMyles would solve them. We were up and running within a week."
+                  &ldquo;The demo was incredibly helpful. They understood our challenges immediately and showed us exactly how EduMyles would solve them. We were up and running within a week.&rdquo;
                 </p>
                 <p className="font-jakarta font-semibold text-[13px]" style={{ color: "#E8A020" }}>
                   Grace Njeri, Finance Officer — Nairobi Green Academy
