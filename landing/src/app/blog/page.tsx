@@ -17,8 +17,8 @@ export default function BlogPage() {
         style={{
           background: "#061A12",
           borderTop: "3px solid #E8A020",
-          padding: "6rem 2rem 5rem",
-          minHeight: "380px",
+          padding: "4rem 2rem 3rem",
+          minHeight: "300px",
         }}
       >
         <div
