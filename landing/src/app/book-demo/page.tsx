@@ -330,9 +330,13 @@ export default function BookDemoPage() {
               <h4 className="font-jakarta font-bold text-[15px] mb-2" style={{ color: "#061A12" }}>
                 Call Us
               </h4>
-              <p className="font-jakarta text-[14px]" style={{ color: "#5a5a5a" }}>
-                +254 700 123 456
-              </p>
+              <a 
+                href="tel:+254743993715"
+                className="font-jakarta text-[14px] no-underline hover:underline"
+                style={{ color: "#5a5a5a" }}
+              >
+                +254 743 993 715
+              </a>
             </div>
             
             <div className="p-6 rounded-xl" style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}>
