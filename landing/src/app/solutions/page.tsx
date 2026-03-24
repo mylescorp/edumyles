@@ -221,40 +221,52 @@ export default function SolutionsPage() {
             {solutions.map((solution, index) => (
               <div 
                 key={solution.title}
-                className="group rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+                className="group rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-3"
                 style={{ 
-                  background: `linear-gradient(135deg, ${solution.bgGradient})`,
-                  border: "1px solid rgba(0,0,0,0.05)"
+                  background: "#ffffff",
+                  border: "2px solid rgba(0,0,0,0.08)",
+                  boxShadow: "0 4px 20px rgba(6,26,18,0.08)"
                 }}
               >
-                <div className="p-8">
-                  <div className="flex items-center gap-4 mb-6">
+                {/* Card Header */}
+                <div 
+                  className="p-6 pb-4"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${solution.bgGradient})`,
+                    borderBottom: "1px solid rgba(0,0,0,0.05)"
+                  }}
+                >
+                  <div className="flex items-center gap-4">
                     <div 
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
                       style={{ background: solution.color }}
                     >
                       <solution.icon className="w-8 h-8" style={{ color: "#ffffff" }} />
                     </div>
                     <div>
                       <h3 
-                        className="font-playfair font-bold text-2xl mb-2"
+                        className="font-playfair font-bold text-2xl mb-1"
                         style={{ color: solution.color }}
                       >
                         {solution.title}
                       </h3>
                       <p 
-                        className="font-jakarta text-sm"
-                        style={{ color: "#5a5a5a" }}
+                        className="font-jakarta text-sm font-medium"
+                        style={{ color: "#374151" }}
                       >
                         {solution.description}
                       </p>
                     </div>
                   </div>
+                </div>
 
+                {/* Card Body */}
+                <div className="p-6">
+                  {/* Stats */}
                   <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="text-center">
+                    <div className="text-center p-3 rounded-xl" style={{ background: "rgba(6,26,18,0.02)" }}>
                       <div 
-                        className="font-jakarta font-bold text-2xl"
+                        className="font-jakarta font-bold text-xl"
                         style={{ color: solution.color }}
                       >
                         {solution.stats.schools}
@@ -263,9 +275,9 @@ export default function SolutionsPage() {
                         Schools
                       </div>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center p-3 rounded-xl" style={{ background: "rgba(6,26,18,0.02)" }}>
                       <div 
-                        className="font-jakarta font-bold text-2xl"
+                        className="font-jakarta font-bold text-xl"
                         style={{ color: solution.color }}
                       >
                         {solution.stats.students}
@@ -274,9 +286,9 @@ export default function SolutionsPage() {
                         Students
                       </div>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center p-3 rounded-xl" style={{ background: "rgba(6,26,18,0.02)" }}>
                       <div 
-                        className="font-jakarta font-bold text-2xl"
+                        className="font-jakarta font-bold text-xl"
                         style={{ color: solution.color }}
                       >
                         {solution.stats.satisfaction}
@@ -287,10 +299,11 @@ export default function SolutionsPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2 mb-6">
+                  {/* Features */}
+                  <div className="space-y-3 mb-6">
                     {solution.features.slice(0, 3).map((feature) => (
-                      <div key={feature} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: solution.color }} />
+                      <div key={feature} className="flex items-center gap-3">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0" style={{ color: solution.color }} />
                         <span className="font-jakarta text-sm" style={{ color: "#374151" }}>
                           {feature}
                         </span>
@@ -298,20 +311,45 @@ export default function SolutionsPage() {
                     ))}
                   </div>
 
+                  {/* Action Button */}
                   <Link
                     href={solution.href}
-                    className="inline-flex items-center gap-2 font-jakarta font-semibold text-sm px-6 py-3 rounded-xl transition-all duration-200 group-hover:shadow-lg"
+                    className="w-full inline-flex items-center justify-center gap-2 font-jakarta font-bold text-sm px-6 py-4 rounded-xl transition-all duration-200 group-hover:shadow-lg"
                     style={{ 
                       background: solution.color,
                       color: "#ffffff"
                     }}
                   >
-                    Explore Solution
+                    Explore {solution.title}
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* View All Solutions Button */}
+          <div className="text-center">
+            <p className="font-jakarta text-sm mb-4" style={{ color: "#5a5a5a" }}>
+              Looking for something specific? Each solution is tailored to your institution's unique needs.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              {solutions.map((solution) => (
+                <Link
+                  key={solution.href}
+                  href={solution.href}
+                  className="inline-flex items-center gap-2 font-jakarta font-semibold text-sm px-5 py-3 rounded-xl transition-all duration-200 hover:shadow-md"
+                  style={{ 
+                    background: "transparent",
+                    color: solution.color,
+                    border: `2px solid ${solution.color}`
+                  }}
+                >
+                  {solution.title}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
