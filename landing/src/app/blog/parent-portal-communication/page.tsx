@@ -423,7 +423,7 @@ export default function ParentPortalGuide() {
                     </span>
                   </div>
                   <h3 className="font-jakarta font-bold text-lg mb-3" style={{ color: "#061A12" }}>
-                    {phase.activities[0].split('(')[0].trim()}
+                    {phase.activities?.[0]?.split('(')?.[0]?.trim() || ""}
                   </h3>
                   <ul className="space-y-1">
                     {phase.activities.map((activity) => (
