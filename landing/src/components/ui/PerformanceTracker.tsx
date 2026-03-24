@@ -8,10 +8,6 @@ interface PerformanceEntryWithProcessingStart extends PerformanceEntry {
   processingStart?: number;
 }
 
-interface PerformanceEntryWithValue extends PerformanceEntry {
-  value?: number;
-}
-
 interface PerformanceEntryWithHadRecentInput extends PerformanceEntry {
   hadRecentInput?: boolean;
 }
