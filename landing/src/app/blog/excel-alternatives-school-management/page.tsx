@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BarChart2, AlertCircle, ArrowRight, TrendingUp, Users, FileText, Clock, CheckCircle2, Database, Shield } from "lucide-react";
+import { BarChart2, AlertCircle, ArrowRight, TrendingUp, Clock, Database, CheckCircle2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "5 Signs Your School Has Outgrown Excel — And What to Do About It",
@@ -480,7 +480,7 @@ export default function ExcelAlternativesGuide() {
               </div>
               <div className="mt-6 p-4 rounded-lg" style={{ background: "rgba(232,160,32,0.15)" }}>
                 <p className="font-jakarta font-semibold text-center" style={{ color: "#9A5D00" }}>
-                  If you answered "yes" to 3 or more questions, it&apos;s time to move beyond Excel.
+                  If you answered &quot;yes&quot; to 3 or more questions, it&apos;s time to move beyond Excel.
                 </p>
               </div>
             </div>

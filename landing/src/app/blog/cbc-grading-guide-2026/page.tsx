@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookOpen, CheckCircle2, AlertCircle, ArrowRight, Award, FileText, Users, TrendingUp, Target } from "lucide-react";
+import { BookOpen, CheckCircle2, ArrowRight, Award, FileText, Users, TrendingUp, Target } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "CBC Gradebook in EduMyles: A Complete Guide for Kenyan Schools",

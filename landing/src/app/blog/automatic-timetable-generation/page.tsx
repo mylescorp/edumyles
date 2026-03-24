@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarDays, CheckCircle2, ArrowRight, Clock, Users, AlertCircle, Target, Zap, Settings, Brain } from "lucide-react";
+import { CalendarDays, CheckCircle2, ArrowRight, Clock, AlertCircle, Target, Zap, Settings, Brain } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Timetable Generation: How EduMyles Creates Conflict-Free Schedules Automatically",
@@ -507,7 +507,7 @@ export default function TimetableGenerationGuide() {
                     </span>
                   </div>
                   <h3 className="font-jakarta font-bold text-lg mb-3" style={{ color: "#061A12" }}>
-                    {phase.tasks[0].split(':')[0].trim()}
+                    {phase.tasks?.[0]?.split(':')[0]?.trim() || ""}
                   </h3>
                   <ul className="space-y-1 mb-3">
                     {phase.tasks.map((task) => (
