@@ -85,7 +85,7 @@ const posts: Post[] = [
     date: "December 2025",
     readTime: "6 min read",
     author: "EduMyles Team",
-    slug: "#",
+    slug: "/blog/school-management-uganda",
     flagEmoji: "🇺🇬",
   },
 ];
