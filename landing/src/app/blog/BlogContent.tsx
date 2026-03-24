@@ -58,6 +58,16 @@ const posts: Post[] = [
     icon: BarChart2,
   },
   {
+    category: "School Management",
+    title: "How Kenyan Schools Manage Payroll Efficiently - Complete Guide",
+    excerpt: "Discover how Kenyan schools are revolutionizing payroll management with automated systems, ensuring KRA compliance while boosting staff satisfaction.",
+    date: "March 2026",
+    readTime: "7 min read",
+    author: "EduMyles Team",
+    slug: "/blog/how-kenyan-schools-manage-payroll",
+    icon: BarChart2,
+  },
+  {
     category: "Parent Engagement",
     title: "How EduMyles Parent Portal Reduces SMS Costs by 60% While Improving Communication",
     excerpt: "Schools using the parent portal see fewer WhatsApp enquiries, faster fee payments, and more engaged parents.",
