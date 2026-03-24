@@ -67,11 +67,11 @@ export function trackNavigationClick(destination: string) {
 }
 
 // Performance metrics
-export function trackCoreWebVitals(metric: any) {
+export function trackCoreWebVitals(metric: unknown) {
   trackEvent("core_web_vital", {
-    metric_name: metric.name,
-    metric_value: metric.value,
-    metric_id: metric.id,
-    page_location: window.location.pathname
+    metric_name: (metric as any).name || '',
+    metric_value: (metric as any).value || 0,
+    metric_id: (metric as any).id || '',
+    page_location: typeof window !== 'undefined' ? window.location.pathname : ''
   });
 }

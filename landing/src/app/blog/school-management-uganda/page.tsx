@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Globe, CheckCircle2, ArrowRight, TrendingUp, CreditCard, BookOpen, Users, CalendarDays, Shield } from "lucide-react";
+import { CreditCard, CheckCircle2, ArrowRight, Globe, Shield, Users } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "School Management Software in Uganda: What's Different from Kenya",
