@@ -3,6 +3,7 @@ import { Playfair_Display, Plus_Jakarta_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/ConditionalLayout";
+import PerformanceTracker from "@/components/ui/PerformanceTracker";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -129,6 +130,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${playfair.variable} ${jakarta.variable} ${dmMono.variable} font-jakarta antialiased bg-white text-dark-grey`}>
+        <PerformanceTracker />
         <ConditionalLayout>{children}</ConditionalLayout>
         <SpeedInsights />
       </body>

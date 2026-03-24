@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { trackCookieConsent } from "@/lib/analytics";
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
@@ -20,6 +21,7 @@ export default function CookieBanner() {
       // ignore storage errors
     }
     setVisible(false);
+    trackCookieConsent("accepted");
   }
 
   function decline() {
@@ -29,20 +31,26 @@ export default function CookieBanner() {
       // ignore storage errors
     }
     setVisible(false);
+    trackCookieConsent("declined");
   }
 
   if (!visible) return null;
 
   return (
     <div
-      className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-50 bg-navy-dark border border-white/10 rounded-2xl p-5 shadow-2xl"
+      className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-50 rounded-2xl p-5 shadow-2xl"
+      style={{ background: "#061A12", border: "1px solid rgba(232,160,32,0.3)" }}
       role="dialog"
       aria-label="Cookie consent"
       aria-live="polite"
     >
-      <p className="font-inter text-sm text-white/80 mb-4 leading-relaxed">
+      <p className="font-jakarta text-sm mb-4 leading-relaxed" style={{ color: "#A8E6C3" }}>
         We use cookies to improve your experience and analyse site performance. See our{" "}
-        <a href="/terms#privacy" className="text-gold underline">
+        <a 
+          href="/privacy" 
+          className="no-underline hover:underline transition-all duration-200"
+          style={{ color: "#E8A020" }}
+        >
           Privacy Policy
         </a>
         .
@@ -51,14 +59,20 @@ export default function CookieBanner() {
         <button
           type="button"
           onClick={accept}
-          className="flex-1 bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-sm py-2.5 rounded-lg transition-colors"
+          className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+          style={{ background: "#E8A020", color: "#061A12" }}
         >
           Accept All
         </button>
         <button
           type="button"
           onClick={decline}
-          className="flex-1 border border-white/20 hover:border-white/40 text-white/70 hover:text-white font-inter text-sm py-2.5 rounded-lg transition-colors"
+          className="flex-1 font-jakarta text-sm py-2.5 rounded-lg transition-all duration-200"
+          style={{ 
+            background: "transparent", 
+            color: "#A8E6C3", 
+            border: "1px solid rgba(168,230,195,0.3)" 
+          }}
         >
           Decline
         </button>
