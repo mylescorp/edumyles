@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { School, GraduationCap, Globe, Building2 } from "lucide-react";
+import { School, GraduationCap, Globe, Building2, Briefcase } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Point auth actions at the frontend app (different domain in production)
