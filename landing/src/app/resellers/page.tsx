@@ -8,9 +8,9 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Partner Programme — EduMyles | Resell & Earn",
+  title: "Reseller Programme — EduMyles | Resell & Earn",
   description:
-    "Join the EduMyles Partner Programme. Resell Africa's leading school management platform and earn up to 30% recurring monthly commission. White-label available.",
+    "Join the EduMyles Reseller Programme. Resell Africa's leading school management platform and earn up to 30% recurring monthly commission. White-label available.",
 };
 
 const tiers = [
@@ -138,11 +138,11 @@ const testimonials = [
 const faqs = [
   {
     q: "How quickly can I start earning?",
-    a: "Once approved (usually within 48 hours), you'll receive your partner kit and can start immediately.",
+    a: "Once approved (usually within 48 hours), you'll receive your reseller kit and can start immediately.",
   },
   {
-    q: "Is white-labelling available for all partners?",
-    a: "White-label is available for Reseller Partners only. Referral Partners use standard EduMyles branding.",
+    q: "Is white-labelling available for all resellers?",
+    a: "White-label is available for Reseller Partners only. Referral Resellers use standard EduMyles branding.",
   },
   {
     q: "How are commissions paid?",
@@ -153,16 +153,16 @@ const faqs = [
     a: "No minimums. Even one school earns you ongoing recurring commission every month.",
   },
   {
-    q: "Do I need technical knowledge to become a partner?",
-    a: "No. We provide full training. Referral partners only need to make introductions.",
+    q: "Do I need technical knowledge to become a reseller?",
+    a: "No. We provide full training. Referral resellers only need to make introductions.",
   },
   {
-    q: "Can I become a partner from outside Kenya?",
-    a: "Yes — we have partners in Uganda, Tanzania, and Rwanda. We're actively expanding.",
+    q: "Can I become a reseller from outside Kenya?",
+    a: "Yes — we have resellers in Uganda, Tanzania, and Rwanda. We're actively expanding.",
   },
 ];
 
-export default function PartnersPage() {
+export default function ResellersPage() {
   return (
     <div style={{ color: "#212121" }}>
 
@@ -178,14 +178,14 @@ export default function PartnersPage() {
         <div className="relative max-w-[1200px] mx-auto w-full">
           <div className="max-w-[760px]">
             <div className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]" style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}>
-              Partner Programme
+              Reseller Programme
             </div>
             <h1 className="font-playfair font-bold leading-[1.1] mb-5" style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}>
               Resell EduMyles.{" "}
               <em className="italic" style={{ color: "#E8A020" }}>Earn recurring income.</em>
             </h1>
             <p className="font-jakarta font-light leading-[1.8] mb-8" style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "600px" }}>
-              Join 20+ active partners earning monthly recurring commissions by bringing EduMyles to schools across East Africa. White-label available for resellers.
+              Join 20+ active resellers earning monthly recurring commissions by bringing EduMyles to schools across East Africa. White-label available for resellers.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               {["Up to 30% commission", "Monthly M-Pesa payouts", "White-label ready", "90-day cookie window"].map((pill) => (
@@ -199,23 +199,23 @@ export default function PartnersPage() {
                 Apply as Reseller →
               </a>
               <a href="#tiers" className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-7 py-4 rounded-[50px] no-underline" style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.3)", color: "#ffffff" }}>
-                See All Partner Types
+                See All Reseller Types
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Partnership Tiers ── */}
+      {/* ── Reseller Tiers ── */}
       <section id="tiers" className="py-20 px-4" style={{ background: "#ffffff" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]" style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A" }}>
-              Partnership Tiers
+              Reseller Tiers
             </div>
             <h2 className="font-playfair font-bold leading-[1.2]" style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}>
               Find the right{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>partnership for you</em>
+              <em className="italic" style={{ color: "#E8A020" }}>reseller option for you</em>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -386,12 +386,12 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      {/* ── Partner Testimonials ── */}
+      {/* ── Reseller Testimonials ── */}
       <section className="py-20 px-4" style={{ background: "#ffffff" }}>
         <div className="max-w-[1000px] mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-playfair font-bold leading-[1.2]" style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}>
-              Partners who are{" "}
+              Resellers who are{" "}
               <em className="italic" style={{ color: "#E8A020" }}>winning</em>
             </h2>
           </div>
@@ -443,7 +443,7 @@ export default function PartnersPage() {
               <em className="italic" style={{ color: "#E8A020" }}>Join</em>
             </h2>
             <p className="font-jakarta text-[15px]" style={{ color: "#5a5a5a" }}>
-              Takes 2 minutes. Our partnerships team responds within 48 hours.
+              Takes 2 minutes. Our resellers team responds within 48 hours.
             </p>
           </div>
           <div className="rounded-2xl p-8 sm:p-10" style={{ background: "#ffffff", border: "1px solid #d4eade", boxShadow: "0 4px 20px rgba(6,26,18,0.06)" }}>

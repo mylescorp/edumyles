@@ -12,6 +12,11 @@ const SIGNUP_URL = `${APP_URL}/auth/signup/api`;
 
 const navLinks = [
   { label: "Features", href: "/features" },
+  { label: "Solutions", href: "/solutions" },
+  { label: "About", href: "/about" },
+  { label: "Team", href: "/team" },
+  { label: "Careers", href: "/careers" },
+  { label: "Resellers", href: "/resellers" },
   { label: "Pricing",  href: "/pricing" },
   { label: "Blog",     href: "/blog" },
   { label: "Contact",  href: "/contact" },
@@ -29,69 +34,40 @@ const solutionItems: SolutionItem[] = [
     icon: School,
     label: "Primary Schools",
     href: "/solutions/primary-schools",
-    subtitle: "CBC-ready, M-Pesa fees",
+    subtitle: "CBC-ready with M-Pesa integration & automated fee management",
   },
   {
     icon: GraduationCap,
     label: "Secondary Schools",
     href: "/solutions/secondary-schools",
-    subtitle: "KCSE, timetabling, HR & payroll",
+    subtitle: "KCSE management, advanced timetabling & HR payroll systems",
   },
   {
     icon: Globe,
     label: "International Schools",
     href: "/solutions/international-schools",
-    subtitle: "IGCSE, IB, SSO, white-label",
+    subtitle: "IGCSE & IB curriculum support with SSO and white-label options",
   },
   {
     icon: Building2,
     label: "School Groups",
     href: "/solutions/school-groups",
-    subtitle: "Multi-campus, network reporting",
-  },
-];
-
-type CompanyItem = {
-  icon: LucideIcon;
-  label: string;
-  href: string;
-  subtitle: string;
-};
-
-const companyItems: CompanyItem[] = [
-  {
-    icon: Info,
-    label: "About Us",
-    href: "/about",
-    subtitle: "Our mission & story",
-  },
-  {
-    icon: Users,
-    label: "Our Team",
-    href: "/team",
-    subtitle: "Meet the builders",
+    subtitle: "Multi-campus management with consolidated reporting & analytics",
   },
   {
     icon: Briefcase,
-    label: "Careers",
-    href: "/careers",
-    subtitle: "Join our team",
-  },
-  {
-    icon: Handshake,
-    label: "Partners",
-    href: "/partners",
-    subtitle: "Resell & earn",
+    label: "All Solutions",
+    href: "/solutions",
+    subtitle: "Explore our complete school management ecosystem",
   },
 ];
+
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("");
   const [solutionsOpen, setSolutionsOpen] = useState(false);
-  const [companyOpen, setCompanyOpen] = useState(false);
   const solutionsRef = useRef<HTMLDivElement>(null);
-  const companyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const path = window.location.pathname.split("/").pop() || "index";
@@ -107,24 +83,16 @@ export default function Navbar() {
   }, [mobileOpen]);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         solutionsRef.current &&
         !solutionsRef.current.contains(event.target as Node)
       ) {
         setSolutionsOpen(false);
       }
-      if (
-        companyRef.current &&
-        !companyRef.current.contains(event.target as Node)
-      ) {
-        setCompanyOpen(false);
-      }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -198,46 +166,49 @@ export default function Navbar() {
 
               {solutionsOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-xl border border-gray-100 shadow-lg z-50 p-3 grid grid-cols-2 gap-2"
-                  style={{ minWidth: "340px" }}
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-xl border border-gray-100 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  style={{ minWidth: "380px" }}
                 >
-                  {solutionItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setSolutionsOpen(false)}
-                      className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-[#F3FBF6] group"
-                    >
-                      <div
-                        className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
-                        style={{ background: "rgba(26,122,74,0.08)" }}
+                  <div className="col-span-1 grid grid-cols-1 gap-2">
+                    {solutionItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setSolutionsOpen(false)}
+                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-[#F3FBF6] group"
                       >
-                        <item.icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-jakarta font-semibold text-[13px] text-[#061A12] leading-tight group-hover:text-[#1A7A4A] transition-colors duration-150">
-                          {item.label}
-                        </span>
-                        <span className="font-jakarta text-[11px] leading-snug mt-0.5" style={{ color: "#6B9E83" }}>
-                          {item.subtitle}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
+                        <div
+                          className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
+                          style={{ background: "rgba(26,122,74,0.08)" }}
+                        >
+                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-jakarta font-semibold text-[14px] text-[#061A12] leading-tight group-hover:text-[#1A7A4A] transition-colors duration-150">
+                            {item.label}
+                          </span>
+                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "#6B9E83" }}>
+                            {item.subtitle}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Remaining nav links (Pricing, Blog) */}
+            {/* All other nav links */}
             {navLinks
-              .filter((link) => link.label !== "Features" && link.label !== "Contact")
+              .filter((link) => link.label !== "Features" && link.label !== "Solutions")
               .map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
                   className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
                   style={
-                    activeLink === link.href.replace("/", "")
+                    activeLink === link.href.replace("/", "") ||
+                    (link.label === "Resellers" && activeLink === "partners")
                       ? { color: "#E8A020" }
                       : {}
                   }
@@ -245,76 +216,6 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-
-            {/* Company dropdown */}
-            <div className="relative" ref={companyRef}>
-              <button
-                type="button"
-                onClick={() => setCompanyOpen((prev) => !prev)}
-                className="flex items-center gap-1 text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020] bg-transparent border-none cursor-pointer p-0"
-                style={
-                  companyOpen ||
-                  activeLink === "about" ||
-                  activeLink === "team" ||
-                  activeLink === "careers" ||
-                  activeLink === "partners"
-                    ? { color: "#E8A020" }
-                    : {}
-                }
-                aria-haspopup="true"
-                aria-expanded={companyOpen}
-              >
-                Company
-                <span
-                  className="text-[10px] transition-transform duration-200 inline-block"
-                  style={{
-                    transform: companyOpen ? "rotate(180deg)" : "rotate(0deg)",
-                  }}
-                >
-                  ▾
-                </span>
-              </button>
-
-              {companyOpen && (
-                <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-xl border border-gray-100 shadow-lg z-50 p-3 grid grid-cols-2 gap-2"
-                  style={{ minWidth: "260px" }}
-                >
-                  {companyItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setCompanyOpen(false)}
-                      className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-[#F3FBF6] group"
-                    >
-                      <div
-                        className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
-                        style={{ background: "rgba(26,122,74,0.08)" }}
-                      >
-                        <item.icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-jakarta font-semibold text-[13px] text-[#061A12] leading-tight group-hover:text-[#1A7A4A] transition-colors duration-150">
-                          {item.label}
-                        </span>
-                        <span className="font-jakarta text-[11px] leading-snug mt-0.5" style={{ color: "#6B9E83" }}>
-                          {item.subtitle}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Contact */}
-            <Link
-              href="/contact"
-              className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
-              style={activeLink === "contact" ? { color: "#E8A020" } : {}}
-            >
-              Contact
-            </Link>
           </div>
 
           {/* Desktop CTA */}
@@ -473,27 +374,6 @@ export default function Navbar() {
               </Link>
             ))}
 
-          {/* Company section — expanded list (no dropdown) */}
-          <div className="border-b border-gray-100">
-            <span className="block py-3 text-[#061A12] font-medium text-lg">
-              Company
-            </span>
-            <div className="flex flex-col pb-2">
-              {companyItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 pl-5 py-2 text-[#061A12] no-underline text-base transition-colors hover:text-[#E8A020]"
-                >
-                  <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
-                  <span className="font-medium">{item.label}</span>
-                  <span className="text-xs text-gray-400 ml-1">— {item.subtitle}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
           {/* CTA Buttons */}
           <div className="flex flex-col gap-3 mt-6">
             {/* Book a Demo — gold primary (most important, first on mobile) */}
@@ -535,11 +415,11 @@ export default function Navbar() {
               Case Studies
             </Link>
             <Link
-              href="/partners"
+              href="/resellers"
               onClick={() => setMobileOpen(false)}
               className="text-sm text-gray-500 no-underline hover:text-[#061A12] transition-colors"
             >
-              Partner Programme
+              Reseller Programme
             </Link>
           </div>
         </div>
