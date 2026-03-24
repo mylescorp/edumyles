@@ -205,7 +205,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <Link href="/auth/signup/api" className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline" style={{ background: "#E8A020", color: "#061A12" }}>
               Start Free Trial →
             </Link>
-            <Link href="/contact?subject=demo" className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-[50px] no-underline" style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.3)", color: "#ffffff" }}>
+            <Link href="/book-demo" className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-[50px] no-underline" style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.3)", color: "#ffffff" }}>
               Book a Demo
             </Link>
           </div>

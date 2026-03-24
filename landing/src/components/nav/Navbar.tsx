@@ -365,7 +365,7 @@ export default function Navbar() {
 
             {/* Book a Demo — gold primary */}
             <a
-              href="/contact?subject=demo"
+              href="/book-demo"
               className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
                 background: "#E8A020",
@@ -498,7 +498,7 @@ export default function Navbar() {
           <div className="flex flex-col gap-3 mt-6">
             {/* Book a Demo — gold primary (most important, first on mobile) */}
             <a
-              href="/contact?subject=demo"
+              href="/book-demo"
               onClick={() => setMobileOpen(false)}
               className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
               style={{ background: "#E8A020", color: "#061A12", border: "1.5px solid #E8A020" }}

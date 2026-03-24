@@ -238,9 +238,7 @@ export default function CaseStudiesPage() {
               Start Free Trial →
             </a>
             <a
-              href="https://wa.me/254743993715"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
             >

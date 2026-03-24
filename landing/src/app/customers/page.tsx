@@ -420,7 +420,7 @@ export default function CustomersPage() {
               Start Free Trial →
             </Link>
             <Link
-              href="/contact?subject=demo"
+              href="/book-demo"
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-colors"
               style={{
                 background: "transparent",

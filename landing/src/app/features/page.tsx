@@ -286,7 +286,7 @@ export default function FeaturesPage() {
               Start Free Trial →
             </a>
             <Link
-              href="/contact"
+              href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[8px] no-underline transition-all duration-200"
               style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
             >
@@ -541,7 +541,7 @@ export default function FeaturesPage() {
               Start Free Trial →
             </a>
             <Link
-              href="/contact"
+              href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[8px] no-underline"
               style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
             >

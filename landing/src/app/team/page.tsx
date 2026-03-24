@@ -445,9 +445,7 @@ export default function TeamPage() {
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
             <a
-              href="https://wa.me/254743993715"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/book-demo"
               className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "#E8A020", color: "#061A12" }}
             >

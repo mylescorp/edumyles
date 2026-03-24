@@ -274,9 +274,7 @@ export default function PrimarySchoolsPage() {
               Start Free Trial <ArrowRight className="w-4 h-4" />
             </a>
             <a
-              href="https://wa.me/254743993715"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/book-demo"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
             >
@@ -957,9 +955,7 @@ export default function PrimarySchoolsPage() {
               Start Free Trial <ArrowRight className="w-4 h-4" />
             </a>
             <a
-              href="https://wa.me/254743993715"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
             >
