@@ -446,7 +446,7 @@ export default function AdvancedAnalyticsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
+          <Select value={timeRange} onValueChange={(v) => setTimeRange(v as "7d" | "30d" | "90d" | "1y")}>
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>

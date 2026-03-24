@@ -2,6 +2,7 @@ import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 /**
  * Create a new webhook endpoint
@@ -14,7 +15,7 @@ export const createEndpoint = mutation({
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     // Generate a webhook secret
     const secret = `whsec_${Array.from({ length: 32 }, () => Math.random().toString(36)[2]).join("")}`;
@@ -30,6 +31,16 @@ export const createEndpoint = mutation({
       createdAt: Date.now(),
       updatedAt: Date.now(),
       failureCount: 0,
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "webhook.created",
+      entityType: "webhook_endpoint",
+      entityId: String(endpointId),
+      after: { url: args.url, events: args.events, description: args.description },
     });
 
     return { success: true, endpointId, secret, message: "Webhook endpoint created" };
@@ -49,7 +60,7 @@ export const updateEndpoint = mutation({
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const endpoint = await ctx.db.get(args.endpointId);
     if (!endpoint || endpoint.tenantId !== tenantId) {
@@ -63,6 +74,18 @@ export const updateEndpoint = mutation({
     if (args.description !== undefined) updates.description = args.description;
 
     await ctx.db.patch(args.endpointId, updates);
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "webhook.updated",
+      entityType: "webhook_endpoint",
+      entityId: String(args.endpointId),
+      before: { url: endpoint.url, events: endpoint.events, isActive: endpoint.isActive },
+      after: updates,
+    });
+
     return { success: true, message: "Webhook endpoint updated" };
   },
 });
@@ -76,7 +99,7 @@ export const deleteEndpoint = mutation({
     endpointId: v.id("webhookEndpoints"),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const endpoint = await ctx.db.get(args.endpointId);
     if (!endpoint || endpoint.tenantId !== tenantId) {
@@ -84,6 +107,17 @@ export const deleteEndpoint = mutation({
     }
 
     await ctx.db.delete(args.endpointId);
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "webhook.deleted",
+      entityType: "webhook_endpoint",
+      entityId: String(args.endpointId),
+      before: { url: endpoint.url, events: endpoint.events, isActive: endpoint.isActive },
+    });
+
     return { success: true, message: "Webhook endpoint deleted" };
   },
 });

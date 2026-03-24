@@ -16,7 +16,7 @@ export const listArticles = query({
     offset: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const limit = args.limit ?? 50;
     const offset = args.offset ?? 0;
@@ -52,7 +52,14 @@ export const listArticles = query({
       q.neq(q.field("deleted"), true)
     );
 
-    const allArticles = await articlesQuery.order("desc").collect();
+    const allArticlesRaw = await articlesQuery.order("desc").collect();
+
+    // Scope articles to the actor's tenant unless it is PLATFORM (platform-wide articles are shared globally)
+    const allArticles = actor.tenantId === "PLATFORM"
+      ? allArticlesRaw
+      : allArticlesRaw.filter(
+          (a) => a.tenantId === actor.tenantId || a.tenantId === undefined || a.tenantId === null
+        );
 
     // Apply text search in JS if provided
     let filtered = allArticles;
@@ -86,10 +93,20 @@ export const getArticleById = query({
     articleId: v.string(),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const article = await ctx.db.get(args.articleId as Id<"knowledgeBaseArticles">);
     if (!article || article.deleted) {
+      throw new Error("Article not found");
+    }
+
+    // Ensure the article belongs to the actor's tenant or is a platform-wide article
+    if (
+      actor.tenantId !== "PLATFORM" &&
+      article.tenantId !== undefined &&
+      article.tenantId !== null &&
+      article.tenantId !== actor.tenantId
+    ) {
       throw new Error("Article not found");
     }
 
@@ -125,13 +142,19 @@ export const getPopularArticles = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const articles = await ctx.db
+    const articlesRaw = await ctx.db
       .query("knowledgeBaseArticles")
       .withIndex("by_status", (q) => q.eq("status", "published"))
       .filter((q) => q.neq(q.field("deleted"), true))
       .collect();
+
+    const articles = actor.tenantId === "PLATFORM"
+      ? articlesRaw
+      : articlesRaw.filter(
+          (a) => a.tenantId === actor.tenantId || a.tenantId === undefined || a.tenantId === null
+        );
 
     // Sort by viewCount descending in JS
     articles.sort((a, b) => b.viewCount - a.viewCount);
@@ -150,17 +173,23 @@ export const searchArticles = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     if (!args.query.trim()) return [];
 
     const searchLower = args.query.toLowerCase();
 
-    const articles = await ctx.db
+    const articlesRaw = await ctx.db
       .query("knowledgeBaseArticles")
       .withIndex("by_status", (q) => q.eq("status", "published"))
       .filter((q) => q.neq(q.field("deleted"), true))
       .collect();
+
+    const articles = actor.tenantId === "PLATFORM"
+      ? articlesRaw
+      : articlesRaw.filter(
+          (a) => a.tenantId === actor.tenantId || a.tenantId === undefined || a.tenantId === null
+        );
 
     const matched = articles.filter(
       (a) =>
@@ -181,12 +210,18 @@ export const getStats = query({
     sessionToken: v.string(),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    const allArticles = await ctx.db
+    const allArticlesRaw = await ctx.db
       .query("knowledgeBaseArticles")
       .filter((q) => q.neq(q.field("deleted"), true))
       .collect();
+
+    const allArticles = actor.tenantId === "PLATFORM"
+      ? allArticlesRaw
+      : allArticlesRaw.filter(
+          (a) => a.tenantId === actor.tenantId || a.tenantId === undefined || a.tenantId === null
+        );
 
     const published = allArticles.filter((a) => a.status === "published");
     const drafts = allArticles.filter((a) => a.status === "draft");

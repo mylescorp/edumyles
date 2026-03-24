@@ -114,7 +114,7 @@ export const generateExportData = mutation({
               .collect();
             rows = deals.map((d: any) => ({
               id: d._id,
-              name: d.name ?? d.title ?? "",
+              name: d.schoolName ?? "",
               stage: d.stage ?? "",
               value: d.value ?? 0,
               status: d.status ?? "",

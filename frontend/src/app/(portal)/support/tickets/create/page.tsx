@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
 
 export default function CreateTicketPage() {
   const router = useRouter();
+  const { tenantId: authTenantId } = useAuth();
   const createTicket = useMutation(api.tickets.createTicket);
 
   const [formData, setFormData] = useState({
@@ -57,8 +59,7 @@ export default function CreateTicketPage() {
     setSubmitStatus("idle");
 
     try {
-      // TODO: Get actual tenant ID from auth context
-      const tenantId = "temp-tenant-id" as any; // This should come from auth
+      const tenantId = (authTenantId ?? "temp-tenant-id") as any;
       
       await createTicket({
         tenantId,

@@ -2,6 +2,7 @@ import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 /**
  * Create a new scheduled report.
@@ -17,7 +18,7 @@ export const createScheduledReport = mutation({
     recipients: v.array(v.string()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId } = await requirePlatformSession(ctx, {
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, {
       sessionToken: args.sessionToken,
     });
 
@@ -54,6 +55,16 @@ export const createScheduledReport = mutation({
       updatedAt: now,
     });
 
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "scheduled_report.created",
+      entityType: "scheduled_report",
+      entityId: String(id),
+      after: { name: args.name, reportType: args.reportType, schedule: args.schedule, format: args.format, recipients: args.recipients },
+    });
+
     return { success: true, id, message: "Scheduled report created" };
   },
 });
@@ -73,7 +84,7 @@ export const updateScheduledReport = mutation({
     recipients: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const report = await ctx.db.get(args.reportId as Id<"scheduledReports">);
     if (!report) throw new Error("Report not found");
@@ -88,6 +99,17 @@ export const updateScheduledReport = mutation({
 
     await ctx.db.patch(args.reportId as Id<"scheduledReports">, updates);
 
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "scheduled_report.updated",
+      entityType: "scheduled_report",
+      entityId: args.reportId,
+      before: { name: report.name, reportType: report.reportType, schedule: report.schedule, format: report.format, recipients: report.recipients },
+      after: updates,
+    });
+
     return { success: true, message: "Report updated" };
   },
 });
@@ -101,12 +123,22 @@ export const deleteScheduledReport = mutation({
     reportId: v.string(),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const report = await ctx.db.get(args.reportId as Id<"scheduledReports">);
     if (!report) throw new Error("Report not found");
 
     await ctx.db.delete(args.reportId as Id<"scheduledReports">);
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "scheduled_report.deleted",
+      entityType: "scheduled_report",
+      entityId: args.reportId,
+      before: { name: report.name, reportType: report.reportType, schedule: report.schedule },
+    });
 
     return { success: true, message: "Report deleted" };
   },
@@ -144,7 +176,7 @@ export const runNow = mutation({
     reportId: v.string(),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const report = await ctx.db.get(args.reportId as Id<"scheduledReports">);
     if (!report) throw new Error("Report not found");
@@ -170,6 +202,16 @@ export const runNow = mutation({
     await ctx.db.patch(args.reportId as Id<"scheduledReports">, {
       lastRun: now,
       updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "scheduled_report.executed",
+      entityType: "scheduled_report",
+      entityId: args.reportId,
+      after: { runId: String(runId), status: "completed" },
     });
 
     return { success: true, runId, message: "Report run initiated" };

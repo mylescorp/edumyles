@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { ConvexError } from "convex/values";
 import { requireTenantContext } from "./helpers/tenantGuard";
 import { requirePermission } from "./helpers/authorize";
 import { logAction } from "./helpers/auditLog";
@@ -18,6 +19,7 @@ export const upsertUser = mutation({
     organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
+    // ── 1. Try to find an existing record by real WorkOS ID ──────────────────
     const existing = await ctx.db
       .query("users")
       .withIndex("by_workos_user", (q) =>
@@ -39,6 +41,31 @@ export const upsertUser = mutation({
       return existing._id;
     }
 
+    // ── 2. Check for a pending invite record with the same email ─────────────
+    // When an admin is invited via createPlatformAdmin / inviteTenantUser the
+    // record is written with workosUserId = "pending-<eduMylesUserId>".  On
+    // first sign-in through WorkOS we arrive here with the real WorkOS user ID
+    // but the pending record has not been linked yet — so we find it by email
+    // and upgrade it in-place instead of creating a duplicate.
+    const pendingByEmail = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_email", (q) =>
+        q.eq("tenantId", args.tenantId).eq("email", args.email)
+      )
+      .first();
+
+    if (pendingByEmail && pendingByEmail.workosUserId.startsWith("pending-")) {
+      await ctx.db.patch(pendingByEmail._id, {
+        workosUserId: args.workosUserId,
+        firstName: args.firstName ?? pendingByEmail.firstName,
+        lastName: args.lastName ?? pendingByEmail.lastName,
+        permissions: args.permissions,
+        isActive: true,
+      });
+      return pendingByEmail._id;
+    }
+
+    // ── 3. Brand-new user — create a fresh record ────────────────────────────
     return await ctx.db.insert("users", {
       tenantId: args.tenantId,
       eduMylesUserId: args.eduMylesUserId,
@@ -71,6 +98,121 @@ export const getUserByWorkosId = query({
 
     if (!user || user.tenantId !== args.tenantId) return null;
     return user;
+  },
+});
+
+// Check whether any master_admin exists in the system — used during first sign-in auto-bootstrap
+export const hasMasterAdmin = query({
+  args: {},
+  handler: async (ctx) => {
+    const admin = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_role", (q) =>
+        q.eq("tenantId", "PLATFORM").eq("role", "master_admin")
+      )
+      .first();
+    return admin !== null;
+  },
+});
+
+// Get user by WorkOS ID across all tenants — used during auth callback
+export const getUserByWorkosIdGlobal = query({
+  args: { workosUserId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
+      .first();
+  },
+});
+
+// Force-set a user's role to master_admin by WorkOS ID.
+// Called from the auth callback when MASTER_ADMIN_EMAIL matches — ensures the
+// stored Convex record is always in sync with the env-configured override.
+export const syncMasterAdminRole = mutation({
+  args: { workosUserId: v.string(), email: v.string() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
+      .first();
+
+    if (existing) {
+      if (existing.role !== "master_admin" || existing.tenantId !== "PLATFORM") {
+        await ctx.db.patch(existing._id, { role: "master_admin", tenantId: "PLATFORM" });
+      }
+    } else {
+      await ctx.db.insert("users", {
+        tenantId: "PLATFORM",
+        eduMylesUserId: `USR-PLATFORM-${args.workosUserId}`,
+        workosUserId: args.workosUserId,
+        email: args.email,
+        role: "master_admin",
+        permissions: ["*"],
+        organizationId: "PLATFORM" as any,
+        isActive: true,
+        createdAt: Date.now(),
+      });
+    }
+    return { success: true };
+  },
+});
+
+// Atomically promote the signed-in user to master_admin if none exists yet.
+// Updates both the session record and the users record so the role persists across sign-ins.
+export const bootstrapMasterAdmin = mutation({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) {
+      throw new Error("UNAUTHENTICATED");
+    }
+
+    // Check if any master_admin already exists
+    const existingAdmin = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_role", (q) =>
+        q.eq("tenantId", "PLATFORM").eq("role", "master_admin")
+      )
+      .first();
+
+    if (existingAdmin) {
+      throw new Error("ALREADY_EXISTS");
+    }
+
+    // Update session role
+    await ctx.db.patch(session._id, { role: "master_admin", tenantId: "PLATFORM" });
+
+    // Upsert user record so next sign-in preserves the role
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", session.userId))
+      .first();
+
+    if (existingUser) {
+      await ctx.db.patch(existingUser._id, {
+        role: "master_admin",
+        tenantId: "PLATFORM",
+      });
+    } else {
+      await ctx.db.insert("users", {
+        tenantId: "PLATFORM",
+        eduMylesUserId: `USR-PLATFORM-${session.userId}`,
+        workosUserId: session.userId,
+        email: session.email ?? "",
+        role: "master_admin",
+        permissions: ["*"],
+        organizationId: "PLATFORM" as any,
+        isActive: true,
+        createdAt: Date.now(),
+      });
+    }
+
+    return { success: true };
   },
 });
 
@@ -225,4 +367,72 @@ export const inviteTenantUser = mutation({
 
     return { id, eduMylesUserId };
   },
+});
+
+// Step 1: Generate upload URL for tenant user avatar
+export const generateAvatarUploadUrl = mutation({
+    args: { sessionToken: v.string() },
+    handler: async (ctx, args) => {
+        await requireTenantContext(ctx);
+        return await ctx.storage.generateUploadUrl();
+    },
+});
+
+// Step 2: Save tenant user avatar URL
+export const saveUserAvatar = mutation({
+    args: {
+        sessionToken: v.string(),
+        storageId: v.id("_storage"),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        const url = await ctx.storage.getUrl(args.storageId);
+        if (!url) throw new ConvexError("Failed to retrieve upload URL");
+
+        const user = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), tenant.userId))
+            .first();
+
+        if (!user) throw new ConvexError("User not found");
+        await ctx.db.patch(user._id, { avatarUrl: url });
+        return { url };
+    },
+});
+
+// Called by WorkOS webhook when a user profile is updated
+export const syncFromWorkOS = mutation({
+    args: {
+        eduMylesUserId: v.string(),
+        email: v.string(),
+        firstName: v.string(),
+        lastName: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
+            .first();
+        if (!user) return null;
+        await ctx.db.patch(user._id, {
+            email: args.email || user.email,
+            firstName: args.firstName || user.firstName,
+            lastName: args.lastName || user.lastName,
+        });
+        return user._id;
+    },
+});
+
+// Called by WorkOS webhook when a user is deleted
+export const deactivateByWorkOSId = mutation({
+    args: { eduMylesUserId: v.string() },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
+            .first();
+        if (!user) return null;
+        await ctx.db.patch(user._id, { isActive: false });
+        return user._id;
+    },
 });

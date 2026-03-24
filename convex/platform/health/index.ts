@@ -1,1 +1,6 @@
-export * from "./queries";
+export {
+  getSystemHealth,
+  getPerformanceMetrics,
+  getUptimeStats,
+  getResourceUsage,
+} from "./queries";

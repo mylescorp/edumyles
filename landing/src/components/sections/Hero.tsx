@@ -1,272 +1,230 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Play, Star, ChevronDown } from "lucide-react";
-import DemoModal from "@/components/ui/DemoModal";
-
-const heroModules = [
-  {
-    label: "Student Information System",
-    color: "#1A395B",
-    icon: "🎓",
-    stats: [
-      { label: "Total Students", value: "1,247" },
-      { label: "New Enrollments", value: "89" },
-      { label: "Attendance Rate", value: "94.2%" },
-    ],
-    description: "Complete student records, admissions & transfers",
-  },
-  {
-    label: "Fee & Finance + M-Pesa",
-    color: "#2EA44F",
-    icon: "💳",
-    stats: [
-      { label: "Fees Collected", value: "KSh 4.2M" },
-      { label: "Collection Rate", value: "87%" },
-      { label: "Defaulters Alerted", value: "23" },
-    ],
-    description: "M-Pesa payments, fee statements & receipts",
-  },
-  {
-    label: "Academics & Gradebook",
-    color: "#C79639",
-    icon: "📊",
-    stats: [
-      { label: "Avg Score", value: "72.4%" },
-      { label: "Reports Generated", value: "847" },
-      { label: "CBC Compliant", value: "✓" },
-    ],
-    description: "Digital marking, CBC/8-4-4 grading & reports",
-  },
-  {
-    label: "Transport Management",
-    color: "#7C3AED",
-    icon: "🚌",
-    stats: [
-      { label: "Active Routes", value: "12" },
-      { label: "Students Tracked", value: "342" },
-      { label: "On-time Rate", value: "98%" },
-    ],
-    description: "GPS tracking, routes & parent notifications",
-  },
-];
-
-const audiencePills = [
-  { label: "For Principals", href: "#features" },
-  { label: "For School Owners", href: "#pricing" },
-  { label: "For MoE / CBOs", href: "#modules" },
-];
+import { useEffect, useRef } from "react";
+import { BarChart2 } from "lucide-react";
 
 export default function Hero() {
-  const [activeModule, setActiveModule] = useState(0);
-  const [videoOpen, setVideoOpen] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveModule((prev) => (prev + 1) % heroModules.length);
-    }, 3000);
-    return () => clearInterval(timer);
+    // Fade-in on scroll for stat badges
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    sectionRef.current?.querySelectorAll(".fade-in").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
-  const mod = heroModules[activeModule] ?? heroModules[0]!;
-
   return (
-    <>
-      <section
-        id="hero"
-        className="relative min-h-screen flex items-center overflow-hidden bg-off-white"
-        aria-label="Hero section"
-      >
-        {/* Background grid */}
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage: `
-              linear-gradient(#1A395B 1px, transparent 1px),
-              linear-gradient(90deg, #1A395B 1px, transparent 1px)
-            `,
-            backgroundSize: "60px 60px",
-          }}
-        />
-        {/* Gradient blobs */}
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-navy/5 rounded-full blur-3xl pointer-events-none" />
+    <section
+      id="hero"
+      ref={sectionRef}
+      className="relative flex items-center overflow-hidden px-4 sm:px-8 py-20 sm:py-24"
+      aria-label="Hero section"
+      style={{
+        background: "#061A12",
+        minHeight: "90vh",
+        borderTop: "3px solid #E8A020",
+      }}
+    >
+      {/* Grid background pattern */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1]"
+        style={{
+          backgroundImage: `
+            linear-gradient(0deg, transparent 24%, rgba(232,160,32,0.05) 25%, rgba(232,160,32,0.05) 26%, transparent 27%, transparent 74%, rgba(232,160,32,0.05) 75%, rgba(232,160,32,0.05) 76%, transparent 77%),
+            linear-gradient(90deg, transparent 24%, rgba(232,160,32,0.05) 25%, rgba(232,160,32,0.05) 26%, transparent 27%, transparent 74%, rgba(232,160,32,0.05) 75%, rgba(232,160,32,0.05) 76%, transparent 77%)
+          `,
+          backgroundSize: "50px 50px",
+        }}
+      />
+      {/* Radial glow */}
+      <div
+        className="absolute pointer-events-none z-[2]"
+        style={{
+          top: "10%",
+          right: "-10%",
+          width: "400px",
+          height: "400px",
+          background: "radial-gradient(circle, rgba(26,122,74,0.3) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(40px)",
+        }}
+      />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 lg:pt-32 lg:pb-24">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left — Content */}
-            <div>
-              {/* Audience pills */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {audiencePills.map((pill) => (
-                  <a
-                    key={pill.label}
-                    href={pill.href}
-                    className="px-4 py-1.5 bg-white border border-light-grey rounded-full text-sm font-inter font-medium text-navy hover:border-gold hover:text-gold transition-colors shadow-sm"
-                  >
-                    {pill.label}
-                  </a>
-                ))}
-              </div>
+      <div className="relative z-[3] max-w-[1200px] mx-auto w-full">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
 
-              {/* Headline */}
-              <h1 className="font-jakarta font-extrabold text-5xl lg:text-[3.75rem] xl:text-[4.5rem] leading-[1.1] text-navy mb-6">
-                The All-in-One School Management System{" "}
-                <span className="text-gradient-gold">Built for East Africa</span>
-              </h1>
-
-              {/* Sub-headline */}
-              <p className="font-inter text-lg lg:text-xl text-mid-grey leading-relaxed mb-8 max-w-xl">
-                From student admissions to M-Pesa fee collection — EduMyles replaces 11 separate tools with one powerful platform.{" "}
-                <strong className="text-navy font-semibold">500+ schools trust us.</strong>
-              </p>
-
-              {/* CTAs */}
-              <div className="flex flex-wrap gap-3 mb-6">
-                {/* CTA 1 — Primary */}
-                <a
-                  href="#demo"
-                  className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-base px-8 py-3.5 rounded-lg transition-all duration-200 hover:shadow-gold-glow hover:scale-[1.02] active:scale-[0.98] shadow-md"
-                >
-                  Book a Free Demo
-                </a>
-                {/* CTA 2 — Secondary */}
-                <Link
-                  href="/auth/signup"
-                  className="border-2 border-navy text-navy hover:bg-navy hover:text-white font-inter font-semibold text-base px-8 py-3.5 rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  Start Free Trial
-                </Link>
-              </div>
-
-              {/* Ghost CTAs */}
-              <div className="flex flex-wrap gap-4 mb-8">
-                <a
-                  href="/contact?subject=quote"
-                  className="font-inter text-sm font-medium text-mid-grey hover:text-navy underline underline-offset-4 transition-colors"
-                >
-                  Request a Quote
-                </a>
-                <span className="text-light-grey">·</span>
-                <button
-                  type="button"
-                  onClick={() => setVideoOpen(true)}
-                  className="flex items-center gap-1.5 font-inter text-sm font-medium text-mid-grey hover:text-navy transition-colors"
-                >
-                  <Play size={14} className="text-gold" />
-                  Watch a 2-min Demo
-                </button>
-              </div>
-
-              {/* Social proof */}
-              <div className="flex items-center gap-3">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={18} className="text-gold fill-gold" />
-                  ))}
-                </div>
-                <p className="font-inter text-sm text-mid-grey">
-                  <strong className="text-navy font-semibold">Built for growing schools</strong> across East Africa
-                </p>
+          {/* Left — Text content */}
+          <div className="fade-in">
+            {/* Eyebrow */}
+            <div className="flex items-center gap-[10px] mb-6">
+              <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "#E8A020" }} />
+              <div className="text-[10px] font-bold tracking-[2.5px] uppercase" style={{ color: "#E8A020" }}>
+                Trusted by 50+ Schools Across Africa
               </div>
             </div>
 
-            {/* Right — Dashboard mockup */}
-            <div className="relative">
-              <div className="bg-navy rounded-2xl shadow-2xl overflow-hidden border border-navy-light">
-                {/* Mockup header */}
-                <div className="bg-navy-dark px-4 py-3 flex items-center gap-2 border-b border-white/10">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                    <div className="w-3 h-3 rounded-full bg-green-400" />
-                  </div>
-                  <div className="flex-1 text-center">
-                    <span className="font-inter text-xs text-white/50">edumyles.com</span>
-                  </div>
-                </div>
+            {/* Headline */}
+            <h1
+              className="font-playfair font-bold leading-[1.2] mb-6"
+              style={{ fontSize: "clamp(2.5rem, 5vw, 4.25rem)", color: "#ffffff" }}
+            >
+              The All-in-One{" "}
+              <em className="italic" style={{ color: "#E8A020" }}>
+                School Management System
+              </em>{" "}
+              Built for African Schools
+            </h1>
 
-                {/* Module tabs */}
-                <div className="flex border-b border-white/10 overflow-x-auto">
-                  {heroModules.map((m, i) => (
-                    <button
-                      key={m.label}
-                      type="button"
-                      onClick={() => setActiveModule(i)}
-                      className={`flex-shrink-0 px-3 py-2 font-inter text-xs font-medium transition-colors ${
-                        i === activeModule
-                          ? "text-gold border-b-2 border-gold"
-                          : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      {m.icon} {m.label.split(" ")[0]}
-                    </button>
-                  ))}
-                </div>
+            {/* Sub-headline */}
+            <p
+              className="font-jakarta font-light leading-[1.8] mb-8"
+              style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "520px" }}
+            >
+              Manage admissions, fees, attendance, exams &amp; parent communication from one powerful
+              platform. No more Excel chaos. No more WhatsApp groups for school updates.
+            </p>
 
-                {/* Module content */}
-                <div className="p-5" key={activeModule}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">{mod.icon}</span>
-                    <div>
-                      <h3 className="font-jakarta font-semibold text-sm text-white">{mod.label}</h3>
-                      <p className="font-inter text-xs text-white/50">{mod.description}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    {mod.stats.map((stat) => (
-                      <div key={stat.label} className="bg-white/5 rounded-xl p-3 border border-white/10">
-                        <div className="font-jakarta font-bold text-lg text-white">{stat.value}</div>
-                        <div className="font-inter text-xs text-white/50 mt-0.5">{stat.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Progress bar */}
-                  <div className="mt-4">
-                    <div className="flex justify-between mb-1.5">
-                      <span className="font-inter text-xs text-white/50">Module Performance</span>
-                      <span className="font-inter text-xs text-gold font-medium">Excellent</span>
-                    </div>
-                    <div className="w-full bg-white/10 rounded-full h-1.5">
-                      <div
-                        className="h-1.5 rounded-full transition-all duration-1000"
-                        style={{ width: "87%", backgroundColor: mod.color }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-10">
+              <a
+                href="#demo"
+                className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-colors duration-300 no-underline"
+                style={{ background: "#E8A020", color: "#061A12" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#F5C453")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "#E8A020")}
+              >
+                Book a Free Demo →
+              </a>
+              <a
+                href="#pricing"
+                className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-all duration-300 no-underline"
+                style={{ background: "transparent", color: "#ffffff", border: "1.5px solid rgba(255,255,255,0.2)" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#E8A020";
+                  e.currentTarget.style.color = "#E8A020";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+                  e.currentTarget.style.color = "#ffffff";
+                }}
+              >
+                See Pricing
+              </a>
+            </div>
 
-              {/* Floating cards */}
-              <div className="absolute -left-6 top-1/3 bg-white rounded-xl shadow-lg p-3 border border-light-grey">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-sm">✓</div>
-                  <div>
-                    <div className="font-jakarta font-semibold text-xs text-navy">Fee Received</div>
-                    <div className="font-inter text-xs text-mid-grey">KSh 12,500 via M-Pesa</div>
-                  </div>
+            {/* Stat badges */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: "15 hrs/week", label: "saved per school" },
+                { value: "50+ Schools", label: "trust us" },
+                { value: "10,000+", label: "students managed" },
+              ].map((stat) => (
+                <div
+                  key={stat.value}
+                  className="text-center px-2 sm:px-4 py-3 rounded-[12px]"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(232,160,32,0.2)",
+                  }}
+                >
+                  <strong className="block text-[14px] sm:text-[18px] font-bold" style={{ color: "#E8A020" }}>
+                    {stat.value}
+                  </strong>
+                  <small className="text-[12px]" style={{ color: "#6B9E83" }}>
+                    {stat.label}
+                  </small>
                 </div>
-              </div>
-
-              <div className="absolute -right-4 bottom-1/3 bg-white rounded-xl shadow-lg p-3 border border-light-grey">
-                <div className="font-jakarta font-bold text-navy text-lg">94.2%</div>
-                <div className="font-inter text-xs text-mid-grey">Attendance Today</div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Scroll cue */}
-          <div className="flex justify-center mt-16">
-            <a href="#stats" className="flex flex-col items-center gap-2 text-mid-grey hover:text-navy transition-colors animate-bounce">
-              <span className="font-inter text-xs">Explore platform</span>
-              <ChevronDown size={20} />
-            </a>
+          {/* Right — Floating dashboard mockup */}
+          <div className="relative hidden lg:block" style={{ height: "400px" }}>
+            {/* Sample data badge */}
+            <div
+              className="absolute z-10 rounded-full font-jakarta font-semibold"
+              style={{
+                top: "-28px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                whiteSpace: "nowrap",
+                background: "rgba(232,160,32,0.15)",
+                border: "1px solid #E8A020",
+                color: "#E8A020",
+                fontSize: "11px",
+                padding: "4px 12px",
+              }}
+            >
+              <BarChart2 className="w-4 h-4" strokeWidth={1.5} /> Sample data — see your real numbers after setup
+            </div>
+            {/* Card 1 — Total Students */}
+            <div
+              className="absolute rounded-[12px] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] animate-float"
+              style={{
+                top: 0,
+                left: 0,
+                width: "220px",
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(232,160,32,0.3)",
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>Total Students</div>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>1,250</div>
+              <div className="text-[11px] mt-1" style={{ color: "#A8E6C3" }}>+42 this term</div>
+            </div>
+
+            {/* Card 2 — Fees Collected */}
+            <div
+              className="absolute rounded-[12px] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] animate-float-delay"
+              style={{
+                top: "150px",
+                right: 0,
+                width: "210px",
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(232,160,32,0.3)",
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>Fees Collected</div>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>Ksh 2.4M</div>
+              <div className="text-[11px] mt-1" style={{ color: "#A8E6C3" }}>87% collection rate</div>
+            </div>
+
+            {/* Card 3 — Attendance */}
+            <div
+              className="absolute rounded-[12px] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] animate-float-slow"
+              style={{
+                bottom: 0,
+                left: "50px",
+                width: "250px",
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(232,160,32,0.3)",
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>Attendance Rate</div>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>94%</div>
+              <div className="mt-2 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: "94%", background: "linear-gradient(90deg, #1A7A4A, #E8A020)" }}
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </section>
-
-      <DemoModal open={videoOpen} onClose={() => setVideoOpen(false)} />
-    </>
+      </div>
+    </section>
   );
 }

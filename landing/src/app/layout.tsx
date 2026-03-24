@@ -1,27 +1,36 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Playfair_Display, Plus_Jakarta_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/ConditionalLayout";
 
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-jakarta",
   display: "swap",
 });
 
-const inter = Inter({
+const dmMono = DM_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
+  weight: ["400", "500"],
+  variable: "--font-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "EduMyles — School Management System for East Africa | Powered by Mylesoft",
+  metadataBase: new URL("https://edumyles.com"),
+  title: "EduMyles - School Management System for African Schools",
   description:
-    "EduMyles is the all-in-one school management platform for Kenyan schools. M-Pesa fees, digital gradebooks, parent communication & more. Book a free demo.",
+    "EduMyles is the all-in-one school management system for East African schools. M-Pesa fee collection, CBC gradebook, parent portal, attendance tracking, and more. Trusted by 50+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
   openGraph: {
     title: "EduMyles — School Management System for East Africa",
     description: "The all-in-one school management platform for East African schools. M-Pesa fees, digital gradebooks, parent communication & more.",
@@ -36,7 +45,74 @@ export const metadata: Metadata = {
     description: "The all-in-one school management platform for East African schools.",
   },
   robots: { index: true, follow: true },
-  keywords: ["school management system Kenya", "school fees M-Pesa", "CBC school software", "student information system East Africa", "EduMyles"],
+  keywords: [
+    "school management system Kenya",
+    "school management Uganda",
+    "school management Tanzania",
+    "school fees M-Pesa",
+    "school fees M-Pesa Uganda",
+    "CBC school software",
+    "CBC gradebook Kenya",
+    "KCSE gradebook",
+    "NEMIS integration",
+    "student information system East Africa",
+    "school information system East Africa",
+    "EduMyles",
+    "school ERP Africa",
+    "school management software Kenya 2025",
+    "best school software Africa",
+  ],
+};
+
+const softwareSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "EduMyles",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description:
+    "All-in-one school management system for East African schools. M-Pesa fee collection, CBC gradebook, parent portal, attendance tracking.",
+  url: "https://edumyles.com",
+  offers: {
+    "@type": "Offer",
+    price: "12900",
+    priceCurrency: "KES",
+    priceValidUntil: "2027-01-01",
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.9",
+    reviewCount: "54",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "MylesCorp Technologies Ltd",
+    url: "https://mylesoft.vercel.app",
+    logo: "https://edumyles.com/logo.png",
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "+254743993715",
+      contactType: "sales",
+      areaServed: ["KE", "UG", "TZ", "RW", "ZM"],
+      availableLanguage: "English",
+    },
+  },
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "EduMyles",
+  url: "https://edumyles.com",
+  logo: "https://edumyles.com/logo.png",
+  description: "School Management System for East African Schools",
+  foundingDate: "2022",
+  founders: [{ "@type": "Person", name: "Jonathan Myles" }],
+  areaServed: ["KE", "UG", "TZ", "RW", "ZM"],
+  sameAs: [
+    "https://twitter.com/edumyles",
+    "https://linkedin.com/company/edumyles",
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -44,12 +120,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('em-theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
-          }}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
-      <body className={`${jakarta.variable} ${inter.variable} font-inter antialiased bg-white dark:bg-[#0D1E30] text-dark-grey dark:text-[#E8EDF4]`}>
+      <body className={`${playfair.variable} ${jakarta.variable} ${dmMono.variable} font-jakarta antialiased bg-white text-dark-grey`}>
         <ConditionalLayout>{children}</ConditionalLayout>
         <SpeedInsights />
       </body>

@@ -57,9 +57,14 @@ interface UserDetail {
   phone?: string;
   role: string;
   isActive: boolean;
+  status?: string;
   tenantId?: string;
   location?: string;
+  department?: string;
   createdAt: number;
+  createdBy?: string;
+  lastLogin?: number;
+  emailVerified?: boolean;
   permissions: string[];
   twoFactorEnabled: boolean;
   loginHistory: LoginRecord[];

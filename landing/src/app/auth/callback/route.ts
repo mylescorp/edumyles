@@ -1,151 +1,213 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
-import { saveSession } from "@workos-inc/authkit-nextjs";
 import { ConvexHttpClient } from "convex/browser";
-import crypto from "crypto";
 import { api } from "@/convex/_generated/api";
-import {
-  buildPostAuthRedirectUrl,
-  decodeAuthState,
-  resolveRole,
-} from "@/lib/auth";
+import crypto from "crypto";
+import { getRoleDashboardPath } from "@/lib/auth";
 
-function clearStateCookie(response: NextResponse) {
-  response.cookies.set("workos_state", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
+export const dynamic = "force-dynamic";
+
+const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL;
+
+function isMasterAdmin(email: string): boolean {
+  if (!MASTER_ADMIN_EMAIL) return false;
+  return email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase();
 }
 
-export async function GET(request: NextRequest) {
-  const code = request.nextUrl.searchParams.get("code");
-  const stateParam = request.nextUrl.searchParams.get("state");
-  const error = request.nextUrl.searchParams.get("error");
-  const errorDescription = request.nextUrl.searchParams.get("error_description");
-  const savedState = request.cookies.get("workos_state")?.value;
-  const baseUrl = request.nextUrl.origin;
+function decodeState(raw: string | null): Record<string, string> {
+  if (!raw) return {};
+  try {
+    return JSON.parse(Buffer.from(raw, "base64url").toString("utf-8"));
+  } catch {
+    return {};
+  }
+}
+
+function authError(req: NextRequest, reason: string): NextResponse {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const currentHost = req.nextUrl.host;
+  const appHost = appUrl ? new URL(appUrl).host : currentHost;
+  const errorBase = appHost !== currentHost ? appUrl! : req.nextUrl.origin;
+  return NextResponse.redirect(`${errorBase}/auth/error?reason=${encodeURIComponent(reason)}`);
+}
+
+export async function GET(req: NextRequest) {
+  const code = req.nextUrl.searchParams.get("code");
+  const error = req.nextUrl.searchParams.get("error");
+  const returnedState = req.nextUrl.searchParams.get("state");
 
   if (error) {
-    const response = NextResponse.redirect(
-      new URL(`/auth/login?error=${encodeURIComponent(errorDescription || error)}`, request.url)
-    );
-    clearStateCookie(response);
-    return response;
+    console.error("[landing/auth/callback] WorkOS error:", error);
+    return authError(req, error);
   }
 
   if (!code) {
-    const response = NextResponse.redirect(new URL("/auth/login?error=no_code", request.url));
-    clearStateCookie(response);
-    return response;
+    return authError(req, "no_code");
   }
 
-  if (savedState && stateParam !== savedState) {
-    console.error("[landing auth callback] Invalid WorkOS state");
-    const response = NextResponse.redirect(new URL("/auth/login?error=invalid_state", request.url));
-    clearStateCookie(response);
-    return response;
+  // ── Forward to frontend app only if it lives on a DIFFERENT domain ─────
+  // If APP_URL equals this domain, forwarding would create an infinite loop.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+  if (appUrl) {
+    try {
+      const appHost = new URL(appUrl).host;
+      const currentHost = req.nextUrl.host;
+      if (appHost !== currentHost) {
+        const params = req.nextUrl.searchParams.toString();
+        const target = `${appUrl}/auth/callback${params ? `?${params}` : ""}`;
+        console.log("[landing/auth/callback] Forwarding to frontend app:", target);
+        return NextResponse.redirect(target);
+      }
+    } catch {
+      // Invalid APP_URL — fall through to local processing
+    }
   }
 
-  const authState = decodeAuthState(stateParam);
+  // ── Process auth locally (same domain or APP_URL not set) ──────────────
   const apiKey = process.env.WORKOS_API_KEY;
-  const clientId =
-    process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID || process.env.WORKOS_CLIENT_ID;
+  const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
-  if (!apiKey || !clientId || !convexUrl) {
-    console.error("[landing auth callback] Missing required environment variables", {
-      hasApiKey: !!apiKey,
-      hasClientId: !!clientId,
-      hasConvexUrl: !!convexUrl,
-    });
-    const response = NextResponse.redirect(new URL("/auth/login?error=config_error", request.url));
-    clearStateCookie(response);
-    return response;
+  if (!apiKey || !clientId) {
+    console.error("[landing/auth/callback] Missing WorkOS env vars");
+    return authError(req, "not_configured");
   }
 
   try {
     const workos = new WorkOS(apiKey);
-    const convex = new ConvexHttpClient(convexUrl);
-    const { user, accessToken, refreshToken, organizationId } =
-      await workos.userManagement.authenticateWithCode({
-        clientId,
-        code,
-      });
 
-    const role = resolveRole(user.email, organizationId ?? undefined);
-    const tenantId = organizationId ?? "PLATFORM";
-    const sessionToken = crypto.randomBytes(32).toString("hex");
-    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-
-    await convex.mutation(api.sessions.createSession, {
-      sessionToken,
-      tenantId,
-      userId: user.id,
-      email: user.email,
-      role,
-      expiresAt: Date.now() + thirtyDays,
+    const { user, organizationId } = await workos.userManagement.authenticateWithCode({
+      clientId,
+      code,
     });
 
-    const redirectUrl = buildPostAuthRedirectUrl({
-      origin: baseUrl,
-      role,
-      returnTo: authState?.returnTo,
-    });
+    // Determine role — look up in Convex if available, else fall back to env check
+    let role = "school_admin";
+    let tenantId = organizationId ?? "PLATFORM";
 
-    const response = NextResponse.redirect(redirectUrl);
-
-    if (process.env.WORKOS_COOKIE_PASSWORD) {
-      await saveSession(response as never, { accessToken, refreshToken } as never);
+    if (convexUrl) {
+      try {
+        const convex = new ConvexHttpClient(convexUrl);
+        const existing = await convex.query(api.users.getUserByWorkosIdGlobal, {
+          workosUserId: user.id,
+        });
+        if (isMasterAdmin(user.email)) {
+          // MASTER_ADMIN_EMAIL always wins — override any stored role and sync DB
+          role = "master_admin";
+          tenantId = "PLATFORM";
+          await convex.mutation(api.users.syncMasterAdminRole, {
+            workosUserId: user.id,
+            email: user.email,
+          });
+        } else if (existing?.role) {
+          role = existing.role;
+          if (existing.tenantId) tenantId = existing.tenantId;
+        } else {
+          const hasMasterAdmin = await convex.query(api.users.hasMasterAdmin, {});
+          if (!hasMasterAdmin) {
+            role = "master_admin";
+            tenantId = "PLATFORM";
+          }
+        }
+      } catch {
+        if (isMasterAdmin(user.email)) {
+          role = "master_admin";
+          tenantId = "PLATFORM";
+        }
+      }
+    } else if (isMasterAdmin(user.email)) {
+      role = "master_admin";
+      tenantId = "PLATFORM";
     }
+
+    const sessionToken = crypto.randomBytes(32).toString("hex");
+
+    // Persist session in Convex if available
+    if (convexUrl) {
+      try {
+        const convex = new ConvexHttpClient(convexUrl);
+        await convex.mutation(api.sessions.createSession, {
+          sessionToken,
+          tenantId,
+          userId: user.id,
+          email: user.email,
+          role,
+          expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        });
+      } catch (err) {
+        console.error("[landing/auth/callback] Failed to persist session:", err);
+        return authError(req, "callback_failed");
+      }
+    }
+
+    // Decode returnTo from state
+    const stateData = decodeState(returnedState);
+    const dashboardPath =
+      stateData.returnTo && stateData.returnTo.startsWith("/")
+        ? stateData.returnTo
+        : getRoleDashboardPath(role);
+
+    console.log(`[landing/auth/callback] ✅ ${user.email} → ${role} → ${dashboardPath}`);
+
+    const isProduction = process.env.NODE_ENV === "production";
+
+    // Build the final destination URL:
+    // - If APP_URL is a different domain, send the user there (frontend app)
+    // - If same domain or not set, stay on the landing's /auth/welcome page
+    //   (avoids 404s since the dashboard routes don't exist on the landing)
+    const currentHost = req.nextUrl.host;
+    const isCrossDomain =
+      appUrl &&
+      (() => {
+        try {
+          return new URL(appUrl).host !== currentHost;
+        } catch {
+          return false;
+        }
+      })();
+
+    const destination = isCrossDomain
+      ? `${appUrl}${dashboardPath}`
+      : new URL("/auth/welcome", req.url).toString();
+
+    const response = NextResponse.redirect(destination);
 
     response.cookies.set("edumyles_session", sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
     });
-
     response.cookies.set(
       "edumyles_user",
       JSON.stringify({
         email: user.email,
         firstName: user.firstName ?? "",
         lastName: user.lastName ?? "",
-        avatar: user.profilePictureUrl ?? "",
         role,
         tenantId,
-        ...(authState?.schoolName ? { schoolName: authState.schoolName } : {}),
       }),
       {
         httpOnly: false,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProduction,
         sameSite: "lax",
         maxAge: 30 * 24 * 60 * 60,
         path: "/",
       }
     );
-
     response.cookies.set("edumyles_role", role, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
     });
+    response.cookies.set("workos_state", "", { maxAge: 0, path: "/" });
 
-    clearStateCookie(response);
     return response;
   } catch (err) {
-    console.error("[landing auth callback] Authentication failed:", err);
-    const message = err instanceof Error ? err.message : "callback_failed";
-    const response = NextResponse.redirect(
-      new URL(`/auth/login?error=${encodeURIComponent(message)}`, request.url)
-    );
-    clearStateCookie(response);
-    return response;
+    console.error("[landing/auth/callback] ❌ Token exchange failed:", err);
+    return authError(req, "callback_failed");
   }
 }

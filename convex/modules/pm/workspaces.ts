@@ -78,6 +78,40 @@ export const getWorkspaceBySlug = query({
   },
 });
 
+export const getPmStats = query({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePmRole(ctx, args, "viewer");
+
+    // Count all tasks across all projects
+    const allTasks = await ctx.db.query("pmTasks").collect();
+    const activeTasks = allTasks.filter(
+      (t) => t.status !== "Done" && t.status !== "done" && t.status !== "Cancelled"
+    ).length;
+
+    // Count all time logs this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    const allTimeLogs = await ctx.db.query("pmTimeLogs").collect();
+    const monthlyMinutes = allTimeLogs
+      .filter((log) => log.loggedAt >= startOfMonth.getTime())
+      .reduce((sum, log) => sum + (log.minutes ?? 0), 0);
+
+    // Count unique contributors (users with PM roles)
+    const allRoles = await ctx.db.query("pmRoles").collect();
+    const uniqueMembers = new Set(allRoles.map((r) => r.userId)).size;
+
+    return {
+      activeTasks,
+      hoursLoggedThisMonth: Math.round(monthlyMinutes / 60),
+      teamMembers: uniqueMembers,
+    };
+  },
+});
+
 // Mutations
 export const createWorkspace = mutation({
   args: {

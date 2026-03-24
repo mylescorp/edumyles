@@ -6,6 +6,7 @@ import { UserProfile } from "@/components/shared/UserProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 
 export default function ParentProfilePage() {
   const { user, isLoading, parentProfile, sessionToken } = useAuth();
@@ -25,9 +26,25 @@ export default function ParentProfilePage() {
     });
   };
 
+  const generateUploadUrl = useMutation(api.users.generateAvatarUploadUrl);
+  const saveAvatar = useMutation(api.users.saveUserAvatar);
+
   const handleAvatarUpload = async (file: File) => {
-    // TODO: Implement avatar upload for parents
-    console.log("Avatar upload not yet implemented for parents");
+    if (!sessionToken) return;
+    try {
+      const uploadUrl = await generateUploadUrl({ sessionToken });
+      const result = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!result.ok) throw new Error("Upload failed");
+      const { storageId } = await result.json();
+      await saveAvatar({ sessionToken, storageId });
+      toast.success("Profile photo updated successfully.");
+    } catch {
+      toast.error("Failed to upload profile photo. Please try again.");
+    }
   };
 
   if (isLoading) {

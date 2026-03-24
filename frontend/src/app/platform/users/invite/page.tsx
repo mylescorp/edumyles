@@ -6,21 +6,18 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
-import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserPlus, CheckCircle2, AlertTriangle, Users } from "lucide-react";
+import { UserPlus, CheckCircle2, AlertTriangle, Users, Mail } from "lucide-react";
 
 export default function InviteAdminPage() {
   const { isLoading, sessionToken } = useAuth();
   const { hasRole } = usePermissions();
   const isMasterAdmin = hasRole("master_admin");
   const router = useRouter();
-  const createAdmin = useMutation(api.platform.users.mutations.createPlatformAdmin);
 
   const [form, setForm] = useState({
     email: "",
@@ -30,7 +27,11 @@ export default function InviteAdminPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successEmail, setSuccessEmail] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    email: string;
+    emailSent: boolean;
+    warning?: string;
+  } | null>(null);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -47,54 +48,92 @@ export default function InviteAdminPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await createAdmin({ ...form, sessionToken: sessionToken! });
-      setSuccessEmail(form.email);
+      const res = await fetch("/api/platform/invite-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, sessionToken }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to invite admin");
+        return;
+      }
+
+      setResult({
+        email: form.email,
+        emailSent: data.emailSent ?? false,
+        warning: data.workosError ?? data.warning,
+      });
     } catch (err: any) {
-      setError(err.message || "Failed to create admin");
+      setError(err.message || "Failed to invite admin");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleInviteAnother = () => {
-    setSuccessEmail(null);
+    setResult(null);
     setForm({ email: "", firstName: "", lastName: "", role: "super_admin" });
     setError(null);
   };
 
-  if (successEmail) {
+  if (result) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <Card className="w-full max-w-md overflow-hidden shadow-lg">
-          {/* Green success banner */}
+          {/* Success banner */}
           <div className="bg-gradient-to-br from-primary to-primary-dark px-8 py-10 flex flex-col items-center text-center">
             <div className="h-20 w-20 rounded-full bg-white/20 flex items-center justify-center mb-4">
               <CheckCircle2 className="h-12 w-12 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-white">Account Created!</h2>
-            <p className="text-green-100 text-sm mt-1">The admin has been added to the platform</p>
+            <h2 className="text-2xl font-bold text-white">Admin Invited!</h2>
+            <p className="text-green-100 text-sm mt-1">
+              {result.emailSent
+                ? "An invitation email has been sent"
+                : "Account created — see note below"}
+            </p>
           </div>
 
           <CardContent className="pt-6 space-y-5">
             {/* Email highlight box */}
             <div className="rounded-lg border bg-muted/40 p-4 text-center">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Admin email</p>
-              <p className="font-mono font-semibold text-foreground break-all">{successEmail}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Invited email</p>
+              <p className="font-mono font-semibold text-foreground break-all">{result.email}</p>
             </div>
 
-            {/* Warning notice */}
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-                <div className="text-sm text-amber-800">
-                  <p className="font-semibold">No invitation email sent</p>
-                  <p className="mt-1 text-amber-700">
-                    WorkOS integration is not yet configured. Share the login link manually:{" "}
-                    <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">/auth/login/api</span>
-                  </p>
+            {/* Status notice */}
+            {result.emailSent ? (
+              <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                <div className="flex items-start gap-2">
+                  <Mail className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                  <div className="text-sm text-green-800">
+                    <p className="font-semibold">Invitation email sent</p>
+                    <p className="mt-1 text-green-700">
+                      {result.email} will receive a link to set their password and access the platform.
+                      The invitation expires in 7 days.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                  <div className="text-sm text-amber-800">
+                    <p className="font-semibold">No invitation email sent</p>
+                    <p className="mt-1 text-amber-700">
+                      {result.warning ?? "WorkOS integration is not configured."} Share the login
+                      link manually:{" "}
+                      <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">
+                        /auth/login/api
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-3 pt-1">
               <Button variant="outline" className="flex-1" onClick={handleInviteAnother}>
@@ -210,7 +249,7 @@ export default function InviteAdminPage() {
                 Cancel
               </Button>
               <Button type="submit" disabled={submitting}>
-                {submitting ? "Creating..." : "Invite Admin"}
+                {submitting ? "Sending invite…" : "Send Invitation"}
               </Button>
             </div>
           </form>

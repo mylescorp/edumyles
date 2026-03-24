@@ -1,6 +1,7 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 export const createPerformanceRecord = mutation({
   args: {
@@ -28,7 +29,7 @@ export const createPerformanceRecord = mutation({
     achievements: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
     const now = Date.now();
 
     // Calculate overall score (weighted average of key metrics)
@@ -72,6 +73,16 @@ export const createPerformanceRecord = mutation({
       updatedAt: now,
     });
 
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "staff_performance.record_created",
+      entityType: "staff_performance_record",
+      entityId: recordId,
+      after: { userId: args.userId, userName: args.userName, period: args.period, overallScore, trend },
+    });
+
     return { success: true, recordId, overallScore, trend, message: "Performance record created" };
   },
 });
@@ -94,7 +105,7 @@ export const updatePerformanceRecord = mutation({
     overallScore: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
     const record = await ctx.db.get(args.recordId as any);
     if (!record) throw new Error("Performance record not found");
@@ -106,6 +117,17 @@ export const updatePerformanceRecord = mutation({
     if (args.overallScore !== undefined) updates.overallScore = args.overallScore;
 
     await ctx.db.patch(args.recordId as any, updates);
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "staff_performance.record_updated",
+      entityType: "staff_performance_record",
+      entityId: args.recordId,
+      before: { overallScore: (record as any).overallScore, trend: (record as any).trend },
+      after: updates,
+    });
 
     return { success: true, message: "Performance record updated" };
   },
@@ -122,7 +144,7 @@ export const setPerformanceGoals = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const actor = await requirePlatformSession(ctx, args);
 
     const record = await ctx.db.get(args.recordId as any);
     if (!record) throw new Error("Performance record not found");
@@ -130,6 +152,17 @@ export const setPerformanceGoals = mutation({
     await ctx.db.patch(args.recordId as any, {
       goals: args.goals,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "staff_performance.goals_set",
+      entityType: "staff_performance_record",
+      entityId: args.recordId,
+      before: { goals: (record as any).goals },
+      after: { goals: args.goals },
     });
 
     return { success: true, message: "Performance goals updated" };
@@ -227,6 +260,16 @@ export const calculatePerformanceScores = mutation({
         trend,
         updatedAt: now,
       });
+      await logAction(ctx, {
+        tenantId: session.tenantId,
+        actorId: session.userId,
+        actorEmail: session.email,
+        action: "staff_performance.record_updated",
+        entityType: "staff_performance_record",
+        entityId: periodRecord._id,
+        before: { overallScore: periodRecord.overallScore, trend: periodRecord.trend },
+        after: { overallScore, trend, period: args.period },
+      });
       return { success: true, recordId: periodRecord._id, overallScore, trend, message: "Performance scores recalculated" };
     }
 
@@ -250,6 +293,16 @@ export const calculatePerformanceScores = mutation({
       overallScore,
       createdAt: now,
       updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "staff_performance.record_created",
+      entityType: "staff_performance_record",
+      entityId: recordId,
+      after: { userId: args.userId, period: args.period, overallScore, trend },
     });
 
     return { success: true, recordId, overallScore, trend, message: "Performance scores calculated" };

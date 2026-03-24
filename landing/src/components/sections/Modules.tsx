@@ -1,240 +1,170 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef } from "react";
+import { GraduationCap, Wallet, CalendarDays, FileText, Users, BarChart2, type LucideIcon } from "lucide-react";
 
-const modules = [
+const modules: { icon: LucideIcon; title: string; benefit: string; description: string }[] = [
   {
-    id: "sis",
-    name: "Student Information System",
-    icon: "🎓",
-    features: [
-      "Student profiles & admissions",
-      "Enrollment management",
-      "Transfer certificates",
-      "NEMIS integration",
-    ],
+    icon: GraduationCap,
+    title: "Student Info System",
+    benefit: "Centralized Records",
     description:
-      "Complete digital student records from day one. Manage admissions, enrollments, and generate official certificates and NEMIS reports instantly.",
+      "Complete student profiles, academic history, and custom fields all in one secure place.",
   },
   {
-    id: "admissions",
-    name: "Admissions & Enrollment",
-    icon: "📋",
-    features: [
-      "Online application portal",
-      "Document upload & verification",
-      "Interview scheduling",
-      "Offer letters & acceptance",
-    ],
+    icon: Wallet,
+    title: "Fee & Billing",
+    benefit: "Payment Tracking",
     description:
-      "Streamline your admissions process with an online portal. Parents apply online, upload documents, and track application status in real-time.",
+      "M-Pesa integration, automated receipts, and real-time outstanding balance alerts.",
   },
   {
-    id: "finance",
-    name: "Fee & Finance Management",
-    icon: "💳",
-    features: [
-      "M-Pesa Daraja integration",
-      "Airtel Money support",
-      "Fee statements & receipts",
-      "Defaulter alerts & reminders",
-    ],
+    icon: CalendarDays,
+    title: "Attendance",
+    benefit: "One-Tap Marking",
     description:
-      "Collect school fees via M-Pesa, Airtel Money, or bank transfer. Automated fee statements, defaulter alerts, and real-time financial reporting.",
-    isDefault: true,
+      "Daily and per-subject attendance tracking with automated parent alerts.",
   },
   {
-    id: "timetable",
-    name: "Timetable & Scheduling",
-    icon: "📅",
-    features: [
-      "Drag-and-drop timetable builder",
-      "Clash detection",
-      "Teacher allocation",
-      "Room & venue booking",
-    ],
+    icon: FileText,
+    title: "Exams & Gradebook",
+    benefit: "Auto-Calculated Grades",
     description:
-      "Build conflict-free timetables in minutes. Auto-detect clashes, allocate teachers, and manage room bookings across all classes.",
+      "Mark entry, automatic grading, rank generation, and performance trend analysis.",
   },
   {
-    id: "academics",
-    name: "Academics & Gradebook",
-    icon: "📊",
-    features: [
-      "Digital marking & grading",
-      "CBC & 8-4-4 support",
-      "Report card generation",
-      "Parent-visible results",
-    ],
+    icon: Users,
+    title: "Parent Portal",
+    benefit: "Real-Time Access",
     description:
-      "Digital gradebook supporting both CBC and 8-4-4 curriculums. Generate report cards automatically and give parents real-time access to their child's results.",
+      "Parents see grades, fees, attendance, and can communicate with teachers instantly.",
   },
   {
-    id: "hr",
-    name: "HR & Payroll",
-    icon: "👥",
-    features: [
-      "Staff profiles & records",
-      "Payroll processing",
-      "Leave management",
-      "NHIF & NSSF deductions",
-    ],
+    icon: BarChart2,
+    title: "Reports & Analytics",
+    benefit: "One-Click Insights",
     description:
-      "Manage all staff records, process payroll, and handle leave requests. Automatic NHIF and NSSF deductions with detailed payslip generation.",
-  },
-  {
-    id: "library",
-    name: "Library Management",
-    icon: "📚",
-    features: [
-      "Digital book catalogue",
-      "Barcode scanning",
-      "Borrowing & returns",
-      "Overdue alerts",
-    ],
-    description:
-      "Digitise your school library. Catalogue all resources, manage borrowing with barcode scanning, and automatically alert students with overdue books.",
-  },
-  {
-    id: "transport",
-    name: "Transport Management",
-    icon: "🚌",
-    features: [
-      "Live GPS tracking",
-      "Route management",
-      "Parent notifications",
-      "Driver records & safety",
-    ],
-    description:
-      "Know where every school bus is in real-time. Parents receive instant notifications when the bus is 5 minutes away. Manage routes, drivers, and safety records.",
-  },
-  {
-    id: "communications",
-    name: "Communications",
-    icon: "📱",
-    features: [
-      "SMS & email broadcasts",
-      "In-app push notifications",
-      "WhatsApp integration",
-      "Swahili language support",
-    ],
-    description:
-      "Reach every parent instantly. Send SMS, email, in-app, and WhatsApp messages in English or Swahili. Full broadcast and targeted messaging.",
-  },
-  {
-    id: "ewallet",
-    name: "eWallet",
-    icon: "💰",
-    features: [
-      "School canteen payments",
-      "School shop credits",
-      "Parent top-up via M-Pesa",
-      "Transaction history",
-    ],
-    description:
-      "Replace cash in your school with a digital eWallet. Parents top up via M-Pesa. Students pay in the canteen, shop, and for trips with their student card.",
-  },
-  {
-    id: "ecommerce",
-    name: "eCommerce",
-    icon: "🛒",
-    features: [
-      "Uniform shop online",
-      "School supplies ordering",
-      "Order management",
-      "Delivery or collection",
-    ],
-    description:
-      "Run your school's online shop. Sell uniforms, books, and stationery directly to parents. Orders managed online with delivery or collection options.",
+      "Generate professional reports in seconds with custom filters and historical trends.",
   },
 ];
 
 export default function Modules() {
-  const [activeId, setActiveId] = useState("finance");
-  const active = (modules.find((m) => m.id === activeId) ?? modules[2])!;
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -80px 0px" }
+    );
+    cardRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section id="modules" className="py-20 lg:py-32 bg-off-white" aria-label="All 11 modules">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="font-inter font-semibold text-gold uppercase tracking-widest text-sm mb-3">
-            Complete Platform
-          </p>
-          <h2 className="font-jakarta font-bold text-4xl lg:text-5xl text-navy mb-4">
-            11 Modules. One Platform.
-          </h2>
-          <p className="font-inter text-lg text-mid-grey max-w-2xl mx-auto">
-            Every operation your school runs — from admissions to alumni — managed from a single
-            dashboard.
-          </p>
+    <section
+      id="modules"
+      className="px-4 sm:px-8 py-16"
+      aria-label="Platform modules"
+      style={{ background: "#F3FBF6" }}
+    >
+      <div className="max-w-[1200px] mx-auto">
+        {/* Eyebrow */}
+        <div className="section-eyebrow mb-2">The Platform</div>
+
+        {/* Heading */}
+        <h2
+          className="font-playfair font-bold leading-[1.2] mb-12"
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
+        >
+          Everything Your School Needs,{" "}
+          <em className="italic" style={{ color: "#E8A020" }}>In One Place</em>
+        </h2>
+
+        {/* 3×2 card grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {modules.map((mod, i) => (
+            <div
+              key={mod.title}
+              ref={(el) => { cardRefs.current[i] = el; }}
+              className="fade-in bg-white rounded-[12px] p-8 text-center transition-all duration-300 cursor-default"
+              style={{
+                border: "1px solid #e0e0e0",
+                transitionDelay: `${i * 0.08}s`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-8px)";
+                e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              {/* Icon */}
+              <div
+                className="w-[70px] h-[70px] rounded-[12px] flex items-center justify-center mx-auto mb-4"
+                style={{
+                  background: "linear-gradient(135deg, #26A65B, #1A7A4A)",
+                }}
+              >
+                <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "#ffffff" }} />
+              </div>
+
+              {/* Title */}
+              <h3
+                className="font-playfair font-bold text-[20px] mb-1"
+                style={{ color: "#061A12" }}
+              >
+                {mod.title}
+              </h3>
+
+              {/* Benefit tag */}
+              <div
+                className="text-[14px] font-semibold mb-3"
+                style={{ color: "#E8A020" }}
+              >
+                {mod.benefit}
+              </div>
+
+              {/* Description */}
+              <p className="text-[14px] leading-[1.6] mb-6" style={{ color: "#6B9E83" }}>
+                {mod.description}
+              </p>
+
+              {/* Link */}
+              <a
+                href="/features"
+                className="text-[14px] font-semibold no-underline transition-colors duration-300"
+                style={{ color: "#1A7A4A" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#1A7A4A")}
+              >
+                Learn more →
+              </a>
+            </div>
+          ))}
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
-          {/* Tab list */}
-          <div className="lg:w-72 flex-shrink-0">
-            <nav
-              className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0"
-              aria-label="Module tabs"
-            >
-              {modules.map((mod) => (
-                <button
-                  key={mod.id}
-                  type="button"
-                  onClick={() => setActiveId(mod.id)}
-                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 rounded-xl font-inter font-medium text-sm text-left transition-all ${
-                    activeId === mod.id
-                      ? "bg-navy text-white shadow-navy-glow"
-                      : "text-mid-grey hover:bg-white hover:text-navy"
-                  }`}
-                  aria-selected={activeId === mod.id}
-                >
-                  <span className="text-base">{mod.icon}</span>
-                  <span className="whitespace-nowrap lg:whitespace-normal">{mod.name}</span>
-                  {activeId === mod.id && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-gold flex-shrink-0" />
-                  )}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          {/* Tab content */}
-          <div
-            className="flex-1 bg-white rounded-2xl border border-light-grey p-6 lg:p-8 shadow-sm"
-            key={activeId}
+        {/* View all link */}
+        <div className="text-center mt-8">
+          <a
+            href="/features"
+            className="text-[16px] font-bold no-underline transition-colors duration-300"
+            style={{ color: "#1A7A4A" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#1A7A4A")}
           >
-            <div className="flex items-start gap-4 mb-6">
-              <div className="text-5xl">{active.icon}</div>
-              <div>
-                <div className="inline-block px-3 py-1 bg-gold/10 rounded-full text-gold text-xs font-inter font-semibold mb-2">
-                  Module {modules.findIndex((m) => m.id === activeId) + 1} of 11
-                </div>
-                <h3 className="font-jakarta font-bold text-2xl text-navy">{active.name}</h3>
-              </div>
-            </div>
-            <p className="font-inter text-base text-mid-grey leading-relaxed mb-6">
-              {active.description}
-            </p>
-            <ul className="grid sm:grid-cols-2 gap-3 mb-8">
-              {active.features.map((f) => (
-                <li key={f} className="flex items-start gap-2">
-                  <span className="text-gold font-bold mt-0.5">✓</span>
-                  <span className="font-inter text-sm text-dark-grey">{f}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="flex items-center gap-3 pt-4 border-t border-light-grey">
-              <a
-                href="#demo"
-                className="bg-gold hover:bg-gold-dark text-white font-inter font-semibold text-sm px-6 py-2.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                See it in action →
-              </a>
-              <span className="font-inter text-xs text-mid-grey">
-                Free 30-min personalised demo
-              </span>
-            </div>
-          </div>
+            View all 11 modules →
+          </a>
         </div>
       </div>
     </section>

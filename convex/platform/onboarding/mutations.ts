@@ -1,6 +1,7 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 /**
  * Initialize onboarding for a new tenant.
@@ -11,7 +12,7 @@ export const startOnboarding = mutation({
     tenantId: v.string(),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId: actorTenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     // Check if onboarding already exists
     const existing = await ctx.db
@@ -32,6 +33,16 @@ export const startOnboarding = mutation({
       data: {},
     });
 
+    await logAction(ctx, {
+      tenantId: actorTenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "onboarding.started",
+      entityType: "onboarding",
+      entityId: String(id),
+      after: { tenantId: args.tenantId, status: "in_progress" },
+    });
+
     return { success: true, id, message: "Onboarding started" };
   },
 });
@@ -46,7 +57,7 @@ export const completeStep = mutation({
     step: v.number(),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId: actorTenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const progress = await ctx.db
       .query("onboardingProgress")
@@ -68,6 +79,16 @@ export const completeStep = mutation({
       currentStep: isComplete ? args.step : nextStep,
       status: isComplete ? "completed" : "in_progress",
       completedAt: isComplete ? Date.now() : undefined,
+    });
+
+    await logAction(ctx, {
+      tenantId: actorTenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: isComplete ? "onboarding.completed" : "onboarding.step_completed",
+      entityType: "onboarding",
+      entityId: String(progress._id),
+      after: { step: args.step, isComplete, status: isComplete ? "completed" : "in_progress" },
     });
 
     return {

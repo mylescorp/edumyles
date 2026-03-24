@@ -1,5 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const getWhiteLabelConfig = query({
   args: {
@@ -7,29 +8,22 @@ export const getWhiteLabelConfig = query({
     tenantId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const platform = await requirePlatformSession(ctx, args);
 
-    const targetTenantId = args.tenantId || session.tenantId;
-    const configs = await ctx.db
+    const targetTenantId = args.tenantId || platform.tenantId;
+    const config = await ctx.db
       .query("whiteLabelConfigs")
-      .collect();
+      .withIndex("by_tenant", (q) => q.eq("tenantId", targetTenantId))
+      .first();
 
-    return configs.find((c) => c.tenantId === targetTenantId) || null;
+    return config || null;
   },
 });
 
 export const listWhiteLabelConfigs = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    await requirePlatformSession(ctx, args);
 
     return await ctx.db.query("whiteLabelConfigs").collect();
   },

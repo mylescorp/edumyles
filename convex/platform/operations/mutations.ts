@@ -2,6 +2,7 @@ import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 /**
  * Create a new incident in the operations center
@@ -18,7 +19,7 @@ export const createIncident = mutation({
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const incidentId = await ctx.db.insert("incidents", {
       title: args.title,
@@ -41,6 +42,16 @@ export const createIncident = mutation({
         affectedTenants: 0,
         businessImpact: "unknown",
       },
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "operations.incident_created",
+      entityType: "incident",
+      entityId: String(incidentId),
+      after: { title: args.title, severity: args.severity, services: args.services },
     });
 
     return {
@@ -70,7 +81,7 @@ export const updateIncident = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const { userId, role } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, role, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const incident = await ctx.db.get(args.incidentId as Id<"incidents">);
     if (!incident) {
@@ -107,6 +118,17 @@ export const updateIncident = mutation({
     });
 
     await ctx.db.patch(args.incidentId as Id<"incidents">, updateData);
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "operations.incident_updated",
+      entityType: "incident",
+      entityId: args.incidentId,
+      before: { title: incident.title, severity: incident.severity, status: incident.status },
+      after: updateData,
+    });
 
     return {
       success: true,
@@ -166,7 +188,7 @@ export const createMaintenanceWindow = mutation({
     autoNotify: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const maintenanceId = await ctx.db.insert("maintenanceWindows", {
       title: args.title,
@@ -200,6 +222,16 @@ export const createMaintenanceWindow = mutation({
         });
       }
     }
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "operations.maintenance_window_created",
+      entityType: "maintenance_window",
+      entityId: String(maintenanceId),
+      after: { title: args.title, scheduledStart: args.scheduledStart, scheduledEnd: args.scheduledEnd, impact: args.impact, affectedServices: args.affectedServices },
+    });
 
     return {
       success: true,
@@ -344,7 +376,7 @@ export const createAlert = mutation({
     resolveCondition: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { tenantId, userId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const alertId = await ctx.db.insert("operationsAlerts", {
       type: args.type,
@@ -361,6 +393,16 @@ export const createAlert = mutation({
       createdAt: Date.now(),
       updatedAt: Date.now(),
       acknowledgements: [],
+    });
+
+    await logAction(ctx, {
+      tenantId,
+      actorId: userId,
+      actorEmail: email,
+      action: "operations.alert_created",
+      entityType: "operations_alert",
+      entityId: String(alertId),
+      after: { type: args.type, title: args.title, severity: args.severity, source: args.source },
     });
 
     return {

@@ -2,6 +2,7 @@ import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 /**
  * Create a new knowledge base article
@@ -49,6 +50,16 @@ export const createArticle = mutation({
       });
     }
 
+    await logAction(ctx, {
+      tenantId: args.tenantId ?? userId,
+      actorId: userId,
+      actorEmail: email,
+      action: "knowledge_base.article_created",
+      entityType: "knowledge_base_article",
+      entityId: articleId,
+      after: { title: args.title, category: args.category, status: args.status, tenantId: args.tenantId },
+    });
+
     return {
       success: true,
       articleId,
@@ -72,7 +83,7 @@ export const updateArticle = mutation({
     tenantId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const article = await ctx.db.get(args.articleId as Id<"knowledgeBaseArticles">);
     if (!article || article.deleted) {
@@ -120,6 +131,17 @@ export const updateArticle = mutation({
 
     await ctx.db.patch(args.articleId as Id<"knowledgeBaseArticles">, updateData);
 
+    await logAction(ctx, {
+      tenantId: article.tenantId ?? actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "knowledge_base.article_updated",
+      entityType: "knowledge_base_article",
+      entityId: args.articleId,
+      before: { title: article.title, status: article.status, category: article.category },
+      after: updateData,
+    });
+
     return {
       success: true,
       message: "Article updated successfully",
@@ -137,7 +159,7 @@ export const deleteArticle = mutation({
     hard: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const article = await ctx.db.get(args.articleId as Id<"knowledgeBaseArticles">);
     if (!article) {
@@ -165,6 +187,16 @@ export const deleteArticle = mutation({
       });
     }
 
+    await logAction(ctx, {
+      tenantId: article.tenantId ?? actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "knowledge_base.article_deleted",
+      entityType: "knowledge_base_article",
+      entityId: args.articleId,
+      before: { title: article.title, status: article.status, category: article.category, hard: args.hard ?? false },
+    });
+
     return {
       success: true,
       message: args.hard ? "Article permanently deleted" : "Article moved to trash",
@@ -181,7 +213,7 @@ export const publishArticle = mutation({
     articleId: v.string(),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const article = await ctx.db.get(args.articleId as Id<"knowledgeBaseArticles">);
     if (!article || article.deleted) {
@@ -195,6 +227,17 @@ export const publishArticle = mutation({
     await ctx.db.patch(args.articleId as Id<"knowledgeBaseArticles">, {
       status: "published",
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: article.tenantId ?? actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "knowledge_base.article_published",
+      entityType: "knowledge_base_article",
+      entityId: args.articleId,
+      before: { status: article.status },
+      after: { status: "published" },
     });
 
     return {
@@ -217,7 +260,7 @@ export const createCategory = mutation({
     parentId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     // Determine order if not provided
     let order = args.order;
@@ -239,6 +282,16 @@ export const createCategory = mutation({
       articleCount: 0,
       createdAt: Date.now(),
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "knowledge_base.category_created",
+      entityType: "knowledge_base_category",
+      entityId: categoryId,
+      after: { name: args.name, description: args.description, order },
     });
 
     return {
@@ -263,7 +316,7 @@ export const updateCategory = mutation({
     parentId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const category = await ctx.db.get(args.categoryId as Id<"knowledgeBaseCategories">);
     if (!category) {
@@ -281,6 +334,17 @@ export const updateCategory = mutation({
     if (args.parentId !== undefined) updateData.parentId = args.parentId;
 
     await ctx.db.patch(args.categoryId as Id<"knowledgeBaseCategories">, updateData);
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "knowledge_base.category_updated",
+      entityType: "knowledge_base_category",
+      entityId: args.categoryId,
+      before: { name: category.name, description: category.description, order: category.order },
+      after: updateData,
+    });
 
     return {
       success: true,

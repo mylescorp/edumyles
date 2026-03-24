@@ -3,14 +3,13 @@
 import React from "react";
 import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
 import { ReactNode } from "react";
-import { AppShell } from "@/components/layout/AppShell";
+import { GlobalShell } from "@/components/layout/GlobalShell";
 import { RoleGuard } from "@/components/shared/RoleGuard";
 import { platformNavItems } from "@/lib/routes";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
-// Must be a class component to catch render errors from Convex queries
 class PlatformErrorBoundary extends React.Component<
   { children: ReactNode },
   { hasError: boolean; error: Error | null }
@@ -35,7 +34,9 @@ class PlatformErrorBoundary extends React.Component<
               <div>
                 <h3 className="font-semibold text-lg">Something went wrong</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {this.state.error?.message?.replace(/^(UNAUTHENTICATED|UNAUTHORIZED): /, "").replace(/^\[CONVEX [^\]]+\] /, "") ||
+                  {this.state.error?.message
+                    ?.replace(/^(UNAUTHENTICATED|UNAUTHORIZED): /, "")
+                    .replace(/^\[CONVEX [^\]]+\] /, "") ||
                     "An unexpected error occurred."}
                 </p>
               </div>
@@ -60,11 +61,9 @@ export default function PlatformLayout({ children }: { children: ReactNode }) {
   return (
     <ConvexAuthProvider>
       <RoleGuard allowedRoles={PLATFORM_ROLES}>
-        <AppShell navItems={platformNavItems}>
-          <PlatformErrorBoundary>
-            {children}
-          </PlatformErrorBoundary>
-        </AppShell>
+        <GlobalShell navItems={platformNavItems}>
+          <PlatformErrorBoundary>{children}</PlatformErrorBoundary>
+        </GlobalShell>
       </RoleGuard>
     </ConvexAuthProvider>
   );

@@ -40,22 +40,7 @@ export default function HRDashboardPage() {
 
     if (isLoading || !stats || !recentActivities) return <LoadingSkeleton variant="page" />;
 
-    const upcomingEvents = [
-        {
-            id: "1",
-            title: "Staff Meeting",
-            date: "2024-03-25",
-            time: "3:00 PM",
-            type: "meeting",
-        },
-        {
-            id: "2",
-            title: "Performance Reviews",
-            date: "2024-03-28",
-            time: "9:00 AM",
-            type: "review",
-        },
-    ];
+    const upcomingEvents: { id: string; title: string; date: string; time: string; type: string }[] = [];
 
     const getActivityIcon = (type: string) => {
         switch (type) {
@@ -216,7 +201,12 @@ export default function HRDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {upcomingEvents.map((event) => (
+                            {upcomingEvents.length === 0 ? (
+                                <div className="text-center py-6 text-muted-foreground">
+                                    <Clock className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                                    <p className="text-sm">No upcoming events scheduled</p>
+                                </div>
+                            ) : upcomingEvents.map((event) => (
                                 <div key={event.id} className="flex items-start gap-3 p-3 border rounded-lg">
                                     <div className="p-2 bg-success-bg rounded-full">
                                         <Clock className="h-4 w-4 text-primary" />

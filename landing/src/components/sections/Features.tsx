@@ -1,43 +1,26 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { ClipboardList, BarChart2, MessageCircle, type LucideIcon } from "lucide-react";
 
-const features = [
+const problems: { icon: LucideIcon; title: string; description: string }[] = [
   {
-    icon: "💳",
-    title: "M-Pesa Fee Collection",
-    benefit:
-      "Parents pay fees directly from their phones. Zero bank visits, zero bounced cheques.",
+    icon: ClipboardList,
+    title: "Manual Registers",
+    description:
+      "Attendance marked on paper, then re-entered into Excel. Hours wasted. Data lost.",
   },
   {
-    icon: "📊",
-    title: "Real-time Gradebook",
-    benefit:
-      "Teachers mark digitally. Parents see results instantly. No more lost report books.",
+    icon: BarChart2,
+    title: "Scattered Data",
+    description:
+      "Student records in 5 different spreadsheets. No single source of truth.",
   },
   {
-    icon: "🎓",
-    title: "Student Info System",
-    benefit:
-      "Complete student records, admissions, transfers, and certificates — one click.",
-  },
-  {
-    icon: "📱",
-    title: "Parent Communication",
-    benefit:
-      "SMS, in-app, and WhatsApp updates to every parent, in English or Swahili.",
-  },
-  {
-    icon: "🚌",
-    title: "Transport Tracking",
-    benefit:
-      "Live GPS tracking. Parents know exactly where the school bus is.",
-  },
-  {
-    icon: "🤖",
-    title: "Myles AI Analytics",
-    benefit:
-      "Flags at-risk students, fee defaulters, and attendance patterns automatically.",
+    icon: MessageCircle,
+    title: "Communication Chaos",
+    description:
+      "Parent updates via WhatsApp, SMS, and phone calls. No system. No records.",
   },
 ];
 
@@ -49,13 +32,12 @@ export default function Features() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            (entry.target as HTMLElement).style.opacity = "1";
-            (entry.target as HTMLElement).style.transform = "translateY(0)";
+            entry.target.classList.add("visible");
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.1, rootMargin: "0px 0px -80px 0px" }
     );
     cardRefs.current.forEach((ref) => {
       if (ref) observer.observe(ref);
@@ -64,40 +46,63 @@ export default function Features() {
   }, []);
 
   return (
-    <section id="features" className="py-20 lg:py-32 bg-white" aria-label="Key features">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <p className="font-inter font-semibold text-gold uppercase tracking-widest text-sm mb-3">
-            Why EduMyles
-          </p>
-          <h2 className="font-jakarta font-bold text-4xl lg:text-5xl text-navy mb-4">
-            Everything your school needs, in one platform
-          </h2>
-          <p className="font-inter text-lg text-mid-grey max-w-2xl mx-auto">
-            Stop juggling spreadsheets, WhatsApp groups, and paper registers. EduMyles brings
-            every school operation together.
-          </p>
+    <section
+      id="features"
+      className="px-4 sm:px-8 py-16"
+      aria-label="Problems we solve"
+      style={{ background: "#0C3020" }}
+    >
+      <div className="max-w-[1200px] mx-auto">
+        {/* Eyebrow */}
+        <div className="flex items-center gap-[10px] mb-[10px]">
+          <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "#E8A020" }} />
+          <div className="text-[10px] font-bold tracking-[2.5px] uppercase" style={{ color: "#E8A020" }}>The Problem</div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {features.map((feat, i) => (
+        {/* Heading */}
+        <h2
+          className="font-playfair font-bold leading-[1.2] mb-12"
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#ffffff" }}
+        >
+          Schools are drowning in paperwork.{" "}
+          <em className="italic" style={{ color: "#E8A020" }}>
+            EduMyles fixes that.
+          </em>
+        </h2>
+
+        {/* Problem cards */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {problems.map((problem, i) => (
             <div
-              key={feat.title}
-              ref={(el) => {
-                cardRefs.current[i] = el;
-              }}
-              className="group bg-white border border-light-grey rounded-2xl p-6 hover:shadow-lg hover:border-gold/50 hover:-translate-y-1"
+              key={problem.title}
+              ref={(el) => { cardRefs.current[i] = el; }}
+              className="fade-in rounded-[12px] p-8 transition-all duration-300 cursor-default"
               style={{
-                opacity: 0,
-                transform: "translateY(30px)",
-                transition: `opacity 0.5s ease ${i * 0.1}s, transform 0.5s ease ${i * 0.1}s, box-shadow 0.3s, border-color 0.3s`,
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(232,160,32,0.2)",
+                transitionDelay: `${i * 0.1}s`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-5px)";
+                e.currentTarget.style.borderColor = "rgba(232,160,32,0.45)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.borderColor = "rgba(232,160,32,0.2)";
               }}
             >
-              {/* Gold top border accent */}
-              <div className="h-1 w-12 bg-gold rounded-full mb-5 group-hover:w-full transition-all duration-500" />
-              <div className="text-4xl mb-4">{feat.icon}</div>
-              <h3 className="font-jakarta font-semibold text-xl text-navy mb-2">{feat.title}</h3>
-              <p className="font-inter text-base text-mid-grey leading-relaxed">{feat.benefit}</p>
+              <div className="mb-4" style={{ color: "#E8A020" }}>
+                <problem.icon className="w-6 h-6" strokeWidth={1.5} />
+              </div>
+              <h3
+                className="font-playfair font-bold text-[20px] mb-3"
+                style={{ color: "#ffffff" }}
+              >
+                {problem.title}
+              </h3>
+              <p className="text-[14px] leading-[1.6]" style={{ color: "#90CAF9" }}>
+                {problem.description}
+              </p>
             </div>
           ))}
         </div>

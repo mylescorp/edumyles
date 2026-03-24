@@ -13,6 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Save, MapPin, Plus, X, Clock, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 
 interface Stop {
   id: string;
@@ -24,6 +27,10 @@ interface Stop {
 
 export default function CreateRoutePage() {
   const { isLoading } = useAuth();
+  const router = useRouter();
+  const createRoute = useMutation(api.modules.transport.mutations.createRoute);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -76,10 +83,22 @@ export default function CreateRoutePage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire to createRoute mutation when transport module is configured
-    alert("Route creation will be available once the transport module is configured.");
+    if (!formData.name) return;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await createRoute({
+        name: formData.name,
+        stops: stops.map((s) => s.name),
+      });
+      router.push("/admin/transport");
+    } catch (err: any) {
+      setSubmitError(err.message ?? "Failed to create route");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const totalEstimatedTime = stops.reduce((total, stop) => total + stop.estimatedTime, 0);
@@ -384,10 +403,11 @@ export default function CreateRoutePage() {
               </CardContent>
             </Card>
 
+            {submitError && <p className="text-sm text-destructive">{submitError}</p>}
             <div className="flex gap-2">
-              <Button type="submit" className="flex-1 gap-2" disabled={stops.length === 0}>
+              <Button type="submit" className="flex-1 gap-2" disabled={stops.length === 0 || isSubmitting}>
                 <Save className="h-4 w-4" />
-                Create Route
+                {isSubmitting ? "Creating..." : "Create Route"}
               </Button>
               <Link href="/admin/transport">
                 <Button type="button" variant="outline">
