@@ -544,7 +544,91 @@ export default function SchoolGroupsPage() {
         </div>
       </section>
 
-      {/* ── Section 7: Testimonial ──────────────────────────────── */}
+      {/* ── Section 7: Benefits ─────────────────────────────────────── */}
+      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+        <div className="max-w-[1200px] mx-auto">
+          <div className="text-center mb-14">
+            <h2
+              className="font-playfair font-bold leading-[1.2] mb-4"
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+            >
+              Why School Groups Choose{" "}
+              <span style={{ color: "#E8A020" }}>EduMyles</span>
+            </h2>
+            <p 
+              className="font-jakarta text-lg max-w-[700px] mx-auto"
+              style={{ color: "#5a5a5a", lineHeight: "1.7" }}
+            >
+              Experience unified management across your entire educational network with our purpose-built platform.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Network,
+                title: "Real-Time Network Visibility",
+                description: "See enrollment, fees, attendance, and performance across all campuses from one dashboard in real-time."
+              },
+              {
+                icon: TrendingUp,
+                title: "40% Administrative Efficiency",
+                description: "Reduce administrative overhead by 40% through centralized processes and automated workflows."
+              },
+              {
+                icon: Briefcase,
+                title: "Unified HR Management",
+                description: "Manage staff transfers, payroll, and HR policies across all campuses with one integrated system."
+              },
+              {
+                icon: CreditCard,
+                title: "Consolidated Billing",
+                description: "One invoice for all campuses with volume discounts and simplified financial management."
+              },
+              {
+                icon: ShieldCheck,
+                title: "Data Isolation & Security",
+                description: "Each campus sees only their data while network admin has complete oversight with enterprise-grade security."
+              },
+              {
+                icon: Users,
+                title: "Unified Parent Experience",
+                description: "Parents with children across multiple schools see everything in one portal with single login."
+              }
+            ].map((benefit, index) => (
+              <div
+                key={benefit.title}
+                className="text-center p-6 rounded-2xl"
+                style={{ 
+                  background: "linear-gradient(135deg, #F3FBF6 0%, #E8F5EE 100%)", 
+                  border: "1px solid rgba(26,122,74,0.2)" 
+                }}
+              >
+                <div 
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                  style={{ background: "rgba(26,122,74,0.15)" }}
+                >
+                  <benefit.icon className="w-8 h-8" style={{ color: "#1A7A4A" }} />
+                </div>
+                <h3 
+                  className="font-playfair font-bold text-xl mb-3"
+                  style={{ color: "#061A12" }}
+                >
+                  {benefit.title}
+                </h3>
+                <p 
+                  className="font-jakarta text-sm leading-[1.6]"
+                  style={{ color: "#5a5a5a" }}
+                >
+                  {benefit.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 8: Testimonial ─────────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "#FEF3DC" }}>
         <div className="max-w-[820px] mx-auto text-center">
           <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>&ldquo;</div>

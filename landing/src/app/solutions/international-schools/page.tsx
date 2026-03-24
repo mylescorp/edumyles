@@ -572,7 +572,91 @@ export default function InternationalSchoolsPage() {
         </div>
       </section>
 
-      {/* ── Section 8: Testimonial ──────────────────────────────── */}
+      {/* ── Section 8: Benefits ─────────────────────────────────────── */}
+      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+        <div className="max-w-[1200px] mx-auto">
+          <div className="text-center mb-14">
+            <h2
+              className="font-playfair font-bold leading-[1.2] mb-4"
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+            >
+              Why International Schools Choose{" "}
+              <span style={{ color: "#E8A020" }}>EduMyles</span>
+            </h2>
+            <p 
+              className="font-jakarta text-lg max-w-[700px] mx-auto"
+              style={{ color: "#5a5a5a", lineHeight: "1.7" }}
+            >
+              Experience the difference with our premium platform designed for international education standards.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Globe2,
+                title: "99% Parent Portal Adoption",
+                description: "International parents expect premium digital experiences. Our branded portal achieves 99% adoption within weeks."
+              },
+              {
+                icon: CreditCard,
+                title: "Multi-Currency Excellence",
+                description: "Seamlessly handle KES, USD, GBP, EUR with automatic reconciliation and unified financial reporting."
+              },
+              {
+                icon: ShieldCheck,
+                title: "Enterprise Security",
+                description: "SSO, MFA, audit logs, and data residency options that exceed international school requirements."
+              },
+              {
+                icon: Star,
+                title: "White-Label Experience",
+                description: "Deploy under your school's brand with custom domain, logo, and colors. Parents see only your brand."
+              },
+              {
+                icon: Network,
+                title: "Global Curriculum Support",
+                description: "Full support for IGCSE, IB, Cambridge, and custom curricula with flexible grading systems."
+              },
+              {
+                icon: Users,
+                title: "Premium Support",
+                description: "Dedicated account manager, 24/7 priority support, and custom onboarding for international schools."
+              }
+            ].map((benefit, index) => (
+              <div
+                key={benefit.title}
+                className="text-center p-6 rounded-2xl"
+                style={{ 
+                  background: "linear-gradient(135deg, #FEF3DC 0%, #FFF8E7 100%)", 
+                  border: "1px solid rgba(232,160,32,0.2)" 
+                }}
+              >
+                <div 
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                  style={{ background: "rgba(232,160,32,0.15)" }}
+                >
+                  <benefit.icon className="w-8 h-8" style={{ color: "#E8A020" }} />
+                </div>
+                <h3 
+                  className="font-playfair font-bold text-xl mb-3"
+                  style={{ color: "#061A12" }}
+                >
+                  {benefit.title}
+                </h3>
+                <p 
+                  className="font-jakarta text-sm leading-[1.6]"
+                  style={{ color: "#5a5a5a" }}
+                >
+                  {benefit.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 9: Testimonial ─────────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "#FEF3DC" }}>
         <div className="max-w-[820px] mx-auto text-center">
           <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>&ldquo;</div>
