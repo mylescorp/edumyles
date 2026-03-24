@@ -595,7 +595,7 @@ export default function SchoolGroupsPage() {
                 title: "Unified Parent Experience",
                 description: "Parents with children across multiple schools see everything in one portal with single login."
               }
-            ].map((benefit, index) => (
+            ].map((benefit, _index) => (
               <div
                 key={benefit.title}
                 className="text-center p-6 rounded-2xl"

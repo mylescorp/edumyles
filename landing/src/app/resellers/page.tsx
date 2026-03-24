@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import PartnerForm from "@/components/ui/PartnerForm";
 import {
   Handshake, Building, Plug, Banknote, BarChart2,
-  GraduationCap, Wrench, Megaphone, Globe,
+  GraduationCap, Wrench,
   CheckCircle2, Star, Users, Shield,
 } from "lucide-react";
 

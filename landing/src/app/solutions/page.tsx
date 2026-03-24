@@ -5,7 +5,6 @@ import {
   GraduationCap,
   Globe,
   Building2,
-  Briefcase,
   CheckCircle2,
   ArrowRight,
   Users,
@@ -218,7 +217,7 @@ export default function SolutionsPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {solutions.map((solution, index) => (
+            {solutions.map((solution, _index) => (
               <div 
                 key={solution.title}
                 className="group rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-3"
@@ -331,10 +330,10 @@ export default function SolutionsPage() {
           {/* View All Solutions Button */}
           <div className="text-center">
             <p className="font-jakarta text-sm mb-4" style={{ color: "#5a5a5a" }}>
-              Looking for something specific? Each solution is tailored to your institution's unique needs.
+              Looking for something specific? Each solution is tailored to your institution&apos;s unique needs.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              {solutions.map((solution) => (
+              {solutions.map((solution, _index) => (
                 <Link
                   key={solution.href}
                   href={solution.href}

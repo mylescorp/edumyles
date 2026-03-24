@@ -623,7 +623,7 @@ export default function InternationalSchoolsPage() {
                 title: "Premium Support",
                 description: "Dedicated account manager, 24/7 priority support, and custom onboarding for international schools."
               }
-            ].map((benefit, index) => (
+            ].map((benefit, _index) => (
               <div
                 key={benefit.title}
                 className="text-center p-6 rounded-2xl"
