@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { LucideIcon } from "lucide-react";
 import { Sparkles, Star, Bug, ShieldCheck, Rocket, CalendarDays } from "lucide-react";
+import SubscribeForm from "./subscribe-form";
 
 export const metadata: Metadata = {
   title: "Changelog — EduMyles | Product Updates",
@@ -238,24 +239,7 @@ export default function ChangelogPage() {
           <p className="font-jakarta text-[15px] mb-6" style={{ color: "#5a5a5a" }}>
             No spam — just a short email when we ship something meaningful.
           </p>
-          <form
-            className="flex gap-3 flex-wrap sm:flex-nowrap justify-center"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <input
-              type="email"
-              placeholder="you@school.ac.ke"
-              className="flex-1 min-w-0 border border-gray-200 rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-[#0F4C2A]"
-              style={{ color: "#212121", minWidth: "220px" }}
-            />
-            <button
-              type="submit"
-              className="font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] flex-shrink-0"
-              style={{ background: "#061A12", color: "#ffffff", border: "none", cursor: "pointer" }}
-            >
-              Subscribe
-            </button>
-          </form>
+          <SubscribeForm />
         </div>
       </section>
     </div>
