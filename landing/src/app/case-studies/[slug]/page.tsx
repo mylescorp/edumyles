@@ -84,8 +84,9 @@ export function generateStaticParams() {
   return studies.map((s) => ({ slug: s.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const study = studies.find((s) => s.slug === params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const study = studies.find((s) => s.slug === slug);
   if (!study) return { title: "Case Study Not Found" };
   return {
     title: `${study.school} Case Study — EduMyles`,
@@ -93,8 +94,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function CaseStudyPage({ params }: { params: { slug: string } }) {
-  const study = studies.find((s) => s.slug === params.slug);
+export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const study = studies.find((s) => s.slug === slug);
   if (!study) notFound();
 
   const related = studies.filter((s) => s.slug !== study.slug);
