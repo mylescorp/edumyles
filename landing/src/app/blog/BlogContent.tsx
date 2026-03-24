@@ -55,7 +55,7 @@ const posts: Post[] = [
     date: "January 2026",
     readTime: "5 min read",
     author: "EduMyles Team",
-    slug: "#",
+    slug: "/blog/excel-alternatives-school-management",
     icon: BarChart2,
   },
   {
@@ -65,7 +65,7 @@ const posts: Post[] = [
     date: "January 2026",
     readTime: "4 min read",
     author: "EduMyles Team",
-    slug: "#",
+    slug: "/blog/parent-portal-communication",
     icon: Users,
   },
   {
@@ -75,7 +75,7 @@ const posts: Post[] = [
     date: "December 2025",
     readTime: "7 min read",
     author: "EduMyles Team",
-    slug: "#",
+    slug: "/blog/automatic-timetable-generation",
     icon: CalendarDays,
   },
   {
