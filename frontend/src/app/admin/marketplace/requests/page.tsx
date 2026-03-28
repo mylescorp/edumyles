@@ -13,13 +13,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export default function ModuleRequestsPage() {
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, sessionToken } = useAuth();
   const { isLoading: tenantLoading } = useTenant();
   const [activeTab, setActiveTab] = useState("pending");
 
   const requests = useQuery(
     api.modules.marketplace.queries.getModuleRequests,
-    {}
+    sessionToken ? { sessionToken } : "skip"
   );
 
   const reviewRequest = useMutation(api.modules.marketplace.mutations.reviewModuleRequest);
@@ -34,9 +34,11 @@ export default function ModuleRequestsPage() {
   const rejectedRequests = ((requests as any[]) ?? []).filter((r: any) => r.status === "rejected");
 
   const handleApprove = async (requestId: string) => {
+    if (!sessionToken) return;
     setIsProcessing(true);
     try {
       await reviewRequest({
+        sessionToken,
         requestId: requestId as Id<"moduleRequests">,
         status: "approved",
       });
@@ -48,9 +50,11 @@ export default function ModuleRequestsPage() {
   };
 
   const handleReject = async (requestId: string) => {
+    if (!sessionToken) return;
     setIsProcessing(true);
     try {
       await reviewRequest({
+        sessionToken,
         requestId: requestId as Id<"moduleRequests">,
         status: "rejected",
       });

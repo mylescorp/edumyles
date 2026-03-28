@@ -12,6 +12,100 @@ const categoryValidator = v.union(
   v.literal("administration"), v.literal("security_compliance")
 );
 
+function buildFallbackMarketplaceModule(moduleId: string) {
+  const mod = ALL_MODULES.find((entry) => entry.moduleId === moduleId);
+  if (!mod) return null;
+
+  return {
+    module: {
+      _id: mod.moduleId as any,
+      _creationTime: 0,
+      moduleId: mod.moduleId,
+      name: mod.name,
+      shortDescription: mod.description,
+      fullDescription: mod.description,
+      category: mod.category === "communications" ? "communication" : "administration",
+      subCategory: undefined,
+      tags: mod.features.slice(0, 5),
+      iconUrl: undefined,
+      screenshots: [],
+      demoVideoUrl: undefined,
+      featureHighlights: mod.features,
+      version: mod.version,
+      edumylesMinVersion: undefined,
+      edumylesMaxVersion: undefined,
+      permissions: [],
+      supportsOffline: false,
+      dataResidency: [],
+      pricingModel: mod.pricing.monthly > 0 ? "monthly" : "free",
+      priceCents: mod.pricing.monthly > 0 ? mod.pricing.monthly * 100 : 0,
+      currency: mod.pricing.currency || "USD",
+      trialDays: undefined,
+      pricingTiers: undefined,
+      compatiblePlans: Object.entries(TIER_MODULES)
+        .filter(([, modules]) => modules.includes(mod.moduleId) || CORE_MODULE_IDS.includes(mod.moduleId))
+        .map(([tier]) => tier),
+      systemRequirements: undefined,
+      publisherId: "edumyles",
+      publisherName: "EduMyles",
+      supportUrl: undefined,
+      documentationUrl: mod.documentation,
+      privacyPolicyUrl: undefined,
+      totalInstalls: 0,
+      activeInstalls: 0,
+      averageRating: 0,
+      totalReviews: 0,
+      status: "published",
+      isFeatured: mod.isCore,
+      isVerified: true,
+      isSecurityReviewed: mod.isCore,
+      isGdprCompliant: false,
+      createdAt: 0,
+      updatedAt: 0,
+      publishedAt: 0,
+    },
+    publisher: {
+      _id: "edumyles" as any,
+      legalName: "EduMyles",
+      verificationLevel: "featured_partner",
+      totalModules: ALL_MODULES.length,
+      averageRating: 0,
+      contactEmail: mod.support.email,
+      website: mod.documentation,
+      logoUrl: undefined,
+      bio: "Built-in EduMyles modules managed by the platform team.",
+    },
+    versions: [
+      {
+        _id: `${mod.moduleId}-${mod.version}` as any,
+        _creationTime: 0,
+        moduleId: mod.moduleId,
+        version: mod.version,
+        releaseNotes: "Built-in EduMyles module",
+        status: "published",
+        createdAt: 0,
+        publishedAt: 0,
+      },
+    ],
+    reviews: [],
+    otherModulesByPublisher: ALL_MODULES.filter((entry) => entry.moduleId !== mod.moduleId)
+      .slice(0, 4)
+      .map((entry) => ({
+        moduleId: entry.moduleId,
+        name: entry.name,
+        shortDescription: entry.description,
+        category: entry.category === "communications" ? "communication" : "administration",
+        averageRating: 0,
+        totalReviews: 0,
+        totalInstalls: 0,
+      })),
+    installStats: {
+      total: 0,
+      active: 0,
+    },
+  };
+}
+
 // ── Storefront Queries ────────────────────────────────────────────────
 
 export const getMarketplaceHome = query({
@@ -320,7 +414,13 @@ export const getModuleDetail = query({
       .query("marketplaceModules")
       .withIndex("by_moduleId", (q) => q.eq("moduleId", args.moduleId))
       .first();
-    if (!mod) throw new Error("Module not found");
+    if (!mod) {
+      const fallback = buildFallbackMarketplaceModule(args.moduleId);
+      if (fallback) {
+        return fallback;
+      }
+      throw new Error("Module not found");
+    }
 
     // Get publisher info
     const publisher = await ctx.db

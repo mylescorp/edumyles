@@ -9,25 +9,31 @@ import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useTenant } from "@/hooks/useTenant";
 import { toast } from "@/components/ui/use-toast";
 
 export default function ModuleManagementPage() {
   const { sessionToken } = useAuth();
-  const { installedModules, availableModules } = useInstalledModules();
+  const { tenantId } = useTenant();
+  const {
+    installedModuleIds,
+    installedModules,
+    availableModules,
+  } = useInstalledModules();
   
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
   const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
   const toggleModuleStatus = useMutation(api.modules.marketplace.mutations.toggleModuleStatus);
 
   const handleModuleAction = async (moduleId: string, action: 'install' | 'uninstall' | 'activate' | 'deactivate') => {
-    if (!sessionToken) return;
+    if (!sessionToken || !tenantId) return;
     
     try {
       switch (action) {
         case 'install':
           await installModule({
             sessionToken,
-            tenantId: "PLATFORM",
+            tenantId,
             moduleId,
           });
           toast({
@@ -39,7 +45,7 @@ export default function ModuleManagementPage() {
         case 'uninstall':
           await uninstallModule({
             sessionToken,
-            tenantId: "PLATFORM",
+            tenantId,
             moduleId,
           });
           toast({
@@ -51,7 +57,7 @@ export default function ModuleManagementPage() {
         case 'activate':
           await toggleModuleStatus({
             sessionToken,
-            tenantId: "PLATFORM",
+            tenantId,
             moduleId,
             status: "active",
           });
@@ -64,7 +70,7 @@ export default function ModuleManagementPage() {
         case 'deactivate':
           await toggleModuleStatus({
             sessionToken,
-            tenantId: "PLATFORM",
+            tenantId,
             moduleId,
             status: "inactive",
           });
@@ -87,8 +93,8 @@ export default function ModuleManagementPage() {
   const dependencyData = availableModules?.map(module => ({
     moduleId: module.moduleId,
     name: module.name,
-    isInstalled: installedModules.installedModuleIds?.includes(module.moduleId) || false,
-    isActive: installedModules.installedModules?.find(m => m.moduleId === module.moduleId)?.status === "active",
+    isInstalled: installedModuleIds.includes(module.moduleId),
+    isActive: module.isCore || installedModules.find(m => m.moduleId === module.moduleId)?.status === "active",
     isCore: module.isCore,
     dependencies: module.dependencies || [],
     dependents: [], // This would need to be calculated based on reverse dependencies

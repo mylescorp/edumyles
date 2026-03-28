@@ -87,12 +87,18 @@ function MarketplaceAdminContent() {
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
+  const moduleRegistry = usePlatformQuery(
+    api.modules.marketplace.platform.getFullRegistry,
+    { sessionToken: sessionToken || "" }
+  ) as any[] | undefined;
+
   // Mutations
   const reviewModule = useMutation(api.platform.marketplace.reviewModule);
   const publishModule = useMutation(api.platform.marketplace.publishModule);
   const suspendModule = useMutation(api.platform.marketplace.suspendModule);
   const updatePublisherVerification = useMutation(api.platform.marketplace.updatePublisherVerification);
   const seedCategories = useMutation(api.platform.marketplace.seedCategories);
+  const seedModuleRegistry = useMutation(api.modules.marketplace.mutations.runSeedModuleRegistry);
 
   const handleReview = async (decision: "approved" | "rejected" | "requires_changes") => {
     if (!sessionToken || !selectedModule) return;
@@ -123,6 +129,15 @@ function MarketplaceAdminContent() {
     }
   };
 
+  const handleSeedRegistry = async () => {
+    if (!sessionToken) return;
+    try {
+      await seedModuleRegistry({});
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -148,6 +163,7 @@ function MarketplaceAdminContent() {
           <TabsTrigger value="installations">Installations</TabsTrigger>
           <TabsTrigger value="publishers">Publishers</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="registry">Registry</TabsTrigger>
           <TabsTrigger value="disputes">
             Disputes
             {(disputes?.filter((d: any) => d.status === "open").length || 0) > 0 && (
@@ -328,6 +344,58 @@ function MarketplaceAdminContent() {
                   Seed the default category taxonomy to get started.
                 </p>
                 <Button onClick={() => setIsSeedDialogOpen(true)}>Seed Categories</Button>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="registry" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">Internal Module Registry</h3>
+              <p className="text-sm text-muted-foreground">
+                This registry powers tenant install and uninstall flows for built-in EduMyles modules.
+              </p>
+            </div>
+            <Button onClick={handleSeedRegistry}>
+              <RefreshCw className="h-4 w-4 mr-2" />Sync Built-in Registry
+            </Button>
+          </div>
+          {(moduleRegistry || []).length > 0 ? (
+            <div className="space-y-2">
+              {(moduleRegistry || []).map((mod: any) => (
+                <Card key={mod._id}>
+                  <CardContent className="pt-4 pb-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-sm">{mod.name}</h4>
+                          <Badge className={STATUS_COLORS[mod.status] || "bg-gray-100 text-gray-700"}>
+                            {mod.status}
+                          </Badge>
+                          {mod.isCore && <Badge variant="outline" className="text-xs">Core</Badge>}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">{mod.description}</p>
+                      </div>
+                      <div className="text-right text-xs text-muted-foreground">
+                        <div>Module ID: {mod.moduleId}</div>
+                        <div>Tier: {mod.tier}</div>
+                        <div>Version: v{mod.version}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <Package className="h-10 w-10 text-muted-foreground mb-3" />
+                <h3 className="font-semibold mb-1">Registry not seeded</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Seed the built-in module registry so tenant marketplaces can install and manage modules reliably.
+                </p>
+                <Button onClick={handleSeedRegistry}>Seed Registry</Button>
               </CardContent>
             </Card>
           )}

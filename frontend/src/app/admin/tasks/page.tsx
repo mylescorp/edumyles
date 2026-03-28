@@ -36,10 +36,11 @@ const priorityColors: Record<Priority, "outline" | "secondary" | "destructive"> 
 };
 
 export default function TasksPage() {
-  const tasks = useQuery(api.modules.tasks.queries.listTasks, {});
-  const createTask = useMutation(api.modules.tasks.mutations.createTask);
-  const toggleTask = useMutation(api.modules.tasks.mutations.toggleTask);
-  const deleteTask = useMutation(api.modules.tasks.mutations.deleteTask);
+  const modulesApi = api as any;
+  const tasks = useQuery(modulesApi.modules.tasks.queries.listTasks, {});
+  const createTask = useMutation(modulesApi.modules.tasks.mutations.createTask);
+  const toggleTask = useMutation(modulesApi.modules.tasks.mutations.toggleTask);
+  const deleteTask = useMutation(modulesApi.modules.tasks.mutations.deleteTask);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newTitle, setNewTitle] = useState("");

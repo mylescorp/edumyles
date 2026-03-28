@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Package, Star, Download, Shield, CheckCircle, ExternalLink,
@@ -19,7 +20,9 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
+import { useMutation } from "convex/react";
 import { MarketplaceErrorBoundary } from "../MarketplaceErrorBoundary";
+import { toast } from "sonner";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   academic_tools: <GraduationCap className="h-5 w-5" />,
@@ -79,6 +82,8 @@ function ModuleDetailContent() {
   const [activeTab, setActiveTab] = useState("overview");
   const [isInstallOpen, setIsInstallOpen] = useState(false);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [selectedTenantId, setSelectedTenantId] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(["school_admin"]);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewContent, setReviewContent] = useState("");
   const [reviewTags, setReviewTags] = useState<string[]>([]);
@@ -87,6 +92,23 @@ function ModuleDetailContent() {
     api.platform.marketplace.getModuleDetail,
     { sessionToken: sessionToken || "", moduleId }
   ) as any;
+
+  const tenants = usePlatformQuery(
+    api.platform.tenants.queries.listAllTenants,
+    { sessionToken: sessionToken || "" }
+  ) as any[] | undefined;
+
+  const tenantInstallations = usePlatformQuery(
+    api.platform.marketplace.getTenantInstallations,
+    selectedTenantId
+      ? { sessionToken: sessionToken || "", tenantId: selectedTenantId }
+      : "skip"
+  ) as any[] | undefined;
+
+  const installModule = useMutation(api.platform.marketplace.installModule);
+  const uninstallModule = useMutation(api.platform.marketplace.uninstallModule);
+  const submitReview = useMutation(api.platform.marketplace.submitReview);
+  const voteReview = useMutation(api.platform.marketplace.voteReview);
 
   if (!detail) {
     return (
@@ -111,11 +133,88 @@ function ModuleDetailContent() {
   const versions = detail.versions || [];
   const reviews = detail.reviews || [];
   const otherModules = detail.otherModulesByPublisher || [];
+  const currentInstallation = useMemo(
+    () =>
+      tenantInstallations?.find(
+        (installation) =>
+          installation.moduleId === moduleId && installation.status === "active"
+      ) ?? null,
+    [moduleId, tenantInstallations]
+  );
 
   const REVIEW_TAGS = [
     "Easy to Use", "Good Support", "Great Value", "Well Documented",
     "Buggy", "Poor Documentation", "Feature Rich", "Reliable",
   ];
+
+  useEffect(() => {
+    if (!selectedTenantId && tenants && tenants.length > 0) {
+      setSelectedTenantId(tenants[0].tenantId);
+    }
+  }, [selectedTenantId, tenants]);
+
+  const handleInstallAction = async () => {
+    if (!sessionToken || !selectedTenantId) return;
+
+    try {
+      if (currentInstallation?._id) {
+        await uninstallModule({
+          sessionToken,
+          installationId: currentInstallation._id,
+          reason: "Removed from platform marketplace detail page",
+        });
+        toast.success("Module uninstalled for tenant");
+      } else {
+        await installModule({
+          sessionToken,
+          tenantId: selectedTenantId,
+          moduleId,
+          configuration: {},
+          assignedRoles: selectedRoles,
+        });
+        toast.success("Module installed for tenant");
+      }
+      setIsInstallOpen(false);
+    } catch (error: any) {
+      toast.error(error?.message ?? "Unable to update tenant installation");
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!sessionToken) return;
+
+    try {
+      await submitReview({
+        sessionToken,
+        moduleId,
+        rating: reviewRating,
+        content: reviewContent,
+        tags: reviewTags,
+      });
+      toast.success("Review submitted for moderation");
+      setIsReviewOpen(false);
+      setReviewContent("");
+      setReviewTags([]);
+      setReviewRating(5);
+    } catch (error: any) {
+      toast.error(error?.message ?? "Unable to submit review");
+    }
+  };
+
+  const handleVoteReview = async (reviewId: string, helpful: boolean) => {
+    if (!sessionToken) return;
+
+    try {
+      await voteReview({
+        sessionToken,
+        reviewId: reviewId as any,
+        helpful,
+      });
+      toast.success(helpful ? "Marked as helpful" : "Marked as not helpful");
+    } catch (error: any) {
+      toast.error(error?.message ?? "Unable to record vote");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -499,10 +598,16 @@ function ModuleDetailContent() {
                         </div>
                       )}
                       <div className="flex items-center gap-3 pt-1">
-                        <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                        <button
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                          onClick={() => handleVoteReview(review._id, true)}
+                        >
                           <ThumbsUp className="h-3 w-3" /> Helpful ({review.helpfulVotes})
                         </button>
-                        <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                        <button
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                          onClick={() => handleVoteReview(review._id, false)}
+                        >
                           <ThumbsDown className="h-3 w-3" /> ({review.unhelpfulVotes})
                         </button>
                       </div>
@@ -601,6 +706,21 @@ function ModuleDetailContent() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
+              <Label className="text-sm font-semibold">Install For Tenant</Label>
+              <Select value={selectedTenantId} onValueChange={setSelectedTenantId}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Select tenant" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(tenants || []).map((tenant: any) => (
+                    <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                      {tenant.name} ({tenant.tenantId})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label className="text-sm font-semibold">Permissions Required</Label>
               <div className="mt-2 space-y-1">
                 {mod.permissions?.map((perm: string, i: number) => (
@@ -629,16 +749,39 @@ function ModuleDetailContent() {
               <p className="text-xs text-muted-foreground mt-1">Choose which roles can access this module.</p>
               <div className="flex flex-wrap gap-2 mt-2">
                 {["school_admin", "principal", "teacher", "student", "parent"].map((role) => (
-                  <Badge key={role} variant="outline" className="cursor-pointer hover:bg-primary/10 capitalize text-xs">
+                  <Badge
+                    key={role}
+                    variant={selectedRoles.includes(role) ? "default" : "outline"}
+                    className="cursor-pointer capitalize text-xs"
+                    onClick={() => {
+                      setSelectedRoles((current) =>
+                        current.includes(role)
+                          ? current.filter((entry) => entry !== role)
+                          : [...current, role]
+                      );
+                    }}
+                  >
                     {role.replace("_", " ")}
                   </Badge>
                 ))}
               </div>
             </div>
+            {selectedTenantId && (
+              <div className="rounded-lg border bg-muted/30 p-3 text-sm">
+                {currentInstallation ? (
+                  <p>
+                    Installed for this tenant on {formatDate(currentInstallation.installedAt)} as version {currentInstallation.installedVersion}.
+                  </p>
+                ) : (
+                  <p>This module is not currently installed for the selected tenant.</p>
+                )}
+              </div>
+            )}
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setIsInstallOpen(false)}>Cancel</Button>
-              <Button onClick={() => setIsInstallOpen(false)}>
-                <Download className="h-4 w-4 mr-2" />Confirm Install
+              <Button onClick={handleInstallAction} disabled={!selectedTenantId || selectedRoles.length === 0}>
+                <Download className="h-4 w-4 mr-2" />
+                {currentInstallation ? "Uninstall Module" : "Confirm Install"}
               </Button>
             </div>
           </div>
@@ -698,7 +841,7 @@ function ModuleDetailContent() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsReviewOpen(false)}>Cancel</Button>
-              <Button disabled={reviewContent.length < 50}>Submit Review</Button>
+              <Button disabled={reviewContent.length < 50} onClick={handleSubmitReview}>Submit Review</Button>
             </div>
           </div>
         </DialogContent>

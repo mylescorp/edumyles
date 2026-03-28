@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
-import { useAuth } from "@/hooks/useAuth";
 import {
   GraduationCap,
   MessageSquare,
@@ -61,7 +60,6 @@ const CORE_MODULES_ORDER = ["sis", "communications", "users"];
 const OPTIONAL_MODULES_ORDER = ["admissions", "academics", "finance", "hr", "timetable"];
 
 export function TopModuleBar() {
-  const { sessionToken, user } = useAuth();
   const { isModuleInstalled, isModuleActive, installedModuleIds } = useInstalledModules();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
