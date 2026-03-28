@@ -3,6 +3,8 @@ import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 import { generateTenantId } from "../../helpers/idGenerator";
+import { CORE_MODULE_IDS } from "../../modules/marketplace/moduleDefinitions";
+import { api } from "../../_generated/api";
 
 export const createTenant = mutation({
   args: {
@@ -33,7 +35,9 @@ export const createTenant = mutation({
     }
 
     const tenantId = generateTenantId();
+    const now = Date.now();
 
+    // 1. Create tenant record
     const id = await ctx.db.insert("tenants", {
       tenantId,
       name: args.name,
@@ -44,9 +48,33 @@ export const createTenant = mutation({
       status: "trial",
       county: args.county,
       country: args.country ?? "KE",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
     });
+
+    // 2. Create organization record — required so user records can reference it
+    const orgId = await ctx.db.insert("organizations", {
+      tenantId,
+      workosOrgId: `edumyles-${tenantId}`,
+      name: args.name,
+      subdomain: args.subdomain,
+      tier: args.plan,
+      isActive: true,
+      createdAt: now,
+    });
+
+    // 3. Auto-provision core modules (SIS, Communications, Users Management)
+    for (const moduleId of CORE_MODULE_IDS) {
+      await ctx.db.insert("installedModules", {
+        tenantId,
+        moduleId,
+        installedAt: now,
+        installedBy: tenantCtx.userId,
+        config: {},
+        status: "active",
+        updatedAt: now,
+      });
+    }
 
     await logAction(ctx, {
       tenantId: tenantCtx.tenantId,
@@ -55,10 +83,15 @@ export const createTenant = mutation({
       action: "tenant.created",
       entityType: "tenant",
       entityId: tenantId,
-      after: { name: args.name, subdomain: args.subdomain, plan: args.plan },
+      after: {
+        name: args.name,
+        subdomain: args.subdomain,
+        plan: args.plan,
+        coreModulesInstalled: CORE_MODULE_IDS,
+      },
     });
 
-    return { id, tenantId };
+    return { id, tenantId, organizationId: orgId };
   },
 });
 
@@ -191,5 +224,134 @@ export const updateTenant = mutation({
       before,
       after: patch,
     });
+  },
+});
+
+/**
+ * Invite a user to a tenant as school_admin (or another role).
+ * Creates a pending user record that gets linked on first WorkOS login.
+ * Schedules an invite email via Resend.
+ */
+export const inviteTenantAdmin = mutation({
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+    email: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
+    role: v.union(
+      v.literal("school_admin"),
+      v.literal("principal"),
+      v.literal("bursar"),
+      v.literal("hr_manager"),
+      v.literal("librarian"),
+      v.literal("transport_manager"),
+      v.literal("teacher")
+    ),
+  },
+  handler: async (ctx, args) => {
+    const tenantCtx = await requirePlatformSession(ctx, args);
+
+    // Verify tenant exists
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+    if (!tenant) throw new Error("NOT_FOUND: Tenant not found");
+
+    // Prevent duplicate invites for same email in same tenant
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_email", (q) =>
+        q.eq("tenantId", args.tenantId).eq("email", args.email)
+      )
+      .first();
+    if (existingUser) {
+      throw new Error("CONFLICT: A user with this email already exists in this tenant");
+    }
+
+    // Resolve organization for the tenant
+    const org = await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+    if (!org) throw new Error("ORG_NOT_FOUND: Organization not created for tenant yet");
+
+    const now = Date.now();
+    const pendingId = `pending-${crypto.randomUUID()}`;
+    const eduMylesUserId = crypto.randomUUID();
+
+    // Create pending user — workosUserId prefixed with "pending-" so auth
+    // callback can detect and link on first login.
+    await ctx.db.insert("users", {
+      tenantId: args.tenantId,
+      eduMylesUserId,
+      workosUserId: pendingId,
+      email: args.email,
+      firstName: args.firstName,
+      lastName: args.lastName,
+      role: args.role,
+      permissions: [],
+      organizationId: org._id,
+      isActive: false,
+      createdAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "user.invited",
+      entityType: "user",
+      entityId: args.email,
+      after: {
+        email: args.email,
+        role: args.role,
+        targetTenantId: args.tenantId,
+        tenantName: tenant.name,
+      },
+    });
+
+    // Schedule invite email (non-blocking — don't fail invite if email fails)
+    await ctx.scheduler.runAfter(0, api.platform.tenants.emailActions.sendInviteEmail, {
+      to: args.email,
+      firstName: args.firstName,
+      lastName: args.lastName,
+      role: args.role,
+      tenantName: tenant.name,
+      subdomain: tenant.subdomain,
+      invitedByEmail: tenantCtx.email,
+    });
+
+    return { success: true, email: args.email, role: args.role };
+  },
+});
+
+/**
+ * Revoke a pending invitation by deleting the pending user record.
+ */
+export const revokeInvite = mutation({
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_email", (q) =>
+        q.eq("tenantId", args.tenantId).eq("email", args.email)
+      )
+      .first();
+
+    if (!user) throw new Error("NOT_FOUND: User not found");
+    if (!user.workosUserId.startsWith("pending-")) {
+      throw new Error("CONFLICT: Cannot revoke an already-accepted invitation");
+    }
+
+    await ctx.db.delete(user._id);
+    return { success: true };
   },
 });

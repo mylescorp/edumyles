@@ -1,42 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "convex/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Building2,
-  Users,
-  CreditCard,
-  MessageSquare,
-  Settings,
-  Activity,
-  Package,
-  Mail,
-  MapPin,
-  Calendar,
-  Globe,
-  Shield,
-  CheckCircle2,
-  PauseCircle,
-  FlaskConical,
-  TrendingUp,
-  Download,
-  Edit,
-  Eye,
-  AlertTriangle,
-  Clock,
-  DollarSign,
-  FileText,
-  Send,
-  Bell,
-  Lock,
-  Database,
-  Zap,
-  BarChart3
+import {
+  Building2, Users, CreditCard, MessageSquare, Settings, Activity,
+  Package, Mail, MapPin, Calendar, Globe, Shield, CheckCircle2,
+  PauseCircle, FlaskConical, TrendingUp, Download, Edit, Eye,
+  AlertTriangle, Clock, DollarSign, FileText, Send, Bell, Lock,
+  Database, Zap, BarChart3, UserPlus, UserCheck, UserX, RefreshCw,
 } from "lucide-react";
 import { formatDate } from "@/lib/formatters";
+import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { InviteAdminDialog } from "./InviteAdminDialog";
+import { toast } from "sonner";
 
 interface TenantDetail {
   _id: string;
@@ -77,8 +59,44 @@ interface TenantDetailTabsProps {
   className?: string;
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  school_admin: "School Admin",
+  principal: "Principal",
+  bursar: "Bursar",
+  hr_manager: "HR Manager",
+  librarian: "Librarian",
+  transport_manager: "Transport Mgr",
+  teacher: "Teacher",
+  master_admin: "Platform Admin",
+  super_admin: "Super Admin",
+};
+
 export function TenantDetailTabs({ tenant, isLoading = false, className = "" }: TenantDetailTabsProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const { sessionToken } = useAuth();
+  const revokeInvite = useMutation(api.platform.tenants.mutations.revokeInvite);
+
+  const tenantUsers = usePlatformQuery(
+    api.platform.tenants.queries.getTenantUsers,
+    { sessionToken: sessionToken || "", tenantId: tenant.tenantId }
+  ) as Array<{
+    _id: string; email: string; firstName?: string; lastName?: string;
+    role: string; isActive: boolean; workosUserId: string; createdAt: number;
+  }> | undefined;
+
+  const activeUsers = tenantUsers?.filter((u) => !u.workosUserId.startsWith("pending-")) ?? [];
+  const pendingInvites = tenantUsers?.filter((u) => u.workosUserId.startsWith("pending-")) ?? [];
+
+  const handleRevokeInvite = async (email: string) => {
+    if (!sessionToken) return;
+    try {
+      await revokeInvite({ sessionToken, tenantId: tenant.tenantId, email });
+      toast.success(`Invitation revoked for ${email}`);
+    } catch (err: any) {
+      toast.error(err.message ?? "Failed to revoke invitation");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -298,39 +316,126 @@ export function TenantDetailTabs({ tenant, isLoading = false, className = "" }: 
 
         {/* Users Tab */}
         <TabsContent value="users" className="space-y-6">
+          {/* Active Users */}
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>User Management</span>
+                  <UserCheck className="h-5 w-5 text-em-success" />
+                  <span>Active Users</span>
+                  <Badge variant="outline" className="ml-1">{activeUsers.length}</Badge>
                 </span>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
-                  <Button size="sm">
-                    <Users className="h-4 w-4 mr-2" />
-                    Invite User
-                  </Button>
-                </div>
+                <Button size="sm" onClick={() => setIsInviteOpen(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Invite User
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">User Management</h3>
-                <p className="text-muted-foreground mb-4">
-                  Total {tenant.userCount || 0} users in this tenant
-                </p>
-                <Button>
-                  <Users className="h-4 w-4 mr-2" />
-                  Manage Users
-                </Button>
-              </div>
+              {activeUsers.length === 0 ? (
+                <div className="text-center py-8">
+                  <UserCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No active users yet. Invite the first user below.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {activeUsers.map((user) => (
+                    <div key={user._id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-em-primary/10 flex items-center justify-center text-em-primary font-semibold text-sm">
+                          {(user.firstName?.[0] ?? user.email[0]).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">
+                            {user.firstName && user.lastName
+                              ? `${user.firstName} ${user.lastName}`
+                              : user.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="outline" className="text-xs">
+                          {ROLE_LABELS[user.role] ?? user.role}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className={user.isActive
+                            ? "bg-em-success-bg/10 text-em-success border-em-success/20 text-xs"
+                            : "bg-muted/10 text-muted-foreground text-xs"}
+                        >
+                          {user.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground hidden md:inline">
+                          Joined {formatDate(new Date(user.createdAt))}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* Pending Invitations */}
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <RefreshCw className="h-5 w-5 text-em-info" />
+                <span>Pending Invitations</span>
+                <Badge variant="outline" className="ml-1">{pendingInvites.length}</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {pendingInvites.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No pending invitations.</p>
+              ) : (
+                <div className="space-y-2">
+                  {pendingInvites.map((user) => (
+                    <div key={user._id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-em-info/10 flex items-center justify-center">
+                          <Mail className="h-4 w-4 text-em-info" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">
+                            {user.firstName && user.lastName
+                              ? `${user.firstName} ${user.lastName}`
+                              : user.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="outline" className="text-xs bg-em-info/10 text-em-info border-em-info/20">
+                          {ROLE_LABELS[user.role] ?? user.role}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground hidden md:inline">
+                          Invited {formatDate(new Date(user.createdAt))}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-em-danger border-em-danger/30 hover:bg-em-danger/10"
+                          onClick={() => handleRevokeInvite(user.email)}
+                        >
+                          <UserX className="h-4 w-4 mr-1" />
+                          Revoke
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <InviteAdminDialog
+            open={isInviteOpen}
+            onOpenChange={setIsInviteOpen}
+            tenantId={tenant.tenantId}
+            tenantName={tenant.name}
+          />
         </TabsContent>
 
         {/* Billing Tab */}
