@@ -158,6 +158,74 @@ export const syncMasterAdminRole = mutation({
   },
 });
 
+// Emergency repair: promote every user/session for the given email to master_admin.
+// Used to recover access when an account was created with a tenant role first.
+export const promoteUserEmailToMasterAdmin = mutation({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    let platformOrg = await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
+      .first();
+
+    if (!platformOrg) {
+      const platformOrgId = await ctx.db.insert("organizations", {
+        tenantId: "PLATFORM",
+        workosOrgId: "platform-default",
+        name: "EduMyles Platform",
+        subdomain: "platform",
+        tier: "enterprise",
+        isActive: true,
+        createdAt: Date.now(),
+      });
+      platformOrg = await ctx.db.get(platformOrgId);
+    }
+
+    if (!platformOrg) {
+      throw new Error("PLATFORM_ORGANIZATION_NOT_AVAILABLE");
+    }
+
+    const normalizedEmail = args.email.toLowerCase();
+    const users = await ctx.db.query("users").collect();
+    const matchingUsers = users.filter(
+      (user) => user.email.toLowerCase() === normalizedEmail
+    );
+
+    const updatedUserIds: string[] = [];
+    for (const user of matchingUsers) {
+      await ctx.db.patch(user._id, {
+        tenantId: "PLATFORM",
+        role: "master_admin",
+        organizationId: platformOrg._id,
+        permissions: user.permissions.includes("*")
+          ? user.permissions
+          : ["*", ...user.permissions],
+        isActive: true,
+      });
+      updatedUserIds.push(user._id);
+    }
+
+    const sessions = await ctx.db.query("sessions").collect();
+    let updatedSessions = 0;
+    for (const session of sessions) {
+      if (session.email?.toLowerCase() !== normalizedEmail) continue;
+      await ctx.db.patch(session._id, {
+        tenantId: "PLATFORM",
+        role: "master_admin",
+      });
+      updatedSessions += 1;
+    }
+
+    return {
+      success: true,
+      updatedUsers: updatedUserIds.length,
+      updatedSessions,
+    };
+  },
+});
+
 // Atomically promote the signed-in user to master_admin if none exists yet.
 // Updates both the session record and the users record so the role persists across sign-ins.
 export const bootstrapMasterAdmin = mutation({
