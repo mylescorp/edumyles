@@ -3,6 +3,7 @@
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { BookOpen, ClipboardList, Calendar, FileText } from "lucide-react";
@@ -12,18 +13,23 @@ import Link from "next/link";
 
 export default function TeacherDashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
+  const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
+  const sisEnabled = isModuleInstalled("sis");
+  const academicsEnabled = isModuleInstalled("academics");
+  const timetableEnabled = isModuleInstalled("timetable");
 
   const classes = useQuery(
     api.modules.academics.queries.getTeacherClasses,
-    {}
+    sisEnabled ? {} : "skip"
   );
 
-  if (authLoading || classes === undefined) {
+  if (authLoading || modulesLoading || (sisEnabled && classes === undefined)) {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const totalStudents = classes.reduce((sum, cls: any) => sum + (cls.studentCount || 0), 0);
-  const activeAssignments = 5; // This would come from a query in production
+  const teacherClasses = classes ?? [];
+  const totalStudents = teacherClasses.reduce((sum, cls: any) => sum + (cls.studentCount || 0), 0);
+  const activeAssignments = academicsEnabled ? 5 : 0;
 
   return (
     <div className="space-y-6">
@@ -40,6 +46,7 @@ export default function TeacherDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{classes.length}</div>
+            <div className="text-2xl font-bold">{teacherClasses.length}</div>
             <p className="text-xs text-muted-foreground">Active classes</p>
           </CardContent>
         </Card>
@@ -81,10 +88,12 @@ export default function TeacherDashboardPage() {
             <CardTitle>My Classes</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {classes.length === 0 ? (
+            {!sisEnabled ? (
+              <p className="text-sm text-muted-foreground">Class data is unavailable because the SIS module is not active.</p>
+            ) : teacherClasses.length === 0 ? (
               <p className="text-sm text-muted-foreground">No classes assigned yet</p>
             ) : (
-              classes.slice(0, 3).map((cls: any) => (
+              teacherClasses.slice(0, 3).map((cls: any) => (
                 <div key={cls._id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <p className="font-medium">{cls.name}</p>
@@ -98,7 +107,7 @@ export default function TeacherDashboardPage() {
                 </div>
               ))
             )}
-            {classes.length > 3 && (
+            {teacherClasses.length > 3 && (
               <Button variant="outline" className="w-full" asChild>
                 <Link href="/portal/teacher/classes">
                   View All Classes
@@ -113,30 +122,46 @@ export default function TeacherDashboardPage() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start" asChild>
-              <Link href="/portal/teacher/attendance">
-                <Calendar className="h-4 w-4 mr-2" />
-                Record Attendance
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/portal/teacher/assignments/create">
-                <FileText className="h-4 w-4 mr-2" />
-                Create Assignment
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/portal/teacher/classes">
-                <BookOpen className="h-4 w-4 mr-2" />
-                View Classes
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/portal/teacher/assignments">
-                <ClipboardList className="h-4 w-4 mr-2" />
-                Manage Assignments
-              </Link>
-            </Button>
+            {sisEnabled && (
+              <>
+                <Button className="w-full justify-start" asChild>
+                  <Link href="/portal/teacher/attendance">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Record Attendance
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href="/portal/teacher/classes">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    View Classes
+                  </Link>
+                </Button>
+              </>
+            )}
+            {academicsEnabled && (
+              <>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href="/portal/teacher/assignments/create">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Create Assignment
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href="/portal/teacher/assignments">
+                    <ClipboardList className="h-4 w-4 mr-2" />
+                    Manage Assignments
+                  </Link>
+                </Button>
+              </>
+            )}
+            {timetableEnabled && (
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link href="/portal/teacher/timetable">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  View Timetable
+                </Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>

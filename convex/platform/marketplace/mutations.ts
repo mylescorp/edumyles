@@ -605,6 +605,80 @@ export const installModule = mutation({
   },
 });
 
+export const createModuleVersion = mutation({
+  args: {
+    sessionToken: v.string(),
+    moduleId: v.string(),
+    version: v.string(),
+    releaseNotes: v.string(),
+    submitForReview: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
+
+    const mod = await ctx.db
+      .query("marketplaceModules")
+      .withIndex("by_moduleId", (q) => q.eq("moduleId", args.moduleId))
+      .first();
+    if (!mod) throw new Error("Module not found");
+
+    const existingVersion = await ctx.db
+      .query("marketplaceModuleVersions")
+      .withIndex("by_module_version", (q) =>
+        q.eq("moduleId", args.moduleId).eq("version", args.version)
+      )
+      .first();
+    if (existingVersion) throw new Error("Version already exists for this module");
+
+    const now = Date.now();
+    const nextStatus = args.submitForReview ? "pending_review" : "draft";
+
+    const versionId = await ctx.db.insert("marketplaceModuleVersions", {
+      moduleId: args.moduleId,
+      version: args.version,
+      releaseNotes: args.releaseNotes,
+      status: nextStatus,
+      createdAt: now,
+      publishedAt: undefined,
+    });
+
+    await ctx.db.patch(mod._id, {
+      version: args.version,
+      status: nextStatus,
+      reviewNotes: undefined,
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("marketplaceActivity", {
+      type: args.submitForReview ? "submission" : "update",
+      moduleId: args.moduleId,
+      moduleName: mod.name,
+      publisherId: mod.publisherId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      details: {
+        version: args.version,
+        releaseNotes: args.releaseNotes,
+      },
+      createdAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: args.submitForReview
+        ? "marketplace.module_submitted"
+        : "marketplace.module_updated",
+      entityType: "marketplace_module",
+      entityId: args.moduleId,
+      after: { version: args.version, releaseNotes: args.releaseNotes },
+    });
+
+    return { success: true, versionId };
+  },
+});
+
 export const uninstallCatalogModule = mutation({
   args: {
     sessionToken: v.string(),

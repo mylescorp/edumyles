@@ -18,6 +18,7 @@ export {
 export {
   createModule,
   updateModule,
+  createModuleVersion,
   submitModuleForReview,
   reviewModule,
   publishModule,

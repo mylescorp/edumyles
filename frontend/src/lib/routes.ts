@@ -107,22 +107,20 @@ export const adminNavItems: NavItem[] = [
 export const teacherNavItems: NavItem[] = [
   { label: "Dashboard", href: "/portal/teacher", icon: LayoutDashboard },
   { label: "My Classes", href: "/portal/teacher/classes", icon: BookOpen, module: "sis" },
-  { label: "Gradebook", href: "/portal/teacher/gradebook", icon: ClipboardList, module: "academics" },
   { label: "Attendance", href: "/portal/teacher/attendance", icon: Calendar, module: "sis" },
   { label: "Assignments", href: "/portal/teacher/assignments", icon: FileText, module: "academics" },
+  { label: "Communications", href: "/portal/teacher/communications", icon: MessageSquare, module: "communications" },
   { label: "Timetable", href: "/portal/teacher/timetable", icon: Calendar, module: "timetable" },
   { label: "Support Tickets", href: "/support/tickets", icon: Headphones, module: "tickets" },
 ];
 
 export const studentNavItems: NavItem[] = [
   { label: "Dashboard", href: "/portal/student", icon: LayoutDashboard },
-  { label: "Grades", href: "/portal/student/grades", icon: GraduationCap, module: "academics" },
-  { label: "Timetable", href: "/portal/student/timetable", icon: Calendar, module: "timetable" },
   { label: "Assignments", href: "/portal/student/assignments", icon: FileText, module: "academics" },
-  { label: "Attendance", href: "/portal/student/attendance", icon: ClipboardList, module: "sis" },
+  { label: "Communications", href: "/portal/student/communications", icon: MessageSquare, module: "communications" },
   { label: "Support Tickets", href: "/support/tickets", icon: Headphones, module: "tickets" },
   { label: "Wallet", href: "/portal/student/wallet", icon: Wallet, module: "ewallet" },
-  { label: "Report Cards", href: "/portal/student/report-cards", icon: FileText, module: "academics" },
+  { label: "Profile", href: "/portal/student/profile", icon: GraduationCap },
 ];
 
 export const parentNavItems: NavItem[] = [

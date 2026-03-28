@@ -12,12 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Package, Star, Download, CheckCircle, XCircle,
   Shield, Users, Eye, Clock, AlertTriangle,
   DollarSign, Building, Award, Layers,
   Ban, Play, Trash2, RefreshCw,
+  DownloadCloud,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
@@ -77,6 +79,10 @@ function MarketplaceAdminContent() {
     endDate: "",
     isActive: true,
   });
+  const [selectedInstallationKeys, setSelectedInstallationKeys] = useState<string[]>([]);
+  const [selectedRegistryModules, setSelectedRegistryModules] = useState<string[]>([]);
+  const [bulkTenantId, setBulkTenantId] = useState("");
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
   // Queries
   const pendingModules = usePlatformQuery(
@@ -114,10 +120,16 @@ function MarketplaceAdminContent() {
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
+  const tenants = usePlatformQuery(
+    api.platform.tenants.queries.listAllTenants,
+    { sessionToken: sessionToken || "" }
+  ) as any[] | undefined;
+
   // Mutations
   const reviewModule = useMutation(api.platform.marketplace.reviewModule);
   const publishModule = useMutation(api.platform.marketplace.publishModule);
   const suspendModule = useMutation(api.platform.marketplace.suspendModule);
+  const installModule = useMutation(api.platform.marketplace.installModule);
   const updatePublisherVerification = useMutation(api.platform.marketplace.updatePublisherVerification);
   const setPublisherStatus = useMutation(api.platform.marketplace.setPublisherStatus);
   const seedCategories = useMutation(api.platform.marketplace.seedCategories);
@@ -250,6 +262,71 @@ function MarketplaceAdminContent() {
     }
   };
 
+  const toggleSelectedInstallation = (installation: any) => {
+    const key = `${installation.tenantId}:${installation.moduleId}`;
+    setSelectedInstallationKeys((current) =>
+      current.includes(key)
+        ? current.filter((value) => value !== key)
+        : [...current, key]
+    );
+  };
+
+  const toggleSelectedRegistryModule = (moduleId: string) => {
+    setSelectedRegistryModules((current) =>
+      current.includes(moduleId)
+        ? current.filter((value) => value !== moduleId)
+        : [...current, moduleId]
+    );
+  };
+
+  const handleBulkUninstall = async () => {
+    if (!sessionToken || selectedInstallationKeys.length === 0) return;
+    setIsBulkProcessing(true);
+    try {
+      const selected = (allInstallations || []).filter((inst: any) =>
+        selectedInstallationKeys.includes(`${inst.tenantId}:${inst.moduleId}`)
+      );
+
+      for (const installation of selected) {
+        await uninstallCatalogModule({
+          sessionToken,
+          tenantId: installation.tenantId,
+          moduleId: installation.moduleId,
+          reason: "Bulk uninstall from marketplace admin",
+        });
+      }
+
+      setSelectedInstallationKeys([]);
+      toast.success(`Removed ${selected.length} installation(s)`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  const handleBulkInstall = async () => {
+    if (!sessionToken || !bulkTenantId || selectedRegistryModules.length === 0) return;
+    setIsBulkProcessing(true);
+    try {
+      for (const moduleId of selectedRegistryModules) {
+        await installModule({
+          sessionToken,
+          tenantId: bulkTenantId,
+          moduleId,
+          configuration: {},
+          assignedRoles: ["school_admin"],
+        });
+      }
+      setSelectedRegistryModules([]);
+      toast.success(`Installed ${selectedRegistryModules.length} module(s) for tenant`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -335,6 +412,22 @@ function MarketplaceAdminContent() {
 
         {/* Installations */}
         <TabsContent value="installations" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">Tenant Installations</h3>
+              <p className="text-sm text-muted-foreground">
+                Select multiple active installations and remove them in one operation.
+              </p>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={handleBulkUninstall}
+              disabled={selectedInstallationKeys.length === 0 || isBulkProcessing}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Uninstall Selected ({selectedInstallationKeys.length})
+            </Button>
+          </div>
           {(allInstallations || []).length > 0 ? (
             <div className="space-y-2">
               {(allInstallations || []).map((inst: any) => (
@@ -342,6 +435,10 @@ function MarketplaceAdminContent() {
                   <CardContent className="pt-4 pb-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
+                        <Checkbox
+                          checked={selectedInstallationKeys.includes(`${inst.tenantId}:${inst.moduleId}`)}
+                          onCheckedChange={() => toggleSelectedInstallation(inst)}
+                        />
                         <Package className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <span className="font-medium text-sm">{inst.moduleName}</span>
@@ -504,21 +601,55 @@ function MarketplaceAdminContent() {
               <RefreshCw className="h-4 w-4 mr-2" />Sync Built-in Registry
             </Button>
           </div>
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
+                <div>
+                  <Label>Target Tenant for Bulk Install</Label>
+                  <Select value={bulkTenantId} onValueChange={setBulkTenantId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select tenant" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(tenants || []).map((tenant: any) => (
+                        <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                          {tenant.name} ({tenant.tenantId})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  onClick={handleBulkInstall}
+                  disabled={!bulkTenantId || selectedRegistryModules.length === 0 || isBulkProcessing}
+                >
+                  <DownloadCloud className="h-4 w-4 mr-2" />
+                  Install Selected ({selectedRegistryModules.length})
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
           {(moduleRegistry || []).length > 0 ? (
             <div className="space-y-2">
               {(moduleRegistry || []).map((mod: any) => (
                 <Card key={mod._id}>
                   <CardContent className="pt-4 pb-3">
                     <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={selectedRegistryModules.includes(mod.moduleId)}
+                          onCheckedChange={() => toggleSelectedRegistryModule(mod.moduleId)}
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
                           <h4 className="font-medium text-sm">{mod.name}</h4>
                           <Badge className={STATUS_COLORS[mod.status] || "bg-gray-100 text-gray-700"}>
                             {mod.status}
                           </Badge>
                           {mod.isCore && <Badge variant="outline" className="text-xs">Core</Badge>}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{mod.description}</p>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{mod.description}</p>
                       </div>
                       <div className="text-right text-xs text-muted-foreground">
                         <div>Module ID: {mod.moduleId}</div>
