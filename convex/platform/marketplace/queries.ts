@@ -12,57 +12,102 @@ const categoryValidator = v.union(
   v.literal("administration"), v.literal("security_compliance")
 );
 
+function mapDefinitionCategory(category: string) {
+  switch (category) {
+    case "academics":
+      return "academic_tools" as const;
+    case "communications":
+      return "communication" as const;
+    case "finance":
+      return "finance_fees" as const;
+    case "analytics":
+      return "analytics_bi" as const;
+    case "integrations":
+      return "integrations" as const;
+    case "security":
+      return "security_compliance" as const;
+    case "administration":
+    default:
+      return "administration" as const;
+  }
+}
+
+function buildBuiltinMarketplaceSummary(mod: (typeof ALL_MODULES)[number]) {
+  return {
+    _id: mod.moduleId as any,
+    _creationTime: 0,
+    moduleId: mod.moduleId,
+    name: mod.name,
+    description: mod.description,
+    shortDescription: mod.description,
+    fullDescription: mod.description,
+    category: mapDefinitionCategory(mod.category),
+    tier: mod.tier,
+    isCore: mod.isCore,
+    iconName: mod.iconName,
+    version: mod.version,
+    features: mod.features,
+    pricingModel: mod.pricing.monthly > 0 ? "monthly" : "free",
+    priceCents: mod.pricing.monthly > 0 ? mod.pricing.monthly * 100 : 0,
+    currency: mod.pricing.currency || "USD",
+    status: "published" as const,
+    publisherId: "edumyles",
+    publisherName: "EduMyles",
+    isFeatured: mod.isCore,
+    isVerified: true,
+    isSecurityReviewed: mod.isCore,
+    isGdprCompliant: false,
+    totalInstalls: 0,
+    activeInstalls: 0,
+    totalReviews: 0,
+    averageRating: 0,
+    compatiblePlans: Object.entries(TIER_MODULES)
+      .filter(([, mods]) => mods.includes(mod.moduleId) || CORE_MODULE_IDS.includes(mod.moduleId))
+      .map(([tier]) => tier),
+    tags: mod.features.slice(0, 5),
+    createdAt: 0,
+    updatedAt: 0,
+    publishedAt: 0,
+  };
+}
+
+function mergeWithBuiltinModules(modules: any[]) {
+  const merged = new Map<string, any>();
+
+  for (const mod of ALL_MODULES) {
+    merged.set(mod.moduleId, buildBuiltinMarketplaceSummary(mod));
+  }
+
+  for (const mod of modules) {
+    merged.set(mod.moduleId, mod);
+  }
+
+  return Array.from(merged.values());
+}
+
 function buildFallbackMarketplaceModule(moduleId: string) {
   const mod = ALL_MODULES.find((entry) => entry.moduleId === moduleId);
   if (!mod) return null;
 
   return {
     module: {
-      _id: mod.moduleId as any,
-      _creationTime: 0,
-      moduleId: mod.moduleId,
-      name: mod.name,
-      shortDescription: mod.description,
-      fullDescription: mod.description,
-      category: mod.category === "communications" ? "communication" : "administration",
+      ...buildBuiltinMarketplaceSummary(mod),
       subCategory: undefined,
-      tags: mod.features.slice(0, 5),
       iconUrl: undefined,
       screenshots: [],
       demoVideoUrl: undefined,
       featureHighlights: mod.features,
-      version: mod.version,
       edumylesMinVersion: undefined,
       edumylesMaxVersion: undefined,
       permissions: [],
       supportsOffline: false,
       dataResidency: [],
-      pricingModel: mod.pricing.monthly > 0 ? "monthly" : "free",
-      priceCents: mod.pricing.monthly > 0 ? mod.pricing.monthly * 100 : 0,
-      currency: mod.pricing.currency || "USD",
       trialDays: undefined,
       pricingTiers: undefined,
-      compatiblePlans: Object.entries(TIER_MODULES)
-        .filter(([, modules]) => modules.includes(mod.moduleId) || CORE_MODULE_IDS.includes(mod.moduleId))
-        .map(([tier]) => tier),
       systemRequirements: undefined,
-      publisherId: "edumyles",
-      publisherName: "EduMyles",
       supportUrl: undefined,
       documentationUrl: mod.documentation,
       privacyPolicyUrl: undefined,
-      totalInstalls: 0,
-      activeInstalls: 0,
-      averageRating: 0,
-      totalReviews: 0,
-      status: "published",
-      isFeatured: mod.isCore,
-      isVerified: true,
-      isSecurityReviewed: mod.isCore,
-      isGdprCompliant: false,
-      createdAt: 0,
-      updatedAt: 0,
-      publishedAt: 0,
     },
     publisher: {
       _id: "edumyles" as any,
@@ -94,7 +139,7 @@ function buildFallbackMarketplaceModule(moduleId: string) {
         moduleId: entry.moduleId,
         name: entry.name,
         shortDescription: entry.description,
-        category: entry.category === "communications" ? "communication" : "administration",
+        category: mapDefinitionCategory(entry.category),
         averageRating: 0,
         totalReviews: 0,
         totalInstalls: 0,
@@ -178,65 +223,22 @@ export const getMarketplaceHome = query({
       []
     );
 
+    const mergedModules = mergeWithBuiltinModules(allModules);
+
     // Count modules per category
     const categoryWithCounts = categories
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .map((cat) => ({
         ...cat,
-        moduleCount: allModules.filter((m) => m.category === cat.slug).length,
+        moduleCount: mergedModules.filter((m) => m.category === cat.slug).length,
       }));
-
-    // If marketplaceModules is empty, build fallback data from built-in module definitions
-    if (allModules.length === 0) {
-      const fallbackModules = ALL_MODULES.map((mod) => ({
-        _id: mod.moduleId as any,
-        _creationTime: 0,
-        moduleId: mod.moduleId,
-        name: mod.name,
-        description: mod.description,
-        shortDescription: mod.description,
-        category: "administration" as any,
-        tier: mod.tier,
-        isCore: mod.isCore,
-        iconName: mod.iconName,
-        version: mod.version,
-        features: mod.features,
-        pricingModel: "included" as any,
-        priceCents: 0,
-        status: "published" as any,
-        publisherName: "EduMyles",
-        isFeatured: mod.isCore,
-        totalInstalls: 0,
-        totalReviews: 0,
-        averageRating: 0,
-        compatiblePlans: Object.entries(TIER_MODULES)
-          .filter(([, mods]) => mods.includes(mod.moduleId))
-          .map(([tier]) => tier),
-        tags: mod.features.slice(0, 3),
-      }));
-
-      return {
-        stats: {
-          totalModules: fallbackModules.length,
-          totalInstalls: 0,
-          averageRating: 0,
-          totalPublishers: 1,
-        },
-        featuredBanners: [],
-        staffPicks: [],
-        newAndNoteworthy: fallbackModules.filter((m) => m.isCore).slice(0, 8),
-        topRated: [],
-        trending: fallbackModules.slice(0, 8),
-        categories: [],
-        recentActivity: [],
-      };
-    }
 
     // Stats
-    const totalInstalls = allModules.reduce((sum, m) => sum + m.totalInstalls, 0);
-    const avgRating = allModules.length > 0
-      ? allModules.filter((m) => m.totalReviews > 0).reduce((sum, m) => sum + m.averageRating, 0) /
-        Math.max(1, allModules.filter((m) => m.totalReviews > 0).length)
+    const totalInstalls = mergedModules.reduce((sum, m) => sum + (m.totalInstalls || 0), 0);
+    const ratedModules = mergedModules.filter((m) => (m.totalReviews || 0) > 0);
+    const avgRating = mergedModules.length > 0
+      ? ratedModules.reduce((sum, m) => sum + (m.averageRating || 0), 0) /
+        Math.max(1, ratedModules.length)
       : 0;
 
     // Recent activity
@@ -258,17 +260,32 @@ export const getMarketplaceHome = query({
 
     return {
       stats: {
-        totalModules: allModules.length,
+        totalModules: mergedModules.length,
         totalInstalls,
         averageRating: Math.round(avgRating * 10) / 10,
-        totalPublishers: publishers.length,
+        totalPublishers: Math.max(1, publishers.length),
       },
       featuredBanners: activeBanners,
       staffPicks,
-      newAndNoteworthy: newModules,
+      newAndNoteworthy: newModules.length > 0
+        ? newModules
+        : mergedModules.filter((m) => m.isFeatured).slice(0, 8),
       topRated,
-      trending,
-      categories: categoryWithCounts,
+      trending: trending.length > 0 ? trending : mergedModules.slice(0, 8),
+      categories: categoryWithCounts.length > 0
+        ? categoryWithCounts
+        : [
+            ...new Map(
+              mergedModules.map((m) => [
+                m.category,
+                {
+                  slug: m.category,
+                  name: m.category.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
+                  moduleCount: mergedModules.filter((entry) => entry.category === m.category).length,
+                },
+              ])
+            ).values(),
+          ],
       recentActivity,
     };
   },
@@ -311,37 +328,13 @@ export const browseModules = query({
       modules = [];
     }
 
-    // Fallback to built-in module definitions when marketplace table is empty
-    if (modules.length === 0) {
-      modules = ALL_MODULES.map((mod) => ({
-        _id: mod.moduleId as any,
-        _creationTime: 0,
-        moduleId: mod.moduleId,
-        name: mod.name,
-        description: mod.description,
-        shortDescription: mod.description,
-        category: "administration" as any,
-        tier: mod.tier,
-        isCore: mod.isCore,
-        iconName: mod.iconName,
-        version: mod.version,
-        features: mod.features,
-        pricingModel: "included" as any,
-        priceCents: 0,
-        status: "published" as any,
-        publisherName: "EduMyles",
-        isFeatured: mod.isCore,
-        totalInstalls: 0,
-        totalReviews: 0,
-        averageRating: 0,
-        compatiblePlans: Object.entries(TIER_MODULES)
-          .filter(([, mods]) => mods.includes(mod.moduleId))
-          .map(([tier]) => tier),
-        tags: mod.features.slice(0, 3),
-      }));
-    }
+    modules = mergeWithBuiltinModules(modules);
 
     // Apply filters
+    if (args.category) {
+      modules = modules.filter((m) => m.category === args.category);
+    }
+
     if (args.search) {
       const searchLower = args.search.toLowerCase();
       modules = modules.filter((m) =>
