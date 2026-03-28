@@ -251,6 +251,92 @@ function MarketplaceAdminContent() {
     }
   };
 
+  const handleUninstall = async (installation: any) => {
+    if (!sessionToken) return;
+    try {
+      await uninstallCatalogModule({
+        sessionToken,
+        tenantId: installation.tenantId,
+        moduleId: installation.moduleId,
+        reason: "Removed by marketplace administrator",
+      });
+      toast.success("Installation removed");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const openCategoryDialog = (category?: any) => {
+    setEditingCategory(category || null);
+    setCategoryForm({
+      slug: category?.slug || "",
+      name: category?.name || "",
+      description: category?.description || "",
+      iconName: category?.iconName || "",
+      sortOrder: category?.sortOrder || 1,
+      isActive: category?.isActive ?? true,
+    });
+    setIsCategoryOpen(true);
+  };
+
+  const handleSaveCategory = async () => {
+    if (!sessionToken) return;
+    try {
+      await upsertCategory({
+        sessionToken,
+        slug: categoryForm.slug,
+        name: categoryForm.name,
+        description: categoryForm.description,
+        iconName: categoryForm.iconName || undefined,
+        parentSlug: undefined,
+        sortOrder: categoryForm.sortOrder,
+        isActive: categoryForm.isActive,
+      });
+      setIsCategoryOpen(false);
+      toast.success("Category saved");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const openFeaturedDialog = (placement?: any) => {
+    setEditingFeatured(placement || null);
+    setFeaturedForm({
+      title: placement?.title || "",
+      description: placement?.description || "",
+      type: placement?.type || "banner",
+      moduleIds: placement?.moduleIds?.join(", ") || "",
+      sortOrder: placement?.sortOrder || 1,
+      startDate: placement?.startDate ? new Date(placement.startDate).toISOString().slice(0, 10) : "",
+      endDate: placement?.endDate ? new Date(placement.endDate).toISOString().slice(0, 10) : "",
+      isActive: placement?.isActive ?? true,
+    });
+    setIsFeaturedOpen(true);
+  };
+
+  const handleSaveFeatured = async () => {
+    if (!sessionToken) return;
+    try {
+      await manageFeaturedPlacement({
+        sessionToken,
+        id: editingFeatured?._id,
+        title: featuredForm.title,
+        description: featuredForm.description || undefined,
+        type: featuredForm.type as any,
+        moduleIds: featuredForm.moduleIds.split(",").map((value) => value.trim()).filter(Boolean),
+        sortOrder: featuredForm.sortOrder,
+        isActive: featuredForm.isActive,
+        imageUrl: undefined,
+        startDate: new Date(featuredForm.startDate || Date.now()).getTime(),
+        endDate: new Date(featuredForm.endDate || Date.now()).getTime(),
+      });
+      setIsFeaturedOpen(false);
+      toast.success("Featured placement saved");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
