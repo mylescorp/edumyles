@@ -33,6 +33,7 @@ export {
   voteReview,
   registerPublisher,
   updatePublisherVerification,
+  setPublisherStatus,
   upsertCategory,
   manageFeaturedPlacement,
   fileDispute,
