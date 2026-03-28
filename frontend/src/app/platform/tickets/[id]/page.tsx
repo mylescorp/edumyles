@@ -114,10 +114,13 @@ export default function TicketDetailPage() {
   const addComment = useMutation(api.tickets.addComment);
 
   // Users for @mentions from real platform users query
-  const allPlatformUsers = useQuery(api.platform.users.queries.listAllUsers, { sessionToken: "" }) as
-    Array<{ _id: string; email: string; firstName?: string; lastName?: string; role: string }> | undefined;
+  const platformUsers = usePlatformQuery(
+    api.platform.users.queries.listAllUsers,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  ) as Array<{ _id: string; email: string; firstName?: string; lastName?: string; role: string }> | undefined;
 
-  const mentionableUsers = (allPlatformUsers ?? []).map(u => ({
+  const mentionableUsers = (platformUsers ?? []).map(u => ({
     id: u._id,
     email: u.email,
     name: u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.email.split("@")[0],

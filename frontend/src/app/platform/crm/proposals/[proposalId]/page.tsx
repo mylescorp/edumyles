@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
@@ -177,7 +177,7 @@ export default function ProposalDetailPage() {
         breadcrumbs={[
           { label: "CRM", href: "/platform/crm" },
           { label: "Proposals", href: "/platform/crm/proposals" },
-          { label: proposal.schoolName, href: `/platform/crm/proposals/${proposalId}` }
+          { label: effectiveProposal.schoolName, href: `/platform/crm/proposals/${proposalId}` }
         ]}
       />
 
@@ -268,7 +268,7 @@ export default function ProposalDetailPage() {
               ) : (
                 <div className="prose max-w-none">
                   <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {proposal.content}
+                    {effectiveProposal.content}
                   </div>
                 </div>
               )}
