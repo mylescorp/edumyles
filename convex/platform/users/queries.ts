@@ -30,12 +30,18 @@ export const getCurrentPlatformUser = query({
                 return byWorkosId;
             }
 
-            return await ctx.db
+            const byPlatformEmail = await ctx.db
                 .query("users")
                 .withIndex("by_tenant_email", (q) =>
                     q.eq("tenantId", session.tenantId).eq("email", session.email || "")
                 )
                 .first();
+            if (byPlatformEmail) {
+                return byPlatformEmail;
+            }
+
+            const allUsers = await ctx.db.query("users").collect();
+            return allUsers.find((user) => user.email === session.email) || null;
         } catch (error) {
             console.error("Error in getCurrentPlatformUser:", error);
             // Return null instead of throwing to prevent app crashes

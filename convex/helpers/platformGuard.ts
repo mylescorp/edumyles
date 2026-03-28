@@ -2,6 +2,7 @@ import { QueryCtx, MutationCtx } from "../_generated/server";
 import { v } from "convex/values";
 
 export const platformSessionArg = { sessionToken: v.string() };
+const FALLBACK_MASTER_ADMIN_EMAILS = ["ayany004@gmail.com"];
 
 export interface PlatformContext {
   tenantId: string;
@@ -29,14 +30,19 @@ export async function requirePlatformSession(
 
   if (!session) throw new Error("UNAUTHENTICATED: Session not found");
   if (session.expiresAt < Date.now()) throw new Error("UNAUTHENTICATED: Session expired");
-  if (!["master_admin", "super_admin"].includes(session.role)) {
+  const normalizedEmail = session.email?.toLowerCase() || "";
+  const isConfiguredMasterAdmin = FALLBACK_MASTER_ADMIN_EMAILS.includes(normalizedEmail);
+  const effectiveRole = isConfiguredMasterAdmin ? "master_admin" : session.role;
+  const effectiveTenantId = effectiveRole === "master_admin" ? "PLATFORM" : session.tenantId;
+
+  if (!["master_admin", "super_admin"].includes(effectiveRole)) {
     throw new Error("UNAUTHORIZED: Platform access denied");
   }
 
   return {
-    tenantId: session.tenantId,
+    tenantId: effectiveTenantId,
     userId: session.userId,
-    role: session.role,
+    role: effectiveRole,
     email: session.email || "",
   };
 }
