@@ -222,11 +222,77 @@ export const getMyWalletBalance = query({
         const tenant = await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "ewallet");
 
-        // For now, if no wallet table exists, we return a mock or 0.
-        // Looking at schema, there isn't an ewallet table yet.
-        // The implementation plan says eWallet is Phase 10.
-        // I'll return a mock balance for now if the table is missing.
-        return { balanceCents: 0, currency: "KES" };
+        const student = await ctx.db
+            .query("students")
+            .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
+            .first();
+
+        if (!student) return { balanceCents: 0, currency: "KES" };
+
+        const wallet = await ctx.db
+            .query("wallets")
+            .withIndex("by_owner", (q) =>
+                q.eq("tenantId", tenant.tenantId).eq("ownerId", student._id.toString())
+            )
+            .first();
+
+        if (!wallet) return { balanceCents: 0, currency: "KES" };
+
+        return { balanceCents: wallet.balanceCents, currency: wallet.currency || "KES" };
+    },
+});
+
+export const getMyTransactionHistory = query({
+    args: {
+        limit: v.optional(v.number()),
+        type: v.optional(v.union(v.literal("credit"), v.literal("debit"), v.literal("refund"))),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "ewallet");
+
+        const student = await ctx.db
+            .query("students")
+            .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
+            .first();
+
+        if (!student) return [];
+
+        const wallet = await ctx.db
+            .query("wallets")
+            .withIndex("by_owner", (q) =>
+                q.eq("tenantId", tenant.tenantId).eq("ownerId", student._id.toString())
+            )
+            .first();
+
+        if (!wallet) return [];
+
+        const transactions = await ctx.db
+            .query("walletTransactions")
+            .withIndex("by_wallet", (q) => q.eq("walletId", wallet._id.toString()))
+            .order("desc")
+            .take(args.limit ?? 50);
+
+        const filtered = args.type
+            ? transactions.filter((t) => t.type === args.type)
+            : transactions;
+
+        // Compute running balance (approx, descending order)
+        let runningBalance = wallet.balanceCents;
+        return filtered.map((t) => {
+            const balanceAfter = runningBalance;
+            if (t.type === "credit" || t.type === "refund") {
+                runningBalance -= t.amountCents;
+            } else {
+                runningBalance += t.amountCents;
+            }
+            return {
+                ...t,
+                description: t.reference || (t.type === "credit" ? "Wallet Top-up" : t.type === "refund" ? "Refund" : "Payment"),
+                balanceAfter,
+                referenceType: t.orderId ? "order" : t.reference ? "manual" : undefined,
+            };
+        });
     },
 });
 
