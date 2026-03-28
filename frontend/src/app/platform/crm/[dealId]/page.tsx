@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
@@ -74,63 +74,6 @@ interface Deal {
   activities: Activity[];
 }
 
-const mockDeal: Deal = {
-  _id: "1",
-  schoolName: "Nairobi International Academy",
-  contactPerson: "Sarah Johnson",
-  email: "sarah@nairobi-academy.edu",
-  phone: "+254 712 345 678",
-  county: "Nairobi",
-  schoolType: "International",
-  currentStudents: 450,
-  potentialStudents: 600,
-  stage: "proposal",
-  value: 150000,
-  currency: "KES",
-  source: "Website",
-  assignedTo: "michael.chen@edumyles.com",
-  createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-  lastActivity: Date.now() - 2 * 24 * 60 * 60 * 1000,
-  expectedCloseDate: Date.now() + 15 * 24 * 60 * 60 * 1000,
-  probability: 60,
-  tags: ["International", "Urban", "Large"],
-  notes: "Interested in Growth plan with custom modules. Decision maker is the school director. They have specific requirements for student assessment and parent communication modules. Budget is flexible but needs approval from board.",
-  activities: [
-    {
-      _id: "1",
-      type: "call",
-      title: "Initial discovery call",
-      description: "Discussed their current system pain points and requirements. They use a legacy system that's difficult to maintain. Key pain points: manual grade reporting, poor parent communication, limited analytics.",
-      createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      createdBy: "michael.chen@edumyles.com"
-    },
-    {
-      _id: "2",
-      type: "meeting",
-      title: "On-site demonstration",
-      description: "Full platform demonstration for school management team. Showed student management, gradebook, parent portal, and reporting features. Team was impressed with the user interface and mobile app.",
-      createdAt: Date.now() - 4 * 24 * 60 * 60 * 1000,
-      createdBy: "michael.chen@edumyles.com"
-    },
-    {
-      _id: "3",
-      type: "email",
-      title: "Sent proposal",
-      description: "Custom proposal for Growth plan with pricing. Included 3-year contract with annual maintenance. Proposal covers 600 students with custom branding and data migration.",
-      createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      createdBy: "michael.chen@edumyles.com"
-    },
-    {
-      _id: "4",
-      type: "note",
-      title: "Follow-up required",
-      description: "School board meeting scheduled for next week to review proposal. Need to prepare ROI analysis and case studies from similar schools.",
-      createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-      createdBy: "michael.chen@edumyles.com"
-    }
-  ]
-};
-
 const pipelineStages = [
   { id: "lead", name: "Lead", color: "bg-gray-100 border-gray-200" },
   { id: "qualified", name: "Qualified", color: "bg-blue-100 border-blue-200" },
@@ -145,18 +88,17 @@ export default function DealDetailPage() {
   const dealId = params.dealId as string;
   const { sessionToken } = useAuth();
 
+  const updateDealMutation = useMutation(api.platform.crm.mutations.updateDeal);
+  const addActivityMutation = useMutation(api.platform.crm.mutations.addActivity);
+  const moveStageMutation = useMutation(api.platform.crm.mutations.moveDealStage);
+
   const dealData = usePlatformQuery(
     api.platform.crm.queries.getDealById,
     { sessionToken: sessionToken || "", dealId },
     !!sessionToken
   );
 
-  const [deal, setDeal] = useState<Deal | null>(null);
-
-  // Sync query data to local state for editing
-  if (dealData && !deal) {
-    setDeal(dealData as any);
-  }
+  const deal = dealData as any;
 
   const [newActivity, setNewActivity] = useState({
     type: "note" as const,
@@ -164,7 +106,11 @@ export default function DealDetailPage() {
     description: ""
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDeal, setEditedDeal] = useState<Deal>(deal);
+  const [editedDeal, setEditedDeal] = useState<any>(null);
+
+  useEffect(() => {
+    if (deal && !editedDeal) setEditedDeal(deal);
+  }, [deal]);
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-KE', {
@@ -198,37 +144,51 @@ export default function DealDetailPage() {
     }
   };
 
-  const handleAddActivity = () => {
-    if (newActivity.title && newActivity.description) {
-      const activity: Activity = {
-        _id: Date.now().toString(),
-        ...newActivity,
-        createdAt: Date.now(),
-        createdBy: "current.user@edumyles.com"
-      };
-      
-      setDeal({
-        ...deal,
-        activities: [activity, ...deal.activities],
-        lastActivity: Date.now()
+  const handleAddActivity = async () => {
+    if (!newActivity.title || !newActivity.description || !sessionToken) return;
+    try {
+      await addActivityMutation({
+        sessionToken,
+        dealId,
+        type: newActivity.type,
+        title: newActivity.title,
+        description: newActivity.description,
       });
-      
       setNewActivity({ type: "note", title: "", description: "" });
+    } catch (e: any) {
+      console.error("Failed to add activity:", e.message);
     }
   };
 
-  const handleUpdateDeal = () => {
-    setDeal(editedDeal);
-    setIsEditing(false);
+  const handleUpdateDeal = async () => {
+    if (!sessionToken || !editedDeal) return;
+    try {
+      await updateDealMutation({
+        sessionToken,
+        dealId,
+        schoolName: editedDeal.schoolName,
+        contactPerson: editedDeal.contactPerson,
+        email: editedDeal.email,
+        phone: editedDeal.phone,
+        value: editedDeal.value,
+        probability: editedDeal.probability,
+      });
+      setIsEditing(false);
+    } catch (e: any) {
+      console.error("Failed to update deal:", e.message);
+    }
   };
 
-  const handleStageChange = (newStage: string) => {
-    const updatedDeal = { ...deal, stage: newStage as Deal['stage'] };
-    setDeal(updatedDeal);
-    setEditedDeal(updatedDeal);
+  const handleStageChange = async (newStage: string) => {
+    if (!sessionToken) return;
+    try {
+      await moveStageMutation({ sessionToken, dealId, newStage: newStage as any });
+    } catch (e: any) {
+      console.error("Failed to move stage:", e.message);
+    }
   };
 
-  if (!deal) return <div className="p-6 text-center text-muted-foreground">Loading deal details...</div>;
+  if (!deal) return <div className="p-6 text-center text-muted-foreground">{dealData === undefined ? "Loading..." : "Deal not found"}</div>;
 
   return (
     <div className="space-y-6">
@@ -533,7 +493,7 @@ export default function DealDetailPage() {
                   id="expectedCloseDate"
                   type="date"
                   value={new Date(deal.expectedCloseDate).toISOString().split('T')[0]}
-                  onChange={(e) => setDeal({...deal, expectedCloseDate: new Date(e.target.value).getTime()})}
+                  onChange={() => {}}
                 />
               </div>
 

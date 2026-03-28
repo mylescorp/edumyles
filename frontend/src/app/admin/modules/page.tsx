@@ -89,6 +89,15 @@ export default function ModuleManagementPage() {
     }
   };
 
+  // Build reverse dependency map: moduleId -> modules that depend on it
+  const reverseDepsMap: Record<string, string[]> = {};
+  availableModules?.forEach(mod => {
+    (mod.dependencies || []).forEach((dep: string) => {
+      if (!reverseDepsMap[dep]) reverseDepsMap[dep] = [];
+      reverseDepsMap[dep].push(mod.moduleId);
+    });
+  });
+
   // Prepare data for dependency visualizer
   const dependencyData = availableModules?.map(module => ({
     moduleId: module.moduleId,
@@ -97,7 +106,7 @@ export default function ModuleManagementPage() {
     isActive: module.isCore || installedModules.find(m => m.moduleId === module.moduleId)?.status === "active",
     isCore: module.isCore,
     dependencies: module.dependencies || [],
-    dependents: [], // This would need to be calculated based on reverse dependencies
+    dependents: reverseDepsMap[module.moduleId] || [],
   })) || [];
 
   return (

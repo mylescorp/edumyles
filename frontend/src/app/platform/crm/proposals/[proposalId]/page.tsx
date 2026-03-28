@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
@@ -71,95 +71,6 @@ interface Proposal {
   };
 }
 
-const mockProposal: Proposal = {
-  _id: "1",
-  templateId: "1",
-  dealId: "1",
-  schoolName: "Nairobi International Academy",
-  status: "sent",
-  variables: {
-    school_name: "Nairobi International Academy",
-    current_students: 450,
-    recommended_plan: "Growth",
-    implementation_weeks: 6,
-    custom_introduction: "We understand your need for a comprehensive solution that scales with your growth."
-  },
-  content: `Dear Nairobi International Academy,
-
-We are pleased to present this comprehensive proposal for implementing EduMyles School Management System at your institution. Our solution is designed to streamline your administrative processes and enhance the educational experience for both staff and students.
-
-We understand your need for a comprehensive solution that scales with your growth.
-
-## Solution Overview
-
-EduMyles provides a complete school management solution including:
-
-• Student Information Management
-• Grade Book and Assessment Tools
-• Parent Portal and Communication
-• Financial Management
-• Reporting and Analytics
-• Mobile App Access
-
-## Pricing Details
-
-Based on your requirements for 450 students, we recommend the Growth plan:
-
-### Growth Plan - KES 75,000 Setup + KES 25,000/month
-
-**Setup Fee:** KES 75,000 (one-time)
-**Monthly Fee:** KES 25,000
-**Per Student Fee:** KES 80
-**Total Monthly Cost:** KES 61,000 (450 × KES 80 + KES 25,000)
-
-## Implementation Timeline
-
-Our implementation process typically takes 6 weeks:
-
-Week 1: Data Migration and Setup
-Week 2: Staff Training
-Week 3: System Testing
-Week 4: Additional Customization
-Week 5: User Acceptance Testing
-Week 6: Go Live
-
-## Terms and Conditions
-
-1. **Payment Terms:** 50% upfront, 50% upon completion
-2. **Support:** 24/7 email and phone support included
-3. **Training:** On-site training for all staff members
-4. **Data Migration:** Complete data migration from existing systems
-5. **Customization:** Up to 20 hours of customization included
-
-We look forward to partnering with Nairobi International Academy to transform your school management experience.
-
-Best regards,
-Michael Chen
-Sales Director
-EduMyles Technologies`,
-  sentAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-  createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-  updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-  createdBy: "michael.chen@edumyles.com",
-  template: {
-    name: "Standard School Package",
-    description: "Complete proposal for standard school management system",
-    category: "standard"
-  },
-  school: {
-    contactPerson: "Sarah Johnson",
-    email: "sarah@nairobi-academy.edu",
-    phone: "+254 712 345 678",
-    address: "Nairobi, Kenya"
-  },
-  pricing: {
-    setupFee: 75000,
-    monthlyFee: 25000,
-    totalValue: 75000 + (25000 * 12), // First year total
-    currency: "KES"
-  }
-};
-
 export default function ProposalDetailPage() {
   const params = useParams();
   const proposalId = params.proposalId as string;
@@ -171,15 +82,14 @@ export default function ProposalDetailPage() {
     !!sessionToken
   );
 
-  const [proposal, setProposal] = useState<Proposal | null>(null);
+  const proposal = proposalData as any;
   const [isEditing, setIsEditing] = useState(false);
-
-  if (proposalData && !proposal) {
-    setProposal(proposalData as any);
-  }
   const [isSignatureDialogOpen, setIsSignatureDialogOpen] = useState(false);
   const [signatureData, setSignatureData] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [proposalOverrides, setProposalOverrides] = useState<Partial<Proposal>>({});
+
+  const effectiveProposal = proposal ? { ...proposal, ...proposalOverrides } : proposal;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -223,24 +133,24 @@ export default function ProposalDetailPage() {
     setIsSending(true);
     // Simulate sending
     await new Promise(resolve => setTimeout(resolve, 2000));
-    setProposal({
-      ...proposal,
+    setProposalOverrides(prev => ({
+      ...prev,
       status: "sent",
       sentAt: Date.now(),
       updatedAt: Date.now()
-    });
+    }));
     setIsSending(false);
   };
 
   const handleSignProposal = () => {
     if (signatureData) {
-      setProposal({
-        ...proposal,
+      setProposalOverrides(prev => ({
+        ...prev,
         status: "signed",
         signedAt: Date.now(),
         signatureUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
         updatedAt: Date.now()
-      });
+      }));
       setIsSignatureDialogOpen(false);
     }
   };
@@ -249,7 +159,7 @@ export default function ProposalDetailPage() {
     // Simulate PDF download
     const link = document.createElement('a');
     link.href = '#';
-    link.download = `proposal_${proposal.schoolName.replace(/\s+/g, '_')}.pdf`;
+    link.download = `proposal_${effectiveProposal?.schoolName?.replace(/\s+/g, '_') ?? "proposal"}.pdf`;
     link.click();
   };
 
@@ -257,12 +167,12 @@ export default function ProposalDetailPage() {
     window.print();
   };
 
-  if (!proposal) return <div className="p-6 text-center text-muted-foreground">Loading proposal...</div>;
+  if (!effectiveProposal) return <div className="p-6 text-center text-muted-foreground">{proposalData === undefined ? "Loading..." : "Proposal not found"}</div>;
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Proposal: ${proposal.schoolName}`} 
+        title={`Proposal: ${effectiveProposal.schoolName}`} 
         description="Manage proposal details and track e-signature status"
         breadcrumbs={[
           { label: "CRM", href: "/platform/crm" },
@@ -279,15 +189,15 @@ export default function ProposalDetailPage() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-xl">{proposal.schoolName}</CardTitle>
-                  <p className="text-muted-foreground mt-1">{proposal.template.description}</p>
+                  <CardTitle className="text-xl">{effectiveProposal.schoolName}</CardTitle>
+                  <p className="text-muted-foreground mt-1">{effectiveProposal.template.description}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(proposal.status)}`}>
-                    {getStatusIcon(proposal.status)}
-                    <span>{proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}</span>
+                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(effectiveProposal.status)}`}>
+                    {getStatusIcon(effectiveProposal.status)}
+                    <span>{effectiveProposal.status.charAt(0).toUpperCase() + effectiveProposal.status.slice(1)}</span>
                   </div>
-                  <Badge variant="outline">{proposal.template.category}</Badge>
+                  <Badge variant="outline">{effectiveProposal.template.category}</Badge>
                 </div>
               </div>
             </CardHeader>
@@ -295,33 +205,33 @@ export default function ProposalDetailPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Template</Label>
-                  <div className="font-medium">{proposal.template.name}</div>
+                  <div className="font-medium">{effectiveProposal.template.name}</div>
                 </div>
                 <div>
                   <Label>Created By</Label>
-                  <div className="font-medium">{proposal.createdBy.split("@")[0]}</div>
+                  <div className="font-medium">{effectiveProposal.createdBy.split("@")[0]}</div>
                 </div>
                 <div>
                   <Label>Created Date</Label>
-                  <div className="font-medium">{formatDate(proposal.createdAt)}</div>
+                  <div className="font-medium">{formatDate(effectiveProposal.createdAt)}</div>
                 </div>
                 <div>
                   <Label>Last Updated</Label>
-                  <div className="font-medium">{formatDate(proposal.updatedAt)}</div>
+                  <div className="font-medium">{formatDate(effectiveProposal.updatedAt)}</div>
                 </div>
               </div>
               
-              {proposal.sentAt && (
+              {effectiveProposal.sentAt && (
                 <div>
                   <Label>Sent Date</Label>
-                  <div className="font-medium">{formatDate(proposal.sentAt)}</div>
+                  <div className="font-medium">{formatDate(effectiveProposal.sentAt)}</div>
                 </div>
               )}
               
-              {proposal.signedAt && (
+              {effectiveProposal.signedAt && (
                 <div>
                   <Label>Signed Date</Label>
-                  <div className="font-medium">{formatDate(proposal.signedAt)}</div>
+                  <div className="font-medium">{formatDate(effectiveProposal.signedAt)}</div>
                 </div>
               )}
             </CardContent>
@@ -351,8 +261,8 @@ export default function ProposalDetailPage() {
             <CardContent>
               {isEditing ? (
                 <Textarea
-                  value={proposal.content}
-                  onChange={(e) => setProposal({...proposal, content: e.target.value})}
+                  value={effectiveProposal.content}
+                  onChange={(e) => setProposalOverrides(prev => ({ ...prev, content: e.target.value }))}
                   className="min-h-96"
                 />
               ) : (
@@ -376,28 +286,28 @@ export default function ProposalDetailPage() {
                   <Label>Contact Person</Label>
                   <div className="font-medium flex items-center gap-2">
                     <User className="h-4 w-4" />
-                    {proposal.school.contactPerson}
+                    {effectiveProposal.school.contactPerson}
                   </div>
                 </div>
                 <div>
                   <Label>Email</Label>
                   <div className="font-medium flex items-center gap-2">
                     <Mail className="h-4 w-4" />
-                    {proposal.school.email}
+                    {effectiveProposal.school.email}
                   </div>
                 </div>
                 <div>
                   <Label>Phone</Label>
                   <div className="font-medium flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    {proposal.school.phone}
+                    {effectiveProposal.school.phone}
                   </div>
                 </div>
                 <div>
                   <Label>Address</Label>
                   <div className="font-medium flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    {proposal.school.address}
+                    {effectiveProposal.school.address}
                   </div>
                 </div>
               </div>
@@ -414,19 +324,19 @@ export default function ProposalDetailPage() {
                 <div>
                   <Label>Setup Fee</Label>
                   <div className="font-medium text-lg">
-                    {formatCurrency(proposal.pricing.setupFee, proposal.pricing.currency)}
+                    {formatCurrency(effectiveProposal.pricing.setupFee, effectiveProposal.pricing.currency)}
                   </div>
                 </div>
                 <div>
                   <Label>Monthly Fee</Label>
                   <div className="font-medium text-lg">
-                    {formatCurrency(proposal.pricing.monthlyFee, proposal.pricing.currency)}
+                    {formatCurrency(effectiveProposal.pricing.monthlyFee, effectiveProposal.pricing.currency)}
                   </div>
                 </div>
                 <div>
                   <Label>First Year Total</Label>
                   <div className="font-medium text-lg text-green-600">
-                    {formatCurrency(proposal.pricing.totalValue, proposal.pricing.currency)}
+                    {formatCurrency(effectiveProposal.pricing.totalValue, effectiveProposal.pricing.currency)}
                   </div>
                 </div>
               </div>
@@ -438,15 +348,15 @@ export default function ProposalDetailPage() {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span>Setup Fee (One-time)</span>
-                    <span>{formatCurrency(proposal.pricing.setupFee, proposal.pricing.currency)}</span>
+                    <span>{formatCurrency(effectiveProposal.pricing.setupFee, effectiveProposal.pricing.currency)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Monthly Subscription (12 months)</span>
-                    <span>{formatCurrency(proposal.pricing.monthlyFee * 12, proposal.pricing.currency)}</span>
+                    <span>{formatCurrency(effectiveProposal.pricing.monthlyFee * 12, effectiveProposal.pricing.currency)}</span>
                   </div>
                   <div className="flex justify-between font-medium text-lg">
                     <span>Total First Year</span>
-                    <span className="text-green-600">{formatCurrency(proposal.pricing.totalValue, proposal.pricing.currency)}</span>
+                    <span className="text-green-600">{formatCurrency(effectiveProposal.pricing.totalValue, effectiveProposal.pricing.currency)}</span>
                   </div>
                 </div>
               </div>
@@ -454,7 +364,7 @@ export default function ProposalDetailPage() {
           </Card>
 
           {/* Signature Section */}
-          {proposal.signatureUrl && (
+          {effectiveProposal.signatureUrl && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -466,13 +376,13 @@ export default function ProposalDetailPage() {
                 <div className="space-y-4">
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                     <img 
-                      src={proposal.signatureUrl} 
+                      src={effectiveProposal.signatureUrl} 
                       alt="Signature" 
                       className="max-h-32 mx-auto"
                     />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Signed on {formatDate(proposal.signedAt!)}
+                    Signed on {formatDate(effectiveProposal.signedAt!)}
                   </div>
                 </div>
               </CardContent>
@@ -488,7 +398,7 @@ export default function ProposalDetailPage() {
               <CardTitle>Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {proposal.status === "draft" && (
+              {effectiveProposal.status === "draft" && (
                 <Button 
                   className="w-full" 
                   onClick={handleSendProposal}
@@ -499,7 +409,7 @@ export default function ProposalDetailPage() {
                 </Button>
               )}
               
-              {proposal.status === "sent" && (
+              {effectiveProposal.status === "sent" && (
                 <Button className="w-full" onClick={() => setIsSignatureDialogOpen(true)}>
                   <Signature className="h-4 w-4 mr-1" />
                   Request Signature
@@ -534,7 +444,7 @@ export default function ProposalDetailPage() {
               <CardTitle>Template Variables</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {Object.entries(proposal.variables).map(([key, value]) => (
+              {Object.entries(effectiveProposal.variables).map(([key, value]) => (
                 <div key={key} className="space-y-1">
                   <Label className="text-sm">{key}</Label>
                   <div className="text-sm font-medium bg-muted p-2 rounded">
@@ -555,36 +465,36 @@ export default function ProposalDetailPage() {
                 <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                 <div>
                   <div className="font-medium text-sm">Proposal Created</div>
-                  <div className="text-xs text-muted-foreground">{formatDate(proposal.createdAt)}</div>
+                  <div className="text-xs text-muted-foreground">{formatDate(effectiveProposal.createdAt)}</div>
                 </div>
               </div>
               
-              {proposal.sentAt && (
+              {effectiveProposal.sentAt && (
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
                     <div className="font-medium text-sm">Proposal Sent</div>
-                    <div className="text-xs text-muted-foreground">{formatDate(proposal.sentAt)}</div>
+                    <div className="text-xs text-muted-foreground">{formatDate(effectiveProposal.sentAt)}</div>
                   </div>
                 </div>
               )}
               
-              {proposal.viewedAt && (
+              {effectiveProposal.viewedAt && (
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
                   <div>
                     <div className="font-medium text-sm">Proposal Viewed</div>
-                    <div className="text-xs text-muted-foreground">{formatDate(proposal.viewedAt)}</div>
+                    <div className="text-xs text-muted-foreground">{formatDate(effectiveProposal.viewedAt)}</div>
                   </div>
                 </div>
               )}
               
-              {proposal.signedAt && (
+              {effectiveProposal.signedAt && (
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
                   <div>
                     <div className="font-medium text-sm">Proposal Signed</div>
-                    <div className="text-xs text-muted-foreground">{formatDate(proposal.signedAt)}</div>
+                    <div className="text-xs text-muted-foreground">{formatDate(effectiveProposal.signedAt)}</div>
                   </div>
                 </div>
               )}
@@ -603,8 +513,8 @@ export default function ProposalDetailPage() {
             <div>
               <Label>Send signature request to:</Label>
               <div className="mt-2 p-3 bg-muted rounded">
-                <div className="font-medium">{proposal.school.contactPerson}</div>
-                <div className="text-sm text-muted-foreground">{proposal.school.email}</div>
+                <div className="font-medium">{effectiveProposal.school.contactPerson}</div>
+                <div className="text-sm text-muted-foreground">{effectiveProposal.school.email}</div>
               </div>
             </div>
             

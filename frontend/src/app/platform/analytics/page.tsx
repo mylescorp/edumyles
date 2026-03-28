@@ -476,30 +476,40 @@ export default function AdvancedAnalyticsPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="report-name">Report Name</Label>
-                <Input id="report-name" placeholder="Enter report name" />
+                <Input
+                  id="report-name"
+                  placeholder="Enter report name"
+                  value={reportName}
+                  onChange={(e) => setReportName(e.target.value)}
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="report-description">Description</Label>
-                <Textarea id="report-description" placeholder="Describe your report" />
+                <Textarea
+                  id="report-description"
+                  placeholder="Describe your report"
+                  value={reportDescription}
+                  onChange={(e) => setReportDescription(e.target.value)}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>Report Type</Label>
-                  <Select>
+                  <Select value={reportType} onValueChange={setReportType}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="financial">Financial</SelectItem>
-                      <SelectItem value="operational">Operational</SelectItem>
-                      <SelectItem value="usage">Usage Analytics</SelectItem>
+                      <SelectItem value="tenant_analytics">Financial</SelectItem>
+                      <SelectItem value="workflow_analytics">Operational</SelectItem>
+                      <SelectItem value="user_analytics">Usage Analytics</SelectItem>
                       <SelectItem value="custom">Custom</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
                   <Label>Format</Label>
-                  <Select>
+                  <Select value={reportFormat} onValueChange={setReportFormat}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select format" />
                     </SelectTrigger>
@@ -513,7 +523,7 @@ export default function AdvancedAnalyticsPage() {
               </div>
               <div className="grid gap-2">
                 <Label>Schedule</Label>
-                <Select>
+                <Select value={reportSchedule} onValueChange={setReportSchedule}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select schedule" />
                   </SelectTrigger>
@@ -527,14 +537,18 @@ export default function AdvancedAnalyticsPage() {
               </div>
               <div className="grid gap-2">
                 <Label>Recipients</Label>
-                <Input placeholder="Enter email addresses (comma separated)" />
+                <Input
+                  placeholder="Enter email addresses (comma separated)"
+                  value={reportRecipients}
+                  onChange={(e) => setReportRecipients(e.target.value)}
+                />
               </div>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsCreateReportOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setIsCreateReportOpen(false)}>
+              <Button onClick={handleCreateReport}>
                 Create Report
               </Button>
             </div>

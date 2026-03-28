@@ -60,6 +60,11 @@ export default function HRDashboardPage() {
     user ? { status: "approved" } : "skip"
   );
 
+  const allPayslips = useQuery(
+    api.modules.hr.queries.listPayslips,
+    user ? {} : "skip"
+  );
+
   const staffStats = useQuery(
     api.modules.hr.queries.getStaffStats,
     user ? { sessionToken: sessionToken ?? undefined } : "skip"
@@ -145,22 +150,19 @@ export default function HRDashboardPage() {
     const activeStaff = (staff as any[])?.filter(s => s.status === "active").length || 0;
     const onLeave = (staff as any[])?.filter(s => s.status === "on_leave").length || 0;
 
-    // Calculate payroll statistics
-    const totalPayroll = (payrollRuns as any[])?.reduce((sum, run) => {
-      // This would be calculated from actual payslips
-      return sum + 100000; // Example calculation
-    }, 0) || 0;
+    // Calculate payroll statistics from actual payslip netCents
+    const now = new Date();
+    const totalPayroll = (allPayslips as any[])?.reduce((sum, slip) => sum + (slip.netCents ?? 0), 0) || 0;
 
-    const thisMonthPayroll = (payrollRuns as any[])
-      ?.filter(run => {
-        const runDate = new Date(run.createdAt);
-        const now = new Date();
-        return runDate.getMonth() === now.getMonth() &&
-          runDate.getFullYear() === now.getFullYear();
+    const thisMonthPayroll = (allPayslips as any[])
+      ?.filter(slip => {
+        const slipDate = new Date(slip.createdAt);
+        return slipDate.getMonth() === now.getMonth() &&
+          slipDate.getFullYear() === now.getFullYear();
       })
-      ?.reduce((sum, run) => sum + 100000, 0) || 0;
+      ?.reduce((sum, slip) => sum + (slip.netCents ?? 0), 0) || 0;
 
-    const averageSalary = activeStaff > 0 ? totalPayroll / activeStaff / 12 : 0;
+    const averageSalary = activeStaff > 0 ? totalPayroll / activeStaff : 0;
 
     return {
       totalStaff,

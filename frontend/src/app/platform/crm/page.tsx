@@ -188,13 +188,11 @@ export default function CompleteCRMPage() {
 
   const getTotalValue = (dealsToUse: Deal[] = filteredDeals) => {
     const total = dealsToUse.reduce((total, deal) => total + deal.value, 0);
-    console.log("getTotalValue called with", dealsToUse.length, "deals, total:", total);
     return total;
   };
 
   const getWeightedValue = (dealsToUse: Deal[] = filteredDeals) => {
     const weighted = dealsToUse.reduce((total, deal) => total + (deal.value * deal.probability / 100), 0);
-    console.log("getWeightedValue called with", dealsToUse.length, "deals, weighted:", weighted);
     return weighted;
   };
 

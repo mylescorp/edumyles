@@ -238,6 +238,50 @@ export const getRecentExams = query({
 });
 
 /**
+ * Get dashboard stats for a teacher: total assignments across all classes.
+ */
+export const getTeacherDashboardStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+
+    // Get all classes for this teacher
+    const classes = await ctx.db
+      .query("classes")
+      .withIndex("by_tenant_teacher", (q) =>
+        q.eq("tenantId", tenant.tenantId).eq("teacherId", tenant.userId)
+      )
+      .collect();
+
+    // Count total assignments across all classes
+    let assignmentCount = 0;
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+    const todayEnd = todayStart + 24 * 60 * 60 * 1000;
+
+    for (const cls of classes) {
+      const assignments = await ctx.db
+        .query("assignments")
+        .withIndex("by_class", (q) => q.eq("classId", cls._id.toString()))
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("tenantId"), tenant.tenantId),
+            q.eq(q.field("status"), "published")
+          )
+        )
+        .collect();
+      assignmentCount += assignments.length;
+    }
+
+    return {
+      totalClasses: classes.length,
+      assignmentCount,
+    };
+  },
+});
+
+/**
  * Get upcoming academic events.
  */
 export const getUpcomingEvents = query({

@@ -18,12 +18,17 @@ export default function TeacherDashboardPage() {
     {}
   );
 
-  if (authLoading || classes === undefined) {
+  const dashboardStats = useQuery(
+    api.modules.academics.queries.getTeacherDashboardStats,
+    {}
+  );
+
+  if (authLoading || classes === undefined || dashboardStats === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
 
   const totalStudents = classes.reduce((sum, cls: any) => sum + (cls.studentCount || 0), 0);
-  const activeAssignments = 5; // This would come from a query in production
+  const activeAssignments = dashboardStats?.assignmentCount ?? 0;
 
   return (
     <div className="space-y-6">
@@ -69,8 +74,8 @@ export default function TeacherDashboardPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">Classes scheduled</p>
+            <div className="text-2xl font-bold">{classes.length}</div>
+            <p className="text-xs text-muted-foreground">Total classes</p>
           </CardContent>
         </Card>
       </div>

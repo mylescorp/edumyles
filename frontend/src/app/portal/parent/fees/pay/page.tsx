@@ -137,11 +137,10 @@ export default function ParentPayFeesPage() {
           break;
           
         case "bank_transfer":
-          // For now, log bank transfer intent
-          result = { message: "Bank transfer instructions will be available soon" };
+          result = { message: `Transfer KES ${payDialog.amount} to the school bank account and share the reference with the bursar.` };
           toast({
-            title: "Info", 
-            description: "Bank transfers will be available in Phase 11",
+            title: "Bank Transfer Instructions",
+            description: `Transfer KES ${payDialog.amount} to the school account using your child's name as the payment reference. Notify the bursar once the transfer is complete.`,
           });
           break;
       }

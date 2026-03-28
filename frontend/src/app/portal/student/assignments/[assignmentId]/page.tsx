@@ -53,16 +53,9 @@ export default function AssignmentDetailPage() {
         submittedAt: Date.now(),
       };
 
-      // Add file if selected
-      if (selectedFile) {
-        // In a real implementation, you'd upload the file to storage
-        // For now, we'll simulate file upload
-        submissionData.attachments = [selectedFile.name];
-      }
-
       await submitAssignment({
         assignmentId,
-        attachments: submissionData.attachments || [],
+        attachments: selectedFile ? [selectedFile.name] : [],
       });
 
       toast({

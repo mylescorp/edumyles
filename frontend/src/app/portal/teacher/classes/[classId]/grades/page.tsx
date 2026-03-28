@@ -66,7 +66,7 @@ export default function ClassGradesPage({
         classId,
         subjectId: "general", // This should be dynamic based on subject selection
         term,
-        academicYear: "2024", // Dynamic year in production
+        academicYear: new Date().getFullYear().toString(),
         grades: payload,
       });
 

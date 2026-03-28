@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Id } from "@/convex/_generated/dataModel";
@@ -87,7 +89,8 @@ interface Ticket {
 export default function TicketDetailPage() {
   const params = useParams();
   const ticketId = params.id as string;
-  
+  const { sessionToken } = useAuth();
+
   const [newComment, setNewComment] = useState("");
   const [isInternal, setIsInternal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -110,14 +113,16 @@ export default function TicketDetailPage() {
   const updateStatus = useMutation(api.tickets.updateTicketStatus);
   const addComment = useMutation(api.tickets.addComment);
 
-  // Users for @mentions - could be fetched from a real query in future
-  const mockUsers = [
-    { id: "agent1", email: "michael.chen@edumyles.com", name: "Michael Chen", role: "Support Agent" },
-    { id: "agent2", email: "sarah.wilson@edumyles.com", name: "Sarah Wilson", role: "Support Agent" },
-    { id: "tech1", email: "david.kim@edumyles.com", name: "David Kim", role: "Technical Lead" },
-    { id: "admin1", email: "john.doe@edumyles.com", name: "John Doe", role: "System Admin" },
-    { id: "customer1", email: "sarah.johnson@nairobi-academy.edu", name: "Sarah Johnson", role: "School Admin" }
-  ];
+  // Users for @mentions from real platform users query
+  const allPlatformUsers = useQuery(api.platform.users.queries.listAllUsers, { sessionToken: "" }) as
+    Array<{ _id: string; email: string; firstName?: string; lastName?: string; role: string }> | undefined;
+
+  const mentionableUsers = (allPlatformUsers ?? []).map(u => ({
+    id: u._id,
+    email: u.email,
+    name: u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.email.split("@")[0],
+    role: u.role,
+  }));
 
   const handleStatusUpdate = () => {
     if (selectedStatus) {
@@ -129,21 +134,21 @@ export default function TicketDetailPage() {
     }
   };
 
-  const handleAddComment = () => {
-    if (newComment.trim() || uploadedFiles.length > 0) {
-      // In a real app, this would call the mutation
-      console.log("Adding comment:", {
+  const handleAddComment = async () => {
+    if (!newComment.trim() && uploadedFiles.length === 0) return;
+    try {
+      await addComment({
+        ticketId: ticketId as Id<"tickets">,
         content: newComment,
         isInternal,
-        attachments: uploadedFiles.map(f => f.name),
-        mentionedUsers
+        attachments: uploadedFiles.length > 0 ? uploadedFiles.map((f: File) => f.name) : undefined,
       });
-      
-      // Reset form
       setNewComment("");
       setIsInternal(false);
       setUploadedFiles([]);
       setMentionedUsers([]);
+    } catch (e: any) {
+      console.error("Failed to add comment:", e.message);
     }
   };
 
@@ -167,7 +172,7 @@ export default function TicketDetailPage() {
     }
   };
 
-  const handleMentionSelect = (user: typeof mockUsers[0]) => {
+  const handleMentionSelect = (user: typeof mentionableUsers[0]) => {
     const beforeMention = newComment.substring(0, cursorPosition - mentionQuery.length - 1);
     const afterCursor = newComment.substring(cursorPosition);
     
@@ -199,7 +204,7 @@ export default function TicketDetailPage() {
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
   };
 
-  const filteredUsers = mockUsers.filter(user => 
+  const filteredUsers = mentionableUsers.filter(user => 
     user.name.toLowerCase().includes(mentionQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(mentionQuery.toLowerCase())
   );
@@ -524,7 +529,7 @@ export default function TicketDetailPage() {
                               // Check if this part is a mention
                               if (part.startsWith('@')) {
                                 const userName = part.substring(1);
-                                const mentionedUser = mockUsers.find(u => 
+                                const mentionedUser = mentionableUsers.find(u => 
                                   u.name.toLowerCase().includes(userName.toLowerCase()) ||
                                   u.email.toLowerCase().includes(userName.toLowerCase())
                                 );

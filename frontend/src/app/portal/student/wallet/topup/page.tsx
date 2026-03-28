@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,12 +22,13 @@ const PAYMENT_METHODS = [
 ];
 
 export default function WalletTopupPage() {
-  const { isLoading } = useAuth();
+  const { isLoading, user } = useAuth();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("mpesa");
   const [submitted, setSubmitted] = useState(false);
 
   const myWallet = useQuery(api.modules.portal.student.queries.getMyWalletBalance, {});
+  const topUpWallet = useMutation(api.modules.ewallet.mutations.topUp);
 
   if (isLoading || myWallet === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -36,11 +37,21 @@ export default function WalletTopupPage() {
   const amountNum = parseFloat(amount);
   const isValid = !isNaN(amountNum) && amountNum >= 10;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValid) return;
-    // In production, this would trigger the payment gateway (M-Pesa STK Push / Stripe).
-    setSubmitted(true);
+    if (!isValid || !user) return;
+    try {
+      await topUpWallet({
+        ownerId: user._id,
+        ownerType: "student",
+        amountCents: Math.round(amountNum * 100),
+        currency: "KES",
+        reference: `topup-${Date.now()}`,
+      });
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error("Top-up failed:", err.message);
+    }
   };
 
   if (submitted) {
