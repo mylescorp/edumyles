@@ -86,13 +86,47 @@ export const getInstalledModules = query({
     }
 
     try {
-      return await ctx.db
+      const installed = await ctx.db
         .query("installedModules")
         .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
         .collect();
+
+      const installedById = new Map(installed.map((mod) => [mod.moduleId, mod]));
+      const coreInstalled = ALL_MODULES
+        .filter((mod) => CORE_MODULE_IDS.includes(mod.moduleId))
+        .map((mod) => {
+          const existing = installedById.get(mod.moduleId);
+          return existing ?? {
+            _id: (`core:${mod.moduleId}`) as any,
+            _creationTime: 0,
+            tenantId,
+            moduleId: mod.moduleId,
+            installedAt: 0,
+            installedBy: "system",
+            config: {},
+            status: "active" as const,
+            updatedAt: 0,
+          };
+        });
+
+      const optionalInstalled = installed.filter(
+        (mod) => !CORE_MODULE_IDS.includes(mod.moduleId)
+      );
+
+      return [...coreInstalled, ...optionalInstalled];
     } catch (dbError) {
       console.error("getInstalledModules query failed:", dbError);
-      return [];
+      return ALL_MODULES.filter((mod) => CORE_MODULE_IDS.includes(mod.moduleId)).map((mod) => ({
+        _id: (`core:${mod.moduleId}`) as any,
+        _creationTime: 0,
+        tenantId,
+        moduleId: mod.moduleId,
+        installedAt: 0,
+        installedBy: "system",
+        config: {},
+        status: "active" as const,
+        updatedAt: 0,
+      }));
     }
   },
 });
@@ -231,17 +265,28 @@ export const getModuleDetails = query({
     const tier = tenant?.plan ?? "free";
     const allowedModuleIds = TIER_MODULES[tier] ?? TIER_MODULES["free"]!;
 
+    const installedState = installed
+      ? {
+          status: installed.status,
+          installedAt: installed.installedAt,
+          installedBy: installed.installedBy,
+          config: installed.config,
+        }
+      : CORE_MODULE_IDS.includes(args.moduleId)
+        ? {
+            status: "active" as const,
+            installedAt: 0,
+            installedBy: "system",
+            config: {},
+          }
+        : null;
+
     return {
       ...registryModule,
-      installed: installed
-        ? {
-            status: installed.status,
-            installedAt: installed.installedAt,
-            installedBy: installed.installedBy,
-            config: installed.config,
-          }
-        : null,
-      availableForTier: allowedModuleIds.includes(args.moduleId),
+      installed: installedState,
+      availableForTier:
+        CORE_MODULE_IDS.includes(args.moduleId) ||
+        allowedModuleIds.includes(args.moduleId),
       currentTier: tier,
     };
   },
@@ -255,18 +300,32 @@ export const getModuleRequests = query({
 
     const { tenantId } = tenantCtx;
 
-    if (args.status) {
-      return await ctx.db
+    const requests = args.status
+      ? await ctx.db
         .query("moduleRequests")
         .withIndex("by_tenant_status", (q) =>
           q.eq("tenantId", tenantId).eq("status", args.status!)
         )
-        .collect();
-    }
+        .collect()
+      : await ctx.db
+          .query("moduleRequests")
+          .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+          .collect();
 
-    return await ctx.db
-      .query("moduleRequests")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
-      .collect();
+    return await Promise.all(
+      requests.map(async (request) => {
+        const registryModule =
+          (await ctx.db
+            .query("moduleRegistry")
+            .withIndex("by_module_id", (q) => q.eq("moduleId", request.moduleId))
+            .first()) ??
+          ALL_MODULES.find((mod) => mod.moduleId === request.moduleId);
+
+        return {
+          ...request,
+          moduleName: registryModule?.name ?? request.moduleId,
+        };
+      })
+    );
   },
 });

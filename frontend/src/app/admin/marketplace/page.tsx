@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import {
   ClipboardList,
   Shield,
@@ -142,16 +143,19 @@ export default function MarketplacePage() {
           tenantId,
           moduleId: dialogState.moduleId,
         });
+        toast.success("Module installed");
       } else {
         await uninstallModule({
           sessionToken: sessionToken ?? "",
           tenantId,
           moduleId: dialogState.moduleId,
         });
+        toast.success("Module uninstalled");
       }
       setDialogState((s) => ({ ...s, open: false }));
     } catch (error) {
       console.error("Module operation failed:", error);
+      toast.error(error instanceof Error ? error.message : "Module operation failed");
     } finally {
       setIsProcessing(false);
     }

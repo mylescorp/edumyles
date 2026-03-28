@@ -18,6 +18,7 @@ interface ModuleRequest {
   _id: string;
   userId: string;
   moduleId: string;
+  moduleName?: string;
   requestedAt: number;
   status: string;
   reviewedBy?: string;
@@ -78,7 +79,8 @@ export function RequestList({
                 {request.userId}
               </TableCell>
               <TableCell className="font-medium capitalize">
-                {request.moduleId}
+                <div>{request.moduleName ?? request.moduleId}</div>
+                <div className="font-mono text-xs text-muted-foreground normal-case">{request.moduleId}</div>
               </TableCell>
               <TableCell className="text-sm text-muted-foreground">
                 {formatRelativeTime(request.requestedAt)}
