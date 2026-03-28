@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
               console.error("[api/auth/session] Failed to repair master admin role:", repairError);
             }
 
-            return NextResponse.json({
+            const repairedResponse = NextResponse.json({
               session: {
                 sessionToken: session.sessionToken,
                 tenantId: "PLATFORM",
@@ -91,6 +91,17 @@ export async function GET(req: NextRequest) {
                 expiresAt: session.expiresAt,
               },
             });
+            // Update the role cookie so the middleware sees master_admin on
+            // the next request without needing to parse the user cookie.
+            const isProduction = process.env.NODE_ENV === "production";
+            repairedResponse.cookies.set("edumyles_role", "master_admin", {
+              httpOnly: false,
+              secure: isProduction,
+              sameSite: "lax",
+              maxAge: 30 * 24 * 60 * 60,
+              path: "/",
+            });
+            return repairedResponse;
           }
 
           return NextResponse.json({

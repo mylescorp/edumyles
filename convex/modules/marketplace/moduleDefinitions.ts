@@ -9,7 +9,8 @@ export interface ModuleDefinition {
   moduleId: string;
   name: string;
   description: string;
-  tier: "free" | "basic" | "premium" | "enterprise";
+  /** Minimum subscription tier required to install this module */
+  tier: "free" | "starter" | "standard" | "pro" | "enterprise";
   category: "academics" | "administration" | "communications" | "finance" | "analytics" | "security" | "integrations";
   isCore: boolean;
   iconName: string;
@@ -20,6 +21,27 @@ export interface ModuleDefinition {
   pricing: { monthly: number; quarterly?: number; annual?: number; currency: string };
   support: { email: string; phone: string; responseTime: string };
 }
+
+/**
+ * Module dependency graph — single source of truth.
+ * Keys: module that has dependencies. Values: modules that must be installed first.
+ * Imported by mutations.ts, moduleGuard.ts, and frontend components.
+ */
+export const MODULE_DEPENDENCIES: Record<string, string[]> = {
+  academics: ["sis"],
+  admissions: ["sis"],
+  finance: ["sis"],
+  timetable: ["sis", "academics"],
+  hr: [],
+  library: ["sis"],
+  transport: ["sis"],
+  ewallet: ["finance"],
+  ecommerce: ["ewallet"],
+  tickets: [],
+  communications: [],
+  users: [],
+  sis: [],
+};
 
 /** Core modules — always available, auto-installed for every tenant */
 export const CORE_MODULES: ModuleDefinition[] = [
@@ -96,7 +118,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "admissions",
     name: "Admissions",
     description: "Manage the complete student admissions pipeline — from application submission through review, acceptance, and enrollment.",
-    tier: "basic",
+    tier: "starter",
     category: "administration",
     isCore: false,
     iconName: "ClipboardList",
@@ -118,7 +140,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "academics",
     name: "Academics",
     description: "Manage academic operations — exams, grading, subjects, curriculum, and academic performance tracking.",
-    tier: "basic",
+    tier: "standard",
     category: "academics",
     isCore: false,
     iconName: "BookOpen",
@@ -140,7 +162,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "finance",
     name: "Finance & Fees",
     description: "Complete financial management — fee structures, invoicing, payment tracking, and financial reporting.",
-    tier: "basic",
+    tier: "standard",
     category: "finance",
     isCore: false,
     iconName: "DollarSign",
@@ -162,7 +184,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "timetable",
     name: "Timetable & Scheduling",
     description: "Create and manage class timetables with automatic conflict detection for teachers, rooms, and subjects.",
-    tier: "premium",
+    tier: "standard",
     category: "academics",
     isCore: false,
     iconName: "Calendar",
@@ -184,7 +206,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "hr",
     name: "HR & Payroll",
     description: "Comprehensive human resources management — staff records, payroll processing, leave management, and performance reviews.",
-    tier: "premium",
+    tier: "pro",
     category: "administration",
     isCore: false,
     iconName: "UserCog",
@@ -206,7 +228,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "library",
     name: "Library Management",
     description: "Digital library catalog, book circulation, overdue tracking, and library analytics.",
-    tier: "premium",
+    tier: "pro",
     category: "academics",
     isCore: false,
     iconName: "Library",
@@ -228,7 +250,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "transport",
     name: "Transport Management",
     description: "Manage school transport — routes, vehicles, drivers, and real-time GPS tracking.",
-    tier: "premium",
+    tier: "pro",
     category: "administration",
     isCore: false,
     iconName: "Bus",

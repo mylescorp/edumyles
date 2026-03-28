@@ -1,32 +1,22 @@
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requireTenantSession } from "../../helpers/tenantGuard";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireRole } from "../../helpers/authorize";
 import { logAction } from "../../helpers/auditLog";
 import { TIER_MODULES } from "./tierModules";
-import { isCoreModule, CORE_MODULE_IDS, ALL_MODULES } from "./moduleDefinitions";
+import { isCoreModule, CORE_MODULE_IDS, ALL_MODULES, MODULE_DEPENDENCIES } from "./moduleDefinitions";
 
-// Module dependency map — some modules require others to be installed first
-const MODULE_DEPENDENCIES: Record<string, string[]> = {
-  academics: ["sis"],
-  admissions: ["sis"],
-  finance: ["sis"],
-  timetable: ["sis", "academics"],
-  hr: [],
-  library: ["sis"],
-  transport: ["sis"],
-  communications: [],
-  ewallet: ["finance"],
-  ecommerce: ["ewallet"],
-};
-
-// Reverse dependency map — which modules depend on this module
-const REVERSE_DEPENDENCIES: Record<string, string[]> = {
-  sis: ["academics", "admissions", "finance", "timetable", "library", "transport"],
-  academics: ["timetable"],
-  finance: ["ewallet"],
-  ewallet: ["ecommerce"],
-};
+// Reverse dependency map — which modules depend on this module (derived from MODULE_DEPENDENCIES)
+const REVERSE_DEPENDENCIES: Record<string, string[]> = Object.entries(MODULE_DEPENDENCIES).reduce(
+  (acc, [moduleId, deps]) => {
+    for (const dep of deps) {
+      acc[dep] = acc[dep] ? [...acc[dep], moduleId] : [moduleId];
+    }
+    return acc;
+  },
+  {} as Record<string, string[]>
+);
 
 /**
  * Validate args.tenantId matches the authenticated session's tenantId.
@@ -531,13 +521,17 @@ export const toggleModuleStatus = mutation({
 });
 
 /**
- * One-time seed: populate moduleRegistry from ALL_MODULES definition.
- * Idempotent — safe to run multiple times.
- * No auth required — this only inserts catalogue data, never tenant data.
+ * Seed / re-sync moduleRegistry from the ALL_MODULES static definition.
+ * Idempotent — safe to run multiple times. Existing records are updated.
+ * Requires platform admin session so only platform staff can trigger it.
  */
 export const runSeedModuleRegistry = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { sessionToken: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    // Require platform session when a token is provided; allow internal calls
+    if (args.sessionToken) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    }
     let created = 0;
     let updated = 0;
 

@@ -1,25 +1,6 @@
 import { QueryCtx, MutationCtx } from "../_generated/server";
-import { CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
-
-// Module tier configuration
-const TIER_MODULES = {
-  free: ["sis", "communications", "users", "tickets"],
-  starter: ["sis", "academics", "communications", "users", "tickets"],
-  standard: ["sis", "academics", "communications", "finance", "timetable", "admissions", "users", "tickets"],
-  pro: ["sis", "academics", "communications", "finance", "timetable", "admissions", "hr", "library", "users", "tickets"],
-  enterprise: ["sis", "academics", "communications", "finance", "timetable", "admissions", "hr", "library", "transport", "ewallet", "ecommerce", "users", "tickets", "advanced_analytics"]
-};
-
-// Module dependencies
-const MODULE_DEPENDENCIES = {
-  timetable: ["academics"],
-  hr: ["sis"],
-  library: ["sis"],
-  transport: ["sis"],
-  ewallet: ["finance"],
-  ecommerce: ["finance"],
-  advanced_analytics: ["academics", "finance"]
-};
+import { CORE_MODULE_IDS, MODULE_DEPENDENCIES } from "../modules/marketplace/moduleDefinitions";
+import { TIER_MODULES } from "../modules/marketplace/tierModules";
 
 /**
  * Checks if a module is installed and active for the given tenant.
