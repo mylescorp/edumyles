@@ -1059,6 +1059,37 @@ export const updatePublisherVerification = mutation({
   },
 });
 
+export const setPublisherStatus = mutation({
+  args: {
+    sessionToken: v.string(),
+    publisherId: v.id("marketplacePublishers"),
+    isActive: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
+
+    const publisher = await ctx.db.get(args.publisherId);
+    if (!publisher) throw new Error("Publisher not found");
+
+    await ctx.db.patch(args.publisherId, {
+      isActive: args.isActive,
+      updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: args.isActive ? "marketplace.publisher_activated" : "marketplace.publisher_suspended",
+      entityType: "marketplace_publisher",
+      entityId: args.publisherId.toString(),
+      after: { isActive: args.isActive },
+    });
+
+    return { success: true };
+  },
+});
+
 // ── Categories ────────────────────────────────────────────────────────
 
 export const upsertCategory = mutation({
