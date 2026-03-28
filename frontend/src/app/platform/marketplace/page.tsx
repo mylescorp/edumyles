@@ -20,6 +20,10 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
+import {
+  FALLBACK_MARKETPLACE_CATEGORIES,
+  FALLBACK_MARKETPLACE_MODULES,
+} from "@/lib/platformMarketplaceFallback";
 import { MarketplaceErrorBoundary } from "./MarketplaceErrorBoundary";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -117,14 +121,115 @@ function MarketplaceContent() {
     { sessionToken: sessionToken || "" }
   ) as any;
 
+  const shouldUseFallbackCatalog = useMemo(() => {
+    const totalModules = marketplaceHome?.stats?.totalModules || 0;
+    const categoryCount = marketplaceHome?.categories?.length || 0;
+    const browseTotal = browseResult?.total || 0;
+    return totalModules === 0 && categoryCount === 0 && browseTotal === 0;
+  }, [browseResult?.total, marketplaceHome?.categories?.length, marketplaceHome?.stats?.totalModules]);
+
+  const fallbackModules = useMemo(() => {
+    let result = [...FALLBACK_MARKETPLACE_MODULES];
+
+    if (selectedCategory !== "all") {
+      result = result.filter((mod) => mod.category === selectedCategory);
+    }
+
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      result = result.filter((mod) =>
+        mod.name.toLowerCase().includes(searchLower) ||
+        mod.shortDescription.toLowerCase().includes(searchLower) ||
+        mod.tags.some((tag) => tag.toLowerCase().includes(searchLower)) ||
+        mod.publisherName.toLowerCase().includes(searchLower)
+      );
+    }
+
+    if (selectedPricing !== "all") {
+      result = result.filter((mod) => mod.pricingModel === selectedPricing);
+    }
+
+    switch (sortBy) {
+      case "alphabetical":
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "price_low":
+        result.sort((a, b) => a.priceCents - b.priceCents);
+        break;
+      case "price_high":
+        result.sort((a, b) => b.priceCents - a.priceCents);
+        break;
+      case "newest":
+        result.sort((a, b) => b.publishedAt - a.publishedAt);
+        break;
+      default:
+        result.sort((a, b) => {
+          if (a.isFeatured && !b.isFeatured) return -1;
+          if (!a.isFeatured && b.isFeatured) return 1;
+          return a.name.localeCompare(b.name);
+        });
+        break;
+    }
+
+    return result;
+  }, [searchQuery, selectedCategory, selectedPricing, sortBy]);
+
+  const fallbackCategories = useMemo(
+    () =>
+      FALLBACK_MARKETPLACE_CATEGORIES.map((category) => ({
+        ...category,
+        moduleCount: FALLBACK_MARKETPLACE_MODULES.filter((mod) => mod.category === category.slug).length,
+      })),
+    []
+  );
+
+  const fallbackStats = useMemo(
+    () => ({
+      totalModules: FALLBACK_MARKETPLACE_MODULES.length,
+      totalInstalls: 0,
+      averageRating: 0,
+      totalPublishers: 1,
+    }),
+    []
+  );
+
+  const adminOverview = shouldUseFallbackCatalog
+    ? {
+        overview: {
+          totalModules: FALLBACK_MARKETPLACE_MODULES.length,
+          publishedModules: FALLBACK_MARKETPLACE_MODULES.length,
+          pendingReview: 0,
+          totalPublishers: 1,
+          activePublishers: 1,
+          totalInstallations: 0,
+          activeInstallations: 0,
+          pendingReviews: 0,
+          openDisputes: 0,
+          totalRevenueCents: 0,
+          totalCommissionCents: 0,
+        },
+        categories: fallbackCategories.map((category) => ({
+          ...category,
+          installCount: 0,
+        })),
+        topModules: FALLBACK_MARKETPLACE_MODULES.slice(0, 5),
+      }
+    : overview;
+
   // Modules to display
-  const modules = browseResult?.modules || [];
-  const stats = marketplaceHome?.stats || { totalModules: 0, totalInstalls: 0, averageRating: 0, totalPublishers: 0 };
-  const categories = marketplaceHome?.categories || [];
-  const newModules = marketplaceHome?.newAndNoteworthy || [];
-  const topRated = marketplaceHome?.topRated || [];
-  const trending = marketplaceHome?.trending || [];
-  const recentActivity = marketplaceHome?.recentActivity || [];
+  const modules = shouldUseFallbackCatalog ? fallbackModules : (browseResult?.modules || []);
+  const stats = shouldUseFallbackCatalog
+    ? fallbackStats
+    : (marketplaceHome?.stats || { totalModules: 0, totalInstalls: 0, averageRating: 0, totalPublishers: 0 });
+  const categories = shouldUseFallbackCatalog ? fallbackCategories : (marketplaceHome?.categories || []);
+  const newModules = shouldUseFallbackCatalog
+    ? FALLBACK_MARKETPLACE_MODULES.filter((mod) => mod.isFeatured).slice(0, 4)
+    : (marketplaceHome?.newAndNoteworthy || []);
+  const topRated = shouldUseFallbackCatalog ? [] : (marketplaceHome?.topRated || []);
+  const trending = shouldUseFallbackCatalog
+    ? FALLBACK_MARKETPLACE_MODULES.slice(0, 5)
+    : (marketplaceHome?.trending || []);
+  const recentActivity = shouldUseFallbackCatalog ? [] : (marketplaceHome?.recentActivity || []);
 
   // ── Module Card ──────────────────────────────────────────────────────
   const ModuleCard = ({ mod }: { mod: any }) => (
@@ -488,7 +593,8 @@ function MarketplaceContent() {
       {/* Results count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {browseResult?.total || 0} module{(browseResult?.total || 0) !== 1 ? "s" : ""} found
+          {(shouldUseFallbackCatalog ? fallbackModules.length : (browseResult?.total || 0))} module
+          {(shouldUseFallbackCatalog ? fallbackModules.length : (browseResult?.total || 0)) !== 1 ? "s" : ""} found
         </p>
         {selectedCategory !== "all" && (
           <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("all")}>
@@ -522,7 +628,7 @@ function MarketplaceContent() {
 
   // ── Admin Overview Tab ───────────────────────────────────────────────
   const AdminTab = () => {
-    const ov = overview?.overview || {};
+    const ov = adminOverview?.overview || {};
     return (
       <div className="space-y-6">
         {/* Admin KPIs */}
@@ -579,7 +685,7 @@ function MarketplaceContent() {
               <CardTitle className="text-base">Categories</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {(overview?.categories || []).map((cat: any) => (
+              {(adminOverview?.categories || []).map((cat: any) => (
                 <div key={cat.slug} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {CATEGORY_ICONS[cat.slug] || <Package className="h-4 w-4" />}
@@ -599,7 +705,7 @@ function MarketplaceContent() {
               <CardTitle className="text-base">Top Modules</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {(overview?.topModules || []).map((mod: any) => (
+              {(adminOverview?.topModules || []).map((mod: any) => (
                 <div
                   key={mod.moduleId}
                   className="flex items-center justify-between cursor-pointer hover:bg-accent/50 -mx-2 px-2 py-1 rounded"
