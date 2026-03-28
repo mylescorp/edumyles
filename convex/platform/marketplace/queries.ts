@@ -89,6 +89,7 @@ function buildBuiltinInstallationSummary(
   };
 }
 
+
 function mergeWithBuiltinModules(modules: any[]) {
   const merged = new Map<string, any>();
 
