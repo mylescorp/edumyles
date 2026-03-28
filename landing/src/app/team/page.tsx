@@ -16,7 +16,7 @@ const founders = [
     role: "Founder & Chief Executive Officer",
     bio: "A visionary software engineer and entrepreneur, Jonathan founded Mylesoft Technologies in 2020 with a mission to build AI-powered solutions addressing East Africa's most critical challenges. He leads the company's overall strategy, product development, and technology architecture across all 20+ MylesCorp products.",
     photo: "/team/jonathan-myles.jpeg",
-    linkedin: "https://linkedin.com/company/edumyles",
+    linkedin: "https://linkedin.com/in/mylesoft",
     location: "Nairobi, Kenya",
   },
   {

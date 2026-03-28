@@ -108,7 +108,7 @@ const organizationSchema = {
   logo: "https://edumyles.com/logo.png",
   description: "School Management System for East African Schools",
   foundingDate: "2022",
-  founders: [{ "@type": "Person", name: "Jonathan Myles" }],
+  founders: [{ "@type": "Person", name: "Jonathan Myles", sameAs: "https://linkedin.com/in/mylesoft" }],
   areaServed: ["KE", "UG", "TZ", "RW", "ZM"],
   sameAs: [
     "https://twitter.com/edumyles",

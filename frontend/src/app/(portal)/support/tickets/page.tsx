@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "convex/react";
+import { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -42,12 +43,13 @@ export default function SchoolTicketsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { tenantId: rawTenantId } = useAuth();
-  const tenantId = (rawTenantId ?? "temp-tenant-id") as any;
-  
-  const { data: tickets, isLoading } = useQuery(api.tickets.getTenantTickets, {
-    tenantId,
-    status: filters.status === "all" ? undefined : filters.status,
-  });
+  const tenantId = (rawTenantId ?? "") as Id<"tenants">;
+
+  const tickets = useQuery(
+    api.tickets.getTenantTickets,
+    tenantId ? { tenantId, status: filters.status === "all" ? undefined : (filters.status as "open" | "in_progress" | "pending_school" | "resolved" | "closed") } : "skip"
+  );
+  const isLoading = tickets === undefined;
 
   // Filter tickets based on search
   const filteredTickets = tickets?.filter(ticket => {

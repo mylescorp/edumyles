@@ -86,6 +86,7 @@ const team = [
     role: "Founder & CEO",
     bio: "A visionary software engineer and entrepreneur, Jonathan founded Mylesoft Technologies in 2020. He leads strategy, product development, and technology architecture across all 20+ MylesCorp products.",
     photo: "/team/jonathan-myles.jpeg",
+    linkedin: "https://linkedin.com/in/mylesoft",
   },
   {
     name: "Pauline Moraa",
@@ -377,6 +378,21 @@ export default function AboutPage() {
                   <h3 className="font-playfair font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>{t.name}</h3>
                   <div className="font-jakarta text-[13px] font-medium mb-3" style={{ color: "#E8A020" }}>{t.role}</div>
                   <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{t.bio}</p>
+                  {t.linkedin && (
+                    <a
+                      href={t.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-jakarta text-[12px] font-medium mt-3 px-3 py-1.5 rounded-lg no-underline transition-all duration-200"
+                      style={{ 
+                        background: "rgba(232,160,32,0.1)", 
+                        border: "1px solid rgba(232,160,32,0.2)", 
+                        color: "#E8A020" 
+                      }}
+                    >
+                      LinkedIn Profile
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
