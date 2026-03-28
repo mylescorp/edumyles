@@ -32,6 +32,9 @@ vi.mock('@/convex/_generated/api', () => ({
         queries: {
           listFeeStructures: vi.fn(),
         },
+        actions: {
+          recordPaymentFromGateway: vi.fn(),
+        },
       },
     },
     platform: {
