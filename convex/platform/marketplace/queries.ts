@@ -71,6 +71,24 @@ function buildBuiltinMarketplaceSummary(mod: (typeof ALL_MODULES)[number]) {
   };
 }
 
+function buildBuiltinInstallationSummary(
+  mod: ReturnType<typeof buildBuiltinMarketplaceSummary>,
+  installation: any,
+  tenantName?: string
+) {
+  return {
+    ...installation,
+    source: "builtin" as const,
+    moduleName: mod.name,
+    moduleCategory: mod.category,
+    moduleVersion: mod.version,
+    moduleIcon: mod.iconName,
+    latestVersion: mod.version,
+    updateAvailable: mod.version !== installation.installedVersion,
+    tenantName: tenantName || installation.tenantName,
+  };
+}
+
 function mergeWithBuiltinModules(modules: any[]) {
   const merged = new Map<string, any>();
 
@@ -498,8 +516,8 @@ export const getTenantInstallations = query({
         .collect();
     }
 
-    // Enrich with module info
-    const enriched = await Promise.all(
+    // Enrich with marketplace module info
+    const marketplaceInstallations = await Promise.all(
       installations.map(async (inst) => {
         const mod = await ctx.db
           .query("marketplaceModules")
@@ -507,6 +525,7 @@ export const getTenantInstallations = query({
           .first();
         return {
           ...inst,
+          source: "marketplace" as const,
           moduleName: mod?.name || "Unknown Module",
           moduleCategory: mod?.category,
           moduleVersion: mod?.version,
@@ -517,7 +536,43 @@ export const getTenantInstallations = query({
       })
     );
 
-    return enriched;
+    let builtinInstallations: any[] = [];
+    try {
+      const installedModules = await ctx.db
+        .query("installedModules")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+        .collect();
+
+      builtinInstallations = installedModules
+        .filter((inst) => !args.status || inst.status === args.status)
+        .map((inst) => {
+          const builtin = ALL_MODULES.find((entry) => entry.moduleId === inst.moduleId);
+          const summary = builtin ? buildBuiltinMarketplaceSummary(builtin) : null;
+          return summary
+            ? buildBuiltinInstallationSummary(summary, {
+                ...inst,
+                installedVersion: summary.version,
+                assignedRoles: [],
+                configuration: inst.config,
+              })
+            : {
+                ...inst,
+                source: "builtin" as const,
+                moduleName: inst.moduleId,
+                moduleCategory: undefined,
+                moduleVersion: undefined,
+                moduleIcon: undefined,
+                latestVersion: undefined,
+                updateAvailable: false,
+              };
+        });
+    } catch {
+      builtinInstallations = [];
+    }
+
+    return [...marketplaceInstallations, ...builtinInstallations].sort(
+      (a, b) => (b.installedAt || 0) - (a.installedAt || 0)
+    );
   },
 });
 
@@ -548,7 +603,7 @@ export const getAllInstallations = query({
     }
 
     // Enrich with tenant and module names
-    const enriched = await Promise.all(
+    const marketplaceInstallations = await Promise.all(
       installations.slice(0, args.limit || 100).map(async (inst) => {
         const mod = await ctx.db
           .query("marketplaceModules")
@@ -560,13 +615,57 @@ export const getAllInstallations = query({
           .first();
         return {
           ...inst,
+          source: "marketplace" as const,
           moduleName: mod?.name || "Unknown",
           tenantName: tenant?.name || "Unknown",
         };
       })
     );
 
-    return enriched;
+    let builtinInstallations: any[] = [];
+    try {
+      let installedModules = await ctx.db.query("installedModules").collect();
+      if (args.moduleId) {
+        installedModules = installedModules.filter((inst) => inst.moduleId === args.moduleId);
+      }
+      if (args.status) {
+        installedModules = installedModules.filter((inst) => inst.status === args.status);
+      }
+
+      builtinInstallations = await Promise.all(
+        installedModules.slice(0, args.limit || 100).map(async (inst) => {
+          const builtin = ALL_MODULES.find((entry) => entry.moduleId === inst.moduleId);
+          const summary = builtin ? buildBuiltinMarketplaceSummary(builtin) : null;
+          const tenant = await ctx.db
+            .query("tenants")
+            .withIndex("by_tenantId", (q) => q.eq("tenantId", inst.tenantId))
+            .first();
+          return summary
+            ? buildBuiltinInstallationSummary(
+                summary,
+                {
+                  ...inst,
+                  installedVersion: summary.version,
+                  assignedRoles: [],
+                  configuration: inst.config,
+                },
+                tenant?.name || "Unknown"
+              )
+            : {
+                ...inst,
+                source: "builtin" as const,
+                moduleName: inst.moduleId,
+                tenantName: tenant?.name || "Unknown",
+              };
+        })
+      );
+    } catch {
+      builtinInstallations = [];
+    }
+
+    return [...marketplaceInstallations, ...builtinInstallations]
+      .sort((a, b) => (b.installedAt || 0) - (a.installedAt || 0))
+      .slice(0, args.limit || 100);
   },
 });
 
@@ -710,13 +809,16 @@ export const getMarketplaceOverview = query({
     }
 
     const allModules = await safeQuery(() => ctx.db.query("marketplaceModules").collect(), []);
+    const mergedModules = mergeWithBuiltinModules(allModules);
     const published = allModules.filter((m: any) => m.status === "published");
     const pending = allModules.filter((m: any) => m.status === "pending_review");
     const publishers = await safeQuery(() => ctx.db.query("marketplacePublishers").collect(), []);
     const activePublishers = publishers.filter((p: any) => p.isActive);
 
     const installations = await safeQuery(() => ctx.db.query("marketplaceInstallations").collect(), []);
+    const builtinInstallations = await safeQuery(() => ctx.db.query("installedModules").collect(), []);
     const activeInstalls = installations.filter((i: any) => i.status === "active");
+    const activeBuiltinInstalls = builtinInstallations.filter((i: any) => i.status === "active");
 
     const pendingReviews = await safeQuery(
       () => ctx.db.query("marketplaceReviews")
@@ -746,9 +848,9 @@ export const getMarketplaceOverview = query({
 
     const categoriesWithCounts = categories.map((cat: any) => ({
       ...cat,
-      moduleCount: published.filter((m: any) => m.category === cat.slug).length,
-      installCount: installations.filter((i: any) => {
-        const mod = published.find((m: any) => m.moduleId === i.moduleId);
+      moduleCount: mergedModules.filter((m: any) => m.category === cat.slug).length,
+      installCount: [...installations, ...builtinInstallations].filter((i: any) => {
+        const mod = mergedModules.find((m: any) => m.moduleId === i.moduleId);
         return mod?.category === cat.slug;
       }).length,
     }));
@@ -763,19 +865,28 @@ export const getMarketplaceOverview = query({
     );
 
     // Top modules by installs
-    const topModules = [...published]
+    const builtinInstallCounts = builtinInstallations.reduce((acc: Record<string, number>, inst: any) => {
+      acc[inst.moduleId] = (acc[inst.moduleId] || 0) + 1;
+      return acc;
+    }, {});
+
+    const topModules = mergedModules
+      .map((mod: any) => ({
+        ...mod,
+        totalInstalls: Math.max(mod.totalInstalls || 0, builtinInstallCounts[mod.moduleId] || 0),
+      }))
       .sort((a: any, b: any) => b.totalInstalls - a.totalInstalls)
       .slice(0, 5);
 
     return {
       overview: {
-        totalModules: allModules.length,
-        publishedModules: published.length,
+        totalModules: mergedModules.length,
+        publishedModules: mergedModules.length,
         pendingReview: pending.length,
-        totalPublishers: publishers.length,
-        activePublishers: activePublishers.length,
-        totalInstallations: installations.length,
-        activeInstallations: activeInstalls.length,
+        totalPublishers: Math.max(1, publishers.length),
+        activePublishers: Math.max(1, activePublishers.length),
+        totalInstallations: installations.length + builtinInstallations.length,
+        activeInstallations: activeInstalls.length + activeBuiltinInstalls.length,
         pendingReviews: pendingReviews.length,
         openDisputes: openDisputes.length,
         totalRevenueCents,
