@@ -11,20 +11,6 @@ export const createEmergencyMasterAdmin = mutation({
   handler: async (ctx, args) => {
     // This is a one-time emergency function - remove after use
     console.log("Emergency master admin creation for:", args.email);
-    
-    // Check if user already exists
-    const existing = await ctx.db
-      .query("users")
-      .withIndex("by_tenant_email", (q) =>
-        q.eq("tenantId", "PLATFORM").eq("email", args.email)
-      )
-      .first();
-
-    if (existing) {
-      console.log("User already exists, updating role to master_admin");
-      await ctx.db.patch(existing._id, { role: "master_admin" });
-      return { success: true, action: "updated", userId: existing._id };
-    }
 
     // Get or create PLATFORM organization
     let org = await ctx.db
@@ -43,6 +29,41 @@ export const createEmergencyMasterAdmin = mutation({
         isActive: true,
         createdAt: Date.now(),
       });
+    }
+
+    const allUsers = await ctx.db.query("users").collect();
+    const matchingUsers = allUsers.filter(
+      (user) => user.email.toLowerCase() === args.email.toLowerCase()
+    );
+
+    if (matchingUsers.length > 0) {
+      console.log("User already exists, updating matching records to master_admin");
+
+      for (const user of matchingUsers) {
+        await ctx.db.patch(user._id, {
+          tenantId: "PLATFORM",
+          role: "master_admin",
+          organizationId: org._id,
+          permissions: user.permissions.includes("*") ? user.permissions : ["*", ...user.permissions],
+          isActive: true,
+        });
+      }
+
+      const sessions = await ctx.db.query("sessions").collect();
+      for (const session of sessions.filter(
+        (record) => record.email?.toLowerCase() === args.email.toLowerCase()
+      )) {
+        await ctx.db.patch(session._id, {
+          tenantId: "PLATFORM",
+          role: "master_admin",
+        });
+      }
+
+      return {
+        success: true,
+        action: "updated",
+        userIds: matchingUsers.map((user) => user._id),
+      };
     }
 
     // Create the master admin user

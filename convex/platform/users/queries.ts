@@ -21,9 +21,20 @@ export const getCurrentPlatformUser = query({
     handler: async (ctx, args) => {
         try {
             const session = await requirePlatformSession(ctx, args);
+            const byWorkosId = await ctx.db
+                .query("users")
+                .withIndex("by_workos_user", (q) => q.eq("workosUserId", session.userId))
+                .first();
+
+            if (byWorkosId) {
+                return byWorkosId;
+            }
+
             return await ctx.db
                 .query("users")
-                .filter((q) => q.eq(q.field("eduMylesUserId"), session.userId))
+                .withIndex("by_tenant_email", (q) =>
+                    q.eq("tenantId", session.tenantId).eq("email", session.email || "")
+                )
                 .first();
         } catch (error) {
             console.error("Error in getCurrentPlatformUser:", error);
