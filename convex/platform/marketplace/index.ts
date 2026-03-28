@@ -24,6 +24,7 @@ export {
   suspendModule,
   deprecateModule,
   installModule,
+  uninstallCatalogModule,
   uninstallModule,
   updateInstallationConfig,
   submitReview,
