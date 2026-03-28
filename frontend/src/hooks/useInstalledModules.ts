@@ -18,12 +18,9 @@ export interface InstalledModule {
 
 export function useInstalledModules() {
   const { sessionToken } = useAuth();
-  
-  const installedModules = useQuery(
-    api.modules.marketplace.queries.getInstalledModuleIds,
-    sessionToken ? { sessionToken } : "skip"
-  );
 
+  // Single query for full module records — IDs are derived from these, avoiding
+  // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
   const installedModuleDetails = useQuery(
     api.modules.marketplace.queries.getInstalledModules,
     sessionToken ? { sessionToken } : "skip"
@@ -34,21 +31,25 @@ export function useInstalledModules() {
     sessionToken ? { sessionToken } : "skip"
   );
 
+  // Derive IDs from details; always include core modules
+  const installedModuleIds: string[] = installedModuleDetails
+    ? [...new Set([...CORE_MODULE_IDS, ...installedModuleDetails.map((m: any) => m.moduleId)])]
+    : CORE_MODULE_IDS;
+
   return {
-    installedModuleIds: installedModules ?? [],
+    installedModuleIds,
     installedModules: installedModuleDetails ?? [],
     availableModules: availableModules ?? [],
     isLoading:
       !!sessionToken &&
-      (installedModules === undefined ||
-        installedModuleDetails === undefined ||
-        availableModules === undefined),
+      (installedModuleDetails === undefined || availableModules === undefined),
     isModuleInstalled: (moduleId: string) =>
-      CORE_MODULE_IDS.includes(moduleId) || installedModules?.includes(moduleId) || false,
+      CORE_MODULE_IDS.includes(moduleId) ||
+      (installedModuleDetails?.some((m: any) => m.moduleId === moduleId) ?? false),
     isModuleActive: (moduleId: string) => {
       if (CORE_MODULE_IDS.includes(moduleId)) return true;
-      const module = installedModuleDetails?.find(m => m.moduleId === moduleId);
-      return module?.status === "active";
+      const mod = installedModuleDetails?.find((m: any) => m.moduleId === moduleId);
+      return mod?.status === "active";
     },
   };
 }
