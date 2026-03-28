@@ -11,6 +11,7 @@ import { useTenant } from "@/hooks/useTenant";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Id } from "@/convex/_generated/dataModel";
+import { toast } from "sonner";
 
 export default function ModuleRequestsPage() {
   const { isLoading: authLoading, sessionToken } = useAuth();
@@ -42,8 +43,10 @@ export default function ModuleRequestsPage() {
         requestId: requestId as Id<"moduleRequests">,
         status: "approved",
       });
+      toast.success("Request approved and module access updated");
     } catch (error) {
       console.error("Failed to approve request:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to approve request");
     } finally {
       setIsProcessing(false);
     }
@@ -58,8 +61,10 @@ export default function ModuleRequestsPage() {
         requestId: requestId as Id<"moduleRequests">,
         status: "rejected",
       });
+      toast.success("Request rejected");
     } catch (error) {
       console.error("Failed to reject request:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to reject request");
     } finally {
       setIsProcessing(false);
     }
