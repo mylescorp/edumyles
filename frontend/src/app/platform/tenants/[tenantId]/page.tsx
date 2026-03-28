@@ -25,6 +25,11 @@ export default function TenantDetailPage() {
     { sessionToken: sessionToken || "", tenantId }
   );
 
+  const tenantModules = usePlatformQuery(
+    api.platform.tenants.queries.getTenantModules,
+    { sessionToken: sessionToken || "", tenantId }
+  ) as Array<{ moduleId: string; status: string }> | undefined;
+
   if (isLoading || tenantData === undefined) {
     return <LoadingSkeleton />;
   }
@@ -87,7 +92,16 @@ export default function TenantDetailPage() {
       </div>
 
       {/* Tenant Detail Tabs */}
-      <TenantDetailTabs tenant={tenantData as any} isLoading={false} />
+      <TenantDetailTabs
+        tenant={{
+          ...(tenantData as any),
+          modules:
+            tenantModules
+              ?.filter((module) => module.status === "active")
+              .map((module) => module.moduleId) ?? [],
+        }}
+        isLoading={false}
+      />
     </div>
   );
 }

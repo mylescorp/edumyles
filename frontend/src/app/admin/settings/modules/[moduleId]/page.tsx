@@ -14,12 +14,12 @@ import { Separator } from "@/components/ui/separator";
 export default function ModuleConfigPage() {
   const params = useParams();
   const moduleId = params.moduleId as string;
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, sessionToken } = useAuth();
   const { isLoading: tenantLoading } = useTenant();
 
   const moduleDetails = useQuery(
     api.modules.marketplace.queries.getModuleDetails,
-    { moduleId }
+    sessionToken ? { sessionToken, moduleId } : "skip"
   );
 
   if (authLoading || tenantLoading || moduleDetails === undefined) {

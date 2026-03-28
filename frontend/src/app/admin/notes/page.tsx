@@ -39,11 +39,12 @@ const NOTE_COLORS = [
 ];
 
 export default function NotesPage() {
-  const notes = useQuery(api.modules.notes.queries.listNotes, {});
-  const createNote = useMutation(api.modules.notes.mutations.createNote);
-  const updateNote = useMutation(api.modules.notes.mutations.updateNote);
-  const deleteNote = useMutation(api.modules.notes.mutations.deleteNote);
-  const togglePin = useMutation(api.modules.notes.mutations.togglePin);
+  const modulesApi = api as any;
+  const notes = useQuery(modulesApi.modules.notes.queries.listNotes, {});
+  const createNote = useMutation(modulesApi.modules.notes.mutations.createNote);
+  const updateNote = useMutation(modulesApi.modules.notes.mutations.updateNote);
+  const deleteNote = useMutation(modulesApi.modules.notes.mutations.deleteNote);
+  const togglePin = useMutation(modulesApi.modules.notes.mutations.togglePin);
 
   const [showDialog, setShowDialog] = useState(false);
   const [editingId, setEditingId] = useState<Id<"adminNotes"> | null>(null);

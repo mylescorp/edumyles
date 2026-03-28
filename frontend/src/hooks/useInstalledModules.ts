@@ -4,6 +4,8 @@ import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "./useAuth";
 
+const CORE_MODULE_IDS = ["sis", "communications", "users"];
+
 export interface InstalledModule {
   _id: string;
   moduleId: string;
@@ -36,11 +38,17 @@ export function useInstalledModules() {
     installedModuleIds: installedModules ?? [],
     installedModules: installedModuleDetails ?? [],
     availableModules: availableModules ?? [],
-    isLoading: installedModules === undefined || availableModules === undefined,
-    isModuleInstalled: (moduleId: string) => installedModules?.includes(moduleId) ?? false,
+    isLoading:
+      !!sessionToken &&
+      (installedModules === undefined ||
+        installedModuleDetails === undefined ||
+        availableModules === undefined),
+    isModuleInstalled: (moduleId: string) =>
+      CORE_MODULE_IDS.includes(moduleId) || installedModules?.includes(moduleId) || false,
     isModuleActive: (moduleId: string) => {
+      if (CORE_MODULE_IDS.includes(moduleId)) return true;
       const module = installedModuleDetails?.find(m => m.moduleId === moduleId);
       return module?.status === "active";
-    }
+    },
   };
 }

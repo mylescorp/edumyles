@@ -111,10 +111,11 @@ export default function ModuleSettingsPage() {
   };
 
   const handleConfirmToggle = async () => {
-    if (!tenantId) return;
+    if (!tenantId || !sessionToken) return;
     setIsProcessing(true);
     try {
       await toggleStatus({
+        sessionToken,
         tenantId,
         moduleId: confirmState.moduleId,
         status: confirmState.newStatus,
@@ -189,6 +190,7 @@ export default function ModuleSettingsPage() {
                   </Link>
                   <Switch
                     checked={isActive}
+                    disabled={!sessionToken}
                     onCheckedChange={() =>
                       handleToggle(mod.moduleId, mod.status)
                     }

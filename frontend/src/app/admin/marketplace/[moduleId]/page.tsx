@@ -137,12 +137,12 @@ const MODULE_FEATURES: Record<string, string[]> = {
 export default function ModuleDetailPage() {
   const params = useParams();
   const moduleId = params.moduleId as string;
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, sessionToken } = useAuth();
   const { tenantId, isLoading: tenantLoading } = useTenant();
 
   const moduleDetails = useQuery(
     api.modules.marketplace.queries.getModuleDetails,
-    { moduleId }
+    sessionToken ? { sessionToken, moduleId } : "skip"
   );
 
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
@@ -174,13 +174,13 @@ export default function ModuleDetailPage() {
   };
 
   const handleConfirm = async () => {
-    if (!tenantId) return;
+    if (!tenantId || !sessionToken) return;
     setIsProcessing(true);
     try {
       if (dialogAction === "install") {
-        await installModule({ tenantId, moduleId });
+        await installModule({ sessionToken, tenantId, moduleId });
       } else {
-        await uninstallModule({ tenantId, moduleId });
+        await uninstallModule({ sessionToken, tenantId, moduleId });
       }
       setDialogOpen(false);
     } catch (error) {

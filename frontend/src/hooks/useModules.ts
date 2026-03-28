@@ -1,31 +1,23 @@
 "use client";
 
-import { useTenant } from "./useTenant";
+import { useInstalledModules } from "./useInstalledModules";
 // Module type matches shared/src/types
 type Module = string;
 
 export function useModules() {
-  const { installedModules, tier, isLoading } = useTenant();
+  const { installedModuleIds, availableModules, isLoading } = useInstalledModules();
 
   function isInstalled(moduleId: Module | string): boolean {
-    return installedModules.includes(moduleId);
+    return installedModuleIds.includes(moduleId);
   }
 
   function isAvailableForTier(moduleId: Module | string): boolean {
-    const TIER_MODULES: Record<string, string[]> = {
-      starter: ["sis", "admissions", "finance", "communications"],
-      standard: ["sis", "admissions", "finance", "timetable", "academics", "communications"],
-      pro: ["sis", "admissions", "finance", "timetable", "academics", "hr", "library", "transport", "communications"],
-      enterprise: ["sis", "admissions", "finance", "timetable", "academics", "hr", "library", "transport", "communications", "ewallet", "ecommerce"],
-    };
-
-    if (!tier) return false;
-    const available = TIER_MODULES[tier] ?? [];
-    return available.includes(moduleId);
+    const module = availableModules.find((entry) => entry.moduleId === moduleId);
+    return !!module?.availableForTier;
   }
 
   return {
-    installedModules,
+    installedModules: installedModuleIds,
     isInstalled,
     isAvailableForTier,
     isLoading,

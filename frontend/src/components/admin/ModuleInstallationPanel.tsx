@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
+import { useTenant } from "@/hooks/useTenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -73,6 +74,7 @@ const CATEGORY_COLORS = {
 
 export function ModuleInstallationPanel() {
   const { sessionToken } = useAuth();
+  const { tenantId } = useTenant();
   const { isModuleInstalled, isModuleActive, installedModuleIds } = useInstalledModules();
   
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
@@ -90,13 +92,13 @@ export function ModuleInstallationPanel() {
   );
 
   const handleInstall = async (moduleId: string) => {
-    if (!sessionToken) return;
+    if (!sessionToken || !tenantId) return;
     
     setIsInstalling(moduleId);
     try {
       await installModule({
         sessionToken,
-        tenantId: "PLATFORM", // This would come from auth context
+        tenantId,
         moduleId,
       });
       
@@ -116,12 +118,12 @@ export function ModuleInstallationPanel() {
   };
 
   const handleUninstall = async (moduleId: string) => {
-    if (!sessionToken) return;
+    if (!sessionToken || !tenantId) return;
     
     try {
       await uninstallModule({
         sessionToken,
-        tenantId: "PLATFORM", // This would come from auth context
+        tenantId,
         moduleId,
       });
       
@@ -139,12 +141,12 @@ export function ModuleInstallationPanel() {
   };
 
   const handleToggleStatus = async (moduleId: string, status: "active" | "inactive") => {
-    if (!sessionToken) return;
+    if (!sessionToken || !tenantId) return;
     
     try {
       await toggleModuleStatus({
         sessionToken,
-        tenantId: "PLATFORM", // This would come from auth context
+        tenantId,
         moduleId,
         status,
       });

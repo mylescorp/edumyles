@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ export default function DeveloperPortalPage() {
 }
 
 function DeveloperPortalContent() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
@@ -72,9 +72,13 @@ function DeveloperPortalContent() {
 
   const registerPublisher = useMutation(api.platform.marketplace.registerPublisher);
   const createModule = useMutation(api.platform.marketplace.createModule);
+  const submitModuleForReview = useMutation(api.platform.marketplace.submitModuleForReview);
 
   // Find current user's publisher profile
-  const myPublisher = publishers?.find((p: any) => true); // Simplified - in prod, filter by userId
+  const myPublisher = useMemo(
+    () => publishers?.find((p: any) => p.userId === user?._id) ?? null,
+    [publishers, user?._id]
+  );
 
   const handleRegister = async () => {
     if (!sessionToken) return;
@@ -92,7 +96,7 @@ function DeveloperPortalContent() {
   const handleSubmitModule = async () => {
     if (!sessionToken || !myPublisher) return;
     try {
-      await createModule({
+      const result = await createModule({
         sessionToken,
         name: modForm.name,
         shortDescription: modForm.shortDescription,
@@ -114,7 +118,12 @@ function DeveloperPortalContent() {
         documentationUrl: modForm.documentationUrl || undefined,
         privacyPolicyUrl: modForm.privacyPolicyUrl || undefined,
       });
+      await submitModuleForReview({
+        sessionToken,
+        moduleId: result.moduleId,
+      });
       setIsSubmitOpen(false);
+      toast.success("Module submitted for review");
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -328,6 +337,11 @@ function DeveloperPortalContent() {
                 Click &ldquo;Submit Module&rdquo; to create a new module listing. You&apos;ll fill in the
                 details and it will be submitted for review by the Mylesoft team.
               </p>
+              {!myPublisher && (
+                <p className="text-xs text-amber-700 mt-3">
+                  Register a publisher profile first before submitting modules.
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -600,7 +614,7 @@ function DeveloperPortalContent() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsSubmitOpen(false)}>Cancel</Button>
-              <Button onClick={handleSubmitModule} disabled={!modForm.name || !modForm.shortDescription || !modForm.fullDescription}>
+              <Button onClick={handleSubmitModule} disabled={!myPublisher || !modForm.name || !modForm.shortDescription || !modForm.fullDescription}>
                 <Send className="h-4 w-4 mr-2" />Submit for Review
               </Button>
             </div>
