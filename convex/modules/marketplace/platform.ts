@@ -132,7 +132,7 @@ export const seedModuleRegistry = mutation({
           description: mod.description,
           tier: mod.tier,
           category: mod.category,
-          status: "active",
+          status: "published",
           version: mod.version,
         });
         seeded++;
@@ -152,6 +152,7 @@ export const updateModuleStatus = mutation({
     sessionToken: v.string(),
     moduleId: v.string(),
     status: v.union(
+      v.literal("published"),
       v.literal("active"),
       v.literal("beta"),
       v.literal("deprecated")

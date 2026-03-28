@@ -55,17 +55,32 @@ export const installModule = mutation({
 
     const { tenantId } = tenantCtx;
 
-    // Verify the module exists in registry
+    // Verify the module exists in registry; fall back to static definitions if
+    // the registry hasn't been seeded yet so installs never silently fail.
     const registryModule = await ctx.db
       .query("moduleRegistry")
       .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
       .first();
 
     if (!registryModule) {
-      throw new Error("MODULE_NOT_FOUND: Module does not exist in registry");
-    }
-
-    if (registryModule.status === "deprecated") {
+      // If no registry record, check whether the module exists in the static
+      // module catalog so the install can proceed without a prior seed.
+      const staticModule = ALL_MODULES.find((m) => m.moduleId === args.moduleId);
+      if (!staticModule) {
+        throw new Error("MODULE_NOT_FOUND: Module does not exist");
+      }
+      // Auto-seed this single module into the registry so future lookups work.
+      await ctx.db.insert("moduleRegistry", {
+        moduleId: staticModule.moduleId,
+        name: staticModule.name,
+        description: staticModule.description,
+        tier: staticModule.tier,
+        category: staticModule.category,
+        status: "published",
+        version: staticModule.version,
+        isCore: staticModule.isCore,
+      });
+    } else if (registryModule.status === "deprecated") {
       throw new Error("MODULE_DEPRECATED: Cannot install a deprecated module");
     }
 

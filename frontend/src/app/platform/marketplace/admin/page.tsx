@@ -132,7 +132,8 @@ function MarketplaceAdminContent() {
   const handleSeedRegistry = async () => {
     if (!sessionToken) return;
     try {
-      await seedModuleRegistry({});
+      const result = await seedModuleRegistry({});
+      toast.success(`Module registry synced — ${(result as any)?.seeded ?? 0} modules added`);
     } catch (e: any) {
       toast.error(e.message);
     }
