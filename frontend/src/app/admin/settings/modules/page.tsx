@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import {
   Package,
   Settings,
@@ -27,6 +28,8 @@ import {
   Bus,
   Wallet,
   ShoppingCart,
+  Trash2,
+  Shield,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -47,14 +50,19 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
 
 export default function ModuleSettingsPage() {
   const { isLoading: authLoading, sessionToken } = useAuth();
-  const { tenantId, isLoading: tenantLoading } = useTenant();
+  const { tenantId, tier, isLoading: tenantLoading } = useTenant();
 
   const installedModules = useQuery(
     api.modules.marketplace.queries.getInstalledModules,
     sessionToken ? { sessionToken } : "skip"
   );
+  const availableModules = useQuery(
+    api.modules.marketplace.queries.getAvailableForTier,
+    sessionToken ? { sessionToken } : "skip"
+  );
 
   const toggleStatus = useMutation(api.modules.marketplace.mutations.toggleModuleStatus);
+  const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
 
   const [confirmState, setConfirmState] = useState<{
     open: boolean;
@@ -67,13 +75,52 @@ export default function ModuleSettingsPage() {
     moduleName: "",
     newStatus: "inactive",
   });
+  const [uninstallState, setUninstallState] = useState<{
+    open: boolean;
+    moduleId: string;
+    moduleName: string;
+  }>({
+    open: false,
+    moduleId: "",
+    moduleName: "",
+  });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  if (authLoading || tenantLoading || installedModules === undefined) {
+  const modules = useMemo(() => {
+    const installed = (installedModules as any[]) ?? [];
+    const catalogue = (availableModules as any[]) ?? [];
+    const installedMap = new Map(installed.map((mod) => [mod.moduleId, mod]));
+
+    return catalogue
+      .filter((mod: any) => mod.isCore || installedMap.has(mod.moduleId))
+      .map((mod: any) => {
+        const installedRecord = installedMap.get(mod.moduleId);
+        return {
+          moduleId: mod.moduleId,
+          name: mod.name,
+          description: mod.description,
+          category: mod.category,
+          tier: mod.tier,
+          version: mod.version,
+          isCore: Boolean(mod.isCore),
+          status: installedRecord?.status ?? "active",
+          installedAt: installedRecord?.installedAt ?? 0,
+          config: installedRecord?.config ?? {},
+        };
+      })
+      .sort((a, b) => Number(b.isCore) - Number(a.isCore) || a.name.localeCompare(b.name));
+  }, [availableModules, installedModules]);
+
+  if (
+    authLoading ||
+    tenantLoading ||
+    installedModules === undefined ||
+    availableModules === undefined
+  ) {
     return <LoadingSkeleton variant="page" />;
   }
 
-  if (!installedModules || installedModules.length === 0) {
+  if (modules.length === 0) {
     return (
       <div>
         <PageHeader
@@ -101,11 +148,11 @@ export default function ModuleSettingsPage() {
 
   const handleToggle = (moduleId: string, currentStatus: string) => {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
-    const mod = (installedModules as any[]).find((m) => m.moduleId === moduleId);
+    const mod = modules.find((m) => m.moduleId === moduleId);
     setConfirmState({
       open: true,
       moduleId,
-      moduleName: mod?.moduleId ?? moduleId,
+      moduleName: mod?.name ?? moduleId,
       newStatus: newStatus as "active" | "inactive",
     });
   };
@@ -121,8 +168,29 @@ export default function ModuleSettingsPage() {
         status: confirmState.newStatus,
       });
       setConfirmState((s) => ({ ...s, open: false }));
+      toast.success(`Module ${confirmState.newStatus === "active" ? "enabled" : "disabled"}`);
     } catch (error) {
       console.error("Failed to toggle module status:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to update module status");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleUninstall = async () => {
+    if (!tenantId || !sessionToken) return;
+    setIsProcessing(true);
+    try {
+      await uninstallModule({
+        sessionToken,
+        tenantId,
+        moduleId: uninstallState.moduleId,
+      });
+      setUninstallState({ open: false, moduleId: "", moduleName: "" });
+      toast.success("Module uninstalled");
+    } catch (error) {
+      console.error("Failed to uninstall module:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to uninstall module");
     } finally {
       setIsProcessing(false);
     }
@@ -132,7 +200,7 @@ export default function ModuleSettingsPage() {
     <div>
       <PageHeader
         title="Installed Modules"
-        description="Enable, disable, or configure your installed modules"
+        description={`Manage core and optional modules for your school. Current plan: ${tier}`}
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
           { label: "Settings", href: "/admin/settings" },
@@ -150,7 +218,7 @@ export default function ModuleSettingsPage() {
 
       <Card>
         <CardContent className="divide-y p-0">
-          {(installedModules as any[]).map((mod) => {
+          {modules.map((mod) => {
             const Icon = MODULE_ICONS[mod.moduleId] ?? Package;
             const isActive = mod.status === "active";
 
@@ -165,24 +233,47 @@ export default function ModuleSettingsPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium capitalize">
-                        {mod.moduleId.replace(/-/g, " ")}
-                      </span>
+                      <span className="font-medium">{mod.name}</span>
                       <Badge
                         variant={isActive ? "default" : "secondary"}
                         className="text-xs"
                       >
                         {isActive ? "Active" : "Inactive"}
                       </Badge>
+                      {mod.isCore && (
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <Shield className="h-3 w-3" />
+                          Core
+                        </Badge>
+                      )}
                     </div>
+                    <p className="text-sm text-muted-foreground">{mod.description}</p>
                     <p className="text-xs text-muted-foreground">
-                      Installed{" "}
-                      {new Date(mod.installedAt).toLocaleDateString("en-KE")}
+                      {mod.isCore
+                        ? "Always available to every school"
+                        : `Installed ${new Date(mod.installedAt).toLocaleDateString("en-KE")}`}{" "}
+                      · <span className="capitalize">{mod.category}</span> · v{mod.version}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
+                  {!mod.isCore && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() =>
+                        setUninstallState({
+                          open: true,
+                          moduleId: mod.moduleId,
+                          moduleName: mod.name,
+                        })
+                      }
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Link href={`/admin/settings/modules/${mod.moduleId}`}>
                     <Button variant="ghost" size="sm">
                       <Settings className="h-4 w-4" />
@@ -190,7 +281,7 @@ export default function ModuleSettingsPage() {
                   </Link>
                   <Switch
                     checked={isActive}
-                    disabled={!sessionToken}
+                    disabled={!sessionToken || mod.isCore}
                     onCheckedChange={() =>
                       handleToggle(mod.moduleId, mod.status)
                     }
@@ -222,6 +313,17 @@ export default function ModuleSettingsPage() {
           confirmState.newStatus === "active" ? "default" : "destructive"
         }
         onConfirm={handleConfirmToggle}
+        isLoading={isProcessing}
+      />
+
+      <ConfirmDialog
+        open={uninstallState.open}
+        onOpenChange={(open) => setUninstallState((s) => ({ ...s, open }))}
+        title="Uninstall Module"
+        description={`Uninstall "${uninstallState.moduleName}"? This removes the optional module from your school while preserving existing records.`}
+        confirmLabel="Uninstall"
+        variant="destructive"
+        onConfirm={handleUninstall}
         isLoading={isProcessing}
       />
     </div>

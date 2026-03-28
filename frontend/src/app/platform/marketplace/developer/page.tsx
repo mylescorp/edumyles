@@ -15,7 +15,7 @@ import {
   Package, Star, Download, Plus, CheckCircle,
   DollarSign, Users, TrendingUp, Clock,
   FileText, AlertTriangle, Eye, Send,
-  Building, Award, Layers,
+  Building, Award, Layers, Wallet, ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -67,7 +67,7 @@ function DeveloperPortalContent() {
 
   const publishers = usePlatformQuery(
     api.platform.marketplace.getPublishers,
-    { sessionToken: sessionToken || "", isActive: true }
+    { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
   const registerPublisher = useMutation(api.platform.marketplace.registerPublisher);
@@ -76,9 +76,31 @@ function DeveloperPortalContent() {
 
   // Find current user's publisher profile
   const myPublisher = useMemo(
-    () => publishers?.find((p: any) => p.userId === user?._id) ?? null,
-    [publishers, user?._id]
+    () => publishers?.find((p: any) => p.userId === user?._id || p.contactEmail === user?.email) ?? null,
+    [publishers, user?._id, user?.email]
   );
+
+  const myPublisherDetail = usePlatformQuery(
+    api.platform.marketplace.getPublisherDetail,
+    myPublisher?._id
+      ? { sessionToken: sessionToken || "", publisherId: myPublisher._id }
+      : "skip"
+  ) as any;
+
+  const myModules = useMemo(
+    () => (myPublisherDetail?.modules || []).slice().sort((a: any, b: any) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0)),
+    [myPublisherDetail?.modules]
+  );
+  const myTransactions = myPublisherDetail?.transactions || [];
+  const myPayouts = myPublisherDetail?.payouts || [];
+  const myStats = myPublisherDetail?.stats || {
+    totalModules: 0,
+    publishedModules: 0,
+    totalInstalls: 0,
+    totalEarningsCents: 0,
+    pendingPayoutCents: 0,
+    averageRating: 0,
+  };
 
   const handleRegister = async () => {
     if (!sessionToken) return;
@@ -88,6 +110,17 @@ function DeveloperPortalContent() {
         ...regForm,
       });
       setIsRegisterOpen(false);
+      toast.success("Publisher registration completed");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const handleSubmitExistingModule = async (moduleId: string) => {
+    if (!sessionToken) return;
+    try {
+      await submitModuleForReview({ sessionToken, moduleId });
+      toast.success("Module submitted for review");
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -167,18 +200,63 @@ function DeveloperPortalContent() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold mb-1">Become a Publisher</h2>
+                  <h2 className="text-xl font-bold mb-1">
+                    {myPublisher ? `Publisher Profile: ${myPublisher.legalName}` : "Become a Publisher"}
+                  </h2>
                   <p className="text-sm text-muted-foreground max-w-lg">
-                    Register as an EduMyles Marketplace publisher to distribute and monetise your
-                    educational modules, integrations, and content to thousands of institutions.
+                    {myPublisher
+                      ? "Manage your marketplace presence, submit modules for review, and track installs, reviews, and payout readiness."
+                      : "Register as an EduMyles Marketplace publisher to distribute and monetise your educational modules, integrations, and content to thousands of institutions."}
                   </p>
                 </div>
-                <Button size="lg" onClick={() => setIsRegisterOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />Register Now
-                </Button>
+                {myPublisher ? (
+                  <div className="text-right space-y-2">
+                    <div>{verificationBadge(myPublisher.verificationLevel)}</div>
+                    <Button size="lg" onClick={() => setIsSubmitOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />Submit Module
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="lg" onClick={() => setIsRegisterOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />Register Now
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
+
+          {myPublisher && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground mb-1">Modules</p>
+                  <div className="text-xl font-bold">{myStats.totalModules}</div>
+                  <p className="text-xs text-muted-foreground">{myStats.publishedModules} published</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground mb-1">Installs</p>
+                  <div className="text-xl font-bold">{myStats.totalInstalls}</div>
+                  <p className="text-xs text-muted-foreground">Across all tenants</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground mb-1">Total Earnings</p>
+                  <div className="text-xl font-bold">{formatPrice(myStats.totalEarningsCents)}</div>
+                  <p className="text-xs text-muted-foreground">Net publisher revenue</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground mb-1">Pending Payout</p>
+                  <div className="text-xl font-bold">{formatPrice(myStats.pendingPayoutCents)}</div>
+                  <p className="text-xs text-muted-foreground">Average rating {myStats.averageRating.toFixed(1)}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Verification Levels */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -278,9 +356,15 @@ function DeveloperPortalContent() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="font-semibold">{pub.legalName}</h4>
-                            {verificationBadge(pub.verificationLevel)}
-                          </div>
+                          <h4 className="font-semibold">{pub.legalName}</h4>
+                          {verificationBadge(pub.verificationLevel)}
+                          {pub.userId === myPublisher?.userId && (
+                            <Badge variant="outline" className="text-xs">My Profile</Badge>
+                          )}
+                          {!pub.isActive && (
+                            <Badge variant="destructive" className="text-xs">Suspended</Badge>
+                          )}
+                        </div>
                           <p className="text-xs text-muted-foreground">
                             {pub.contactEmail} · {pub.country} · {pub.entityType}
                           </p>
@@ -329,21 +413,60 @@ function DeveloperPortalContent() {
             </Button>
           </div>
 
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <Package className="h-10 w-10 text-muted-foreground mb-3" />
-              <h3 className="font-semibold mb-1">Ready to Submit</h3>
-              <p className="text-sm text-muted-foreground max-w-md">
-                Click &ldquo;Submit Module&rdquo; to create a new module listing. You&apos;ll fill in the
-                details and it will be submitted for review by the Mylesoft team.
-              </p>
-              {!myPublisher && (
-                <p className="text-xs text-amber-700 mt-3">
-                  Register a publisher profile first before submitting modules.
+          {myModules.length > 0 ? (
+            <div className="space-y-3">
+              {myModules.map((mod: any) => (
+                <Card key={mod._id}>
+                  <CardContent className="pt-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold">{mod.name}</h4>
+                          <Badge variant="outline" className="capitalize text-xs">{mod.category.replace(/_/g, " ")}</Badge>
+                          <Badge className={mod.status === "published" ? "bg-green-100 text-green-700" : mod.status === "pending_review" ? "bg-yellow-100 text-yellow-700" : mod.status === "rejected" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"}>
+                            {mod.status.replace(/_/g, " ")}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{mod.shortDescription}</p>
+                        <p className="text-xs text-muted-foreground">
+                          v{mod.version} · Updated {formatDate(mod.updatedAt || mod.createdAt)} · {formatPrice(mod.priceCents || 0)}
+                        </p>
+                        {mod.reviewNotes && (
+                          <p className="text-xs text-amber-700">Review notes: {mod.reviewNotes}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => window.open(`/platform/marketplace/${mod.moduleId}`, "_self")}>
+                          <Eye className="h-4 w-4 mr-1" />View
+                        </Button>
+                        {(mod.status === "draft" || mod.status === "rejected") && (
+                          <Button size="sm" onClick={() => handleSubmitExistingModule(mod.moduleId)}>
+                            <Send className="h-4 w-4 mr-1" />Submit
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <Package className="h-10 w-10 text-muted-foreground mb-3" />
+                <h3 className="font-semibold mb-1">Ready to Submit</h3>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  Click &ldquo;Submit Module&rdquo; to create a new module listing. You&apos;ll fill in the
+                  details and it will be submitted for review by the Mylesoft team.
                 </p>
-              )}
-            </CardContent>
-          </Card>
+                {!myPublisher && (
+                  <p className="text-xs text-amber-700 mt-3">
+                    Register a publisher profile first before submitting modules.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Revenue & Payouts */}
@@ -352,25 +475,72 @@ function DeveloperPortalContent() {
             <Card>
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground mb-1">Total Revenue</p>
-                <div className="text-xl font-bold">KES 0</div>
+                <div className="text-xl font-bold">{formatPrice(myStats.totalEarningsCents)}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground mb-1">Commission Earned</p>
-                <div className="text-xl font-bold">KES 0</div>
+                <div className="text-xl font-bold">
+                  {formatPrice(
+                    myTransactions.reduce((sum: number, tx: any) => sum + (tx.commissionCents || 0), 0)
+                  )}
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground mb-1">Pending Payout</p>
-                <div className="text-xl font-bold">KES 0</div>
+                <div className="text-xl font-bold">{formatPrice(myStats.pendingPayoutCents)}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground mb-1">Last Payout</p>
-                <div className="text-xl font-bold">—</div>
+                <div className="text-xl font-bold">
+                  {myPayouts[0] ? formatPrice(myPayouts[0].amountCents || 0) : "—"}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader><CardTitle className="text-base">Recent Transactions</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                {myTransactions.length > 0 ? myTransactions.map((tx: any) => (
+                  <div key={tx._id} className="flex items-center justify-between border rounded-lg p-3">
+                    <div>
+                      <p className="font-medium text-sm capitalize">{tx.type}</p>
+                      <p className="text-xs text-muted-foreground">{tx.moduleId} · {formatDate(tx.createdAt)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-sm">{formatPrice(tx.netAmountCents || 0)}</p>
+                      <p className="text-xs text-muted-foreground">{tx.status}</p>
+                    </div>
+                  </div>
+                )) : (
+                  <p className="text-sm text-muted-foreground">No transactions yet.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle className="text-base">Payouts</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                {myPayouts.length > 0 ? myPayouts.map((payout: any) => (
+                  <div key={payout._id} className="flex items-center justify-between border rounded-lg p-3">
+                    <div>
+                      <p className="font-medium text-sm">{formatDate(payout.createdAt || payout.scheduledAt || Date.now())}</p>
+                      <p className="text-xs text-muted-foreground">{payout.status}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-sm">{formatPrice(payout.amountCents || payout.netAmountCents || 0)}</p>
+                    </div>
+                  </div>
+                )) : (
+                  <p className="text-sm text-muted-foreground">No payouts scheduled yet.</p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -611,6 +781,10 @@ function DeveloperPortalContent() {
                 <Label>Privacy Policy URL</Label>
                 <Input value={modForm.privacyPolicyUrl} onChange={(e) => setModForm({ ...modForm, privacyPolicyUrl: e.target.value })} />
               </div>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
+              <Wallet className="h-4 w-4 text-muted-foreground" />
+              <span>Verification starts at Basic and can be upgraded from Marketplace Admin after review.</span>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsSubmitOpen(false)}>Cancel</Button>

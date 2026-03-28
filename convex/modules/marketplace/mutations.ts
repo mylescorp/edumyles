@@ -255,14 +255,26 @@ export const updateModuleConfig = mutation({
       )
       .first();
 
-    if (!installed) {
+    if (!installed && !isCoreModule(args.moduleId)) {
       throw new Error("MODULE_NOT_INSTALLED");
     }
 
-    await ctx.db.patch(installed._id, {
-      config: args.config,
-      updatedAt: Date.now(),
-    });
+    if (installed) {
+      await ctx.db.patch(installed._id, {
+        config: args.config,
+        updatedAt: Date.now(),
+      });
+    } else {
+      await ctx.db.insert("installedModules", {
+        tenantId,
+        moduleId: args.moduleId,
+        installedAt: Date.now(),
+        installedBy: tenantCtx.userId,
+        config: args.config,
+        status: "active",
+        updatedAt: Date.now(),
+      });
+    }
 
     await logAction(ctx, {
       tenantId,
@@ -377,6 +389,69 @@ export const reviewModuleRequest = mutation({
       reviewedAt: Date.now(),
       notes: args.notes,
     });
+
+    if (args.status === "approved") {
+      const existing = await ctx.db
+        .query("installedModules")
+        .withIndex("by_tenant_module", (q) =>
+          q.eq("tenantId", request.tenantId).eq("moduleId", request.moduleId)
+        )
+        .first();
+
+      if (!existing && !isCoreModule(request.moduleId)) {
+        const registryModule = await ctx.db
+          .query("moduleRegistry")
+          .withIndex("by_module_id", (q) => q.eq("moduleId", request.moduleId))
+          .first();
+
+        if (!registryModule || registryModule.status === "deprecated") {
+          throw new Error("MODULE_NOT_AVAILABLE");
+        }
+
+        const tenant = await ctx.db
+          .query("tenants")
+          .withIndex("by_tenantId", (q) => q.eq("tenantId", request.tenantId))
+          .first();
+
+        const org = await ctx.db
+          .query("organizations")
+          .withIndex("by_tenant", (q) => q.eq("tenantId", request.tenantId))
+          .first();
+
+        const tier = org?.tier ?? tenant?.plan ?? "free";
+        const allowedModules = TIER_MODULES[tier] ?? TIER_MODULES["free"];
+
+        if (!allowedModules?.includes(request.moduleId)) {
+          throw new Error("TIER_RESTRICTED");
+        }
+
+        const deps = MODULE_DEPENDENCIES[request.moduleId] ?? [];
+        for (const dep of deps) {
+          if (isCoreModule(dep)) continue;
+
+          const depInstalled = await ctx.db
+            .query("installedModules")
+            .withIndex("by_tenant_module", (q) =>
+              q.eq("tenantId", request.tenantId).eq("moduleId", dep)
+            )
+            .first();
+
+          if (!depInstalled || depInstalled.status !== "active") {
+            throw new Error(`DEPENDENCY_MISSING: ${dep}`);
+          }
+        }
+
+        await ctx.db.insert("installedModules", {
+          tenantId: request.tenantId,
+          moduleId: request.moduleId,
+          installedAt: Date.now(),
+          installedBy: tenantCtx.userId,
+          config: {},
+          status: "active",
+          updatedAt: Date.now(),
+        });
+      }
+    }
 
     return { success: true, status: args.status };
   },

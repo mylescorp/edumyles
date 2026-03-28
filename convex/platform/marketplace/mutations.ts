@@ -2,6 +2,7 @@ import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
+import { ALL_MODULES, CORE_MODULE_IDS } from "../../modules/marketplace/moduleDefinitions";
 
 const categoryValidator = v.union(
   v.literal("academic_tools"), v.literal("communication"),
@@ -427,7 +428,70 @@ export const installModule = mutation({
       .query("marketplaceModules")
       .withIndex("by_moduleId", (q) => q.eq("moduleId", args.moduleId))
       .first();
-    if (!mod) throw new Error("Module not found");
+    if (!mod) {
+      const registryModule = await ctx.db
+        .query("moduleRegistry")
+        .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
+        .first();
+      const builtinDefinition = ALL_MODULES.find((entry) => entry.moduleId === args.moduleId);
+
+      if (!registryModule && !builtinDefinition) {
+        throw new Error("Module not found");
+      }
+
+      const existingBuiltin = await ctx.db
+        .query("installedModules")
+        .withIndex("by_tenant_module", (q) =>
+          q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+        )
+        .first();
+
+      if (existingBuiltin && existingBuiltin.status !== "inactive") {
+        throw new Error("Module is already installed for this tenant");
+      }
+
+      const now = Date.now();
+      if (existingBuiltin) {
+        await ctx.db.patch(existingBuiltin._id, {
+          status: "active",
+          config: args.configuration ?? existingBuiltin.config ?? {},
+          updatedAt: now,
+        });
+      } else {
+        await ctx.db.insert("installedModules", {
+          tenantId: args.tenantId,
+          moduleId: args.moduleId,
+          installedAt: now,
+          installedBy: session.userId,
+          config: args.configuration ?? {},
+          status: "active",
+          updatedAt: now,
+        });
+      }
+
+      await ctx.db.insert("marketplaceActivity", {
+        type: "install",
+        moduleId: args.moduleId,
+        moduleName: registryModule?.name || builtinDefinition?.name,
+        tenantId: args.tenantId,
+        actorId: session.userId,
+        actorEmail: session.email,
+        details: { source: "builtin", version: registryModule?.version || builtinDefinition?.version },
+        createdAt: now,
+      });
+
+      await logAction(ctx, {
+        tenantId: args.tenantId,
+        actorId: session.userId,
+        actorEmail: session.email,
+        action: "marketplace.module_installed",
+        entityType: "module_installation",
+        entityId: args.moduleId,
+        after: { source: "builtin" },
+      });
+
+      return { success: true, source: "builtin" as const };
+    }
     if (mod.status !== "published") throw new Error("Module is not available for installation");
 
     // Check if already installed
@@ -538,6 +602,113 @@ export const installModule = mutation({
     });
 
     return { success: true, installationId: installId };
+  },
+});
+
+export const uninstallCatalogModule = mutation({
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+    moduleId: v.string(),
+    reason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
+
+    const marketplaceInstallation = await ctx.db
+      .query("marketplaceInstallations")
+      .withIndex("by_tenant_module", (q) =>
+        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+      )
+      .first();
+
+    if (marketplaceInstallation && marketplaceInstallation.status === "active") {
+      const now = Date.now();
+      await ctx.db.patch(marketplaceInstallation._id, {
+        status: "uninstalled",
+        uninstalledAt: now,
+        uninstalledBy: session.email,
+        uninstallReason: args.reason,
+        updatedAt: now,
+      });
+
+      const mod = await ctx.db
+        .query("marketplaceModules")
+        .withIndex("by_moduleId", (q) => q.eq("moduleId", args.moduleId))
+        .first();
+
+      if (mod) {
+        await ctx.db.patch(mod._id, {
+          activeInstalls: Math.max(0, mod.activeInstalls - 1),
+          updatedAt: now,
+        });
+      }
+
+      await ctx.db.insert("marketplaceActivity", {
+        type: "uninstall",
+        moduleId: args.moduleId,
+        moduleName: mod?.name,
+        tenantId: args.tenantId,
+        actorId: session.userId,
+        actorEmail: session.email,
+        details: { reason: args.reason, source: "marketplace" },
+        createdAt: now,
+      });
+
+      await logAction(ctx, {
+        tenantId: args.tenantId,
+        actorId: session.userId,
+        actorEmail: session.email,
+        action: "marketplace.module_uninstalled",
+        entityType: "marketplace_installation",
+        entityId: args.moduleId,
+        after: { reason: args.reason, source: "marketplace" },
+      });
+
+      return { success: true, source: "marketplace" as const };
+    }
+
+    const builtinInstallation = await ctx.db
+      .query("installedModules")
+      .withIndex("by_tenant_module", (q) =>
+        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+      )
+      .first();
+
+    if (!builtinInstallation) {
+      throw new Error("Installation not found");
+    }
+
+    if (CORE_MODULE_IDS.includes(args.moduleId)) {
+      throw new Error("Core modules cannot be uninstalled");
+    }
+
+    await ctx.db.delete(builtinInstallation._id);
+
+    const builtinDefinition = ALL_MODULES.find((entry) => entry.moduleId === args.moduleId);
+    const now = Date.now();
+    await ctx.db.insert("marketplaceActivity", {
+      type: "uninstall",
+      moduleId: args.moduleId,
+      moduleName: builtinDefinition?.name,
+      tenantId: args.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      details: { reason: args.reason, source: "builtin" },
+      createdAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: args.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "marketplace.module_uninstalled",
+      entityType: "module_installation",
+      entityId: args.moduleId,
+      after: { reason: args.reason, source: "builtin" },
+    });
+
+    return { success: true, source: "builtin" as const };
   },
 });
 
@@ -882,6 +1053,37 @@ export const updatePublisherVerification = mutation({
       entityType: "marketplace_publisher",
       entityId: args.publisherId.toString(),
       after: { verificationLevel: args.verificationLevel },
+    });
+
+    return { success: true };
+  },
+});
+
+export const setPublisherStatus = mutation({
+  args: {
+    sessionToken: v.string(),
+    publisherId: v.id("marketplacePublishers"),
+    isActive: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
+
+    const publisher = await ctx.db.get(args.publisherId);
+    if (!publisher) throw new Error("Publisher not found");
+
+    await ctx.db.patch(args.publisherId, {
+      isActive: args.isActive,
+      updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: session.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: args.isActive ? "marketplace.publisher_activated" : "marketplace.publisher_suspended",
+      entityType: "marketplace_publisher",
+      entityId: args.publisherId.toString(),
+      after: { isActive: args.isActive },
     });
 
     return { success: true };

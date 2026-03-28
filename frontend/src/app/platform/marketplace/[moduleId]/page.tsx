@@ -106,7 +106,7 @@ function ModuleDetailContent() {
   ) as any[] | undefined;
 
   const installModule = useMutation(api.platform.marketplace.installModule);
-  const uninstallModule = useMutation(api.platform.marketplace.uninstallModule);
+  const uninstallCatalogModule = useMutation(api.platform.marketplace.uninstallCatalogModule);
   const submitReview = useMutation(api.platform.marketplace.submitReview);
   const voteReview = useMutation(api.platform.marketplace.voteReview);
 
@@ -141,6 +141,7 @@ function ModuleDetailContent() {
       ) ?? null,
     [moduleId, tenantInstallations]
   );
+  const isCoreModule = Boolean(mod.isCore);
 
   const REVIEW_TAGS = [
     "Easy to Use", "Good Support", "Great Value", "Well Documented",
@@ -154,13 +155,14 @@ function ModuleDetailContent() {
   }, [selectedTenantId, tenants]);
 
   const handleInstallAction = async () => {
-    if (!sessionToken || !selectedTenantId) return;
+    if (!sessionToken || !selectedTenantId || isCoreModule) return;
 
     try {
-      if (currentInstallation?._id) {
-        await uninstallModule({
+      if (currentInstallation) {
+        await uninstallCatalogModule({
           sessionToken,
-          installationId: currentInstallation._id,
+          tenantId: selectedTenantId,
+          moduleId,
           reason: "Removed from platform marketplace detail page",
         });
         toast.success("Module uninstalled for tenant");
@@ -319,13 +321,16 @@ function ModuleDetailContent() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="text-center">
-                <div className="text-3xl font-bold">{formatPrice(mod.priceCents, mod.currency)}</div>
-                <p className="text-sm text-muted-foreground mt-1">{PRICING_LABELS[mod.pricingModel]}</p>
-                {mod.trialDays && (
-                  <p className="text-sm text-green-600 mt-1">{mod.trialDays}-day free trial available</p>
-                )}
+              <div className="text-3xl font-bold">{formatPrice(mod.priceCents, mod.currency)}</div>
+              <p className="text-sm text-muted-foreground mt-1">{PRICING_LABELS[mod.pricingModel]}</p>
+              {isCoreModule && (
+                <p className="text-sm text-blue-600 mt-1">Included by default for every tenant</p>
+              )}
+              {mod.trialDays && (
+                <p className="text-sm text-green-600 mt-1">{mod.trialDays}-day free trial available</p>
+              )}
               </div>
-              <Button className="w-full" size="lg" onClick={() => setIsInstallOpen(true)}>
+              <Button className="w-full" size="lg" onClick={() => setIsInstallOpen(true)} disabled={isCoreModule}>
                 <Download className="h-4 w-4 mr-2" />Install Module
               </Button>
               {mod.demoVideoUrl && (
@@ -779,7 +784,7 @@ function ModuleDetailContent() {
             )}
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setIsInstallOpen(false)}>Cancel</Button>
-              <Button onClick={handleInstallAction} disabled={!selectedTenantId || selectedRoles.length === 0}>
+              <Button onClick={handleInstallAction} disabled={!selectedTenantId || selectedRoles.length === 0 || isCoreModule}>
                 <Download className="h-4 w-4 mr-2" />
                 {currentInstallation ? "Uninstall Module" : "Confirm Install"}
               </Button>
