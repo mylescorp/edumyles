@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,14 +65,16 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
       {/* Logo */}
       <div className="flex h-14 items-center gap-2.5 border-b border-sidebar-border px-4"
            style={{ background: "linear-gradient(135deg,#061A12,#0C3020)" }}>
-        <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[rgba(232,160,32,0.4)]"
-          style={{ background: "linear-gradient(135deg,#0F4C2A,#0C3020)" }}
-        >
-          <span className="font-serif font-bold text-[#E8A020] text-sm leading-none">E</span>
-        </div>
+        <Image
+          src="/logo-icon.svg"
+          alt="EduMyles"
+          width={28}
+          height={28}
+          className="flex-shrink-0"
+          priority
+        />
         {!collapsed && (
-          <span className="text-sm font-bold text-white tracking-tight transition-all duration-200">EduMyles</span>
+          <span className="text-sm font-bold text-[#D4AF37] tracking-tight transition-all duration-200">EduMyles</span>
         )}
         {!isMobile && (
           <Button

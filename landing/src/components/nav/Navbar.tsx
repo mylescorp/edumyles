@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Logo from "@/components/shared/Logo";
 import { School, GraduationCap, Globe, Building2, Briefcase } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -104,28 +105,7 @@ export default function Navbar() {
       >
         <div className="max-w-[1200px] mx-auto flex justify-between items-center gap-8 h-[70px]">
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-3 text-[#061A12] no-underline flex-shrink-0"
-            aria-label="EduMyles — home"
-          >
-            <div
-              className="w-10 h-10 flex items-center justify-center rounded-[14px] font-playfair font-bold text-2xl flex-shrink-0"
-              style={{
-                background: "#0F4C2A",
-                border: "2px solid #E8A020",
-                color: "#E8A020",
-              }}
-            >
-              E
-            </div>
-            <div className="flex flex-col gap-0 leading-none">
-              <strong className="text-[16px] font-bold text-[#061A12]">EduMyles</strong>
-              <small className="text-[10px] font-medium text-[#6B9E83]">
-                Empowering Schools, One Mile at a Time.
-              </small>
-            </div>
-          </Link>
+          <Logo size="md" />
 
           {/* Desktop Nav Links */}
           <div className="hidden lg:flex items-center gap-8 flex-1 justify-center">

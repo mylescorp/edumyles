@@ -46,6 +46,11 @@ export const metadata: Metadata = {
     description: "The all-in-one school management platform for East African schools.",
   },
   robots: { index: true, follow: true },
+  icons: {
+    icon: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
+    shortcut: "/logo-icon.svg",
+  },
   keywords: [
     "school management system Kenya",
     "school management Uganda",
