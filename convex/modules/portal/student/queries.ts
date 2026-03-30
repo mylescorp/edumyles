@@ -219,14 +219,27 @@ export const getMyAssignments = query({
 export const getMyWalletBalance = query({
     args: {},
     handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "ewallet");
+        try {
+            const tenant = await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "ewallet");
 
-        // For now, if no wallet table exists, we return a mock or 0.
-        // Looking at schema, there isn't an ewallet table yet.
-        // The implementation plan says eWallet is Phase 10.
-        // I'll return a mock balance for now if the table is missing.
-        return { balanceCents: 0, currency: "KES" };
+            const wallet = await ctx.db
+                .query("wallets")
+                .withIndex("by_owner", (q) =>
+                    q.eq("tenantId", tenant.tenantId).eq("ownerId", tenant.userId)
+                )
+                .first();
+
+            if (!wallet) return { balanceCents: 0, currency: "KES", frozen: false };
+
+            return {
+                balanceCents: wallet.balanceCents,
+                currency: wallet.currency,
+                frozen: wallet.frozen ?? false,
+            };
+        } catch {
+            return { balanceCents: 0, currency: "KES", frozen: false };
+        }
     },
 });
 

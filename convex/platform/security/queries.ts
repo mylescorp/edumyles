@@ -1,7 +1,22 @@
-import { query } from "../../_generated/server";
+import { query, internalQuery } from "../../_generated/server";
 import { v } from "convex/values";
 import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+
+/**
+ * Internal query used by the HTTP /security/blocked-ips endpoint.
+ * Returns all non-expired blocked IPs across all tenants (platform-wide).
+ */
+export const listAllBlockedIPsInternal = internalQuery({
+  args: { now: v.number() },
+  handler: async (ctx, args) => {
+    const all = await ctx.db.query("blockedIPs").collect();
+    // Filter out expired entries
+    return all
+      .filter((b) => !b.expiresAt || b.expiresAt > args.now)
+      .map((b) => b.ip);
+  },
+});
 
 /**
  * Get security overview with metrics

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { query } from "../../_generated/server";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requireModule } from "../../helpers/moduleGuard";
+import { requirePermission } from "../../helpers/authorize";
 
 export const getMyWalletBalance = query({
   args: { sessionToken: v.optional(v.string()) },
@@ -113,6 +114,59 @@ export const listWalletTransactions = query({
         .collect();
     } catch (error) {
       console.error("listWalletTransactions failed", error);
+      return [];
+    }
+  },
+});
+
+/** Admin: look up any user's wallet by ownerId */
+export const getWalletByOwnerId = query({
+  args: {
+    ownerId: v.string(),
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const tenant = args.sessionToken
+        ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+        : await requireTenantContext(ctx);
+      await requireModule(ctx, tenant.tenantId, "ewallet");
+      requirePermission(tenant, "ewallet:read");
+
+      return await ctx.db
+        .query("wallets")
+        .withIndex("by_owner", (q) =>
+          q.eq("tenantId", tenant.tenantId).eq("ownerId", args.ownerId)
+        )
+        .first();
+    } catch (error) {
+      console.error("getWalletByOwnerId failed", error);
+      return null;
+    }
+  },
+});
+
+/** Admin: list all wallets in the tenant */
+export const listAllWallets = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const tenant = args.sessionToken
+        ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+        : await requireTenantContext(ctx);
+      await requireModule(ctx, tenant.tenantId, "ewallet");
+      requirePermission(tenant, "ewallet:read");
+
+      return await ctx.db
+        .query("wallets")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+        .order("desc")
+        .take(args.limit ?? 100);
+    } catch (error) {
+      console.error("listAllWallets failed", error);
       return [];
     }
   },

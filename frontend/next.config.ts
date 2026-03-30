@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -105,4 +106,18 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Sentry organisation and project (from env vars — no secrets in code)
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  // Suppress the Sentry CLI output unless SENTRY_LOG_LEVEL is set
+  silent: !process.env.SENTRY_LOG_LEVEL,
+  // Only upload source maps in CI/production (skip on local dev to avoid noise)
+  sourcemaps: {
+    disable: process.env.NODE_ENV !== "production",
+  },
+  // Avoid tree-shaking Sentry in server-side bundles
+  hideSourceMaps: true,
+  // Disable the Sentry telemetry
+  telemetry: false,
+});

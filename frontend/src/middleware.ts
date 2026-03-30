@@ -19,6 +19,45 @@ const ROUTE_ROLE_MAP: Record<string, string[]> = {
   "/student": ["student", "master_admin", "super_admin", "school_admin", "principal", "teacher"],
 };
 
+// ── In-process blocked IP cache (refreshed every 60 s) ────────
+let blockedIPCache: Set<string> = new Set();
+let blockedIPCacheExpiry = 0;
+const BLOCKED_IP_CACHE_TTL_MS = 60_000;
+
+async function getBlockedIPs(): Promise<Set<string>> {
+  const now = Date.now();
+  if (now < blockedIPCacheExpiry && blockedIPCache.size > 0) {
+    return blockedIPCache;
+  }
+  try {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL ?? "";
+    if (!convexUrl) return blockedIPCache;
+
+    // Derive the HTTP Actions URL from the Convex deployment URL.
+    // Convex HTTP actions are served at the same domain as the deployment.
+    const httpBase = convexUrl.replace(/\.cloud$/, ".site");
+    const res = await fetch(`${httpBase}/security/blocked-ips`, {
+      next: { revalidate: 60 },
+    });
+    if (res.ok) {
+      const data: { ips: string[] } = await res.json();
+      blockedIPCache = new Set(data.ips);
+      blockedIPCacheExpiry = now + BLOCKED_IP_CACHE_TTL_MS;
+    }
+  } catch {
+    // Non-fatal — degrade gracefully (don't block legitimate traffic if Convex is unreachable)
+  }
+  return blockedIPCache;
+}
+
+function getClientIP(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "unknown"
+  );
+}
+
 function getRoleDashboard(role: string): string {
   switch (role) {
     case "master_admin":
@@ -53,6 +92,28 @@ function isRoleAllowedForPath(pathname: string, role: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── 0. IP blocking enforcement ────────────────────────────────
+  // Skip the check for the blocked-ips endpoint itself and static assets
+  const isStaticAsset = pathname.startsWith("/_next") || pathname.startsWith("/favicon");
+  if (!isStaticAsset) {
+    const clientIP = getClientIP(request);
+    if (clientIP && clientIP !== "unknown") {
+      const blocked = await getBlockedIPs();
+      if (blocked.has(clientIP)) {
+        return new NextResponse(
+          JSON.stringify({ error: "Access denied", code: "IP_BLOCKED" }),
+          {
+            status: 403,
+            headers: {
+              "Content-Type": "application/json",
+              "X-Blocked-IP": clientIP,
+            },
+          }
+        );
+      }
+    }
+  }
+
   // Dev bypass — skip ALL auth checks. Only allowed outside production to prevent
   // the redirect loop: /admin → login → bypass → /admin → login → ...
   if (
@@ -73,7 +134,7 @@ export async function middleware(request: NextRequest) {
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
 
-  // 0. Maintenance mode
+  // 0b. Maintenance mode
   const maintenanceMode = request.cookies.get("edumyles_maintenance")?.value === "true";
   if (maintenanceMode && !pathname.startsWith("/platform") && !pathname.startsWith("/maintenance") && !pathname.startsWith("/auth")) {
     const isPlatformAdmin = role === "master_admin" || role === "super_admin";
@@ -118,6 +179,13 @@ export async function middleware(request: NextRequest) {
       response.headers.set("x-tenant-slug", firstPart);
     }
   }
+
+  // 5. Pass impersonation flag to response headers for server components
+  const isImpersonating = request.cookies.get("edumyles_impersonating")?.value === "true";
+  if (isImpersonating) {
+    response.headers.set("x-impersonating", "true");
+  }
+
   return response;
 }
 
