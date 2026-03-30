@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { PostHogProvider } from "@/components/providers/PostHogProvider";
+import { WebVitalsReporter } from "@/components/providers/WebVitalsReporter";
 
 export const metadata: Metadata = {
     title: "EduMyles - School Management for East Africa",
@@ -85,10 +87,13 @@ export default function RootLayout({
                 className={`${plusJakartaSans.variable} ${playfairDisplay.variable} ${dmMono.variable} ${inter.variable} font-sans antialiased`}
             >
                 <ErrorBoundary>
-                    <ConvexAuthProvider>
-                        {children}
-                    </ConvexAuthProvider>
+                    <PostHogProvider>
+                        <ConvexAuthProvider>
+                            {children}
+                        </ConvexAuthProvider>
+                    </PostHogProvider>
                 </ErrorBoundary>
+                <WebVitalsReporter />
                 <Toaster />
                 <SpeedInsights />
             </body>

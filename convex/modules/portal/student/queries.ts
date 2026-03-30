@@ -219,26 +219,27 @@ export const getMyAssignments = query({
 export const getMyWalletBalance = query({
     args: {},
     handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "ewallet");
+        try {
+            const tenant = await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "ewallet");
 
-        const student = await ctx.db
-            .query("students")
-            .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
-            .first();
+            const wallet = await ctx.db
+                .query("wallets")
+                .withIndex("by_owner", (q) =>
+                    q.eq("tenantId", tenant.tenantId).eq("ownerId", tenant.userId)
+                )
+                .first();
 
-        if (!student) return { balanceCents: 0, currency: "KES" };
+            if (!wallet) return { balanceCents: 0, currency: "KES", frozen: false };
 
-        const wallet = await ctx.db
-            .query("wallets")
-            .withIndex("by_owner", (q) =>
-                q.eq("tenantId", tenant.tenantId).eq("ownerId", student._id.toString())
-            )
-            .first();
-
-        if (!wallet) return { balanceCents: 0, currency: "KES" };
-
-        return { balanceCents: wallet.balanceCents, currency: wallet.currency || "KES" };
+            return {
+                balanceCents: wallet.balanceCents,
+                currency: wallet.currency,
+                frozen: wallet.frozen ?? false,
+            };
+        } catch {
+            return { balanceCents: 0, currency: "KES", frozen: false };
+        }
     },
 });
 

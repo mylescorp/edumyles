@@ -11,15 +11,25 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
+      reportsDirectory: './coverage',
+      // Enforce minimum thresholds — build fails if these are not met
+      thresholds: {
+        lines: 60,
+        functions: 60,
+        branches: 55,
+        statements: 60,
+      },
+      // Only measure coverage on our source files, not generated/vendor code
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
-        '**/*.d.ts',
-        '**/node_modules/**',
-        '**/src/test/**',
-        'vitest.config.ts',
-        'next.config.ts',
-        'tailwind.config.ts',
-        'postcss.config.js',
-        'src/app/layout.tsx',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.spec.{ts,tsx}',
+        'src/test/**',
+        'src/**/__mocks__/**',
+        // Generated Convex types referenced but not testable here
+        'src/convex/_generated/**',
+        // Type-only files
+        'src/**/*.d.ts',
       ],
     },
   },
