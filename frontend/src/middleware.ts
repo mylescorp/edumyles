@@ -4,6 +4,20 @@ import { NextRequest, NextResponse } from "next/server";
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform", "/student"];
 const PUBLIC_ROUTES = ["/auth/callback", "/auth/error"];
 
+// Master admin emails — these always get master_admin role regardless of the
+// stored cookie value (handles legacy sessions where role was set before DB sync).
+const MASTER_ADMIN_EMAILS = [
+  process.env.MASTER_ADMIN_EMAIL,
+  "ayany004@gmail.com",
+]
+  .filter((v): v is string => Boolean(v))
+  .map((v) => v.toLowerCase());
+
+function isMasterAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  return MASTER_ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
 // ── RBAC: Which roles can access which route prefixes ─────────
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
   "/platform": ["master_admin", "super_admin"],
@@ -124,7 +138,21 @@ export async function middleware(request: NextRequest) {
   }
 
   const session = request.cookies.get("edumyles_session");
-  const role = request.cookies.get("edumyles_role")?.value;
+  let role = request.cookies.get("edumyles_role")?.value;
+
+  // Override role for known master admins — handles sessions created before role
+  // was correctly set in DB (cookie may still say "school_admin").
+  try {
+    const userCookie = request.cookies.get("edumyles_user")?.value;
+    if (userCookie) {
+      const user = JSON.parse(userCookie);
+      if (isMasterAdminEmail(user?.email)) {
+        role = "master_admin";
+      }
+    }
+  } catch {
+    // Malformed cookie — ignore; fall back to raw role cookie
+  }
 
   // Debug logging for protected routes
   if (pathname.startsWith("/platform") || pathname.startsWith("/admin")) {

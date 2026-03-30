@@ -34,8 +34,15 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-    },
+    alias: [
+      { find: '@', replacement: resolve(__dirname, './src') },
+      // Redirect Convex generated-server imports to the frontend's copy.
+      // This lets convex/helpers/*.ts (tenantGuard, authorize, moduleGuard)
+      // be imported in vitest tests without a running Convex deployment.
+      {
+        find: /\/_generated\/server$/,
+        replacement: resolve(__dirname, './convex/_generated/server.js'),
+      },
+    ],
   },
 });

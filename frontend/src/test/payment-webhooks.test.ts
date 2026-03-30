@@ -1,512 +1,267 @@
+/**
+ * Payment Webhook Handler Tests
+ *
+ * Tests the actual exported POST handlers from the webhook route files:
+ *   - api/webhooks/mpesa/route.ts
+ *   - api/webhooks/airtel/route.ts
+ *
+ * Strategy: mock convex/browser so ConvexHttpClient.action() is a spy,
+ * then call the real handler with a crafted NextRequest-like object.
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Mock the webhook handlers
-const mockMpesaWebhook = vi.fn();
-const mockStripeWebhook = vi.fn();
-const mockAirtelWebhook = vi.fn();
-const mockWorkosWebhook = vi.fn();
+// ─── Mock convex/browser before route handlers are imported ──────────────────
+// The handlers create a ConvexHttpClient and call .action() on it.
+// We replace the class with a factory that returns a controlled spy.
 
-// Mock Convex client
-const mockConvexMutation = vi.fn();
+const mockConvexAction = vi.fn();
 
-describe('Payment Webhook Tests', () => {
+vi.mock('convex/browser', () => ({
+  ConvexHttpClient: vi.fn().mockImplementation(() => ({
+    action: mockConvexAction,
+  })),
+}));
+
+// ─── Import real handlers AFTER mock declarations ─────────────────────────────
+import { POST as mpesaPost } from '@/app/api/webhooks/mpesa/route';
+import { POST as airtelPost } from '@/app/api/webhooks/airtel/route';
+
+// ─── Helper: build a minimal NextRequest-compatible object ───────────────────
+function makeJsonRequest(body: unknown, headers: Record<string, string> = {}): NextRequest {
+  return {
+    json: vi.fn().mockResolvedValue(body),
+    text: vi.fn().mockResolvedValue(JSON.stringify(body)),
+    headers: {
+      get: vi.fn((key: string) => headers[key.toLowerCase()] ?? null),
+    },
+  } as unknown as NextRequest;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// M-Pesa webhook (api/webhooks/mpesa/route.ts)
+// ═════════════════════════════════════════════════════════════════════════════
+
+describe('M-Pesa Webhook Handler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    // Mock environment variables
-    process.env.CONVEX_WEBHOOK_SECRET = 'test-webhook-secret';
     process.env.NEXT_PUBLIC_CONVEX_URL = 'http://localhost:3001';
+    process.env.CONVEX_WEBHOOK_SECRET = 'test-mpesa-secret';
+    mockConvexAction.mockResolvedValue({ success: true });
   });
 
-  describe('M-Pesa Webhook', () => {
-    it('should handle successful M-Pesa payment callback', async () => {
-      const mockMpesaCallback = {
-        Body: {
-          stkCallback: {
-            CheckoutRequestID: 'ws_CO_123456789',
-            ResultCode: 0,
-            ResultDesc: 'The service request is processed successfully.',
-            CallbackMetadata: {
-              Item: [
-                { Name: 'Amount', Value: 1000 },
-                { Name: 'MpesaReceiptNumber', Value: 'LGR123456789' },
-                { Name: 'TransactionDate', Value: '20240304120000' },
-                { Name: 'PhoneNumber', Value: '+254700000000' },
-              ],
-            },
-          },
+  const successCallback = {
+    Body: {
+      stkCallback: {
+        CheckoutRequestID: 'ws_CO_123456789',
+        ResultCode: 0,
+        ResultDesc: 'The service request is processed successfully.',
+        CallbackMetadata: {
+          Item: [
+            { Name: 'Amount', Value: 1000 },
+            { Name: 'MpesaReceiptNumber', Value: 'LGR123456789' },
+            { Name: 'TransactionDate', Value: '20240304120000' },
+            { Name: 'PhoneNumber', Value: '+254700000000' },
+          ],
         },
-      };
+      },
+    },
+  };
 
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue(mockMpesaCallback),
-      } as unknown as NextRequest;
+  it('returns 200 and calls Convex action for a successful STK callback', async () => {
+    const req = makeJsonRequest(successCallback);
+    const res = await mpesaPost(req);
 
-      mockConvexMutation.mockResolvedValue({ success: true });
-      mockMpesaWebhook.mockReturnValue(NextResponse.json({ ResultCode: 0, ResultDesc: 'Success' }));
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.ResultCode).toBe(0);
 
-      // Simulate webhook handler
-      const handleMpesaWebhook = async (req: NextRequest) => {
-        try {
-          const raw = await req.json();
-          const body = raw as any;
-          const stk = body.Body?.stkCallback;
-          
-          if (!stk?.CheckoutRequestID) {
-            return NextResponse.json({ ResultCode: 1, ResultDesc: 'Missing CheckoutRequestID' }, { status: 400 });
-          }
-
-          const checkoutRequestId = stk.CheckoutRequestID;
-          const resultCode = Number(stk.ResultCode) ?? 1;
-          let reference: string | undefined;
-          
-          if (stk.CallbackMetadata?.Item) {
-            const receipt = stk.CallbackMetadata.Item.find((i: any) => i.Name === 'MpesaReceiptNumber');
-            reference = receipt?.Value != null ? String(receipt.Value) : undefined;
-          }
-
-          await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
-            webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
-            gateway: 'mpesa',
-            externalId: checkoutRequestId,
-            resultCode,
-            reference,
-          });
-
-          return NextResponse.json({ ResultCode: 0, ResultDesc: 'Success' });
-        } catch (e) {
-          console.error('M-Pesa webhook error:', e);
-          return NextResponse.json(
-            { ResultCode: 1, ResultDesc: e instanceof Error ? e.message : 'Processing failed' },
-            { status: 200 }
-          );
-        }
-      };
-
-      const response = await handleMpesaWebhook(mockRequest);
-
-      expect(response.status).toBe(200);
-      expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.actions.recordPaymentFromGateway',
-        {
-          webhookSecret: 'test-webhook-secret',
-          gateway: 'mpesa',
-          externalId: 'ws_CO_123456789',
-          resultCode: 0,
-          reference: 'LGR123456789',
-        }
-      );
-    });
-
-    it('should handle failed M-Pesa payment callback', async () => {
-      const mockMpesaCallback = {
-        Body: {
-          stkCallback: {
-            CheckoutRequestID: 'ws_CO_123456789',
-            ResultCode: 1032,
-            ResultDesc: 'Request cancelled by user',
-          },
-        },
-      };
-
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue(mockMpesaCallback),
-      } as unknown as NextRequest;
-
-      mockConvexMutation.mockResolvedValue({ success: true });
-
-      const handleMpesaWebhook = async (req: NextRequest) => {
-        const raw = await req.json();
-        const body = raw as any;
-        const stk = body.Body?.stkCallback;
-        
-        await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
-          webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
-          gateway: 'mpesa',
-          externalId: stk.CheckoutRequestID,
-          resultCode: Number(stk.ResultCode),
-        });
-
-        return NextResponse.json({ ResultCode: 0, ResultDesc: 'Success' });
-      };
-
-      const response = await handleMpesaWebhook(mockRequest);
-
-      expect(response.status).toBe(200);
-      expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.actions.recordPaymentFromGateway',
-        {
-          webhookSecret: 'test-webhook-secret',
-          gateway: 'mpesa',
-          externalId: 'ws_CO_123456789',
-          resultCode: 1032,
-        }
-      );
-    });
-
-    it('should reject malformed M-Pesa webhook', async () => {
-      const malformedCallback = {
-        Body: {
-          // Missing stkCallback
-        },
-      };
-
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue(malformedCallback),
-      } as unknown as NextRequest;
-
-      const handleMpesaWebhook = async (req: NextRequest) => {
-        try {
-          const raw = await req.json();
-          const body = raw as any;
-          const stk = body.Body?.stkCallback;
-          
-          if (!stk?.CheckoutRequestID) {
-            return NextResponse.json({ ResultCode: 1, ResultDesc: 'Missing CheckoutRequestID' }, { status: 400 });
-          }
-
-          return NextResponse.json({ ResultCode: 0, ResultDesc: 'Success' });
-        } catch (e) {
-          return NextResponse.json({ ResultCode: 1, ResultDesc: 'Processing failed' }, { status: 200 });
-        }
-      };
-
-      const response = await handleMpesaWebhook(mockRequest);
-
-      expect(response.status).toBe(400);
+    expect(mockConvexAction).toHaveBeenCalledOnce();
+    const [, payload] = mockConvexAction.mock.calls[0];
+    expect(payload).toMatchObject({
+      webhookSecret: 'test-mpesa-secret',
+      gateway: 'mpesa',
+      externalId: 'ws_CO_123456789',
+      resultCode: 0,
+      reference: 'LGR123456789',
     });
   });
 
-  describe('Stripe Webhook', () => {
-    it('should handle successful Stripe payment', async () => {
-      const mockStripeEvent = {
-        type: 'payment_intent.succeeded',
-        data: {
-          object: {
-            id: 'pi_123456789',
-            amount: 10000, // $100.00 in cents
-            currency: 'usd',
-            status: 'succeeded',
-            metadata: {
-              invoiceId: 'inv_123',
-              tenantId: 'tenant_123',
-            },
-          },
+  it('records a failed payment (ResultCode 1032) without a receipt number', async () => {
+    const failureCallback = {
+      Body: {
+        stkCallback: {
+          CheckoutRequestID: 'ws_CO_987654321',
+          ResultCode: 1032,
+          ResultDesc: 'Request cancelled by user',
         },
-      };
+      },
+    };
 
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue(mockStripeEvent),
-        headers: {
-          get: vi.fn().mockReturnValue('stripe-signature'),
-        },
-      } as unknown as NextRequest;
+    const req = makeJsonRequest(failureCallback);
+    const res = await mpesaPost(req);
 
-      mockConvexMutation.mockResolvedValue({ success: true });
+    expect(res.status).toBe(200);
 
-      const handleStripeWebhook = async (req: NextRequest) => {
-        const event = await req.json();
-        
-        if (event.type === 'payment_intent.succeeded') {
-          await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
-            webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
-            gateway: 'stripe',
-            externalId: event.data.object.id,
-            resultCode: 0,
-            amount: event.data.object.amount,
-            currency: event.data.object.currency,
-            metadata: event.data.object.metadata,
-          });
-        }
+    const [, payload] = mockConvexAction.mock.calls[0];
+    expect(payload.resultCode).toBe(1032);
+    expect(payload.externalId).toBe('ws_CO_987654321');
+    // No MpesaReceiptNumber item → reference should be undefined
+    expect(payload.reference).toBeUndefined();
+  });
 
-        return NextResponse.json({ received: true });
-      };
+  it('returns 400 when stkCallback is missing', async () => {
+    const malformed = { Body: {} };
+    const req = makeJsonRequest(malformed);
+    const res = await mpesaPost(req);
 
-      const response = await handleStripeWebhook(mockRequest);
+    expect(res.status).toBe(400);
+    expect(mockConvexAction).not.toHaveBeenCalled();
+  });
 
-      expect(response.status).toBe(200);
-      expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.actions.recordPaymentFromGateway',
-        {
-          webhookSecret: 'test-webhook-secret',
-          gateway: 'stripe',
-          externalId: 'pi_123456789',
-          resultCode: 0,
-          amount: 10000,
-          currency: 'usd',
-          metadata: {
-            invoiceId: 'inv_123',
-            tenantId: 'tenant_123',
-          },
-        }
-      );
+  it('returns 400 when CheckoutRequestID is missing', async () => {
+    const noId = {
+      Body: {
+        stkCallback: { ResultCode: 0, ResultDesc: 'Success' },
+      },
+    };
+    const req = makeJsonRequest(noId);
+    const res = await mpesaPost(req);
+
+    expect(res.status).toBe(400);
+    expect(mockConvexAction).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 when CONVEX_WEBHOOK_SECRET is not configured', async () => {
+    delete process.env.CONVEX_WEBHOOK_SECRET;
+
+    const req = makeJsonRequest(successCallback);
+    const res = await mpesaPost(req);
+
+    expect(res.status).toBe(500);
+    expect(mockConvexAction).not.toHaveBeenCalled();
+
+    // Restore for other tests
+    process.env.CONVEX_WEBHOOK_SECRET = 'test-mpesa-secret';
+  });
+
+  it('returns 200 (not 500) even when Convex action throws — M-Pesa requires 200 acks', async () => {
+    mockConvexAction.mockRejectedValue(new Error('Convex unavailable'));
+
+    const req = makeJsonRequest(successCallback);
+    const res = await mpesaPost(req);
+
+    // The handler catches errors and still returns 200 to satisfy M-Pesa's callback protocol
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.ResultCode).toBe(1);
+    expect(json.ResultDesc).toMatch(/Convex unavailable/);
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Airtel Money webhook (api/webhooks/airtel/route.ts)
+// ═════════════════════════════════════════════════════════════════════════════
+
+describe('Airtel Money Webhook Handler', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.NEXT_PUBLIC_CONVEX_URL = 'http://localhost:3001';
+    process.env.CONVEX_WEBHOOK_SECRET = 'test-airtel-secret';
+    mockConvexAction.mockResolvedValue({ success: true });
+  });
+
+  const successPayload = {
+    transactionId: 'ATL-TXN-001',
+    status: 'SUCCESS',
+    reference: 'SCH-REF-123',
+    amount: '5000',
+    currency: 'KES',
+  };
+
+  it('returns 200 and calls Convex action for a successful transaction', async () => {
+    const req = makeJsonRequest(successPayload, {
+      'x-webhook-secret': 'test-airtel-secret',
     });
+    const res = await airtelPost(req);
 
-    it('should handle Stripe payment failure', async () => {
-      const mockStripeEvent = {
-        type: 'payment_intent.payment_failed',
-        data: {
-          object: {
-            id: 'pi_123456789',
-            amount: 10000,
-            currency: 'usd',
-            status: 'requires_payment_method',
-            last_payment_error: {
-              message: 'Your card was declined.',
-            },
-          },
-        },
-      };
+    expect(res.status).toBe(200);
 
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue(mockStripeEvent),
-      } as unknown as NextRequest;
-
-      mockConvexMutation.mockResolvedValue({ success: true });
-
-      const handleStripeWebhook = async (req: NextRequest) => {
-        const event = await req.json();
-        
-        if (event.type === 'payment_intent.payment_failed') {
-          await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
-            webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
-            gateway: 'stripe',
-            externalId: event.data.object.id,
-            resultCode: 1,
-            errorMessage: event.data.object.last_payment_error?.message,
-          });
-        }
-
-        return NextResponse.json({ received: true });
-      };
-
-      const response = await handleStripeWebhook(mockRequest);
-
-      expect(response.status).toBe(200);
-      expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.actions.recordPaymentFromGateway',
-        {
-          webhookSecret: 'test-webhook-secret',
-          gateway: 'stripe',
-          externalId: 'pi_123456789',
-          resultCode: 1,
-          errorMessage: 'Your card was declined.',
-        }
-      );
+    expect(mockConvexAction).toHaveBeenCalledOnce();
+    const [, payload] = mockConvexAction.mock.calls[0];
+    expect(payload).toMatchObject({
+      gateway: 'airtel',
+      externalId: 'ATL-TXN-001',
+      resultCode: 0,
     });
   });
 
-  describe('Airtel Money Webhook', () => {
-    it('should handle successful Airtel Money payment', async () => {
-      const mockAirtelCallback = {
-        transaction: {
-          id: 'ATL123456789',
-          message: 'Transaction successful',
-          status: 'SUCCESS',
-          amount: '1000',
-          currency: 'KES',
-          reference: 'SCH123456',
-          msisdn: '+254700000000',
-        },
-      };
+  it('returns 401 when the webhook secret header is missing', async () => {
+    const req = makeJsonRequest(successPayload); // no secret header
+    const res = await airtelPost(req);
 
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue(mockAirtelCallback),
-      } as unknown as NextRequest;
-
-      mockConvexMutation.mockResolvedValue({ success: true });
-
-      const handleAirtelWebhook = async (req: NextRequest) => {
-        const body = await req.json();
-        const transaction = body.transaction;
-        
-        if (transaction.status === 'SUCCESS') {
-          await mockConvexMutation('modules.finance.actions.recordPaymentFromGateway', {
-            webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
-            gateway: 'airtel',
-            externalId: transaction.id,
-            resultCode: 0,
-            amount: parseInt(transaction.amount) * 100, // Convert to cents
-            currency: transaction.currency,
-            reference: transaction.reference,
-          });
-        }
-
-        return NextResponse.json({ status: 'received' });
-      };
-
-      const response = await handleAirtelWebhook(mockRequest);
-
-      expect(response.status).toBe(200);
-      expect(mockConvexMutation).toHaveBeenCalledWith(
-        'modules.finance.actions.recordPaymentFromGateway',
-        {
-          webhookSecret: 'test-webhook-secret',
-          gateway: 'airtel',
-          externalId: 'ATL123456789',
-          resultCode: 0,
-          amount: 100000, // 1000 KES * 100
-          currency: 'KES',
-          reference: 'SCH123456',
-        }
-      );
-    });
+    expect(res.status).toBe(401);
+    expect(mockConvexAction).not.toHaveBeenCalled();
   });
 
-  describe('WorkOS Webhook', () => {
-    it('should handle WorkOS user sync', async () => {
-      const mockWorkosEvent = {
-        id: 'evt_123456789',
-        event: 'user.updated',
-        data: {
-          object: {
-            id: 'user_123',
-            email: 'user@example.com',
-            first_name: 'John',
-            last_name: 'Doe',
-            state: 'active',
-          },
-        },
-      };
-
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue(mockWorkosEvent),
-        headers: {
-          get: vi.fn().mockReturnValue('workos-signature'),
-        },
-      } as unknown as NextRequest;
-
-      mockConvexMutation.mockResolvedValue({ success: true });
-
-      const handleWorkosWebhook = async (req: NextRequest) => {
-        const event = await req.json();
-        
-        if (event.event === 'user.updated') {
-          await mockConvexMutation('users.syncUserFromWorkOS', {
-            workosUserId: event.data.object.id,
-            email: event.data.object.email,
-            firstName: event.data.object.first_name,
-            lastName: event.data.object.last_name,
-            state: event.data.object.state,
-          });
-        }
-
-        return NextResponse.json({ received: true });
-      };
-
-      const response = await handleWorkosWebhook(mockRequest);
-
-      expect(response.status).toBe(200);
-      expect(mockConvexMutation).toHaveBeenCalledWith(
-        'users.syncUserFromWorkOS',
-        {
-          workosUserId: 'user_123',
-          email: 'user@example.com',
-          firstName: 'John',
-          lastName: 'Doe',
-          state: 'active',
-        }
-      );
+  it('returns 401 when the webhook secret header is wrong', async () => {
+    const req = makeJsonRequest(successPayload, {
+      'x-webhook-secret': 'wrong-secret',
     });
+    const res = await airtelPost(req);
+
+    expect(res.status).toBe(401);
+    expect(mockConvexAction).not.toHaveBeenCalled();
   });
 
-  describe('Webhook Security', () => {
-    it('should validate webhook signature', async () => {
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue({ test: 'data' }),
-        headers: {
-          get: vi.fn()
-            .mockReturnValueOnce('invalid-signature')
-            .mockReturnValueOnce('application/json'),
-        },
-      } as unknown as NextRequest;
+  it('returns 401 when CONVEX_WEBHOOK_SECRET env var is not set', async () => {
+    delete process.env.CONVEX_WEBHOOK_SECRET;
 
-      const handleSecureWebhook = async (req: NextRequest) => {
-        const signature = req.headers.get('webhook-signature');
-        const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
-
-        if (!signature || signature !== 'valid-signature') {
-          return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-        }
-
-        const body = await req.json();
-        return NextResponse.json({ received: true });
-      };
-
-      const response = await handleSecureWebhook(mockRequest);
-
-      expect(response.status).toBe(401);
+    const req = makeJsonRequest(successPayload, {
+      'x-webhook-secret': 'test-airtel-secret',
     });
+    const res = await airtelPost(req);
 
-    it('should handle missing webhook secret', async () => {
-      delete process.env.CONVEX_WEBHOOK_SECRET;
+    expect(res.status).toBe(401);
 
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue({ test: 'data' }),
-      } as unknown as NextRequest;
-
-      const handleWebhook = async (req: NextRequest) => {
-        const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
-        
-        if (!webhookSecret) {
-          return NextResponse.json({ error: 'Server config error' }, { status: 500 });
-        }
-
-        return NextResponse.json({ received: true });
-      };
-
-      const response = await handleWebhook(mockRequest);
-
-      expect(response.status).toBe(500);
-      
-      // Restore for other tests
-      process.env.CONVEX_WEBHOOK_SECRET = 'test-webhook-secret';
-    });
+    process.env.CONVEX_WEBHOOK_SECRET = 'test-airtel-secret';
   });
 
-  describe('Webhook Error Handling', () => {
-    it('should handle JSON parsing errors', async () => {
-      const mockRequest = {
-        json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
-      } as unknown as NextRequest;
-
-      const handleWebhook = async (req: NextRequest) => {
-        try {
-          await req.json();
-          return NextResponse.json({ received: true });
-        } catch (e) {
-          console.error('Webhook error:', e);
-          return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
-        }
-      };
-
-      const response = await handleWebhook(mockRequest);
-
-      expect(response.status).toBe(400);
+  it('returns 400 when no transaction identifier is present in the payload', async () => {
+    const noId = { status: 'SUCCESS', amount: '100' }; // missing transactionId, externalId, reference
+    const req = makeJsonRequest(noId, {
+      'x-webhook-secret': 'test-airtel-secret',
     });
+    const res = await airtelPost(req);
 
-    it('should handle Convex mutation errors', async () => {
-      const mockRequest = {
-        json: vi.fn().mockResolvedValue({ test: 'data' }),
-      } as unknown as NextRequest;
+    expect(res.status).toBe(400);
+    expect(mockConvexAction).not.toHaveBeenCalled();
+  });
 
-      mockConvexMutation.mockRejectedValue(new Error('Convex connection failed'));
-
-      const handleWebhook = async (req: NextRequest) => {
-        try {
-          const body = await req.json();
-          await mockConvexMutation('test.mutation', body);
-          return NextResponse.json({ received: true });
-        } catch (e) {
-          console.error('Webhook processing error:', e);
-          return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-        }
-      };
-
-      const response = await handleWebhook(mockRequest);
-
-      expect(response.status).toBe(500);
+  it('maps status=FAILED to resultCode=1', async () => {
+    const failedPayload = {
+      transactionId: 'ATL-TXN-FAIL',
+      status: 'FAILED',
+      reference: 'SCH-REF-999',
+    };
+    const req = makeJsonRequest(failedPayload, {
+      'x-webhook-secret': 'test-airtel-secret',
     });
+    const res = await airtelPost(req);
+
+    expect(res.status).toBe(200);
+    const [, payload] = mockConvexAction.mock.calls[0];
+    expect(payload.resultCode).toBe(1);
+  });
+
+  it('accepts x-edumyles-webhook-secret as an alternative header name', async () => {
+    const req = makeJsonRequest(successPayload, {
+      'x-edumyles-webhook-secret': 'test-airtel-secret',
+    });
+    const res = await airtelPost(req);
+
+    expect(res.status).toBe(200);
+    expect(mockConvexAction).toHaveBeenCalledOnce();
   });
 });
