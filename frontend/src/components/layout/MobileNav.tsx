@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, GraduationCap } from "lucide-react";
+import { Menu } from "lucide-react";
+import Image from "next/image";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { NavItem } from "@/lib/routes";
@@ -30,9 +31,9 @@ export function MobileNav({ navItems, installedModules }: MobileNavProps) {
       </SheetTrigger>
       <SheetContent side="left" className="w-72 p-0">
         <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-        <div className="flex h-16 items-center gap-2 border-b px-4">
-          <GraduationCap className="h-7 w-7 text-primary" />
-          <span className="text-lg font-bold">EduMyles</span>
+        <div className="flex h-16 items-center gap-2.5 border-b px-4" style={{ background: "linear-gradient(135deg,#061A12,#0C3020)" }}>
+          <Image src="/logo-icon.svg" alt="EduMyles" width={32} height={32} className="flex-shrink-0" priority />
+          <span className="text-sm font-bold" style={{ color: "#D4AF37" }}>EduMyles</span>
         </div>
         <ScrollArea className="h-[calc(100vh-4rem)]">
           <nav className="flex flex-col gap-1 p-4">

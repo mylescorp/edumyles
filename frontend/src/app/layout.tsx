@@ -9,7 +9,10 @@ import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { WebVitalsReporter } from "@/components/providers/WebVitalsReporter";
 
 export const metadata: Metadata = {
-    title: "EduMyles - School Management for East Africa",
+    title: {
+        default: "EduMyles",
+        template: "%s | EduMyles",
+    },
     description:
         "Replace disconnected spreadsheets and messaging groups with one unified platform for admissions, billing, academics, HR, and communication across East Africa.",
     icons: {

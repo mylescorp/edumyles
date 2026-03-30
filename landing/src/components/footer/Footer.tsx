@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import {
   ShieldCheck,
@@ -334,18 +335,15 @@ export default function Footer() {
           <div>
             {/* Logo lockup */}
             <Link href="/" className="inline-flex items-center gap-3 mb-5 no-underline group" aria-label="EduMyles home">
-              <div
-                className="w-11 h-11 flex items-center justify-center rounded-[12px] font-playfair font-bold text-xl flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
-                style={{
-                  background: "linear-gradient(135deg, #0F4C2A, #1A7A4A)",
-                  border: "2px solid #E8A020",
-                  color: "#E8A020",
-                }}
-              >
-                E
-              </div>
+              <Image
+                src="/logo-icon.svg"
+                alt="EduMyles"
+                width={44}
+                height={44}
+                className="flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
+              />
               <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-playfair font-bold text-[18px] text-white">EduMyles</span>
+                <span className="font-playfair font-bold text-[18px]" style={{ color: "#D4AF37" }}>EduMyles</span>
                 <span className="font-jakarta uppercase tracking-[2px] text-[8px] font-semibold" style={{ color: "#E8A020" }}>
                   School Management
                 </span>

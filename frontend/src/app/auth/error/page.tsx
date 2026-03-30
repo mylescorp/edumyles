@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const REASON_MESSAGES: Record<string, string> = {
   not_configured: "Authentication is not configured. Please contact your administrator.",
@@ -20,8 +21,12 @@ export default async function AuthErrorPage({
     `An unexpected authentication error occurred${reason ? ` (${reason})` : ""}.`;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
+    <div className="flex flex-col items-center justify-center min-h-screen p-8" style={{ background: "#061A12" }}>
       <div className="max-w-md w-full text-center space-y-6">
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <Image src="/logo-icon.svg" alt="EduMyles" width={56} height={56} priority />
+          <span className="text-base font-bold" style={{ color: "#D4AF37" }}>EduMyles</span>
+        </div>
         <div className="space-y-2">
           <p className="text-6xl font-bold text-muted-foreground/30">Auth Error</p>
           <h1 className="text-2xl font-semibold text-foreground">Sign-in failed</h1>

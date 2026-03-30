@@ -1,11 +1,16 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Home, ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center">
+    <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center" style={{ background: "#061A12" }}>
+      <div className="flex flex-col items-center gap-2 mb-8">
+        <Image src="/logo-icon.svg" alt="EduMyles" width={56} height={56} priority />
+        <span className="text-base font-bold" style={{ color: "#D4AF37" }}>EduMyles</span>
+      </div>
       <Card className="max-w-md w-full">
         <CardContent className="pt-6 space-y-4">
           <div className="space-y-1">
