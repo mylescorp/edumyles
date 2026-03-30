@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     url: "https://edumyles.com",
     siteName: "EduMyles",
     type: "website",
-    images: [{ url: "https://edumyles.com/og-image.png", width: 1200, height: 630 }],
+    images: [{ url: "/logo-full.svg", width: 400, height: 260 }],
   },
   twitter: {
     card: "summary_large_image",
@@ -94,7 +94,7 @@ const softwareSchema = {
     "@type": "Organization",
     name: "MylesCorp Technologies Ltd",
     url: "https://mylesoft.vercel.app",
-    logo: "https://edumyles.com/logo.png",
+    logo: "https://edumyles.com/logo-icon.svg",
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+254743993715",
