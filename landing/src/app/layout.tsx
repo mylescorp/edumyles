@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     url: "https://edumyles.com",
     siteName: "EduMyles",
     type: "website",
-    images: [{ url: "https://edumyles.com/og-image.png", width: 1200, height: 630 }],
+    images: [{ url: "/logo-full.svg", width: 400, height: 260 }],
   },
   twitter: {
     card: "summary_large_image",
@@ -46,6 +46,11 @@ export const metadata: Metadata = {
     description: "The all-in-one school management platform for East African schools.",
   },
   robots: { index: true, follow: true },
+  icons: {
+    icon: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
+    shortcut: "/logo-icon.svg",
+  },
   keywords: [
     "school management system Kenya",
     "school management Uganda",
@@ -89,7 +94,7 @@ const softwareSchema = {
     "@type": "Organization",
     name: "MylesCorp Technologies Ltd",
     url: "https://mylesoft.vercel.app",
-    logo: "https://edumyles.com/logo.png",
+    logo: "https://edumyles.com/logo-icon.svg",
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+254743993715",

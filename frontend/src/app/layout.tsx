@@ -12,9 +12,20 @@ export const metadata: Metadata = {
     title: "EduMyles - School Management for East Africa",
     description:
         "Replace disconnected spreadsheets and messaging groups with one unified platform for admissions, billing, academics, HR, and communication across East Africa.",
+    icons: {
+        icon: [
+            { url: "/logo-icon.svg", type: "image/svg+xml" },
+        ],
+        apple: [
+            { url: "/logo-icon.svg", type: "image/svg+xml" },
+        ],
+        shortcut: "/logo-icon.svg",
+    },
+    manifest: "/site.webmanifest",
     other: {
         // EduMyles 2026 brand primary — Forest Deep
         "msapplication-TileColor": "#061A12",
+        "msapplication-TileImage": "/logo-icon.svg",
     },
 };
 
