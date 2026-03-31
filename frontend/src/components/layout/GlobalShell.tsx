@@ -912,7 +912,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
         />
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto bg-[#F3FBF6]">
+        <main className="flex-1 overflow-y-auto" style={{ background: "#F0F7F4" }}>
           {children}
         </main>
       </div>

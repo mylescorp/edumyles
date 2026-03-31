@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   GraduationCap,
@@ -9,83 +8,100 @@ import {
   DollarSign,
   Calendar,
   MessageSquare,
-  Plus,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface QuickAction {
   title: string;
   description: string;
   href: string;
   icon: any;
-  variant?: "default" | "outline";
+  iconBg: string;
+  iconColor: string;
 }
 
 const quickActions: QuickAction[] = [
   {
     title: "Enroll Student",
-    description: "Add a new student to the system",
+    description: "Add a new student",
     href: "/admin/students/create",
     icon: GraduationCap,
+    iconBg: "bg-[rgba(15,76,42,0.1)]",
+    iconColor: "text-[#0F4C2A]",
   },
   {
     title: "Add Staff Member",
-    description: "Create a new staff or teacher account",
+    description: "Create staff / teacher account",
     href: "/admin/staff/create",
     icon: Users,
+    iconBg: "bg-[rgba(21,101,192,0.1)]",
+    iconColor: "text-[#1565C0]",
   },
   {
     title: "Create Invoice",
-    description: "Generate a new fee invoice",
+    description: "Generate a fee invoice",
     href: "/admin/finance/invoices/create",
     icon: DollarSign,
+    iconBg: "bg-[rgba(232,160,32,0.1)]",
+    iconColor: "text-[#E8A020]",
   },
   {
     title: "Schedule Event",
-    description: "Add a new event to the calendar",
+    description: "Add to the calendar",
     href: "/admin/timetable/events/create",
     icon: Calendar,
+    iconBg: "bg-[rgba(124,58,237,0.1)]",
+    iconColor: "text-[#7C3AED]",
   },
   {
     title: "Send Announcement",
-    description: "Broadcast a message to all users",
+    description: "Broadcast to all users",
     href: "/admin/communications/create",
     icon: MessageSquare,
+    iconBg: "bg-[rgba(38,166,91,0.1)]",
+    iconColor: "text-[#26A65B]",
   },
   {
     title: "Generate Report",
-    description: "Create academic or financial reports",
+    description: "Academic or financial reports",
     href: "/admin/reports",
     icon: FileText,
+    iconBg: "bg-[rgba(220,38,38,0.08)]",
+    iconColor: "text-[#DC2626]",
   },
 ];
 
 export function AdminQuickActions() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Plus className="h-5 w-5" />
+    <Card className="shadow-sm">
+      <CardHeader className="pb-3 pt-5 px-5">
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <Zap className="h-4 w-4 text-[#E8A020]" />
           Quick Actions
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="px-5 pb-5 space-y-1.5">
         {quickActions.map((action) => {
           const Icon = action.icon;
           return (
-            <Link key={action.href} href={action.href}>
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-2 h-auto p-3"
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <div className="text-left">
-                  <div className="font-medium text-sm">{action.title}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {action.description}
-                  </div>
-                </div>
-              </Button>
+            <Link
+              key={action.href}
+              href={action.href}
+              className={cn(
+                "flex items-center gap-3 w-full rounded-lg px-3 py-2.5 text-left",
+                "border border-border/50 bg-muted/20",
+                "hover:bg-muted/50 hover:border-border transition-colors duration-150"
+              )}
+            >
+              <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0", action.iconBg)}>
+                <Icon className={cn("h-4 w-4", action.iconColor)} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground leading-tight">{action.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{action.description}</p>
+              </div>
             </Link>
           );
         })}

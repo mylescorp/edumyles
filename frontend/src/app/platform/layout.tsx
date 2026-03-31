@@ -62,7 +62,11 @@ export default function PlatformLayout({ children }: { children: ReactNode }) {
     <ConvexAuthProvider>
       <RoleGuard allowedRoles={PLATFORM_ROLES}>
         <GlobalShell navItems={platformNavItems}>
-          <PlatformErrorBoundary>{children}</PlatformErrorBoundary>
+          <PlatformErrorBoundary>
+            <div className="p-4 md:p-6">
+              <div className="mx-auto max-w-[1600px]">{children}</div>
+            </div>
+          </PlatformErrorBoundary>
         </GlobalShell>
       </RoleGuard>
     </ConvexAuthProvider>

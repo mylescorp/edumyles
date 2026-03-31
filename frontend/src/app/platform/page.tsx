@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { DashboardKPIGrid } from "@/components/platform/DashboardKPI";
 import { DashboardCharts } from "@/components/platform/DashboardCharts";
@@ -13,45 +12,30 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAccessibility } from "@/hooks/useAccessibility";
 import { useDashboardKPIs, useActivityFeed, useDashboardCharts } from "@/hooks/useDashboardData";
-import { InteractiveChart } from "@/components/charts/InteractiveChart";
-import { HeatmapChart } from "@/components/charts/HeatmapChart";
 import {
   Activity,
-  AlertTriangle,
-  Building2,
-  DollarSign,
   FileText,
-  Shield,
-  UserCheck,
   Users,
-  Wifi,
-  WifiOff,
+  Zap,
+  BarChart3,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatRelativeTime } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
-const PLAN_PRICES_USD: Record<string, number> = {
-  starter: 49,
-  growth: 129,
-  premium: 249,
-  enterprise: 499,
-};
+const TIME_RANGES = [
+  { value: "7d", label: "7D" },
+  { value: "30d", label: "30D" },
+  { value: "90d", label: "90D" },
+] as const;
 
-function getActionBadgeClass(action: string) {
-  if (action.includes("suspended") || action.includes("deleted")) return "bg-danger-bg text-danger";
-  if (action.includes("created") || action.includes("installed")) return "bg-success-bg text-success";
-  if (action.includes("updated")) return "bg-warning-bg text-em-accent-dark";
-  if (action.includes("impersonation")) return "bg-em-accent/10 text-em-accent-dark";
-  return "bg-muted text-muted-foreground";
-}
+type TimeRange = typeof TIME_RANGES[number]["value"];
 
 export default function PlatformDashboardPage() {
   const { isLoading } = useAuth();
   const { hasRole } = usePermissions();
-  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("30d");
+  const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
   const { data: kpis, isLoading: kpisLoading } = useDashboardKPIs();
@@ -70,15 +54,28 @@ export default function PlatformDashboardPage() {
     newThisMonth: 0,
   };
 
+  const defaultChartsData = {
+    mrrTrend: [],
+    tenantGrowth: [],
+    ticketVolume: [],
+    revenueByPlan: [],
+  };
+
   if (isLoading || kpisLoading) return <LoadingSkeleton variant="page" />;
 
   if (!isPlatformAdmin) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Master Admin Dashboard" description="Platform-wide operations and controls" breadcrumbs={[{ label: "Dashboard", href: "/platform" }]} />
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">You do not have permission to view platform-wide metrics.</p>
+        <PageHeader
+          title="Platform Dashboard"
+          description="Platform-wide operations and controls"
+          breadcrumbs={[{ label: "Dashboard" }]}
+        />
+        <Card className="shadow-sm">
+          <CardContent className="py-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              You do not have permission to view platform-wide metrics.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -86,113 +83,121 @@ export default function PlatformDashboardPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <PageHeader
-            title="Master Admin Dashboard"
-            description="Live platform metrics and cross-tenant activity"
-            breadcrumbs={[{ label: "Dashboard", href: "/platform" }]}
-          />
-          <div className="flex items-center gap-2 text-sm text-em-text-secondary">
-            <div className="h-2 w-2 rounded-full bg-em-success animate-pulse"></div>
-            <span>Live data • Last updated 2 minutes ago</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Toolbar: time range + analytics link */}
-      <div className="flex items-center justify-between bg-em-bg-subtle rounded-xl p-4 border border-em-border shadow-sm">
-        <div className="flex items-center space-x-3">
-          <span className="text-sm font-medium text-em-text-secondary">Time Range:</span>
-          <div className="flex items-center space-x-1 bg-em-bg-base rounded-lg p-1 border border-em-border">
-            {(["7d", "30d", "90d"] as const).map((range) => (
-              <Button
-                key={range}
-                variant={timeRange === range ? "default" : "ghost"}
-                size="sm"
-                onClick={() => { setTimeRange(range); announceToScreenReader(`Showing ${range === "7d" ? "7 days" : range === "30d" ? "30 days" : "90 days"} of data`); }}
-                className={cn(
-                  "text-xs px-3 py-1.5 transition-all duration-200",
-                  timeRange === range 
-                    ? "bg-em-primary-light text-white shadow-sm hover:bg-em-primary-light/90" 
-                    : "text-em-text-secondary hover:text-em-text-primary hover:bg-em-accent/20"
-                )}
-              >
-                {range === "7d" ? "7D" : range === "30d" ? "30D" : "90D"}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <Link href="/platform/analytics">
-          <Button className="bg-em-primary-light hover:bg-em-primary-light/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5">
-            <FileText className="h-4 w-4 mr-2" />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <PageHeader
+          title="Platform Dashboard"
+          description="Live platform metrics and cross-tenant activity"
+          breadcrumbs={[{ label: "Dashboard" }]}
+          badge={
+            <Badge className="gap-1.5 text-xs border-[#26A65B]/40 text-[#26A65B] bg-[rgba(38,166,91,0.07)] border">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#26A65B] animate-pulse inline-block" />
+              Live
+            </Badge>
+          }
+          className="mb-0 flex-1"
+        />
+        <Link href="/platform/analytics" className="sm:mt-0.5 flex-shrink-0">
+          <Button size="sm" className="bg-[#0F4C2A] hover:bg-[#1A7A4A] text-white shadow-sm h-8">
+            <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
             Open Analytics
           </Button>
         </Link>
       </div>
 
-      {/* Master Dashboard KPI Widgets */}
-      <div className="bg-gradient-to-br from-em-bg-subtle via-em-bg-base to-em-bg-subtle rounded-2xl p-6 border border-em-border shadow-lg">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-em-text-primary">Platform Overview</h2>
-          <div className="flex items-center gap-2 text-sm text-em-text-secondary">
-            <Activity className="h-4 w-4" />
-            <span>Real-time</span>
-          </div>
+      {/* Time range selector */}
+      <div className="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-card shadow-sm">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Time Range</span>
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+          {TIME_RANGES.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => {
+                setTimeRange(value);
+                announceToScreenReader(`Showing ${label} of data`);
+              }}
+              className={cn(
+                "px-3 py-1 rounded-md text-xs font-medium transition-all duration-150",
+                timeRange === value
+                  ? "bg-[#0F4C2A] text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+              )}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-        <DashboardKPIGrid kpis={kpis || defaultKPIs} isLoading={kpisLoading} />
       </div>
+
+      {/* KPI Widgets */}
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Activity className="h-4 w-4 text-[#0F4C2A]" />
+            Platform Overview
+          </CardTitle>
+          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#26A65B] animate-pulse inline-block" />
+            Real-time
+          </span>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          <DashboardKPIGrid kpis={kpis || defaultKPIs} isLoading={kpisLoading} />
+        </CardContent>
+      </Card>
 
       {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-em-primary/5 to-em-accent/5 rounded-2xl p-6 border border-em-border shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-em-text-primary">Quick Actions</h2>
-          <Badge variant="secondary" className="bg-em-accent/10 text-em-accent-dark border-em-accent/20">
-            4 available
-          </Badge>
-        </div>
-        <QuickActions variant="grid" />
-      </div>
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Zap className="h-4 w-4 text-[#E8A020]" />
+            Quick Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          <QuickActions variant="grid" />
+        </CardContent>
+      </Card>
 
-      {/* Dashboard Charts */}
-      <div className="bg-em-bg-base rounded-2xl p-6 border border-em-border shadow-lg">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-em-text-primary">Analytics Overview</h2>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-em-success animate-pulse"></div>
-            <span className="text-sm text-em-text-secondary">Live charts</span>
-          </div>
-        </div>
-        <DashboardCharts 
-          chartsData={chartsData || {
-            mrrTrend: [],
-            tenantGrowth: [],
-            ticketVolume: [],
-            revenueByPlan: []
-          }} 
-          isLoading={chartsLoading} 
-        />
-      </div>
+      {/* Charts */}
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <BarChart3 className="h-4 w-4 text-[#1565C0]" />
+            Analytics Overview
+          </CardTitle>
+          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#26A65B] animate-pulse inline-block" />
+            Live charts
+          </span>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          <DashboardCharts
+            chartsData={chartsData || defaultChartsData}
+            isLoading={chartsLoading}
+          />
+        </CardContent>
+      </Card>
 
-      {/* Recent Activity Feed */}
-      <div className="bg-gradient-to-b from-em-bg-base to-em-bg-subtle rounded-2xl p-6 border border-em-border shadow-lg">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-em-text-primary">Recent Activity</h2>
-          <div className="flex items-center gap-2 text-sm text-em-text-secondary">
-            <Users className="h-4 w-4" />
-            <span>Platform-wide</span>
-          </div>
-        </div>
-        <ActivityFeed 
-          events={activityFeed || []} 
-          isLoading={activityLoading}
-          limit={20}
-          showViewAll={true}
-          className=""
-        />
-      </div>
+      {/* Activity Feed */}
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Users className="h-4 w-4 text-[#0F4C2A]" />
+            Recent Activity
+          </CardTitle>
+          <span className="text-xs text-muted-foreground">Platform-wide</span>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          <ActivityFeed
+            events={activityFeed || []}
+            isLoading={activityLoading}
+            limit={20}
+            showViewAll={true}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }
