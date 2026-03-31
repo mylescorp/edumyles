@@ -1,50 +1,67 @@
 import Link from "next/link";
+import Image from "next/image";
+import { AlertTriangle, RefreshCw, Home, Mail, ArrowRight } from "lucide-react";
 
-const REASON_MESSAGES: Record<string, { title: string; message: string; action?: "signup" | "login" | "support" | "pending" }> = {
+interface ReasonConfig {
+  title: string;
+  message: string;
+  hint?: string;
+  /** Primary CTA shown in place of / in addition to "Try signing in again" */
+  cta?: { label: string; href: string };
+}
+
+const REASON_CONFIG: Record<string, ReasonConfig> = {
   not_configured: {
-    title: "Not configured",
-    message: "Authentication is not configured. Please contact your administrator.",
-    action: "support",
+    title: "Auth not configured",
+    message: "Authentication is not configured on this instance.",
+    hint: "Please contact your system administrator to set up WorkOS credentials.",
   },
   callback_failed: {
     title: "Sign-in failed",
-    message: "The authentication server returned an error. Please try again.",
-    action: "login",
+    message: "The authentication server returned an unexpected error.",
+    hint: "This may be a temporary issue. Please wait a moment and try again.",
   },
   invalid_state: {
-    title: "Security token mismatch",
-    message: "The security token is invalid or expired. Please start the sign-in process again.",
-    action: "login",
+    title: "Security check failed",
+    message: "The security token from your sign-in attempt did not match.",
+    hint: "This usually happens if you have multiple tabs open or your session expired. Please try again.",
   },
   no_code: {
     title: "No authorization code",
-    message: "No authorization code was received from the identity provider. Please try again.",
-    action: "login",
+    message: "No authorization code was received from the identity provider.",
+    hint: "The sign-in flow was interrupted. Please start again from the login page.",
   },
   config_error: {
-    title: "Configuration error",
-    message: "A system configuration error occurred. Please contact your administrator.",
-    action: "support",
+    title: "System configuration error",
+    message: "A required environment variable is missing on the server.",
+    hint: "Contact your administrator — this requires a server-side fix.",
   },
   access_denied: {
     title: "Access denied",
-    message: "Access was denied by the identity provider. Please contact your administrator.",
-    action: "support",
+    message: "Your sign-in attempt was denied by the identity provider.",
+    hint: "If you believe this is a mistake, contact your school administrator.",
   },
   not_authorized: {
     title: "Account not found",
     message:
-      "Your account does not exist in EduMyles. Access is by invitation only. " +
-      "If you need access, please contact your school administrator or sign up to join the waitlist.",
-    action: "signup",
+      "Your account does not exist in EduMyles. Access is by invitation only.",
+    hint:
+      "If you need access, ask your school administrator to provision your account, " +
+      "or sign up to join the waitlist for review.",
+    cta: { label: "Sign up for access", href: "/auth/signup" },
   },
   account_inactive: {
     title: "Account deactivated",
-    message:
-      "Your account has been deactivated. Please contact your school administrator or " +
-      "platform support to reinstate your access.",
-    action: "support",
+    message: "Your account has been deactivated and can no longer sign in.",
+    hint:
+      "Contact your school administrator or platform support to reinstate your access.",
   },
+};
+
+const DEFAULT_CONFIG: ReasonConfig = {
+  title: "Sign-in failed",
+  message: "An unexpected authentication error occurred.",
+  hint: "Please try again, or contact support if the issue persists.",
 };
 
 export default async function AuthErrorPage({
@@ -53,88 +70,112 @@ export default async function AuthErrorPage({
   searchParams: Promise<{ reason?: string }>;
 }) {
   const { reason } = await searchParams;
-  const entry = REASON_MESSAGES[reason ?? ""] ?? {
-    title: "Authentication error",
-    message: `An unexpected error occurred${reason ? ` (${reason})` : ""}.`,
-    action: "login" as const,
-  };
+  const config = (reason && REASON_CONFIG[reason]) ?? DEFAULT_CONFIG;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
-      <div className="max-w-md w-full text-center space-y-6">
-        {/* Icon */}
-        <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
-          <svg
-            className="w-8 h-8 text-destructive"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-            />
-          </svg>
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-16">
+      {/* Logo */}
+      <div className="mb-10">
+        <Image src="/logo-full.svg" alt="EduMyles" width={160} height={44} priority />
+      </div>
+
+      <div className="w-full max-w-md space-y-8">
+        {/* Error card */}
+        <div className="rounded-2xl border border-red-100 bg-white p-8 shadow-sm dark:border-red-900/40 dark:bg-gray-900">
+          {/* Icon */}
+          <div className="mb-6 flex justify-center">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/40">
+              <AlertTriangle className="h-8 w-8 text-red-500 dark:text-red-400" />
+            </span>
+          </div>
+
+          {/* Text */}
+          <div className="text-center space-y-2 mb-6">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              {config.title}
+            </h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              {config.message}
+            </p>
+          </div>
+
+          {/* Hint box */}
+          {config.hint && (
+            <div className="mb-6 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 px-4 py-3">
+              <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+                {config.hint}
+              </p>
+            </div>
+          )}
+
+          {/* Error code */}
+          {reason && (
+            <p className="mb-6 text-center font-mono text-xs text-gray-400 dark:text-gray-600">
+              Error code: <span className="text-gray-500 dark:text-gray-500">{reason}</span>
+            </p>
+          )}
+
+          {/* Actions */}
+          <div className="flex flex-col gap-3">
+            {/* Context-specific primary CTA (e.g. Sign up for not_authorized) */}
+            {config.cta && (
+              <Link
+                href={config.cta.href}
+                className="group flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:shadow-md active:scale-[0.98]"
+                style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
+              >
+                {config.cta.label}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            )}
+
+            {/* Default: try signing in again */}
+            {!config.cta && (
+              <a
+                href="/auth/login/api"
+                className="group flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:shadow-md active:scale-[0.98]"
+                style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
+              >
+                <RefreshCw className="h-4 w-4" />
+                Try signing in again
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </a>
+            )}
+
+            <Link
+              href="/"
+              className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              <Home className="h-4 w-4" />
+              Go home
+            </Link>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold text-foreground">{entry.title}</h1>
-          <p className="text-muted-foreground text-sm leading-relaxed">{entry.message}</p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          {entry.action === "login" && (
-            <Link
-              href="/auth/login/api"
-              className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Try signing in
-            </Link>
-          )}
-          {entry.action === "signup" && (
-            <Link
-              href="/auth/signup/api"
-              className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Sign up for access
-            </Link>
-          )}
-          {entry.action === "pending" && (
-            <Link
-              href="/auth/pending"
-              className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Check application status
-            </Link>
-          )}
-          {entry.action === "support" && (
-            <a
-              href="mailto:support@edumyles.com"
-              className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Contact support
-            </a>
-          )}
-
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-2.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-          >
-            Go home
-          </Link>
-        </div>
-
-        <p className="text-xs text-muted-foreground/60">
-          Need help?{" "}
+        {/* Support */}
+        <div className="text-center space-y-1.5">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Still having trouble?</p>
           <a
             href="mailto:support@edumyles.com"
-            className="underline underline-offset-2"
+            className="inline-flex items-center gap-2 text-sm font-medium underline underline-offset-2"
+            style={{ color: "#0F4C2A" }}
           >
-            support@edumyles.com
+            <Mail className="h-4 w-4" />
+            Contact support@edumyles.com
           </a>
-        </p>
+        </div>
+
+        {/* Diagnostic block */}
+        <details className="text-center">
+          <summary className="cursor-pointer text-xs text-gray-400 dark:text-gray-600 hover:text-gray-500 select-none">
+            Show diagnostic info
+          </summary>
+          <div className="mt-3 rounded-lg border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4 text-left font-mono text-xs text-gray-500 space-y-1">
+            <p>reason: <span className="text-gray-700 dark:text-gray-400">{reason ?? "none"}</span></p>
+            <p>page: <span className="text-gray-700 dark:text-gray-400">/auth/error</span></p>
+            <p>support: <span className="text-gray-700 dark:text-gray-400">support@edumyles.com</span></p>
+          </div>
+        </details>
       </div>
     </div>
   );
