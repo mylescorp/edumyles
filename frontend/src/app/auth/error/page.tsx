@@ -6,6 +6,8 @@ interface ReasonConfig {
   title: string;
   message: string;
   hint?: string;
+  /** Primary CTA shown in place of / in addition to "Try signing in again" */
+  cta?: { label: string; href: string };
 }
 
 const REASON_CONFIG: Record<string, ReasonConfig> = {
@@ -38,6 +40,21 @@ const REASON_CONFIG: Record<string, ReasonConfig> = {
     title: "Access denied",
     message: "Your sign-in attempt was denied by the identity provider.",
     hint: "If you believe this is a mistake, contact your school administrator.",
+  },
+  not_authorized: {
+    title: "Account not found",
+    message:
+      "Your account does not exist in EduMyles. Access is by invitation only.",
+    hint:
+      "If you need access, ask your school administrator to provision your account, " +
+      "or sign up to join the waitlist for review.",
+    cta: { label: "Sign up for access", href: "/auth/signup" },
+  },
+  account_inactive: {
+    title: "Account deactivated",
+    message: "Your account has been deactivated and can no longer sign in.",
+    hint:
+      "Contact your school administrator or platform support to reinstate your access.",
   },
 };
 
@@ -100,15 +117,30 @@ export default async function AuthErrorPage({
 
           {/* Actions */}
           <div className="flex flex-col gap-3">
-            <a
-              href="/auth/login/api"
-              className="group flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:shadow-md active:scale-[0.98]"
-              style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
-            >
-              <RefreshCw className="h-4 w-4" />
-              Try signing in again
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
+            {/* Context-specific primary CTA (e.g. Sign up for not_authorized) */}
+            {config.cta && (
+              <Link
+                href={config.cta.href}
+                className="group flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:shadow-md active:scale-[0.98]"
+                style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
+              >
+                {config.cta.label}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            )}
+
+            {/* Default: try signing in again */}
+            {!config.cta && (
+              <a
+                href="/auth/login/api"
+                className="group flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:shadow-md active:scale-[0.98]"
+                style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
+              >
+                <RefreshCw className="h-4 w-4" />
+                Try signing in again
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </a>
+            )}
 
             <Link
               href="/"

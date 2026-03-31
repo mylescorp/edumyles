@@ -310,7 +310,26 @@ export function TenantProvisioningWizard({ className = "" }: TenantProvisioningW
       // Call the real API
       const result = await createTenant(tenantData);
       console.log("Tenant created successfully:", result);
-      
+
+      // Provision a real WorkOS Organization for this tenant so users can be
+      // added to it and SSO / directory-sync features work correctly.
+      try {
+        const orgRes = await fetch("/api/tenants/provision-org", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionToken, tenantId: result.tenantId }),
+        });
+        if (orgRes.ok) {
+          const orgData = await orgRes.json();
+          console.log("WorkOS organization provisioned:", orgData.workosOrgId);
+        } else {
+          // Non-fatal — tenant is created; WorkOS org can be provisioned later
+          console.warn("WorkOS org provisioning failed (non-fatal):", await orgRes.text());
+        }
+      } catch (orgErr) {
+        console.warn("WorkOS org provisioning error (non-fatal):", orgErr);
+      }
+
       // Redirect to tenants list on success
       router.push("/platform/tenants");
     } catch (err: any) {
