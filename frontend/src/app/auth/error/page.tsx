@@ -1,12 +1,50 @@
 import Link from "next/link";
+import Image from "next/image";
+import { AlertTriangle, RefreshCw, Home, Mail, ArrowRight } from "lucide-react";
 
-const REASON_MESSAGES: Record<string, string> = {
-  not_configured: "Authentication is not configured. Please contact your administrator.",
-  callback_failed: "Sign-in failed. The authentication server returned an error.",
-  invalid_state: "Security token mismatch. Please try signing in again.",
-  no_code: "No authorization code was received. Please try again.",
-  config_error: "System configuration error. Please contact your administrator.",
-  access_denied: "Access was denied. Please contact your administrator.",
+interface ReasonConfig {
+  title: string;
+  message: string;
+  hint?: string;
+}
+
+const REASON_CONFIG: Record<string, ReasonConfig> = {
+  not_configured: {
+    title: "Auth not configured",
+    message: "Authentication is not configured on this instance.",
+    hint: "Please contact your system administrator to set up WorkOS credentials.",
+  },
+  callback_failed: {
+    title: "Sign-in failed",
+    message: "The authentication server returned an unexpected error.",
+    hint: "This may be a temporary issue. Please wait a moment and try again.",
+  },
+  invalid_state: {
+    title: "Security check failed",
+    message: "The security token from your sign-in attempt did not match.",
+    hint: "This usually happens if you have multiple tabs open or your session expired. Please try again.",
+  },
+  no_code: {
+    title: "No authorization code",
+    message: "No authorization code was received from the identity provider.",
+    hint: "The sign-in flow was interrupted. Please start again from the login page.",
+  },
+  config_error: {
+    title: "System configuration error",
+    message: "A required environment variable is missing on the server.",
+    hint: "Contact your administrator — this requires a server-side fix.",
+  },
+  access_denied: {
+    title: "Access denied",
+    message: "Your sign-in attempt was denied by the identity provider.",
+    hint: "If you believe this is a mistake, contact your school administrator.",
+  },
+};
+
+const DEFAULT_CONFIG: ReasonConfig = {
+  title: "Sign-in failed",
+  message: "An unexpected authentication error occurred.",
+  hint: "Please try again, or contact support if the issue persists.",
 };
 
 export default async function AuthErrorPage({
@@ -15,40 +53,97 @@ export default async function AuthErrorPage({
   searchParams: Promise<{ reason?: string }>;
 }) {
   const { reason } = await searchParams;
-  const message =
-    REASON_MESSAGES[reason ?? ""] ??
-    `An unexpected authentication error occurred${reason ? ` (${reason})` : ""}.`;
+  const config = (reason && REASON_CONFIG[reason]) ?? DEFAULT_CONFIG;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
-      <div className="max-w-md w-full text-center space-y-6">
-        <div className="space-y-2">
-          <p className="text-6xl font-bold text-muted-foreground/30">Auth Error</p>
-          <h1 className="text-2xl font-semibold text-foreground">Sign-in failed</h1>
-          <p className="text-muted-foreground text-sm leading-relaxed">{message}</p>
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-16">
+      {/* Logo */}
+      <div className="mb-10">
+        <Image src="/logo-full.svg" alt="EduMyles" width={160} height={44} priority />
+      </div>
+
+      <div className="w-full max-w-md space-y-8">
+        {/* Error card */}
+        <div className="rounded-2xl border border-red-100 bg-white p-8 shadow-sm dark:border-red-900/40 dark:bg-gray-900">
+          {/* Icon */}
+          <div className="mb-6 flex justify-center">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/40">
+              <AlertTriangle className="h-8 w-8 text-red-500 dark:text-red-400" />
+            </span>
+          </div>
+
+          {/* Text */}
+          <div className="text-center space-y-2 mb-6">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              {config.title}
+            </h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              {config.message}
+            </p>
+          </div>
+
+          {/* Hint box */}
+          {config.hint && (
+            <div className="mb-6 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 px-4 py-3">
+              <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+                {config.hint}
+              </p>
+            </div>
+          )}
+
+          {/* Error code */}
+          {reason && (
+            <p className="mb-6 text-center font-mono text-xs text-gray-400 dark:text-gray-600">
+              Error code: <span className="text-gray-500 dark:text-gray-500">{reason}</span>
+            </p>
+          )}
+
+          {/* Actions */}
+          <div className="flex flex-col gap-3">
+            <a
+              href="/auth/login/api"
+              className="group flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:shadow-md active:scale-[0.98]"
+              style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try signing in again
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </a>
+
+            <Link
+              href="/"
+              className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              <Home className="h-4 w-4" />
+              Go home
+            </Link>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          <Link
-            href="/auth/login/api"
-            className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+        {/* Support */}
+        <div className="text-center space-y-1.5">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Still having trouble?</p>
+          <a
+            href="mailto:support@edumyles.com"
+            className="inline-flex items-center gap-2 text-sm font-medium underline underline-offset-2"
+            style={{ color: "#0F4C2A" }}
           >
-            Try again
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-2.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-          >
-            Go home
-          </Link>
-        </div>
-
-        <p className="text-xs text-muted-foreground/60">
-          If this keeps happening, contact{" "}
-          <a href="mailto:support@edumyles.com" className="underline underline-offset-2">
-            support@edumyles.com
+            <Mail className="h-4 w-4" />
+            Contact support@edumyles.com
           </a>
-        </p>
+        </div>
+
+        {/* Diagnostic block */}
+        <details className="text-center">
+          <summary className="cursor-pointer text-xs text-gray-400 dark:text-gray-600 hover:text-gray-500 select-none">
+            Show diagnostic info
+          </summary>
+          <div className="mt-3 rounded-lg border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4 text-left font-mono text-xs text-gray-500 space-y-1">
+            <p>reason: <span className="text-gray-700 dark:text-gray-400">{reason ?? "none"}</span></p>
+            <p>page: <span className="text-gray-700 dark:text-gray-400">/auth/error</span></p>
+            <p>support: <span className="text-gray-700 dark:text-gray-400">support@edumyles.com</span></p>
+          </div>
+        </details>
       </div>
     </div>
   );
