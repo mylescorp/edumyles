@@ -3184,4 +3184,32 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_date", ["tenantId", "date"])
     .index("by_tenant_status", ["tenantId", "status"]),
+
+  // ── Waitlist Applications ─────────────────────────────────────────────────
+  // Tracks users who signed up via WorkOS but are not yet in the DB.
+  // Master admin reviews and approves/rejects; on approval the user is
+  // created in the `users` table and added to a WorkOS Organization.
+  waitlistApplications: defineTable({
+    workosUserId: v.string(),         // WorkOS user ID (real, not pending-)
+    email: v.string(),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    // Application fields
+    schoolName: v.optional(v.string()),   // school/org they want to join
+    requestedRole: v.optional(v.string()), // role they are requesting
+    message: v.optional(v.string()),       // optional message from applicant
+    // Review outcome
+    status: v.string(),               // "pending" | "approved" | "rejected"
+    requestedAt: v.number(),
+    reviewedBy: v.optional(v.string()),   // master admin workosUserId
+    reviewedAt: v.optional(v.number()),
+    reviewNotes: v.optional(v.string()),
+    // Post-approval assignment (set by master admin before approving)
+    assignedTenantId: v.optional(v.string()),
+    assignedRole: v.optional(v.string()),
+    assignedOrgId: v.optional(v.string()), // Convex org _id
+  })
+    .index("by_status", ["status"])
+    .index("by_email", ["email"])
+    .index("by_workos_user", ["workosUserId"]),
 });

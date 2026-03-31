@@ -35,6 +35,7 @@ import {
   Clock,
   Package,
   Kanban,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 
@@ -49,6 +50,7 @@ export interface NavItem {
 export const platformNavItems: NavItem[] = [
   { label: "Dashboard", href: "/platform", icon: LayoutDashboard },
   { label: "Tenants", href: "/platform/tenants", icon: Building2 },
+  { label: "Waitlist & Approvals", href: "/platform/waitlist", icon: ClipboardCheck },
   { label: "CRM Pipeline", href: "/platform/crm", icon: TrendingUp },
   { label: "Proposals", href: "/platform/crm/proposals", icon: FileText },
   { label: "Users", href: "/platform/users", icon: Users },

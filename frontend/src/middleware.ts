@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform", "/student"];
-const PUBLIC_ROUTES = ["/auth/callback", "/auth/error"];
+const PUBLIC_ROUTES = ["/auth/callback", "/auth/error", "/auth/pending"];
 
 // Master admin emails — these always get master_admin role regardless of the
 // stored cookie value (handles legacy sessions where role was set before DB sync).
@@ -226,5 +226,8 @@ export const config = {
     "/platform/:path*",
     "/auth/:path*",
     "/student/:path*",
+    "/api/auth/:path*",
+    "/api/waitlist/:path*",
+    "/api/tenants/:path*",
   ],
 };

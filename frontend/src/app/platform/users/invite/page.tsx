@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserPlus, CheckCircle2, AlertTriangle, Users, Mail } from "lucide-react";
+import { UserPlus, CheckCircle2, AlertTriangle, Users, Mail, Copy, Check } from "lucide-react";
 
 export default function InviteAdminPage() {
   const { isLoading, sessionToken } = useAuth();
@@ -27,9 +27,11 @@ export default function InviteAdminPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<{
     email: string;
     emailSent: boolean;
+    signUpUrl?: string;
     warning?: string;
   } | null>(null);
 
@@ -64,6 +66,7 @@ export default function InviteAdminPage() {
       setResult({
         email: form.email,
         emailSent: data.emailSent ?? false,
+        signUpUrl: data.signUpUrl,
         warning: data.workosError ?? data.warning,
       });
     } catch (err: any) {
@@ -109,32 +112,52 @@ export default function InviteAdminPage() {
                 <div className="flex items-start gap-2">
                   <Mail className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
                   <div className="text-sm text-green-800">
-                    <p className="font-semibold">Invitation email sent</p>
+                    <p className="font-semibold">Invitation email sent ✓</p>
                     <p className="mt-1 text-green-700">
-                      {result.email} will receive a link to set their password and access the platform.
-                      The invitation expires in 7 days.
+                      {result.email} will receive a link to set their password. Expires in 7 days.
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                <div className="flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-                  <div className="text-sm text-amber-800">
-                    <p className="font-semibold">No invitation email sent</p>
-                    <p className="mt-1 text-amber-700">
-                      {result.warning ?? "WorkOS integration is not configured."} Share the login
-                      link manually:{" "}
-                      <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">
-                        /auth/login/api
-                      </span>
-                    </p>
+              <div className="space-y-3">
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                    <div className="text-sm text-amber-800">
+                      <p className="font-semibold">Email not sent</p>
+                      <p className="mt-0.5 text-xs text-amber-700">{result.warning ?? "WorkOS not configured."}</p>
+                    </div>
                   </div>
+                </div>
+
+                {/* Sign-up link — always shown when email fails */}
+                <div>
+                  <p className="text-sm font-medium mb-1.5">Share this sign-up link instead:</p>
+                  <div className="flex gap-2">
+                    <Input
+                      readOnly
+                      value={result.signUpUrl ?? `${window.location.origin}/auth/login/api`}
+                      className="font-mono text-xs"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(result.signUpUrl ?? `${window.location.origin}/auth/login/api`);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                    >
+                      {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Send this to <strong>{result.email}</strong> via email, WhatsApp, or Slack.
+                  </p>
                 </div>
               </div>
             )}
-
             <div className="flex gap-3 pt-1">
               <Button variant="outline" className="flex-1" onClick={handleInviteAnother}>
                 <UserPlus className="h-4 w-4 mr-2" />
