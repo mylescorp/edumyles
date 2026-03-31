@@ -5,14 +5,27 @@ import { Toaster } from "@/components/ui/toaster";
 import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { PostHogProvider } from "@/components/providers/PostHogProvider";
+import { WebVitalsReporter } from "@/components/providers/WebVitalsReporter";
 
 export const metadata: Metadata = {
     title: "EduMyles - School Management for East Africa",
     description:
         "Replace disconnected spreadsheets and messaging groups with one unified platform for admissions, billing, academics, HR, and communication across East Africa.",
+    icons: {
+        icon: [
+            { url: "/logo-icon.svg", type: "image/svg+xml" },
+        ],
+        apple: [
+            { url: "/logo-icon.svg", type: "image/svg+xml" },
+        ],
+        shortcut: "/logo-icon.svg",
+    },
+    manifest: "/site.webmanifest",
     other: {
         // EduMyles 2026 brand primary — Forest Deep
         "msapplication-TileColor": "#061A12",
+        "msapplication-TileImage": "/logo-icon.svg",
     },
 };
 
@@ -85,10 +98,13 @@ export default function RootLayout({
                 className={`${plusJakartaSans.variable} ${playfairDisplay.variable} ${dmMono.variable} ${inter.variable} font-sans antialiased`}
             >
                 <ErrorBoundary>
-                    <ConvexAuthProvider>
-                        {children}
-                    </ConvexAuthProvider>
+                    <PostHogProvider>
+                        <ConvexAuthProvider>
+                            {children}
+                        </ConvexAuthProvider>
+                    </PostHogProvider>
                 </ErrorBoundary>
+                <WebVitalsReporter />
                 <Toaster />
                 <SpeedInsights />
             </body>

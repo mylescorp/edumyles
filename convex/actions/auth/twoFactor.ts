@@ -185,9 +185,11 @@ export const verifyTwoFactor = action({
 });
 
 function generateBackupCodes(): string[] {
+  const crypto = require("crypto");
   const codes: string[] = [];
   for (let i = 0; i < 10; i++) {
-    codes.push(Math.random().toString(36).substring(2, 10).toUpperCase());
+    // 4 random bytes → 8 hex chars, matching spec's 8-char backup code format
+    codes.push(crypto.randomBytes(4).toString("hex").toUpperCase());
   }
   return codes;
 }

@@ -13,9 +13,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import {
   Download,
+  ExternalLink,
   Trash2,
   GraduationCap,
   ClipboardList,
@@ -32,6 +35,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+const CORE_MODULE_IDS = ["sis", "communications", "users"];
+
 const MODULE_ICONS: Record<string, LucideIcon> = {
   sis: GraduationCap,
   admissions: ClipboardList,
@@ -46,103 +51,15 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
   ecommerce: ShoppingCart,
 };
 
-const MODULE_FEATURES: Record<string, string[]> = {
-  sis: [
-    "Student records with full lifecycle management",
-    "Bulk CSV import and export",
-    "NEMIS number tracking",
-    "Student photo uploads",
-    "Guardian/parent linking",
-    "Class and stream assignment",
-  ],
-  admissions: [
-    "Online application forms",
-    "Application pipeline (submitted > reviewed > accepted > enrolled)",
-    "Document upload and verification",
-    "Auto-generate admission numbers",
-    "Waiting list management",
-    "Enrollment fee collection",
-  ],
-  finance: [
-    "Fee structure builder per class/term",
-    "Invoice generation (individual & bulk)",
-    "M-Pesa STK Push payments",
-    "Stripe and Airtel Money support",
-    "PDF receipt generation",
-    "Aging reports and collection tracking",
-    "Fee reminder SMS/email automation",
-  ],
-  academics: [
-    "Multi-curriculum grading (CBC, 8-4-4, IGCSE, GPA)",
-    "Grade entry by teachers per subject",
-    "Report card PDF generation with school branding",
-    "Exam schedule management",
-    "Assignment creation and submission tracking",
-    "Offline grade entry with sync",
-  ],
-  timetable: [
-    "Visual timetable builder",
-    "Conflict detection (teacher/room double-booking)",
-    "Period templates for CBC and 8-4-4",
-    "Substitute teacher assignment",
-    "Class, teacher, and room schedule views",
-  ],
-  communications: [
-    "SMS via Africa's Talking",
-    "Email via Resend",
-    "In-app notifications",
-    "Announcement system",
-    "Emergency broadcasts with acknowledgment",
-    "SMS quota per subscription tier",
-  ],
-  hr: [
-    "Staff records and contract management",
-    "Leave management with approval workflow",
-    "Payroll with Kenya statutory deductions (PAYE, NSSF, SHIF)",
-    "Payslip PDF generation",
-    "Finance Officer approval before disbursement",
-    "KEMIS export",
-  ],
-  library: [
-    "Book catalogue with ISBN lookup",
-    "Borrowing and return tracking",
-    "Overdue fines (auto-charged to eWallet)",
-    "Low stock alerts",
-    "Librarian dashboard",
-  ],
-  transport: [
-    "Route and stop management",
-    "Vehicle fleet tracking",
-    "Student-to-route assignment",
-    "Transport fee billing integration",
-    "Real-time arrival/departure notifications",
-  ],
-  ewallet: [
-    "Digital wallet for students and parents",
-    "Top-up via M-Pesa, Airtel Money, card",
-    "Spend on fees, canteen, library fines, events",
-    "Ledger-based balance tracking",
-    "Transaction history with receipts",
-    "Low balance SMS alerts",
-  ],
-  ecommerce: [
-    "Per-school shop for uniforms, books, stationery",
-    "Product listings with images and stock tracking",
-    "Checkout via eWallet or direct M-Pesa",
-    "Order management and tracking",
-    "Revenue goes directly to school account",
-  ],
-};
-
 export default function ModuleDetailPage() {
   const params = useParams();
   const moduleId = params.moduleId as string;
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, sessionToken } = useAuth();
   const { tenantId, isLoading: tenantLoading } = useTenant();
 
   const moduleDetails = useQuery(
     api.modules.marketplace.queries.getModuleDetails,
-    { moduleId }
+    sessionToken ? { sessionToken, moduleId } : "skip"
   );
 
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
@@ -165,8 +82,9 @@ export default function ModuleDetailPage() {
   }
 
   const Icon = MODULE_ICONS[moduleId] ?? BookOpen;
-  const features = MODULE_FEATURES[moduleId] ?? [];
+  const features = moduleDetails.features ?? [];
   const isInstalled = !!moduleDetails.installed;
+  const isCore = Boolean(moduleDetails.isCore || CORE_MODULE_IDS.includes(moduleId));
 
   const handleAction = (action: "install" | "uninstall") => {
     setDialogAction(action);
@@ -174,17 +92,20 @@ export default function ModuleDetailPage() {
   };
 
   const handleConfirm = async () => {
-    if (!tenantId) return;
+    if (!tenantId || !sessionToken) return;
     setIsProcessing(true);
     try {
       if (dialogAction === "install") {
-        await installModule({ tenantId, moduleId });
+        await installModule({ sessionToken, tenantId, moduleId });
+        toast.success("Module installed");
       } else {
-        await uninstallModule({ tenantId, moduleId });
+        await uninstallModule({ sessionToken, tenantId, moduleId });
+        toast.success("Module uninstalled");
       }
       setDialogOpen(false);
     } catch (error) {
       console.error("Module operation failed:", error);
+      toast.error(error instanceof Error ? error.message : "Module operation failed");
     } finally {
       setIsProcessing(false);
     }
@@ -201,7 +122,7 @@ export default function ModuleDetailPage() {
           { label: moduleDetails.name },
         ]}
         actions={
-          isInstalled ? (
+          isInstalled && !isCore ? (
             <Button
               variant="outline"
               onClick={() => handleAction("uninstall")}
@@ -210,11 +131,33 @@ export default function ModuleDetailPage() {
               <Trash2 className="mr-2 h-4 w-4" />
               Uninstall
             </Button>
+          ) : isCore ? (
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">Core Module</Badge>
+              {moduleDetails.documentation && (
+                <Button variant="outline" asChild>
+                  <a href={moduleDetails.documentation} target="_blank" rel="noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Docs
+                  </a>
+                </Button>
+              )}
+            </div>
           ) : moduleDetails.availableForTier ? (
-            <Button onClick={() => handleAction("install")}>
-              <Download className="mr-2 h-4 w-4" />
-              Install Module
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button onClick={() => handleAction("install")}>
+                <Download className="mr-2 h-4 w-4" />
+                Install Module
+              </Button>
+              {moduleDetails.documentation && (
+                <Button variant="outline" asChild>
+                  <a href={moduleDetails.documentation} target="_blank" rel="noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Docs
+                  </a>
+                </Button>
+              )}
+            </div>
           ) : (
             <Button disabled variant="outline">
               Upgrade Required
@@ -278,8 +221,31 @@ export default function ModuleDetailPage() {
               </div>
               <Separator />
               <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Dependencies</span>
+                <span className="text-right">
+                  {moduleDetails.dependencies?.length > 0
+                    ? moduleDetails.dependencies.join(", ")
+                    : "None"}
+                </span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Version</span>
                 <span className="font-mono text-xs">{moduleDetails.version}</span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Pricing</span>
+                <span>
+                  {moduleDetails.pricing?.monthly
+                    ? `${moduleDetails.pricing.currency} ${moduleDetails.pricing.monthly}/mo`
+                    : "Included"}
+                </span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Support</span>
+                <span>{moduleDetails.support?.email ?? "support@edumyles.com"}</span>
               </div>
               {isInstalled && moduleDetails.installed && (
                 <>

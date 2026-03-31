@@ -33,22 +33,22 @@ export default function FinalCTA() {
           className="font-playfair font-bold leading-[1.2] mb-3"
           style={{ fontSize: "clamp(1.75rem, 3vw, 2.625rem)", color: "#ffffff" }}
         >
-          Ready to Transform Your School?
+          Ready to{" "}
+          <em className="italic" style={{ color: "#E8A020" }}>Transform</em>{" "}
+          Your School?
         </h2>
 
         <p
           className="text-[18px] mb-8 leading-relaxed"
-          style={{ color: "rgba(255,255,255,0.9)" }}
+          style={{ color: "#90CAF9" }}
         >
           Join 50+ schools already running on EduMyles. Setup is free. Support is local.
         </p>
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center mb-4">
           <a
-            href="https://wa.me/254743993715?text=Hi%2C%20I%27d%20like%20to%20book%20a%20free%20demo%20of%20EduMyles"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-colors duration-300 no-underline"
+            href="/book-demo"
+            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-colors duration-300 no-underline"
             style={{ background: "#E8A020", color: "#061A12" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#F5C453")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "#E8A020")}
@@ -57,14 +57,14 @@ export default function FinalCTA() {
           </a>
           <a
             href="#pricing"
-            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[50px] transition-all duration-300 no-underline"
-            style={{ background: "transparent", color: "#ffffff", border: "2px solid #ffffff" }}
+            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-all duration-300 no-underline"
+            style={{ background: "transparent", color: "#ffffff", border: "1.5px solid rgba(255,255,255,0.2)" }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#ffffff";
-              e.currentTarget.style.color = "#061A12";
+              e.currentTarget.style.borderColor = "#E8A020";
+              e.currentTarget.style.color = "#E8A020";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
               e.currentTarget.style.color = "#ffffff";
             }}
           >
@@ -72,7 +72,7 @@ export default function FinalCTA() {
           </a>
         </div>
 
-        <p className="text-[13px]" style={{ color: "#A8E6C3" }}>
+        <p className="text-[13px]" style={{ color: "#6B9E83" }}>
           No commitment required · Free onboarding included · Cancel anytime
         </p>
       </div>

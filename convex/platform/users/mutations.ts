@@ -270,3 +270,68 @@ export const deactivatePlatformAdmin = mutation({
         });
     },
 });
+
+// Emergency repair for a master admin account that was provisioned with the wrong role.
+export const repairMasterAdminByEmail = mutation({
+    args: {
+        email: v.string(),
+    },
+    handler: async (ctx, args) => {
+        let org = await ctx.db
+            .query("organizations")
+            .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
+            .first();
+
+        if (!org) {
+            const orgId = await ctx.db.insert("organizations", {
+                tenantId: "PLATFORM",
+                workosOrgId: "platform-default",
+                name: "EduMyles Platform",
+                subdomain: "platform",
+                tier: "enterprise",
+                isActive: true,
+                createdAt: Date.now(),
+            });
+            org = await ctx.db.get(orgId);
+        }
+
+        if (!org) {
+            throw new Error("PLATFORM_ORGANIZATION_NOT_AVAILABLE");
+        }
+
+        const normalizedEmail = args.email.toLowerCase();
+        const users = await ctx.db.query("users").collect();
+        const matchingUsers = users.filter(
+            (user) => user.email.toLowerCase() === normalizedEmail
+        );
+
+        for (const user of matchingUsers) {
+            await ctx.db.patch(user._id, {
+                tenantId: "PLATFORM",
+                role: "master_admin",
+                organizationId: org._id,
+                permissions: user.permissions.includes("*")
+                    ? user.permissions
+                    : ["*", ...user.permissions],
+                isActive: true,
+            });
+        }
+
+        const sessions = await ctx.db.query("sessions").collect();
+        let updatedSessions = 0;
+        for (const session of sessions) {
+            if (session.email?.toLowerCase() !== normalizedEmail) continue;
+            await ctx.db.patch(session._id, {
+                tenantId: "PLATFORM",
+                role: "master_admin",
+            });
+            updatedSessions += 1;
+        }
+
+        return {
+            success: true,
+            updatedUsers: matchingUsers.length,
+            updatedSessions,
+        };
+    },
+});

@@ -31,3 +31,48 @@ export function trackSignupClick() {
 export function trackWhatsAppClick() {
   trackEvent("whatsapp_click", { source: "landing_page" });
 }
+
+// Cookie consent tracking
+export function trackCookieConsent(consent: "accepted" | "declined") {
+  trackEvent("cookie_consent", { 
+    consent_type: consent,
+    page_location: window.location.pathname,
+    timestamp: new Date().toISOString()
+  });
+}
+
+// Site performance tracking
+export function trackPageLoad(loadTime: number) {
+  trackEvent("page_performance", {
+    page_load_time: loadTime,
+    page_path: window.location.pathname,
+    user_agent: navigator.userAgent,
+    viewport: `${window.innerWidth}x${window.innerHeight}`
+  });
+}
+
+export function trackFormSubmission(formName: string, success: boolean) {
+  trackEvent("form_submission", {
+    form_name: formName,
+    success: success,
+    page_location: window.location.pathname
+  });
+}
+
+export function trackNavigationClick(destination: string) {
+  trackEvent("navigation_click", {
+    destination: destination,
+    source_page: window.location.pathname
+  });
+}
+
+// Performance metrics
+export function trackCoreWebVitals(metric: unknown) {
+  const metricObj = metric as Record<string, unknown>;
+  trackEvent("core_web_vital", {
+    metric_name: metricObj.name || '',
+    metric_value: metricObj.value || 0,
+    metric_id: metricObj.id || '',
+    page_location: typeof window !== 'undefined' ? window.location.pathname : ''
+  });
+}

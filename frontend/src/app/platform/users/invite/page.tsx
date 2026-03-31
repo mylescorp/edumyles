@@ -158,11 +158,6 @@ export default function InviteAdminPage() {
                 </div>
               </div>
             )}
-            {/* Invisible div to match old structure */}
-            <div style={{display:"none"}}>
-              </div>
-            )}
-
             <div className="flex gap-3 pt-1">
               <Button variant="outline" className="flex-1" onClick={handleInviteAnother}>
                 <UserPlus className="h-4 w-4 mr-2" />

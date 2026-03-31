@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
+import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useNotifications } from "@/hooks/useNotifications";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
@@ -181,8 +182,25 @@ function navItemsToGroups(items: NavItem[]): NavGroup[] {
   return items.map((item) => ({ label: item.label, href: item.href }));
 }
 
+function filterGroupsByVisibleNavItems(groups: NavGroup[], visibleNavItems: NavItem[]): NavGroup[] {
+  const visibleHrefs = new Set(visibleNavItems.map((item) => item.href));
+
+  return groups
+    .map((group) => {
+      if (group.href) {
+        return visibleHrefs.has(group.href) ? group : null;
+      }
+
+      const items = group.items?.filter((item) => visibleHrefs.has(item.href)) ?? [];
+      return items.length > 0 ? { ...group, items } : null;
+    })
+    .filter((group): group is NavGroup => !!group);
+}
+
 function getNavGroups(role: string, navItems: NavItem[]): NavGroup[] {
-  if (role === "master_admin" || role === "super_admin") return PLATFORM_NAV_GROUPS;
+  if (role === "master_admin" || role === "super_admin") {
+    return filterGroupsByVisibleNavItems(PLATFORM_NAV_GROUPS, navItems);
+  }
   if (
     role === "school_admin" ||
     role === "principal" ||
@@ -191,7 +209,7 @@ function getNavGroups(role: string, navItems: NavItem[]): NavGroup[] {
     role === "librarian" ||
     role === "transport_manager"
   )
-    return ADMIN_NAV_GROUPS;
+    return filterGroupsByVisibleNavItems(ADMIN_NAV_GROUPS, navItems);
   return navItemsToGroups(navItems);
 }
 
@@ -627,13 +645,21 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const router = useRouter();
   const { user, role, logout } = useAuth();
   const { tenant } = useTenant();
+  const { isModuleInstalled } = useInstalledModules();
   const { unreadCount } = useNotifications();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const coreModuleIds = ["sis", "communications", "users"];
+
+  const visibleNavItems = navItems.filter((item) => {
+    if (!item.module) return true;
+    if (coreModuleIds.includes(item.module)) return true;
+    return isModuleInstalled(item.module);
+  });
 
   const anyUser = user as any;
   const displayName = formatName(anyUser?.firstName, anyUser?.lastName);
   const initials = getInitials(anyUser?.firstName, anyUser?.lastName);
-  const groups = getNavGroups(role ?? "", navItems);
+  const groups = getNavGroups(role ?? "", visibleNavItems);
   const workspaceLabel = getRoleWorkspaceLabel(role ?? "", tenant?.name);
 
   // Derive notification / profile hrefs from current section
@@ -888,7 +914,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
       <div className="flex flex-1 overflow-hidden">
         {/* Left module sidebar */}
         <LeftSidebar
-          navItems={navItems}
+          navItems={visibleNavItems}
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed((v) => !v)}
         />

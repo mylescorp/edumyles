@@ -21,10 +21,27 @@ export const getCurrentPlatformUser = query({
     handler: async (ctx, args) => {
         try {
             const session = await requirePlatformSession(ctx, args);
-            return await ctx.db
+            const byWorkosId = await ctx.db
                 .query("users")
-                .filter((q) => q.eq(q.field("eduMylesUserId"), session.userId))
+                .withIndex("by_workos_user", (q) => q.eq("workosUserId", session.userId))
                 .first();
+
+            if (byWorkosId) {
+                return byWorkosId;
+            }
+
+            const byPlatformEmail = await ctx.db
+                .query("users")
+                .withIndex("by_tenant_email", (q) =>
+                    q.eq("tenantId", session.tenantId).eq("email", session.email || "")
+                )
+                .first();
+            if (byPlatformEmail) {
+                return byPlatformEmail;
+            }
+
+            const allUsers = await ctx.db.query("users").collect();
+            return allUsers.find((user) => user.email === session.email) || null;
         } catch (error) {
             console.error("Error in getCurrentPlatformUser:", error);
             // Return null instead of throwing to prevent app crashes

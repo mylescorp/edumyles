@@ -2,20 +2,31 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { Rocket, CreditCard, BookOpen, BarChart2, Users, CalendarDays, Mail } from "lucide-react";
 
 const featured = {
   category: "Product Update",
   title: "Introducing the All-New EduMyles 2026: Real-Time, Role-Based, and Built for Scale",
-  excerpt:
-    "We rebuilt EduMyles from the ground up with a real-time architecture, 11 deeply integrated modules, and a brand new interface. Here's everything that's new.",
+  excerpt: "We rebuilt EduMyles from the ground up with a real-time architecture, 11 deeply integrated modules, and a brand new interface. Here's everything that's new.",
   date: "March 2026",
   readTime: "8 min read",
   author: "EduMyles Team",
-  slug: "#",
-  tag: "New",
+  slug: "/blog/edumyles-2026-launch",
+  icon: Rocket,
 };
 
-const posts = [
+type Post = {
+  category: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime: string;
+  author: string;
+  slug: string;
+} & ({ icon: LucideIcon; flagEmoji?: never } | { flagEmoji: string; icon?: never });
+
+const posts: Post[] = [
   {
     category: "Finance",
     title: "How to Set Up M-Pesa Fee Collection for Your School in Under 30 Minutes",
@@ -23,8 +34,8 @@ const posts = [
     date: "February 2026",
     readTime: "6 min read",
     author: "EduMyles Team",
-    slug: "#",
-    emoji: "💳",
+    slug: "/blog/mpesa-fee-collection-guide",
+    icon: CreditCard,
   },
   {
     category: "CBC",
@@ -33,8 +44,8 @@ const posts = [
     date: "February 2026",
     readTime: "9 min read",
     author: "EduMyles Team",
-    slug: "#",
-    emoji: "📚",
+    slug: "/blog/cbc-grading-guide-2026",
+    icon: BookOpen,
   },
   {
     category: "School Management",
@@ -43,8 +54,18 @@ const posts = [
     date: "January 2026",
     readTime: "5 min read",
     author: "EduMyles Team",
-    slug: "#",
-    emoji: "📊",
+    slug: "/blog/excel-alternatives-school-management",
+    icon: BarChart2,
+  },
+  {
+    category: "School Management",
+    title: "How Kenyan Schools Manage Payroll Efficiently - Complete Guide",
+    excerpt: "Discover how Kenyan schools are revolutionizing payroll management with automated systems, ensuring KRA compliance while boosting staff satisfaction.",
+    date: "March 2026",
+    readTime: "7 min read",
+    author: "EduMyles Team",
+    slug: "/blog/how-kenyan-schools-manage-payroll",
+    icon: BarChart2,
   },
   {
     category: "Parent Engagement",
@@ -53,8 +74,8 @@ const posts = [
     date: "January 2026",
     readTime: "4 min read",
     author: "EduMyles Team",
-    slug: "#",
-    emoji: "👨‍👩‍👧",
+    slug: "/blog/parent-portal-communication",
+    icon: Users,
   },
   {
     category: "Operations",
@@ -63,8 +84,8 @@ const posts = [
     date: "December 2025",
     readTime: "7 min read",
     author: "EduMyles Team",
-    slug: "#",
-    emoji: "📅",
+    slug: "/blog/automatic-timetable-generation",
+    icon: CalendarDays,
   },
   {
     category: "Regional",
@@ -73,8 +94,8 @@ const posts = [
     date: "December 2025",
     readTime: "6 min read",
     author: "EduMyles Team",
-    slug: "#",
-    emoji: "🇺🇬",
+    slug: "/blog/school-management-uganda",
+    flagEmoji: "🇺🇬",
   },
 ];
 
@@ -131,7 +152,7 @@ export default function BlogContent() {
                     className="font-jakarta font-bold text-[11px] px-3 py-1 rounded-[20px] uppercase tracking-wider"
                     style={{ background: "#E8A020", color: "#061A12" }}
                   >
-                    {featured.tag}
+                    NEW
                   </span>
                   <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>{featured.category}</span>
                 </div>
@@ -160,10 +181,10 @@ export default function BlogContent() {
                 </a>
               </div>
               <div
-                className="hidden md:flex w-[200px] h-[200px] flex-shrink-0 rounded-2xl items-center justify-center text-[80px]"
+                className="hidden md:flex w-[200px] h-[200px] flex-shrink-0 rounded-2xl items-center justify-center"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(232,160,32,0.2)" }}
               >
-                🚀
+                <Rocket className="w-20 h-20" strokeWidth={1.5} style={{ color: "#E8A020" }} />
               </div>
             </div>
           </div>
@@ -184,46 +205,64 @@ export default function BlogContent() {
               No articles in this category yet. Check back soon.
             </p>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {visiblePosts.map((post) => (
                 <a
                   key={post.title}
                   href={post.slug}
-                  className="rounded-2xl overflow-hidden flex flex-col no-underline group transition-all duration-200 hover:-translate-y-1"
+                  className="rounded-2xl overflow-hidden flex flex-col no-underline group transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
                   style={{
                     background: "#ffffff",
                     border: "1px solid #e8f4ec",
-                    boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                    boxShadow: "0 4px 20px rgba(6,26,18,0.08)",
                   }}
                 >
                   <div
-                    className="flex items-center justify-center text-5xl"
-                    style={{ background: "#F3FBF6", height: "160px", borderBottom: "1px solid #e8f4ec" }}
+                    className="flex items-center justify-center relative overflow-hidden"
+                    style={{ background: "#F3FBF6", height: "180px", borderBottom: "1px solid #e8f4ec" }}
                   >
-                    {post.emoji}
+                    {post.flagEmoji ? (
+                      <span className="text-6xl transform transition-transform duration-300 group-hover:scale-110">{post.flagEmoji}</span>
+                    ) : (
+                      post.icon && <post.icon className="w-14 h-14 transform transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
+                    )}
                   </div>
-                  <div className="flex flex-col gap-3 p-6 flex-1">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-4 p-6 flex-1">
+                    <div className="flex items-center justify-between">
                       <span
-                        className="font-jakarta font-semibold text-[11px] px-2.5 py-1 rounded-[20px]"
-                        style={{ background: "rgba(232,160,32,0.1)", color: "#9A5D00" }}
+                        className="font-jakarta font-semibold text-[11px] px-3 py-1.5 rounded-[20px]"
+                        style={{ background: "rgba(232,160,32,0.15)", color: "#9A5D00" }}
                       >
                         {post.category}
                       </span>
+                      <span className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
+                        {post.readTime}
+                      </span>
                     </div>
                     <h3
-                      className="font-playfair font-bold text-[17px] leading-[1.35] group-hover:text-[#E8A020] transition-colors"
-                      style={{ color: "#061A12" }}
+                      className="font-jakarta font-bold text-[16px] leading-[1.4] line-clamp-2 group-hover:text-[#061A12] transition-colors duration-200"
+                      style={{ color: "#374151" }}
                     >
                       {post.title}
                     </h3>
-                    <p className="font-jakarta text-[13px] leading-[1.7] flex-1" style={{ color: "#5a5a5a" }}>
+                    <p
+                      className="font-jakarta text-[14px] leading-[1.6] line-clamp-3 flex-1"
+                      style={{ color: "#5a5a5a" }}
+                    >
                       {post.excerpt}
                     </p>
-                    <div className="flex items-center gap-3 pt-2 border-t" style={{ borderColor: "#f0f0f0" }}>
-                      <span className="font-jakarta text-[12px]" style={{ color: "#8a8a8a" }}>{post.date}</span>
-                      <span style={{ color: "#d0d0d0" }}>·</span>
-                      <span className="font-jakarta text-[12px]" style={{ color: "#8a8a8a" }}>{post.readTime}</span>
+                    <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: "#f0f0f0" }}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>{post.author}</span>
+                        <span style={{ color: "#d0d0d0" }}>·</span>
+                        <span className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>{post.date}</span>
+                      </div>
+                      <span
+                        className="font-jakarta text-xs font-medium transition-colors duration-200 group-hover:text-[#E8A020]"
+                        style={{ color: "#1A7A4A" }}
+                      >
+                        Read more →
+                      </span>
                     </div>
                   </div>
                 </a>
@@ -236,7 +275,9 @@ export default function BlogContent() {
       {/* ── Newsletter ────────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "#0C3020" }}>
         <div className="max-w-[660px] mx-auto text-center">
-          <div className="text-4xl mb-4">📬</div>
+          <div className="flex justify-center mb-4">
+            <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "#A8E6C3" }} />
+          </div>
           <h2
             className="font-playfair font-bold leading-[1.2] mb-3"
             style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}

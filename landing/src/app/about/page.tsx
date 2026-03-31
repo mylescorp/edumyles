@@ -1,5 +1,8 @@
+import React from "react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { Code2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About EduMyles — School Management for African Schools",
@@ -9,34 +12,34 @@ export const metadata: Metadata = {
 
 const values = [
   {
-    icon: "🌍",
-    title: "Africa-First",
-    desc: "Built for the realities of East African schools — M-Pesa payments, CBC curriculum, NEMIS integration, and infrastructure constraints. Not an import. Native.",
+    letter: "M",
+    title: "Mastery",
+    desc: "Relentless pursuit of excellence, expertise, and continuous improvement — committing to the highest standards in every feature we ship.",
+    keywords: ["Excellence", "Expertise", "Growth"],
   },
   {
-    icon: "⚡",
-    title: "Speed Matters",
-    desc: "We obsess over performance. Every second of load time is a second a teacher isn't teaching. EduMyles is built to be fast on any connection.",
+    letter: "Y",
+    title: "Youth Empowerment",
+    desc: "A profound belief in Africa's youth. Investing in the next generation through education, mentorship, and technology that unlocks their potential.",
+    keywords: ["Education", "Mentorship", "Africa"],
   },
   {
-    icon: "🔐",
-    title: "Trust First",
-    desc: "Student data is sensitive. We use enterprise-grade encryption, strict data isolation per school, and role-based access control that never compromises security.",
+    letter: "L",
+    title: "Leadership",
+    desc: "Leading with integrity, courage, and responsibility — setting a positive example and holding ourselves accountable to every school we serve.",
+    keywords: ["Integrity", "Courage", "Accountability"],
   },
   {
-    icon: "🤝",
-    title: "Schools Win",
-    desc: "We price fairly, support generously, and don't lock schools into long contracts. If EduMyles doesn't work for you, we refund. Simple.",
+    letter: "E",
+    title: "Entrepreneurship",
+    desc: "Fostering innovation, ownership, and proactive problem-solving — taking calculated risks and identifying new opportunities to create real value.",
+    keywords: ["Innovation", "Ownership", "Growth"],
   },
   {
-    icon: "📈",
-    title: "Continuous Improvement",
-    desc: "We ship updates every week based on feedback from real schools. Your feature request doesn't go into a black hole — it gets built.",
-  },
-  {
-    icon: "♿",
-    title: "Inclusive by Design",
-    desc: "Accessible to all staff regardless of tech experience. If a teacher can use a smartphone, they can use EduMyles — no training manual needed.",
+    letter: "S",
+    title: "Service",
+    desc: "Purpose-driven commitment to positive societal impact. Our business success is always shared with Africa's people and communities.",
+    keywords: ["Impact", "Community", "Purpose"],
   },
 ];
 
@@ -79,24 +82,38 @@ const stats = [
 
 const team = [
   {
-    name: "Ayany",
+    name: "Jonathan Myles",
     role: "Founder & CEO",
-    bio: "Former school IT coordinator. Frustrated by the gap between what schools needed and what was available. Built EduMyles to fix it.",
-    emoji: "👨‍💻",
+    bio: "A visionary software engineer and entrepreneur, Jonathan founded Mylesoft Technologies in 2020. He leads strategy, product development, and technology architecture across all 20+ MylesCorp products.",
+    photo: "/team/jonathan-myles.jpeg",
+    linkedin: "https://linkedin.com/in/mylesoft",
   },
   {
-    name: "Product Team",
-    role: "Design & Engineering",
+    name: "Pauline Moraa",
+    role: "Co-Founder & COO",
+    bio: "Pauline drives day-to-day operations, sales, marketing, and customer partnerships — ensuring every EduMyles school delivers measurable impact across East Africa.",
+    photo: "/team/pauline-moraa.jpeg",
+  },
+  {
+    name: "Engineering & Design",
+    role: "Product Team",
     bio: "A distributed team of engineers and designers across Nairobi and Kampala, obsessed with building software that works for real African schools.",
-    emoji: "⚙️",
-  },
-  {
-    name: "Customer Success",
-    role: "School Partnerships",
-    bio: "Former teachers and school administrators who understand the daily realities of running a school. They're your first call for anything.",
-    emoji: "🎓",
+    icon: Code2,
   },
 ];
+
+function TeamIconAvatar({ member }: { member: { icon?: unknown } }) {
+  if (!member.icon) return null;
+  const Icon = member.icon as React.ComponentType<{ className?: string; strokeWidth?: number; style?: React.CSSProperties }>;
+  return (
+    <div
+      className="w-full flex items-center justify-center"
+      style={{ height: "120px", background: "linear-gradient(135deg, #0F4C2A, #1A7A4A)" }}
+    >
+      <Icon className="w-12 h-12" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+    </div>
+  );
+}
 
 export default function AboutPage() {
   return (
@@ -180,14 +197,25 @@ export default function AboutPage() {
                 className="font-playfair font-bold leading-[1.2] mb-5"
                 style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
               >
-                Empower every school in Africa with{" "}
-                <em className="italic" style={{ color: "#E8A020" }}>world-class tools.</em>
+                Simplify school administration so educators can{" "}
+                <em className="italic" style={{ color: "#E8A020" }}>focus on teaching.</em>
               </h2>
               <p className="font-jakarta text-[16px] leading-[1.8] mb-4" style={{ color: "#5a5a5a" }}>
-                We believe that a school in Nakuru deserves the same administrative efficiency as a school in London. Technology should equalise access to quality education infrastructure — not price it out of reach.
+                EduMyles exists to take the administrative burden off African schools — so that principals can lead, teachers can teach, and parents can stay informed. We believe that operational clarity unlocks academic excellence.
               </p>
-              <p className="font-jakarta text-[16px] leading-[1.8]" style={{ color: "#5a5a5a" }}>
-                EduMyles is priced for African schools, designed for African school staff, and integrated with African payment systems. It&apos;s not an adaptation — it&apos;s the original.
+              <p className="font-jakarta text-[16px] leading-[1.8] mb-4" style={{ color: "#5a5a5a" }}>
+                <strong style={{ color: "#061A12" }}>Our Vision:</strong> To be Africa&apos;s most trusted school management platform, powering institutions of every size — from single-classroom community schools to multi-campus international networks.
+              </p>
+              <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#6B9E83" }}>
+                EduMyles is a product of{" "}
+                <a
+                  href="https://mylesoft.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#0F4C2A", fontWeight: 600, textDecoration: "none" }}
+                >
+                  MylesCorp Technologies Ltd
+                </a>
               </p>
             </div>
             <div
@@ -205,14 +233,14 @@ export default function AboutPage() {
               </blockquote>
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[12px]"
                   style={{ background: "#E8A020", color: "#061A12" }}
                 >
-                  A
+                  JM
                 </div>
                 <div>
-                  <div className="font-jakarta font-bold text-[14px]" style={{ color: "#E8A020" }}>Ayany</div>
-                  <div className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>Founder, EduMyles</div>
+                  <div className="font-jakarta font-bold text-[14px]" style={{ color: "#E8A020" }}>Jonathan Myles</div>
+                  <div className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>CEO &amp; Founder, EduMyles</div>
                 </div>
               </div>
             </div>
@@ -279,19 +307,35 @@ export default function AboutPage() {
               className="font-playfair font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
-              Our <em className="italic" style={{ color: "#E8A020" }}>values</em>
+              Our Core <em className="italic" style={{ color: "#E8A020" }}>Values</em>
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {values.map((v) => (
               <div
                 key={v.title}
-                className="rounded-2xl p-6"
+                className="rounded-2xl p-6 flex flex-col items-center text-center"
                 style={{ background: "#ffffff", border: "1px solid rgba(38,166,91,0.15)", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
               >
-                <div className="text-3xl mb-3">{v.icon}</div>
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[18px] mb-3"
+                  style={{ background: "#E8A020", color: "#061A12" }}
+                >
+                  {v.letter}
+                </div>
                 <h3 className="font-playfair font-bold text-[18px] mb-2" style={{ color: "#061A12" }}>{v.title}</h3>
-                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{v.desc}</p>
+                <p className="font-jakarta text-[14px] leading-[1.7] mb-3" style={{ color: "#5a5a5a" }}>{v.desc}</p>
+                <div className="flex flex-wrap justify-center gap-1 mt-auto">
+                  {v.keywords.map((kw) => (
+                    <span
+                      key={kw}
+                      className="font-jakarta font-semibold text-[10px] px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(232,160,32,0.1)", border: "1px solid rgba(232,160,32,0.25)", color: "#9A5D00" }}
+                    >
+                      {kw}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -313,18 +357,43 @@ export default function AboutPage() {
             {team.map((t) => (
               <div
                 key={t.name}
-                className="rounded-2xl p-7 text-center"
+                className="rounded-2xl overflow-hidden text-center"
                 style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
               >
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"
-                  style={{ background: "rgba(38,166,91,0.1)" }}
-                >
-                  {t.emoji}
+                {/* Photo or emoji avatar */}
+                {"photo" in t && t.photo ? (
+                  <div className="relative w-full" style={{ height: "220px" }}>
+                    <Image
+                      src={t.photo as string}
+                      alt={t.name}
+                      fill
+                      className="object-cover object-top"
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                    />
+                  </div>
+                ) : (
+                  <TeamIconAvatar member={t} />
+                )}
+                <div className="p-6">
+                  <h3 className="font-playfair font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>{t.name}</h3>
+                  <div className="font-jakarta text-[13px] font-medium mb-3" style={{ color: "#E8A020" }}>{t.role}</div>
+                  <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{t.bio}</p>
+                  {t.linkedin && (
+                    <a
+                      href={t.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-jakarta text-[12px] font-medium mt-3 px-3 py-1.5 rounded-lg no-underline transition-all duration-200"
+                      style={{ 
+                        background: "rgba(232,160,32,0.1)", 
+                        border: "1px solid rgba(232,160,32,0.2)", 
+                        color: "#E8A020" 
+                      }}
+                    >
+                      LinkedIn Profile
+                    </a>
+                  )}
                 </div>
-                <h3 className="font-playfair font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>{t.name}</h3>
-                <div className="font-jakarta text-[13px] font-medium mb-3" style={{ color: "#E8A020" }}>{t.role}</div>
-                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{t.bio}</p>
               </div>
             ))}
           </div>

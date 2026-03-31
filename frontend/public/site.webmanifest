@@ -1,0 +1,12 @@
+{
+  "name": "EduMyles",
+  "short_name": "EduMyles",
+  "description": "School Management for East Africa",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#061A12",
+  "theme_color": "#061A12",
+  "icons": [
+    { "src": "/logo-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

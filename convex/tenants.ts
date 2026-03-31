@@ -48,6 +48,9 @@ export const getTenantContext = query({
             subdomain: tenant.subdomain,
             plan: tenant.plan,
             status: tenant.status,
+            email: tenant.email,
+            phone: tenant.phone,
+            county: tenant.county,
             country: tenant.country,
           }
         : null,

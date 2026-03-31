@@ -9,18 +9,32 @@
     --font-playfair: 'Playfair Display', Georgia, serif;
     --font-mono: 'DM Mono', 'Cascadia Code', 'Fira Code', monospace;
 
-    /* Brand colour tokens */
+    /* EduMyles Brand System v2.0 */
     --forest-deep: #061A12;
     --forest-dark: #0C3020;
     --forest: #0F4C2A;
     --emerald: #1A7A4A;
     --leaf: #26A65B;
     --mint: #A8E6C3;
+    --gold-deep: #9A5D00;
     --gold: #E8A020;
     --gold-light: #F5C453;
     --gold-pale: #FEF3DC;
+    --yellow: #F5D800; /* achievement/awards ONLY */
+    --yellow-light: #FFF176;
+    --ocean-deep: #001535;
+    --ocean: #1565C0;
     --sky: #90CAF9;
     --muted: #6B9E83;
+    --off-white: #F3FBF6;
+    --ice: #E8F5EE;
+    /* Spacing scale */
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px; --sp-9: 96px;
+    /* Motion */
+    --ease-default: cubic-bezier(0.2, 0, 0, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --dur-fast: 100ms; --dur-normal: 200ms; --dur-slow: 300ms;
   }
 
   * {
@@ -111,6 +125,71 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* ── Brand eyebrow utility classes ── */
+  .brand-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .brand-eyebrow-line {
+    width: 26px;
+    height: 2px;
+    background: #E8A020;
+    flex-shrink: 0;
+  }
+  .brand-eyebrow-text {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #E8A020;
+  }
+
+  /* ── Card hover animations ── */
+  .brand-card-dark {
+    background: #0C3020;
+    border: 1px solid rgba(232,160,32,0.14);
+    border-radius: 14px;
+    transition: all 300ms cubic-bezier(0.2,0,0,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .brand-card-dark:hover {
+    border-color: rgba(232,160,32,0.45);
+    transform: translateY(-4px);
+    box-shadow: 0 18px 48px rgba(0,0,0,0.4);
+  }
+
+  /* ── Progress bar — brand spec: emerald→gold, NEVER yellow ── */
+  #progress-bar {
+    background: linear-gradient(90deg, #1A7A4A, #E8A020);
+  }
+
+  /* ── FAB pulse ring ── */
+  @keyframes fab-ping {
+    0%   { transform: scale(1);   opacity: 0.75; }
+    70%  { transform: scale(1.9); opacity: 0; }
+    100% { transform: scale(1.9); opacity: 0; }
+  }
+  .fab-ping-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    animation: fab-ping 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    pointer-events: none;
+  }
+  .fab-ping-ring-wa  { background: rgba(37, 211, 102, 0.5); }
+  .fab-ping-ring-chat { background: rgba(26, 122, 74, 0.5); }
+
+  /* ── Social icon hover transitions (no persistent animation) ── */
+  .social-icon-link {
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .social-icon-link:hover {
+    transform: translateY(-3px);
   }
 }
 

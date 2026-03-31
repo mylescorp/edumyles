@@ -2,12 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
+const FALLBACK_MASTER_ADMIN_EMAILS = ["ayany004@gmail.com"];
+const MASTER_ADMIN_EMAILS = [
+  process.env.MASTER_ADMIN_EMAIL,
+  ...FALLBACK_MASTER_ADMIN_EMAILS,
+]
+  .filter((value): value is string => Boolean(value))
+  .map((value) => value.toLowerCase());
+
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
   if (!convexUrl) {
     throw new Error("NEXT_PUBLIC_CONVEX_URL is not configured");
   }
   return new ConvexHttpClient(convexUrl);
+}
+
+function isConfiguredMasterAdmin(email?: string | null) {
+  if (!email) return false;
+  return MASTER_ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
 /**
@@ -54,6 +67,43 @@ export async function GET(req: NextRequest) {
         });
 
         if (session) {
+          if (isConfiguredMasterAdmin(session.email) && session.role !== "master_admin") {
+            try {
+              await convex.mutation(api.users.syncMasterAdminRole, {
+                workosUserId: session.userId,
+                email: session.email,
+              });
+              await convex.mutation(api.sessions.updateSessionRole, {
+                sessionToken,
+                role: "master_admin",
+              });
+            } catch (repairError) {
+              console.error("[api/auth/session] Failed to repair master admin role:", repairError);
+            }
+
+            const repairedResponse = NextResponse.json({
+              session: {
+                sessionToken: session.sessionToken,
+                tenantId: "PLATFORM",
+                userId: session.userId,
+                email: session.email,
+                role: "master_admin",
+                expiresAt: session.expiresAt,
+              },
+            });
+            // Update the role cookie so the middleware sees master_admin on
+            // the next request without needing to parse the user cookie.
+            const isProduction = process.env.NODE_ENV === "production";
+            repairedResponse.cookies.set("edumyles_role", "master_admin", {
+              httpOnly: false,
+              secure: isProduction,
+              sameSite: "lax",
+              maxAge: 30 * 24 * 60 * 60,
+              path: "/",
+            });
+            return repairedResponse;
+          }
+
           return NextResponse.json({
             session: {
               sessionToken: session.sessionToken,
@@ -80,13 +130,15 @@ export async function GET(req: NextRequest) {
     if (userCookie && roleCookie) {
       try {
         const user = JSON.parse(userCookie);
+        const effectiveRole = isConfiguredMasterAdmin(user.email) ? "master_admin" : roleCookie;
+        const effectiveTenantId = effectiveRole === "master_admin" ? "PLATFORM" : user.tenantId || "PLATFORM";
         return NextResponse.json({
           session: {
             sessionToken,
-            tenantId: user.tenantId || "PLATFORM",
+            tenantId: effectiveTenantId,
             userId: user.email,
             email: user.email,
-            role: roleCookie,
+            role: effectiveRole,
             expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
           },
         });

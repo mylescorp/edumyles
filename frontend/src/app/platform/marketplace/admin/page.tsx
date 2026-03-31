@@ -12,12 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Package, Star, Download, CheckCircle, XCircle,
   Shield, Users, Eye, Clock, AlertTriangle,
   DollarSign, Building, Award, Layers,
   Ban, Play, Trash2, RefreshCw,
+  DownloadCloud,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
@@ -55,6 +57,32 @@ function MarketplaceAdminContent() {
   const [selectedModule, setSelectedModule] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState("");
   const [isSeedDialogOpen, setIsSeedDialogOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isFeaturedOpen, setIsFeaturedOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [editingFeatured, setEditingFeatured] = useState<any>(null);
+  const [categoryForm, setCategoryForm] = useState({
+    slug: "",
+    name: "",
+    description: "",
+    iconName: "",
+    sortOrder: 1,
+    isActive: true,
+  });
+  const [featuredForm, setFeaturedForm] = useState({
+    title: "",
+    description: "",
+    type: "banner",
+    moduleIds: "",
+    sortOrder: 1,
+    startDate: "",
+    endDate: "",
+    isActive: true,
+  });
+  const [selectedInstallationKeys, setSelectedInstallationKeys] = useState<string[]>([]);
+  const [selectedRegistryModules, setSelectedRegistryModules] = useState<string[]>([]);
+  const [bulkTenantId, setBulkTenantId] = useState("");
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
   // Queries
   const pendingModules = usePlatformQuery(
@@ -87,12 +115,28 @@ function MarketplaceAdminContent() {
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
+  const moduleRegistry = usePlatformQuery(
+    api.modules.marketplace.platform.getFullRegistry,
+    { sessionToken: sessionToken || "" }
+  ) as any[] | undefined;
+
+  const tenants = usePlatformQuery(
+    api.platform.tenants.queries.listAllTenants,
+    { sessionToken: sessionToken || "" }
+  ) as any[] | undefined;
+
   // Mutations
   const reviewModule = useMutation(api.platform.marketplace.reviewModule);
   const publishModule = useMutation(api.platform.marketplace.publishModule);
   const suspendModule = useMutation(api.platform.marketplace.suspendModule);
+  const installModule = useMutation(api.platform.marketplace.installModule);
   const updatePublisherVerification = useMutation(api.platform.marketplace.updatePublisherVerification);
+  const setPublisherStatus = useMutation(api.platform.marketplace.setPublisherStatus);
   const seedCategories = useMutation(api.platform.marketplace.seedCategories);
+  const upsertCategory = useMutation(api.platform.marketplace.upsertCategory);
+  const manageFeaturedPlacement = useMutation(api.platform.marketplace.manageFeaturedPlacement);
+  const seedModuleRegistry = useMutation(api.modules.marketplace.mutations.runSeedModuleRegistry);
+  const uninstallCatalogModule = useMutation(api.platform.marketplace.uninstallCatalogModule);
 
   const handleReview = async (decision: "approved" | "rejected" | "requires_changes") => {
     if (!sessionToken || !selectedModule) return;
@@ -123,6 +167,167 @@ function MarketplaceAdminContent() {
     }
   };
 
+  const handleSeedRegistry = async () => {
+    if (!sessionToken) return;
+    try {
+      const result = await seedModuleRegistry({ sessionToken });
+      toast.success(`Registry synced — ${(result as any)?.created ?? 0} created, ${(result as any)?.updated ?? 0} updated`);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const handleUninstall = async (installation: any) => {
+    if (!sessionToken) return;
+    try {
+      await uninstallCatalogModule({
+        sessionToken,
+        tenantId: installation.tenantId,
+        moduleId: installation.moduleId,
+        reason: "Removed by marketplace administrator",
+      });
+      toast.success("Installation removed");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const openCategoryDialog = (category?: any) => {
+    setEditingCategory(category || null);
+    setCategoryForm({
+      slug: category?.slug || "",
+      name: category?.name || "",
+      description: category?.description || "",
+      iconName: category?.iconName || "",
+      sortOrder: category?.sortOrder || 1,
+      isActive: category?.isActive ?? true,
+    });
+    setIsCategoryOpen(true);
+  };
+
+  const handleSaveCategory = async () => {
+    if (!sessionToken) return;
+    try {
+      await upsertCategory({
+        sessionToken,
+        slug: categoryForm.slug,
+        name: categoryForm.name,
+        description: categoryForm.description,
+        iconName: categoryForm.iconName || undefined,
+        parentSlug: undefined,
+        sortOrder: categoryForm.sortOrder,
+        isActive: categoryForm.isActive,
+      });
+      setIsCategoryOpen(false);
+      toast.success("Category saved");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const openFeaturedDialog = (placement?: any) => {
+    setEditingFeatured(placement || null);
+    setFeaturedForm({
+      title: placement?.title || "",
+      description: placement?.description || "",
+      type: placement?.type || "banner",
+      moduleIds: placement?.moduleIds?.join(", ") || "",
+      sortOrder: placement?.sortOrder || 1,
+      startDate: placement?.startDate ? new Date(placement.startDate).toISOString().slice(0, 10) : "",
+      endDate: placement?.endDate ? new Date(placement.endDate).toISOString().slice(0, 10) : "",
+      isActive: placement?.isActive ?? true,
+    });
+    setIsFeaturedOpen(true);
+  };
+
+  const handleSaveFeatured = async () => {
+    if (!sessionToken) return;
+    try {
+      await manageFeaturedPlacement({
+        sessionToken,
+        id: editingFeatured?._id,
+        title: featuredForm.title,
+        description: featuredForm.description || undefined,
+        type: featuredForm.type as any,
+        moduleIds: featuredForm.moduleIds.split(",").map((value) => value.trim()).filter(Boolean),
+        sortOrder: featuredForm.sortOrder,
+        isActive: featuredForm.isActive,
+        imageUrl: undefined,
+        startDate: new Date(featuredForm.startDate || Date.now()).getTime(),
+        endDate: new Date(featuredForm.endDate || Date.now()).getTime(),
+      });
+      setIsFeaturedOpen(false);
+      toast.success("Featured placement saved");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const toggleSelectedInstallation = (installation: any) => {
+    const key = `${installation.tenantId}:${installation.moduleId}`;
+    setSelectedInstallationKeys((current) =>
+      current.includes(key)
+        ? current.filter((value) => value !== key)
+        : [...current, key]
+    );
+  };
+
+  const toggleSelectedRegistryModule = (moduleId: string) => {
+    setSelectedRegistryModules((current) =>
+      current.includes(moduleId)
+        ? current.filter((value) => value !== moduleId)
+        : [...current, moduleId]
+    );
+  };
+
+  const handleBulkUninstall = async () => {
+    if (!sessionToken || selectedInstallationKeys.length === 0) return;
+    setIsBulkProcessing(true);
+    try {
+      const selected = (allInstallations || []).filter((inst: any) =>
+        selectedInstallationKeys.includes(`${inst.tenantId}:${inst.moduleId}`)
+      );
+
+      for (const installation of selected) {
+        await uninstallCatalogModule({
+          sessionToken,
+          tenantId: installation.tenantId,
+          moduleId: installation.moduleId,
+          reason: "Bulk uninstall from marketplace admin",
+        });
+      }
+
+      setSelectedInstallationKeys([]);
+      toast.success(`Removed ${selected.length} installation(s)`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  const handleBulkInstall = async () => {
+    if (!sessionToken || !bulkTenantId || selectedRegistryModules.length === 0) return;
+    setIsBulkProcessing(true);
+    try {
+      for (const moduleId of selectedRegistryModules) {
+        await installModule({
+          sessionToken,
+          tenantId: bulkTenantId,
+          moduleId,
+          configuration: {},
+          assignedRoles: ["school_admin"],
+        });
+      }
+      setSelectedRegistryModules([]);
+      toast.success(`Installed ${selectedRegistryModules.length} module(s) for tenant`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -148,6 +353,7 @@ function MarketplaceAdminContent() {
           <TabsTrigger value="installations">Installations</TabsTrigger>
           <TabsTrigger value="publishers">Publishers</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="registry">Registry</TabsTrigger>
           <TabsTrigger value="disputes">
             Disputes
             {(disputes?.filter((d: any) => d.status === "open").length || 0) > 0 && (
@@ -207,6 +413,22 @@ function MarketplaceAdminContent() {
 
         {/* Installations */}
         <TabsContent value="installations" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">Tenant Installations</h3>
+              <p className="text-sm text-muted-foreground">
+                Select multiple active installations and remove them in one operation.
+              </p>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={handleBulkUninstall}
+              disabled={selectedInstallationKeys.length === 0 || isBulkProcessing}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Uninstall Selected ({selectedInstallationKeys.length})
+            </Button>
+          </div>
           {(allInstallations || []).length > 0 ? (
             <div className="space-y-2">
               {(allInstallations || []).map((inst: any) => (
@@ -214,17 +436,27 @@ function MarketplaceAdminContent() {
                   <CardContent className="pt-4 pb-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
+                        <Checkbox
+                          checked={selectedInstallationKeys.includes(`${inst.tenantId}:${inst.moduleId}`)}
+                          onCheckedChange={() => toggleSelectedInstallation(inst)}
+                        />
                         <Package className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <span className="font-medium text-sm">{inst.moduleName}</span>
                           <span className="text-muted-foreground text-sm"> → {inst.tenantName}</span>
                         </div>
                         <Badge className={STATUS_COLORS[inst.status] || "bg-gray-100"}>{inst.status.replace(/_/g, " ")}</Badge>
+                        <Badge variant="outline" className="text-xs capitalize">{inst.source}</Badge>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>v{inst.installedVersion}</span>
                         <span>{formatDate(inst.installedAt)}</span>
                         <span>by {inst.installedBy}</span>
+                        {inst.status === "active" && (
+                          <Button variant="outline" size="sm" onClick={() => handleUninstall(inst)}>
+                            <Trash2 className="h-4 w-4 mr-1" />Uninstall
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -266,6 +498,7 @@ function MarketplaceAdminContent() {
                       onValueChange={async (v: any) => {
                         if (!sessionToken) return;
                         await updatePublisherVerification({ sessionToken, publisherId: pub._id, verificationLevel: v });
+                        toast.success("Publisher verification updated");
                       }}
                     >
                       <SelectTrigger className="w-40 h-8 text-xs">
@@ -277,6 +510,22 @@ function MarketplaceAdminContent() {
                         <SelectItem value="featured_partner">Featured Partner</SelectItem>
                       </SelectContent>
                     </Select>
+                    <Button
+                      variant={pub.isActive ? "outline" : "default"}
+                      size="sm"
+                      onClick={async () => {
+                        if (!sessionToken) return;
+                        try {
+                          await setPublisherStatus({ sessionToken, publisherId: pub._id, isActive: !pub.isActive });
+                          toast.success(pub.isActive ? "Publisher suspended" : "Publisher reactivated");
+                        } catch (e: any) {
+                          toast.error(e.message);
+                        }
+                      }}
+                    >
+                      {pub.isActive ? <Ban className="h-4 w-4 mr-1" /> : <Play className="h-4 w-4 mr-1" />}
+                      {pub.isActive ? "Suspend" : "Reactivate"}
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -296,9 +545,14 @@ function MarketplaceAdminContent() {
         <TabsContent value="categories" className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Category Taxonomy</h3>
-            <Button onClick={() => setIsSeedDialogOpen(true)}>
-              <RefreshCw className="h-4 w-4 mr-2" />Seed Default Categories
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => openCategoryDialog()}>
+                Add Category
+              </Button>
+              <Button onClick={() => setIsSeedDialogOpen(true)}>
+                <RefreshCw className="h-4 w-4 mr-2" />Seed Default Categories
+              </Button>
+            </div>
           </div>
           {(categories || []).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -310,9 +564,12 @@ function MarketplaceAdminContent() {
                         <h4 className="font-medium text-sm">{cat.name}</h4>
                         <p className="text-xs text-muted-foreground">{cat.description}</p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right space-y-2">
                         <Badge variant="secondary" className="text-xs">{cat.moduleCount} modules</Badge>
                         <p className="text-xs text-muted-foreground mt-1">Order: {cat.sortOrder}</p>
+                        <Button variant="ghost" size="sm" onClick={() => openCategoryDialog(cat)}>
+                          Edit
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -328,6 +585,92 @@ function MarketplaceAdminContent() {
                   Seed the default category taxonomy to get started.
                 </p>
                 <Button onClick={() => setIsSeedDialogOpen(true)}>Seed Categories</Button>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="registry" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">Internal Module Registry</h3>
+              <p className="text-sm text-muted-foreground">
+                This registry powers tenant install and uninstall flows for built-in EduMyles modules.
+              </p>
+            </div>
+            <Button onClick={handleSeedRegistry}>
+              <RefreshCw className="h-4 w-4 mr-2" />Sync Built-in Registry
+            </Button>
+          </div>
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
+                <div>
+                  <Label>Target Tenant for Bulk Install</Label>
+                  <Select value={bulkTenantId} onValueChange={setBulkTenantId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select tenant" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(tenants || []).map((tenant: any) => (
+                        <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                          {tenant.name} ({tenant.tenantId})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  onClick={handleBulkInstall}
+                  disabled={!bulkTenantId || selectedRegistryModules.length === 0 || isBulkProcessing}
+                >
+                  <DownloadCloud className="h-4 w-4 mr-2" />
+                  Install Selected ({selectedRegistryModules.length})
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          {(moduleRegistry || []).length > 0 ? (
+            <div className="space-y-2">
+              {(moduleRegistry || []).map((mod: any) => (
+                <Card key={mod._id}>
+                  <CardContent className="pt-4 pb-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={selectedRegistryModules.includes(mod.moduleId)}
+                          onCheckedChange={() => toggleSelectedRegistryModule(mod.moduleId)}
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-sm">{mod.name}</h4>
+                          <Badge className={STATUS_COLORS[mod.status] || "bg-gray-100 text-gray-700"}>
+                            {mod.status}
+                          </Badge>
+                          {mod.isCore && <Badge variant="outline" className="text-xs">Core</Badge>}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{mod.description}</p>
+                        </div>
+                      </div>
+                      <div className="text-right text-xs text-muted-foreground">
+                        <div>Module ID: {mod.moduleId}</div>
+                        <div>Tier: {mod.tier}</div>
+                        <div>Version: v{mod.version}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <Package className="h-10 w-10 text-muted-foreground mb-3" />
+                <h3 className="font-semibold mb-1">Registry not seeded</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Seed the built-in module registry so tenant marketplaces can install and manage modules reliably.
+                </p>
+                <Button onClick={handleSeedRegistry}>Seed Registry</Button>
               </CardContent>
             </Card>
           )}
@@ -374,6 +717,12 @@ function MarketplaceAdminContent() {
 
         {/* Featured Placements */}
         <TabsContent value="featured" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold">Featured Placements</h3>
+            <Button onClick={() => openFeaturedDialog()}>
+              Add Placement
+            </Button>
+          </div>
           {(featuredPlacements || []).length > 0 ? (
             (featuredPlacements || []).map((fp: any) => (
               <Card key={fp._id}>
@@ -392,6 +741,9 @@ function MarketplaceAdminContent() {
                     <div className="text-xs text-muted-foreground">
                       {formatDate(fp.startDate)} — {formatDate(fp.endDate)}
                     </div>
+                    <Button variant="ghost" size="sm" onClick={() => openFeaturedDialog(fp)}>
+                      Edit
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -459,6 +811,101 @@ function MarketplaceAdminContent() {
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setIsSeedDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSeedCategories}>Seed Categories</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isCategoryOpen} onOpenChange={setIsCategoryOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingCategory ? "Edit Category" : "Create Category"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Slug</Label>
+                <Input value={categoryForm.slug} onChange={(e) => setCategoryForm((prev) => ({ ...prev, slug: e.target.value }))} disabled={Boolean(editingCategory)} />
+              </div>
+              <div>
+                <Label>Name</Label>
+                <Input value={categoryForm.name} onChange={(e) => setCategoryForm((prev) => ({ ...prev, name: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea value={categoryForm.description} onChange={(e) => setCategoryForm((prev) => ({ ...prev, description: e.target.value }))} rows={3} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Icon Name</Label>
+                <Input value={categoryForm.iconName} onChange={(e) => setCategoryForm((prev) => ({ ...prev, iconName: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Sort Order</Label>
+                <Input type="number" value={categoryForm.sortOrder} onChange={(e) => setCategoryForm((prev) => ({ ...prev, sortOrder: parseInt(e.target.value) || 1 }))} />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsCategoryOpen(false)}>Cancel</Button>
+              <Button onClick={handleSaveCategory} disabled={!categoryForm.slug || !categoryForm.name || !categoryForm.description}>
+                Save Category
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isFeaturedOpen} onOpenChange={setIsFeaturedOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingFeatured ? "Edit Featured Placement" : "Create Featured Placement"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Title</Label>
+                <Input value={featuredForm.title} onChange={(e) => setFeaturedForm((prev) => ({ ...prev, title: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Type</Label>
+                <Select value={featuredForm.type} onValueChange={(value) => setFeaturedForm((prev) => ({ ...prev, type: value }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="banner">Banner</SelectItem>
+                    <SelectItem value="staff_pick">Staff Pick</SelectItem>
+                    <SelectItem value="collection">Collection</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea value={featuredForm.description} onChange={(e) => setFeaturedForm((prev) => ({ ...prev, description: e.target.value }))} rows={3} />
+            </div>
+            <div>
+              <Label>Module IDs (comma-separated)</Label>
+              <Input value={featuredForm.moduleIds} onChange={(e) => setFeaturedForm((prev) => ({ ...prev, moduleIds: e.target.value }))} placeholder="sis, finance, admissions" />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label>Sort Order</Label>
+                <Input type="number" value={featuredForm.sortOrder} onChange={(e) => setFeaturedForm((prev) => ({ ...prev, sortOrder: parseInt(e.target.value) || 1 }))} />
+              </div>
+              <div>
+                <Label>Start Date</Label>
+                <Input type="date" value={featuredForm.startDate} onChange={(e) => setFeaturedForm((prev) => ({ ...prev, startDate: e.target.value }))} />
+              </div>
+              <div>
+                <Label>End Date</Label>
+                <Input type="date" value={featuredForm.endDate} onChange={(e) => setFeaturedForm((prev) => ({ ...prev, endDate: e.target.value }))} />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsFeaturedOpen(false)}>Cancel</Button>
+              <Button onClick={handleSaveFeatured} disabled={!featuredForm.title || !featuredForm.moduleIds || !featuredForm.startDate || !featuredForm.endDate}>
+                Save Placement
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

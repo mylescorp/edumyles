@@ -16,6 +16,7 @@ export default defineSchema({
     isActive: v.optional(v.boolean()),
     permissions: v.optional(v.array(v.string())),
     workosUserId: v.optional(v.string()),
+    impersonatedBy: v.optional(v.string()), // adminId who created this impersonation session
   })
     .index("by_token", ["sessionToken"])     // primary index — look up by sessionToken
     .index("by_userId", ["userId"]),
@@ -62,6 +63,8 @@ export default defineSchema({
     startedAt: v.number(),
     endedAt: v.optional(v.number()),
     active: v.boolean(),
+    impersonationSessionToken: v.optional(v.string()), // temp session token created for the target user
+    impersonationExpiresAt: v.optional(v.number()),
   })
     .index("by_admin", ["adminId"])
     .index("by_target", ["targetUserId"]),
@@ -745,6 +748,9 @@ export default defineSchema({
     currency: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
+    frozen: v.optional(v.boolean()),
+    frozenAt: v.optional(v.number()),
+    frozenBy: v.optional(v.string()),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_owner", ["tenantId", "ownerId"]),
@@ -757,6 +763,9 @@ export default defineSchema({
     reference: v.optional(v.string()),
     orderId: v.optional(v.string()),
     createdAt: v.number(),
+    toWalletId: v.optional(v.string()),   // for transfer transactions
+    note: v.optional(v.string()),          // human-readable note
+    performedBy: v.optional(v.string()),   // actorId for admin-initiated transactions
   })
     .index("by_tenant", ["tenantId"])
     .index("by_wallet", ["walletId", "createdAt"]),
@@ -3175,4 +3184,32 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_date", ["tenantId", "date"])
     .index("by_tenant_status", ["tenantId", "status"]),
+
+  // ── Waitlist Applications ─────────────────────────────────────────────────
+  // Tracks users who signed up via WorkOS but are not yet in the DB.
+  // Master admin reviews and approves/rejects; on approval the user is
+  // created in the `users` table and added to a WorkOS Organization.
+  waitlistApplications: defineTable({
+    workosUserId: v.string(),         // WorkOS user ID (real, not pending-)
+    email: v.string(),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    // Application fields
+    schoolName: v.optional(v.string()),   // school/org they want to join
+    requestedRole: v.optional(v.string()), // role they are requesting
+    message: v.optional(v.string()),       // optional message from applicant
+    // Review outcome
+    status: v.string(),               // "pending" | "approved" | "rejected"
+    requestedAt: v.number(),
+    reviewedBy: v.optional(v.string()),   // master admin workosUserId
+    reviewedAt: v.optional(v.number()),
+    reviewNotes: v.optional(v.string()),
+    // Post-approval assignment (set by master admin before approving)
+    assignedTenantId: v.optional(v.string()),
+    assignedRole: v.optional(v.string()),
+    assignedOrgId: v.optional(v.string()), // Convex org _id
+  })
+    .index("by_status", ["status"])
+    .index("by_email", ["email"])
+    .index("by_workos_user", ["workosUserId"]),
 });

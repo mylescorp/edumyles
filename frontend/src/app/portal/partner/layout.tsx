@@ -2,6 +2,7 @@
 
 import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
 import { GlobalShell } from "@/components/layout/GlobalShell";
+import { ModuleAccessGuard } from "@/components/shared/ModuleAccessGuard";
 import { RoleGuard } from "@/components/shared/RoleGuard";
 import { partnerNavItems } from "@/lib/routes";
 
@@ -12,7 +13,9 @@ export default function PartnerLayout({ children }: { children: React.ReactNode 
     <ConvexAuthProvider>
       <RoleGuard allowedRoles={PARTNER_ROLES}>
         <GlobalShell navItems={partnerNavItems}>
-          <div className="p-4 md:p-6">{children}</div>
+          <ModuleAccessGuard fallbackHref="/admin/modules">
+            <div className="p-4 md:p-6">{children}</div>
+          </ModuleAccessGuard>
         </GlobalShell>
       </RoleGuard>
     </ConvexAuthProvider>

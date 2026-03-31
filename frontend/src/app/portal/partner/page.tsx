@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { GraduationCap, DollarSign, FileText, MessageSquare } from "lucide-react";
@@ -17,12 +18,21 @@ function formatCurrency(cents: number, currency: string) {
 
 export default function PartnerDashboardPage() {
   const { isLoading } = useAuth();
+  const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
+  const sisEnabled = isModuleInstalled("sis");
+  const financeEnabled = isModuleInstalled("finance");
   const profile = useQuery(api.modules.portal.partner.queries.getPartnerProfile, {});
-  const sponsored = useQuery(api.modules.portal.partner.queries.getSponsoredStudents, {});
-  const report = useQuery(api.modules.portal.partner.queries.getSponsorshipReport, {});
-  const paymentsData = useQuery(api.modules.portal.partner.queries.getPartnerPayments, {});
+  const sponsored = useQuery(api.modules.portal.partner.queries.getSponsoredStudents, sisEnabled ? {} : "skip");
+  const report = useQuery(api.modules.portal.partner.queries.getSponsorshipReport, financeEnabled ? {} : "skip");
+  const paymentsData = useQuery(api.modules.portal.partner.queries.getPartnerPayments, financeEnabled ? {} : "skip");
 
-  if (isLoading || profile === undefined || sponsored === undefined) {
+  if (
+    isLoading ||
+    modulesLoading ||
+    profile === undefined ||
+    (sisEnabled && sponsored === undefined) ||
+    (financeEnabled && (report === undefined || paymentsData === undefined))
+  ) {
     return <LoadingSkeleton variant="page" />;
   }
 
@@ -41,8 +51,9 @@ export default function PartnerDashboardPage() {
     );
   }
 
+  const sponsoredStudents = sponsored ?? [];
   const totalInvestedCents = report?.totalInvestedCents ?? 0;
-  const totalInvestedCurrency = sponsored?.[0]?.sponsorshipCurrency ?? "KES";
+  const totalInvestedCurrency = sponsoredStudents?.[0]?.sponsorshipCurrency ?? "KES";
   const reportsCount = report?.students?.length ?? 0;
   const paymentRecordsCount = paymentsData?.payments?.length ?? 0;
 
@@ -56,22 +67,22 @@ export default function PartnerDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Sponsored Students"
-          value={sponsored?.length?.toString() ?? "0"}
+          value={sisEnabled ? sponsoredStudents.length.toString() : "Module Off"}
           icon={GraduationCap}
         />
         <StatCard
           label="Total Invested"
-          value={formatCurrency(totalInvestedCents, totalInvestedCurrency)}
+          value={financeEnabled ? formatCurrency(totalInvestedCents, totalInvestedCurrency) : "Module Off"}
           icon={DollarSign}
         />
         <StatCard
           label="Students in Report"
-          value={reportsCount.toString()}
+          value={financeEnabled ? reportsCount.toString() : "Module Off"}
           icon={FileText}
         />
         <StatCard
           label="Payment Records"
-          value={paymentRecordsCount.toString()}
+          value={financeEnabled ? paymentRecordsCount.toString() : "Module Off"}
           icon={MessageSquare}
         />
       </div>
@@ -82,18 +93,22 @@ export default function PartnerDashboardPage() {
             <CardTitle>Performance Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {report?.summary?.averageScore != null ? (
+            {financeEnabled && report?.summary?.averageScore != null ? (
               <p className="text-sm text-muted-foreground">
                 Average score (reported students): {report.summary.averageScore.toFixed(1)}
               </p>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Aggregate performance for your sponsored students appears in Reports.
+                {financeEnabled
+                  ? "Aggregate performance for your sponsored students appears in Reports."
+                  : "Finance-powered reporting appears here when the Finance module is enabled."}
               </p>
             )}
-            <Button asChild variant="outline" size="sm">
-              <Link href="/portal/partner/reports">View reports</Link>
-            </Button>
+            {financeEnabled && (
+              <Button asChild variant="outline" size="sm">
+                <Link href="/portal/partner/reports">View reports</Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
 
@@ -103,11 +118,13 @@ export default function PartnerDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>
-              You sponsor {sponsored?.length ?? 0} student(s). View their academic and attendance reports in Students, and payment history in Payments.
+              You sponsor {sponsoredStudents.length} student(s). View their academic and attendance reports in Students, and payment history in Payments.
             </p>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/portal/partner/students">View students</Link>
-            </Button>
+            {sisEnabled && (
+              <Button asChild variant="outline" size="sm">
+                <Link href="/portal/partner/students">View students</Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>

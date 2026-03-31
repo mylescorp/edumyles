@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,15 +59,16 @@ export default function SchoolTicketDetailPage() {
   
   const [newComment, setNewComment] = useState("");
 
-  const { data: ticket, isLoading } = useQuery(api.tickets.getTicket, { ticketId });
+  const ticket = useQuery(api.tickets.getTicket, { ticketId: ticketId as Id<"tickets"> });
+  const isLoading = ticket === undefined;
   const addComment = useMutation(api.tickets.addComment);
 
   const handleAddComment = () => {
     if (newComment.trim()) {
       addComment({
-        ticketId,
+        ticketId: ticketId as Id<"tickets">,
         content: newComment,
-        isInternal: false, // School users can only post public comments
+        isInternal: false,
       });
       setNewComment("");
     }

@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { GraduationCap, FileText, CalendarCheck, Wallet } from "lucide-react";
@@ -13,6 +14,9 @@ import Link from "next/link";
 
 export default function StudentDashboardPage() {
   const { user, isLoading } = useAuth();
+  const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
+  const academicsEnabled = isModuleInstalled("academics");
+  const walletEnabled = isModuleInstalled("ewallet");
 
   const myProfile = useQuery(
     api.modules.portal.student.queries.getMyProfile,
@@ -21,25 +25,31 @@ export default function StudentDashboardPage() {
 
   const myAssignments = useQuery(
     api.modules.portal.student.queries.getMyAssignments,
-    { status: "pending" }
+    academicsEnabled ? { status: "pending" } : "skip"
   );
 
   const myGrades = useQuery(
     api.modules.portal.student.queries.getMyGrades,
-    {}
+    academicsEnabled ? {} : "skip"
   );
 
   const myAttendance = useQuery(
     api.modules.portal.student.queries.getMyAttendance,
-    {}
+    academicsEnabled ? {} : "skip"
   );
 
   const myWallet = useQuery(
     api.modules.portal.student.queries.getMyWalletBalance,
-    {}
+    walletEnabled ? {} : "skip"
   );
 
-  if (isLoading || myProfile === undefined || myAssignments === undefined || myGrades === undefined || myAttendance === undefined || myWallet === undefined) {
+  if (
+    isLoading ||
+    modulesLoading ||
+    myProfile === undefined ||
+    (academicsEnabled && (myAssignments === undefined || myGrades === undefined || myAttendance === undefined)) ||
+    (walletEnabled && myWallet === undefined)
+  ) {
     return <LoadingSkeleton variant="page" />;
   }
 
@@ -61,8 +71,12 @@ export default function StudentDashboardPage() {
     return `${rate.toFixed(1)}%`;
   };
 
-  const gpa = calculateGPA(myGrades);
-  const attendanceRate = calculateAttendanceRate(myAttendance);
+  const assignmentList = myAssignments ?? [];
+  const gradeList = myGrades ?? [];
+  const attendanceList = myAttendance ?? [];
+  const wallet = myWallet ?? { balanceCents: 0, currency: "KES" };
+  const gpa = academicsEnabled ? calculateGPA(gradeList) : "N/A";
+  const attendanceRate = academicsEnabled ? calculateAttendanceRate(attendanceList) : "N/A";
 
   return (
     <div>
@@ -73,9 +87,9 @@ export default function StudentDashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="GPA" value={gpa} icon={GraduationCap} />
-        <StatCard label="Pending Assignments" value={myAssignments.length.toString()} icon={FileText} />
+        <StatCard label="Pending Assignments" value={assignmentList.length.toString()} icon={FileText} />
         <StatCard label="Attendance Rate" value={attendanceRate} icon={CalendarCheck} />
-        <StatCard label="Wallet Balance" value={`${myWallet.balanceCents / 100} ${myWallet.currency}`} icon={Wallet} />
+        <StatCard label="Wallet Balance" value={walletEnabled ? `${wallet.balanceCents / 100} ${wallet.currency}` : "Module Off"} icon={Wallet} />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -84,13 +98,17 @@ export default function StudentDashboardPage() {
             <CardTitle>Upcoming Assignments</CardTitle>
           </CardHeader>
           <CardContent>
-            {myAssignments.length === 0 ? (
+            {!academicsEnabled ? (
+              <p className="text-sm text-muted-foreground">
+                Assignments are unavailable because the Academics module is not active for this tenant.
+              </p>
+            ) : assignmentList.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 You have no pending assignments. Great job!
               </p>
             ) : (
               <div className="space-y-3">
-                {myAssignments.slice(0, 3).map((assignment: any) => (
+                {assignmentList.slice(0, 3).map((assignment: any) => (
                   <div key={assignment._id} className="flex items-center justify-between p-3 bg-muted rounded">
                     <div className="flex-1">
                       <p className="font-medium text-sm">{assignment.title}</p>
@@ -103,9 +121,9 @@ export default function StudentDashboardPage() {
                     </Button>
                   </div>
                 ))}
-                {myAssignments.length > 3 && (
+                {assignmentList.length > 3 && (
                   <p className="text-xs text-muted-foreground">
-                    And {myAssignments.length - 3} more...
+                    And {assignmentList.length - 3} more...
                   </p>
                 )}
               </div>
@@ -118,13 +136,17 @@ export default function StudentDashboardPage() {
             <CardTitle>Recent Grades</CardTitle>
           </CardHeader>
           <CardContent>
-            {myGrades.length === 0 ? (
+            {!academicsEnabled ? (
+              <p className="text-sm text-muted-foreground">
+                Grades are unavailable because the Academics module is not active for this tenant.
+              </p>
+            ) : gradeList.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No grades available yet.
               </p>
             ) : (
               <div className="space-y-3">
-                {myGrades.slice(0, 3).map((grade: any) => (
+                {gradeList.slice(0, 3).map((grade: any) => (
                   <div key={grade._id} className="flex items-center justify-between p-3 bg-muted rounded">
                     <div className="flex-1">
                       <p className="font-medium text-sm">{grade.subject || grade.assignmentTitle}</p>
@@ -138,9 +160,9 @@ export default function StudentDashboardPage() {
                     </div>
                   </div>
                 ))}
-                {myGrades.length > 3 && (
+                {gradeList.length > 3 && (
                   <p className="text-xs text-muted-foreground">
-                    And {myGrades.length - 3} more...
+                    And {gradeList.length - 3} more...
                   </p>
                 )}
               </div>
@@ -155,22 +177,34 @@ export default function StudentDashboardPage() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {academicsEnabled && (
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link href="/portal/student/assignments">
+                  <FileText className="h-4 w-4 mr-2" />
+                  View All Assignments
+                </Link>
+              </Button>
+            )}
+            {walletEnabled && (
+              <>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href="/portal/student/wallet/transactions">
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    View Transactions
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href="/portal/student/wallet">
+                    <CalendarCheck className="h-4 w-4 mr-2" />
+                    Open Wallet
+                  </Link>
+                </Button>
+              </>
+            )}
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/portal/student/assignments">
-                <FileText className="h-4 w-4 mr-2" />
-                View All Assignments
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/portal/student/wallet/transactions">
+              <Link href="/portal/student/profile">
                 <GraduationCap className="h-4 w-4 mr-2" />
-                View Transactions
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/portal/student/wallet">
-                <CalendarCheck className="h-4 w-4 mr-2" />
-                Open Wallet
+                View Profile
               </Link>
             </Button>
           </CardContent>

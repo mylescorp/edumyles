@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
   Package, Star, Download, Plus, CheckCircle,
   DollarSign, Users, TrendingUp, Clock,
   FileText, AlertTriangle, Eye, Send,
-  Building, Award, Layers,
+  Building, Award, Layers, Wallet, ExternalLink, Pencil, GitBranch, Save,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -32,6 +32,16 @@ function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" });
 }
 
+const EMPTY_MODULE_FORM = {
+  name: "", shortDescription: "", fullDescription: "",
+  category: "academic_tools", version: "1.0.0",
+  pricingModel: "free", priceCents: 0, trialDays: 14,
+  supportsOffline: false, tags: "",
+  featureHighlights: "", permissions: "",
+  compatiblePlans: "starter,growth,enterprise",
+  supportUrl: "", documentationUrl: "", privacyPolicyUrl: "",
+};
+
 export default function DeveloperPortalPage() {
   return (
     <MarketplaceErrorBoundary>
@@ -41,10 +51,14 @@ export default function DeveloperPortalPage() {
 }
 
 function DeveloperPortalContent() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
+  const [releaseNotes, setReleaseNotes] = useState("");
+  const [submitVersionForReview, setSubmitVersionForReview] = useState(false);
 
   // Registration form state
   const [regForm, setRegForm] = useState({
@@ -55,26 +69,90 @@ function DeveloperPortalContent() {
   });
 
   // Module submission form state
-  const [modForm, setModForm] = useState({
-    name: "", shortDescription: "", fullDescription: "",
-    category: "academic_tools", version: "1.0.0",
-    pricingModel: "free", priceCents: 0, trialDays: 14,
-    supportsOffline: false, tags: "",
-    featureHighlights: "", permissions: "",
-    compatiblePlans: "starter,growth,enterprise",
-    supportUrl: "", documentationUrl: "", privacyPolicyUrl: "",
-  });
+  const [modForm, setModForm] = useState(EMPTY_MODULE_FORM);
 
   const publishers = usePlatformQuery(
     api.platform.marketplace.getPublishers,
-    { sessionToken: sessionToken || "", isActive: true }
+    { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
   const registerPublisher = useMutation(api.platform.marketplace.registerPublisher);
   const createModule = useMutation(api.platform.marketplace.createModule);
+  const updateModule = useMutation(api.platform.marketplace.updateModule);
+  const createModuleVersion = useMutation(api.platform.marketplace.createModuleVersion);
+  const submitModuleForReview = useMutation(api.platform.marketplace.submitModuleForReview);
 
   // Find current user's publisher profile
-  const myPublisher = publishers?.find((p: any) => true); // Simplified - in prod, filter by userId
+  const myPublisher = useMemo(
+    () => publishers?.find((p: any) => p.userId === user?._id || p.contactEmail === user?.email) ?? null,
+    [publishers, user?._id, user?.email]
+  );
+
+  const myPublisherDetail = usePlatformQuery(
+    api.platform.marketplace.getPublisherDetail,
+    myPublisher?._id
+      ? { sessionToken: sessionToken || "", publisherId: myPublisher._id }
+      : "skip"
+  ) as any;
+
+  const selectedModuleDetail = usePlatformQuery(
+    api.platform.marketplace.getModuleDetail,
+    selectedModuleId
+      ? { sessionToken: sessionToken || "", moduleId: selectedModuleId }
+      : "skip"
+  ) as any;
+
+  const myModules = useMemo(
+    () => (myPublisherDetail?.modules || []).slice().sort((a: any, b: any) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0)),
+    [myPublisherDetail?.modules]
+  );
+  const myTransactions = myPublisherDetail?.transactions || [];
+  const myPayouts = myPublisherDetail?.payouts || [];
+  const myStats = myPublisherDetail?.stats || {
+    totalModules: 0,
+    publishedModules: 0,
+    totalInstalls: 0,
+    totalEarningsCents: 0,
+    pendingPayoutCents: 0,
+    averageRating: 0,
+  };
+
+  const resetModuleForm = () => {
+    setModForm(EMPTY_MODULE_FORM);
+    setSelectedModuleId(null);
+    setReleaseNotes("");
+    setSubmitVersionForReview(false);
+  };
+
+  const openNewModuleDialog = () => {
+    resetModuleForm();
+    setIsSubmitOpen(true);
+  };
+
+  const openEditModuleDialog = (module: any) => {
+    setSelectedModuleId(module.moduleId);
+    setModForm({
+      name: module.name ?? "",
+      shortDescription: module.shortDescription ?? "",
+      fullDescription: module.fullDescription ?? "",
+      category: module.category ?? "academic_tools",
+      version: module.version ?? "1.0.0",
+      pricingModel: module.pricingModel ?? "free",
+      priceCents: module.priceCents ?? 0,
+      trialDays: module.trialDays ?? 14,
+      supportsOffline: Boolean(module.supportsOffline),
+      tags: (module.tags || []).join(", "),
+      featureHighlights: (module.featureHighlights || []).join("\n"),
+      permissions: (module.permissions || []).join(", "),
+      compatiblePlans: (module.compatiblePlans || []).join(","),
+      supportUrl: module.supportUrl ?? "",
+      documentationUrl: module.documentationUrl ?? "",
+      privacyPolicyUrl: module.privacyPolicyUrl ?? "",
+    });
+    setReleaseNotes("");
+    setSubmitVersionForReview(false);
+    setIsEditOpen(true);
+  };
 
   const handleRegister = async () => {
     if (!sessionToken) return;
@@ -84,6 +162,17 @@ function DeveloperPortalContent() {
         ...regForm,
       });
       setIsRegisterOpen(false);
+      toast.success("Publisher registration completed");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const handleSubmitExistingModule = async (moduleId: string) => {
+    if (!sessionToken) return;
+    try {
+      await submitModuleForReview({ sessionToken, moduleId });
+      toast.success("Module submitted for review");
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -92,7 +181,7 @@ function DeveloperPortalContent() {
   const handleSubmitModule = async () => {
     if (!sessionToken || !myPublisher) return;
     try {
-      await createModule({
+      const result = await createModule({
         sessionToken,
         name: modForm.name,
         shortDescription: modForm.shortDescription,
@@ -114,7 +203,56 @@ function DeveloperPortalContent() {
         documentationUrl: modForm.documentationUrl || undefined,
         privacyPolicyUrl: modForm.privacyPolicyUrl || undefined,
       });
+      await submitModuleForReview({
+        sessionToken,
+        moduleId: result.moduleId,
+      });
       setIsSubmitOpen(false);
+      resetModuleForm();
+      toast.success("Module submitted for review");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const handleSaveModuleChanges = async () => {
+    if (!sessionToken || !selectedModuleId || !selectedModuleDetail?.module) return;
+    try {
+      await updateModule({
+        sessionToken,
+        moduleId: selectedModuleId,
+        name: modForm.name,
+        shortDescription: modForm.shortDescription,
+        fullDescription: modForm.fullDescription,
+        category: modForm.category as any,
+        pricingModel: modForm.pricingModel as any,
+        priceCents: modForm.pricingModel === "free" ? 0 : modForm.priceCents || undefined,
+        trialDays: modForm.pricingModel === "free_trial" ? modForm.trialDays || undefined : undefined,
+        supportsOffline: modForm.supportsOffline,
+        tags: modForm.tags.split(",").map((t) => t.trim()).filter(Boolean),
+        featureHighlights: modForm.featureHighlights.split("\n").map((t) => t.trim()).filter(Boolean),
+        permissions: modForm.permissions.split(",").map((t) => t.trim()).filter(Boolean),
+        compatiblePlans: modForm.compatiblePlans.split(",").map((t) => t.trim()).filter(Boolean),
+        supportUrl: modForm.supportUrl || undefined,
+        documentationUrl: modForm.documentationUrl || undefined,
+        privacyPolicyUrl: modForm.privacyPolicyUrl || undefined,
+      });
+
+      if (modForm.version !== selectedModuleDetail.module.version) {
+        await createModuleVersion({
+          sessionToken,
+          moduleId: selectedModuleId,
+          version: modForm.version,
+          releaseNotes: releaseNotes || `Updated ${modForm.name} to version ${modForm.version}`,
+          submitForReview: submitVersionForReview,
+        });
+      } else if (submitVersionForReview && (selectedModuleDetail.module.status === "draft" || selectedModuleDetail.module.status === "rejected")) {
+        await submitModuleForReview({ sessionToken, moduleId: selectedModuleId });
+      }
+
+      setIsEditOpen(false);
+      resetModuleForm();
+      toast.success("Module changes saved");
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -158,18 +296,63 @@ function DeveloperPortalContent() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold mb-1">Become a Publisher</h2>
+                  <h2 className="text-xl font-bold mb-1">
+                    {myPublisher ? `Publisher Profile: ${myPublisher.legalName}` : "Become a Publisher"}
+                  </h2>
                   <p className="text-sm text-muted-foreground max-w-lg">
-                    Register as an EduMyles Marketplace publisher to distribute and monetise your
-                    educational modules, integrations, and content to thousands of institutions.
+                    {myPublisher
+                      ? "Manage your marketplace presence, submit modules for review, and track installs, reviews, and payout readiness."
+                      : "Register as an EduMyles Marketplace publisher to distribute and monetise your educational modules, integrations, and content to thousands of institutions."}
                   </p>
                 </div>
-                <Button size="lg" onClick={() => setIsRegisterOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />Register Now
-                </Button>
+                {myPublisher ? (
+                  <div className="text-right space-y-2">
+                    <div>{verificationBadge(myPublisher.verificationLevel)}</div>
+                    <Button size="lg" onClick={openNewModuleDialog}>
+                      <Plus className="h-4 w-4 mr-2" />Submit Module
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="lg" onClick={() => setIsRegisterOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />Register Now
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
+
+          {myPublisher && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground mb-1">Modules</p>
+                  <div className="text-xl font-bold">{myStats.totalModules}</div>
+                  <p className="text-xs text-muted-foreground">{myStats.publishedModules} published</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground mb-1">Installs</p>
+                  <div className="text-xl font-bold">{myStats.totalInstalls}</div>
+                  <p className="text-xs text-muted-foreground">Across all tenants</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground mb-1">Total Earnings</p>
+                  <div className="text-xl font-bold">{formatPrice(myStats.totalEarningsCents)}</div>
+                  <p className="text-xs text-muted-foreground">Net publisher revenue</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground mb-1">Pending Payout</p>
+                  <div className="text-xl font-bold">{formatPrice(myStats.pendingPayoutCents)}</div>
+                  <p className="text-xs text-muted-foreground">Average rating {myStats.averageRating.toFixed(1)}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Verification Levels */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -269,9 +452,15 @@ function DeveloperPortalContent() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="font-semibold">{pub.legalName}</h4>
-                            {verificationBadge(pub.verificationLevel)}
-                          </div>
+                          <h4 className="font-semibold">{pub.legalName}</h4>
+                          {verificationBadge(pub.verificationLevel)}
+                          {pub.userId === myPublisher?.userId && (
+                            <Badge variant="outline" className="text-xs">My Profile</Badge>
+                          )}
+                          {!pub.isActive && (
+                            <Badge variant="destructive" className="text-xs">Suspended</Badge>
+                          )}
+                        </div>
                           <p className="text-xs text-muted-foreground">
                             {pub.contactEmail} · {pub.country} · {pub.entityType}
                           </p>
@@ -315,21 +504,68 @@ function DeveloperPortalContent() {
         <TabsContent value="submissions" className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Submit a New Module</h3>
-            <Button onClick={() => setIsSubmitOpen(true)}>
+            <Button onClick={openNewModuleDialog}>
               <Plus className="h-4 w-4 mr-2" />Submit Module
             </Button>
           </div>
 
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <Package className="h-10 w-10 text-muted-foreground mb-3" />
-              <h3 className="font-semibold mb-1">Ready to Submit</h3>
-              <p className="text-sm text-muted-foreground max-w-md">
-                Click &ldquo;Submit Module&rdquo; to create a new module listing. You&apos;ll fill in the
-                details and it will be submitted for review by the Mylesoft team.
-              </p>
-            </CardContent>
-          </Card>
+          {myModules.length > 0 ? (
+            <div className="space-y-3">
+              {myModules.map((mod: any) => (
+                <Card key={mod._id}>
+                  <CardContent className="pt-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold">{mod.name}</h4>
+                          <Badge variant="outline" className="capitalize text-xs">{mod.category.replace(/_/g, " ")}</Badge>
+                          <Badge className={mod.status === "published" ? "bg-green-100 text-green-700" : mod.status === "pending_review" ? "bg-yellow-100 text-yellow-700" : mod.status === "rejected" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"}>
+                            {mod.status.replace(/_/g, " ")}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{mod.shortDescription}</p>
+                        <p className="text-xs text-muted-foreground">
+                          v{mod.version} · Updated {formatDate(mod.updatedAt || mod.createdAt)} · {formatPrice(mod.priceCents || 0)}
+                        </p>
+                        {mod.reviewNotes && (
+                          <p className="text-xs text-amber-700">Review notes: {mod.reviewNotes}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => window.open(`/platform/marketplace/${mod.moduleId}`, "_self")}>
+                          <Eye className="h-4 w-4 mr-1" />View
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => openEditModuleDialog(mod)}>
+                          <Pencil className="h-4 w-4 mr-1" />Edit
+                        </Button>
+                        {(mod.status === "draft" || mod.status === "rejected") && (
+                          <Button size="sm" onClick={() => handleSubmitExistingModule(mod.moduleId)}>
+                            <Send className="h-4 w-4 mr-1" />Submit
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <Package className="h-10 w-10 text-muted-foreground mb-3" />
+                <h3 className="font-semibold mb-1">Ready to Submit</h3>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  Click &ldquo;Submit Module&rdquo; to create a new module listing. You&apos;ll fill in the
+                  details and it will be submitted for review by the Mylesoft team.
+                </p>
+                {!myPublisher && (
+                  <p className="text-xs text-amber-700 mt-3">
+                    Register a publisher profile first before submitting modules.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Revenue & Payouts */}
@@ -338,25 +574,72 @@ function DeveloperPortalContent() {
             <Card>
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground mb-1">Total Revenue</p>
-                <div className="text-xl font-bold">KES 0</div>
+                <div className="text-xl font-bold">{formatPrice(myStats.totalEarningsCents)}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground mb-1">Commission Earned</p>
-                <div className="text-xl font-bold">KES 0</div>
+                <div className="text-xl font-bold">
+                  {formatPrice(
+                    myTransactions.reduce((sum: number, tx: any) => sum + (tx.commissionCents || 0), 0)
+                  )}
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground mb-1">Pending Payout</p>
-                <div className="text-xl font-bold">KES 0</div>
+                <div className="text-xl font-bold">{formatPrice(myStats.pendingPayoutCents)}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground mb-1">Last Payout</p>
-                <div className="text-xl font-bold">—</div>
+                <div className="text-xl font-bold">
+                  {myPayouts[0] ? formatPrice(myPayouts[0].amountCents || 0) : "—"}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader><CardTitle className="text-base">Recent Transactions</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                {myTransactions.length > 0 ? myTransactions.map((tx: any) => (
+                  <div key={tx._id} className="flex items-center justify-between border rounded-lg p-3">
+                    <div>
+                      <p className="font-medium text-sm capitalize">{tx.type}</p>
+                      <p className="text-xs text-muted-foreground">{tx.moduleId} · {formatDate(tx.createdAt)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-sm">{formatPrice(tx.netAmountCents || 0)}</p>
+                      <p className="text-xs text-muted-foreground">{tx.status}</p>
+                    </div>
+                  </div>
+                )) : (
+                  <p className="text-sm text-muted-foreground">No transactions yet.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle className="text-base">Payouts</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                {myPayouts.length > 0 ? myPayouts.map((payout: any) => (
+                  <div key={payout._id} className="flex items-center justify-between border rounded-lg p-3">
+                    <div>
+                      <p className="font-medium text-sm">{formatDate(payout.createdAt || payout.scheduledAt || Date.now())}</p>
+                      <p className="text-xs text-muted-foreground">{payout.status}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-sm">{formatPrice(payout.amountCents || payout.netAmountCents || 0)}</p>
+                    </div>
+                  </div>
+                )) : (
+                  <p className="text-sm text-muted-foreground">No payouts scheduled yet.</p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -598,11 +881,190 @@ function DeveloperPortalContent() {
                 <Input value={modForm.privacyPolicyUrl} onChange={(e) => setModForm({ ...modForm, privacyPolicyUrl: e.target.value })} />
               </div>
             </div>
+            <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
+              <Wallet className="h-4 w-4 text-muted-foreground" />
+              <span>Verification starts at Basic and can be upgraded from Marketplace Admin after review.</span>
+            </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsSubmitOpen(false)}>Cancel</Button>
-              <Button onClick={handleSubmitModule} disabled={!modForm.name || !modForm.shortDescription || !modForm.fullDescription}>
+              <Button variant="outline" onClick={() => { setIsSubmitOpen(false); resetModuleForm(); }}>Cancel</Button>
+              <Button onClick={handleSubmitModule} disabled={!myPublisher || !modForm.name || !modForm.shortDescription || !modForm.fullDescription}>
                 <Send className="h-4 w-4 mr-2" />Submit for Review
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Module & Manage Versions</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5">
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">{selectedModuleDetail?.module?.name ?? "Module"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Status: {selectedModuleDetail?.module?.status?.replace(/_/g, " ")} · Current version v{selectedModuleDetail?.module?.version ?? modForm.version}
+                  </p>
+                </div>
+                <Badge variant="outline" className="gap-1">
+                  <GitBranch className="h-3 w-3" />
+                  {selectedModuleDetail?.versions?.length ?? 0} versions
+                </Badge>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div className="space-y-4">
+                <div>
+                  <Label>Module Name</Label>
+                  <Input value={modForm.name} onChange={(e) => setModForm({ ...modForm, name: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Short Description</Label>
+                  <Input value={modForm.shortDescription} onChange={(e) => setModForm({ ...modForm, shortDescription: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Full Description</Label>
+                  <Textarea value={modForm.fullDescription} onChange={(e) => setModForm({ ...modForm, fullDescription: e.target.value })} rows={6} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Category</Label>
+                    <Select value={modForm.category} onValueChange={(v) => setModForm({ ...modForm, category: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="academic_tools">Academic Tools</SelectItem>
+                        <SelectItem value="communication">Communication</SelectItem>
+                        <SelectItem value="finance_fees">Finance & Fees</SelectItem>
+                        <SelectItem value="analytics_bi">Analytics & BI</SelectItem>
+                        <SelectItem value="content_packs">Content Packs</SelectItem>
+                        <SelectItem value="integrations">Integrations</SelectItem>
+                        <SelectItem value="ai_automation">AI & Automation</SelectItem>
+                        <SelectItem value="accessibility">Accessibility</SelectItem>
+                        <SelectItem value="administration">Administration</SelectItem>
+                        <SelectItem value="security_compliance">Security & Compliance</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Pricing Model</Label>
+                    <Select value={modForm.pricingModel} onValueChange={(v) => setModForm({ ...modForm, pricingModel: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="free">Free</SelectItem>
+                        <SelectItem value="freemium">Freemium</SelectItem>
+                        <SelectItem value="one_time">One-Time</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="annual">Annual</SelectItem>
+                        <SelectItem value="per_student">Per Student</SelectItem>
+                        <SelectItem value="per_user">Per User</SelectItem>
+                        <SelectItem value="free_trial">Free Trial</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {modForm.pricingModel !== "free" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Price (cents)</Label>
+                      <Input type="number" value={modForm.priceCents} onChange={(e) => setModForm({ ...modForm, priceCents: parseInt(e.target.value) || 0 })} />
+                    </div>
+                    <div>
+                      <Label>Trial Days</Label>
+                      <Input type="number" value={modForm.trialDays} onChange={(e) => setModForm({ ...modForm, trialDays: parseInt(e.target.value) || 14 })} />
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <Label>Feature Highlights</Label>
+                  <Textarea value={modForm.featureHighlights} onChange={(e) => setModForm({ ...modForm, featureHighlights: e.target.value })} rows={4} />
+                </div>
+                <div>
+                  <Label>Tags</Label>
+                  <Input value={modForm.tags} onChange={(e) => setModForm({ ...modForm, tags: e.target.value })} />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Version</Label>
+                    <Input value={modForm.version} onChange={(e) => setModForm({ ...modForm, version: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Compatible Plans</Label>
+                    <Input value={modForm.compatiblePlans} onChange={(e) => setModForm({ ...modForm, compatiblePlans: e.target.value })} />
+                  </div>
+                </div>
+                <div>
+                  <Label>Permissions</Label>
+                  <Input value={modForm.permissions} onChange={(e) => setModForm({ ...modForm, permissions: e.target.value })} />
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label>Support URL</Label>
+                    <Input value={modForm.supportUrl} onChange={(e) => setModForm({ ...modForm, supportUrl: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Docs URL</Label>
+                    <Input value={modForm.documentationUrl} onChange={(e) => setModForm({ ...modForm, documentationUrl: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Privacy Policy URL</Label>
+                    <Input value={modForm.privacyPolicyUrl} onChange={(e) => setModForm({ ...modForm, privacyPolicyUrl: e.target.value })} />
+                  </div>
+                </div>
+                <div>
+                  <Label>Release Notes</Label>
+                  <Textarea value={releaseNotes} onChange={(e) => setReleaseNotes(e.target.value)} rows={4} placeholder="Describe what changed in this version..." />
+                </div>
+                <div className="rounded-lg border p-4 space-y-3">
+                  <p className="text-sm font-medium">Version History</p>
+                  <div className="space-y-2 max-h-56 overflow-y-auto">
+                    {(selectedModuleDetail?.versions || []).map((version: any) => (
+                      <div key={version._id} className="rounded-md border p-3 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">v{version.version}</span>
+                          <Badge variant="outline" className="capitalize">{version.status}</Badge>
+                        </div>
+                        <p className="text-muted-foreground mt-1">{version.releaseNotes}</p>
+                        <p className="text-xs text-muted-foreground mt-2">{formatDate(version.createdAt)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <label className="flex items-start gap-2 rounded-lg border p-3 text-sm">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={submitVersionForReview}
+                    onChange={(e) => setSubmitVersionForReview(e.target.checked)}
+                  />
+                  <span>Submit this version for review immediately after saving.</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="flex justify-between gap-2">
+              <Button
+                variant="outline"
+                onClick={() => selectedModuleId && window.open(`/platform/marketplace/${selectedModuleId}`, "_self")}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Detail Page
+              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => { setIsEditOpen(false); resetModuleForm(); }}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveModuleChanges} disabled={!selectedModuleId || !modForm.name || !modForm.shortDescription || !modForm.fullDescription}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>

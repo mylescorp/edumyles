@@ -4,7 +4,7 @@ import BlogContent from "./BlogContent";
 export const metadata: Metadata = {
   title: "Blog — EduMyles School Management Insights",
   description:
-    "Insights, guides, and resources for school administrators, teachers, and education leaders across East Africa.",
+    "Insights, guides, and resources for school administrators, teachers, and education leaders across East Africa — Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
 };
 
 export default function BlogPage() {
@@ -17,8 +17,8 @@ export default function BlogPage() {
         style={{
           background: "#061A12",
           borderTop: "3px solid #E8A020",
-          padding: "6rem 2rem 5rem",
-          minHeight: "380px",
+          padding: "4rem 2rem 3rem",
+          minHeight: "300px",
         }}
       >
         <div
