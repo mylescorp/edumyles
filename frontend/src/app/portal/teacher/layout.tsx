@@ -14,7 +14,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
       <RoleGuard allowedRoles={TEACHER_ROLES}>
         <GlobalShell navItems={teacherNavItems}>
           <ModuleAccessGuard fallbackHref="/admin/modules">
-            <div className="p-4 md:p-6">{children}</div>
+            <div className="p-4 md:p-6"><div className="mx-auto max-w-[1400px]">{children}</div></div>
           </ModuleAccessGuard>
         </GlobalShell>
       </RoleGuard>

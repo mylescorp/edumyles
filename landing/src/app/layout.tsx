@@ -29,7 +29,10 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://edumyles.com"),
-  title: "EduMyles - School Management System for African Schools",
+  title: {
+    default: "EduMyles",
+    template: "%s | EduMyles",
+  },
   description:
     "EduMyles is the all-in-one school management system for East African schools. M-Pesa fee collection, CBC gradebook, parent portal, attendance tracking, and more. Trusted by 50+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
   openGraph: {

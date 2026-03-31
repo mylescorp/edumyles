@@ -49,6 +49,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Image from "next/image";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import type { NavItem } from "@/lib/routes";
 
@@ -314,11 +315,9 @@ function MobileDrawer({
       <SheetContent side="left" className="w-72 p-0 flex flex-col border-r border-[rgba(232,160,32,0.15)] bg-[#0C3020]">
         {/* Drawer header */}
         <div className="flex items-center gap-3 p-4 border-b border-[rgba(232,160,32,0.15)]">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[rgba(232,160,32,0.15)] border border-[rgba(232,160,32,0.3)]">
-            <span className="font-serif font-bold text-[#E8A020] text-base leading-none">E</span>
-          </div>
+          <Image src="/logo-icon.svg" alt="EduMyles" width={32} height={32} className="flex-shrink-0" priority />
           <div>
-            <p className="text-sm font-bold text-white">EduMyles</p>
+            <p className="text-sm font-bold" style={{ color: "#D4AF37" }}>EduMyles</p>
             <p className="text-xs text-[#E8A020]/80">{tenant?.name ?? "School Management"}</p>
           </div>
           <Button
@@ -711,15 +710,8 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
             }
             className="flex items-center gap-2 shrink-0 mr-1"
           >
-            <div
-              className="flex h-[30px] w-[30px] items-center justify-center rounded-lg border border-[rgba(232,160,32,0.45)]"
-              style={{ background: "linear-gradient(135deg,#0F4C2A,#0C3020)" }}
-            >
-              <span className="font-serif font-bold text-[#E8A020] text-[15px] leading-none">
-                E
-              </span>
-            </div>
-            <span className="hidden sm:block text-sm font-bold text-white tracking-tight">
+            <Image src="/logo-icon.svg" alt="EduMyles" width={28} height={28} className="flex-shrink-0" priority />
+            <span className="hidden sm:block text-sm font-bold tracking-tight" style={{ color: "#D4AF37" }}>
               EduMyles
             </span>
           </Link>
@@ -920,7 +912,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
         />
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto bg-[#F3FBF6]">
+        <main className="flex-1 overflow-y-auto" style={{ background: "#F0F7F4" }}>
           {children}
         </main>
       </div>

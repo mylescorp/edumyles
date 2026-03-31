@@ -12,7 +12,7 @@ export default function AlumniLayout({ children }: { children: React.ReactNode }
     <ConvexAuthProvider>
       <RoleGuard allowedRoles={ALUMNI_ROLES}>
         <GlobalShell navItems={alumniNavItems}>
-          <div className="p-4 md:p-6">{children}</div>
+          <div className="p-4 md:p-6"><div className="mx-auto max-w-[1400px]">{children}</div></div>
         </GlobalShell>
       </RoleGuard>
     </ConvexAuthProvider>
