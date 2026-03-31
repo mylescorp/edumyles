@@ -202,6 +202,15 @@ export async function middleware(request: NextRequest) {
   const firstPart = parts[0] ?? "";
 
   const response = NextResponse.next();
+
+  // Prevent browser from caching authenticated pages — ensures back button
+  // always hits the server (and middleware) rather than serving a stale page
+  // after logout.
+  if (isProtected) {
+    response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate, max-age=0");
+    response.headers.set("Pragma", "no-cache");
+  }
+
   if (parts.length >= 3 || (parts.length === 2 && !firstPart.includes("localhost"))) {
     if (firstPart !== "www" && firstPart !== "app" && firstPart !== "") {
       response.headers.set("x-tenant-slug", firstPart);

@@ -107,8 +107,8 @@ export function useAuth() {
       // Ignore — we still redirect to login regardless
     }
 
-    // Go directly to login; skip the /auth/login page redirect hop
-    window.location.href = "/auth/login/api";
+    // Redirect to home page — middleware will enforce login if they navigate to a protected route
+    window.location.replace("/");
   }, []);
 
   // Build user object based on role and available profile data

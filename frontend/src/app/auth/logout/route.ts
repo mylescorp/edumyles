@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     // Ignore errors — still redirect to login
   }
 
-  const response = NextResponse.redirect(new URL("/auth/login/api", request.url));
+  const response = NextResponse.redirect(new URL("/", request.url));
   clearSessionCookies(response);
   return response;
 }

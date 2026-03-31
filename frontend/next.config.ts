@@ -40,49 +40,86 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
   headers: async () => [
+    // ── Security + default cache for all routes ───────────────────────────
     {
       source: '/(.*)',
       headers: [
-        {
-          key: 'X-DNS-Prefetch-Control',
-          value: 'on'
-        },
-        {
-          key: 'X-Frame-Options',
-          value: 'DENY'
-        },
-        {
-          key: 'X-Content-Type-Options',
-          value: 'nosniff'
-        },
-        {
-          key: 'Referrer-Policy',
-          value: 'origin-when-cross-origin'
-        },
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable'
-        }
-      ]
+        { key: 'X-DNS-Prefetch-Control', value: 'on' },
+        { key: 'X-Frame-Options', value: 'DENY' },
+        { key: 'X-Content-Type-Options', value: 'nosniff' },
+        { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+      ],
     },
+    // ── Static Next.js assets — long-lived, immutable ────────────────────
     {
       source: '/_next/static/(.*)',
       headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable'
-        }
-      ]
+        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+      ],
+    },
+    // ── Protected app routes — NEVER cache; always re-validate with server ─
+    // This prevents the browser from serving a cached authenticated page after
+    // logout (back-button attack). Middleware enforces session on every request.
+    {
+      source: '/admin/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
     },
     {
-      source: '/api/(.*)',
+      source: '/platform/:path*',
       headers: [
-        {
-          key: 'Cache-Control',
-          value: 's-maxage=60, stale-while-revalidate=300'
-        }
-      ]
-    }
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
+    },
+    {
+      source: '/portal/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
+    },
+    {
+      source: '/dashboard/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
+    },
+    {
+      source: '/student/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
+    },
+    // ── Auth routes — never cache; always fresh ───────────────────────────
+    {
+      source: '/auth/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
+    },
+    // ── Auth + session API routes — never cache ───────────────────────────
+    {
+      source: '/api/auth/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
+    },
+    // ── Other API routes ─────────────────────────────────────────────────
+    {
+      source: '/api/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
+    },
   ],
   webpack: (config, { isServer }) => {
     if (!isServer) {
