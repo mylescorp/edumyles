@@ -11,11 +11,15 @@ function getConvexClient() {
 }
 
 export async function POST(req: NextRequest) {
+  const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!stripeWebhookSecret) {
+    return new NextResponse("STRIPE_WEBHOOK_SECRET is not configured", { status: 500 });
+  }
+
   const convex = getConvexClient();
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
   const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
-  const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
     return NextResponse.json({ error: "Server config error" }, { status: 500 });

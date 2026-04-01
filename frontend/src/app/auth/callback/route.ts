@@ -17,11 +17,9 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
 
-const FALLBACK_MASTER_ADMIN_EMAILS = ["ayany004@gmail.com"];
-const MASTER_ADMIN_EMAILS = [
-  process.env.MASTER_ADMIN_EMAIL,
-  ...FALLBACK_MASTER_ADMIN_EMAILS,
-]
+const MASTER_ADMIN_EMAILS = (
+  process.env.MASTER_ADMIN_EMAILS?.split(",").map(e => e.trim()) ?? []
+)
   .filter((value): value is string => Boolean(value))
   .map((value) => value.toLowerCase());
 

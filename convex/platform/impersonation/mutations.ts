@@ -67,9 +67,9 @@ export const beginImpersonationSession = mutation({
 
     // Generate a unique token for this impersonation session
     // Use a prefix so it's identifiable in logs: "imp_" + hex
-    const tokenBytes = Array.from({ length: 32 }, () =>
-      Math.floor(Math.random() * 256).toString(16).padStart(2, "0")
-    ).join("");
+    const tokenBytes = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
     const impersonationToken = `imp_${tokenBytes}`;
 
     // Create a real session record for the target user — marked with impersonatedBy

@@ -3,6 +3,7 @@ import { query } from "../../_generated/server";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { requireTenantContext } from "../../helpers/tenantGuard";
+import { listAssignments, getMyAssignments } from "./assignments";
 
 /**
  * Get all classes assigned to the currently authenticated teacher.
@@ -182,8 +183,7 @@ export const getAcademicsStats = query({
         .collect(),
       ctx.db
         .query("grades")
-        .withIndex("by_class_subject", (q) => q.eq("classId", "dummy")) // We'll need to filter differently
-        .filter((q) => q.eq(q.field("tenantId"), tenant.tenantId))
+        .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
         .collect(),
     ]);
 
@@ -223,17 +223,42 @@ export const getRecentExams = query({
       .order("desc")
       .take(limit);
 
-    return exams.map((e) => ({
-      _id: e._id,
-      name: e.name,
-      className: e.className ?? "N/A",
-      date: e.date,
-      status: e.status,
-      submissions: 0,
-      total: 0,
-      tenantId: e.tenantId,
-      createdAt: e.createdAt,
-    }));
+    const examsWithCounts = await Promise.all(
+      exams.map(async (e) => {
+        // Count submissions for this exam
+        const submissions = await ctx.db
+          .query("submissions")
+          .withIndex("by_assignment", (q) => q.eq("assignmentId", e._id.toString()))
+          .filter((q) => q.eq(q.field("tenantId"), tenant.tenantId))
+          .collect();
+
+        // Count total students in the exam's class (if classId is set)
+        let total = 0;
+        if (e.classId) {
+          const classStudents = await ctx.db
+            .query("students")
+            .withIndex("by_tenant_class", (q) =>
+              q.eq("tenantId", tenant.tenantId).eq("classId", e.classId!)
+            )
+            .collect();
+          total = classStudents.length;
+        }
+
+        return {
+          _id: e._id,
+          name: e.name,
+          className: e.className ?? "N/A",
+          date: e.date,
+          status: e.status,
+          submissions: submissions.length,
+          total,
+          tenantId: e.tenantId,
+          createdAt: e.createdAt,
+        };
+      })
+    );
+
+    return examsWithCounts;
   },
 });
 
@@ -270,5 +295,61 @@ export const getUpcomingEvents = query({
         tenantId: e.tenantId,
         createdAt: e.createdAt,
       }));
+  },
+});
+
+/**
+ * Get the count of active assignments for the current teacher.
+ * "Active" means status === "active" or dueDate >= today.
+ */
+export const getTeacherActiveAssignmentsCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+
+    const today = new Date().toISOString().split("T")[0] ?? "";
+
+    const assignments = await ctx.db
+      .query("assignments")
+      .withIndex("by_teacher", (q) => q.eq("teacherId", tenant.userId))
+      .filter((q) => q.eq(q.field("tenantId"), tenant.tenantId))
+      .collect();
+
+    const active = assignments.filter(
+      (a) => a.status === "active" || a.dueDate >= today
+    );
+
+    return active.length;
+  },
+});
+
+/**
+ * Get the count of timetable slots for the current teacher for today's day of week.
+ */
+export const getTeacherTodayClassesCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "timetable");
+
+    // JS Date.getDay(): 0=Sunday,1=Monday,...,6=Saturday
+    // Schema dayOfWeek: 1–7 (1=Monday per convention)
+    const jsDay = new Date().getDay(); // 0=Sun
+    // Convert: Sun=7, Mon=1, Tue=2, ..., Sat=6
+    const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+
+    const slots = await ctx.db
+      .query("timetables")
+      .withIndex("by_teacher", (q) => q.eq("teacherId", tenant.userId))
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("tenantId"), tenant.tenantId),
+          q.eq(q.field("dayOfWeek"), dayOfWeek)
+        )
+      )
+      .collect();
+
+    return slots.length;
   },
 });

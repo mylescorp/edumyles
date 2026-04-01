@@ -4,8 +4,13 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
 const DARAJA_OAUTH =
-  "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
-const DARAJA_STK_PUSH = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+  process.env.MPESA_ENVIRONMENT === "production" 
+    ? "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    : "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
+const DARAJA_STK_PUSH = 
+  process.env.MPESA_ENVIRONMENT === "production"
+    ? "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+    : "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
