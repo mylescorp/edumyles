@@ -48,11 +48,11 @@ export function AuthGuard({
       // Wait for auth to load
       if (isLoading) return;
 
-      // If not authenticated, redirect to login
+      // If not authenticated, replace history entry so back button cannot return
       if (!isAuthenticated) {
         const currentPath = window.location.pathname;
         const returnUrl = encodeURIComponent(currentPath);
-        router.push(`${fallbackPath}?returnUrl=${returnUrl}`);
+        router.replace(`${fallbackPath}?returnUrl=${returnUrl}`);
         return;
       }
 
@@ -67,7 +67,7 @@ export function AuthGuard({
             setIsChecking(false);
             return;
           } else {
-            router.push("/unauthorized");
+            router.replace("/unauthorized");
             return;
           }
         }
@@ -81,7 +81,7 @@ export function AuthGuard({
             setIsChecking(false);
             return;
           } else {
-            router.push("/unauthorized");
+            router.replace("/unauthorized");
             return;
           }
         }
@@ -224,11 +224,11 @@ export function useAuthGuard() {
   const requireAccess = (requiredRole?: string | string[], requiredPermission?: Permission, fallbackPath?: string) => {
     if (!checkAccess(requiredRole, requiredPermission)) {
       if (fallbackPath) {
-        router.push(fallbackPath);
+        router.replace(fallbackPath);
       } else {
         const currentPath = window.location.pathname;
         const returnUrl = encodeURIComponent(currentPath);
-        router.push(`/auth/login/api?returnUrl=${returnUrl}`);
+        router.replace(`/auth/login/api?returnUrl=${returnUrl}`);
       }
       return false;
     }

@@ -107,8 +107,9 @@ export function useAuth() {
       // Ignore — we still redirect to login regardless
     }
 
-    // Go directly to login; skip the /auth/login page redirect hop
-    window.location.href = "/auth/login/api";
+    // Redirect to landing page after logout
+    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL;
+    window.location.replace(landingUrl && landingUrl.startsWith("http") ? landingUrl : "/auth/login");
   }, []);
 
   // Build user object based on role and available profile data

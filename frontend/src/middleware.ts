@@ -180,8 +180,16 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Root redirect
-  if (pathname === "/" && session) {
-    return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
+  if (pathname === "/") {
+    if (session) {
+      return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
+    }
+    // Unauthenticated at root → send to landing page
+    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL;
+    if (landingUrl && landingUrl.startsWith("http")) {
+      return NextResponse.redirect(landingUrl);
+    }
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
   // 3. RBAC enforcement
@@ -202,6 +210,15 @@ export async function middleware(request: NextRequest) {
   const firstPart = parts[0] ?? "";
 
   const response = NextResponse.next();
+
+  // Prevent browser from caching authenticated pages — ensures back button
+  // always hits the server (and middleware) rather than serving a stale page
+  // after logout.
+  if (isProtected) {
+    response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate, max-age=0");
+    response.headers.set("Pragma", "no-cache");
+  }
+
   if (parts.length >= 3 || (parts.length === 2 && !firstPart.includes("localhost"))) {
     if (firstPart !== "www" && firstPart !== "app" && firstPart !== "") {
       response.headers.set("x-tenant-slug", firstPart);
