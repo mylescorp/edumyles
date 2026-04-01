@@ -483,32 +483,53 @@ export default defineSchema({
     teacherId: v.string(),
     title: v.string(),
     description: v.string(),
+    instructions: v.optional(v.string()),
     dueDate: v.string(),
+    dueTime: v.optional(v.string()),
     maxPoints: v.number(),
-    status: v.string(), // active | archived | draft
+    type: v.string(), // homework, classwork, project, exam, quiz
+    gradingScale: v.optional(v.string()), // points, percentage, letter, competency
+    allowLateSubmission: v.optional(v.boolean()),
+    latePenalty: v.optional(v.number()),
+    status: v.string(), // draft, published, closed, graded
+    attachments: v.optional(v.array(v.string())),
+    learningObjectives: v.optional(v.array(v.string())),
+    rubric: v.optional(v.array(v.object({
+      criteria: v.string(),
+      description: v.string(),
+      maxPoints: v.number(),
+    }))),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_class", ["classId"])
-    .index("by_teacher", ["teacherId", "createdAt"]),
+    .index("by_teacher", ["teacherId", "createdAt"])
+    .index("by_tenant_class", ["tenantId", "classId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
 
   submissions: defineTable({
     tenantId: v.string(),
     assignmentId: v.string(),
     studentId: v.string(),
     content: v.optional(v.string()),
+    attachments: v.optional(v.array(v.string())),
     fileUrl: v.optional(v.string()),
-    status: v.string(), // pending | submitted | graded | late
+    status: v.string(), // not_submitted | submitted | late | graded
     grade: v.optional(v.number()),
+    score: v.optional(v.number()), // numeric score
+    letterGrade: v.optional(v.string()), // A, B, C, etc.
     feedback: v.optional(v.string()),
     submittedAt: v.optional(v.number()),
     gradedAt: v.optional(v.number()),
+    gradedBy: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_assignment", ["assignmentId"])
-    .index("by_student", ["studentId"]),
+    .index("by_student", ["studentId"])
+    .index("by_assignment_student", ["assignmentId", "studentId"])
+    .index("by_student_date", ["studentId", "submittedAt"]),
 
   grades: defineTable({
     tenantId: v.string(),
@@ -561,6 +582,24 @@ export default defineSchema({
     .index("by_teacher", ["teacherId"])
     .index("by_room", ["tenantId", "room", "dayOfWeek"])
     .index("by_tenant_day", ["tenantId", "dayOfWeek"]),
+
+  rooms: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    code: v.string(),
+    capacity: v.number(),
+    type: v.string(), // classroom, lab, hall, office, etc.
+    equipment: v.optional(v.array(v.string())), // projector, computer, whiteboard, etc.
+    location: v.optional(v.string()),
+    floor: v.optional(v.string()),
+    available: v.boolean(), // whether room is currently available
+    maintenanceNotes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_type", ["tenantId", "type"])
+    .index("by_tenant_capacity", ["tenantId", "capacity"]),
 
   schoolEvents: defineTable({
     tenantId: v.string(),
@@ -3356,32 +3395,6 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_period", ["payrollPeriodId"])
     .index("by_calculation", ["calculationId"]),
-
-  // ─── Assignment Tracking System ────────────────────────────────────────────
-  assignments: defineTable({
-    tenantId: v.string(),
-    title: v.string(),
-    description: v.string(),
-    subjectId: v.string(),
-    classId: v.string(),
-    teacherId: v.string(),
-    assignedDate: v.number(),
-    dueDate: v.number(),
-    totalMarks: v.number(),
-    status: v.union(v.literal("draft"), v.literal("published"), v.literal("closed")),
-    submissionType: v.union(v.literal("online"), v.literal("offline"), v.literal("both")),
-    instructions: v.optional(v.string()),
-    attachments: v.optional(v.array(v.string())),
-    createdBy: v.string(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"])
-    .index("by_teacher", ["teacherId"])
-    .index("by_class", ["classId"])
-    .index("by_subject", ["subjectId"])
-    .index("by_status", ["status"])
-    .index("by_class_status", ["classId", "status"]),
 
   assignmentSubmissions: defineTable({
     tenantId: v.string(),

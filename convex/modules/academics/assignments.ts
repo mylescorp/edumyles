@@ -3,11 +3,13 @@ import { mutation, query } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
+import { logAction } from "../../helpers/auditLog";
 
 // Assignment types
 export type AssignmentType = "homework" | "classwork" | "project" | "exam" | "quiz";
 export type AssignmentStatus = "draft" | "published" | "closed" | "graded";
 export type SubmissionStatus = "not_submitted" | "submitted" | "late" | "graded";
+export type GradingScale = "points" | "percentage" | "letter" | "competency";
 
 // Assignment queries
 export const listAssignments = query({
@@ -208,207 +210,243 @@ export const getMyAssignments = query({
   },
 });
 
-// Assignment mutations
+// Assignment mutations are handled in the enhanced functions below
+
+// Enhanced assignment creation with full features
 export const createAssignment = mutation({
   args: {
-    title: v.string(),
-    description: v.string(),
-    type: v.string(),
     classId: v.string(),
     subjectId: v.string(),
-    dueDate: v.number(),
-    maxScore: v.number(),
-    allowLateSubmission: v.boolean(),
+    title: v.string(),
+    description: v.string(),
     instructions: v.optional(v.string()),
+    dueDate: v.string(),
+    dueTime: v.optional(v.string()),
+    maxPoints: v.number(),
+    type: v.string(), // homework, classwork, project, exam, quiz
+    gradingScale: v.optional(v.string()), // points, percentage, letter, competency
+    allowLateSubmission: v.optional(v.boolean()),
+    latePenalty: v.optional(v.number()),
+    publishImmediately: v.optional(v.boolean()),
     attachments: v.optional(v.array(v.string())),
+    learningObjectives: v.optional(v.array(v.string())),
+    rubric: v.optional(v.array(v.object({
+      criteria: v.string(),
+      description: v.string(),
+      maxPoints: v.number(),
+    }))),
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:write");
 
+    // Verify teacher has access to this class
+    const classRecord = await ctx.db.get(args.classId as any);
+    if (!classRecord || classRecord.tenantId !== tenant.tenantId) {
+      throw new Error("Class not found");
+    }
+
+    if (classRecord.teacherId !== tenant.userId && tenant.role !== "school_admin") {
+      throw new Error("Only assigned teacher can create assignments");
+    }
+
+    const now = Date.now();
     const assignmentId = await ctx.db.insert("assignments", {
       tenantId: tenant.tenantId,
-      title: args.title,
-      description: args.description,
-      type: args.type as AssignmentType,
       classId: args.classId,
       subjectId: args.subjectId,
       teacherId: tenant.userId,
-      dueDate: args.dueDate,
-      maxScore: args.maxScore,
-      allowLateSubmission: args.allowLateSubmission,
+      title: args.title,
+      description: args.description,
       instructions: args.instructions,
+      dueDate: args.dueDate,
+      dueTime: args.dueTime,
+      maxPoints: args.maxPoints,
+      type: args.type,
+      gradingScale: args.gradingScale || "points",
+      allowLateSubmission: args.allowLateSubmission ?? false,
+      latePenalty: args.latePenalty || 0,
+      status: args.publishImmediately ? "published" : "draft",
       attachments: args.attachments || [],
-      status: "draft",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      learningObjectives: args.learningObjectives || [],
+      rubric: args.rubric || [],
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "assignment.created" as any,
+      entityType: "assignments",
+      entityId: assignmentId,
+      after: args,
     });
 
     return assignmentId;
   },
 });
 
+// Update assignment
 export const updateAssignment = mutation({
   args: {
     assignmentId: v.id("assignments"),
-    title: v.optional(v.string()),
-    description: v.optional(v.string()),
-    dueDate: v.optional(v.number()),
-    maxScore: v.optional(v.number()),
-    allowLateSubmission: v.optional(v.boolean()),
-    instructions: v.optional(v.string()),
-    attachments: v.optional(v.array(v.string())),
-    status: v.optional(v.string()),
+    updates: v.object({
+      title: v.optional(v.string()),
+      description: v.optional(v.string()),
+      instructions: v.optional(v.string()),
+      dueDate: v.optional(v.string()),
+      dueTime: v.optional(v.string()),
+      maxPoints: v.optional(v.number()),
+      allowLateSubmission: v.optional(v.boolean()),
+      latePenalty: v.optional(v.number()),
+      status: v.optional(v.string()),
+      attachments: v.optional(v.array(v.string())),
+      learningObjectives: v.optional(v.array(v.string())),
+      rubric: v.optional(v.array(v.object({
+        criteria: v.string(),
+        description: v.string(),
+        maxPoints: v.number(),
+      }))),
+    }),
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:write");
-
-    const assignment = await ctx.db.get(args.assignmentId);
-    if (!assignment || assignment.tenantId !== tenant.tenantId) {
-      throw new Error("Assignment not found or access denied");
-    }
-
-    if (assignment.teacherId !== tenant.userId) {
-      throw new Error("Only the assignment creator can update it");
-    }
-
-    const updates: any = { updatedAt: Date.now() };
-    if (args.title !== undefined) updates.title = args.title;
-    if (args.description !== undefined) updates.description = args.description;
-    if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
-    if (args.maxScore !== undefined) updates.maxScore = args.maxScore;
-    if (args.allowLateSubmission !== undefined) updates.allowLateSubmission = args.allowLateSubmission;
-    if (args.instructions !== undefined) updates.instructions = args.instructions;
-    if (args.attachments !== undefined) updates.attachments = args.attachments;
-    if (args.status !== undefined) updates.status = args.status;
-
-    await ctx.db.patch(args.assignmentId, updates);
-    return args.assignmentId;
-  },
-});
-
-export const publishAssignment = mutation({
-  args: {
-    assignmentId: v.id("assignments"),
-  },
-  handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
-    await requireModule(ctx, tenant.tenantId, "academics");
-    requirePermission(tenant, "grades:write");
-
-    const assignment = await ctx.db.get(args.assignmentId);
-    if (!assignment || assignment.tenantId !== tenant.tenantId) {
-      throw new Error("Assignment not found or access denied");
-    }
-
-    if (assignment.teacherId !== tenant.userId) {
-      throw new Error("Only the assignment creator can publish it");
-    }
-
-    await ctx.db.patch(args.assignmentId, {
-      status: "published",
-      publishedAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-
-    return args.assignmentId;
-  },
-});
-
-export const submitAssignment = mutation({
-  args: {
-    assignmentId: v.id("assignments"),
-    content: v.string(),
-    attachments: v.optional(v.array(v.string())),
-  },
-  handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
-    await requireModule(ctx, tenant.tenantId, "academics");
-
-    // Get student profile for current user
-    const student = await ctx.db
-      .query("students")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
-      .filter((q) => q.eq(q.field("userId"), tenant.userId))
-      .first();
-
-    if (!student) {
-      throw new Error("Student profile not found");
-    }
 
     const assignment = await ctx.db.get(args.assignmentId);
     if (!assignment || assignment.tenantId !== tenant.tenantId) {
       throw new Error("Assignment not found");
     }
 
-    if (assignment.status !== "published") {
-      throw new Error("Assignment is not published");
+    if (assignment.teacherId !== tenant.userId && tenant.role !== "school_admin") {
+      throw new Error("Only assignment creator can update");
     }
 
-    // Check if already submitted
-    const existingSubmission = await ctx.db
-      .query("submissions")
-      .withIndex("by_assignment_student", (q) =>
-        q.eq("assignmentId", args.assignmentId).eq("studentId", student._id)
-      )
-      .first();
-
-    if (existingSubmission) {
-      throw new Error("Assignment already submitted");
-    }
-
-    const now = Date.now();
-    const isLate = assignment.dueDate < now && !assignment.allowLateSubmission;
-
-    const submissionId = await ctx.db.insert("submissions", {
-      tenantId: tenant.tenantId,
-      assignmentId: args.assignmentId,
-      studentId: student._id,
-      content: args.content,
-      attachments: args.attachments || [],
-      status: isLate ? "late" : "submitted",
-      submittedAt: now,
-      createdAt: now,
+    await ctx.db.patch(args.assignmentId, {
+      ...args.updates,
+      updatedAt: Date.now(),
     });
 
-    return { success: true, submissionId, isLate };
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "assignment.updated" as any,
+      entityType: "assignments",
+      entityId: args.assignmentId,
+      before: assignment,
+      after: args.updates,
+    });
+
+    return { success: true };
   },
 });
 
-export const gradeSubmission = mutation({
+// Delete assignment
+export const deleteAssignment = mutation({
   args: {
-    submissionId: v.id("submissions"),
-    score: v.number(),
-    grade: v.optional(v.string()),
-    feedback: v.optional(v.string()),
+    assignmentId: v.id("assignments"),
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:write");
 
-    const submission = await ctx.db.get(args.submissionId);
-    if (!submission || submission.tenantId !== tenant.tenantId) {
-      throw new Error("Submission not found or access denied");
+    const assignment = await ctx.db.get(args.assignmentId);
+    if (!assignment || assignment.tenantId !== tenant.tenantId) {
+      throw new Error("Assignment not found");
     }
 
-    const assignment = await ctx.db.get(submission.assignmentId as any);
-    if (!assignment || assignment.teacherId !== tenant.userId) {
-      throw new Error("Only the assignment creator can grade submissions");
+    if (assignment.teacherId !== tenant.userId && tenant.role !== "school_admin") {
+      throw new Error("Only assignment creator can delete");
     }
 
-    await ctx.db.patch(args.submissionId, {
-      score: args.score,
-      grade: args.grade,
-      feedback: args.feedback,
-      status: "graded",
-      gradedAt: Date.now(),
-      gradedBy: tenant.userId,
+    // Check if there are submissions
+    const submissions = await ctx.db
+      .query("submissions")
+      .withIndex("by_assignment", (q) => q.eq("assignmentId", args.assignmentId))
+      .collect();
+
+    if (submissions.length > 0) {
+      throw new Error("Cannot delete assignment with existing submissions");
+    }
+
+    await ctx.db.delete(args.assignmentId);
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "assignment.deleted" as any,
+      entityType: "assignments",
+      entityId: args.assignmentId,
+      before: assignment,
     });
 
-    return args.submissionId;
+    return { success: true };
+  },
+});
+
+// Bulk grade submissions
+export const bulkGradeSubmissions = mutation({
+  args: {
+    assignmentId: v.id("assignments"),
+    grades: v.array(v.object({
+      submissionId: v.id("submissions"),
+      score: v.number(),
+      grade: v.optional(v.string()),
+      feedback: v.optional(v.string()),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+
+    const assignment = await ctx.db.get(args.assignmentId);
+    if (!assignment || assignment.tenantId !== tenant.tenantId) {
+      throw new Error("Assignment not found");
+    }
+
+    if (assignment.teacherId !== tenant.userId && tenant.role !== "school_admin") {
+      throw new Error("Only assignment creator can grade");
+    }
+
+    const now = Date.now();
+    const results = [];
+
+    for (const gradeData of args.grades) {
+      const submission = await ctx.db.get(gradeData.submissionId);
+      if (!submission || submission.tenantId !== tenant.tenantId) {
+        continue;
+      }
+
+      await ctx.db.patch(gradeData.submissionId, {
+        score: gradeData.score,
+        grade: gradeData.grade,
+        feedback: gradeData.feedback,
+        status: "graded",
+        gradedAt: now,
+        gradedBy: tenant.userId,
+      });
+
+      results.push(gradeData.submissionId);
+    }
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "submissions.bulk_graded" as any,
+      entityType: "submissions",
+      entityId: args.assignmentId,
+      after: { gradedCount: results.length },
+    });
+
+    return { success: true, gradedCount: results.length };
   },
 });

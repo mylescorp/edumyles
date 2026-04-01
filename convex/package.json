@@ -7,5 +7,8 @@
   },
   "dependencies": {
     "convex": "^1.32.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
   }
 }
