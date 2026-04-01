@@ -180,8 +180,16 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Root redirect
-  if (pathname === "/" && session) {
-    return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
+  if (pathname === "/") {
+    if (session) {
+      return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
+    }
+    // Unauthenticated at root → send to landing page
+    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL;
+    if (landingUrl && landingUrl.startsWith("http")) {
+      return NextResponse.redirect(landingUrl);
+    }
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
   // 3. RBAC enforcement

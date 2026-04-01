@@ -107,8 +107,9 @@ export function useAuth() {
       // Ignore — we still redirect to login regardless
     }
 
-    // Redirect to home page — middleware will enforce login if they navigate to a protected route
-    window.location.replace("/");
+    // Redirect to landing page after logout
+    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL;
+    window.location.replace(landingUrl && landingUrl.startsWith("http") ? landingUrl : "/auth/login");
   }, []);
 
   // Build user object based on role and available profile data
