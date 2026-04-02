@@ -7,12 +7,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
+import {
   Zap,
   Play,
   Pause,
@@ -132,29 +144,57 @@ export default function AutomationCenterPage() {
   const [isCreateWorkflowOpen, setIsCreateWorkflowOpen] = useState(false);
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
 
+  // Workflow form state
+  const [workflowName, setWorkflowName] = useState("");
+  const [workflowDescription, setWorkflowDescription] = useState("");
+  const [workflowCategory, setWorkflowCategory] = useState<string>("");
+  const [workflowTrigger, setWorkflowTrigger] = useState<string>("");
+
   // Real Convex queries
-  const workflowsData = usePlatformQuery(
-    api.platform.automation.queries.getWorkflows,
-    { sessionToken: sessionToken || "" }
-  );
+  const workflowsData = usePlatformQuery(api.platform.automation.queries.getWorkflows, {
+    sessionToken: sessionToken || "",
+  });
 
-  const executionsData = usePlatformQuery(
-    api.platform.automation.queries.getWorkflowExecutions,
-    { sessionToken: sessionToken || "" }
-  );
+  const executionsData = usePlatformQuery(api.platform.automation.queries.getWorkflowExecutions, {
+    sessionToken: sessionToken || "",
+  });
 
-  const templatesData = usePlatformQuery(
-    api.platform.automation.queries.getWorkflowTemplates,
-    { sessionToken: sessionToken || "" }
-  );
+  const templatesData = usePlatformQuery(api.platform.automation.queries.getWorkflowTemplates, {
+    sessionToken: sessionToken || "",
+  });
 
-  const metricsData = usePlatformQuery(
-    api.platform.automation.queries.getAutomationMetrics,
-    { sessionToken: sessionToken || "" }
-  );
+  const metricsData = usePlatformQuery(api.platform.automation.queries.getAutomationMetrics, {
+    sessionToken: sessionToken || "",
+  });
 
   const triggerWorkflow = useMutation(api.platform.automation.mutations.triggerWorkflow);
   const updateWorkflowStatus = useMutation(api.platform.automation.mutations.updateWorkflowStatus);
+  const createWorkflowMutation = useMutation(api.platform.automation.mutations.createWorkflow);
+
+  const createWorkflowMutation = useMutation(api.platform.automation.mutations.createWorkflow);
+
+  const handleCreateWorkflow = async () => {
+    if (!sessionToken || !workflowName || !workflowCategory || !workflowTrigger) return;
+    try {
+      await createWorkflowMutation({
+        sessionToken,
+        name: workflowName,
+        description: workflowDescription,
+        category: workflowCategory as any,
+        trigger: workflowTrigger as any,
+        steps: [],
+        isActive: false,
+        createdBy: sessionToken,
+      });
+      setIsCreateWorkflowOpen(false);
+      setWorkflowName("");
+      setWorkflowDescription("");
+      setWorkflowCategory("");
+      setWorkflowTrigger("");
+    } catch (err) {
+      console.error("Failed to create workflow:", err);
+    }
+  };
 
   if (!workflowsData) return <LoadingSkeleton variant="page" />;
 
@@ -215,36 +255,56 @@ export default function AutomationCenterPage() {
 
   const getStepIcon = (stepType: string) => {
     switch (stepType) {
-      case "action": return <Zap className="h-4 w-4" />;
-      case "condition": return <GitBranch className="h-4 w-4" />;
-      case "approval": return <CheckCircle className="h-4 w-4" />;
-      case "notification": return <Mail className="h-4 w-4" />;
-      case "delay": return <Timer className="h-4 w-4" />;
-      case "integration": return <Layers className="h-4 w-4" />;
-      case "data_operation": return <Database className="h-4 w-4" />;
-      default: return <Activity className="h-4 w-4" />;
+      case "action":
+        return <Zap className="h-4 w-4" />;
+      case "condition":
+        return <GitBranch className="h-4 w-4" />;
+      case "approval":
+        return <CheckCircle className="h-4 w-4" />;
+      case "notification":
+        return <Mail className="h-4 w-4" />;
+      case "delay":
+        return <Timer className="h-4 w-4" />;
+      case "integration":
+        return <Layers className="h-4 w-4" />;
+      case "data_operation":
+        return <Database className="h-4 w-4" />;
+      default:
+        return <Activity className="h-4 w-4" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed": return "text-green-600 bg-green-100";
-      case "running": return "text-blue-600 bg-blue-100";
-      case "failed": return "text-red-600 bg-red-100";
-      case "cancelled": return "text-gray-600 bg-gray-100";
-      case "pending": return "text-yellow-600 bg-yellow-100";
-      default: return "text-gray-600 bg-gray-100";
+      case "completed":
+        return "text-green-600 bg-green-100";
+      case "running":
+        return "text-blue-600 bg-blue-100";
+      case "failed":
+        return "text-red-600 bg-red-100";
+      case "cancelled":
+        return "text-gray-600 bg-gray-100";
+      case "pending":
+        return "text-yellow-600 bg-yellow-100";
+      default:
+        return "text-gray-600 bg-gray-100";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "completed": return <CheckCircle className="h-4 w-4" />;
-      case "running": return <Activity className="h-4 w-4" />;
-      case "failed": return <XCircle className="h-4 w-4" />;
-      case "cancelled": return <Square className="h-4 w-4" />;
-      case "pending": return <Clock className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
+      case "completed":
+        return <CheckCircle className="h-4 w-4" />;
+      case "running":
+        return <Activity className="h-4 w-4" />;
+      case "failed":
+        return <XCircle className="h-4 w-4" />;
+      case "cancelled":
+        return <Square className="h-4 w-4" />;
+      case "pending":
+        return <Clock className="h-4 w-4" />;
+      default:
+        return <Clock className="h-4 w-4" />;
     }
   };
 
@@ -253,9 +313,9 @@ export default function AutomationCenterPage() {
     const diff = now - timestamp;
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
-    
-    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+
+    if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
+    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
     return "Just now";
   };
 
@@ -267,7 +327,7 @@ export default function AutomationCenterPage() {
       return `${Math.round(hours)}h`;
     } else {
       const days = Math.floor(hours / 24);
-      const remainingHours = Math.round((hours % 24));
+      const remainingHours = Math.round(hours % 24);
       return `${days}d ${remainingHours}h`;
     }
   };
@@ -278,10 +338,7 @@ export default function AutomationCenterPage() {
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search workflows..."
-              className="pl-10 w-80"
-            />
+            <Input placeholder="Search workflows..." className="pl-10 w-80" />
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-40">
@@ -335,11 +392,75 @@ export default function AutomationCenterPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="workflow-name">Workflow Name</Label>
-                  <Input id="workflow-name" placeholder="Enter workflow name" />
+                  <Input id="workflow-name" placeholder="Enter workflow name" value={workflowName} onChange={(e) => setWorkflowName(e.target.value)} />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="workflow-description">Description</Label>
-                  <Textarea id="workflow-description" placeholder="Describe the workflow purpose" rows={3} />
+                  <Textarea id="workflow-description" placeholder="Describe the workflow purpose" rows={3} value={workflowDescription} onChange={(e) => setWorkflowDescription(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label>Category</Label>
+                    <Select value={workflowCategory} onValueChange={setWorkflowCategory}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="onboarding">Onboarding</SelectItem>
+                        <SelectItem value="offboarding">Offboarding</SelectItem>
+                        <SelectItem value="compliance">Compliance</SelectItem>
+                        <SelectItem value="security">Security</SelectItem>
+                        <SelectItem value="communications">Communications</SelectItem>
+                        <SelectItem value="data_management">Data Management</SelectItem>
+                        <SelectItem value="approval">Approval</SelectItem>
+                        <SelectItem value="notification">Notification</SelectItem>
+                        <SelectItem value="integration">Integration</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Trigger Type</Label>
+                    <Select value={workflowTrigger} onValueChange={setWorkflowTrigger}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select trigger" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="manual">Manual</SelectItem>
+                        <SelectItem value="scheduled">Scheduled</SelectItem>
+                        <SelectItem value="event_based">Event Based</SelectItem>
+                        <SelectItem value="webhook">Webhook</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Workflow Steps</Label>
+                  <div className="border rounded-lg p-4">
+                    <div className="text-sm text-muted-foreground mb-2">
+                      Add workflow steps using the visual workflow builder
+                    </div>
+                    <Button variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Step
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsCreateWorkflowOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateWorkflow} disabled={!workflowName || !workflowCategory || !workflowTrigger}>
+                  Create Workflow
+                </Button>
+              </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="workflow-description">Description</Label>
+                  <Textarea
+                    id="workflow-description"
+                    placeholder="Describe the workflow purpose"
+                    rows={3}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
@@ -393,9 +514,7 @@ export default function AutomationCenterPage() {
                 <Button variant="outline" onClick={() => setIsCreateWorkflowOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => setIsCreateWorkflowOpen(false)}>
-                  Create Workflow
-                </Button>
+                <Button onClick={() => setIsCreateWorkflowOpen(false)}>Create Workflow</Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -410,8 +529,13 @@ export default function AutomationCenterPage() {
             <Workflow className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metricsData?.overview?.totalWorkflows ?? workflows.length}</div>
-            <p className="text-xs text-muted-foreground">{metricsData?.overview?.activeWorkflows ?? workflows.filter(w => w.isActive).length} active</p>
+            <div className="text-2xl font-bold">
+              {metricsData?.overview?.totalWorkflows ?? workflows.length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {metricsData?.overview?.activeWorkflows ?? workflows.filter((w) => w.isActive).length}{" "}
+              active
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -420,8 +544,14 @@ export default function AutomationCenterPage() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(metricsData?.overview?.totalExecutions ?? workflowExecutions.length).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">{metricsData?.overview?.successfulExecutions ?? 0} successful</p>
+            <div className="text-2xl font-bold">
+              {(
+                metricsData?.overview?.totalExecutions ?? workflowExecutions.length
+              ).toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {metricsData?.overview?.successfulExecutions ?? 0} successful
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -430,8 +560,12 @@ export default function AutomationCenterPage() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{metricsData?.overview?.successRate ?? 0}%</div>
-            <p className="text-xs text-muted-foreground">Avg duration: {metricsData?.overview?.averageExecutionTime ?? 0}h</p>
+            <div className="text-2xl font-bold text-green-600">
+              {metricsData?.overview?.successRate ?? 0}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Avg duration: {metricsData?.overview?.averageExecutionTime ?? 0}h
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -440,8 +574,12 @@ export default function AutomationCenterPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(metricsData?.timeSaved?.totalHoursSaved ?? 0).toLocaleString()}h</div>
-            <p className="text-xs text-muted-foreground">≈ KES {(metricsData?.timeSaved?.estimatedCostSavings ?? 0).toLocaleString()} saved</p>
+            <div className="text-2xl font-bold">
+              {(metricsData?.timeSaved?.totalHoursSaved ?? 0).toLocaleString()}h
+            </div>
+            <p className="text-xs text-muted-foreground">
+              ≈ KES {(metricsData?.timeSaved?.estimatedCostSavings ?? 0).toLocaleString()} saved
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -463,18 +601,18 @@ export default function AutomationCenterPage() {
                       <span className="text-sm text-muted-foreground">{workflow.trigger}</span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h3 className="font-semibold text-lg">{workflow.name}</h3>
                     <p className="text-muted-foreground mt-1">{workflow.description}</p>
                   </div>
-                  
+
                   <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                     <span>Created {formatRelativeTime(workflow.createdAt)}</span>
                     <span>by {workflow.createdBy}</span>
                     <span>{workflow.steps.length} steps</span>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="p-3 border rounded-lg">
                       <div className="text-sm font-medium mb-2">Performance</div>
@@ -493,7 +631,7 @@ export default function AutomationCenterPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="p-3 border rounded-lg">
                       <div className="text-sm font-medium mb-2">Steps</div>
                       <div className="space-y-2">
@@ -511,7 +649,7 @@ export default function AutomationCenterPage() {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="p-3 border rounded-lg">
                       <div className="text-sm font-medium mb-2">Recent Activity</div>
                       <div className="space-y-1">
@@ -527,7 +665,7 @@ export default function AutomationCenterPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2 ml-4">
                   <Button variant="outline" size="sm">
                     <Play className="h-4 w-4 mr-1" />
@@ -556,10 +694,7 @@ export default function AutomationCenterPage() {
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search executions..."
-              className="pl-10 w-80"
-            />
+            <Input placeholder="Search executions..." className="pl-10 w-80" />
           </div>
           <Select>
             <SelectTrigger className="w-40">
@@ -603,20 +738,22 @@ export default function AutomationCenterPage() {
                       <span className="text-sm font-medium">{execution.workflowName}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                     <span>Execution ID: {execution.executionId}</span>
                     <span>Started {formatRelativeTime(execution.startedAt)}</span>
                     <span>Duration: {formatDuration(execution.duration)}</span>
                     <span>Triggered by {execution.triggeredBy}</span>
                   </div>
-                  
+
                   <div>
                     <div className="text-sm font-medium mb-2">Execution Progress</div>
                     <div className="space-y-2">
                       {execution.steps.map((step, index) => (
                         <div key={step.id} className="flex items-center space-x-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusColor(step.status)}`}>
+                          <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusColor(step.status)}`}
+                          >
                             {getStatusIcon(step.status)}
                           </div>
                           <div className="flex-1">
@@ -624,20 +761,25 @@ export default function AutomationCenterPage() {
                             {step.status === "completed" && step.output && (
                               <div className="text-xs text-muted-foreground mt-1">
                                 {Object.entries(step.output).map(([key, value]) => (
-                                  <span key={key}>{key}: {JSON.stringify(value)}</span>
+                                  <span key={key}>
+                                    {key}: {JSON.stringify(value)}
+                                  </span>
                                 ))}
                               </div>
                             )}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {step.status === "completed" ? formatDuration(step.duration) : 
-                             step.status === "running" ? "Running..." : "Pending"}
+                            {step.status === "completed"
+                              ? formatDuration(step.duration)
+                              : step.status === "running"
+                                ? "Running..."
+                                : "Pending"}
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                  
+
                   {execution.triggerData && Object.keys(execution.triggerData).length > 0 && (
                     <div>
                       <div className="text-sm font-medium mb-2">Trigger Data</div>
@@ -651,7 +793,7 @@ export default function AutomationCenterPage() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex items-center space-x-2 ml-4">
                   <Button variant="outline" size="sm">
                     <Eye className="h-4 w-4 mr-1" />
@@ -678,10 +820,7 @@ export default function AutomationCenterPage() {
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search templates..."
-              className="pl-10 w-80"
-            />
+            <Input placeholder="Search templates..." className="pl-10 w-80" />
           </div>
           <Select>
             <SelectTrigger className="w-40">
@@ -762,9 +901,7 @@ export default function AutomationCenterPage() {
                 <Button variant="outline" onClick={() => setIsCreateTemplateOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => setIsCreateTemplateOpen(false)}>
-                  Create Template
-                </Button>
+                <Button onClick={() => setIsCreateTemplateOpen(false)}>Create Template</Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -793,17 +930,17 @@ export default function AutomationCenterPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">{template.description}</p>
-              
+
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{template.category}</span>
                 <span className="text-muted-foreground">{template.templateSteps.length} steps</span>
               </div>
-              
+
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Used {template.usageCount} times</span>
                 <span>Created {formatRelativeTime(template.createdAt)}</span>
               </div>
-              
+
               <div className="flex flex-wrap gap-1">
                 {template.tags.map((tag) => (
                   <Badge key={tag} variant="outline" className="text-xs">
@@ -811,7 +948,7 @@ export default function AutomationCenterPage() {
                   </Badge>
                 ))}
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <Button variant="outline" size="sm" className="flex-1">
                   <Target className="h-4 w-4 mr-1" />
@@ -831,12 +968,12 @@ export default function AutomationCenterPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Automation Center" 
+      <PageHeader
+        title="Automation Center"
         description="Workflow automation and process management platform"
         breadcrumbs={[
           { label: "Platform", href: "/platform" },
-          { label: "Automation Center", href: "/platform/automation" }
+          { label: "Automation Center", href: "/platform/automation" },
         ]}
       />
 
@@ -846,15 +983,15 @@ export default function AutomationCenterPage() {
           <TabsTrigger value="executions">Executions</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="workflows">
           <WorkflowsTab />
         </TabsContent>
-        
+
         <TabsContent value="executions">
           <ExecutionsTab />
         </TabsContent>
-        
+
         <TabsContent value="templates">
           <TemplatesTab />
         </TabsContent>

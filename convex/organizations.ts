@@ -1,6 +1,6 @@
-
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireTenantContext } from "./helpers/tenantGuard";
 
 export const upsertOrganization = mutation({
   args: {
@@ -16,11 +16,10 @@ export const upsertOrganization = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    await requireTenantContext(ctx);
     const existing = await ctx.db
       .query("organizations")
-      .withIndex("by_workos_org", (q) =>
-        q.eq("workosOrgId", args.workosOrgId)
-      )
+      .withIndex("by_workos_org", (q) => q.eq("workosOrgId", args.workosOrgId))
       .first();
 
     if (existing) {
@@ -46,9 +45,7 @@ export const getOrgBySubdomain = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("organizations")
-      .withIndex("by_subdomain", (q) =>
-        q.eq("subdomain", args.subdomain)
-      )
+      .withIndex("by_subdomain", (q) => q.eq("subdomain", args.subdomain))
       .first();
   },
 });

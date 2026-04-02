@@ -2,7 +2,8 @@ import { QueryCtx, MutationCtx } from "../_generated/server";
 import { v } from "convex/values";
 
 export const platformSessionArg = { sessionToken: v.string() };
-const FALLBACK_MASTER_ADMIN_EMAILS = ["ayany004@gmail.com"];
+const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL?.toLowerCase();
+const FALLBACK_MASTER_ADMIN_EMAILS = MASTER_ADMIN_EMAIL ? [MASTER_ADMIN_EMAIL] : [];
 
 export interface PlatformContext {
   tenantId: string;

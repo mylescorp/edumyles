@@ -28,10 +28,10 @@ export const slugSchema = z
 // ----------------------------------------------------------
 export const createTenantSchema = z.object({
   name: z.string().min(2, "School name must be at least 2 characters").max(100),
-  slug: slugSchema,
+  subdomain: slugSchema,
   country: z.enum(["KE", "UG", "TZ", "RW", "ET", "GH"]),
   currency: z.enum(["KES", "UGX", "TZS", "RWF", "ETB", "GHS"]),
-  tier: z.enum(["starter", "standard", "pro", "enterprise"]).default("starter"),
+  plan: z.enum(["starter", "standard", "pro", "enterprise"]).default("starter"),
   adminEmail: z.string().email("Invalid email address"),
   adminFirstName: z.string().min(1),
   adminLastName: z.string().min(1),
@@ -49,9 +49,21 @@ export const createUserSchema = z.object({
   lastName: z.string().min(1, "Last name is required").max(50),
   phone: phoneSchema.optional(),
   role: z.enum([
-    "school_admin", "principal", "teacher", "student",
-    "parent", "finance_officer", "librarian", "transport_officer",
-    "hr_officer", "receptionist",
+    "school_admin",
+    "principal",
+    "teacher",
+    "student",
+    "parent",
+    "bursar",
+    "librarian",
+    "transport_officer",
+    "hr_manager",
+    "receptionist",
+    "alumni",
+    "partner",
+    "board_member",
+    "platform_admin",
+    "master_admin",
   ]),
 });
 

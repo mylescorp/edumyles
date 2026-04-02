@@ -33,23 +33,10 @@ export async function requireTenantSession(
   ctx: QueryCtx | MutationCtx,
   args: { sessionToken: string }
 ): Promise<TenantContext> {
-  console.log("requireTenantSession called with:", {
-    sessionToken: args.sessionToken ? "present" : "missing",
-  });
-
   const session = await ctx.db
     .query("sessions")
     .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
     .first();
-
-  console.log("session lookup result:", session ? {
-    tenantId: session.tenantId,
-    userId: session.userId,
-    role: session.role,
-    email: session.email,
-    expiresAt: session.expiresAt,
-    isExpired: session.expiresAt < Date.now(),
-  } : "not found");
 
   if (!session) {
     throw new Error("UNAUTHENTICATED: Session not found");
@@ -63,13 +50,6 @@ export async function requireTenantSession(
     throw new Error("INVALID_TENANT: Malformed tenantId");
   }
 
-  console.log("returning tenant context:", {
-    tenantId: session.tenantId,
-    userId: session.userId,
-    role: session.role,
-    email: session.email,
-  });
-
   return {
     tenantId: session.tenantId,
     userId: session.userId,
@@ -78,9 +58,7 @@ export async function requireTenantSession(
   };
 }
 
-export async function requireTenantContext(
-  ctx: QueryCtx | MutationCtx
-): Promise<TenantContext> {
+export async function requireTenantContext(ctx: QueryCtx | MutationCtx): Promise<TenantContext> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
     throw new Error("UNAUTHENTICATED: No active session");
@@ -88,9 +66,7 @@ export async function requireTenantContext(
 
   const session = await ctx.db
     .query("sessions")
-    .withIndex("by_token", (q) =>
-      q.eq("sessionToken", identity.tokenIdentifier)
-    )
+    .withIndex("by_token", (q) => q.eq("sessionToken", identity.tokenIdentifier))
     .first();
 
   if (!session) {
@@ -114,9 +90,7 @@ export async function requireTenantContext(
 }
 
 /** Guard for Actions to verify session and tenant */
-export async function requireActionTenantContext(
-  ctx: ActionCtx
-): Promise<TenantContext> {
+export async function requireActionTenantContext(ctx: ActionCtx): Promise<TenantContext> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
     throw new Error("UNAUTHENTICATED: No active session");

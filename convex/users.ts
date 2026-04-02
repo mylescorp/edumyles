@@ -22,9 +22,7 @@ export const upsertUser = mutation({
     // ── 1. Try to find an existing record by real WorkOS ID ──────────────────
     const existing = await ctx.db
       .query("users")
-      .withIndex("by_workos_user", (q) =>
-        q.eq("workosUserId", args.workosUserId)
-      )
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
       .first();
 
     if (existing) {
@@ -49,9 +47,7 @@ export const upsertUser = mutation({
     // and upgrade it in-place instead of creating a duplicate.
     const pendingByEmail = await ctx.db
       .query("users")
-      .withIndex("by_tenant_email", (q) =>
-        q.eq("tenantId", args.tenantId).eq("email", args.email)
-      )
+      .withIndex("by_tenant_email", (q) => q.eq("tenantId", args.tenantId).eq("email", args.email))
       .first();
 
     if (pendingByEmail && pendingByEmail.workosUserId.startsWith("pending-")) {
@@ -91,9 +87,7 @@ export const getUserByWorkosId = query({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_workos_user", (q) =>
-        q.eq("workosUserId", args.workosUserId)
-      )
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
       .first();
 
     if (!user || user.tenantId !== args.tenantId) return null;
@@ -107,9 +101,7 @@ export const hasMasterAdmin = query({
   handler: async (ctx) => {
     const admin = await ctx.db
       .query("users")
-      .withIndex("by_tenant_role", (q) =>
-        q.eq("tenantId", "PLATFORM").eq("role", "master_admin")
-      )
+      .withIndex("by_tenant_role", (q) => q.eq("tenantId", "PLATFORM").eq("role", "master_admin"))
       .first();
     return admin !== null;
   },
@@ -130,8 +122,9 @@ export const getUserByWorkosIdGlobal = query({
 // Called from the auth callback when MASTER_ADMIN_EMAIL matches — ensures the
 // stored Convex record is always in sync with the env-configured override.
 export const syncMasterAdminRole = mutation({
-  args: { workosUserId: v.string(), email: v.string() },
+  args: { workosUserId: v.string(), email: v.string(), sessionToken: v.string() },
   handler: async (ctx, args) => {
+    await requireTenantContext(ctx);
     const existing = await ctx.db
       .query("users")
       .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
@@ -163,8 +156,13 @@ export const syncMasterAdminRole = mutation({
 export const promoteUserEmailToMasterAdmin = mutation({
   args: {
     email: v.string(),
+    sessionToken: v.string(),
   },
   handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    if (tenant.role !== "master_admin" && tenant.role !== "super_admin") {
+      throw new Error("FORBIDDEN: Only platform admins can promote users");
+    }
     let platformOrg = await ctx.db
       .query("organizations")
       .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
@@ -189,9 +187,7 @@ export const promoteUserEmailToMasterAdmin = mutation({
 
     const normalizedEmail = args.email.toLowerCase();
     const users = await ctx.db.query("users").collect();
-    const matchingUsers = users.filter(
-      (user) => user.email.toLowerCase() === normalizedEmail
-    );
+    const matchingUsers = users.filter((user) => user.email.toLowerCase() === normalizedEmail);
 
     const updatedUserIds: string[] = [];
     for (const user of matchingUsers) {
@@ -199,9 +195,7 @@ export const promoteUserEmailToMasterAdmin = mutation({
         tenantId: "PLATFORM",
         role: "master_admin",
         organizationId: platformOrg._id,
-        permissions: user.permissions.includes("*")
-          ? user.permissions
-          : ["*", ...user.permissions],
+        permissions: user.permissions.includes("*") ? user.permissions : ["*", ...user.permissions],
         isActive: true,
       });
       updatedUserIds.push(user._id);
@@ -231,6 +225,7 @@ export const promoteUserEmailToMasterAdmin = mutation({
 export const bootstrapMasterAdmin = mutation({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
+    await requireTenantContext(ctx);
     const session = await ctx.db
       .query("sessions")
       .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
@@ -243,9 +238,7 @@ export const bootstrapMasterAdmin = mutation({
     // Check if any master_admin already exists
     const existingAdmin = await ctx.db
       .query("users")
-      .withIndex("by_tenant_role", (q) =>
-        q.eq("tenantId", "PLATFORM").eq("role", "master_admin")
-      )
+      .withIndex("by_tenant_role", (q) => q.eq("tenantId", "PLATFORM").eq("role", "master_admin"))
       .first();
 
     if (existingAdmin) {
@@ -340,9 +333,7 @@ export const listTenantUsers = query({
     if (args.role) {
       return await ctx.db
         .query("users")
-        .withIndex("by_tenant_role", (q) =>
-          q.eq("tenantId", args.tenantId).eq("role", args.role!)
-        )
+        .withIndex("by_tenant_role", (q) => q.eq("tenantId", args.tenantId).eq("role", args.role!))
         .collect();
     }
 
@@ -439,68 +430,68 @@ export const inviteTenantUser = mutation({
 
 // Step 1: Generate upload URL for tenant user avatar
 export const generateAvatarUploadUrl = mutation({
-    args: { sessionToken: v.string() },
-    handler: async (ctx, args) => {
-        await requireTenantContext(ctx);
-        return await ctx.storage.generateUploadUrl();
-    },
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requireTenantContext(ctx);
+    return await ctx.storage.generateUploadUrl();
+  },
 });
 
 // Step 2: Save tenant user avatar URL
 export const saveUserAvatar = mutation({
-    args: {
-        sessionToken: v.string(),
-        storageId: v.id("_storage"),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        const url = await ctx.storage.getUrl(args.storageId);
-        if (!url) throw new ConvexError("Failed to retrieve upload URL");
+  args: {
+    sessionToken: v.string(),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    const url = await ctx.storage.getUrl(args.storageId);
+    if (!url) throw new ConvexError("Failed to retrieve upload URL");
 
-        const user = await ctx.db
-            .query("users")
-            .filter((q) => q.eq(q.field("eduMylesUserId"), tenant.userId))
-            .first();
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("eduMylesUserId"), tenant.userId))
+      .first();
 
-        if (!user) throw new ConvexError("User not found");
-        await ctx.db.patch(user._id, { avatarUrl: url });
-        return { url };
-    },
+    if (!user) throw new ConvexError("User not found");
+    await ctx.db.patch(user._id, { avatarUrl: url });
+    return { url };
+  },
 });
 
 // Called by WorkOS webhook when a user profile is updated
 export const syncFromWorkOS = mutation({
-    args: {
-        eduMylesUserId: v.string(),
-        email: v.string(),
-        firstName: v.string(),
-        lastName: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const user = await ctx.db
-            .query("users")
-            .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
-            .first();
-        if (!user) return null;
-        await ctx.db.patch(user._id, {
-            email: args.email || user.email,
-            firstName: args.firstName || user.firstName,
-            lastName: args.lastName || user.lastName,
-        });
-        return user._id;
-    },
+  args: {
+    eduMylesUserId: v.string(),
+    email: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
+      .first();
+    if (!user) return null;
+    await ctx.db.patch(user._id, {
+      email: args.email || user.email,
+      firstName: args.firstName || user.firstName,
+      lastName: args.lastName || user.lastName,
+    });
+    return user._id;
+  },
 });
 
 // Called by WorkOS webhook when a user is deleted
 export const deactivateByWorkOSId = mutation({
-    args: { eduMylesUserId: v.string() },
-    handler: async (ctx, args) => {
-        const user = await ctx.db
-            .query("users")
-            .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
-            .first();
-        if (!user) return null;
-        await ctx.db.patch(user._id, { isActive: false });
-        return user._id;
-    },
+  args: { eduMylesUserId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
+      .first();
+    if (!user) return null;
+    await ctx.db.patch(user._id, { isActive: false });
+    return user._id;
+  },
 });

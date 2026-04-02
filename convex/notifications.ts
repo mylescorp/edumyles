@@ -1,5 +1,6 @@
 import { mutation, query, action } from "./_generated/server";
 import { v } from "convex/values";
+import { requireTenantContext } from "./helpers/tenantGuard";
 
 // Get notifications for the current user
 export const getNotifications = query({
@@ -23,9 +24,7 @@ export const getUnreadCount = query({
   handler: async (ctx, args) => {
     const unread = await ctx.db
       .query("notifications")
-      .withIndex("by_user_unread", (q) =>
-        q.eq("userId", args.userId).eq("isRead", false)
-      )
+      .withIndex("by_user_unread", (q) => q.eq("userId", args.userId).eq("isRead", false))
       .collect();
 
     return unread.length;
@@ -46,9 +45,7 @@ export const markAllAsRead = mutation({
   handler: async (ctx, args) => {
     const unread = await ctx.db
       .query("notifications")
-      .withIndex("by_user_unread", (q) =>
-        q.eq("userId", args.userId).eq("isRead", false)
-      )
+      .withIndex("by_user_unread", (q) => q.eq("userId", args.userId).eq("isRead", false))
       .collect();
 
     for (const notification of unread) {
@@ -68,6 +65,7 @@ export const createNotification = mutation({
     link: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireTenantContext(ctx);
     return await ctx.db.insert("notifications", {
       tenantId: args.tenantId,
       userId: args.userId,

@@ -52,7 +52,11 @@ export const generateInvoice = mutation({
     requirePermission(tenant, "finance:write");
 
     const feeStructure = await ctx.db.get(args.feeStructureId as any);
-    if (!feeStructure || !("tenantId" in feeStructure) || (feeStructure as any).tenantId !== tenant.tenantId) {
+    if (
+      !feeStructure ||
+      !("tenantId" in feeStructure) ||
+      (feeStructure as any).tenantId !== tenant.tenantId
+    ) {
       throw new Error("Fee structure not found");
     }
 
@@ -84,12 +88,14 @@ export const generateInvoice = mutation({
 
 export const bulkGenerateInvoices = mutation({
   args: {
-    items: v.array(v.object({
-      studentId: v.string(),
-      feeStructureId: v.string(),
-      dueDate: v.string(),
-      issuedAt: v.string(),
-    })),
+    items: v.array(
+      v.object({
+        studentId: v.string(),
+        feeStructureId: v.string(),
+        dueDate: v.string(),
+        issuedAt: v.string(),
+      })
+    ),
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantContext(ctx);
@@ -100,7 +106,12 @@ export const bulkGenerateInvoices = mutation({
     const ids: string[] = [];
     for (const item of args.items) {
       const feeStructure = await ctx.db.get(item.feeStructureId as any);
-      if (!feeStructure || !("tenantId" in feeStructure) || (feeStructure as any).tenantId !== tenant.tenantId) continue;
+      if (
+        !feeStructure ||
+        !("tenantId" in feeStructure) ||
+        (feeStructure as any).tenantId !== tenant.tenantId
+      )
+        continue;
       const invoiceId = await ctx.db.insert("invoices", {
         tenantId: tenant.tenantId,
         studentId: item.studentId,
@@ -114,13 +125,26 @@ export const bulkGenerateInvoices = mutation({
       });
       ids.push(invoiceId);
     }
-    await logAction(ctx, { tenantId: tenant.tenantId, actorId: tenant.userId, actorEmail: tenant.email, action: "payment.bulk_invoices", entityType: "invoices", entityId: ids[0] ?? "", after: { count: ids.length, ids } });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "payment.bulk_invoices",
+      entityType: "invoices",
+      entityId: ids[0] ?? "",
+      after: { count: ids.length, ids },
+    });
     return { success: true, count: ids.length, invoiceIds: ids };
   },
 });
 
 export const recordPayment = mutation({
-  args: { invoiceId: v.id("invoices"), amount: v.number(), method: v.string(), reference: v.string() },
+  args: {
+    invoiceId: v.id("invoices"),
+    amount: v.number(),
+    method: v.string(),
+    reference: v.string(),
+  },
   handler: async (ctx, args) => {
     const tenant = await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "finance");
@@ -128,7 +152,8 @@ export const recordPayment = mutation({
 
     const invoice = await ctx.db.get(args.invoiceId);
     if (!invoice || invoice.tenantId !== tenant.tenantId) throw new Error("Invoice not found");
-    if (invoice.status === "cancelled") throw new Error("Cannot record payment for cancelled invoice");
+    if (invoice.status === "cancelled")
+      throw new Error("Cannot record payment for cancelled invoice");
 
     const now = Date.now();
     const paymentId = await ctx.db.insert("payments", {
@@ -141,11 +166,24 @@ export const recordPayment = mutation({
       processedAt: now,
     });
 
-    const paidSoFar = (await ctx.db.query("payments").withIndex("by_invoice", (q) => q.eq("invoiceId", args.invoiceId)).collect()).reduce((s, p) => s + p.amount, 0);
+    const paidSoFar = (
+      await ctx.db
+        .query("payments")
+        .withIndex("by_invoice", (q) => q.eq("invoiceId", args.invoiceId))
+        .collect()
+    ).reduce((s, p) => s + p.amount, 0);
     const newStatus = paidSoFar >= invoice.amount ? "paid" : "partially_paid";
     await ctx.db.patch(args.invoiceId, { status: newStatus, updatedAt: now });
 
-    await logAction(ctx, { tenantId: tenant.tenantId, actorId: tenant.userId, actorEmail: tenant.email, action: "payment.recorded", entityType: "payment", entityId: paymentId, after: { invoiceId: args.invoiceId, amount: args.amount } });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "payment.recorded",
+      entityType: "payment",
+      entityId: paymentId,
+      after: { invoiceId: args.invoiceId, amount: args.amount },
+    });
     return paymentId;
   },
 });
@@ -199,7 +237,7 @@ export const generateReceipt = mutation({
         {
           description: `School Fees - ${(invoice as any).academicYear}`,
           amount: (invoice as any).amount,
-        }
+        },
       ],
       subtotal: (invoice as any).amount,
       tax: 0, // Can be calculated based on tax rules
@@ -214,7 +252,13 @@ export const generateReceipt = mutation({
 export const updatePaymentStatus = mutation({
   args: {
     paymentId: v.id("payments"),
-    status: v.union(v.literal("pending"), v.literal("processing"), v.literal("completed"), v.literal("failed"), v.literal("refunded")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("refunded")
+    ),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -279,7 +323,7 @@ export const savePaymentCallback = internalMutation({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    await ctx.db.insert("paymentCallbacks", {
+    const id = await ctx.db.insert("paymentCallbacks", {
       tenantId: args.tenantId,
       gateway: args.gateway,
       externalId: args.externalId,
@@ -289,6 +333,7 @@ export const savePaymentCallback = internalMutation({
       createdAt: now,
       updatedAt: now,
     });
+    return id;
   },
 });
 
@@ -317,7 +362,11 @@ export const recordPaymentFromGatewayInternal = internalMutation({
 
     const now = Date.now();
     if (args.resultCode !== 0) {
-      await ctx.db.patch(existing._id, { status: "failed", updatedAt: now, payload: { resultCode: args.resultCode } });
+      await ctx.db.patch(existing._id, {
+        status: "failed",
+        updatedAt: now,
+        payload: { resultCode: args.resultCode },
+      });
       return { success: false, reason: "result_code_non_zero" };
     }
 
@@ -350,7 +399,12 @@ export const recordPaymentFromGatewayInternal = internalMutation({
       processedAt: now,
     });
 
-    const paidSoFar = (await ctx.db.query("payments").withIndex("by_invoice", (q) => q.eq("invoiceId", invoiceId as any)).collect()).reduce((s: number, p: any) => s + p.amount, 0);
+    const paidSoFar = (
+      await ctx.db
+        .query("payments")
+        .withIndex("by_invoice", (q) => q.eq("invoiceId", invoiceId as any))
+        .collect()
+    ).reduce((s: number, p: any) => s + p.amount, 0);
     const newStatus = paidSoFar >= (invoice as any).amount ? "paid" : "partially_paid";
     await ctx.db.patch(invoiceId as any, { status: newStatus, updatedAt: now });
 
@@ -363,31 +417,13 @@ export const recordPaymentFromGatewayInternal = internalMutation({
 // Update payment callback with actual external ID
 export const updatePaymentCallbackExternalId = internalMutation({
   args: {
-    tenantId: v.string(),
-    gateway: v.string(),
-    pendingId: v.string(),
+    callbackId: v.id("paymentCallbacks"),
     externalId: v.string(),
   },
   handler: async (ctx, args) => {
-    // Find most recent pending callback for this gateway and tenant
-    const pendingCallbacks = await ctx.db
-      .query("paymentCallbacks")
-      .withIndex("by_tenant_gateway", (q) => 
-        q.eq("tenantId", args.tenantId).eq("gateway", args.gateway)
-      )
-      .filter((q) => q.eq("status", "pending"))
-      .order("desc")
-      .take(1);
-
-    if (pendingCallbacks.length === 0) {
-      throw new Error("No pending callback found to update");
-    }
-
-    const callback = pendingCallbacks[0];
-    await ctx.db.patch(callback._id, {
+    await ctx.db.patch(args.callbackId, {
       externalId: args.externalId,
     });
-
-    return callback._id;
+    return args.callbackId;
   },
 });

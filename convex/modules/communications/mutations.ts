@@ -8,803 +8,815 @@ import { DEFAULT_SMS_TEMPLATES, TemplateType, substituteTemplateVariables } from
 // ─── Announcements ─────────────────────────────────────────────────
 
 export const createAnnouncement = mutation({
-    args: {
-        title: v.string(),
-        body: v.string(),
-        audience: v.string(),
-        priority: v.string(),
-        status: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:write");
+  args: {
+    title: v.string(),
+    body: v.string(),
+    audience: v.string(),
+    priority: v.string(),
+    status: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:write");
 
-        const now = Date.now();
-        const id = await ctx.db.insert("announcements", {
-            tenantId: tenant.tenantId,
-            title: args.title,
-            body: args.body,
-            audience: args.audience,
-            priority: args.priority ?? "normal",
-            status: args.status ?? "draft",
-            createdBy: tenant.userId,
-            createdAt: now,
-            updatedAt: now,
-        });
-        return id;
-    },
+    const now = Date.now();
+    const id = await ctx.db.insert("announcements", {
+      tenantId: tenant.tenantId,
+      title: args.title,
+      body: args.body,
+      audience: args.audience,
+      priority: args.priority ?? "normal",
+      status: args.status ?? "draft",
+      createdBy: tenant.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  },
 });
 
 export const updateAnnouncement = mutation({
-    args: {
-        announcementId: v.id("announcements"),
-        title: v.optional(v.string()),
-        body: v.optional(v.string()),
-        audience: v.optional(v.string()),
-        priority: v.optional(v.string()),
-        status: v.optional(v.string()),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:write");
+  args: {
+    announcementId: v.id("announcements"),
+    title: v.optional(v.string()),
+    body: v.optional(v.string()),
+    audience: v.optional(v.string()),
+    priority: v.optional(v.string()),
+    status: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:write");
 
-        const ann = await ctx.db.get(args.announcementId);
-        if (!ann || ann.tenantId !== tenant.tenantId) throw new Error("Announcement not found");
+    const ann = await ctx.db.get(args.announcementId);
+    if (!ann || ann.tenantId !== tenant.tenantId) throw new Error("Announcement not found");
 
-        const { announcementId, ...updates } = args;
-        await ctx.db.patch(announcementId, { ...updates, updatedAt: Date.now() });
-        if (args.status === "published" && ann.status !== "published") {
-            await ctx.db.patch(announcementId, { publishedAt: Date.now() });
-        }
-        return announcementId;
-    },
+    const { announcementId, ...updates } = args;
+    await ctx.db.patch(announcementId, { ...updates, updatedAt: Date.now() });
+    if (args.status === "published" && ann.status !== "published") {
+      await ctx.db.patch(announcementId, { publishedAt: Date.now() });
+    }
+    return announcementId;
+  },
 });
 
 export const publishAnnouncement = mutation({
-    args: { announcementId: v.id("announcements") },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:write");
+  args: { announcementId: v.id("announcements") },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:write");
 
-        const ann = await ctx.db.get(args.announcementId);
-        if (!ann || ann.tenantId !== tenant.tenantId) throw new Error("Announcement not found");
+    const ann = await ctx.db.get(args.announcementId);
+    if (!ann || ann.tenantId !== tenant.tenantId) throw new Error("Announcement not found");
 
-        const now = Date.now();
-        await ctx.db.patch(args.announcementId, {
-            status: "published",
-            publishedAt: now,
-            updatedAt: now,
-        });
-        return args.announcementId;
-    },
+    const now = Date.now();
+    await ctx.db.patch(args.announcementId, {
+      status: "published",
+      publishedAt: now,
+      updatedAt: now,
+    });
+    return args.announcementId;
+  },
 });
 
 export const deleteAnnouncement = mutation({
-    args: { announcementId: v.id("announcements") },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:write");
+  args: { announcementId: v.id("announcements") },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:write");
 
-        const ann = await ctx.db.get(args.announcementId);
-        if (!ann || ann.tenantId !== tenant.tenantId) throw new Error("Announcement not found");
+    const ann = await ctx.db.get(args.announcementId);
+    if (!ann || ann.tenantId !== tenant.tenantId) throw new Error("Announcement not found");
 
-        await ctx.db.delete(args.announcementId);
-        return { success: true };
-    },
+    await ctx.db.delete(args.announcementId);
+    return { success: true };
+  },
 });
 
 // ─── Notifications ──────────────────────────────────────────────────
 
 /** Create a notification (tenant-scoped). Used by broadcast/template flows. */
 export const createNotification = mutation({
-    args: {
-        userId: v.string(),
-        title: v.string(),
-        message: v.string(),
-        type: v.string(),
-        link: v.optional(v.string()),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:write");
+  args: {
+    userId: v.string(),
+    title: v.string(),
+    message: v.string(),
+    type: v.string(),
+    link: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:write");
 
-        return await ctx.db.insert("notifications", {
-            tenantId: tenant.tenantId,
-            userId: args.userId,
-            title: args.title,
-            message: args.message,
-            type: args.type,
-            isRead: false,
-            ...(args.link ? { link: args.link } : {}),
-            createdAt: Date.now(),
-        });
-    },
+    return await ctx.db.insert("notifications", {
+      tenantId: tenant.tenantId,
+      userId: args.userId,
+      title: args.title,
+      message: args.message,
+      type: args.type,
+      isRead: false,
+      ...(args.link ? { link: args.link } : {}),
+      createdAt: Date.now(),
+    });
+  },
 });
 
 // ─── Campaigns (Tenant-scoped) ──────────────────────────────────────
 
 /** Create a tenant-level campaign */
 export const createCampaign = mutation({
-    args: {
-        name: v.string(),
-        description: v.optional(v.string()),
-        channels: v.array(v.string()),
-        message: v.string(),
-        subject: v.optional(v.string()),
-        targetAudience: v.object({
-            type: v.string(),
-            tenantIds: v.optional(v.array(v.string())),
-            roles: v.optional(v.array(v.string())),
-            tenantStatuses: v.optional(v.array(v.string())),
-            tenantPlans: v.optional(v.array(v.string())),
-            excludeTenantIds: v.optional(v.array(v.string())),
-        }),
-        scheduledFor: v.optional(v.number()),
-        templateId: v.optional(v.id("messageTemplates")),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:campaigns");
+  args: {
+    name: v.string(),
+    description: v.optional(v.string()),
+    channels: v.array(v.string()),
+    message: v.string(),
+    subject: v.optional(v.string()),
+    targetAudience: v.object({
+      type: v.string(),
+      tenantIds: v.optional(v.array(v.string())),
+      roles: v.optional(v.array(v.string())),
+      tenantStatuses: v.optional(v.array(v.string())),
+      tenantPlans: v.optional(v.array(v.string())),
+      excludeTenantIds: v.optional(v.array(v.string())),
+    }),
+    scheduledFor: v.optional(v.number()),
+    templateId: v.optional(v.id("messageTemplates")),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:campaigns");
 
-        const now = Date.now();
-        const campaignId = await ctx.db.insert("campaigns", {
-            tenantId: tenant.tenantId,
-            name: args.name,
-            description: args.description,
-            channels: args.channels,
-            status: args.scheduledFor ? "scheduled" : "draft",
-            message: args.message,
-            subject: args.subject,
-            templateId: args.templateId,
-            targetAudience: args.targetAudience,
-            scheduledFor: args.scheduledFor,
-            isPlatformLevel: false,
-            stats: {
-                totalRecipients: 0,
-                sent: 0,
-                delivered: 0,
-                opened: 0,
-                clicked: 0,
-                failed: 0,
-                bounced: 0,
-            },
-            createdBy: tenant.userId,
-            createdAt: now,
-            updatedAt: now,
-        });
+    const now = Date.now();
+    const campaignId = await ctx.db.insert("campaigns", {
+      tenantId: tenant.tenantId,
+      name: args.name,
+      description: args.description,
+      channels: args.channels,
+      status: args.scheduledFor ? "scheduled" : "draft",
+      message: args.message,
+      subject: args.subject,
+      templateId: args.templateId,
+      targetAudience: args.targetAudience,
+      scheduledFor: args.scheduledFor,
+      isPlatformLevel: false,
+      stats: {
+        totalRecipients: 0,
+        sent: 0,
+        delivered: 0,
+        opened: 0,
+        clicked: 0,
+        failed: 0,
+        bounced: 0,
+      },
+      createdBy: tenant.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
 
-        return { success: true, campaignId };
-    },
+    return { success: true, campaignId };
+  },
 });
 
 /** Launch a tenant campaign — sends in-app notifications to targeted users */
 export const launchCampaign = mutation({
-    args: { campaignId: v.id("campaigns") },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:campaigns");
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:campaigns");
 
-        const campaign = await ctx.db.get(args.campaignId);
-        if (!campaign || campaign.tenantId !== tenant.tenantId) throw new Error("Campaign not found");
-        if (campaign.status !== "draft" && campaign.status !== "scheduled") {
-            throw new Error("Campaign can only be launched from draft or scheduled status");
-        }
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign || campaign.tenantId !== tenant.tenantId) throw new Error("Campaign not found");
+    if (campaign.status !== "draft" && campaign.status !== "scheduled") {
+      throw new Error("Campaign can only be launched from draft or scheduled status");
+    }
 
-        const now = Date.now();
+    const now = Date.now();
 
-        // Get tenant users based on target audience
-        const allUsers = await ctx.db
-            .query("users")
-            .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
-            .collect();
+    // Get tenant users based on target audience
+    const allUsers = await ctx.db
+      .query("users")
+      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .collect();
 
-        let targetUsers = allUsers;
-        if (campaign.targetAudience.type === "by_role" && campaign.targetAudience.roles) {
-            targetUsers = allUsers.filter((u: any) => campaign.targetAudience.roles!.includes(u.role));
-        }
+    let targetUsers = allUsers;
+    if (campaign.targetAudience.type === "by_role" && campaign.targetAudience.roles) {
+      targetUsers = allUsers.filter((u: any) => campaign.targetAudience.roles!.includes(u.role));
+    }
 
-        // Create in-app notifications
-        if (campaign.channels.includes("in_app")) {
-            for (const user of targetUsers) {
-                await ctx.db.insert("notifications", {
-                    tenantId: tenant.tenantId,
-                    userId: (user as any).userId ?? (user as any)._id.toString(),
-                    title: campaign.subject ?? campaign.name,
-                    message: campaign.message,
-                    type: "campaign",
-                    isRead: false,
-                    createdAt: now,
-                });
-
-                await ctx.db.insert("messageRecords", {
-                    tenantId: tenant.tenantId,
-                    campaignId: args.campaignId,
-                    channel: "in_app",
-                    recipientId: (user as any).userId ?? (user as any)._id.toString(),
-                    content: campaign.message,
-                    status: "delivered",
-                    sentAt: now,
-                    deliveredAt: now,
-                    createdAt: now,
-                });
-            }
-        }
-
-        await ctx.db.patch(args.campaignId, {
-            status: "running",
-            startedAt: now,
-            updatedAt: now,
-            stats: {
-                totalRecipients: targetUsers.length,
-                sent: targetUsers.length,
-                delivered: targetUsers.length,
-                opened: 0,
-                clicked: 0,
-                failed: 0,
-                bounced: 0,
-            },
+    // Create in-app notifications
+    if (campaign.channels.includes("in_app")) {
+      for (const user of targetUsers) {
+        await ctx.db.insert("notifications", {
+          tenantId: tenant.tenantId,
+          userId: (user as any).userId ?? (user as any)._id.toString(),
+          title: campaign.subject ?? campaign.name,
+          message: campaign.message,
+          type: "campaign",
+          isRead: false,
+          createdAt: now,
         });
 
-        return { success: true, recipientCount: targetUsers.length };
-    },
+        await ctx.db.insert("messageRecords", {
+          tenantId: tenant.tenantId,
+          campaignId: args.campaignId,
+          channel: "in_app",
+          recipientId: (user as any).userId ?? (user as any)._id.toString(),
+          content: campaign.message,
+          status: "delivered",
+          sentAt: now,
+          deliveredAt: now,
+          createdAt: now,
+        });
+      }
+    }
+
+    await ctx.db.patch(args.campaignId, {
+      status: "running",
+      startedAt: now,
+      updatedAt: now,
+      stats: {
+        totalRecipients: targetUsers.length,
+        sent: targetUsers.length,
+        delivered: targetUsers.length,
+        opened: 0,
+        clicked: 0,
+        failed: 0,
+        bounced: 0,
+      },
+    });
+
+    return { success: true, recipientCount: targetUsers.length };
+  },
 });
 
 /** Pause a tenant campaign */
 export const pauseCampaign = mutation({
-    args: { campaignId: v.id("campaigns") },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:campaigns");
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:campaigns");
 
-        const campaign = await ctx.db.get(args.campaignId);
-        if (!campaign || campaign.tenantId !== tenant.tenantId) throw new Error("Campaign not found");
-        if (campaign.status !== "running") throw new Error("Only running campaigns can be paused");
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign || campaign.tenantId !== tenant.tenantId) throw new Error("Campaign not found");
+    if (campaign.status !== "running") throw new Error("Only running campaigns can be paused");
 
-        await ctx.db.patch(args.campaignId, { status: "paused", updatedAt: Date.now() });
-        return { success: true };
-    },
+    await ctx.db.patch(args.campaignId, { status: "paused", updatedAt: Date.now() });
+    return { success: true };
+  },
 });
 
 /** Delete a tenant campaign (draft/cancelled only) */
 export const deleteCampaign = mutation({
-    args: { campaignId: v.id("campaigns") },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:campaigns");
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:campaigns");
 
-        const campaign = await ctx.db.get(args.campaignId);
-        if (!campaign || campaign.tenantId !== tenant.tenantId) throw new Error("Campaign not found");
-        if (campaign.status !== "draft" && campaign.status !== "cancelled") {
-            throw new Error("Only draft or cancelled campaigns can be deleted");
-        }
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign || campaign.tenantId !== tenant.tenantId) throw new Error("Campaign not found");
+    if (campaign.status !== "draft" && campaign.status !== "cancelled") {
+      throw new Error("Only draft or cancelled campaigns can be deleted");
+    }
 
-        await ctx.db.delete(args.campaignId);
-        return { success: true };
-    },
+    await ctx.db.delete(args.campaignId);
+    return { success: true };
+  },
 });
 
 // ─── Templates (Tenant-scoped) ─────────────────────────────────────
 
 /** Create a tenant-level message template */
 export const createTemplate = mutation({
-    args: {
+  args: {
+    name: v.string(),
+    description: v.optional(v.string()),
+    category: v.string(),
+    channels: v.array(v.string()),
+    subject: v.optional(v.string()),
+    content: v.string(),
+    variables: v.array(
+      v.object({
         name: v.string(),
-        description: v.optional(v.string()),
-        category: v.string(),
-        channels: v.array(v.string()),
-        subject: v.optional(v.string()),
-        content: v.string(),
-        variables: v.array(v.object({
-            name: v.string(),
-            type: v.string(),
-            defaultValue: v.optional(v.string()),
-            required: v.boolean(),
-        })),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:templates");
+        type: v.string(),
+        defaultValue: v.optional(v.string()),
+        required: v.boolean(),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:templates");
 
-        const now = Date.now();
-        const templateId = await ctx.db.insert("messageTemplates", {
-            tenantId: tenant.tenantId,
-            name: args.name,
-            description: args.description,
-            category: args.category,
-            channels: args.channels,
-            subject: args.subject,
-            content: args.content,
-            variables: args.variables,
-            isGlobal: false,
-            status: "active",
-            usageCount: 0,
-            createdBy: tenant.userId,
-            createdAt: now,
-            updatedAt: now,
-        });
+    const now = Date.now();
+    const templateId = await ctx.db.insert("messageTemplates", {
+      tenantId: tenant.tenantId,
+      name: args.name,
+      description: args.description,
+      category: args.category,
+      channels: args.channels,
+      subject: args.subject,
+      content: args.content,
+      variables: args.variables,
+      isGlobal: false,
+      status: "active",
+      usageCount: 0,
+      createdBy: tenant.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
 
-        return { success: true, templateId };
-    },
+    return { success: true, templateId };
+  },
 });
 
 /** Update a tenant template */
 export const updateTemplate = mutation({
-    args: {
-        templateId: v.id("messageTemplates"),
-        name: v.optional(v.string()),
-        description: v.optional(v.string()),
-        category: v.optional(v.string()),
-        channels: v.optional(v.array(v.string())),
-        subject: v.optional(v.string()),
-        content: v.optional(v.string()),
-        variables: v.optional(v.array(v.object({
-            name: v.string(),
-            type: v.string(),
-            defaultValue: v.optional(v.string()),
-            required: v.boolean(),
-        }))),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:templates");
+  args: {
+    templateId: v.id("messageTemplates"),
+    name: v.optional(v.string()),
+    description: v.optional(v.string()),
+    category: v.optional(v.string()),
+    channels: v.optional(v.array(v.string())),
+    subject: v.optional(v.string()),
+    content: v.optional(v.string()),
+    variables: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          type: v.string(),
+          defaultValue: v.optional(v.string()),
+          required: v.boolean(),
+        })
+      )
+    ),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:templates");
 
-        const template = await ctx.db.get(args.templateId);
-        if (!template || template.tenantId !== tenant.tenantId) throw new Error("Template not found");
+    const template = await ctx.db.get(args.templateId);
+    if (!template || template.tenantId !== tenant.tenantId) throw new Error("Template not found");
 
-        const { templateId, ...updates } = args;
-        await ctx.db.patch(templateId, { ...updates, updatedAt: Date.now() });
-        return { success: true };
-    },
+    const { templateId, ...updates } = args;
+    await ctx.db.patch(templateId, { ...updates, updatedAt: Date.now() });
+    return { success: true };
+  },
 });
 
 /** Delete a tenant template */
 export const deleteTemplate = mutation({
-    args: { templateId: v.id("messageTemplates") },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:templates");
+  args: { templateId: v.id("messageTemplates") },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:templates");
 
-        const template = await ctx.db.get(args.templateId);
-        if (!template || template.tenantId !== tenant.tenantId) throw new Error("Template not found");
-        if (template.isGlobal) throw new Error("Cannot delete a global template from tenant level");
+    const template = await ctx.db.get(args.templateId);
+    if (!template || template.tenantId !== tenant.tenantId) throw new Error("Template not found");
+    if (template.isGlobal) throw new Error("Cannot delete a global template from tenant level");
 
-        await ctx.db.delete(args.templateId);
-        return { success: true };
-    },
+    await ctx.db.delete(args.templateId);
+    return { success: true };
+  },
 });
 
 // ─── Direct Messaging (Tenant-scoped) ──────────────────────────────
 
 /** Create a conversation */
 export const createConversation = mutation({
-    args: {
-        type: v.string(), // direct | group
-        name: v.optional(v.string()),
-        participants: v.array(v.string()),
-        initialMessage: v.optional(v.string()),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:messaging");
+  args: {
+    type: v.string(), // direct | group
+    name: v.optional(v.string()),
+    participants: v.array(v.string()),
+    initialMessage: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:messaging");
 
-        const now = Date.now();
-        const participants = Array.from(new Set([tenant.userId, ...args.participants]));
+    const now = Date.now();
+    const participants = Array.from(new Set([tenant.userId, ...args.participants]));
 
-        const conversationId = await ctx.db.insert("conversations", {
-            tenantId: tenant.tenantId,
-            type: args.type,
-            name: args.name,
-            participants,
-            lastMessageAt: args.initialMessage ? now : undefined,
-            lastMessagePreview: args.initialMessage?.substring(0, 100),
-            createdBy: tenant.userId,
-            createdAt: now,
-            updatedAt: now,
-        });
+    const conversationId = await ctx.db.insert("conversations", {
+      tenantId: tenant.tenantId,
+      type: args.type,
+      name: args.name,
+      participants,
+      lastMessageAt: args.initialMessage ? now : undefined,
+      lastMessagePreview: args.initialMessage?.substring(0, 100),
+      createdBy: tenant.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
 
-        if (args.initialMessage) {
-            await ctx.db.insert("directMessages", {
-                tenantId: tenant.tenantId,
-                conversationId,
-                senderId: tenant.userId,
-                senderRole: tenant.role,
-                content: args.initialMessage,
-                readBy: [tenant.userId],
-                createdAt: now,
-            });
-        }
+    if (args.initialMessage) {
+      await ctx.db.insert("directMessages", {
+        tenantId: tenant.tenantId,
+        conversationId,
+        senderId: tenant.userId,
+        senderRole: tenant.role,
+        content: args.initialMessage,
+        readBy: [tenant.userId],
+        createdAt: now,
+      });
+    }
 
-        return { success: true, conversationId };
-    },
+    return { success: true, conversationId };
+  },
 });
 
 /** Send a message in a conversation */
 export const sendMessage = mutation({
-    args: {
-        conversationId: v.id("conversations"),
-        content: v.string(),
-        attachments: v.optional(v.array(v.object({
-            name: v.string(),
-            url: v.string(),
-            type: v.string(),
-            size: v.optional(v.number()),
-        }))),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:messaging");
+  args: {
+    conversationId: v.id("conversations"),
+    content: v.string(),
+    attachments: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          url: v.string(),
+          type: v.string(),
+          size: v.optional(v.number()),
+        })
+      )
+    ),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:messaging");
 
-        const conversation = await ctx.db.get(args.conversationId);
-        if (!conversation || !conversation.participants.includes(tenant.userId)) {
-            throw new Error("Conversation not found or access denied");
-        }
+    const conversation = await ctx.db.get(args.conversationId);
+    if (!conversation || !conversation.participants.includes(tenant.userId)) {
+      throw new Error("Conversation not found or access denied");
+    }
 
-        const now = Date.now();
-        const messageId = await ctx.db.insert("directMessages", {
-            tenantId: tenant.tenantId,
-            conversationId: args.conversationId,
-            senderId: tenant.userId,
-            senderRole: tenant.role,
-            content: args.content,
-            attachments: args.attachments,
-            readBy: [tenant.userId],
-            createdAt: now,
+    const now = Date.now();
+    const messageId = await ctx.db.insert("directMessages", {
+      tenantId: tenant.tenantId,
+      conversationId: args.conversationId,
+      senderId: tenant.userId,
+      senderRole: tenant.role,
+      content: args.content,
+      attachments: args.attachments,
+      readBy: [tenant.userId],
+      createdAt: now,
+    });
+
+    await ctx.db.patch(args.conversationId, {
+      lastMessageAt: now,
+      lastMessagePreview: args.content.substring(0, 100),
+      updatedAt: now,
+    });
+
+    // Create notifications for other participants
+    for (const participantId of conversation.participants) {
+      if (participantId !== tenant.userId) {
+        await ctx.db.insert("notifications", {
+          tenantId: tenant.tenantId,
+          userId: participantId,
+          title: "New Message",
+          message: args.content.substring(0, 100),
+          type: "message",
+          isRead: false,
+          link: `/communications/messages/${args.conversationId}`,
+          createdAt: now,
         });
+      }
+    }
 
-        await ctx.db.patch(args.conversationId, {
-            lastMessageAt: now,
-            lastMessagePreview: args.content.substring(0, 100),
-            updatedAt: now,
-        });
-
-        // Create notifications for other participants
-        for (const participantId of conversation.participants) {
-            if (participantId !== tenant.userId) {
-                await ctx.db.insert("notifications", {
-                    tenantId: tenant.tenantId,
-                    userId: participantId,
-                    title: "New Message",
-                    message: args.content.substring(0, 100),
-                    type: "message",
-                    isRead: false,
-                    link: `/communications/messages/${args.conversationId}`,
-                    createdAt: now,
-                });
-            }
-        }
-
-        return { success: true, messageId };
-    },
+    return { success: true, messageId };
+  },
 });
 
 /** Mark messages as read in a conversation */
 export const markConversationRead = mutation({
-    args: { conversationId: v.id("conversations") },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
+  args: { conversationId: v.id("conversations") },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
 
-        const conversation = await ctx.db.get(args.conversationId);
-        if (!conversation || !conversation.participants.includes(tenant.userId)) {
-            throw new Error("Conversation not found");
-        }
+    const conversation = await ctx.db.get(args.conversationId);
+    if (!conversation || !conversation.participants.includes(tenant.userId)) {
+      throw new Error("Conversation not found");
+    }
 
-        const messages = await ctx.db
-            .query("directMessages")
-            .withIndex("by_conversation", (q) => q.eq("conversationId", args.conversationId))
-            .collect();
+    const messages = await ctx.db
+      .query("directMessages")
+      .withIndex("by_conversation", (q) => q.eq("conversationId", args.conversationId))
+      .collect();
 
-        for (const msg of messages) {
-            if (!msg.readBy?.includes(tenant.userId)) {
-                await ctx.db.patch(msg._id, {
-                    readBy: [...(msg.readBy ?? []), tenant.userId],
-                });
-            }
-        }
+    for (const msg of messages) {
+      if (!msg.readBy?.includes(tenant.userId)) {
+        await ctx.db.patch(msg._id, {
+          readBy: [...(msg.readBy ?? []), tenant.userId],
+        });
+      }
+    }
 
-        return { success: true };
-    },
+    return { success: true };
+  },
 });
 
 // ─── Notification Preferences ───────────────────────────────────────
 
 /** Update notification preferences */
 export const updateNotificationPreferences = mutation({
-    args: {
-        emailEnabled: v.optional(v.boolean()),
-        smsEnabled: v.optional(v.boolean()),
-        pushEnabled: v.optional(v.boolean()),
-        inAppEnabled: v.optional(v.boolean()),
-        quietHoursStart: v.optional(v.string()),
-        quietHoursEnd: v.optional(v.string()),
-        categories: v.optional(v.object({
-            announcements: v.optional(v.boolean()),
-            academic: v.optional(v.boolean()),
-            finance: v.optional(v.boolean()),
-            system: v.optional(v.boolean()),
-            marketing: v.optional(v.boolean()),
-        })),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        const now = Date.now();
+  args: {
+    emailEnabled: v.optional(v.boolean()),
+    smsEnabled: v.optional(v.boolean()),
+    pushEnabled: v.optional(v.boolean()),
+    inAppEnabled: v.optional(v.boolean()),
+    quietHoursStart: v.optional(v.string()),
+    quietHoursEnd: v.optional(v.string()),
+    categories: v.optional(
+      v.object({
+        announcements: v.optional(v.boolean()),
+        academic: v.optional(v.boolean()),
+        finance: v.optional(v.boolean()),
+        system: v.optional(v.boolean()),
+        marketing: v.optional(v.boolean()),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    const now = Date.now();
 
-        const existing = await ctx.db
-            .query("notificationPreferences")
-            .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
-            .first();
+    const existing = await ctx.db
+      .query("notificationPreferences")
+      .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
+      .first();
 
-        if (existing) {
-            await ctx.db.patch(existing._id, { ...args, updatedAt: now });
-        } else {
-            await ctx.db.insert("notificationPreferences", {
-                tenantId: tenant.tenantId,
-                userId: tenant.userId,
-                emailEnabled: args.emailEnabled ?? true,
-                smsEnabled: args.smsEnabled ?? true,
-                pushEnabled: args.pushEnabled ?? true,
-                inAppEnabled: args.inAppEnabled ?? true,
-                quietHoursStart: args.quietHoursStart,
-                quietHoursEnd: args.quietHoursEnd,
-                categories: args.categories,
-                createdAt: now,
-                updatedAt: now,
-            });
-        }
+    if (existing) {
+      await ctx.db.patch(existing._id, { ...args, updatedAt: now });
+    } else {
+      await ctx.db.insert("notificationPreferences", {
+        tenantId: tenant.tenantId,
+        userId: tenant.userId,
+        emailEnabled: args.emailEnabled ?? true,
+        smsEnabled: args.smsEnabled ?? true,
+        pushEnabled: args.pushEnabled ?? true,
+        inAppEnabled: args.inAppEnabled ?? true,
+        quietHoursStart: args.quietHoursStart,
+        quietHoursEnd: args.quietHoursEnd,
+        categories: args.categories,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
 
-        return { success: true };
-    },
+    return { success: true };
+  },
 });
 
 /** Send a tenant broadcast to targeted users within the school */
 export const sendBroadcast = mutation({
-    args: {
-        channels: v.array(v.string()),
-        subject: v.optional(v.string()),
-        message: v.string(),
-        audience: v.string(), // all | students | parents | staff | teachers
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:broadcast");
+  args: {
+    channels: v.array(v.string()),
+    subject: v.optional(v.string()),
+    message: v.string(),
+    audience: v.string(), // all | students | parents | staff | teachers
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:broadcast");
 
-        const now = Date.now();
+    const now = Date.now();
 
-        // Get tenant users
-        const allUsers = await ctx.db
-            .query("users")
-            .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
-            .collect();
+    // Get tenant users
+    const allUsers = await ctx.db
+      .query("users")
+      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .collect();
 
-        let targetUsers = allUsers;
-        if (args.audience !== "all") {
-            const roleMap: Record<string, string[]> = {
-                students: ["student"],
-                parents: ["parent"],
-                staff: ["school_admin", "principal", "bursar", "hr_manager", "librarian", "transport_manager"],
-                teachers: ["teacher"],
-            };
-            const targetRoles = roleMap[args.audience] ?? [];
-            targetUsers = allUsers.filter((u: any) => targetRoles.includes(u.role));
-        }
+    let targetUsers = allUsers;
+    if (args.audience !== "all") {
+      const roleMap: Record<string, string[]> = {
+        students: ["student"],
+        parents: ["parent"],
+        staff: [
+          "school_admin",
+          "principal",
+          "bursar",
+          "hr_manager",
+          "librarian",
+          "transport_manager",
+        ],
+        teachers: ["teacher"],
+      };
+      const targetRoles = roleMap[args.audience] ?? [];
+      targetUsers = allUsers.filter((u: any) => targetRoles.includes(u.role));
+    }
 
-        // Create campaign for tracking
-        const campaignId = await ctx.db.insert("campaigns", {
-            tenantId: tenant.tenantId,
-            name: args.subject ?? `Broadcast to ${args.audience}`,
-            description: `Quick broadcast - ${args.audience}`,
-            channels: args.channels,
-            status: "completed",
-            message: args.message,
-            subject: args.subject,
-            targetAudience: { type: args.audience === "all" ? "all" : "by_role" },
-            isPlatformLevel: false,
-            startedAt: now,
-            completedAt: now,
-            stats: {
-                totalRecipients: targetUsers.length,
-                sent: targetUsers.length,
-                delivered: targetUsers.length,
-                opened: 0,
-                clicked: 0,
-                failed: 0,
-                bounced: 0,
-            },
-            createdBy: tenant.userId,
-            createdAt: now,
-            updatedAt: now,
+    // Create campaign for tracking
+    const campaignId = await ctx.db.insert("campaigns", {
+      tenantId: tenant.tenantId,
+      name: args.subject ?? `Broadcast to ${args.audience}`,
+      description: `Quick broadcast - ${args.audience}`,
+      channels: args.channels,
+      status: "completed",
+      message: args.message,
+      subject: args.subject,
+      targetAudience: { type: args.audience === "all" ? "all" : "by_role" },
+      isPlatformLevel: false,
+      startedAt: now,
+      completedAt: now,
+      stats: {
+        totalRecipients: targetUsers.length,
+        sent: targetUsers.length,
+        delivered: targetUsers.length,
+        opened: 0,
+        clicked: 0,
+        failed: 0,
+        bounced: 0,
+      },
+      createdBy: tenant.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    // Create in-app notifications
+    if (args.channels.includes("in_app")) {
+      for (const user of targetUsers) {
+        await ctx.db.insert("notifications", {
+          tenantId: tenant.tenantId,
+          userId: (user as any).userId ?? (user as any)._id.toString(),
+          title: args.subject ?? "Broadcast",
+          message: args.message,
+          type: "broadcast",
+          isRead: false,
+          createdAt: now,
         });
+      }
+    }
 
-        // Create in-app notifications
-        if (args.channels.includes("in_app")) {
-            for (const user of targetUsers) {
-                await ctx.db.insert("notifications", {
-                    tenantId: tenant.tenantId,
-                    userId: (user as any).userId ?? (user as any)._id.toString(),
-                    title: args.subject ?? "Broadcast",
-                    message: args.message,
-                    type: "broadcast",
-                    isRead: false,
-                    createdAt: now,
-                });
-            }
-        }
-
-        return { success: true, campaignId, recipientCount: targetUsers.length };
-    },
+    return { success: true, campaignId, recipientCount: targetUsers.length };
+  },
 });
 
 // ─── SMS Templates ─────────────────────────────────────────────────────
 
 export const createSMSTemplate = mutation({
-    args: {
-        type: v.string(),
-        name: v.string(),
-        content: v.string(),
-        variables: v.array(v.string()),
-        isActive: v.optional(v.boolean()),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:templates");
+  args: {
+    type: v.string(),
+    name: v.string(),
+    content: v.string(),
+    variables: v.array(v.string()),
+    isActive: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:templates");
 
-        const now = Date.now();
-        const id = await ctx.db.insert("smsTemplates", {
-            tenantId: tenant.tenantId,
-            type: args.type as TemplateType,
-            name: args.name,
-            content: args.content,
-            variables: args.variables,
-            isActive: args.isActive ?? true,
-            createdAt: now,
-            updatedAt: now,
-        });
-        return id;
-    },
+    const now = Date.now();
+    const id = await ctx.db.insert("smsTemplates", {
+      tenantId: tenant.tenantId,
+      type: args.type as TemplateType,
+      name: args.name,
+      content: args.content,
+      variables: args.variables,
+      isActive: args.isActive ?? true,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  },
 });
 
 export const updateSMSTemplate = mutation({
-    args: {
-        templateId: v.id("smsTemplates"),
-        name: v.optional(v.string()),
-        content: v.optional(v.string()),
-        variables: v.optional(v.array(v.string())),
-        isActive: v.optional(v.boolean()),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:templates");
+  args: {
+    templateId: v.id("smsTemplates"),
+    name: v.optional(v.string()),
+    content: v.optional(v.string()),
+    variables: v.optional(v.array(v.string())),
+    isActive: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:templates");
 
-        const template = await ctx.db.get(args.templateId);
-        if (!template || template.tenantId !== tenant.tenantId) {
-            throw new Error("Template not found or access denied");
-        }
+    const template = await ctx.db.get(args.templateId);
+    if (!template || template.tenantId !== tenant.tenantId) {
+      throw new Error("Template not found or access denied");
+    }
 
-        const updates: any = { updatedAt: Date.now() };
-        if (args.name !== undefined) updates.name = args.name;
-        if (args.content !== undefined) updates.content = args.content;
-        if (args.variables !== undefined) updates.variables = args.variables;
-        if (args.isActive !== undefined) updates.isActive = args.isActive;
+    const updates: any = { updatedAt: Date.now() };
+    if (args.name !== undefined) updates.name = args.name;
+    if (args.content !== undefined) updates.content = args.content;
+    if (args.variables !== undefined) updates.variables = args.variables;
+    if (args.isActive !== undefined) updates.isActive = args.isActive;
 
-        await ctx.db.patch(args.templateId, updates);
-        return args.templateId;
-    },
+    await ctx.db.patch(args.templateId, updates);
+    return args.templateId;
+  },
 });
 
 export const initializeDefaultSMSTemplates = mutation({
-    args: {},
-    handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:templates");
+  args: {},
+  handler: async (ctx) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:templates");
 
-        const now = Date.now();
-        for (const [type, defaultTemplate] of Object.entries(DEFAULT_SMS_TEMPLATES)) {
-            const existing = await ctx.db
-                .query("smsTemplates")
-                .withIndex("by_tenant_type", (q) =>
-                    q.eq("tenantId", tenant.tenantId).eq("type", type)
-                )
-                .first();
+    const now = Date.now();
+    for (const [type, defaultTemplate] of Object.entries(DEFAULT_SMS_TEMPLATES)) {
+      const existing = await ctx.db
+        .query("smsTemplates")
+        .withIndex("by_tenant_type", (q) => q.eq("tenantId", tenant.tenantId).eq("type", type))
+        .first();
 
-            if (!existing) {
-                await ctx.db.insert("smsTemplates", {
-                    tenantId: tenant.tenantId,
-                    type: type as TemplateType,
-                    name: defaultTemplate.name,
-                    content: defaultTemplate.content,
-                    variables: defaultTemplate.variables,
-                    isActive: defaultTemplate.isActive,
-                    createdAt: now,
-                    updatedAt: now,
-                });
-            }
-        }
+      if (!existing) {
+        await ctx.db.insert("smsTemplates", {
+          tenantId: tenant.tenantId,
+          type: type as TemplateType,
+          name: defaultTemplate.name,
+          content: defaultTemplate.content,
+          variables: defaultTemplate.variables,
+          isActive: defaultTemplate.isActive,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    }
 
-        return { success: true, initialized: Object.keys(DEFAULT_SMS_TEMPLATES).length };
-    },
+    return { success: true, initialized: Object.keys(DEFAULT_SMS_TEMPLATES).length };
+  },
 });
 
 // ─── Email Templates ────────────────────────────────────────────────────
 
 export const createEmailTemplate = mutation({
-    args: {
-        type: v.string(),
-        name: v.string(),
-        subject: v.string(),
-        htmlContent: v.string(),
-        textContent: v.string(),
-        variables: v.array(v.string()),
-        isActive: v.optional(v.boolean()),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:templates");
+  args: {
+    name: v.string(),
+    subject: v.string(),
+    body: v.string(),
+    variables: v.array(v.string()),
+    category: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:templates");
 
-        const now = Date.now();
-        const id = await ctx.db.insert("emailTemplates", {
-            tenantId: tenant.tenantId,
-            type: args.type as TemplateType,
-            name: args.name,
-            subject: args.subject,
-            htmlContent: args.htmlContent,
-            textContent: args.textContent,
-            variables: args.variables,
-            isActive: args.isActive ?? true,
-            createdAt: now,
-            updatedAt: now,
-        });
-        return id;
-    },
+    const now = Date.now();
+    const id = await ctx.db.insert("emailTemplates", {
+      tenantId: tenant.tenantId,
+      name: args.name,
+      subject: args.subject,
+      body: args.body,
+      variables: args.variables,
+      category: args.category,
+      createdBy: tenant.userId,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  },
 });
 
 export const updateEmailTemplate = mutation({
-    args: {
-        templateId: v.id("emailTemplates"),
-        name: v.optional(v.string()),
-        subject: v.optional(v.string()),
-        htmlContent: v.optional(v.string()),
-        textContent: v.optional(v.string()),
-        variables: v.optional(v.array(v.string())),
-        isActive: v.optional(v.boolean()),
-    },
-    handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
-        await requireModule(ctx, tenant.tenantId, "communications");
-        requirePermission(tenant, "communications:templates");
+  args: {
+    templateId: v.id("emailTemplates"),
+    name: v.optional(v.string()),
+    subject: v.optional(v.string()),
+    body: v.optional(v.string()),
+    variables: v.optional(v.array(v.string())),
+    category: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "communications");
+    requirePermission(tenant, "communications:templates");
 
-        const template = await ctx.db.get(args.templateId);
-        if (!template || template.tenantId !== tenant.tenantId) {
-            throw new Error("Template not found or access denied");
-        }
+    const template = await ctx.db.get(args.templateId);
+    if (!template || template.tenantId !== tenant.tenantId) {
+      throw new Error("Template not found or access denied");
+    }
 
-        const updates: any = { updatedAt: Date.now() };
-        if (args.name !== undefined) updates.name = args.name;
-        if (args.subject !== undefined) updates.subject = args.subject;
-        if (args.htmlContent !== undefined) updates.htmlContent = args.htmlContent;
-        if (args.textContent !== undefined) updates.textContent = args.textContent;
-        if (args.variables !== undefined) updates.variables = args.variables;
-        if (args.isActive !== undefined) updates.isActive = args.isActive;
+    const updates: any = { updatedAt: Date.now() };
+    if (args.name !== undefined) updates.name = args.name;
+    if (args.subject !== undefined) updates.subject = args.subject;
+    if (args.body !== undefined) updates.body = args.body;
+    if (args.variables !== undefined) updates.variables = args.variables;
+    if (args.category !== undefined) updates.category = args.category;
 
-        await ctx.db.patch(args.templateId, updates);
-        return args.templateId;
-    },
+    await ctx.db.patch(args.templateId, updates);
+    return args.templateId;
+  },
 });

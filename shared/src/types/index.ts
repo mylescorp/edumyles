@@ -8,19 +8,23 @@
 // ----------------------------------------------------------
 export type TenantId = string;
 
-export type TenantTier = "free" | "starter" | "growth" | "enterprise";
+export type TenantTier = "starter" | "standard" | "pro" | "enterprise";
 
 export type TenantStatus = "active" | "suspended" | "trial" | "churned";
 
 export interface Tenant {
   _id: TenantId;
-  slug: string; // e.g. "greenview-academy" → greenview-academy.edumyles.com
+  tenantId: string;
   name: string;
-  country: "KE" | "UG" | "TZ" | "RW" | "ET" | "GH" | string;
-  currency: "KES" | "UGX" | "TZS" | "RWF" | "ETB" | "GHS" | string;
-  tier: TenantTier;
+  subdomain: string; // e.g. "greenview-academy" → greenview-academy.edumyles.com
+  email: string;
+  phone: string;
+  plan: TenantTier;
   status: TenantStatus;
-  enabledModules: Module[];
+  county: string;
+  country: string;
+  suspendedAt?: number;
+  suspendReason?: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -29,18 +33,18 @@ export interface Tenant {
 // Users & Roles
 // ----------------------------------------------------------
 export type UserRole =
-  | "platform_admin"    // Mylesoft staff — cross-tenant access
-  | "master_admin"      // Platform super-admin
-  | "school_admin"      // Full access within their tenant
+  | "platform_admin" // Mylesoft staff — cross-tenant access
+  | "master_admin" // Platform super-admin
+  | "school_admin" // Full access within their tenant
   | "principal"
   | "teacher"
   | "student"
   | "parent"
-  | "bursar"            // Finance Officer (canonical backend name)
+  | "bursar" // Finance Officer (canonical backend name)
   | "librarian"
   | "transport_officer"
-  | "hr_manager"        // HR Officer (canonical backend name)
-  | "board_member"      // Board-level read-only access
+  | "hr_manager" // HR Officer (canonical backend name)
+  | "board_member" // Board-level read-only access
   | "receptionist"
   | "alumni"
   | "partner";
@@ -64,17 +68,17 @@ export interface User {
 // Modules
 // ----------------------------------------------------------
 export type Module =
-  | "sis"           // Student Information System
-  | "admissions"    // Admissions & Enrollment
-  | "finance"       // Fee & Finance Management
-  | "timetable"     // Timetable & Scheduling
-  | "academics"     // Academics & Gradebook
-  | "hr"            // HR & Payroll
-  | "library"       // Library Management
-  | "transport"     // Transport Management
-  | "communications"// Messaging & Notifications
-  | "ewallet"       // eWallet
-  | "ecommerce";    // School Shop / eCommerce
+  | "sis" // Student Information System
+  | "admissions" // Admissions & Enrollment
+  | "finance" // Fee & Finance Management
+  | "timetable" // Timetable & Scheduling
+  | "academics" // Academics & Gradebook
+  | "hr" // HR & Payroll
+  | "library" // Library Management
+  | "transport" // Transport Management
+  | "communications" // Messaging & Notifications
+  | "ewallet" // eWallet
+  | "ecommerce"; // School Shop / eCommerce
 
 // ----------------------------------------------------------
 // Academic
