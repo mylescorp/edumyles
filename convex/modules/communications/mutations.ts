@@ -822,3 +822,4 @@ export const updateEmailTemplate = mutation({
     return args.templateId;
   },
 });
+
