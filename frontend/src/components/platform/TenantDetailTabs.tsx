@@ -343,7 +343,7 @@ export function TenantDetailTabs({ tenant, isLoading = false, className = "" }: 
                     <div key={user._id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-full bg-em-primary/10 flex items-center justify-center text-em-primary font-semibold text-sm">
-                          {(user.firstName?.[0] ?? user.email[0]).toUpperCase()}
+                          {(user.firstName?.[0] ?? user.email[0] ?? "?").toUpperCase()}
                         </div>
                         <div>
                           <p className="font-medium text-sm">

@@ -3,21 +3,27 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { useQuery } from 'convex/react';
 
 import { useAuth } from '../hooks/useAuth';
+import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
 import { api } from '../lib/convexApi';
 import { theme } from '../theme';
 
 const AssignmentsScreen: React.FC = () => {
   const { sessionToken } = useAuth();
+  const { isOffline } = useOfflineSync();
   const assignments = useQuery(
     api.modules.portal.student.queries.getMyAssignments,
     sessionToken ? { sessionToken, limit: 20 } : 'skip',
+  );
+  const resolvedAssignments = useCachedQueryValue<any[]>(
+    'student.assignments.list',
+    assignments,
   );
 
   if (!sessionToken) {
     return <Text style={styles.stateText}>Sign in to view assignments.</Text>;
   }
 
-  if (assignments === undefined) {
+  if (!resolvedAssignments) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -25,13 +31,14 @@ const AssignmentsScreen: React.FC = () => {
     );
   }
 
-  if (assignments.length === 0) {
+  if (resolvedAssignments.length === 0) {
     return <Text style={styles.stateText}>No assignments are waiting for you right now.</Text>;
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {assignments.map((assignment: any) => (
+      {isOffline && <Text style={styles.banner}>Showing cached assignments.</Text>}
+      {resolvedAssignments.map((assignment: any) => (
         <View key={assignment._id} style={styles.card}>
           <Text style={styles.title}>{assignment.title}</Text>
           <Text style={styles.meta}>{assignment.subjectName ?? 'Subject'}</Text>
@@ -87,6 +94,11 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.sm,
+  },
+  banner: {
+    color: theme.colors.warning,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
   },
 });
 

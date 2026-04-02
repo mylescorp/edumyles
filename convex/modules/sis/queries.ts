@@ -4,6 +4,14 @@ import { requireTenantContext, requireTenantSession } from "../../helpers/tenant
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 
+function isAuthOrTenantError(error: unknown): boolean {
+    if (!(error instanceof Error)) return false;
+    const message = error.message.toUpperCase();
+    return message.includes("UNAUTHENTICATED")
+        || message.includes("FORBIDDEN")
+        || message.includes("INVALID_TENANT");
+}
+
 export const listStudents = query({
     args: {
         sessionToken: v.optional(v.string()),
@@ -37,7 +45,9 @@ export const listStudents = query({
             }
 
             return await studentsQuery.order("desc").collect();
-        } catch {
+        } catch (error) {
+            if (isAuthOrTenantError(error)) throw error;
+            console.error("listStudents failed", error);
             return [];
         }
     },
@@ -135,7 +145,9 @@ export const listClasses = query({
                 return enrichedClasses.filter((c) => c.academicYear === args.academicYear);
             }
             return enrichedClasses;
-        } catch {
+        } catch (error) {
+            if (isAuthOrTenantError(error)) throw error;
+            console.error("listClasses failed", error);
             return [];
         }
     },

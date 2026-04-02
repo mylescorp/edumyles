@@ -24,9 +24,8 @@ test.describe("Platform security", () => {
   });
 
   test("security dashboard loads", async ({ page }) => {
-    await page.goto("/platform/security");
-    if (page.url().includes("/auth/")) return;
     const response = await page.goto("/platform/security");
+    if (page.url().includes("/auth/")) return;
     expect(response?.status()).toBeLessThan(500);
   });
 });

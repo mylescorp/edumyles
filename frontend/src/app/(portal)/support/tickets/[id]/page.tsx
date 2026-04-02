@@ -123,7 +123,7 @@ export default function SchoolTicketDetailPage() {
   }
 
   // Filter out internal comments for school view
-  const publicComments = ticket.comments?.filter(comment => !comment.isInternal) || [];
+  const publicComments = (ticket.comments?.filter((comment: Comment) => !comment.isInternal) || []) as Comment[];
 
   return (
     <div className="space-y-6">
@@ -251,7 +251,7 @@ export default function SchoolTicketDetailPage() {
             <CardContent className="space-y-4">
               {/* Existing Comments */}
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {publicComments.map((comment) => (
+                {publicComments.map((comment: Comment) => (
                   <div key={comment._id} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">

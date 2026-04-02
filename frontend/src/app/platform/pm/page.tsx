@@ -11,13 +11,24 @@ import { platformNavItems } from "@/lib/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 
+type WorkspaceSummary = {
+  _id: string;
+  slug: string;
+  icon?: string;
+  name: string;
+  type: string;
+  projectCount: number;
+  defaultStatuses?: string[];
+  customFieldSchema?: unknown[];
+};
+
 export default function PMPage() {
   const { sessionToken, isLoading: authLoading } = useAuth();
 
   const workspaces = useQuery(
     api.modules.pm.workspaces.getWorkspaces,
     sessionToken ? { sessionToken } : "skip"
-  );
+  ) as WorkspaceSummary[] | undefined;
 
   const pmStats = useQuery(
     api.modules.pm.workspaces.getPmStats,
@@ -83,7 +94,7 @@ export default function PMPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {workspaces?.reduce((sum, ws) => sum + ws.projectCount, 0) || 0}
+                {workspaces?.reduce((sum: number, ws: WorkspaceSummary) => sum + ws.projectCount, 0) || 0}
               </div>
               <p className="text-xs text-muted-foreground">Across all workspaces</p>
             </CardContent>
@@ -128,7 +139,7 @@ export default function PMPage() {
 
         {/* Workspaces Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {workspaces?.map((workspace) => (
+          {workspaces?.map((workspace: WorkspaceSummary) => (
             <Card 
               key={workspace._id} 
               className="hover:shadow-lg transition-all duration-200 cursor-pointer"

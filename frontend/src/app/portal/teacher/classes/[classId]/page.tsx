@@ -36,7 +36,7 @@ export default function ClassDetailsPage({ params }: { params: Promise<{ classId
   const classData = useQuery(
     api.modules.sis.queries.listClasses,
     sessionToken ? { sessionToken } : "skip"
-  )?.find((c) => c._id === classId);
+  )?.find((c: { _id: string }) => c._id === classId);
   const students = useQuery(api.modules.academics.queries.getClassStudents, { classId });
   const assignments = useQuery(api.modules.academics.queries.getAssignments, { classId });
 

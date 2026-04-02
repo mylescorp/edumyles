@@ -22,6 +22,15 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+type SupportTicket = {
+  _id: string;
+  title: string;
+  category: string;
+  priority: string;
+  status: string;
+  slaBreached?: boolean;
+};
+
 const QUICK_LINKS = [
   {
     title: "Billing & Payments",
@@ -68,12 +77,12 @@ export default function SupportPage() {
   const tickets = useQuery(
     api.tickets.getTenantTickets,
     tenantId ? { tenantId } : "skip"
-  );
+  ) as SupportTicket[] | undefined;
 
-  const openCount = tickets?.filter((t) => t.status === "open").length ?? 0;
-  const inProgressCount = tickets?.filter((t) => t.status === "in_progress").length ?? 0;
-  const resolvedCount = tickets?.filter((t) => t.status === "resolved" || t.status === "closed").length ?? 0;
-  const overdueCount = tickets?.filter((t) => t.slaBreached).length ?? 0;
+  const openCount = tickets?.filter((t: SupportTicket) => t.status === "open").length ?? 0;
+  const inProgressCount = tickets?.filter((t: SupportTicket) => t.status === "in_progress").length ?? 0;
+  const resolvedCount = tickets?.filter((t: SupportTicket) => t.status === "resolved" || t.status === "closed").length ?? 0;
+  const overdueCount = tickets?.filter((t: SupportTicket) => t.slaBreached).length ?? 0;
 
   const recentTickets = tickets?.slice(0, 5) ?? [];
 
@@ -223,7 +232,7 @@ export default function SupportPage() {
                 </div>
               </CardHeader>
               <CardContent className="divide-y">
-                {recentTickets.map((ticket) => (
+                {recentTickets.map((ticket: SupportTicket) => (
                   <Link
                     key={ticket._id}
                     href={`/support/tickets/${ticket._id}`}

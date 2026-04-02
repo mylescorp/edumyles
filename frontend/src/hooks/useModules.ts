@@ -12,7 +12,7 @@ export function useModules() {
   }
 
   function isAvailableForTier(moduleId: Module | string): boolean {
-    const module = availableModules.find((entry) => entry.moduleId === moduleId);
+    const module = availableModules.find((entry: { moduleId: string; availableForTier?: boolean }) => entry.moduleId === moduleId);
     return !!module?.availableForTier;
   }
 

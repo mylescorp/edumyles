@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
@@ -74,62 +74,31 @@ interface Deal {
   activities: Activity[];
 }
 
-const mockDeal: Deal = {
-  _id: "1",
-  schoolName: "Nairobi International Academy",
-  contactPerson: "Sarah Johnson",
-  email: "sarah@nairobi-academy.edu",
-  phone: "+254 712 345 678",
-  county: "Nairobi",
-  schoolType: "International",
-  currentStudents: 450,
-  potentialStudents: 600,
-  stage: "proposal",
-  value: 150000,
-  currency: "KES",
-  source: "Website",
-  assignedTo: "michael.chen@edumyles.com",
-  createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-  lastActivity: Date.now() - 2 * 24 * 60 * 60 * 1000,
-  expectedCloseDate: Date.now() + 15 * 24 * 60 * 60 * 1000,
-  probability: 60,
-  tags: ["International", "Urban", "Large"],
-  notes: "Interested in Growth plan with custom modules. Decision maker is the school director. They have specific requirements for student assessment and parent communication modules. Budget is flexible but needs approval from board.",
-  activities: [
-    {
-      _id: "1",
-      type: "call",
-      title: "Initial discovery call",
-      description: "Discussed their current system pain points and requirements. They use a legacy system that's difficult to maintain. Key pain points: manual grade reporting, poor parent communication, limited analytics.",
-      createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      createdBy: "michael.chen@edumyles.com"
-    },
-    {
-      _id: "2",
-      type: "meeting",
-      title: "On-site demonstration",
-      description: "Full platform demonstration for school management team. Showed student management, gradebook, parent portal, and reporting features. Team was impressed with the user interface and mobile app.",
-      createdAt: Date.now() - 4 * 24 * 60 * 60 * 1000,
-      createdBy: "michael.chen@edumyles.com"
-    },
-    {
-      _id: "3",
-      type: "email",
-      title: "Sent proposal",
-      description: "Custom proposal for Growth plan with pricing. Included 3-year contract with annual maintenance. Proposal covers 600 students with custom branding and data migration.",
-      createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      createdBy: "michael.chen@edumyles.com"
-    },
-    {
-      _id: "4",
-      type: "note",
-      title: "Follow-up required",
-      description: "School board meeting scheduled for next week to review proposal. Need to prepare ROI analysis and case studies from similar schools.",
-      createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-      createdBy: "michael.chen@edumyles.com"
-    }
-  ]
-};
+function normalizeDeal(input: Partial<Deal>): Deal {
+  return {
+    _id: input._id ?? "",
+    schoolName: input.schoolName ?? "",
+    contactPerson: input.contactPerson ?? "",
+    email: input.email ?? "",
+    phone: input.phone ?? "",
+    county: input.county ?? "",
+    schoolType: input.schoolType ?? "",
+    currentStudents: input.currentStudents ?? 0,
+    potentialStudents: input.potentialStudents ?? 0,
+    stage: input.stage ?? "lead",
+    value: input.value ?? 0,
+    currency: input.currency ?? "KES",
+    source: input.source ?? "",
+    assignedTo: input.assignedTo ?? "",
+    createdAt: input.createdAt ?? Date.now(),
+    lastActivity: input.lastActivity ?? Date.now(),
+    expectedCloseDate: input.expectedCloseDate ?? Date.now(),
+    probability: input.probability ?? 0,
+    tags: input.tags ?? [],
+    notes: input.notes ?? "",
+    activities: input.activities ?? [],
+  };
+}
 
 const pipelineStages = [
   { id: "lead", name: "Lead", color: "bg-gray-100 border-gray-200" },
@@ -153,18 +122,20 @@ export default function DealDetailPage() {
 
   const [deal, setDeal] = useState<Deal | null>(null);
 
-  // Sync query data to local state for editing
-  if (dealData && !deal) {
-    setDeal(dealData as any);
-  }
-
   const [newActivity, setNewActivity] = useState({
     type: "note" as const,
     title: "",
     description: ""
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDeal, setEditedDeal] = useState<Deal>(deal);
+  const [editedDeal, setEditedDeal] = useState<Deal | null>(null);
+
+  useEffect(() => {
+    if (!dealData) return;
+    const normalizedDeal = normalizeDeal(dealData as Partial<Deal>);
+    setDeal(normalizedDeal);
+    setEditedDeal(normalizedDeal);
+  }, [dealData]);
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-KE', {
@@ -199,7 +170,7 @@ export default function DealDetailPage() {
   };
 
   const handleAddActivity = () => {
-    if (newActivity.title && newActivity.description) {
+    if (newActivity.title && newActivity.description && deal) {
       const activity: Activity = {
         _id: Date.now().toString(),
         ...newActivity,
@@ -218,11 +189,13 @@ export default function DealDetailPage() {
   };
 
   const handleUpdateDeal = () => {
+    if (!editedDeal) return;
     setDeal(editedDeal);
     setIsEditing(false);
   };
 
   const handleStageChange = (newStage: string) => {
+    if (!deal) return;
     const updatedDeal = { ...deal, stage: newStage as Deal['stage'] };
     setDeal(updatedDeal);
     setEditedDeal(updatedDeal);
@@ -259,7 +232,7 @@ export default function DealDetailPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {isEditing ? (
+              {isEditing && editedDeal ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>

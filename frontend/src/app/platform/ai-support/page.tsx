@@ -216,6 +216,9 @@ interface AIInsight {
   timeSavings?: number;
 }
 
+type AITrend = NonNullable<AIInsight["trends"]>[number];
+type AIPerformer = NonNullable<AIInsight["topPerformers"]>[number];
+
 export default function AISupportPage() {
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
@@ -489,7 +492,7 @@ export default function AISupportPage() {
             <CardTitle>Top AI Categories</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {aiInsights.topCategories?.map((category, index) => (
+            {aiInsights.topCategories?.map((category: string, index: number) => (
               <div key={category} className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-medium">
@@ -518,7 +521,7 @@ export default function AISupportPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {aiInsights.trends?.map((trend) => (
+            {aiInsights.trends?.map((trend: AITrend) => (
               <div key={trend.date} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center space-x-3">
                   <div className="text-sm font-medium">{trend.date}</div>
@@ -606,7 +609,7 @@ export default function AISupportPage() {
 
       {/* Tickets List */}
       <div className="space-y-4">
-        {aiTickets.map((ticket) => (
+        {aiTickets.map((ticket: AITicket) => (
           <Card key={ticket._id}>
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
@@ -667,7 +670,7 @@ export default function AISupportPage() {
                   {ticket.aiResponses.length > 0 && (
                     <div className="space-y-2">
                       <div className="text-sm font-medium">AI Responses:</div>
-                      {ticket.aiResponses.map((response) => (
+                      {ticket.aiResponses.map((response: AITicket["aiResponses"][number]) => (
                         <div key={response._id} className="flex items-start space-x-2 text-sm p-2 bg-gray-50 rounded">
                           <Bot className="h-4 w-4 text-blue-600 mt-0.5" />
                           <div className="flex-1">
@@ -684,7 +687,7 @@ export default function AISupportPage() {
                   
                   {ticket.tags.length > 0 && (
                     <div className="flex items-center space-x-2">
-                      {ticket.tags.map((tag) => (
+                      {ticket.tags.map((tag: string) => (
                         <Badge key={tag} variant="outline" className="text-xs">
                           {tag}
                         </Badge>
@@ -760,12 +763,12 @@ export default function AISupportPage() {
             <CardTitle>Top Performing Agents</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {aiInsights.topPerformers?.map((agent) => (
+            {aiInsights.topPerformers?.map((agent: AIPerformer) => (
               <div key={agent.agentId} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={`/avatars/${agent.agentId}.png`} />
-                    <AvatarFallback>{agent.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    <AvatarFallback>{agent.name.split(" ").map((n: string) => n[0]).join("")}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="font-medium">{agent.name}</div>
@@ -795,7 +798,7 @@ export default function AISupportPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {aiInsights.recommendations?.map((recommendation, index) => (
+            {aiInsights.recommendations?.map((recommendation: string, index: number) => (
               <div key={index} className="flex items-start space-x-3 p-3 border rounded-lg">
                 <Lightbulb className="h-5 w-5 text-yellow-500 mt-0.5" />
                 <div>

@@ -585,10 +585,13 @@ function StatusBadge({ status }: { status: string }) {
         "bg-red-100 text-red-600 border-red-200 dark:bg-red-950/30 dark:text-red-400",
     },
   };
-  const { label, className } = map[status] ?? map.pending;
+  const config = (map[status] ?? map.pending ?? {
+    label: "Pending",
+    className: "",
+  }) as { label: string; className: string };
   return (
-    <Badge variant="outline" className={className}>
-      {label}
+    <Badge variant="outline" className={config.className}>
+      {config.label}
     </Badge>
   );
 }

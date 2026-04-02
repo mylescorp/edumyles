@@ -1,4 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
+import * as path from "node:path";
+
+const authFile = path.join("e2e", ".auth", "admin.json");
 
 /**
  * EduMyles E2E test configuration.
@@ -20,7 +23,8 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3100",
+    storageState: authFile,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -28,7 +32,13 @@ export default defineConfig({
 
   projects: [
     // Setup project that handles auth state
-    { name: "setup", testMatch: /.*\.setup\.ts/ },
+    {
+      name: "setup",
+      testMatch: /.*\.setup\.ts/,
+      use: {
+        storageState: undefined,
+      },
+    },
 
     // Desktop browsers
     {
@@ -69,4 +79,14 @@ export default defineConfig({
   expect: {
     timeout: 5 * 1000,
   },
+
+  webServer: process.env.PLAYWRIGHT_BASE_URL
+    ? undefined
+    : {
+        command:
+          "node -e \"const { spawn } = require('node:child_process'); const child = spawn('npm run dev -- --port 3100', { cwd: 'frontend', stdio: 'inherit', shell: true, env: { ...process.env, ENABLE_DEV_AUTH_BYPASS: 'false', SENTRY_SUPPRESS_INSTRUMENTATION_FILE_WARNING: '1' } }); child.on('exit', (code) => process.exit(code ?? 0));\"",
+        url: "http://localhost:3100/auth/login",
+        reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000,
+      },
 });

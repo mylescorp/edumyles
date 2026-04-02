@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
@@ -118,6 +118,39 @@ interface ActivityLog {
   timestamp: number;
 }
 
+function normalizeUserDetail(input: Partial<UserDetail>): UserDetail {
+  return {
+    _id: input._id ?? "",
+    firstName: input.firstName ?? "",
+    lastName: input.lastName ?? "",
+    email: input.email ?? "",
+    phone: input.phone,
+    role: input.role ?? "viewer",
+    isActive: input.isActive ?? false,
+    status: input.status ?? "inactive",
+    tenantId: input.tenantId,
+    location: input.location,
+    department: input.department,
+    createdAt: input.createdAt ?? Date.now(),
+    createdBy: input.createdBy,
+    lastLogin: input.lastLogin,
+    emailVerified: input.emailVerified,
+    permissions: input.permissions ?? [],
+    twoFactorEnabled: input.twoFactorEnabled ?? false,
+    loginHistory: input.loginHistory ?? [],
+    sessions: input.sessions ?? [],
+    securitySettings: {
+      passwordChangedAt: input.securitySettings?.passwordChangedAt ?? Date.now(),
+      twoFactorEnabled: input.securitySettings?.twoFactorEnabled ?? false,
+      twoFactorSecret: input.securitySettings?.twoFactorSecret,
+      backupCodes: input.securitySettings?.backupCodes ?? [],
+      trustedDevices: input.securitySettings?.trustedDevices ?? [],
+      loginNotifications: input.securitySettings?.loginNotifications ?? false,
+    },
+    activityLogs: input.activityLogs ?? [],
+  };
+}
+
 export default function UserDetailPage() {
   const params = useParams();
   const userId = params.userId as string;
@@ -142,15 +175,15 @@ export default function UserDetailPage() {
   const [editPhone, setEditPhone] = useState("");
   const [editLocation, setEditLocation] = useState("");
 
-  // Sync query data to local state
-  if (userData && !user) {
-    const u = userData as any;
-    setUser(u);
-    setEditFirstName(u.firstName ?? "");
-    setEditLastName(u.lastName ?? "");
-    setEditPhone(u.phone ?? "");
-    setEditLocation(u.location ?? "");
-  }
+  useEffect(() => {
+    if (!userData) return;
+    const normalizedUser = normalizeUserDetail(userData as Partial<UserDetail>);
+    setUser(normalizedUser);
+    setEditFirstName(normalizedUser.firstName);
+    setEditLastName(normalizedUser.lastName);
+    setEditPhone(normalizedUser.phone ?? "");
+    setEditLocation(normalizedUser.location ?? "");
+  }, [userData]);
 
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [is2FADialogOpen, setIs2FADialogOpen] = useState(false);
@@ -214,31 +247,40 @@ export default function UserDetailPage() {
   };
 
   const handleToggle2FA = () => {
-    setUser({
-      ...user,
-      twoFactorEnabled: !user.twoFactorEnabled,
-      securitySettings: {
-        ...user.securitySettings,
-        twoFactorEnabled: !user.twoFactorEnabled
-      }
+    setUser((currentUser) => {
+      if (!currentUser) return currentUser;
+      return {
+        ...currentUser,
+        twoFactorEnabled: !currentUser.twoFactorEnabled,
+        securitySettings: {
+          ...currentUser.securitySettings,
+          twoFactorEnabled: !currentUser.twoFactorEnabled
+        }
+      };
     });
     setIs2FADialogOpen(false);
   };
 
   const handleRevokeSession = (sessionId: string) => {
-    setUser({
-      ...user,
-      sessions: user.sessions.filter(session => session._id !== sessionId)
+    setUser((currentUser) => {
+      if (!currentUser) return currentUser;
+      return {
+        ...currentUser,
+        sessions: currentUser.sessions.filter(session => session._id !== sessionId)
+      };
     });
   };
 
   const handleRemoveTrustedDevice = (deviceId: string) => {
-    setUser({
-      ...user,
-      securitySettings: {
-        ...user.securitySettings,
-        trustedDevices: user.securitySettings.trustedDevices.filter(device => device._id !== deviceId)
-      }
+    setUser((currentUser) => {
+      if (!currentUser) return currentUser;
+      return {
+        ...currentUser,
+        securitySettings: {
+          ...currentUser.securitySettings,
+          trustedDevices: currentUser.securitySettings.trustedDevices.filter(device => device._id !== deviceId)
+        }
+      };
     });
   };
 
@@ -276,8 +318,8 @@ export default function UserDetailPage() {
                       <Badge className={getRoleColor(user.role)}>
                         {user.role.replace("_", " ")}
                       </Badge>
-                      <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
-                        <span>{user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span>
+                      <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(user.status ?? "inactive")}`}>
+                        <span>{(user.status ?? "inactive").charAt(0).toUpperCase() + (user.status ?? "inactive").slice(1)}</span>
                       </div>
                     </div>
                   </div>

@@ -406,7 +406,7 @@ export default function CompleteCRMPage() {
       currency: deal.currency,
       source: deal.source,
       assignedTo: deal.assignedTo,
-      expectedCloseDate: new Date(deal.expectedCloseDate).toISOString().split('T')[0],
+      expectedCloseDate: new Date(deal.expectedCloseDate).toISOString().split('T')[0] ?? "",
       probability: deal.probability,
       tags: deal.tags.join(", "),
       notes: deal.notes

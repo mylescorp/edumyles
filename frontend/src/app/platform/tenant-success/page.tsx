@@ -496,7 +496,7 @@ export default function TenantSuccessPage() {
             <CardTitle>Top Performers</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {tenantSuccessOverview.topPerformers.tenants.map((tenant) => (
+            {tenantSuccessOverview.topPerformers.tenants.map((tenant: (typeof tenantSuccessOverview.topPerformers.tenants)[number]) => (
               <div key={tenant.tenantId} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2">
@@ -531,7 +531,7 @@ export default function TenantSuccessPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {tenantSuccessOverview.atRiskTenants.map((tenant) => (
+            {tenantSuccessOverview.atRiskTenants.map((tenant: (typeof tenantSuccessOverview.atRiskTenants)[number]) => (
               <div key={tenant.tenantId} className="p-4 border rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <div>
@@ -552,7 +552,7 @@ export default function TenantSuccessPage() {
                   <div>
                     <div className="text-sm font-medium mb-2">Risk Factors</div>
                     <div className="space-y-1">
-                      {tenant.riskFactors.map((factor, index) => (
+                      {tenant.riskFactors.map((factor: string, index: number) => (
                         <div key={index} className="flex items-center space-x-2">
                           <AlertTriangle className="h-3 w-3 text-orange-500" />
                           <span className="text-sm text-muted-foreground">{factor}</span>
@@ -563,7 +563,7 @@ export default function TenantSuccessPage() {
                   <div>
                     <div className="text-sm font-medium mb-2">Recommended Actions</div>
                     <div className="space-y-1">
-                      {tenant.recommendedActions.map((action, index) => (
+                      {tenant.recommendedActions.map((action: string, index: number) => (
                         <div key={index} className="flex items-center space-x-2">
                           <Target className="h-3 w-3 text-blue-500" />
                           <span className="text-sm text-muted-foreground">{action}</span>

@@ -1,5 +1,5 @@
 import { QueryCtx, MutationCtx, ActionCtx, internalQuery } from "../_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 export interface TenantContext {
   tenantId: string;
@@ -17,8 +17,8 @@ export const checkActionSession = internalQuery({
       .withIndex("by_token", (q) => q.eq("sessionToken", args.tokenIdentifier))
       .first();
 
-    if (!session) throw new Error("UNAUTHENTICATED: Session not found");
-    if (session.expiresAt < Date.now()) throw new Error("UNAUTHENTICATED: Session expired");
+    if (!session) throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session not found" });
+    if (session.expiresAt < Date.now()) throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session expired" });
 
     return {
       tenantId: session.tenantId,
@@ -39,15 +39,15 @@ export async function requireTenantSession(
     .first();
 
   if (!session) {
-    throw new Error("UNAUTHENTICATED: Session not found");
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session not found" });
   }
 
   if (session.expiresAt < Date.now()) {
-    throw new Error("UNAUTHENTICATED: Session expired");
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session expired" });
   }
 
   if (!session.tenantId.startsWith("TENANT-") && session.tenantId !== "PLATFORM") {
-    throw new Error("INVALID_TENANT: Malformed tenantId");
+    throw new ConvexError({ code: "INVALID_TENANT", message: "Malformed tenantId" });
   }
 
   return {
@@ -61,7 +61,7 @@ export async function requireTenantSession(
 export async function requireTenantContext(ctx: QueryCtx | MutationCtx): Promise<TenantContext> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
-    throw new Error("UNAUTHENTICATED: No active session");
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "No active session" });
   }
 
   const session = await ctx.db
@@ -70,15 +70,15 @@ export async function requireTenantContext(ctx: QueryCtx | MutationCtx): Promise
     .first();
 
   if (!session) {
-    throw new Error("UNAUTHENTICATED: Session not found");
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session not found" });
   }
 
   if (session.expiresAt < Date.now()) {
-    throw new Error("UNAUTHENTICATED: Session expired");
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session expired" });
   }
 
   if (!session.tenantId.startsWith("TENANT-") && session.tenantId !== "PLATFORM") {
-    throw new Error("INVALID_TENANT: Malformed tenantId");
+    throw new ConvexError({ code: "INVALID_TENANT", message: "Malformed tenantId" });
   }
 
   return {
@@ -93,7 +93,7 @@ export async function requireTenantContext(ctx: QueryCtx | MutationCtx): Promise
 export async function requireActionTenantContext(ctx: ActionCtx): Promise<TenantContext> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
-    throw new Error("UNAUTHENTICATED: No active session");
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "No active session" });
   }
 
   // Use internal query to check session since actions can't access DB directly

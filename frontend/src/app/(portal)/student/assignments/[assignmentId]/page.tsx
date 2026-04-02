@@ -14,17 +14,33 @@ import { useState } from "react";
 import { FileText, Calendar, Upload, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type AssignmentDetailRecord = {
+    _id: string;
+    title: string;
+    subjectId: string;
+    description?: string;
+    dueDate: number;
+    maxMarks: number;
+    status: "pending" | "submitted" | "graded";
+    submission?: {
+        submittedAt?: number;
+        attachments: string[];
+        marks?: number;
+        feedback?: string;
+    };
+};
+
 export default function AssignmentDetail() {
     const { assignmentId } = useParams();
     const router = useRouter();
     const { toast } = useToast();
-    const assignments = useQuery(api.modules.portal.student.queries.getMyAssignments, {});
+    const assignments = useQuery(api.modules.portal.student.queries.getMyAssignments, {}) as AssignmentDetailRecord[] | undefined;
     const submitAssignment = useMutation(api.modules.portal.student.mutations.submitAssignment);
 
     const [submitting, setSubmitting] = useState(false);
     const [attachmentUrl, setAttachmentUrl] = useState("");
 
-    const assignment = assignments?.find(a => a._id === assignmentId);
+    const assignment = assignments?.find((a) => a._id === assignmentId);
 
     if (!assignment) {
         return (
@@ -96,7 +112,7 @@ export default function AssignmentDetail() {
                                     <div>
                                         <Label className="text-xs uppercase text-muted-foreground">Attachments</Label>
                                         <div className="flex flex-wrap gap-2 mt-1">
-                                            {assignment.submission?.attachments.map((url, i) => (
+                                            {assignment.submission?.attachments.map((url: string, i: number) => (
                                                 <a
                                                     key={i}
                                                     href={url}

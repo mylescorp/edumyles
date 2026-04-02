@@ -13,7 +13,7 @@ function extractSubdomain(req: NextRequest): string | null {
   
   // Handle production domains (subdomain.edumyles.com)
   if (parts.length >= 3 && parts[parts.length - 2] === "edumyles" && parts[parts.length - 1] === "com") {
-    return parts[0];
+    return parts[0] ?? null;
   }
   
   return null;

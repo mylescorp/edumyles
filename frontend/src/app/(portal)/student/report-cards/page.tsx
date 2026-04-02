@@ -7,8 +7,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileDown, FileText, Calendar } from "lucide-react";
 
+type StudentReportCard = {
+    _id: string;
+    term: string;
+    publishedAt?: number;
+    createdAt: number;
+};
+
 export default function StudentReportCards() {
-    const reports = useQuery(api.modules.portal.student.queries.getMyReportCards);
+    const reports = useQuery(api.modules.portal.student.queries.getMyReportCards) as StudentReportCard[] | undefined;
 
     return (
         <div className="space-y-6">

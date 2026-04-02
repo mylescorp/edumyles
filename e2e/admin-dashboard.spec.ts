@@ -17,7 +17,7 @@ test.describe("Admin dashboard", () => {
     if (page.url().includes("/auth/")) return;
 
     // These links should always be present in the admin layout
-    const nav = page.locator("nav");
+    const nav = page.locator("nav").first();
     await expect(nav).toBeVisible({ timeout: 10_000 });
   });
 
@@ -32,16 +32,14 @@ test.describe("Admin dashboard", () => {
   });
 
   test("finance page loads", async ({ page }) => {
-    await page.goto("/admin/finance");
-    if (page.url().includes("/auth/")) return;
     const response = await page.goto("/admin/finance");
+    if (page.url().includes("/auth/")) return;
     expect(response?.status()).toBeLessThan(500);
   });
 
   test("settings page loads", async ({ page }) => {
-    await page.goto("/admin/settings");
-    if (page.url().includes("/auth/")) return;
     const response = await page.goto("/admin/settings");
+    if (page.url().includes("/auth/")) return;
     expect(response?.status()).toBeLessThan(500);
   });
 });

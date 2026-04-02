@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "../../_generated/server";
+import { mutation, type MutationCtx } from "../../_generated/server";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { requireTenantContext } from "../../helpers/tenantGuard";
@@ -257,13 +257,19 @@ export const generateReportCard = mutation({
     // Get attendance if requested
     let attendanceSummary = null;
     if (args.includeAttendance) {
+      const { startDate, endDate } = await resolveTermDateRange(
+        ctx,
+        tenant.tenantId,
+        args.term,
+        args.academicYear
+      );
       const attendance = await ctx.db
         .query("attendance")
         .withIndex("by_student_date", (q) => q.eq("studentId", args.studentId))
         .collect();
       
       const termAttendance = attendance.filter(a => 
-        a.date >= getTermStartDate(args.term) && a.date <= getTermEndDate(args.term)
+        a.date >= startDate && a.date <= endDate
       );
       
       const present = termAttendance.filter(a => a.status === "present").length;
@@ -297,7 +303,7 @@ export const generateReportCard = mutation({
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
       actorEmail: tenant.email,
-      action: "reportcard.generated" as any,
+      action: "reportcard.generated",
       entityType: "reportCards",
       entityId: reportCardId,
       after: {
@@ -343,18 +349,37 @@ function calculateGPA(averageScore: number): number {
   return 0.0; // E/F
 }
 
-// Helper function to get term start date
-function getTermStartDate(term: string): string {
-  // This should be based on academic calendar configuration
-  // For now, return a placeholder
-  return "2025-01-01";
-}
+async function resolveTermDateRange(
+  ctx: { db: { query: MutationCtx["db"]["query"] } },
+  tenantId: string,
+  term: string,
+  academicYear: string
+): Promise<{ startDate: string; endDate: string }> {
+  const configuredTerm = await ctx.db
+    .query("academicTerms")
+    .withIndex("by_tenant_term_year", (q) =>
+      q.eq("tenantId", tenantId).eq("term", term).eq("academicYear", academicYear)
+    )
+    .first();
 
-// Helper function to get term end date
-function getTermEndDate(term: string): string {
-  // This should be based on academic calendar configuration
-  // For now, return a placeholder
-  return "2025-04-01";
+  if (configuredTerm) {
+    return {
+      startDate: configuredTerm.startDate,
+      endDate: configuredTerm.endDate,
+    };
+  }
+
+  const fallbackYear = Number.parseInt(academicYear.slice(0, 4), 10);
+  const year = Number.isFinite(fallbackYear) ? fallbackYear : new Date().getUTCFullYear();
+  const normalizedTerm = term.toLowerCase();
+
+  if (normalizedTerm.includes("1") || normalizedTerm.includes("one")) {
+    return { startDate: `${year}-01-01`, endDate: `${year}-04-30` };
+  }
+  if (normalizedTerm.includes("2") || normalizedTerm.includes("two")) {
+    return { startDate: `${year}-05-01`, endDate: `${year}-08-31` };
+  }
+  return { startDate: `${year}-09-01`, endDate: `${year}-12-31` };
 }
 
 export const createExamination = mutation({

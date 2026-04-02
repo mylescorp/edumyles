@@ -61,7 +61,7 @@ export function AdminWidgetGrid({
     }
   };
 
-  const emptyStateWidgets = [
+  const emptyStateWidgets: Widget[] = [
     {
       id: "empty1",
       title: "Students Overview",

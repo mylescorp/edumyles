@@ -14,7 +14,14 @@ export default function ParentFeesPage() {
   const overview = useQuery(
     api.modules.portal.parent.queries.getChildrenFeeOverview,
     {}
-  );
+  ) as Array<{
+    studentId: string;
+    firstName: string;
+    lastName: string;
+    totalInvoiced: number;
+    totalPaid: number;
+    balance: number;
+  }> | undefined;
 
   if (isLoading || overview === undefined) {
     return <LoadingSkeleton variant="page" />;

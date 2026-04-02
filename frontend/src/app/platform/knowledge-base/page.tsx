@@ -896,7 +896,7 @@ export default function KnowledgeBasePage() {
                     </p>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>Order: {cat.order}</span>
-                      <span>Created {formatDate(cat.createdAt)}</span>
+                      <span>Created {cat.createdAt ? formatDate(cat.createdAt) : "Unknown"}</span>
                     </div>
                     <Button
                       variant="outline"

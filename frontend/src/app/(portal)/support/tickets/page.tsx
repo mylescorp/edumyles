@@ -52,7 +52,7 @@ export default function SchoolTicketsPage() {
   const isLoading = tickets === undefined;
 
   // Filter tickets based on search
-  const filteredTickets = tickets?.filter(ticket => {
+  const filteredTickets: Ticket[] = tickets?.filter((ticket: Ticket) => {
     const matchesSearch =
       ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ticket.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -131,7 +131,7 @@ export default function SchoolTicketsPage() {
         <Card>
           <CardContent className="pt-6 text-center">
             <div className="text-2xl font-bold text-info">
-              {filteredTickets?.filter(t => t.status === "open").length || 0}
+              {filteredTickets?.filter((t: Ticket) => t.status === "open").length || 0}
             </div>
             <div className="text-sm text-muted-foreground">Open Tickets</div>
           </CardContent>
@@ -139,7 +139,7 @@ export default function SchoolTicketsPage() {
         <Card>
           <CardContent className="pt-6 text-center">
             <div className="text-2xl font-bold text-warning">
-              {filteredTickets?.filter(t => t.status === "in_progress").length || 0}
+              {filteredTickets?.filter((t: Ticket) => t.status === "in_progress").length || 0}
             </div>
             <div className="text-sm text-muted-foreground">In Progress</div>
           </CardContent>
@@ -147,7 +147,7 @@ export default function SchoolTicketsPage() {
         <Card>
           <CardContent className="pt-6 text-center">
             <div className="text-2xl font-bold text-success">
-              {filteredTickets?.filter(t => t.status === "resolved").length || 0}
+              {filteredTickets?.filter((t: Ticket) => t.status === "resolved").length || 0}
             </div>
             <div className="text-sm text-muted-foreground">Resolved</div>
           </CardContent>
@@ -155,7 +155,7 @@ export default function SchoolTicketsPage() {
         <Card>
           <CardContent className="pt-6 text-center">
             <div className="text-2xl font-bold text-danger">
-              {filteredTickets?.filter(t => t.slaBreached).length || 0}
+              {filteredTickets?.filter((t: Ticket) => t.slaBreached).length || 0}
             </div>
             <div className="text-sm text-muted-foreground">Overdue</div>
           </CardContent>
@@ -236,7 +236,7 @@ export default function SchoolTicketsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTickets.map((ticket) => {
+                  {filteredTickets.map((ticket: Ticket) => {
                     const timeRemaining = formatTimeRemaining(ticket.slaResolutionDL);
                     return (
                       <tr key={ticket._id} className="border-b hover:bg-muted/50 transition-colors">

@@ -15,7 +15,7 @@ import { toast } from "@/components/ui/use-toast";
 
 export default function TeacherAttendancePage() {
     const { user, isLoading: authLoading } = useAuth();
-    const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0]);
+    const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0] ?? "");
     const [attendance, setAttendance] = useState<Record<string, string>>({});
 
     const classes = useQuery(

@@ -33,6 +33,8 @@ const TYPE_CONFIG: Record<string, { icon: any; color: string; label: string }> =
   breaking: { icon: AlertTriangle, color: "bg-orange-100 text-orange-800", label: "Breaking" },
 };
 
+const defaultTypeConfig = TYPE_CONFIG.improvement!;
+
 export default function ChangelogPage() {
   const { sessionToken } = useAuth();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -115,7 +117,7 @@ export default function ChangelogPage() {
           <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border" />
           <div className="space-y-6">
             {entries.map((entry: any) => {
-              const config = TYPE_CONFIG[entry.type] || TYPE_CONFIG.improvement;
+              const config = TYPE_CONFIG[entry.type] || defaultTypeConfig;
               const Icon = config.icon;
               return (
                 <div key={entry._id} className="relative pl-14">

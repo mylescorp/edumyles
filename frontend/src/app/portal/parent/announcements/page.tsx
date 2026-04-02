@@ -12,7 +12,7 @@ export default function ParentAnnouncementsPage() {
   const announcements = useQuery(
     api.modules.portal.parent.queries.getAnnouncements,
     {}
-  );
+  ) as Array<{ _id: string; title: string; message: string }> | undefined;
 
   if (isLoading || announcements === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -30,7 +30,7 @@ export default function ParentAnnouncementsPage() {
           No announcements at the moment.
         </p>
       ) : (
-        announcements.map((a) => (
+        announcements.map((a: { _id: string; title: string; message: string }) => (
           <Card key={a._id}>
             <CardContent className="py-4">
               <p className="font-medium">{a.title}</p>

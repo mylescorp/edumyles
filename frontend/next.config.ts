@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
@@ -142,6 +142,10 @@ const nextConfig: NextConfig = {
     
     return config;
   },
+} as NextConfig & {
+  eslint: {
+    ignoreDuringBuilds: boolean;
+  };
 };
 
 export default withSentryConfig(nextConfig, {

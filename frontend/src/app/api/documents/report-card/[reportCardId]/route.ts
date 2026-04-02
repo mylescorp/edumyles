@@ -10,8 +10,9 @@ function getConvex() {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { reportCardId: string } }
+  { params }: { params: Promise<{ reportCardId: string }> }
 ) {
+  await params;
   const sessionToken = req.cookies.get("session_token")?.value;
   if (!sessionToken) {
     return new NextResponse("Unauthorised", { status: 401 });

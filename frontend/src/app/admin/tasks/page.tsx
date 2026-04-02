@@ -29,6 +29,14 @@ import { Plus, Trash2, CheckSquare, Clock, AlertCircle, Loader2 } from "lucide-r
 import { toast } from "sonner";
 
 type Priority = "low" | "medium" | "high";
+type AdminTask = {
+  _id: Id<"adminTasks">;
+  title: string;
+  done: boolean;
+  priority: Priority;
+  dueDate?: string;
+};
+
 const priorityColors: Record<Priority, "outline" | "secondary" | "destructive"> = {
   low: "outline",
   medium: "secondary",
@@ -37,7 +45,7 @@ const priorityColors: Record<Priority, "outline" | "secondary" | "destructive"> 
 
 export default function TasksPage() {
   const modulesApi = api as any;
-  const tasks = useQuery(modulesApi.modules.tasks.queries.listTasks, {});
+  const tasks = useQuery(modulesApi.modules.tasks.queries.listTasks, {}) as AdminTask[] | undefined;
   const createTask = useMutation(modulesApi.modules.tasks.mutations.createTask);
   const toggleTask = useMutation(modulesApi.modules.tasks.mutations.toggleTask);
   const deleteTask = useMutation(modulesApi.modules.tasks.mutations.deleteTask);
@@ -92,14 +100,14 @@ export default function TasksPage() {
     }
   };
 
-  const filtered = allTasks.filter((t) => {
+  const filtered = allTasks.filter((t: AdminTask) => {
     if (filter === "pending") return !t.done;
     if (filter === "done") return t.done;
     return true;
   });
 
-  const pendingCount = allTasks.filter((t) => !t.done).length;
-  const doneCount = allTasks.filter((t) => t.done).length;
+  const pendingCount = allTasks.filter((t: AdminTask) => !t.done).length;
+  const doneCount = allTasks.filter((t: AdminTask) => t.done).length;
   const isLoading = tasks === undefined;
 
   return (
@@ -175,7 +183,7 @@ export default function TasksPage() {
               No tasks found. Add one to get started.
             </p>
           ) : (
-            filtered.map((task) => (
+            filtered.map((task: AdminTask) => (
               <div
                 key={task._id}
                 className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors"

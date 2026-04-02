@@ -10,8 +10,9 @@ function getConvex() {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { paymentId: string } }
+  context: { params: Promise<{ paymentId: string }> }
 ) {
+  const { paymentId } = await context.params;
   const sessionToken = req.cookies.get("session_token")?.value;
   if (!sessionToken) {
     return new NextResponse("Unauthorised", { status: 401 });
@@ -19,7 +20,7 @@ export async function GET(
 
   const convex = getConvex();
   const data = await convex.query(api.modules.finance.queries.getReceiptData, {
-    paymentId: params.paymentId as any,
+    paymentId: paymentId as any,
     sessionToken,
   });
 

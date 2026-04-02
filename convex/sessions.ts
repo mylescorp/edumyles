@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 export const createSession = mutation({
   args: {
@@ -102,12 +102,12 @@ export const deleteSessionById = mutation({
       .first();
 
     if (!currentSession || currentSession.expiresAt < Date.now()) {
-      throw new Error("UNAUTHENTICATED");
+      throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session is invalid or expired" });
     }
 
     const targetSession = await ctx.db.get(args.targetSessionId);
     if (!targetSession || targetSession.userId !== currentSession.userId) {
-      throw new Error("UNAUTHORIZED: Cannot terminate another user's session");
+      throw new ConvexError({ code: "FORBIDDEN", message: "Cannot terminate another user's session" });
     }
 
     await ctx.db.delete(args.targetSessionId);
@@ -122,7 +122,7 @@ export const updateSessionRole = mutation({
       .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
     if (!session || session.expiresAt < Date.now()) {
-      throw new Error("UNAUTHENTICATED");
+      throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session is invalid or expired" });
     }
     await ctx.db.patch(session._id, { role: args.role });
   },
@@ -137,7 +137,7 @@ export const deleteAllUserSessions = mutation({
       .first();
 
     if (!currentSession || currentSession.expiresAt < Date.now()) {
-      throw new Error("UNAUTHENTICATED");
+      throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session is invalid or expired" });
     }
 
     const sessions = await ctx.db

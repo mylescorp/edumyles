@@ -7,8 +7,9 @@
 import { test as setup, expect } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
+import { AUTH_STORAGE_STATE_PATH } from "./fixtures/auth.fixture";
 
-const authFile = "e2e/.auth/admin.json";
+const authFile = AUTH_STORAGE_STATE_PATH;
 
 setup("authenticate as school admin", async ({ page }) => {
   const token = process.env.E2E_SESSION_TOKEN;

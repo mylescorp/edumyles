@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation } from "../../../_generated/server";
 import { requireTenantContext } from "../../../helpers/tenantGuard";
+import { requireTenantSession } from "../../../helpers/tenantGuard";
 import { requirePlatformSession } from "../../../helpers/platformGuard";
 import { requireModule } from "../../../helpers/moduleGuard";
 import { logAction } from "../../../helpers/auditLog";
@@ -167,4 +168,66 @@ export const submitAssignment = mutation({
 
         return submissionId;
     },
+});
+
+export const registerMobileDeviceToken = mutation({
+  args: {
+    sessionToken: v.string(),
+    pushToken: v.string(),
+    provider: v.optional(v.string()),
+    platform: v.string(),
+    deviceName: v.optional(v.string()),
+    notificationsEnabled: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    const student = await getStudentRecord(ctx, tenant);
+
+    if (!student) {
+      throw new Error("Student profile not found");
+    }
+
+    const existing = await ctx.db
+      .query("mobileDeviceTokens")
+      .withIndex("by_push_token", (q) => q.eq("pushToken", args.pushToken))
+      .first();
+
+    const tokenDoc = {
+      tenantId: tenant.tenantId,
+      userId: tenant.userId,
+      pushToken: args.pushToken,
+      provider: args.provider ?? "expo",
+      platform: args.platform,
+      deviceName: args.deviceName,
+      notificationsEnabled: args.notificationsEnabled ?? true,
+      updatedAt: Date.now(),
+      lastSeenAt: Date.now(),
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, tokenDoc);
+      return { success: true, tokenId: existing._id };
+    }
+
+    const insertedId = await ctx.db.insert("mobileDeviceTokens", {
+      ...tokenDoc,
+      createdAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "mobile.device_token_registered",
+      entityType: "mobileDeviceToken",
+      entityId: insertedId,
+      after: {
+        platform: args.platform,
+        provider: args.provider ?? "expo",
+        deviceName: args.deviceName,
+      },
+    });
+
+    return { success: true, tokenId: insertedId };
+  },
 });

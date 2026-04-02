@@ -9,10 +9,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, TrendingUp } from "lucide-react";
 
+type StudentGrade = {
+  subjectId: string;
+  assessmentType?: string;
+  score: number;
+  maxScore: number;
+  term?: string;
+};
+
 export default function StudentGradesPage() {
   const { isLoading } = useAuth();
 
-  const grades = useQuery(api.modules.portal.student.queries.getMyGrades, {});
+  const grades = useQuery(api.modules.portal.student.queries.getMyGrades, {}) as
+    | StudentGrade[]
+    | undefined;
 
   if (isLoading || grades === undefined) {
     return <LoadingSkeleton variant="page" />;

@@ -56,7 +56,7 @@ export default function AlumniDashboardPage() {
     graduationYear: profile?.graduationYear ?? "--",
     transcriptRequests: transcripts?.requests?.length ?? 0,
     networkSize: directory?.length ?? 0,
-    upcomingEvents: (events ?? []).filter((e) => e.date >= Date.now()).length,
+    upcomingEvents: (events ?? []).filter((e: { date: number }) => e.date >= Date.now()).length,
   }), [profile, transcripts, directory, events]);
 
   const handleRequestTranscript = async () => {
@@ -72,7 +72,7 @@ export default function AlumniDashboardPage() {
     }
   };
 
-  const handleRsvp = async (eventId: any) => {
+  const handleRsvp = async (eventId: string) => {
     try {
       const result = await rsvpEvent({ eventId });
       toast({
@@ -86,7 +86,7 @@ export default function AlumniDashboardPage() {
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
-  const upcomingEvents = (events ?? []).filter((e) => e.date >= Date.now());
+  const upcomingEvents = (events ?? []).filter((e: { date: number }) => e.date >= Date.now());
 
   return (
     <div className="space-y-6">

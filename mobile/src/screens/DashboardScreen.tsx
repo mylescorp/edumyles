@@ -11,6 +11,7 @@ import {
 import { useQuery } from 'convex/react';
 
 import { useAuth } from '../hooks/useAuth';
+import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
 import { api } from '../lib/convexApi';
 import { theme } from '../theme';
 
@@ -18,6 +19,7 @@ type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' 
 
 const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = ({ onNavigate }) => {
   const { sessionToken, user } = useAuth();
+  const { isOffline } = useOfflineSync();
   const profile = useQuery(
     api.modules.portal.student.queries.getMyProfile,
     sessionToken ? { sessionToken } : 'skip',
@@ -38,6 +40,17 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
     api.modules.ewallet.queries.getMyWalletBalance,
     sessionToken ? { sessionToken } : 'skip',
   );
+  const resolvedProfile = useCachedQueryValue<any>('student.dashboard.profile', profile);
+  const resolvedGrades = useCachedQueryValue<any[]>('student.dashboard.grades', grades);
+  const resolvedAssignments = useCachedQueryValue<any[]>(
+    'student.dashboard.assignments',
+    assignments,
+  );
+  const resolvedAttendance = useCachedQueryValue<any[]>(
+    'student.dashboard.attendance',
+    attendance,
+  );
+  const resolvedWallet = useCachedQueryValue<any>('student.dashboard.wallet', wallet);
 
   if (!sessionToken) {
     return (
@@ -49,26 +62,31 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
   }
 
   if (
-    profile === undefined ||
-    grades === undefined ||
-    assignments === undefined ||
-    attendance === undefined ||
-    wallet === undefined
+    !resolvedProfile ||
+    !resolvedGrades ||
+    !resolvedAssignments ||
+    !resolvedAttendance ||
+    !resolvedWallet
   ) {
     return (
       <View style={styles.centerState}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={styles.stateText}>Loading your dashboard...</Text>
+        <Text style={styles.stateText}>
+          {isOffline ? 'Loading cached dashboard...' : 'Loading your dashboard...'}
+        </Text>
       </View>
     );
   }
 
-  const completedAttendance = attendance.length;
-  const presentCount = attendance.filter((item: any) => item.status === 'present').length;
+  const completedAttendance = resolvedAttendance.length;
+  const presentCount = resolvedAttendance.filter((item: any) => item.status === 'present').length;
   const attendanceRate = completedAttendance > 0 ? Math.round((presentCount / completedAttendance) * 100) : 0;
   const averageScore =
-    grades.length > 0
-      ? Math.round(grades.reduce((sum: number, grade: any) => sum + grade.score, 0) / grades.length)
+    resolvedGrades.length > 0
+      ? Math.round(
+          resolvedGrades.reduce((sum: number, grade: any) => sum + grade.score, 0) /
+            resolvedGrades.length,
+        )
       : 0;
 
   return (
@@ -77,19 +95,24 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={false} onRefresh={() => undefined} />}
     >
+      {isOffline && (
+        <Text style={styles.offlineNotice}>Showing the latest cached student data.</Text>
+      )}
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>Student Portal</Text>
         <Text style={styles.heroTitle}>
-          {profile?.firstName ?? user?.email?.split('@')[0] ?? 'Student'}
+          {resolvedProfile?.firstName ?? user?.email?.split('@')[0] ?? 'Student'}
         </Text>
         <Text style={styles.heroSubtitle}>
-          {profile?.admissionNumber ? `Admission No. ${profile.admissionNumber}` : user?.email}
+          {resolvedProfile?.admissionNumber
+            ? `Admission No. ${resolvedProfile.admissionNumber}`
+            : user?.email}
         </Text>
       </View>
 
       <View style={styles.grid}>
         <View style={styles.card}>
-          <Text style={styles.metricValue}>{grades.length}</Text>
+          <Text style={styles.metricValue}>{resolvedGrades.length}</Text>
           <Text style={styles.metricLabel}>Grades recorded</Text>
         </View>
         <View style={styles.card}>
@@ -97,7 +120,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
           <Text style={styles.metricLabel}>Average score</Text>
         </View>
         <View style={styles.card}>
-          <Text style={styles.metricValue}>{assignments.length}</Text>
+          <Text style={styles.metricValue}>{resolvedAssignments.length}</Text>
           <Text style={styles.metricLabel}>Assignments due</Text>
         </View>
         <View style={styles.card}>
@@ -109,7 +132,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
       <View style={styles.walletCard}>
         <Text style={styles.sectionTitle}>Wallet Balance</Text>
         <Text style={styles.walletValue}>
-          {(wallet.balanceCents / 100).toLocaleString()} {wallet.currency}
+          {(resolvedWallet.balanceCents / 100).toLocaleString()} {resolvedWallet.currency}
         </Text>
       </View>
 
@@ -162,6 +185,12 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.lg,
+  },
+  offlineNotice: {
+    color: theme.colors.warning,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
+    marginBottom: theme.spacing.md,
   },
   eyebrow: {
     color: '#bfdbfe',

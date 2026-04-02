@@ -107,7 +107,9 @@ export function AuthGuard({
 
   // Show unauthorized message if user doesn't have required permissions
   if (requiredRole || requiredPermission) {
-    const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+    const roles = (Array.isArray(requiredRole) ? requiredRole : [requiredRole]).filter(
+      (role): role is string => typeof role === "string" && role.length > 0
+    );
     const hasRequiredRole = !requiredRole || roles.some(role => hasRole(role));
     const hasRequiredPermission = !requiredPermission || hasPermission(requiredPermission);
 

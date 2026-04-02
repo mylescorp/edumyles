@@ -128,7 +128,7 @@ export function MRRChart({ data, isLoading }: MRRChartProps) {
                 color: chartColors.tooltip_text,
                 fontSize: '12px'
               }}
-              formatter={(value: number) => [`KES ${value.toLocaleString()}`, 'MRR']}
+              formatter={(value) => [`KES ${Number(value ?? 0).toLocaleString()}`, 'MRR']}
               labelFormatter={(label) => `Month: ${label}`}
             />
             <Area 

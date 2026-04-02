@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
@@ -71,94 +71,41 @@ interface Proposal {
   };
 }
 
-const mockProposal: Proposal = {
-  _id: "1",
-  templateId: "1",
-  dealId: "1",
-  schoolName: "Nairobi International Academy",
-  status: "sent",
-  variables: {
-    school_name: "Nairobi International Academy",
-    current_students: 450,
-    recommended_plan: "Growth",
-    implementation_weeks: 6,
-    custom_introduction: "We understand your need for a comprehensive solution that scales with your growth."
-  },
-  content: `Dear Nairobi International Academy,
-
-We are pleased to present this comprehensive proposal for implementing EduMyles School Management System at your institution. Our solution is designed to streamline your administrative processes and enhance the educational experience for both staff and students.
-
-We understand your need for a comprehensive solution that scales with your growth.
-
-## Solution Overview
-
-EduMyles provides a complete school management solution including:
-
-• Student Information Management
-• Grade Book and Assessment Tools
-• Parent Portal and Communication
-• Financial Management
-• Reporting and Analytics
-• Mobile App Access
-
-## Pricing Details
-
-Based on your requirements for 450 students, we recommend the Growth plan:
-
-### Growth Plan - KES 75,000 Setup + KES 25,000/month
-
-**Setup Fee:** KES 75,000 (one-time)
-**Monthly Fee:** KES 25,000
-**Per Student Fee:** KES 80
-**Total Monthly Cost:** KES 61,000 (450 × KES 80 + KES 25,000)
-
-## Implementation Timeline
-
-Our implementation process typically takes 6 weeks:
-
-Week 1: Data Migration and Setup
-Week 2: Staff Training
-Week 3: System Testing
-Week 4: Additional Customization
-Week 5: User Acceptance Testing
-Week 6: Go Live
-
-## Terms and Conditions
-
-1. **Payment Terms:** 50% upfront, 50% upon completion
-2. **Support:** 24/7 email and phone support included
-3. **Training:** On-site training for all staff members
-4. **Data Migration:** Complete data migration from existing systems
-5. **Customization:** Up to 20 hours of customization included
-
-We look forward to partnering with Nairobi International Academy to transform your school management experience.
-
-Best regards,
-Michael Chen
-Sales Director
-EduMyles Technologies`,
-  sentAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-  createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-  updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-  createdBy: "michael.chen@edumyles.com",
-  template: {
-    name: "Standard School Package",
-    description: "Complete proposal for standard school management system",
-    category: "standard"
-  },
-  school: {
-    contactPerson: "Sarah Johnson",
-    email: "sarah@nairobi-academy.edu",
-    phone: "+254 712 345 678",
-    address: "Nairobi, Kenya"
-  },
-  pricing: {
-    setupFee: 75000,
-    monthlyFee: 25000,
-    totalValue: 75000 + (25000 * 12), // First year total
-    currency: "KES"
-  }
-};
+function normalizeProposal(input: Partial<Proposal>): Proposal {
+  return {
+    _id: input._id ?? "",
+    templateId: input.templateId ?? "",
+    dealId: input.dealId ?? "",
+    schoolName: input.schoolName ?? "",
+    status: input.status ?? "draft",
+    variables: input.variables ?? {},
+    content: input.content ?? "",
+    sentAt: input.sentAt,
+    viewedAt: input.viewedAt,
+    signedAt: input.signedAt,
+    signatureUrl: input.signatureUrl,
+    createdAt: input.createdAt ?? Date.now(),
+    updatedAt: input.updatedAt ?? Date.now(),
+    createdBy: input.createdBy ?? "",
+    template: {
+      name: input.template?.name ?? "",
+      description: input.template?.description ?? "",
+      category: input.template?.category ?? "",
+    },
+    school: {
+      contactPerson: input.school?.contactPerson ?? "",
+      email: input.school?.email ?? "",
+      phone: input.school?.phone ?? "",
+      address: input.school?.address ?? "",
+    },
+    pricing: {
+      setupFee: input.pricing?.setupFee ?? 0,
+      monthlyFee: input.pricing?.monthlyFee ?? 0,
+      totalValue: input.pricing?.totalValue ?? 0,
+      currency: input.pricing?.currency ?? "KES",
+    },
+  };
+}
 
 export default function ProposalDetailPage() {
   const params = useParams();
@@ -174,12 +121,14 @@ export default function ProposalDetailPage() {
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  if (proposalData && !proposal) {
-    setProposal(proposalData as any);
-  }
   const [isSignatureDialogOpen, setIsSignatureDialogOpen] = useState(false);
   const [signatureData, setSignatureData] = useState("");
   const [isSending, setIsSending] = useState(false);
+
+  useEffect(() => {
+    if (!proposalData) return;
+    setProposal(normalizeProposal(proposalData as Partial<Proposal>));
+  }, [proposalData]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -220,6 +169,7 @@ export default function ProposalDetailPage() {
   };
 
   const handleSendProposal = async () => {
+    if (!proposal) return;
     setIsSending(true);
     // Simulate sending
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -233,7 +183,7 @@ export default function ProposalDetailPage() {
   };
 
   const handleSignProposal = () => {
-    if (signatureData) {
+    if (signatureData && proposal) {
       setProposal({
         ...proposal,
         status: "signed",
@@ -246,6 +196,7 @@ export default function ProposalDetailPage() {
   };
 
   const handleDownloadPDF = () => {
+    if (!proposal) return;
     // Simulate PDF download
     const link = document.createElement('a');
     link.href = '#';
