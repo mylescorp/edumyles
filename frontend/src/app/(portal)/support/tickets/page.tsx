@@ -53,7 +53,7 @@ export default function SchoolTicketsPage() {
   const isLoading = tickets === undefined;
 
   // Filter tickets based on search
-  const filteredTickets = tickets?.filter((ticket: Ticket) => {
+  const filteredTickets: Ticket[] = tickets?.filter((ticket: Ticket) => {
     const matchesSearch =
       ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ticket.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -237,7 +237,7 @@ export default function SchoolTicketsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTickets.map((ticket) => {
+                  {filteredTickets.map((ticket: Ticket) => {
                     const timeRemaining = formatTimeRemaining(ticket.slaResolutionDL);
                     return (
                       <tr key={ticket._id} className="border-b hover:bg-muted/50 transition-colors">

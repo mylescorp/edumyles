@@ -157,7 +157,11 @@ export default function AlumniTranscriptsPage() {
             </Card>
           ) : (
             requests.map((req: any) => {
-              const cfg = STATUS_CONFIG[req.status] ?? STATUS_CONFIG.pending;
+              const cfg = STATUS_CONFIG[req.status] ?? STATUS_CONFIG.pending ?? {
+                label: "Pending",
+                icon: Clock,
+                className: "",
+              };
               const StatusIcon = cfg.icon;
               return (
                 <Card key={req._id}>

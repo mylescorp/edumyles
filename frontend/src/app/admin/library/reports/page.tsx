@@ -25,6 +25,19 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+type PopularCategory = {
+  color: string;
+  name: string;
+  value: number;
+};
+
+type TopBook = {
+  title: string;
+  author: string;
+  rating: number;
+  borrows: number;
+};
+
 export default function LibraryReportsPage() {
   const { isLoading, sessionToken } = useAuth();
   const [reportPeriod, setReportPeriod] = useState("monthly");
@@ -159,7 +172,7 @@ export default function LibraryReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {popularCategories.map((category, index) => (
+              {popularCategories.map((category: PopularCategory, index: number) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div 
@@ -199,7 +212,7 @@ export default function LibraryReportsPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {topBooks.map((book, index) => (
+            {topBooks.map((book: TopBook, index: number) => (
               <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">

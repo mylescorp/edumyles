@@ -77,7 +77,11 @@ export default function CreateRoutePage() {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     
     if (newIndex >= 0 && newIndex < stops.length) {
-      [newStops[index], newStops[newIndex]] = [newStops[newIndex], newStops[index]];
+      const currentStop = newStops[index];
+      const targetStop = newStops[newIndex];
+      if (!currentStop || !targetStop) return;
+      newStops[index] = targetStop;
+      newStops[newIndex] = currentStop;
       newStops.forEach((stop, i) => stop.order = i + 1);
       setStops(newStops);
     }

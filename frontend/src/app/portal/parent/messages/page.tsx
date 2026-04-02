@@ -16,7 +16,7 @@ export default function ParentMessagesPage() {
   const notificationsResult = useQuery(
     api.notifications.getNotifications,
     user?._id ? { userId: String(user._id), limit: 20 } : "skip"
-  );
+  ) as Array<{ _id: string; title: string; message: string }> | undefined;
   const notifications = notificationsResult ?? [];
   const notificationsLoading = user?._id ? notificationsResult === undefined : false;
 
@@ -68,7 +68,7 @@ export default function ParentMessagesPage() {
           {notifications.length === 0 ? (
             <p>No messages yet.</p>
           ) : (
-            notifications.map((n) => (
+            notifications.map((n: { _id: string; title: string; message: string }) => (
               <div key={n._id} className="border-b pb-2 last:border-b-0">
                 <p className="font-medium">{n.title}</p>
                 <p>{n.message}</p>

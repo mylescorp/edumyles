@@ -142,7 +142,15 @@ export default function PartnerDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentSponsorships.map((sponsorship) => (
+              {recentSponsorships.map((sponsorship: {
+                _id: string;
+                studentName: string;
+                amount: number;
+                type: string;
+                startDate: string;
+                status: string;
+                impact: string;
+              }) => (
                 <div key={sponsorship._id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2 flex-1">
@@ -234,7 +242,13 @@ export default function PartnerDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {upcomingEvents.map((event) => (
+              {upcomingEvents.map((event: {
+                _id: string;
+                title: string;
+                date: string;
+                type: string;
+                attendees: number;
+              }) => (
                 <div key={event._id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">

@@ -179,10 +179,10 @@ export default function TicketDetailPage() {
 
     // Check for @mentions
     const beforeCursor = value.substring(0, position);
-    const mentionMatch = beforeCursor.match(/@(\w*)$/);
+  const mentionMatch = beforeCursor.match(/@(\w*)$/);
 
-    if (mentionMatch) {
-      setMentionQuery(mentionMatch[1]);
+  if (mentionMatch) {
+      setMentionQuery(mentionMatch[1] ?? "");
       setShowMentionSuggestions(true);
     } else {
       setShowMentionSuggestions(false);
@@ -487,7 +487,7 @@ export default function TicketDetailPage() {
                     Attachments ({ticketData.attachments.length})
                   </div>
                   <div className="space-y-2">
-                    {ticketData.attachments.map((attachment, index) => (
+                    {ticketData.attachments.map((attachment: string, index: number) => (
                       <div
                         key={index}
                         className="flex items-center justify-between p-2 bg-white rounded border"
@@ -528,7 +528,7 @@ export default function TicketDetailPage() {
             <CardContent className="space-y-4">
               {/* Comments List */}
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {ticketData.comments?.map((comment, index) => (
+                {ticketData.comments?.map((comment: Comment, index: number) => (
                   <div key={comment._id} className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -561,7 +561,7 @@ export default function TicketDetailPage() {
                           }`}
                         >
                           <div className="text-sm whitespace-pre-wrap">
-                            {comment.content.split(/(@\w+)/).map((part, index) => {
+                            {comment.content.split(/(@\w+)/).map((part: string, index: number) => {
                               // Check if this part is a mention
                               if (part.startsWith("@")) {
                                 const userName = part.substring(1);
@@ -593,7 +593,7 @@ export default function TicketDetailPage() {
                                 <span>{comment.attachments.length} attachment(s)</span>
                               </div>
                               <div className="space-y-1">
-                                {comment.attachments.map((attachment, index) => (
+                                {comment.attachments.map((attachment: string, index: number) => (
                                   <div
                                     key={index}
                                     className="flex items-center gap-2 p-2 bg-white rounded border"

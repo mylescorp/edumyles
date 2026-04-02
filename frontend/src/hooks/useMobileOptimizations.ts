@@ -72,6 +72,7 @@ export function useMobileOptimizations() {
 
       const handleStart = (e: TouchEvent) => {
         const touch = e.touches[0];
+        if (!touch) return;
         startX = touch.clientX;
         startY = touch.clientY;
       };
@@ -80,6 +81,7 @@ export function useMobileOptimizations() {
         if (!startX || !startY) return;
 
         const touch = e.changedTouches[0];
+        if (!touch) return;
         const deltaX = touch.clientX - startX;
         const deltaY = touch.clientY - startY;
 

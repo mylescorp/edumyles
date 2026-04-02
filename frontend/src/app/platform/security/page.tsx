@@ -731,7 +731,7 @@ export default function SecurityDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {accessLogs?.slice(0, 20).map((log: any, index) => (
+                {accessLogs?.slice(0, 20).map((log: any, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 border-b">
                     <div className="flex items-center gap-3 flex-1">
                       <div className={`w-2 h-2 rounded-full ${

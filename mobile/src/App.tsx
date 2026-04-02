@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -8,8 +8,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
 } from 'react-native';
-import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { ConvexProvider, ConvexReactClient, useConvex } from 'convex/react';
 
 import DashboardScreen from './screens/DashboardScreen';
 import LoginScreen from './screens/LoginScreen';
@@ -19,6 +20,13 @@ import AttendanceScreen from './screens/AttendanceScreen';
 import FeesScreen from './screens/FeesScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { useOfflineSync } from './hooks/useOfflineSync';
+import {
+  initializePushNotifications,
+  registerForPushNotificationsAsync,
+  registerMobileDeviceTokenMutation,
+  syncPushTokenWithBackend,
+} from './services/pushNotifications';
 import { theme } from './theme';
 
 type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' | 'profile';
@@ -30,8 +38,59 @@ const ConvexProviderRoot = ConvexProvider as React.ComponentType<{
 }>;
 
 const AppShell: React.FC = () => {
-  const { isAuthenticated, isLoading, user, signOut } = useAuth();
+  const convex = useConvex();
+  const { isAuthenticated, isLoading, sessionToken, user, signOut } = useAuth();
   const [screen, setScreen] = useState<ScreenKey>('dashboard');
+  const {
+    isOffline,
+    isSyncing,
+    pendingMutations,
+    queueMutation,
+  } = useOfflineSync({
+    mutationHandlers: {
+      'mobileDeviceToken.register': async (payload) => {
+        await convex.mutation(registerMobileDeviceTokenMutation, payload as any);
+      },
+    },
+  });
+
+  useEffect(() => {
+    initializePushNotifications();
+  }, []);
+
+  useEffect(() => {
+    const syncPushRegistration = async () => {
+      if (!sessionToken) return;
+
+      const registration = await registerForPushNotificationsAsync();
+      if (!registration) return;
+
+      const payload = {
+        sessionToken,
+        pushToken: registration.pushToken,
+        provider: registration.provider,
+        platform: registration.platform,
+        deviceName: registration.deviceName ?? `${Platform.OS}-device`,
+        notificationsEnabled: registration.notificationsEnabled,
+      };
+
+      if (isOffline) {
+        await queueMutation('mobileDeviceToken.register', payload);
+        return;
+      }
+
+      await syncPushTokenWithBackend({
+        registerDeviceToken: (args) => convex.mutation(registerMobileDeviceTokenMutation, args),
+        sessionToken,
+        registration: {
+          ...registration,
+          deviceName: registration.deviceName ?? `${Platform.OS}-device`,
+        },
+      });
+    };
+
+    void syncPushRegistration();
+  }, [convex, isOffline, queueMutation, sessionToken]);
 
   if (isLoading) {
     return (
@@ -59,6 +118,18 @@ const AppShell: React.FC = () => {
           <Text style={styles.signOutText}>Sign out</Text>
         </TouchableOpacity>
       </View>
+
+      {(isOffline || pendingMutations > 0 || isSyncing) && (
+        <View style={styles.syncBanner}>
+          <Text style={styles.syncBannerText}>
+            {isOffline
+              ? `Offline mode active${pendingMutations > 0 ? ` • ${pendingMutations} change(s) queued` : ''}`
+              : isSyncing
+                ? 'Syncing offline changes...'
+                : `${pendingMutations} queued change(s) ready to sync`}
+          </Text>
+        </View>
+      )}
 
       <ScrollView
         horizontal
@@ -141,6 +212,18 @@ const styles = StyleSheet.create({
     color: '#dbeafe',
     fontSize: theme.fontSizes.sm,
     marginTop: 4,
+  },
+  syncBanner: {
+    backgroundColor: '#fff7ed',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fed7aa',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
+  },
+  syncBannerText: {
+    color: '#9a3412',
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '600',
   },
   signOutButton: {
     backgroundColor: 'rgba(255,255,255,0.16)',

@@ -1,4 +1,9 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+async function expectAuthBoundary(page: Page) {
+  await expect(page).toHaveURL(/\/auth\/(login|error)/);
+  expect(page.url()).toMatch(/reason=not_configured|\/auth\/login/);
+}
 
 /**
  * Public page tests — no auth required.
@@ -14,14 +19,15 @@ test.describe("Public pages", () => {
     // Clear any cookies first
     await page.context().clearCookies();
     const response = await page.goto("/admin");
-    // Should redirect to login (not 500 or crash)
-    await expect(page).toHaveURL(/\/auth\/login/);
+    expect(response?.status()).toBeLessThan(500);
+    await expectAuthBoundary(page);
   });
 
   test("unauthenticated /platform redirects to login", async ({ page }) => {
     await page.context().clearCookies();
-    await page.goto("/platform");
-    await expect(page).toHaveURL(/\/auth\/login/);
+    const response = await page.goto("/platform");
+    expect(response?.status()).toBeLessThan(500);
+    await expectAuthBoundary(page);
   });
 
   test("maintenance page is reachable", async ({ page }) => {

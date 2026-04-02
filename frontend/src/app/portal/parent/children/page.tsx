@@ -14,7 +14,13 @@ export default function ParentChildrenPage() {
   const children = useQuery(
     api.modules.portal.parent.queries.getChildren,
     {}
-  );
+  ) as Array<{
+    _id: string;
+    firstName: string;
+    lastName: string;
+    admissionNumber?: string;
+    status?: string;
+  }> | undefined;
 
   if (isLoading || children === undefined) {
     return <LoadingSkeleton variant="page" />;

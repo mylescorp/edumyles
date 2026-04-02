@@ -56,6 +56,9 @@ export default function ParentPaymentsPage() {
       
       // Create and download receipt
       const receiptWindow = window.open('', '_blank');
+      if (!receiptWindow) {
+        throw new Error("Unable to open receipt window");
+      }
       receiptWindow.document.write(receiptData);
       receiptWindow.document.close();
       

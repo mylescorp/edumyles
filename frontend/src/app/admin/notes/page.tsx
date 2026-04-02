@@ -40,7 +40,7 @@ const NOTE_COLORS = [
 
 export default function NotesPage() {
   const modulesApi = api as any;
-  const notes = useQuery(modulesApi.modules.notes.queries.listNotes, {});
+  const notes = useQuery(modulesApi.modules.notes.queries.listNotes, {}) as Note[] | undefined;
   const createNote = useMutation(modulesApi.modules.notes.mutations.createNote);
   const updateNote = useMutation(modulesApi.modules.notes.mutations.updateNote);
   const deleteNote = useMutation(modulesApi.modules.notes.mutations.deleteNote);
@@ -110,13 +110,13 @@ export default function NotesPage() {
   };
 
   const filtered = (notes ?? []).filter(
-    (n) =>
+    (n: Note) =>
       n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (n.content ?? "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const pinned = filtered.filter((n) => n.pinned);
-  const unpinned = filtered.filter((n) => !n.pinned);
+  const pinned = filtered.filter((n: Note) => n.pinned);
+  const unpinned = filtered.filter((n: Note) => !n.pinned);
 
   const isLoading = notes === undefined;
 

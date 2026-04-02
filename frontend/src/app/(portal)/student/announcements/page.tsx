@@ -7,8 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Bell, Info, Megaphone } from "lucide-react";
 
+type StudentAnnouncement = {
+    _id: string;
+    title: string;
+    status: string;
+    body: string;
+    sentBy?: string;
+    sentAt?: number;
+    createdAt: number;
+};
+
 export default function StudentAnnouncements() {
-    const announcements = useQuery(api.modules.portal.student.queries.getAnnouncements);
+    const announcements = useQuery(api.modules.portal.student.queries.getAnnouncements) as StudentAnnouncement[] | undefined;
 
     return (
         <div className="space-y-6">

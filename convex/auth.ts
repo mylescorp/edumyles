@@ -2,7 +2,7 @@ import { AuthKit, type AuthFunctions } from "@convex-dev/workos-authkit";
 import { components, internal } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
 
-const authFunctions: AuthFunctions = internal.auth;
+const authFunctions = (internal as Record<string, unknown>).auth as AuthFunctions;
 
 export const authKit = new AuthKit<DataModel>(components.workOSAuthKit, {
   authFunctions,

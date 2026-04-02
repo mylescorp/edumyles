@@ -14,8 +14,9 @@ function centsToCurrency(cents: number, currency: string): string {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { payslipId: string } }
+  context: { params: Promise<{ payslipId: string }> }
 ) {
+  const { payslipId } = await context.params;
   const sessionToken = req.cookies.get("session_token")?.value;
   if (!sessionToken) {
     return new NextResponse("Unauthorised", { status: 401 });
@@ -29,7 +30,7 @@ export async function GET(
   } as any);
 
   const payslip = Array.isArray(payslips)
-    ? (payslips as any[]).find((p) => p._id === params.payslipId)
+    ? (payslips as any[]).find((p) => p._id === payslipId)
     : null;
 
   if (!payslip) {

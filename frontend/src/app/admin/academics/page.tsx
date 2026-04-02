@@ -22,13 +22,30 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+type RecentExam = {
+  _id: string;
+  name: string;
+  status: string;
+  className: string;
+  date: string;
+  submissions: number;
+  total: number;
+};
+
+type UpcomingEvent = {
+  _id: string;
+  title: string;
+  date: string;
+  time: string;
+};
+
 export default function AcademicsPage() {
   const { isLoading, sessionToken } = useAuth();
 
   // Fetch real data from Convex — guard against null sessionToken
   const stats = usePlatformQuery(api.modules.academics.queries.getAcademicsStats, sessionToken ? { sessionToken } : "skip", !!sessionToken);
-  const recentExams = usePlatformQuery(api.modules.academics.queries.getRecentExams, sessionToken ? { sessionToken, limit: 5 } : "skip", !!sessionToken);
-  const upcomingEvents = usePlatformQuery(api.modules.academics.queries.getUpcomingEvents, sessionToken ? { sessionToken, limit: 5 } : "skip", !!sessionToken);
+  const recentExams = usePlatformQuery(api.modules.academics.queries.getRecentExams, sessionToken ? { sessionToken, limit: 5 } : "skip", !!sessionToken) as RecentExam[] | null;
+  const upcomingEvents = usePlatformQuery(api.modules.academics.queries.getUpcomingEvents, sessionToken ? { sessionToken, limit: 5 } : "skip", !!sessionToken) as UpcomingEvent[] | null;
 
   if (isLoading || !stats || !recentExams || !upcomingEvents) {
     return <LoadingSkeleton variant="page" />;
@@ -95,7 +112,7 @@ export default function AcademicsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentExams.map((exam) => (
+                {recentExams.map((exam: RecentExam) => (
                   <div key={exam._id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -177,7 +194,7 @@ export default function AcademicsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {upcomingEvents.map((event) => (
+                {upcomingEvents.map((event: UpcomingEvent) => (
                   <div key={event._id} className="flex items-start gap-3 p-3 border rounded-lg">
                     <div className="p-2 bg-success-bg rounded-full">
                       <Clock className="h-4 w-4 text-primary" />

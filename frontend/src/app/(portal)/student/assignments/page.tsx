@@ -8,8 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { FileText, Calendar, ChevronRight } from "lucide-react";
 
+type StudentAssignment = {
+    _id: string;
+    title: string;
+    dueDate: number;
+    status: "pending" | "submitted" | "graded";
+    maxMarks: number;
+    submission?: {
+        marks?: number;
+    };
+};
+
 export default function StudentAssignments() {
-    const assignments = useQuery(api.modules.portal.student.queries.getMyAssignments, {});
+    const assignments = useQuery(api.modules.portal.student.queries.getMyAssignments, {}) as StudentAssignment[] | undefined;
 
     const getStatusColor = (status: string) => {
         switch (status) {

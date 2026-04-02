@@ -3,21 +3,27 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { useQuery } from 'convex/react';
 
 import { useAuth } from '../hooks/useAuth';
+import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
 import { api } from '../lib/convexApi';
 import { theme } from '../theme';
 
 const AttendanceScreen: React.FC = () => {
   const { sessionToken } = useAuth();
+  const { isOffline } = useOfflineSync();
   const attendance = useQuery(
     api.modules.portal.student.queries.getMyAttendance,
     sessionToken ? { sessionToken } : 'skip',
+  );
+  const resolvedAttendance = useCachedQueryValue<any[]>(
+    'student.attendance.list',
+    attendance,
   );
 
   if (!sessionToken) {
     return <Text style={styles.stateText}>Sign in to view attendance.</Text>;
   }
 
-  if (attendance === undefined) {
+  if (!resolvedAttendance) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -25,13 +31,14 @@ const AttendanceScreen: React.FC = () => {
     );
   }
 
-  if (attendance.length === 0) {
+  if (resolvedAttendance.length === 0) {
     return <Text style={styles.stateText}>No attendance records are available yet.</Text>;
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {attendance.map((entry: any) => (
+      {isOffline && <Text style={styles.banner}>Showing cached attendance.</Text>}
+      {resolvedAttendance.map((entry: any) => (
         <View key={entry._id} style={styles.card}>
           <Text style={styles.status}>{String(entry.status).toUpperCase()}</Text>
           <Text style={styles.meta}>{entry.date}</Text>
@@ -79,6 +86,11 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.sm,
+  },
+  banner: {
+    color: theme.colors.warning,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
   },
 });
 

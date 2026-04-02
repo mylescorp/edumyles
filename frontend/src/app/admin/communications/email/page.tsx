@@ -20,6 +20,8 @@ const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bg
   paused: { icon: AlertCircle, color: "text-orange-600", bgColor: "bg-orange-50", label: "Paused" },
 };
 
+const defaultStatusConfig = statusConfig.draft!;
+
 export default function EmailPage() {
   const { isLoading, sessionToken } = useAuth();
 
@@ -62,7 +64,7 @@ export default function EmailPage() {
             <div className="space-y-4">
               {campaignList.map((campaign: any) => {
                 const statusKey = campaign.status ?? "draft";
-                const status = statusConfig[statusKey] ?? statusConfig.draft;
+                const status = statusConfig[statusKey] ?? defaultStatusConfig;
                 const StatusIcon = status.icon;
 
                 return (

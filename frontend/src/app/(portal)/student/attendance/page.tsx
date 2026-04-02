@@ -8,14 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type AttendanceRecord = {
+    date: string;
+    status: "present" | "absent" | "late" | "excused";
+};
+
 export default function StudentAttendance() {
-    const records = useQuery(api.modules.portal.student.queries.getMyAttendance, {});
+    const records = useQuery(api.modules.portal.student.queries.getMyAttendance, {}) as AttendanceRecord[] | undefined;
 
     const stats = records ? {
-        present: records.filter(r => r.status === "present").length,
-        absent: records.filter(r => r.status === "absent").length,
-        late: records.filter(r => r.status === "late").length,
-        excused: records.filter(r => r.status === "excused").length,
+        present: records.filter((r) => r.status === "present").length,
+        absent: records.filter((r) => r.status === "absent").length,
+        late: records.filter((r) => r.status === "late").length,
+        excused: records.filter((r) => r.status === "excused").length,
         total: records.length,
     } : null;
 
@@ -80,7 +85,10 @@ export default function StudentAttendance() {
                 <CardContent>
                     <div className="space-y-2">
                         {records && records.length > 0 ? (
-                            records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((rec, i) => (
+                            records
+                              .slice()
+                              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                              .map((rec, i) => (
                                 <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors">
                                     <div className="flex items-center gap-3">
                                         <CalendarIcon className="h-4 w-4 text-muted-foreground" />

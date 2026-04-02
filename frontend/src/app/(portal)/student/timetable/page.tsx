@@ -9,11 +9,20 @@ import { cn } from "@/lib/utils";
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday"];
 const PERIODS = [1, 2, 3, 4, 5, 6, 7, 8];
 
+type TimetableSlot = {
+    day: string;
+    period: number;
+    subjectId: string;
+    startTime: string;
+    endTime: string;
+    room?: string;
+};
+
 export default function StudentTimetable() {
-    const slots = useQuery(api.modules.portal.student.queries.getMyTimetable);
+    const slots = useQuery(api.modules.portal.student.queries.getMyTimetable) as TimetableSlot[] | undefined;
 
     const getSlot = (day: string, period: number) => {
-        return slots?.find(s => s.day === day && s.period === period);
+        return slots?.find((s) => s.day === day && s.period === period);
     };
 
     return (

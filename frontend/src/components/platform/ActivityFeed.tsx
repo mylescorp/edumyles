@@ -205,7 +205,7 @@ function getActionDescription(action: string, tenantName: string) {
 function getAvatarFallback(tenantName: string) {
   const words = tenantName.split(' ');
   if (words.length >= 2) {
-    return words[0][0] + words[words.length - 1][0];
+    return (words[0]?.[0] ?? "") + (words[words.length - 1]?.[0] ?? "");
   }
   return tenantName.substring(0, 2).toUpperCase();
 }

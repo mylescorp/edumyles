@@ -3,11 +3,13 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { useQuery } from 'convex/react';
 
 import { useAuth } from '../hooks/useAuth';
+import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
 import { api } from '../lib/convexApi';
 import { theme } from '../theme';
 
 const FeesScreen: React.FC = () => {
   const { sessionToken } = useAuth();
+  const { isOffline } = useOfflineSync();
   const wallet = useQuery(
     api.modules.ewallet.queries.getMyWalletBalance,
     sessionToken ? { sessionToken } : 'skip',
@@ -16,12 +18,17 @@ const FeesScreen: React.FC = () => {
     api.modules.ewallet.queries.getMyTransactionHistory,
     sessionToken ? { sessionToken, limit: 10 } : 'skip',
   );
+  const resolvedWallet = useCachedQueryValue<any>('student.fees.wallet', wallet);
+  const resolvedTransactions = useCachedQueryValue<any[]>(
+    'student.fees.transactions',
+    transactions,
+  );
 
   if (!sessionToken) {
     return <Text style={styles.stateText}>Sign in to view fee and wallet activity.</Text>;
   }
 
-  if (wallet === undefined || transactions === undefined) {
+  if (!resolvedWallet || !resolvedTransactions) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -31,22 +38,23 @@ const FeesScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {isOffline && <Text style={styles.banner}>Showing cached wallet activity.</Text>}
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Available wallet balance</Text>
         <Text style={styles.balanceValue}>
-          {(wallet.balanceCents / 100).toLocaleString()} {wallet.currency}
+          {(resolvedWallet.balanceCents / 100).toLocaleString()} {resolvedWallet.currency}
         </Text>
       </View>
 
       <Text style={styles.sectionTitle}>Recent transactions</Text>
-      {transactions.length === 0 ? (
+      {resolvedTransactions.length === 0 ? (
         <Text style={styles.emptyText}>No wallet transactions yet.</Text>
       ) : (
-        transactions.map((transaction: any) => (
+        resolvedTransactions.map((transaction: any) => (
           <View key={transaction._id} style={styles.card}>
             <Text style={styles.transactionType}>{transaction.type}</Text>
             <Text style={styles.transactionAmount}>
-              {(transaction.amountCents / 100).toLocaleString()} {wallet.currency}
+              {(transaction.amountCents / 100).toLocaleString()} {resolvedWallet.currency}
             </Text>
             <Text style={styles.meta}>{transaction.note ?? transaction.reference ?? 'No description provided'}</Text>
           </View>
@@ -103,6 +111,11 @@ const styles = StyleSheet.create({
   emptyText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.base,
+  },
+  banner: {
+    color: theme.colors.warning,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
   },
   card: {
     backgroundColor: theme.colors.white,

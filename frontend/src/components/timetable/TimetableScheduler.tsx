@@ -168,13 +168,13 @@ export function TimetableScheduler() {
   };
 
   const getSlotsForDay = (day: number) => {
-    return timetableSlots.filter(slot => slot.dayOfWeek === day);
+    return (timetableSlots as TimetableSlot[]).filter((slot: TimetableSlot) => slot.dayOfWeek === day);
   };
 
   const getConflictStatus = (slot: TimetableSlot) => {
     // Simple conflict detection - can be enhanced
     const daySlots = getSlotsForDay(slot.dayOfWeek);
-    const hasConflict = daySlots.some(otherSlot => 
+    const hasConflict = daySlots.some((otherSlot: TimetableSlot) => 
       otherSlot._id !== slot._id &&
       ((slot.startTime >= otherSlot.startTime && slot.startTime < otherSlot.endTime) ||
        (slot.endTime > otherSlot.startTime && slot.endTime <= otherSlot.endTime) ||

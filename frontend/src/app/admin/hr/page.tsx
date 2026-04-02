@@ -23,6 +23,16 @@ import {
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
+type RecentActivity = {
+    _id: string;
+    type: string;
+    title: string;
+    status: string;
+    employee: string;
+    department: string;
+    date: string | number;
+};
+
 export default function HRDashboardPage() {
     const { isLoading, sessionToken } = useAuth();
 
@@ -36,7 +46,7 @@ export default function HRDashboardPage() {
         api.modules.hr.queries.getRecentActivities,
         sessionToken ? { sessionToken, limit: 5 } : "skip",
         !!sessionToken
-    );
+    ) as RecentActivity[] | null;
 
     if (isLoading || !stats || !recentActivities) return <LoadingSkeleton variant="page" />;
 
@@ -162,7 +172,7 @@ export default function HRDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {recentActivities.map((activity) => {
+                            {recentActivities.map((activity: RecentActivity) => {
                                 const Icon = getActivityIcon(activity.type);
                                 return (
                                     <div key={activity._id} className="flex items-start gap-3 p-3 border rounded-lg">

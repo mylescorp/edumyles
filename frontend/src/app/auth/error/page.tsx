@@ -70,7 +70,7 @@ export default async function AuthErrorPage({
   searchParams: Promise<{ reason?: string }>;
 }) {
   const { reason } = await searchParams;
-  const config = (reason && REASON_CONFIG[reason]) ?? DEFAULT_CONFIG;
+  const config = reason ? REASON_CONFIG[reason] ?? DEFAULT_CONFIG : DEFAULT_CONFIG;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 py-16">

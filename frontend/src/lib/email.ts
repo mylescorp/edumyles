@@ -96,15 +96,16 @@ export class EmailService {
     }>;
   }) {
     try {
-      const result = await this.getResendInstance().emails.send({
+      const emailPayload = {
         from: options.from || process.env.RESEND_FROM_EMAIL || 'EduMyles <noreply@edumyles.com>',
         to: Array.isArray(options.to) ? options.to : [options.to],
         subject: options.subject,
-        html: options.html,
-        text: options.text,
-        replyTo: options.replyTo,
-        attachments: options.attachments,
-      });
+        ...(options.html ? { html: options.html } : {}),
+        ...(options.text ? { text: options.text } : {}),
+        ...(options.replyTo ? { replyTo: options.replyTo } : {}),
+        ...(options.attachments ? { attachments: options.attachments } : {}),
+      };
+      const result = await this.getResendInstance().emails.send(emailPayload as any);
 
       return { success: true, data: result };
     } catch (error) {

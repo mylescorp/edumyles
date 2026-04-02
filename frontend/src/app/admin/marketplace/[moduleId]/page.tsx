@@ -175,7 +175,7 @@ export default function ModuleDetailPage() {
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {features.map((feature, i) => (
+                {features.map((feature: string, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <span>{feature}</span>

@@ -132,7 +132,7 @@ export default function ParentDashboardPage() {
             ) : (
               <div className="space-y-2">
                 {childList.map((child: any) => {
-                  const statusCfg = STATUS_CONFIG[child.status] ?? STATUS_CONFIG.inactive;
+                  const statusCfg = (STATUS_CONFIG[child.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.inactive) as { label: string; cls: string };
                   return (
                     <div
                       key={child._id}

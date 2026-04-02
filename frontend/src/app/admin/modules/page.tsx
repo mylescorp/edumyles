@@ -12,6 +12,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
 import { toast } from "@/components/ui/use-toast";
 
+type AvailableModule = {
+  moduleId: string;
+  name: string;
+  isCore?: boolean;
+  dependencies?: string[];
+};
+
+type InstalledModule = {
+  moduleId: string;
+  status?: string;
+};
+
 export default function ModuleManagementPage() {
   const { sessionToken } = useAuth();
   const { tenantId } = useTenant();
@@ -20,6 +32,9 @@ export default function ModuleManagementPage() {
     installedModules,
     availableModules,
   } = useInstalledModules();
+  const moduleIds = installedModuleIds as string[];
+  const installed = (installedModules ?? []) as InstalledModule[];
+  const available = (availableModules ?? []) as AvailableModule[];
   
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
   const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
@@ -90,15 +105,15 @@ export default function ModuleManagementPage() {
   };
 
   // Prepare data for dependency visualizer
-  const dependencyData = availableModules?.map(module => ({
+  const dependencyData = available.map((module: AvailableModule) => ({
     moduleId: module.moduleId,
     name: module.name,
-    isInstalled: installedModuleIds.includes(module.moduleId),
-    isActive: module.isCore || installedModules.find(m => m.moduleId === module.moduleId)?.status === "active",
-    isCore: module.isCore,
+    isInstalled: moduleIds.includes(module.moduleId),
+    isActive: module.isCore || installed.find((m: InstalledModule) => m.moduleId === module.moduleId)?.status === "active",
+    isCore: Boolean(module.isCore),
     dependencies: module.dependencies || [],
     dependents: [], // This would need to be calculated based on reverse dependencies
-  })) || [];
+  }));
 
   return (
     <div className="space-y-6">

@@ -176,8 +176,9 @@ export default function CommunicationsPage() {
 
   // Reset to first visible tab if active tab is not visible
   useEffect(() => {
-    if (visibleTabs.length > 0 && !visibleTabs.find((t) => t.id === activeTab)) {
-      setActiveTab(visibleTabs[0].id);
+    const firstVisibleTab = visibleTabs[0];
+    if (firstVisibleTab && !visibleTabs.find((t) => t.id === activeTab)) {
+      setActiveTab(firstVisibleTab.id);
     }
   }, [visibleTabs, activeTab]);
 

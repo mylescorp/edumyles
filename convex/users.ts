@@ -249,9 +249,51 @@ export const promoteUserEmailToMasterAdmin = mutation({
 // Atomically promote the signed-in user to master_admin if none exists yet.
 // Updates both the session record and the users record so the role persists across sign-ins.
 export const bootstrapMasterAdmin = mutation({
-  args: { sessionToken: v.string() },
+  args: {
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    const session = await requireTenantSession(ctx, args);
+    let session:
+      | {
+          tenantId: string;
+          userId: string;
+          role: string;
+          email: string;
+        }
+      | null = null;
+
+    if (isTrustedServerCall(args.serverSecret)) {
+      if (!args.sessionToken) {
+        throw new ConvexError({
+          code: "UNAUTHENTICATED",
+          message: "A session token is required to bootstrap the master admin",
+        });
+      }
+
+      const sessionDoc = await ctx.db
+        .query("sessions")
+        .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+        .first();
+
+      if (!sessionDoc || sessionDoc.expiresAt < Date.now()) {
+        throw new ConvexError({
+          code: "UNAUTHENTICATED",
+          message: "Session is invalid or expired",
+        });
+      }
+
+      session = {
+        tenantId: sessionDoc.tenantId,
+        userId: sessionDoc.userId,
+        role: sessionDoc.role,
+        email: sessionDoc.email ?? "",
+      };
+    } else {
+      session = await requirePlatformSession(ctx, {
+        sessionToken: args.sessionToken ?? "",
+      });
+    }
 
     // Check if any master_admin already exists
     const existingAdmin = await ctx.db
@@ -260,17 +302,23 @@ export const bootstrapMasterAdmin = mutation({
       .first();
 
     if (existingAdmin) {
-      throw new Error("ALREADY_EXISTS");
+      throw new ConvexError({
+        code: "ALREADY_EXISTS",
+        message: "A master admin already exists",
+      });
     }
 
     // Update session role
     const sessionDoc = await ctx.db
       .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken ?? ""))
       .first();
 
     if (!sessionDoc) {
-      throw new Error("UNAUTHENTICATED");
+      throw new ConvexError({
+        code: "UNAUTHENTICATED",
+        message: "Session is invalid or expired",
+      });
     }
 
     await ctx.db.patch(sessionDoc._id, { role: "master_admin", tenantId: "PLATFORM" });

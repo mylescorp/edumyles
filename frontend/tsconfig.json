@@ -7,8 +7,8 @@
     "jsx": "preserve",
     "noEmit": true,
     "incremental": true,
-    "strict": false,
-    "noImplicitAny": false,
+    "strict": true,
+    "noImplicitAny": true,
     "plugins": [
       {
         "name": "next"

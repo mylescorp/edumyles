@@ -55,14 +55,14 @@ const MODULE_ICONS: Record<string, any> = {
   tickets: Headphones,
 };
 
-const TIER_COLORS = {
+const TIER_COLORS: Record<string, string> = {
   free: "bg-gray-100 text-gray-800 border-gray-200",
   basic: "bg-blue-100 text-blue-800 border-blue-200",
   premium: "bg-purple-100 text-purple-800 border-purple-200",
   enterprise: "bg-em-primary/10 text-em-primary border-em-primary/20",
 };
 
-const CATEGORY_COLORS = {
+const CATEGORY_COLORS: Record<string, string> = {
   academics: "bg-emerald-100 text-emerald-800",
   administration: "bg-blue-100 text-blue-800",
   communications: "bg-indigo-100 text-indigo-800",
@@ -214,10 +214,10 @@ export function ModuleInstallationPanel() {
         <CardContent className="space-y-3">
           {/* Module metadata */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className={TIER_COLORS[module.tier]}>
+            <Badge variant="outline" className={TIER_COLORS[module.tier] ?? TIER_COLORS.free}>
               {module.tier.charAt(0).toUpperCase() + module.tier.slice(1)}
             </Badge>
-            <Badge variant="outline" className={CATEGORY_COLORS[module.category]}>
+            <Badge variant="outline" className={CATEGORY_COLORS[module.category] ?? CATEGORY_COLORS.academics}>
               {module.category}
             </Badge>
             <span className="text-xs text-muted-foreground">v{module.version}</span>
@@ -366,7 +366,7 @@ export function ModuleInstallationPanel() {
               <Star className="h-5 w-5 text-amber-500" />
               <div>
                 <p className="text-2xl font-bold">
-                  {availableModules.filter(m => m.isCore).length}
+                  {availableModules.filter((m: any) => m.isCore).length}
                 </p>
                 <p className="text-xs text-muted-foreground">Core Modules</p>
               </div>

@@ -26,6 +26,13 @@ interface LineItem {
   unitPriceCents: number;
 }
 
+function toTimestamp(dateValue: string | undefined): number {
+  if (!dateValue) {
+    return Date.now();
+  }
+  return new Date(dateValue).getTime();
+}
+
 export default function CreateInvoicePage() {
   const router = useRouter();
   const { sessionToken } = useAuth();
@@ -79,9 +86,9 @@ export default function CreateInvoicePage() {
         tenantName: selectedTenant.name,
         plan: selectedTenant.plan,
         amountCents: totalCents,
-        billingPeriodStart: new Date(periodStart).getTime(),
-        billingPeriodEnd: new Date(periodEnd).getTime(),
-        dueDate: new Date(dueDate).getTime(),
+        billingPeriodStart: toTimestamp(periodStart),
+        billingPeriodEnd: toTimestamp(periodEnd),
+        dueDate: toTimestamp(dueDate),
         lineItems: lineItems.map((item) => ({
           description: item.description,
           quantity: item.quantity,

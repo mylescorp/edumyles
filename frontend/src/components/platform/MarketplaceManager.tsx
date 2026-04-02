@@ -414,7 +414,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
       compatibility: ["v3.0"],
       dependencies: [],
       size: "0MB",
-      lastUpdated: new Date().toISOString().split('T')[0]
+      lastUpdated: new Date().toISOString().split('T')[0] ?? ""
     }
   });
 
@@ -596,7 +596,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
         compatibility: newModuleData.metadata?.compatibility || ["v3.0"],
         dependencies: newModuleData.metadata?.dependencies || [],
         size: newModuleData.metadata?.size || "0MB",
-        lastUpdated: new Date().toISOString().split('T')[0]
+        lastUpdated: new Date().toISOString().split('T')[0] ?? ""
       }
     };
 
@@ -626,7 +626,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
         compatibility: ["v3.0"],
         dependencies: [],
         size: "0MB",
-        lastUpdated: new Date().toISOString().split('T')[0]
+        lastUpdated: new Date().toISOString().split('T')[0] ?? ""
       }
     });
 
@@ -639,17 +639,21 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
       setNewModuleData(prev => ({
         ...prev,
         metadata: {
-          ...prev.metadata,
+          tags: prev.metadata?.tags ?? [],
+          compatibility: prev.metadata?.compatibility ?? ["v3.0"],
+          dependencies: prev.metadata?.dependencies ?? [],
+          size: prev.metadata?.size ?? "0MB",
+          lastUpdated: prev.metadata?.lastUpdated ?? "",
           [metadataField]: value
         }
       }));
     } else if (field.startsWith("features.")) {
-      const index = parseInt(field.split(".")[1]);
+      const index = parseInt(field.split(".")[1] ?? "0", 10);
       const newFeatures = [...(newModuleData.features || [])];
       newFeatures[index] = value;
       setNewModuleData(prev => ({ ...prev, features: newFeatures }));
     } else if (field.startsWith("requirements.")) {
-      const index = parseInt(field.split(".")[1]);
+      const index = parseInt(field.split(".")[1] ?? "0", 10);
       const newRequirements = [...(newModuleData.requirements || [])];
       newRequirements[index] = value;
       setNewModuleData(prev => ({ ...prev, requirements: newRequirements }));

@@ -8,13 +8,56 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Calendar, GraduationCap, Wallet, Bell } from "lucide-react";
 
+type StudentGrade = {
+  _id: string;
+  score: number;
+  maxScore: number;
+  subjectId: string;
+  assessmentType?: string;
+  term?: string;
+};
+
+type StudentAttendanceRecord = {
+  date: string;
+  status: "present" | "absent" | "late" | "excused";
+};
+
+type StudentAssignment = {
+  _id: string;
+  title: string;
+  dueDate: number;
+  status: "pending" | "submitted" | "graded";
+};
+
+type StudentWallet = {
+  balanceCents: number;
+};
+
+type StudentAnnouncement = {
+  _id: string;
+  title: string;
+  body: string;
+  sentAt?: number;
+  createdAt: number;
+};
+
 export default function StudentDashboard() {
   const profile = usePlatformQuery(api.modules.portal.student.queries.getMyProfile, {});
-  const grades = usePlatformQuery(api.modules.portal.student.queries.getMyGrades, {});
-  const attendance = usePlatformQuery(api.modules.portal.student.queries.getMyAttendance, {});
-  const assignments = usePlatformQuery(api.modules.portal.student.queries.getMyAssignments, {});
-  const wallet = usePlatformQuery(api.modules.portal.student.queries.getMyWalletBalance, {});
-  const announcements = usePlatformQuery(api.modules.portal.student.queries.getAnnouncements, {});
+  const grades = usePlatformQuery(api.modules.portal.student.queries.getMyGrades, {}) as
+    | StudentGrade[]
+    | undefined;
+  const attendance = usePlatformQuery(api.modules.portal.student.queries.getMyAttendance, {}) as
+    | StudentAttendanceRecord[]
+    | undefined;
+  const assignments = usePlatformQuery(api.modules.portal.student.queries.getMyAssignments, {}) as
+    | StudentAssignment[]
+    | undefined;
+  const wallet = usePlatformQuery(api.modules.portal.student.queries.getMyWalletBalance, {}) as
+    | StudentWallet
+    | undefined;
+  const announcements = usePlatformQuery(api.modules.portal.student.queries.getAnnouncements, {}) as
+    | StudentAnnouncement[]
+    | undefined;
 
   const gpa = grades
     ? (

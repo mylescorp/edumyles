@@ -102,6 +102,22 @@ export default defineSchema({
     .index("by_tenant_email", ["tenantId", "email"])
     .index("by_tenant_role", ["tenantId", "role"]),
 
+  mobileDeviceTokens: defineTable({
+    tenantId: v.string(),
+    userId: v.string(),
+    pushToken: v.string(),
+    provider: v.string(), // expo | fcm | apns
+    platform: v.string(), // ios | android | web
+    deviceName: v.optional(v.string()),
+    notificationsEnabled: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastSeenAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_push_token", ["pushToken"])
+    .index("by_tenant", ["tenantId"]),
+
   organizations: defineTable({
     tenantId: v.string(),
     workosOrgId: v.string(),
@@ -579,6 +595,21 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_class_date", ["classId", "date"])
     .index("by_student_date", ["studentId", "date"]),
+
+  academicTerms: defineTable({
+    tenantId: v.string(),
+    term: v.string(),
+    academicYear: v.string(),
+    name: v.string(),
+    startDate: v.string(), // YYYY-MM-DD
+    endDate: v.string(), // YYYY-MM-DD
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_term_year", ["tenantId", "term", "academicYear"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
 
   timetables: defineTable({
     tenantId: v.string(),
@@ -3605,35 +3636,6 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_active", ["tenantId", "isActive"]),
 
-  bookLoans: defineTable({
-    tenantId: v.string(),
-    bookId: v.string(),
-    studentId: v.string(),
-    borrowedAt: v.number(),
-    dueDate: v.number(),
-    returnedAt: v.optional(v.number()),
-    status: v.union(v.literal("active"), v.literal("returned"), v.literal("overdue")),
-    fineAccrued: v.number(),
-    finePaid: v.number(),
-    createdAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"])
-    .index("by_student", ["studentId"])
-    .index("by_student_status", ["studentId", "status"])
-    .index("by_status", ["status"]),
-
-  finePayments: defineTable({
-    tenantId: v.string(),
-    loanId: v.id("bookLoans"),
-    amount: v.number(),
-    paymentMethod: v.string(),
-    paymentReference: v.optional(v.string()),
-    paidBy: v.string(),
-    createdAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"])
-    .index("by_loan", ["loanId"]),
-
   // ─── HR Payroll System ───────────────────────────────────────────────────
   payrollPeriods: defineTable({
     tenantId: v.string(),
@@ -3743,50 +3745,6 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_period", ["payrollPeriodId"])
     .index("by_calculation", ["calculationId"]),
-
-  assignmentSubmissions: defineTable({
-    tenantId: v.string(),
-    assignmentId: v.id("assignments"),
-    studentId: v.string(),
-    submittedAt: v.optional(v.number()),
-    content: v.optional(v.string()),
-    attachments: v.optional(v.array(v.string())),
-    status: v.union(v.literal("not_submitted"), v.literal("submitted"), v.literal("graded")),
-    marks: v.optional(v.number()),
-    feedback: v.optional(v.string()),
-    gradedBy: v.optional(v.string()),
-    gradedAt: v.optional(v.number()),
-    lateSubmission: v.boolean(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"])
-    .index("by_assignment", ["assignmentId"])
-    .index("by_student", ["studentId"])
-    .index("by_assignment_student", ["assignmentId", "studentId"])
-    .index("by_status", ["status"]),
-
-  // ─── Timetable Conflict Detection ────────────────────────────────────────
-  timetableEntries: defineTable({
-    tenantId: v.string(),
-    dayOfWeek: v.number(), // 0-6 (Sunday-Saturday)
-    startTime: v.string(), // "09:00"
-    endTime: v.string(), // "10:00"
-    subjectId: v.string(),
-    teacherId: v.string(),
-    classId: v.string(),
-    roomId: v.string(),
-    term: v.string(),
-    year: v.number(),
-    isActive: v.boolean(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"])
-    .index("by_teacher_time", ["teacherId", "dayOfWeek", "startTime"])
-    .index("by_class_time", ["classId", "dayOfWeek", "startTime"])
-    .index("by_room_time", ["roomId", "dayOfWeek", "startTime"])
-    .index("by_term_year", ["term", "year"]),
 
   // ─── Communication Templates ─────────────────────────────────────────────
   communicationTemplates: defineTable({

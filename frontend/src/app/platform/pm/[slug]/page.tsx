@@ -12,6 +12,17 @@ import { platformNavItems } from "@/lib/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 
+type ProjectSummary = {
+  _id: string;
+  name: string;
+  status: string;
+  description?: string;
+  taskCount: number;
+  progress: number;
+  totalEstimatedMinutes?: number;
+  totalLoggedMinutes?: number;
+};
+
 export default function WorkspacePage() {
   const params = useParams();
   const workspaceSlug = params.slug as string;
@@ -147,7 +158,7 @@ export default function WorkspacePage() {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {projects?.map((project) => (
+          {projects?.map((project: ProjectSummary) => (
             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">

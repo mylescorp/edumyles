@@ -15,6 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 
+type GradeDraft = { score: string; remarks: string };
+type ClassSummary = { _id: string; name: string };
+type ClassStudent = { _id: string; firstName: string; lastName: string };
+
 export default function ClassGradesPage({
   params,
 }: {
@@ -23,13 +27,13 @@ export default function ClassGradesPage({
   const { classId } = use(params);
   const { user, isLoading: authLoading, sessionToken } = useAuth();
   const [term, setTerm] = useState<string>("Term 1");
-  const [grades, setGrades] = useState<Record<string, { score: string; remarks: string }>>({});
+  const [grades, setGrades] = useState<Record<string, GradeDraft>>({});
 
   const classData = useQuery(
     api.modules.sis.queries.listClasses,
     sessionToken ? { sessionToken } : "skip"
-  )?.find((c) => c._id === classId);
-  const students = useQuery(api.modules.academics.queries.getClassStudents, { classId });
+  )?.find((c: ClassSummary) => c._id === classId);
+  const students = useQuery(api.modules.academics.queries.getClassStudents, { classId }) as ClassStudent[] | undefined;
 
   const enterGradesMutation = useMutation(api.modules.academics.mutations.enterGrades);
 
@@ -38,7 +42,11 @@ export default function ClassGradesPage({
   const handleGradeChange = (studentId: string, field: "score" | "remarks", value: string) => {
     setGrades(prev => ({
       ...prev,
-      [studentId]: { ...prev[studentId], [field]: value }
+      [studentId]: {
+        score: prev[studentId]?.score ?? "",
+        remarks: prev[studentId]?.remarks ?? "",
+        [field]: value
+      }
     }));
   };
 
@@ -54,7 +62,7 @@ export default function ClassGradesPage({
     if (!classData) return;
 
     try {
-      const payload = students.map(student => ({
+      const payload = students.map((student: ClassStudent) => ({
         studentId: student._id,
         score: parseFloat(grades[student._id]?.score || "0"),
         grade: calculateGrade(parseFloat(grades[student._id]?.score || "0")),
@@ -129,7 +137,7 @@ export default function ClassGradesPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {students.map((student: any) => {
+                {students.map((student: ClassStudent) => {
                   const score = parseFloat(grades[student._id]?.score || "0");
                   const grade = score > 0 ? calculateGrade(score) : "";
                   

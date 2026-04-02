@@ -44,6 +44,17 @@ interface TimetableSlot {
   className?: string;
 }
 
+interface TimetableClass {
+  _id: string;
+  name: string;
+}
+
+interface TimetableConflict {
+  slotIds: string[];
+  type: string;
+  message: string;
+}
+
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const TIME_SLOTS = [
   '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
@@ -148,14 +159,14 @@ export default function TimetableBuilderPage() {
   };
 
   const getSlotForTime = (dayOfWeek: number, timeSlot: string) => {
-    return slots?.filter(slot => 
+    return (slots as TimetableSlot[] | undefined)?.filter((slot: TimetableSlot) => 
       slot.dayOfWeek === dayOfWeek && 
       slot.startTime === timeSlot.split('-')[0]
     );
   };
 
   const getConflictForSlot = (slot: TimetableSlot) => {
-    return conflictsData?.find(conflict =>
+    return (conflictsData as TimetableConflict[] | undefined)?.find((conflict: TimetableConflict) =>
       conflict.slotIds.includes(slot._id) && !hiddenConflictSlotIds.includes(slot._id)
     );
   };
@@ -181,7 +192,7 @@ export default function TimetableBuilderPage() {
       return;
     }
 
-    const exportData = weekSlots.map((slot) => ({
+    const exportData = (weekSlots as TimetableSlot[]).map((slot: TimetableSlot) => ({
       day: DAYS[slot.dayOfWeek - 1] || slot.dayOfWeek,
       startTime: slot.startTime,
       endTime: slot.endTime,
@@ -215,7 +226,7 @@ export default function TimetableBuilderPage() {
       return;
     }
 
-    const ids = conflictsData.flatMap((conflict) => conflict.slotIds);
+    const ids = (conflictsData as TimetableConflict[]).flatMap((conflict: TimetableConflict) => conflict.slotIds);
     setHiddenConflictSlotIds(ids);
     toast({
       title: "Conflict markers cleared",
@@ -266,7 +277,7 @@ export default function TimetableBuilderPage() {
                     <SelectValue placeholder="Select class" />
                   </SelectTrigger>
                   <SelectContent>
-                    {classes?.map((cls) => (
+                    {(classes as TimetableClass[] | undefined)?.map((cls: TimetableClass) => (
                       <SelectItem key={cls._id} value={cls._id}>
                         {cls.name}
                       </SelectItem>
@@ -333,7 +344,7 @@ export default function TimetableBuilderPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {conflictsData.map((conflict, index) => (
+                {(conflictsData as TimetableConflict[]).map((conflict: TimetableConflict, index: number) => (
                   <div key={index} className="flex items-center gap-2 text-sm">
                     <Badge variant="destructive">
                       {conflict.type === 'teacher_double_booking' ? 'Teacher Conflict' : 'Room Conflict'}
@@ -383,7 +394,7 @@ export default function TimetableBuilderPage() {
                             isCurrentDay ? 'bg-gray-50' : 'bg-gray-100 opacity-50'
                           }`}
                         >
-                          {daySlots?.map((slot) => {
+                          {daySlots?.map((slot: TimetableSlot) => {
                             const conflict = getConflictForSlot(slot);
                             return (
                               <div
