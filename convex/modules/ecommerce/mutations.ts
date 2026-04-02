@@ -3,6 +3,7 @@ import { mutation } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
+import { logAction } from "../../helpers/auditLog";
 
 function generateOrderNumber() {
     return "ORD-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
@@ -22,7 +23,7 @@ export const createProduct = mutation({
         requirePermission(tenant, "ecommerce:write");
 
         const now = Date.now();
-        return await ctx.db.insert("products", {
+        const productId = await ctx.db.insert("products", {
             tenantId: tenant.tenantId,
             name: args.name,
             description: args.description,
@@ -33,6 +34,21 @@ export const createProduct = mutation({
             createdAt: now,
             updatedAt: now,
         });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "ecommerce.product_created",
+            entityType: "product",
+            entityId: productId.toString(),
+            after: {
+                name: args.name,
+                priceCents: args.priceCents,
+                stock: Math.max(0, args.stock),
+                category: args.category,
+            },
+        });
+        return productId;
     },
 });
 
@@ -55,7 +71,18 @@ export const updateProduct = mutation({
         if (!product || product.tenantId !== tenant.tenantId) throw new Error("Product not found");
 
         const { productId, ...updates } = args;
-        await ctx.db.patch(productId, { ...updates, updatedAt: Date.now() });
+        const nextState = { ...updates, updatedAt: Date.now() };
+        await ctx.db.patch(productId, nextState);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "ecommerce.product_updated",
+            entityType: "product",
+            entityId: productId.toString(),
+            before: product,
+            after: { ...product, ...nextState },
+        });
         return productId;
     },
 });
@@ -99,16 +126,41 @@ export const addToCart = mutation({
                 items.push(item);
             }
             await ctx.db.patch(existing._id, { items, updatedAt: now });
+            await logAction(ctx, {
+                tenantId: tenant.tenantId,
+                actorId: tenant.userId,
+                actorEmail: tenant.email,
+                action: "ecommerce.cart_updated",
+                entityType: "cart",
+                entityId: existing._id.toString(),
+                before: existing,
+                after: { ...existing, items, updatedAt: now },
+            });
             return existing._id;
         }
 
-        return await ctx.db.insert("carts", {
+        const cartId = await ctx.db.insert("carts", {
             tenantId: tenant.tenantId,
             customerId: args.customerId,
             customerType: args.customerType,
             items: [item],
             updatedAt: now,
         });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "ecommerce.cart_updated",
+            entityType: "cart",
+            entityId: cartId.toString(),
+            after: {
+                customerId: args.customerId,
+                customerType: args.customerType,
+                items: [item],
+                updatedAt: now,
+            },
+        });
+        return cartId;
     },
 });
 
@@ -129,7 +181,18 @@ export const updateCartItemQuantity = mutation({
         const items = cart.items.map((i) =>
             i.productId === args.productId ? { ...i, quantity: args.quantity } : i
         ).filter((i) => i.quantity > 0);
-        await ctx.db.patch(args.cartId, { items, updatedAt: Date.now() });
+        const updatedAt = Date.now();
+        await ctx.db.patch(args.cartId, { items, updatedAt });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "ecommerce.cart_updated",
+            entityType: "cart",
+            entityId: args.cartId.toString(),
+            before: cart,
+            after: { ...cart, items, updatedAt },
+        });
         return args.cartId;
     },
 });
@@ -217,6 +280,21 @@ export const createOrderFromCart = mutation({
         }
 
         await ctx.db.patch(args.cartId, { items: [], updatedAt: now });
+        const order = await ctx.db.get(orderId);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "ecommerce.order_created",
+            entityType: "order",
+            entityId: orderId.toString(),
+            after: order ?? {
+                orderNumber,
+                customerId: args.customerId,
+                customerType: args.customerType,
+                totalCents,
+            },
+        });
         return orderId;
     },
 });
@@ -231,7 +309,18 @@ export const updateOrderStatus = mutation({
         const order = await ctx.db.get(args.orderId);
         if (!order || order.tenantId !== tenant.tenantId) throw new Error("Order not found");
 
-        await ctx.db.patch(args.orderId, { status: args.status, updatedAt: Date.now() });
+        const updates = { status: args.status, updatedAt: Date.now() };
+        await ctx.db.patch(args.orderId, updates);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "ecommerce.order_updated",
+            entityType: "order",
+            entityId: args.orderId.toString(),
+            before: order,
+            after: { ...order, ...updates },
+        });
         return args.orderId;
     },
 });

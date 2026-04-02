@@ -19,8 +19,10 @@ export type AuditAction =
   | "class.created" | "class.updated"
   | "assignment.submitted" | "assignment.graded"
   | "communication.email_sent" | "communication.sms_sent" | "communication.push_sent" | "communication.inapp_sent"
+  | "communication.announcement_created" | "communication.announcement_updated" | "communication.announcement_published" | "communication.announcement_deleted"
   | "communication.template_created" | "communication.template_updated" | "communication.template_deleted"
   | "communication.campaign_created" | "communication.campaign_updated" | "communication.campaign_deleted" | "communication.campaign_sent"
+  | "communication.conversation_created" | "communication.broadcast_sent"
   | "communication.segment_created" | "communication.segment_updated" | "communication.segment_deleted"
   | "platform_message.created" | "platform_message.updated" | "platform_message.deleted" | "platform_message.sent"
   | "platform_notification.created"
@@ -46,8 +48,6 @@ export type AuditAction =
   | "marketplace.publisher_activated" | "marketplace.publisher_suspended"
   | "marketplace.module_suspended" | "marketplace.module_deprecated" | "marketplace.module_installed" | "marketplace.module_uninstalled"
   | "marketplace.module_submitted" | "marketplace.module_updated" | "marketplace.module_approved" | "marketplace.module_rejected" | "marketplace.module_published"
-  | "api_key.created" | "api_key.revoked" | "api_key.rotated"
-  | "changelog.created" | "changelog.updated" | "changelog.deleted"
   | "automation.workflow_created" | "automation.workflow_updated" | "automation.workflow_deleted" | "automation.workflow_toggled" | "automation.workflow_executed"
   | "feature_flag.created" | "feature_flag.updated" | "feature_flag.toggled" | "feature_flag.deleted"
   | "data_export.created" | "data_export.generated"
@@ -62,6 +62,9 @@ export type AuditAction =
   | "knowledge_base.article_created" | "knowledge_base.article_updated" | "knowledge_base.article_deleted" | "knowledge_base.article_published" | "knowledge_base.category_created" | "knowledge_base.category_updated"
   | "onboarding.started" | "onboarding.step_completed" | "onboarding.step_skipped" | "onboarding.reset"
   | "ticket.created" | "ticket.updated" | "ticket.comment_added" | "ticket.resolved" | "ticket.escalated" | "ticket.assigned"
+  | "book.created" | "book.updated" | "book.borrowed" | "book.returned"
+  | "transport.route_created" | "transport.route_updated" | "transport.vehicle_created" | "transport.vehicle_driver_assigned" | "transport.driver_created" | "transport.assignment_updated"
+  | "ecommerce.product_created" | "ecommerce.product_updated" | "ecommerce.cart_updated" | "ecommerce.order_created" | "ecommerce.order_updated"
   | "tenant_success.score_created" | "tenant_success.score_updated" | "tenant_success.initiative_created" | "tenant_success.initiative_updated" | "tenant_success.metric_created" | "tenant_success.metric_recorded" | "tenant_success.report_generated"
   | "staff_performance.record_created" | "staff_performance.record_updated" | "staff_performance.goals_set" | "staff_performance.review_completed"
   | "file.uploaded" | "file.deleted"
@@ -74,7 +77,8 @@ export type AuditAction =
   | "crm.deal_created" | "crm.deal_updated" | "crm.lead_created" | "crm.lead_updated" | "crm.activity_added" | "crm.proposal_created" | "crm.proposal_updated" | "crm.proposal_sent"
   | "billing.invoice.created" | "billing.invoice.status_updated" | "billing.subscription_updated"
   | "subscription.updated" | "subscription.cancelled"
-  | "waitlist.approved" | "waitlist.rejected";
+  | "waitlist.approved" | "waitlist.rejected"
+  | "mobile.device_token_registered";
 
 export async function logAction(
   ctx: MutationCtx,

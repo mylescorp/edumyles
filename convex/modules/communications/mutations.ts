@@ -3,6 +3,7 @@ import { mutation } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
+import { logAction } from "../../helpers/auditLog";
 import { DEFAULT_SMS_TEMPLATES, TemplateType, substituteTemplateVariables } from "./templates";
 
 // ─── Announcements ─────────────────────────────────────────────────
@@ -32,6 +33,15 @@ export const createAnnouncement = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.announcement_created",
+      entityType: "announcement",
+      entityId: id.toString(),
+      after: { ...args, createdAt: now, updatedAt: now },
+    });
     return id;
   },
 });
@@ -54,10 +64,33 @@ export const updateAnnouncement = mutation({
     if (!ann || ann.tenantId !== tenant.tenantId) throw new Error("Announcement not found");
 
     const { announcementId, ...updates } = args;
-    await ctx.db.patch(announcementId, { ...updates, updatedAt: Date.now() });
+    const nextState = { ...updates, updatedAt: Date.now() };
+    await ctx.db.patch(announcementId, nextState);
     if (args.status === "published" && ann.status !== "published") {
-      await ctx.db.patch(announcementId, { publishedAt: Date.now() });
+      const publishedAt = Date.now();
+      await ctx.db.patch(announcementId, { publishedAt });
+      await logAction(ctx, {
+        tenantId: tenant.tenantId,
+        actorId: tenant.userId,
+        actorEmail: tenant.email,
+        action: "communication.announcement_published",
+        entityType: "announcement",
+        entityId: announcementId.toString(),
+        before: ann,
+        after: { ...ann, ...nextState, publishedAt },
+      });
+      return announcementId;
     }
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.announcement_updated",
+      entityType: "announcement",
+      entityId: announcementId.toString(),
+      before: ann,
+      after: { ...ann, ...nextState },
+    });
     return announcementId;
   },
 });
@@ -78,6 +111,16 @@ export const publishAnnouncement = mutation({
       publishedAt: now,
       updatedAt: now,
     });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.announcement_published",
+      entityType: "announcement",
+      entityId: args.announcementId.toString(),
+      before: ann,
+      after: { ...ann, status: "published", publishedAt: now, updatedAt: now },
+    });
     return args.announcementId;
   },
 });
@@ -93,6 +136,15 @@ export const deleteAnnouncement = mutation({
     if (!ann || ann.tenantId !== tenant.tenantId) throw new Error("Announcement not found");
 
     await ctx.db.delete(args.announcementId);
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.announcement_deleted",
+      entityType: "announcement",
+      entityId: args.announcementId.toString(),
+      before: ann,
+    });
     return { success: true };
   },
 });
@@ -113,7 +165,7 @@ export const createNotification = mutation({
     await requireModule(ctx, tenant.tenantId, "communications");
     requirePermission(tenant, "communications:write");
 
-    return await ctx.db.insert("notifications", {
+    const notificationId = await ctx.db.insert("notifications", {
       tenantId: tenant.tenantId,
       userId: args.userId,
       title: args.title,
@@ -123,6 +175,16 @@ export const createNotification = mutation({
       ...(args.link ? { link: args.link } : {}),
       createdAt: Date.now(),
     });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "notification.created",
+      entityType: "notification",
+      entityId: notificationId.toString(),
+      after: args,
+    });
+    return notificationId;
   },
 });
 
@@ -177,6 +239,15 @@ export const createCampaign = mutation({
       createdBy: tenant.userId,
       createdAt: now,
       updatedAt: now,
+    });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.campaign_created",
+      entityType: "campaign",
+      entityId: campaignId.toString(),
+      after: { ...args, status: args.scheduledFor ? "scheduled" : "draft" },
     });
 
     return { success: true, campaignId };
@@ -251,6 +322,30 @@ export const launchCampaign = mutation({
         bounced: 0,
       },
     });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.campaign_sent",
+      entityType: "campaign",
+      entityId: args.campaignId.toString(),
+      before: campaign,
+      after: {
+        ...campaign,
+        status: "running",
+        startedAt: now,
+        updatedAt: now,
+        stats: {
+          totalRecipients: targetUsers.length,
+          sent: targetUsers.length,
+          delivered: targetUsers.length,
+          opened: 0,
+          clicked: 0,
+          failed: 0,
+          bounced: 0,
+        },
+      },
+    });
 
     return { success: true, recipientCount: targetUsers.length };
   },
@@ -268,7 +363,18 @@ export const pauseCampaign = mutation({
     if (!campaign || campaign.tenantId !== tenant.tenantId) throw new Error("Campaign not found");
     if (campaign.status !== "running") throw new Error("Only running campaigns can be paused");
 
-    await ctx.db.patch(args.campaignId, { status: "paused", updatedAt: Date.now() });
+    const updates = { status: "paused", updatedAt: Date.now() };
+    await ctx.db.patch(args.campaignId, updates);
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.campaign_updated",
+      entityType: "campaign",
+      entityId: args.campaignId.toString(),
+      before: campaign,
+      after: { ...campaign, ...updates },
+    });
     return { success: true };
   },
 });
@@ -288,6 +394,15 @@ export const deleteCampaign = mutation({
     }
 
     await ctx.db.delete(args.campaignId);
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.campaign_deleted",
+      entityType: "campaign",
+      entityId: args.campaignId.toString(),
+      before: campaign,
+    });
     return { success: true };
   },
 });
@@ -334,6 +449,15 @@ export const createTemplate = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.template_created",
+      entityType: "messageTemplate",
+      entityId: templateId.toString(),
+      after: args,
+    });
 
     return { success: true, templateId };
   },
@@ -369,7 +493,18 @@ export const updateTemplate = mutation({
     if (!template || template.tenantId !== tenant.tenantId) throw new Error("Template not found");
 
     const { templateId, ...updates } = args;
-    await ctx.db.patch(templateId, { ...updates, updatedAt: Date.now() });
+    const nextState = { ...updates, updatedAt: Date.now() };
+    await ctx.db.patch(templateId, nextState);
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.template_updated",
+      entityType: "messageTemplate",
+      entityId: templateId.toString(),
+      before: template,
+      after: { ...template, ...nextState },
+    });
     return { success: true };
   },
 });
@@ -387,6 +522,15 @@ export const deleteTemplate = mutation({
     if (template.isGlobal) throw new Error("Cannot delete a global template from tenant level");
 
     await ctx.db.delete(args.templateId);
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.template_deleted",
+      entityType: "messageTemplate",
+      entityId: args.templateId.toString(),
+      before: template,
+    });
     return { success: true };
   },
 });
@@ -432,6 +576,20 @@ export const createConversation = mutation({
         createdAt: now,
       });
     }
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.conversation_created",
+      entityType: "conversation",
+      entityId: conversationId.toString(),
+      after: {
+        type: args.type,
+        name: args.name,
+        participants,
+        hasInitialMessage: Boolean(args.initialMessage),
+      },
+    });
 
     return { success: true, conversationId };
   },
@@ -496,6 +654,19 @@ export const sendMessage = mutation({
         });
       }
     }
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "message.sent",
+      entityType: "directMessage",
+      entityId: messageId.toString(),
+      after: {
+        conversationId: args.conversationId,
+        content: args.content,
+        attachmentCount: args.attachments?.length ?? 0,
+      },
+    });
 
     return { success: true, messageId };
   },
@@ -562,8 +733,18 @@ export const updateNotificationPreferences = mutation({
 
     if (existing) {
       await ctx.db.patch(existing._id, { ...args, updatedAt: now });
+      await logAction(ctx, {
+        tenantId: tenant.tenantId,
+        actorId: tenant.userId,
+        actorEmail: tenant.email,
+        action: "settings.updated",
+        entityType: "notificationPreferences",
+        entityId: existing._id.toString(),
+        before: existing,
+        after: { ...existing, ...args, updatedAt: now },
+      });
     } else {
-      await ctx.db.insert("notificationPreferences", {
+      const preferenceId = await ctx.db.insert("notificationPreferences", {
         tenantId: tenant.tenantId,
         userId: tenant.userId,
         emailEnabled: args.emailEnabled ?? true,
@@ -575,6 +756,23 @@ export const updateNotificationPreferences = mutation({
         categories: args.categories,
         createdAt: now,
         updatedAt: now,
+      });
+      await logAction(ctx, {
+        tenantId: tenant.tenantId,
+        actorId: tenant.userId,
+        actorEmail: tenant.email,
+        action: "settings.updated",
+        entityType: "notificationPreferences",
+        entityId: preferenceId.toString(),
+        after: {
+          emailEnabled: args.emailEnabled ?? true,
+          smsEnabled: args.smsEnabled ?? true,
+          pushEnabled: args.pushEnabled ?? true,
+          inAppEnabled: args.inAppEnabled ?? true,
+          quietHoursStart: args.quietHoursStart,
+          quietHoursEnd: args.quietHoursEnd,
+          categories: args.categories,
+        },
       });
     }
 
@@ -663,6 +861,19 @@ export const sendBroadcast = mutation({
         });
       }
     }
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.broadcast_sent",
+      entityType: "campaign",
+      entityId: campaignId.toString(),
+      after: {
+        audience: args.audience,
+        channels: args.channels,
+        recipientCount: targetUsers.length,
+      },
+    });
 
     return { success: true, campaignId, recipientCount: targetUsers.length };
   },
@@ -695,6 +906,20 @@ export const createSMSTemplate = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.template_created",
+      entityType: "smsTemplate",
+      entityId: id.toString(),
+      after: {
+        name: args.name,
+        body: args.body ?? args.content ?? "",
+        variables: args.variables,
+        category: args.type ?? "general",
+      },
+    });
     return id;
   },
 });
@@ -724,6 +949,16 @@ export const updateSMSTemplate = mutation({
     if (args.variables !== undefined) updates.variables = args.variables;
 
     await ctx.db.patch(args.templateId, updates);
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.template_updated",
+      entityType: "smsTemplate",
+      entityId: args.templateId.toString(),
+      before: template,
+      after: { ...template, ...updates },
+    });
     return args.templateId;
   },
 });
@@ -736,6 +971,7 @@ export const initializeDefaultSMSTemplates = mutation({
     requirePermission(tenant, "communications:templates");
 
     const now = Date.now();
+    let initialized = 0;
     for (const [type, defaultTemplate] of Object.entries(DEFAULT_SMS_TEMPLATES)) {
       const existingTemplates = await ctx.db
         .query("smsTemplates")
@@ -744,7 +980,7 @@ export const initializeDefaultSMSTemplates = mutation({
       const existing = existingTemplates.find((template) => template.category === type);
 
       if (!existing) {
-        await ctx.db.insert("smsTemplates", {
+        const templateId = await ctx.db.insert("smsTemplates", {
           tenantId: tenant.tenantId,
           name: defaultTemplate.name,
           body: defaultTemplate.content,
@@ -754,10 +990,25 @@ export const initializeDefaultSMSTemplates = mutation({
           createdAt: now,
           updatedAt: now,
         });
+        initialized += 1;
+        await logAction(ctx, {
+          tenantId: tenant.tenantId,
+          actorId: tenant.userId,
+          actorEmail: tenant.email,
+          action: "communication.template_created",
+          entityType: "smsTemplate",
+          entityId: templateId.toString(),
+          after: {
+            name: defaultTemplate.name,
+            body: defaultTemplate.content,
+            variables: defaultTemplate.variables,
+            category: type,
+          },
+        });
       }
     }
 
-    return { success: true, initialized: Object.keys(DEFAULT_SMS_TEMPLATES).length };
+    return { success: true, initialized };
   },
 });
 
@@ -787,6 +1038,15 @@ export const createEmailTemplate = mutation({
       createdBy: tenant.userId,
       createdAt: now,
       updatedAt: now,
+    });
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.template_created",
+      entityType: "emailTemplate",
+      entityId: id.toString(),
+      after: args,
     });
     return id;
   },
@@ -819,6 +1079,16 @@ export const updateEmailTemplate = mutation({
     if (args.category !== undefined) updates.category = args.category;
 
     await ctx.db.patch(args.templateId, updates);
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "communication.template_updated",
+      entityType: "emailTemplate",
+      entityId: args.templateId.toString(),
+      before: template,
+      after: { ...template, ...updates },
+    });
     return args.templateId;
   },
 });

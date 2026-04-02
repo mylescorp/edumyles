@@ -15,6 +15,37 @@ function generateReference(): string {
   return `EMB-${new Date().getFullYear()}-${rand}`;
 }
 
+export function buildBankTransferInstructions(args: { amount: number; reference?: string }) {
+  const bankAccount = process.env.BANK_ACCOUNT_NUMBER;
+  const bankName = process.env.BANK_NAME;
+  const bankBranch = process.env.BANK_BRANCH;
+  const bankSwift = process.env.BANK_SWIFT ?? "";
+
+  if (!bankAccount || !bankName) {
+    throw new Error(
+      "Bank transfer not configured. Set BANK_ACCOUNT_NUMBER and BANK_NAME in Convex env."
+    );
+  }
+
+  const reference = args.reference ?? generateReference();
+
+  return {
+    reference,
+    bankDetails: {
+      accountNumber: bankAccount,
+      bankName,
+      branch: bankBranch ?? "",
+      swift: bankSwift,
+    },
+    amount: args.amount,
+    instructions: [
+      "Transfer exactly the amount shown to the bank account above.",
+      `Use the reference code "${reference}" as the payment description/narration.`,
+      "Your payment will be confirmed within 1-2 business days after verification.",
+    ],
+  };
+}
+
 /**
  * Initiate a bank transfer payment for an invoice.
  *
@@ -62,44 +93,24 @@ export const initiateBankTransfer = action({
       throw new Error("Invoice is not eligible for payment");
     }
 
-    const bankAccount = process.env.BANK_ACCOUNT_NUMBER;
-    const bankName    = process.env.BANK_NAME;
-    const bankBranch  = process.env.BANK_BRANCH;
-    const bankSwift   = process.env.BANK_SWIFT ?? "";
-
-    if (!bankAccount || !bankName) {
-      throw new Error(
-        "Bank transfer not configured. Set BANK_ACCOUNT_NUMBER and BANK_NAME in Convex env."
-      );
-    }
-
-    const reference = generateReference();
+    const transfer = buildBankTransferInstructions({ amount: invoice.amount });
 
     // Write a pending payment record so finance officers can verify it
     await ctx.runMutation(internal.modules.finance.mutations.savePaymentCallback, {
       tenantId: session.tenantId,
       gateway: "bank_transfer",
-      externalId: reference,
+      externalId: transfer.reference,
       invoiceId: String(args.invoiceId),
       amount: invoice.amount,
       status: "pending",
     });
 
     return {
-      reference,
-      bankDetails: {
-        accountNumber: bankAccount,
-        bankName,
-        branch: bankBranch ?? "",
-        swift: bankSwift,
-      },
-      amount: invoice.amount,
+      reference: transfer.reference,
+      bankDetails: transfer.bankDetails,
+      amount: transfer.amount,
       invoiceId: String(args.invoiceId),
-      instructions: [
-        `Transfer exactly the amount shown to the bank account above.`,
-        `Use the reference code "${reference}" as the payment description/narration.`,
-        `Your payment will be confirmed within 1–2 business days after verification.`,
-      ],
+      instructions: transfer.instructions,
     };
   },
 });

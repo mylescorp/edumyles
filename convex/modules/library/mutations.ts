@@ -21,6 +21,7 @@ export const createBook = mutation({
         requirePermission(tenant, "library:write");
 
         const q = Math.max(0, args.quantity);
+        const now = Date.now();
         const id = await ctx.db.insert("books", {
             tenantId: tenant.tenantId,
             isbn: args.isbn,
@@ -29,8 +30,22 @@ export const createBook = mutation({
             category: args.category,
             quantity: q,
             availableQuantity: q,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            createdAt: now,
+            updatedAt: now,
+        });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "book.created",
+            entityType: "book",
+            entityId: id.toString(),
+            after: {
+                title: args.title,
+                author: args.author,
+                category: args.category,
+                quantity: q,
+            },
         });
         return id;
     },
@@ -62,6 +77,16 @@ export const updateBook = mutation({
             (updates as any).availableQuantity = Math.max(0, book.availableQuantity + diff);
         }
         await ctx.db.patch(args.bookId, updates);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "book.updated",
+            entityType: "book",
+            entityId: args.bookId.toString(),
+            before: book,
+            after: { ...book, ...updates },
+        });
         return args.bookId;
     },
 });
@@ -98,6 +123,20 @@ export const borrowBook = mutation({
         await ctx.db.patch(args.bookId, {
             availableQuantity: book.availableQuantity - 1,
             updatedAt: now,
+        });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "book.borrowed",
+            entityType: "bookBorrow",
+            entityId: borrowId.toString(),
+            after: {
+                bookId: args.bookId,
+                borrowerId: args.borrowerId,
+                borrowerType: args.borrowerType,
+                dueDate: args.dueDate,
+            },
         });
 
         return borrowId;
@@ -136,6 +175,22 @@ export const returnBook = mutation({
                 updatedAt: now,
             });
         }
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "book.returned",
+            entityType: "bookBorrow",
+            entityId: args.borrowId.toString(),
+            before: borrow,
+            after: {
+                ...borrow,
+                returnedAt: now,
+                fineCents,
+                status: "returned",
+                updatedAt: now,
+            },
+        });
 
         return { success: true, fineCents };
     },

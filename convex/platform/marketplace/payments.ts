@@ -3,6 +3,9 @@
 import { mutation, query } from "../../_generated/server";
 import { v } from "convex/values";
 import { Id } from "../../_generated/dataModel";
+import { initiateMpesaStkPushForAmount } from "../../actions/payments/mpesa";
+import { createStripeCheckoutSessionForPayment } from "../../actions/payments/stripe";
+import { buildBankTransferInstructions } from "../../actions/payments/bankTransfer";
 
 // Payment processing mutations
 export const initiatePayment = mutation({
@@ -90,35 +93,38 @@ export const initiatePayment = mutation({
 
     // Generate payment URL based on method
     let paymentUrl: string | undefined;
+    let paymentMetadata: Record<string, unknown> | undefined;
 
     switch (args.paymentMethod) {
       case "mpesa":
-        paymentUrl = await initiateMpesaPayment(ctx, {
+        ({ paymentUrl, metadata: paymentMetadata } = await initiateMpesaPayment(ctx, {
           transactionId,
           amount: finalAmount,
           phoneNumber: tenant.phone,
           reference: paymentReference,
-        });
+        }));
         break;
       case "card":
-        paymentUrl = await initiateCardPayment(ctx, {
+        ({ paymentUrl, metadata: paymentMetadata } = await initiateCardPayment(ctx, {
           transactionId,
           amount: finalAmount,
+          moduleId: args.moduleId,
           reference: paymentReference,
-        });
+        }));
         break;
       case "bank_transfer":
-        paymentUrl = await initiateBankTransfer(ctx, {
+        ({ paymentUrl, metadata: paymentMetadata } = await initiateBankTransfer(ctx, {
           transactionId,
           amount: finalAmount,
           reference: paymentReference,
-        });
+        }));
         break;
     }
 
     // Update transaction with payment URL
     await ctx.db.patch(transactionId, {
       paymentUrl,
+      metadata: paymentMetadata,
     });
 
     return {
@@ -411,50 +417,85 @@ function generateMpesaReference(): string {
   return `EDU${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
 }
 
-async function initiateMpesaPayment(ctx: any, paymentData: any): Promise<string> {
-  // Mock M-Pesa integration - in production, this would call M-Pesa API
-  const { transactionId, amount, phoneNumber, reference } = paymentData;
-  
-  // Simulate M-Pesa API call
-  const mpesaUrl = `https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest`;
-  
-  // In production, this would make actual API call to M-Pesa
-  console.log("Initiating M-Pesa payment:", {
-    transactionId,
-    amount,
-    phoneNumber,
-    reference,
-    mpesaUrl,
+async function initiateMpesaPayment(_ctx: unknown, paymentData: {
+  transactionId: Id<"paymentTransactions">;
+  amount: number;
+  phoneNumber?: string;
+  reference: string;
+}): Promise<{ paymentUrl?: string; metadata: Record<string, unknown> }> {
+  if (!paymentData.phoneNumber) {
+    throw new Error("Tenant phone number is required for M-Pesa payments");
+  }
+
+  const response = await initiateMpesaStkPushForAmount({
+    phone: paymentData.phoneNumber,
+    amount: paymentData.amount,
+    accountReference: paymentData.reference,
+    transactionDesc: `Marketplace module purchase ${paymentData.reference}`,
   });
 
-  return `https://edumyles.com/pay/mpesa/${reference}`;
+  return {
+    paymentUrl: undefined,
+    metadata: {
+      gateway: "mpesa",
+      checkoutRequestId: response.checkoutRequestId,
+      customerMessage: response.customerMessage,
+    },
+  };
 }
 
-async function initiateCardPayment(ctx: any, paymentData: any): Promise<string> {
-  // Mock card payment integration - in production, this would call payment gateway
-  const { transactionId, amount, reference } = paymentData;
-  
-  // Simulate payment gateway API call
-  console.log("Initiating card payment:", {
-    transactionId,
-    amount,
-    reference,
+async function initiateCardPayment(_ctx: unknown, paymentData: {
+  transactionId: Id<"paymentTransactions">;
+  amount: number;
+  moduleId: string;
+  reference: string;
+}): Promise<{ paymentUrl?: string; metadata: Record<string, unknown> }> {
+  const appBaseUrl =
+    process.env.FRONTEND_APP_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    "https://edumyles.com";
+
+  const response = await createStripeCheckoutSessionForPayment({
+    amount: paymentData.amount,
+    description: `Marketplace module purchase - ${paymentData.moduleId}`,
+    successUrl: `${appBaseUrl}/platform/marketplace?payment=success&reference=${paymentData.reference}`,
+    cancelUrl: `${appBaseUrl}/platform/marketplace?payment=cancelled&reference=${paymentData.reference}`,
+    clientReferenceId: paymentData.reference,
+    metadata: {
+      transactionId: paymentData.transactionId.toString(),
+      moduleId: paymentData.moduleId,
+      reference: paymentData.reference,
+    },
   });
 
-  return `https://edumyles.com/pay/card/${reference}`;
+  return {
+    paymentUrl: response.url,
+    metadata: {
+      gateway: "stripe",
+      sessionId: response.sessionId,
+    },
+  };
 }
 
-async function initiateBankTransfer(ctx: any, paymentData: any): Promise<string> {
-  // Mock bank transfer integration
-  const { transactionId, amount, reference } = paymentData;
-  
-  console.log("Initiating bank transfer:", {
-    transactionId,
-    amount,
-    reference,
+async function initiateBankTransfer(_ctx: unknown, paymentData: {
+  transactionId: Id<"paymentTransactions">;
+  amount: number;
+  reference: string;
+}): Promise<{ paymentUrl?: string; metadata: Record<string, unknown> }> {
+  const transfer = buildBankTransferInstructions({
+    amount: paymentData.amount,
+    reference: paymentData.reference,
   });
 
-  return `https://edumyles.com/pay/bank/${reference}`;
+  return {
+    paymentUrl: undefined,
+    metadata: {
+      gateway: "bank_transfer",
+      bankDetails: transfer.bankDetails,
+      instructions: transfer.instructions,
+      reference: transfer.reference,
+    },
+  };
 }
 
 function getSubscriptionPeriod(billingCycle: string): number {
