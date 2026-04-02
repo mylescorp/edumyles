@@ -1,3 +1,5 @@
+"use node";
+
 import { query } from "./_generated/server";
 
 // Simple query to test if master admin was created

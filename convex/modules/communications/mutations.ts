@@ -3,6 +3,7 @@ import { mutation } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
+import { DEFAULT_SMS_TEMPLATES, TemplateType, substituteTemplateVariables } from "./templates";
 
 // ─── Announcements ─────────────────────────────────────────────────
 
@@ -645,5 +646,165 @@ export const sendBroadcast = mutation({
         }
 
         return { success: true, campaignId, recipientCount: targetUsers.length };
+    },
+});
+
+// ─── SMS Templates ─────────────────────────────────────────────────────
+
+export const createSMSTemplate = mutation({
+    args: {
+        type: v.string(),
+        name: v.string(),
+        content: v.string(),
+        variables: v.array(v.string()),
+        isActive: v.optional(v.boolean()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "communications");
+        requirePermission(tenant, "communications:templates");
+
+        const now = Date.now();
+        const id = await ctx.db.insert("smsTemplates", {
+            tenantId: tenant.tenantId,
+            type: args.type as TemplateType,
+            name: args.name,
+            content: args.content,
+            variables: args.variables,
+            isActive: args.isActive ?? true,
+            createdAt: now,
+            updatedAt: now,
+        });
+        return id;
+    },
+});
+
+export const updateSMSTemplate = mutation({
+    args: {
+        templateId: v.id("smsTemplates"),
+        name: v.optional(v.string()),
+        content: v.optional(v.string()),
+        variables: v.optional(v.array(v.string())),
+        isActive: v.optional(v.boolean()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "communications");
+        requirePermission(tenant, "communications:templates");
+
+        const template = await ctx.db.get(args.templateId);
+        if (!template || template.tenantId !== tenant.tenantId) {
+            throw new Error("Template not found or access denied");
+        }
+
+        const updates: any = { updatedAt: Date.now() };
+        if (args.name !== undefined) updates.name = args.name;
+        if (args.content !== undefined) updates.content = args.content;
+        if (args.variables !== undefined) updates.variables = args.variables;
+        if (args.isActive !== undefined) updates.isActive = args.isActive;
+
+        await ctx.db.patch(args.templateId, updates);
+        return args.templateId;
+    },
+});
+
+export const initializeDefaultSMSTemplates = mutation({
+    args: {},
+    handler: async (ctx) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "communications");
+        requirePermission(tenant, "communications:templates");
+
+        const now = Date.now();
+        for (const [type, defaultTemplate] of Object.entries(DEFAULT_SMS_TEMPLATES)) {
+            const existing = await ctx.db
+                .query("smsTemplates")
+                .withIndex("by_tenant_type", (q) =>
+                    q.eq("tenantId", tenant.tenantId).eq("type", type)
+                )
+                .first();
+
+            if (!existing) {
+                await ctx.db.insert("smsTemplates", {
+                    tenantId: tenant.tenantId,
+                    type: type as TemplateType,
+                    name: defaultTemplate.name,
+                    content: defaultTemplate.content,
+                    variables: defaultTemplate.variables,
+                    isActive: defaultTemplate.isActive,
+                    createdAt: now,
+                    updatedAt: now,
+                });
+            }
+        }
+
+        return { success: true, initialized: Object.keys(DEFAULT_SMS_TEMPLATES).length };
+    },
+});
+
+// ─── Email Templates ────────────────────────────────────────────────────
+
+export const createEmailTemplate = mutation({
+    args: {
+        type: v.string(),
+        name: v.string(),
+        subject: v.string(),
+        htmlContent: v.string(),
+        textContent: v.string(),
+        variables: v.array(v.string()),
+        isActive: v.optional(v.boolean()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "communications");
+        requirePermission(tenant, "communications:templates");
+
+        const now = Date.now();
+        const id = await ctx.db.insert("emailTemplates", {
+            tenantId: tenant.tenantId,
+            type: args.type as TemplateType,
+            name: args.name,
+            subject: args.subject,
+            htmlContent: args.htmlContent,
+            textContent: args.textContent,
+            variables: args.variables,
+            isActive: args.isActive ?? true,
+            createdAt: now,
+            updatedAt: now,
+        });
+        return id;
+    },
+});
+
+export const updateEmailTemplate = mutation({
+    args: {
+        templateId: v.id("emailTemplates"),
+        name: v.optional(v.string()),
+        subject: v.optional(v.string()),
+        htmlContent: v.optional(v.string()),
+        textContent: v.optional(v.string()),
+        variables: v.optional(v.array(v.string())),
+        isActive: v.optional(v.boolean()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "communications");
+        requirePermission(tenant, "communications:templates");
+
+        const template = await ctx.db.get(args.templateId);
+        if (!template || template.tenantId !== tenant.tenantId) {
+            throw new Error("Template not found or access denied");
+        }
+
+        const updates: any = { updatedAt: Date.now() };
+        if (args.name !== undefined) updates.name = args.name;
+        if (args.subject !== undefined) updates.subject = args.subject;
+        if (args.htmlContent !== undefined) updates.htmlContent = args.htmlContent;
+        if (args.textContent !== undefined) updates.textContent = args.textContent;
+        if (args.variables !== undefined) updates.variables = args.variables;
+        if (args.isActive !== undefined) updates.isActive = args.isActive;
+
+        await ctx.db.patch(args.templateId, updates);
+        return args.templateId;
     },
 });

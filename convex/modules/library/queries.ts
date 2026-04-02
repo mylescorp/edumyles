@@ -205,54 +205,93 @@ export const getLibraryReports = query({
             const totalBooks = books.length;
             const activeBorrowers = new Set(borrows.map(b => b.borrowerId)).size;
             const monthlyCirculation = borrows.filter(b => b.createdAt >= periodStartTime).length;
-            
+
             const overdueBorrows = borrowers.filter(b => b.dueDate < now.getTime());
             const overdueRate = borrowers.length > 0 ? (overdueBorrows.length / borrowers.length) * 100 : 0;
-            
-            // Calculate average reading time (mock data for now)
-            const averageReadingTime = 14;
-            const collectionEfficiency = 94.5;
 
-            // Calculate circulation trends (mock data for now)
-            const circulationData = [
-                { name: "Jan", borrowed: 145, returned: 132, overdue: 8 },
-                { name: "Feb", borrowed: 167, returned: 158, overdue: 12 },
-                { name: "Mar", borrowed: 189, returned: 176, overdue: 15 },
-                { name: "Apr", borrowed: 156, returned: 148, overdue: 10 },
-                { name: "May", borrowed: 178, returned: 165, overdue: 18 },
-                { name: "Jun", borrowed: 195, returned: 182, overdue: 22 },
-            ];
+            // Average reading time: mean of (returnedAt - borrowedAt) in days for returned borrows
+            const returnedBorrows = borrows.filter(b => b.status === "returned" && b.returnedAt != null);
+            let averageReadingTime: number | null = null;
+            if (returnedBorrows.length > 0) {
+                const totalDays = returnedBorrows.reduce((sum, b) => {
+                    const days = (b.returnedAt! - b.borrowedAt) / (1000 * 60 * 60 * 24);
+                    return sum + days;
+                }, 0);
+                averageReadingTime = Math.round((totalDays / returnedBorrows.length) * 10) / 10;
+            }
 
-            // Calculate popular categories
+            // Collection efficiency: distinct books borrowed in last 30 days / total books * 100
+            const thirtyDaysAgo = now.getTime() - 30 * 24 * 60 * 60 * 1000;
+            const recentBorrows = borrows.filter(b => b.borrowedAt >= thirtyDaysAgo);
+            const distinctBorrowedBookIds = new Set(recentBorrows.map(b => b.bookId));
+            let collectionEfficiency: number | null = null;
+            if (totalBooks > 0) {
+                collectionEfficiency = Math.round((distinctBorrowedBookIds.size / totalBooks) * 1000) / 10;
+            }
+
+            // Monthly circulation for last 6 months
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const circulationData: { name: string; borrowed: number; returned: number; overdue: number }[] = [];
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const start = d.getTime();
+                const end = new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime();
+                const monthBorrows = borrows.filter(b => b.borrowedAt >= start && b.borrowedAt < end);
+                const monthReturned = borrows.filter(b => b.returnedAt != null && b.returnedAt >= start && b.returnedAt < end);
+                const monthOverdue = monthBorrows.filter(b => b.dueDate < end && b.status !== "returned");
+                circulationData.push({
+                    name: monthNames[d.getMonth()] ?? "",
+                    borrowed: monthBorrows.length,
+                    returned: monthReturned.length,
+                    overdue: monthOverdue.length,
+                });
+            }
+
+            // Popular categories from actual books
             const categoryCounts = books.reduce((acc, book) => {
                 acc[book.category] = (acc[book.category] || 0) + 1;
                 return acc;
             }, {} as Record<string, number>);
-            
+
             const popularCategories = Object.entries(categoryCounts)
-                .map(([name, value]) => ({
+                .map(([name, value], idx) => ({
                     name,
-                    value: Math.round((value / totalBooks) * 100),
-                    color: chartColors.categorical[Object.keys(categoryCounts).indexOf(name) % chartColors.categorical.length]
+                    value: totalBooks > 0 ? Math.round((value / totalBooks) * 100) : 0,
+                    color: chartColors.categorical[idx % chartColors.categorical.length] ?? "#8884d8",
                 }))
                 .sort((a, b) => b.value - a.value)
                 .slice(0, 5);
 
-            // Calculate borrower stats (mock data for now)
-            const borrowerStats = [
-                { name: "Students", value: 245, color: chartColors.categorical[0] },
-                { name: "Teachers", value: 67, color: chartColors.categorical[1] },
-                { name: "Staff", value: 23, color: chartColors.categorical[2] },
-            ];
+            // Borrower stats by borrowerType
+            const borrowerTypeCounts = borrows.reduce((acc, b) => {
+                const type = b.borrowerType ?? "unknown";
+                acc[type] = (acc[type] || 0) + 1;
+                return acc;
+            }, {} as Record<string, number>);
+            const borrowerStats = Object.entries(borrowerTypeCounts).map(([name, value], idx) => ({
+                name: name.charAt(0).toUpperCase() + name.slice(1),
+                value,
+                color: chartColors.categorical[idx % chartColors.categorical.length] ?? "#8884d8",
+            }));
 
-            // Calculate top books (mock data for now)
-            const topBooks = [
-                { title: "Introduction to Mathematics", author: "John Smith", borrows: 45, rating: 4.8 },
-                { title: "Science Explorations", author: "Dr. Sarah Lee", borrows: 38, rating: 4.6 },
-                { title: "History of Africa", author: "Prof. Michael Okonkwo", borrows: 32, rating: 4.7 },
-                { title: "Literature Classics", author: "Jane Austen", borrows: 28, rating: 4.9 },
-                { title: "Computer Science Fundamentals", author: "Tech Writers", borrows: 25, rating: 4.5 },
-            ];
+            // Top 5 books by borrow count
+            const bookBorrowCounts = borrows.reduce((acc, b) => {
+                acc[b.bookId] = (acc[b.bookId] || 0) + 1;
+                return acc;
+            }, {} as Record<string, number>);
+            const bookMap = new Map(books.map(b => [b._id.toString(), b]));
+            const topBooks = Object.entries(bookBorrowCounts)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([bookId, count]) => {
+                    const book = bookMap.get(bookId);
+                    return {
+                        title: book?.title ?? "Unknown",
+                        author: book?.author ?? "Unknown",
+                        borrows: count,
+                        rating: null as number | null,
+                    };
+                });
 
             return {
                 stats: {

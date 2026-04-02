@@ -359,3 +359,35 @@ export const recordPaymentFromGatewayInternal = internalMutation({
     return { success: true, alreadyProcessed: false };
   },
 });
+
+// Update payment callback with actual external ID
+export const updatePaymentCallbackExternalId = internalMutation({
+  args: {
+    tenantId: v.string(),
+    gateway: v.string(),
+    pendingId: v.string(),
+    externalId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Find most recent pending callback for this gateway and tenant
+    const pendingCallbacks = await ctx.db
+      .query("paymentCallbacks")
+      .withIndex("by_tenant_gateway", (q) => 
+        q.eq("tenantId", args.tenantId).eq("gateway", args.gateway)
+      )
+      .filter((q) => q.eq("status", "pending"))
+      .order("desc")
+      .take(1);
+
+    if (pendingCallbacks.length === 0) {
+      throw new Error("No pending callback found to update");
+    }
+
+    const callback = pendingCallbacks[0];
+    await ctx.db.patch(callback._id, {
+      externalId: args.externalId,
+    });
+
+    return callback._id;
+  },
+});

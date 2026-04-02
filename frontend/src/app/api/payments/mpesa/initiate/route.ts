@@ -4,8 +4,13 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
 const DARAJA_OAUTH =
-  "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
-const DARAJA_STK_PUSH = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+  process.env.MPESA_ENVIRONMENT === "production" 
+    ? "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    : "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
+const DARAJA_STK_PUSH = 
+  process.env.MPESA_ENVIRONMENT === "production"
+    ? "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+    : "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -96,52 +101,26 @@ export async function POST(req: NextRequest) {
     const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString("base64");
     const normalizedPhone = normalizePhone(phone);
 
-    const stkRes = await fetch(DARAJA_STK_PUSH, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${oauth.access_token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        BusinessShortCode: shortcode,
-        Password: password,
-        Timestamp: timestamp,
-        TransactionType: "CustomerPayBillOnline",
-        Amount: Math.round(invoice.amount),
-        PartyA: normalizedPhone,
-        PartyB: shortcode,
-        PhoneNumber: normalizedPhone,
-        CallBackURL: callbackUrl,
-        AccountReference: `INV-${invoiceId}`,
-        TransactionDesc: "EduMyles fee payment",
-      }),
+    // Use our new M-Pesa action instead of direct API calls
+    const result = await convex.action(api.modules.finance.actions.initiateMpesaPayment, {
+      webhookSecret,
+      tenantId: session.tenantId,
+      invoiceId: String(invoiceId),
+      phoneNumber: normalizedPhone,
+      amount: Math.round(invoice.amount),
     });
 
-    const stkJson = (await stkRes.json()) as {
-      CheckoutRequestID?: string;
-      errorMessage?: string;
-    };
-    if (!stkRes.ok || !stkJson.CheckoutRequestID) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: stkJson.errorMessage ?? "STK push initiation failed" },
+        { error: result.error || "STK push initiation failed" },
         { status: 502 }
       );
     }
 
-    await convex.action((api as any).modules.finance.actions.savePaymentCallbackFromServer, {
-      webhookSecret,
-      tenantId: session.tenantId,
-      gateway: "mpesa",
-      externalId: stkJson.CheckoutRequestID,
-      invoiceId: String(invoiceId),
-      amount: invoice.amount,
-      status: "pending",
-    });
-
     return NextResponse.json({
       success: true,
-      checkoutRequestId: stkJson.CheckoutRequestID,
-      message: "Enter your M-Pesa PIN on your phone to complete the payment.",
+      checkoutRequestId: result.checkoutRequestID,
+      message: result.customerMessage || "Enter your M-Pesa PIN on your phone to complete the payment.",
     });
   } catch (e) {
     console.error("M-Pesa initiate error:", e);

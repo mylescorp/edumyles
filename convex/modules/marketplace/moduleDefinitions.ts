@@ -10,7 +10,7 @@ export interface ModuleDefinition {
   name: string;
   description: string;
   /** Minimum subscription tier required to install this module */
-  tier: "free" | "starter" | "standard" | "pro" | "enterprise";
+  tier: "free" | "starter" | "growth" | "enterprise";
   category: "academics" | "administration" | "communications" | "finance" | "analytics" | "security" | "integrations";
   isCore: boolean;
   iconName: string;
@@ -140,7 +140,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "academics",
     name: "Academics",
     description: "Manage academic operations — exams, grading, subjects, curriculum, and academic performance tracking.",
-    tier: "standard",
+    tier: "growth",
     category: "academics",
     isCore: false,
     iconName: "BookOpen",
@@ -162,7 +162,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "finance",
     name: "Finance & Fees",
     description: "Complete financial management — fee structures, invoicing, payment tracking, and financial reporting.",
-    tier: "standard",
+    tier: "growth",
     category: "finance",
     isCore: false,
     iconName: "DollarSign",
@@ -184,7 +184,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "timetable",
     name: "Timetable & Scheduling",
     description: "Create and manage class timetables with automatic conflict detection for teachers, rooms, and subjects.",
-    tier: "standard",
+    tier: "growth",
     category: "academics",
     isCore: false,
     iconName: "Calendar",

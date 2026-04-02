@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { useCurrency } from "@/hooks/useCurrency";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
@@ -30,6 +31,7 @@ const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
 
 export default function ParentDashboardPage() {
   const { user, isLoading } = useAuth();
+  const { format: formatCurrency } = useCurrency();
   const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
   const financeEnabled = isModuleInstalled("finance");
   const sisEnabled = isModuleInstalled("sis");
@@ -83,7 +85,7 @@ export default function ParentDashboardPage() {
         />
         <StatCard
           label="Total Fee Balance"
-          value={financeEnabled ? `KES ${totalBalance.toLocaleString()}` : "—"}
+          value={financeEnabled ? formatCurrency(totalBalance) : "—"}
           icon={DollarSign}
           variant={totalBalance > 0 ? "warning" : "success"}
         />
@@ -212,7 +214,7 @@ export default function ParentDashboardPage() {
                           : "text-[#26A65B] border-[#26A65B]/30 bg-[rgba(38,166,91,0.07)]"
                       )}
                     >
-                      KES {(item.balance ?? 0).toLocaleString()}
+                      {formatCurrency(item.balance ?? 0)}
                     </Badge>
                   </div>
                 ))}

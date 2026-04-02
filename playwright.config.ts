@@ -15,6 +15,7 @@ export default defineConfig({
   reporter: [
     ["list"],
     ["html", { outputFolder: "playwright-report", open: "never" }],
+    ["junit", { outputFile: "test-results/junit.xml" }],
     ...(process.env.CI ? [["github"] as any] : []),
   ],
 
@@ -29,31 +30,43 @@ export default defineConfig({
     // Setup project that handles auth state
     { name: "setup", testMatch: /.*\.setup\.ts/ },
 
+    // Desktop browsers
     {
       name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: "e2e/.auth/admin.json",
-      },
+      use: { ...devices["Desktop Chrome"] },
       dependencies: ["setup"],
     },
     {
-      name: "mobile-chrome",
-      use: {
-        ...devices["Pixel 5"],
-        storageState: "e2e/.auth/admin.json",
-      },
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+      dependencies: ["setup"],
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+      dependencies: ["setup"],
+    },
+
+    // Mobile browsers
+    {
+      name: "Mobile Chrome",
+      use: { ...devices["Pixel 5"] },
+      dependencies: ["setup"],
+    },
+    {
+      name: "Mobile Safari",
+      use: { ...devices["iPhone 12"] },
       dependencies: ["setup"],
     },
   ],
 
-  // Spin up the Next.js dev server automatically when running locally
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: "npm run dev:frontend",
-        url: "http://localhost:3000",
-        reuseExistingServer: true,
-        timeout: 120_000,
-      },
+  // Global setup for test environment
+  globalSetup: "./e2e/global-setup.ts",
+  globalTeardown: "./e2e/global-teardown.ts",
+
+  // Test timeout
+  timeout: 30 * 1000,
+  expect: {
+    timeout: 5 * 1000,
+  },
 });

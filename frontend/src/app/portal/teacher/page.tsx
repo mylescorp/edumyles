@@ -42,13 +42,29 @@ export default function TeacherDashboardPage() {
     sisEnabled ? {} : "skip"
   );
 
-  if (authLoading || modulesLoading || (sisEnabled && classes === undefined)) {
+  const activeAssignmentsCount = useQuery(
+    api.modules.academics.queries.getTeacherActiveAssignmentsCount,
+    academicsEnabled ? {} : "skip"
+  );
+
+  const todayClassesCount = useQuery(
+    api.modules.academics.queries.getTeacherTodayClassesCount,
+    timetableEnabled ? {} : "skip"
+  );
+
+  if (
+    authLoading ||
+    modulesLoading ||
+    (sisEnabled && classes === undefined) ||
+    (academicsEnabled && activeAssignmentsCount === undefined) ||
+    (timetableEnabled && todayClassesCount === undefined)
+  ) {
     return <LoadingSkeleton variant="page" />;
   }
 
   const teacherClasses = classes ?? [];
   const totalStudents = teacherClasses.reduce((sum: number, cls: any) => sum + (cls.studentCount || 0), 0);
-  const activeAssignments = academicsEnabled ? 5 : 0;
+  const activeAssignments = academicsEnabled ? (activeAssignmentsCount ?? 0) : 0;
 
   const availableActions = QUICK_ACTIONS.filter((a) => {
     if (a.module === "sis") return sisEnabled;
@@ -88,7 +104,7 @@ export default function TeacherDashboardPage() {
         />
         <StatCard
           label="Today's Classes"
-          value={3}
+          value={timetableEnabled ? (todayClassesCount ?? 0) : "—"}
           icon={Calendar}
           variant="default"
         />

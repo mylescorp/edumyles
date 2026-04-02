@@ -483,32 +483,53 @@ export default defineSchema({
     teacherId: v.string(),
     title: v.string(),
     description: v.string(),
+    instructions: v.optional(v.string()),
     dueDate: v.string(),
+    dueTime: v.optional(v.string()),
     maxPoints: v.number(),
-    status: v.string(), // active | archived | draft
+    type: v.string(), // homework, classwork, project, exam, quiz
+    gradingScale: v.optional(v.string()), // points, percentage, letter, competency
+    allowLateSubmission: v.optional(v.boolean()),
+    latePenalty: v.optional(v.number()),
+    status: v.string(), // draft, published, closed, graded
+    attachments: v.optional(v.array(v.string())),
+    learningObjectives: v.optional(v.array(v.string())),
+    rubric: v.optional(v.array(v.object({
+      criteria: v.string(),
+      description: v.string(),
+      maxPoints: v.number(),
+    }))),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_class", ["classId"])
-    .index("by_teacher", ["teacherId", "createdAt"]),
+    .index("by_teacher", ["teacherId", "createdAt"])
+    .index("by_tenant_class", ["tenantId", "classId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
 
   submissions: defineTable({
     tenantId: v.string(),
     assignmentId: v.string(),
     studentId: v.string(),
     content: v.optional(v.string()),
+    attachments: v.optional(v.array(v.string())),
     fileUrl: v.optional(v.string()),
-    status: v.string(), // pending | submitted | graded | late
+    status: v.string(), // not_submitted | submitted | late | graded
     grade: v.optional(v.number()),
+    score: v.optional(v.number()), // numeric score
+    letterGrade: v.optional(v.string()), // A, B, C, etc.
     feedback: v.optional(v.string()),
     submittedAt: v.optional(v.number()),
     gradedAt: v.optional(v.number()),
+    gradedBy: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_assignment", ["assignmentId"])
-    .index("by_student", ["studentId"]),
+    .index("by_student", ["studentId"])
+    .index("by_assignment_student", ["assignmentId", "studentId"])
+    .index("by_student_date", ["studentId", "submittedAt"]),
 
   grades: defineTable({
     tenantId: v.string(),
@@ -561,6 +582,24 @@ export default defineSchema({
     .index("by_teacher", ["teacherId"])
     .index("by_room", ["tenantId", "room", "dayOfWeek"])
     .index("by_tenant_day", ["tenantId", "dayOfWeek"]),
+
+  rooms: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    code: v.string(),
+    capacity: v.number(),
+    type: v.string(), // classroom, lab, hall, office, etc.
+    equipment: v.optional(v.array(v.string())), // projector, computer, whiteboard, etc.
+    location: v.optional(v.string()),
+    floor: v.optional(v.string()),
+    available: v.boolean(), // whether room is currently available
+    maintenanceNotes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_type", ["tenantId", "type"])
+    .index("by_tenant_capacity", ["tenantId", "capacity"]),
 
   schoolEvents: defineTable({
     tenantId: v.string(),
@@ -3212,4 +3251,211 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_email", ["email"])
     .index("by_workos_user", ["workosUserId"]),
+
+  // ─── Library Fine System ──────────────────────────────────────────────────
+  fineRules: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    description: v.string(),
+    type: v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly"), v.literal("one_time")),
+    amount: v.number(),
+    maxAmount: v.optional(v.number()),
+    gracePeriodDays: v.number(),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
+
+  bookLoans: defineTable({
+    tenantId: v.string(),
+    bookId: v.string(),
+    studentId: v.string(),
+    borrowedAt: v.number(),
+    dueDate: v.number(),
+    returnedAt: v.optional(v.number()),
+    status: v.union(v.literal("active"), v.literal("returned"), v.literal("overdue")),
+    fineAccrued: v.number(),
+    finePaid: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_student", ["studentId"])
+    .index("by_student_status", ["studentId", "status"])
+    .index("by_status", ["status"]),
+
+  finePayments: defineTable({
+    tenantId: v.string(),
+    loanId: v.id("bookLoans"),
+    amount: v.number(),
+    paymentMethod: v.string(),
+    paymentReference: v.optional(v.string()),
+    paidBy: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_loan", ["loanId"]),
+
+  // ─── HR Payroll System ───────────────────────────────────────────────────
+  payrollPeriods: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    startDate: v.number(),
+    endDate: v.number(),
+    payDate: v.number(),
+    status: v.union(v.literal("draft"), v.literal("processing"), v.literal("completed"), v.literal("paid")),
+    totalGrossPay: v.number(),
+    totalNetPay: v.number(),
+    totalDeductions: v.number(),
+    employeeCount: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  payrollCalculations: defineTable({
+    tenantId: v.string(),
+    payrollPeriodId: v.id("payrollPeriods"),
+    employeeId: v.string(),
+    basicSalary: v.number(),
+    allowances: v.number(),
+    overtimeHours: v.number(),
+    overtimeRate: v.number(),
+    overtimePay: v.number(),
+    grossPay: v.number(),
+    deductions: v.array(v.object({
+      type: v.string(),
+      amount: v.number(),
+      description: v.string(),
+    })),
+    totalDeductions: v.number(),
+    netPay: v.number(),
+    payeTax: v.number(),
+    nssf: v.number(),
+    nhif: v.number(),
+    otherDeductions: v.number(),
+    status: v.union(v.literal("calculated"), v.literal("approved"), v.literal("paid")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_period", ["payrollPeriodId"])
+    .index("by_employee_period", ["employeeId", "payrollPeriodId"]),
+
+  allowanceRules: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    type: v.union(v.literal("fixed"), v.literal("percentage")),
+    amount: v.number(),
+    appliesToRoles: v.array(v.string()),
+    conditions: v.array(v.object({
+      minSalary: v.optional(v.number()),
+      maxSalary: v.optional(v.number()),
+      department: v.optional(v.string()),
+    })),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
+
+  deductionRules: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    type: v.union(v.literal("percentage"), v.literal("fixed")),
+    amount: v.number(),
+    appliesToRoles: v.array(v.string()),
+    isTaxDeductible: v.boolean(),
+    conditions: v.array(v.object({
+      minSalary: v.optional(v.number()),
+      maxSalary: v.optional(v.number()),
+      department: v.optional(v.string()),
+    })),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
+
+  payrollPayments: defineTable({
+    tenantId: v.string(),
+    payrollPeriodId: v.id("payrollPeriods"),
+    calculationId: v.id("payrollCalculations"),
+    employeeId: v.string(),
+    amount: v.number(),
+    paymentMethod: v.string(),
+    paymentReference: v.optional(v.string()),
+    paidBy: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_period", ["payrollPeriodId"])
+    .index("by_calculation", ["calculationId"]),
+
+  assignmentSubmissions: defineTable({
+    tenantId: v.string(),
+    assignmentId: v.id("assignments"),
+    studentId: v.string(),
+    submittedAt: v.optional(v.number()),
+    content: v.optional(v.string()),
+    attachments: v.optional(v.array(v.string())),
+    status: v.union(v.literal("not_submitted"), v.literal("submitted"), v.literal("graded")),
+    marks: v.optional(v.number()),
+    feedback: v.optional(v.string()),
+    gradedBy: v.optional(v.string()),
+    gradedAt: v.optional(v.number()),
+    lateSubmission: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_assignment", ["assignmentId"])
+    .index("by_student", ["studentId"])
+    .index("by_assignment_student", ["assignmentId", "studentId"])
+    .index("by_status", ["status"]),
+
+  // ─── Timetable Conflict Detection ────────────────────────────────────────
+  timetableEntries: defineTable({
+    tenantId: v.string(),
+    dayOfWeek: v.number(), // 0-6 (Sunday-Saturday)
+    startTime: v.string(), // "09:00"
+    endTime: v.string(),   // "10:00"
+    subjectId: v.string(),
+    teacherId: v.string(),
+    classId: v.string(),
+    roomId: v.string(),
+    term: v.string(),
+    year: v.number(),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_teacher_time", ["teacherId", "dayOfWeek", "startTime"])
+    .index("by_class_time", ["classId", "dayOfWeek", "startTime"])
+    .index("by_room_time", ["roomId", "dayOfWeek", "startTime"])
+    .index("by_term_year", ["term", "year"]),
+
+  // ─── Communication Templates ─────────────────────────────────────────────
+  communicationTemplates: defineTable({
+    tenantId: v.string(),
+    type: v.union(v.literal("sms"), v.literal("email")),
+    category: v.string(), // "fee_reminder", "payment_confirmation", "assignment_due", etc.
+    name: v.string(),
+    subject: v.optional(v.string()), // for email templates
+    content: v.string(),
+    variables: v.array(v.string()), // list of variables that can be substituted
+    isActive: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_type", ["tenantId", "type"])
+    .index("by_tenant_category", ["tenantId", "category"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
 });

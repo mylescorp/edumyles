@@ -8,7 +8,7 @@
 // ----------------------------------------------------------
 export type TenantId = string;
 
-export type TenantTier = "starter" | "standard" | "pro" | "enterprise";
+export type TenantTier = "free" | "starter" | "growth" | "enterprise";
 
 export type TenantStatus = "active" | "suspended" | "trial" | "churned";
 
@@ -29,16 +29,18 @@ export interface Tenant {
 // Users & Roles
 // ----------------------------------------------------------
 export type UserRole =
-  | "platform_admin"  // Mylesoft staff — cross-tenant access
-  | "school_admin"    // Full access within their tenant
+  | "platform_admin"    // Mylesoft staff — cross-tenant access
+  | "master_admin"      // Platform super-admin
+  | "school_admin"      // Full access within their tenant
   | "principal"
   | "teacher"
   | "student"
   | "parent"
-  | "finance_officer"
+  | "bursar"            // Finance Officer (canonical backend name)
   | "librarian"
   | "transport_officer"
-  | "hr_officer"
+  | "hr_manager"        // HR Officer (canonical backend name)
+  | "board_member"      // Board-level read-only access
   | "receptionist"
   | "alumni"
   | "partner";

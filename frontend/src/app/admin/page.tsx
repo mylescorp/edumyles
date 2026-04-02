@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useCurrency } from "@/hooks/useCurrency";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
@@ -31,6 +32,7 @@ const STATUS_DOTS: Record<string, string> = {
 
 export default function AdminDashboard() {
   const { isLoading, user, sessionToken } = useAuth();
+  const { format: formatCurrency } = useCurrency();
 
   const students = useQuery(
     api.modules.sis.queries.listStudents,
@@ -149,13 +151,13 @@ export default function AdminDashboard() {
           title="Revenue This Month"
           value={
             monthlyRevenue > 0
-              ? `KSh ${monthlyRevenue.toLocaleString()}`
+              ? formatCurrency(monthlyRevenue)
               : totalRevenue > 0
-              ? `KSh ${totalRevenue.toLocaleString()}`
+              ? formatCurrency(totalRevenue)
               : "—"
           }
           description={
-            pendingFees > 0 ? `KSh ${pendingFees.toLocaleString()} pending` : "All fees cleared"
+            pendingFees > 0 ? `${formatCurrency(pendingFees)} pending` : "All fees cleared"
           }
           icon={DollarSign}
           variant={pendingFees > 0 ? "warning" : "success"}
@@ -212,7 +214,7 @@ export default function AdminDashboard() {
                         variant="outline"
                         className="text-[#E8A020] border-[#E8A020]/40 bg-[rgba(232,160,32,0.07)] text-xs font-semibold"
                       >
-                        KSh {(inv.amount ?? 0).toLocaleString()}
+                        {formatCurrency(inv.amount ?? 0)}
                       </Badge>
                     </div>
                   ))}
