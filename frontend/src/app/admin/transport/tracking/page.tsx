@@ -462,6 +462,84 @@ export default function TransportTrackingPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Detail / Track Dialog */}
+      <Dialog open={!!detailItem} onOpenChange={(open) => { if (!open) setDetailItem(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {detailItem?.type === "route" && "Route Details"}
+              {detailItem?.type === "vehicle" && "Vehicle Tracking"}
+              {detailItem?.type === "driver" && "Driver Details"}
+            </DialogTitle>
+            <DialogDescription>
+              {detailItem?.type === "vehicle"
+                ? "Real-time GPS tracking is not yet enabled. Route and assignment information is shown below."
+                : "Record details from the database."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {detailItem?.type === "route" && (() => {
+            const r = detailItem.data as Route;
+            return (
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Name</span><span className="font-medium">{r.name}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Status</span><Badge variant={r.status === "active" ? "default" : "secondary"}>{(r.status as string) ?? "—"}</Badge></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Capacity</span><span>{r.capacity ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Driver ID</span><span className="font-mono text-xs">{(r.driverId as string) ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Vehicle ID</span><span className="font-mono text-xs">{(r.vehicleId as string) ?? "—"}</span></div>
+                {r.stops && (r.stops as string[]).length > 0 && (
+                  <div>
+                    <p className="text-muted-foreground mb-1">Stops ({(r.stops as string[]).length})</p>
+                    <ol className="list-decimal list-inside space-y-0.5">
+                      {(r.stops as string[]).map((stop, i) => <li key={i}>{stop}</li>)}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {detailItem?.type === "vehicle" && (() => {
+            const v = detailItem.data as Vehicle;
+            const assignedRoute = allRoutes.find((r) => r.vehicleId === v._id);
+            return (
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Plate</span><span className="font-medium">{v.plateNumber ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Make / Model</span><span>{[v.make, v.model].filter(Boolean).join(" ") || "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Capacity</span><span>{v.capacity ?? "—"} seats</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Status</span><Badge variant={v.status === "active" ? "default" : "secondary"}>{(v.status as string) ?? "—"}</Badge></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Assigned Route</span><span>{assignedRoute?.name ?? "Not assigned"}</span></div>
+                {assignedRoute?.stops && (assignedRoute.stops as string[]).length > 0 && (
+                  <div>
+                    <p className="text-muted-foreground mb-1">Route Stops</p>
+                    <ol className="list-decimal list-inside space-y-0.5">
+                      {(assignedRoute.stops as string[]).map((stop, i) => <li key={i}>{stop}</li>)}
+                    </ol>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground pt-2 border-t">
+                  Real-time GPS tracking coming soon. Contact your transport officer for live location updates.
+                </p>
+              </div>
+            );
+          })()}
+
+          {detailItem?.type === "driver" && (() => {
+            const d = detailItem.data as Driver;
+            const assignedVehicle = allVehicles.find((v) => v._id === d.assignedVehicleId || d.assignedVehicleId === v._id);
+            return (
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Name</span><span className="font-medium">{[d.firstName, d.lastName].filter(Boolean).join(" ") || "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span>{(d.phone as string) ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">License</span><span>{(d.licenseNumber as string) ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Status</span><Badge variant={d.status === "active" ? "default" : "secondary"}>{((d.status as string) ?? "—").replace("_", " ")}</Badge></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Assigned Vehicle</span><span>{assignedVehicle?.plateNumber ?? (d.assignedVehicleId ? "Vehicle ID: " + d.assignedVehicleId : "Not assigned")}</span></div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
