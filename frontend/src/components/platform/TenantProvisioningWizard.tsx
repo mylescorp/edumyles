@@ -771,10 +771,10 @@ export function TenantProvisioningWizard({ className = "" }: TenantProvisioningW
                     <span className="text-muted-foreground">Selected Modules:</span>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {formData.selectedModules.map((moduleId) => {
-                        const module = MODULE_OPTIONS.find(m => m.id === moduleId);
+                        const selectedModule = MODULE_OPTIONS.find(m => m.id === moduleId);
                         return (
                           <Badge key={moduleId} variant="secondary" className="text-xs">
-                            {module?.icon} {module?.name}
+                            {selectedModule?.icon} {selectedModule?.name}
                           </Badge>
                         );
                       })}

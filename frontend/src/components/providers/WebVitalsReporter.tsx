@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
+import posthog from "posthog-js";
 import { onCLS, onINP, onFCP, onLCP, onTTFB, type Metric } from "web-vitals";
 
 /**
@@ -26,7 +28,6 @@ export function WebVitalsReporter() {
 
       // 2. PostHog
       try {
-        const { default: posthog } = require("posthog-js");
         if (posthog.__loaded) {
           posthog.capture("web_vital", {
             metric: metric.name,
@@ -41,7 +42,6 @@ export function WebVitalsReporter() {
 
       // 3. Sentry
       try {
-        const Sentry = require("@sentry/nextjs");
         const activeSpan = Sentry.getActiveSpan();
         if (activeSpan) {
           const rootSpan = Sentry.getRootSpan(activeSpan);

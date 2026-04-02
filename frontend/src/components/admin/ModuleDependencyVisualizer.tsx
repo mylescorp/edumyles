@@ -41,11 +41,11 @@ export function ModuleDependencyVisualizer({
   const selectedModuleData = modules.find(m => m.moduleId === selectedModule);
 
   const getDependencyStatus = (moduleId: string) => {
-    const module = modules.find(m => m.moduleId === moduleId);
-    if (!module) return 'missing';
-    if (module.isCore) return 'core';
-    if (!module.isInstalled) return 'not-installed';
-    if (!module.isActive) return 'inactive';
+    const moduleData = modules.find(m => m.moduleId === moduleId);
+    if (!moduleData) return 'missing';
+    if (moduleData.isCore) return 'core';
+    if (!moduleData.isInstalled) return 'not-installed';
+    if (!moduleData.isActive) return 'inactive';
     return 'active';
   };
 
@@ -75,8 +75,8 @@ export function ModuleDependencyVisualizer({
     if (visited.has(moduleId) || depth > 3) return null;
     visited.add(moduleId);
 
-    const module = modules.find(m => m.moduleId === moduleId);
-    if (!module) return null;
+    const moduleData = modules.find(m => m.moduleId === moduleId);
+    if (!moduleData) return null;
 
     const status = getDependencyStatus(moduleId);
     const isExpanded = selectedModule === moduleId;
@@ -86,7 +86,7 @@ export function ModuleDependencyVisualizer({
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 flex-1">
             <Package className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{module.name}</span>
+            <span className="font-medium">{moduleData.name}</span>
             <Badge variant="outline" className={getStatusColor(status)}>
               {getStatusIcon(status)}
               <span className="ml-1">
@@ -97,7 +97,7 @@ export function ModuleDependencyVisualizer({
                  'Missing'}
               </span>
             </Badge>
-            {module.isCore && (
+            {moduleData.isCore && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
@@ -112,9 +112,9 @@ export function ModuleDependencyVisualizer({
           </div>
           
           {/* Action buttons */}
-          {!module.isCore && onModuleAction && (
+          {!moduleData.isCore && onModuleAction && (
             <div className="flex gap-1">
-              {!module.isInstalled && (
+              {!moduleData.isInstalled && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -124,7 +124,7 @@ export function ModuleDependencyVisualizer({
                   Install
                 </Button>
               )}
-              {module.isInstalled && !module.isActive && (
+              {moduleData.isInstalled && !moduleData.isActive && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -133,7 +133,7 @@ export function ModuleDependencyVisualizer({
                   Activate
                 </Button>
               )}
-              {module.isInstalled && module.isActive && (
+              {moduleData.isInstalled && moduleData.isActive && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -147,9 +147,9 @@ export function ModuleDependencyVisualizer({
         </div>
 
         {/* Render dependencies */}
-        {module.dependencies.length > 0 && isExpanded && (
+        {moduleData.dependencies.length > 0 && isExpanded && (
           <div className="space-y-2">
-            {module.dependencies.map(depId => renderDependencyChain(depId, depth + 1, new Set(visited)))}
+            {moduleData.dependencies.map(depId => renderDependencyChain(depId, depth + 1, new Set(visited)))}
           </div>
         )}
       </div>

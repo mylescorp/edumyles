@@ -29,7 +29,7 @@ export async function GET(
   let term = "";
   let academicYear = "";
   let gpa: number | null = null;
-  let rank: number | null = null;
+  const rank: number | null = null;
 
   try {
     // Use the student portal query to resolve the current student if the viewer is the student

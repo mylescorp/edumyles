@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useState } from "react";
 import { trackCookieConsent } from "@/lib/analytics";
 
 export default function CookieBanner() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return false;
     try {
-      if (!localStorage.getItem("em-cookies")) setVisible(true);
+      return !window.localStorage.getItem("em-cookies");
     } catch {
-      setVisible(true);
+      return true;
     }
-  }, []);
+  });
 
   function accept() {
     try {
@@ -46,13 +46,13 @@ export default function CookieBanner() {
     >
       <p className="font-jakarta text-sm mb-4 leading-relaxed" style={{ color: "#A8E6C3" }}>
         We use cookies to improve your experience and analyse site performance. See our{" "}
-        <a 
-          href="/privacy" 
+        <Link
+          href="/privacy"
           className="no-underline hover:underline transition-all duration-200"
           style={{ color: "#E8A020" }}
         >
           Privacy Policy
-        </a>
+        </Link>
         .
       </p>
       <div className="flex gap-3">

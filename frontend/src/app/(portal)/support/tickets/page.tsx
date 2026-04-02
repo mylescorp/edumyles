@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Link from "next/link";
 import { 
   Clock, 
   AlertTriangle, 
@@ -48,7 +49,7 @@ export default function SchoolTicketsPage() {
   const tickets = useQuery(
     api.tickets.getTenantTickets,
     tenantId ? { tenantId, status: filters.status === "all" ? undefined : (filters.status as "open" | "in_progress" | "pending_school" | "resolved" | "closed") } : "skip"
-  );
+  ) as Ticket[] | undefined;
   const isLoading = tickets === undefined;
 
   // Filter tickets based on search
@@ -172,10 +173,10 @@ export default function SchoolTicketsPage() {
               <Badge variant="secondary">{filteredTickets?.length}</Badge>
             </div>
             <Button asChild>
-              <a href="/support/tickets/create">
+              <Link href="/support/tickets/create">
                 <Plus className="h-4 w-4 mr-1" />
                 New Ticket
-              </a>
+              </Link>
             </Button>
           </div>
         </CardHeader>
@@ -296,10 +297,10 @@ export default function SchoolTicketsPage() {
                 }
               </p>
               <Button asChild>
-                <a href="/support/tickets/create">
+                <Link href="/support/tickets/create">
                   <Plus className="h-4 w-4 mr-1" />
                   Create Your First Ticket
-                </a>
+                </Link>
               </Button>
             </div>
           )}
