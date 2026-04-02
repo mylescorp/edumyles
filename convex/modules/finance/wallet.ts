@@ -1,12 +1,12 @@
 import { v } from "convex/values";
-import { mutation, query } from "../../../_generated/server";
+import { mutation, query } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { logAction } from "../../helpers/auditLog";
 
 // Import wallet engine from shared lib
-const { WalletEngine } = require("../../../../shared/src/lib/wallet");
+const { WalletEngine } = require("../../../shared/src/lib/wallet");
 
 /**
  * Get user wallet

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { action, mutation } from "../../_generated/server";
+import { action, internalMutation, mutation } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
