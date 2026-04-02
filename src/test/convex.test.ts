@@ -1,76 +1,107 @@
-import { describe, it, expect, vi } from 'vitest';
-import { mutation, query } from '../convex/_generated/server';
+// @vitest-environment node
+import { ConvexError } from "convex/values";
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
 
-// Mock tenant context for testing
-const mockTenantContext = {
-  tenantId: 'TENANT-TEST',
-  userId: 'user-test',
-  email: 'test@example.com',
-  role: 'school_admin',
+import { getPermissions, requirePermission } from "../../convex/helpers/authorize";
+import { requirePlatformSession } from "../../convex/helpers/platformGuard";
+
+type SessionDoc = {
+  _id: string;
+  email?: string;
+  expiresAt: number;
+  role: string;
+  tenantId: string;
+  userId: string;
 };
 
-// Mock requireTenantContext
-vi.mock('../convex/helpers/tenantGuard', () => ({
-  requireTenantContext: vi.fn().mockResolvedValue(mockTenantContext),
-}));
+function createPlatformCtx(session: SessionDoc | null) {
+  return {
+    db: {
+      query: () => ({
+        withIndex: () => ({
+          first: async () => session,
+        }),
+      }),
+    },
+  } as any;
+}
 
-// Mock requirePermission
-vi.mock('../convex/helpers/authorize', () => ({
-  requirePermission: vi.fn(),
-}));
-
-// Mock requireModule
-vi.mock('../convex/helpers/moduleGuard', () => ({
-  requireModule: vi.fn().mockResolvedValue(true),
-}));
-
-describe('Convex Functions', () => {
-  describe('Tenant Isolation', () => {
-    it('should enforce tenant context in all functions', async () => {
-      // This test ensures all Convex functions call requireTenantContext
-      // In a real implementation, we would test actual functions
-      expect(true).toBe(true); // Placeholder for actual test
+describe("Convex auth and payment wiring", () => {
+  it("accepts a valid master admin platform session", async () => {
+    const ctx = createPlatformCtx({
+      _id: "session_1",
+      email: "admin@example.com",
+      expiresAt: Date.now() + 60_000,
+      role: "master_admin",
+      tenantId: "PLATFORM",
+      userId: "user_1",
     });
 
-    it('should prevent cross-tenant data access', async () => {
-      // Test that functions properly isolate data by tenant
-      expect(true).toBe(true); // Placeholder for actual test
-    });
-  });
-
-  describe('Permission System', () => {
-    it('should enforce role-based permissions', async () => {
-      // Test permission-based access control
-      expect(true).toBe(true); // Placeholder for actual test
-    });
-
-    it('should deny unauthorized access', async () => {
-      // Test that unauthorized users are blocked
-      expect(true).toBe(true); // Placeholder for actual test
+    await expect(
+      requirePlatformSession(ctx, { sessionToken: "token_123" })
+    ).resolves.toMatchObject({
+      email: "admin@example.com",
+      role: "master_admin",
+      tenantId: "PLATFORM",
+      userId: "user_1",
     });
   });
 
-  describe('Input Validation', () => {
-    it('should validate required fields', async () => {
-      // Test input validation in mutations
-      expect(true).toBe(true); // Placeholder for actual test
+  it("rejects expired platform sessions", async () => {
+    const ctx = createPlatformCtx({
+      _id: "session_2",
+      email: "admin@example.com",
+      expiresAt: Date.now() - 1,
+      role: "master_admin",
+      tenantId: "PLATFORM",
+      userId: "user_2",
     });
 
-    it('should sanitize user inputs', async () => {
-      // Test input sanitization
-      expect(true).toBe(true); // Placeholder for actual test
-    });
+    await expect(requirePlatformSession(ctx, { sessionToken: "expired" })).rejects.toThrow(
+      /expired/i
+    );
   });
 
-  describe('Error Handling', () => {
-    it('should handle database errors gracefully', async () => {
-      // Test error handling
-      expect(true).toBe(true); // Placeholder for actual test
+  it("denies non-platform roles from privileged access", async () => {
+    const ctx = createPlatformCtx({
+      _id: "session_3",
+      email: "staff@example.com",
+      expiresAt: Date.now() + 60_000,
+      role: "school_admin",
+      tenantId: "TENANT_1",
+      userId: "user_3",
     });
 
-    it('should provide meaningful error messages', async () => {
-      // Test error message quality
-      expect(true).toBe(true); // Placeholder for actual test
-    });
+    await expect(requirePlatformSession(ctx, { sessionToken: "staff" })).rejects.toThrow(
+      /platform access denied/i
+    );
+  });
+
+  it("grants the newly added delete and approve permissions to the expected roles", () => {
+    expect(getPermissions("transport_manager")).toContain("transport:delete");
+    expect(getPermissions("librarian")).toContain("library:delete");
+    expect(getPermissions("bursar")).toContain("ewallet:approve");
+    expect(getPermissions("school_admin")).toContain("ecommerce:approve");
+  });
+
+  it("throws a ConvexError when a role lacks the requested permission", () => {
+    expect(() =>
+      requirePermission(
+        {
+          email: "teacher@example.com",
+          role: "teacher",
+          tenantId: "TENANT_1",
+          userId: "user_4",
+        },
+        "finance:approve"
+      )
+    ).toThrow(ConvexError);
+  });
+
+  it("exposes the Airtel initiation action at the audited file path", () => {
+    const file = readFileSync("convex/actions/payments/airtel.ts", "utf8");
+    expect(file).toContain('export { initiateAirtelPayment }');
+    expect(file).toContain('../../modules/finance/actions');
   });
 });
