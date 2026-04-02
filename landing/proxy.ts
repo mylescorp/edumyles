@@ -17,7 +17,7 @@ function isSameDomain(appUrl: string, requestHost: string): boolean {
   }
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const sessionToken = request.cookies.get("edumyles_session")?.value;
   const role = request.cookies.get("edumyles_role")?.value || "school_admin";

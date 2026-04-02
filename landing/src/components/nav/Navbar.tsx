@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/shared/Logo";
 import { School, GraduationCap, Globe, Building2, Briefcase } from "lucide-react";
@@ -65,15 +66,11 @@ const solutionItems: SolutionItem[] = [
 
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeLink, setActiveLink] = useState("");
   const [solutionsOpen, setSolutionsOpen] = useState(false);
   const solutionsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const path = window.location.pathname.split("/").pop() || "index";
-    setActiveLink(path);
-  }, []);
+  const activeLink = pathname.split("/").pop() || "index";
 
   useEffect(() => {
     if (mobileOpen) document.body.style.overflow = "hidden";

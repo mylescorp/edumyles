@@ -10,7 +10,7 @@
     "landing"
   ],
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=20.9.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
@@ -31,8 +31,10 @@
     "add-master-admin": "node scripts/add-master-admin.js",
     "verify-master-admin": "node scripts/verify-master-admin.js",
     "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test --project=chromium e2e/public-pages.spec.ts e2e/admin-dashboard.spec.ts e2e/platform-security.spec.ts e2e/student-portal.spec.ts",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:update-snapshots": "playwright test --update-snapshots"
+    "test:e2e:update-snapshots": "playwright test --update-snapshots",
+    "seed:dev": "node scripts/seed-cli.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
