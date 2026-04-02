@@ -1,5 +1,3 @@
-"use node";
-
 import { mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";

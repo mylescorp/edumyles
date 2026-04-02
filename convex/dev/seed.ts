@@ -1,5 +1,3 @@
-"use node";
-
 import { action, internalMutation } from "../_generated/server";
 import { v } from "convex/values";
 import { CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
