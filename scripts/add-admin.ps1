@@ -8,12 +8,12 @@ if (-not $env:CONVEX_DEPLOY_KEY) {
     exit 1
 }
 
-if (-not $env:EMERGENCY_ADMIN_TOKEN) {
-    Write-Error "EMERGENCY_ADMIN_TOKEN environment variable is not set"
+if (-not $env:ADMIN_SESSION_TOKEN) {
+    Write-Error "ADMIN_SESSION_TOKEN environment variable is not set"
     exit 1
 }
 
-$jsonArgs = "{`"email`": `"$env:ADMIN_EMAIL`", `"firstName`": `"$env:ADMIN_FIRST_NAME`", `"lastName`": `"$env:ADMIN_LAST_NAME`", `"emergencyToken`": `"$env:EMERGENCY_ADMIN_TOKEN`"}"
-npx convex run emergencyAdmin:createEmergencyMasterAdmin $jsonArgs
+$jsonArgs = "{`"email`": `"$env:ADMIN_EMAIL`", `"sessionToken`": `"$env:ADMIN_SESSION_TOKEN`"}"
+npx convex run users.promoteUserEmailToMasterAdmin $jsonArgs
 
 Write-Host "Done!"

@@ -10,7 +10,7 @@ export interface ModuleDefinition {
   name: string;
   description: string;
   /** Minimum subscription tier required to install this module */
-  tier: "free" | "starter" | "growth" | "enterprise";
+  tier: "starter" | "standard" | "pro" | "enterprise";
   category: "academics" | "administration" | "communications" | "finance" | "analytics" | "security" | "integrations";
   isCore: boolean;
   iconName: string;
@@ -49,7 +49,7 @@ export const CORE_MODULES: ModuleDefinition[] = [
     moduleId: "sis",
     name: "Student Information System",
     description: "Core student management — enrollment, records, classes, and student profiles. The foundation module required by most other modules.",
-    tier: "free",
+    tier: "starter",
     category: "administration",
     isCore: true,
     iconName: "GraduationCap",
@@ -71,7 +71,7 @@ export const CORE_MODULES: ModuleDefinition[] = [
     moduleId: "communications",
     name: "Communications",
     description: "Core messaging and announcements. Send announcements, emails, SMS, and push notifications to students, parents, and staff.",
-    tier: "free",
+    tier: "starter",
     category: "communications",
     isCore: true,
     iconName: "MessageSquare",
@@ -93,7 +93,7 @@ export const CORE_MODULES: ModuleDefinition[] = [
     moduleId: "users",
     name: "User Management",
     description: "Core user and role management. Invite users, assign roles, and manage access control across your school.",
-    tier: "free",
+    tier: "starter",
     category: "administration",
     isCore: true,
     iconName: "Users",
@@ -140,7 +140,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "academics",
     name: "Academics",
     description: "Manage academic operations — exams, grading, subjects, curriculum, and academic performance tracking.",
-    tier: "growth",
+    tier: "standard",
     category: "academics",
     isCore: false,
     iconName: "BookOpen",
@@ -162,7 +162,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "finance",
     name: "Finance & Fees",
     description: "Complete financial management — fee structures, invoicing, payment tracking, and financial reporting.",
-    tier: "growth",
+    tier: "standard",
     category: "finance",
     isCore: false,
     iconName: "DollarSign",
@@ -184,7 +184,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "timetable",
     name: "Timetable & Scheduling",
     description: "Create and manage class timetables with automatic conflict detection for teachers, rooms, and subjects.",
-    tier: "growth",
+    tier: "standard",
     category: "academics",
     isCore: false,
     iconName: "Calendar",
@@ -316,7 +316,7 @@ export const OPTIONAL_MODULES: ModuleDefinition[] = [
     moduleId: "tickets",
     name: "Support Tickets",
     description: "Internal support ticket system for staff, students, and parents to raise issues and track resolution.",
-    tier: "free",
+    tier: "starter",
     category: "communications",
     isCore: false,
     iconName: "Headphones",

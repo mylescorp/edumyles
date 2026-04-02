@@ -1,55 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  SafeAreaView, 
-  StatusBar, 
-  ActivityIndicator 
+import React, { useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ConvexHttpClient } from 'convex/browser';
-import { ConvexProvider } from 'convex/react';
-import { WorkOSProvider } from '@workos-inc/authkit-react-native';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
 
-// Import screens
-import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import LoginScreen from './screens/LoginScreen';
 import GradesScreen from './screens/GradesScreen';
 import AssignmentsScreen from './screens/AssignmentsScreen';
 import AttendanceScreen from './screens/AttendanceScreen';
 import FeesScreen from './screens/FeesScreen';
 import ProfileScreen from './screens/ProfileScreen';
-
-// Import theme
+import { AuthProvider, useAuth } from './hooks/useAuth';
 import { theme } from './theme';
 
-// Initialize Convex client
-const convex = new ConvexHttpClient(process.env.EXPO_PUBLIC_CONVEX_URL || '');
+type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' | 'profile';
 
-// Create navigation stack
-const Stack = createNativeStackNavigator();
+const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL ?? '';
+const ConvexProviderRoot = ConvexProvider as React.ComponentType<{
+  client: ConvexReactClient;
+  children?: React.ReactNode;
+}>;
 
-const App: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Check authentication status on app start
-    const checkAuth = async () => {
-      try {
-        // Check if user has valid session
-        // This would integrate with WorkOS auth
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
+const AppShell: React.FC = () => {
+  const { isAuthenticated, isLoading, user, signOut } = useAuth();
+  const [screen, setScreen] = useState<ScreenKey>('dashboard');
 
   if (isLoading) {
     return (
@@ -61,71 +43,67 @@ const App: React.FC = () => {
     );
   }
 
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
+
   return (
-    <ConvexProvider client={convex}>
-      <WorkOSProvider clientId={process.env.EXPO_PUBLIC_WORKOS_CLIENT_ID || ''}>
-        <NavigationContainer>
-          <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
-            
-            <Stack.Navigator
-              screenOptions={{
-                headerStyle: {
-                  backgroundColor: theme.colors.primary,
-                },
-                headerTintColor: theme.colors.white,
-                headerTitleStyle: {
-                  fontWeight: 'bold',
-                },
-              }}
-            >
-              {isAuthenticated ? (
-                // Authenticated screens
-                <>
-                  <Stack.Screen 
-                    name="Dashboard" 
-                    component={DashboardScreen}
-                    options={{ title: 'Dashboard' }}
-                  />
-                  <Stack.Screen 
-                    name="Grades" 
-                    component={GradesScreen}
-                    options={{ title: 'My Grades' }}
-                  />
-                  <Stack.Screen 
-                    name="Assignments" 
-                    component={AssignmentsScreen}
-                    options={{ title: 'Assignments' }}
-                  />
-                  <Stack.Screen 
-                    name="Attendance" 
-                    component={AttendanceScreen}
-                    options={{ title: 'Attendance' }}
-                  />
-                  <Stack.Screen 
-                    name="Fees" 
-                    component={FeesScreen}
-                    options={{ title: 'Fees & Payments' }}
-                  />
-                  <Stack.Screen 
-                    name="Profile" 
-                    component={ProfileScreen}
-                    options={{ title: 'Profile' }}
-                  />
-                </>
-              ) : (
-                // Unauthenticated screens
-                <Stack.Screen 
-                  name="Login" 
-                  component={LoginScreen}
-                  options={{ headerShown: false }}
-                />
-              )}
-            </Stack.Navigator>
-          </SafeAreaView>
-        </NavigationContainer>
-      </WorkOSProvider>
-    </ConvexProvider>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerTitle}>EduMyles Mobile</Text>
+          <Text style={styles.headerSubtitle}>{user?.email ?? 'Signed in'}</Text>
+        </View>
+        <TouchableOpacity onPress={signOut} style={styles.signOutButton}>
+          <Text style={styles.signOutText}>Sign out</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.tabBar}
+      >
+        {[
+          ['dashboard', 'Dashboard'],
+          ['grades', 'Grades'],
+          ['assignments', 'Assignments'],
+          ['attendance', 'Attendance'],
+          ['fees', 'Fees'],
+          ['profile', 'Profile'],
+        ].map(([key, label]) => (
+          <TouchableOpacity
+            key={key}
+            onPress={() => setScreen(key as ScreenKey)}
+            style={[styles.tab, screen === key && styles.activeTab]}
+          >
+            <Text style={[styles.tabText, screen === key && styles.activeTabText]}>{label}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      <View style={styles.screenContainer}>
+        {screen === 'dashboard' && <DashboardScreen onNavigate={setScreen} />}
+        {screen === 'grades' && <GradesScreen />}
+        {screen === 'assignments' && <AssignmentsScreen />}
+        {screen === 'attendance' && <AttendanceScreen />}
+        {screen === 'fees' && <FeesScreen />}
+        {screen === 'profile' && <ProfileScreen />}
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const App: React.FC = () => {
+  const convex = useMemo(() => new ConvexReactClient(convexUrl), []);
+
+  return (
+    <ConvexProviderRoot client={convex}>
+      <AuthProvider>
+        <AppShell />
+      </AuthProvider>
+    </ConvexProviderRoot>
   );
 };
 
@@ -145,6 +123,64 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: theme.colors.text,
     fontFamily: theme.fonts.regular,
+  },
+  header: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerTitle: {
+    color: theme.colors.white,
+    fontSize: theme.fontSizes.xl,
+    fontWeight: '700',
+  },
+  headerSubtitle: {
+    color: '#dbeafe',
+    fontSize: theme.fontSizes.sm,
+    marginTop: 4,
+  },
+  signOutButton: {
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  signOutText: {
+    color: theme.colors.white,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '600',
+  },
+  tabBar: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    gap: theme.spacing.sm,
+    backgroundColor: theme.colors.surface,
+  },
+  tab: {
+    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.colors.background,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  activeTab: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  tabText: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '600',
+  },
+  activeTabText: {
+    color: theme.colors.white,
+  },
+  screenContainer: {
+    flex: 1,
   },
 });
 

@@ -154,8 +154,6 @@ export default withSentryConfig(nextConfig, {
   sourcemaps: {
     disable: process.env.NODE_ENV !== "production",
   },
-  // Avoid tree-shaking Sentry in server-side bundles
-  hideSourceMaps: true,
   // Disable the Sentry telemetry
   telemetry: false,
 });

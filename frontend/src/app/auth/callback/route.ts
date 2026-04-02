@@ -2,7 +2,7 @@
  * WorkOS OAuth callback handler.
  *
  * Security model:
- *  - Master admin emails (env var + hardcoded fallback) always get through.
+ *  - Master admin emails from env always get through.
  *  - Known users (workosUserId present in `users` table and isActive) get through.
  *  - Pending-invite users (workosUserId starts with "pending-") are linked on
  *    first sign-in and then allowed through.
@@ -18,7 +18,7 @@ import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
 
 const MASTER_ADMIN_EMAILS = (
-  process.env.MASTER_ADMIN_EMAILS?.split(",").map(e => e.trim()) ?? []
+  process.env.MASTER_ADMIN_EMAILS?.split(",").map((e) => e.trim()) ?? []
 )
   .filter((value): value is string => Boolean(value))
   .map((value) => value.toLowerCase());
@@ -100,6 +100,7 @@ export async function GET(req: NextRequest) {
   try {
     const workos = new WorkOS(apiKey);
     const convex = new ConvexHttpClient(convexUrl);
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
 
     const { user, organizationId } = await workos.userManagement.authenticateWithCode({
       clientId,
@@ -121,6 +122,7 @@ export async function GET(req: NextRequest) {
         await convex.mutation(api.users.syncMasterAdminRole, {
           workosUserId: user.id,
           email: user.email,
+          serverSecret,
         });
       } catch {
         // Non-fatal — session is still created from env-based override
@@ -158,6 +160,7 @@ export async function GET(req: NextRequest) {
     try {
       existing = await convex.query(api.users.getUserByWorkosIdGlobal, {
         workosUserId: user.id,
+        serverSecret,
       });
     } catch {
       // Convex unavailable — fall through to waitlist/error path
@@ -167,7 +170,7 @@ export async function GET(req: NextRequest) {
     if (!existing) {
       let hasMasterAdmin = false;
       try {
-        hasMasterAdmin = await convex.query(api.users.hasMasterAdmin, {});
+        hasMasterAdmin = await convex.query(api.users.hasMasterAdmin, { serverSecret });
       } catch {
         // ignore
       }
@@ -180,6 +183,7 @@ export async function GET(req: NextRequest) {
           await convex.mutation(api.users.syncMasterAdminRole, {
             workosUserId: user.id,
             email: user.email,
+            serverSecret,
           });
         } catch {
           // Non-fatal

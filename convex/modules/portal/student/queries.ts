@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { query } from "../../../_generated/server";
-import { requireTenantContext } from "../../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../../helpers/tenantGuard";
 import { requirePermission } from "../../../helpers/authorize";
 import { requireModule } from "../../../helpers/moduleGuard";
 import { getMyAssignments } from "../../academics/assignments";
@@ -10,9 +10,13 @@ import { getMyAssignments } from "../../academics/assignments";
  * Get the student record for the current authenticated user.
  */
 export const getMyProfile = query({
-    args: {},
-    handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
+    args: {
+        sessionToken: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
 
         // Student profile is part of SIS
         await requireModule(ctx, tenant.tenantId, "sis");
@@ -39,9 +43,12 @@ export const getMyGrades = query({
     args: {
         term: v.optional(v.string()),
         academicYear: v.optional(v.string()),
+        sessionToken: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "academics");
         requirePermission(tenant, "grades:read");
 
@@ -88,9 +95,13 @@ export const getMyGrades = query({
 });
 
 export const getMyAttendance = query({
-    args: {},
-    handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
+    args: {
+        sessionToken: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "academics");
         requirePermission(tenant, "attendance:read");
 
@@ -112,9 +123,13 @@ export const getMyAttendance = query({
 });
 
 export const getMyTimetable = query({
-    args: {},
-    handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
+    args: {
+        sessionToken: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "academics");
         requirePermission(tenant, "timetable:read");
 
@@ -140,9 +155,12 @@ export const getMyTimetable = query({
 export const getMyNotifications = query({
     args: {
         limit: v.optional(v.number()),
+        sessionToken: v.optional(v.string()),
     },
-    handler: async (ctx) => {
-        const tenant = await requireTenantContext(ctx);
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
 
         const student = await ctx.db
             .query("students")

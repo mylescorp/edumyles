@@ -158,13 +158,6 @@ export async function middleware(request: NextRequest) {
     // Malformed cookie — ignore; fall back to raw role cookie
   }
 
-  // Debug logging for protected routes
-  if (pathname.startsWith("/platform") || pathname.startsWith("/admin")) {
-    console.log(
-      `[middleware] ${pathname} - session: ${session ? "present" : "missing"}, role: ${role || "none"}`
-    );
-  }
-
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
 
@@ -184,7 +177,6 @@ export async function middleware(request: NextRequest) {
 
   // 1. Unauthenticated → login
   if (isProtected && !session) {
-    console.log(`[middleware] Redirecting unauthenticated user from ${pathname} to login`);
     const loginUrl = new URL("/auth/login/api", request.nextUrl.origin);
     loginUrl.searchParams.set("returnTo", pathname);
     return NextResponse.redirect(loginUrl);

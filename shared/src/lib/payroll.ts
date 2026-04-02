@@ -206,6 +206,7 @@ export class PayrollEngine {
     nhif: number;
     nssf: number;
     housingLevy: number;
+    otherDeductions: number;
     total: number;
   } {
     const paye = this.calculatePAYE(grossMonthlySalary);
@@ -218,6 +219,7 @@ export class PayrollEngine {
       nhif,
       nssf,
       housingLevy,
+      otherDeductions: 0,
       total: paye + nhif + nssf + housingLevy,
     };
   }
@@ -267,12 +269,16 @@ export class PayrollEngine {
     const netPay = grossPay - totalDeductions;
 
     return {
-      employeeId: employee.id,
-      payrollPeriodId: payrollPeriod.id,
       basicSalary,
       allowance,
       grossPay,
-      deductions: statutoryDeductions,
+      deductions: {
+        paye: statutoryDeductions.paye,
+        nhif: statutoryDeductions.nhif,
+        nssf: statutoryDeductions.nssf,
+        housingLevy: statutoryDeductions.housingLevy,
+        otherDeductions,
+      },
       netPay,
       paymentMethod: 'bank_transfer', // Default to bank transfer
       status: 'draft',
@@ -313,7 +319,16 @@ export class PayrollEngine {
     const totalEmployees = payslips.length;
     const totalGrossPay = payslips.reduce((sum, slip) => sum + slip.grossPay, 0);
     const totalNetPay = payslips.reduce((sum, slip) => sum + slip.netPay, 0);
-    const totalDeductions = payslips.reduce((sum, slip) => sum + slip.deductions.total, 0);
+    const totalDeductions = payslips.reduce(
+      (sum, slip) =>
+        sum +
+        slip.deductions.paye +
+        slip.deductions.nhif +
+        slip.deductions.nssf +
+        slip.deductions.housingLevy +
+        slip.deductions.otherDeductions,
+      0
+    );
     
     return {
       totalEmployees,

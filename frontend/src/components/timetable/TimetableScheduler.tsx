@@ -62,7 +62,7 @@ export function TimetableScheduler() {
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [formData, setFormData] = useState<CreateSlotData>({
     classId: "",
-    subjectId: string,
+    subjectId: "",
     teacherId: "",
     dayOfWeek: 1,
     startTime: "09:00",

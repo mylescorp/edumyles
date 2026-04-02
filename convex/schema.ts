@@ -107,7 +107,12 @@ export default defineSchema({
     workosOrgId: v.string(),
     name: v.string(),
     subdomain: v.string(),
-    tier: v.string(),
+    tier: v.union(
+      v.literal("starter"),
+      v.literal("standard"),
+      v.literal("pro"),
+      v.literal("enterprise")
+    ),
     isActive: v.boolean(),
     createdAt: v.number(),
   })
@@ -3260,9 +3265,9 @@ export default defineSchema({
     planId: v.string(),
     name: v.string(),
     tier: v.union(
-      v.literal("free"),
       v.literal("starter"),
-      v.literal("growth"),
+      v.literal("standard"),
+      v.literal("pro"),
       v.literal("enterprise")
     ),
     monthlyPriceCents: v.number(),

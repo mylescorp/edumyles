@@ -1,9 +1,18 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireTenantContext } from "./helpers/tenantGuard";
+import { requirePlatformSession } from "./helpers/platformGuard";
+import { requireTenantContext, requireTenantSession } from "./helpers/tenantGuard";
 import { requirePermission } from "./helpers/authorize";
 import { logAction } from "./helpers/auditLog";
+
+function isTrustedServerCall(serverSecret?: string) {
+  return Boolean(
+    serverSecret &&
+      process.env.CONVEX_WEBHOOK_SECRET &&
+      serverSecret === process.env.CONVEX_WEBHOOK_SECRET
+  );
+}
 
 // Upsert user after WorkOS authentication
 export const upsertUser = mutation({
@@ -97,8 +106,14 @@ export const getUserByWorkosId = query({
 
 // Check whether any master_admin exists in the system — used during first sign-in auto-bootstrap
 export const hasMasterAdmin = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
+    }
     const admin = await ctx.db
       .query("users")
       .withIndex("by_tenant_role", (q) => q.eq("tenantId", "PLATFORM").eq("role", "master_admin"))
@@ -109,8 +124,15 @@ export const hasMasterAdmin = query({
 
 // Get user by WorkOS ID across all tenants — used during auth callback
 export const getUserByWorkosIdGlobal = query({
-  args: { workosUserId: v.string() },
+  args: {
+    workosUserId: v.string(),
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
+    }
     return await ctx.db
       .query("users")
       .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
@@ -122,9 +144,16 @@ export const getUserByWorkosIdGlobal = query({
 // Called from the auth callback when MASTER_ADMIN_EMAIL matches — ensures the
 // stored Convex record is always in sync with the env-configured override.
 export const syncMasterAdminRole = mutation({
-  args: { workosUserId: v.string(), email: v.string(), sessionToken: v.string() },
+  args: {
+    workosUserId: v.string(),
+    email: v.string(),
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    await requireTenantContext(ctx);
+    if (!isTrustedServerCall(args.serverSecret)) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
+    }
     const existing = await ctx.db
       .query("users")
       .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
@@ -159,10 +188,7 @@ export const promoteUserEmailToMasterAdmin = mutation({
     sessionToken: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
-    if (tenant.role !== "master_admin" && tenant.role !== "super_admin") {
-      throw new Error("FORBIDDEN: Only platform admins can promote users");
-    }
+    const tenant = await requirePlatformSession(ctx, args);
     let platformOrg = await ctx.db
       .query("organizations")
       .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
@@ -225,15 +251,7 @@ export const promoteUserEmailToMasterAdmin = mutation({
 export const bootstrapMasterAdmin = mutation({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    await requireTenantContext(ctx);
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (!session || session.expiresAt < Date.now()) {
-      throw new Error("UNAUTHENTICATED");
-    }
+    const session = await requireTenantSession(ctx, args);
 
     // Check if any master_admin already exists
     const existingAdmin = await ctx.db
@@ -246,7 +264,16 @@ export const bootstrapMasterAdmin = mutation({
     }
 
     // Update session role
-    await ctx.db.patch(session._id, { role: "master_admin", tenantId: "PLATFORM" });
+    const sessionDoc = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+
+    if (!sessionDoc) {
+      throw new Error("UNAUTHENTICATED");
+    }
+
+    await ctx.db.patch(sessionDoc._id, { role: "master_admin", tenantId: "PLATFORM" });
 
     // Upsert user record so next sign-in preserves the role
     const existingUser = await ctx.db

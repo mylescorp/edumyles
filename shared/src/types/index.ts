@@ -42,7 +42,7 @@ export type UserRole =
   | "parent"
   | "bursar" // Finance Officer (canonical backend name)
   | "librarian"
-  | "transport_officer"
+  | "transport_manager"
   | "hr_manager" // HR Officer (canonical backend name)
   | "board_member" // Board-level read-only access
   | "receptionist"

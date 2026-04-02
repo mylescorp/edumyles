@@ -107,6 +107,6 @@ export const theme = {
   },
 };
 
-export const createStyleSheet = <T extends Record<string, any>>(styles: T): T => {
+export const createStyleSheet = <T extends StyleSheet.NamedStyles<T>>(styles: T): T => {
   return StyleSheet.create(styles) as T;
 };

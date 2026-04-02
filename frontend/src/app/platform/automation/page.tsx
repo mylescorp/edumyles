@@ -171,8 +171,6 @@ export default function AutomationCenterPage() {
   const updateWorkflowStatus = useMutation(api.platform.automation.mutations.updateWorkflowStatus);
   const createWorkflowMutation = useMutation(api.platform.automation.mutations.createWorkflow);
 
-  const createWorkflowMutation = useMutation(api.platform.automation.mutations.createWorkflow);
-
   const handleCreateWorkflow = async () => {
     if (!sessionToken || !workflowName || !workflowCategory || !workflowTrigger) return;
     try {
@@ -453,68 +451,6 @@ export default function AutomationCenterPage() {
                 <Button onClick={handleCreateWorkflow} disabled={!workflowName || !workflowCategory || !workflowTrigger}>
                   Create Workflow
                 </Button>
-              </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="workflow-description">Description</Label>
-                  <Textarea
-                    id="workflow-description"
-                    placeholder="Describe the workflow purpose"
-                    rows={3}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label>Category</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="onboarding">Onboarding</SelectItem>
-                        <SelectItem value="offboarding">Offboarding</SelectItem>
-                        <SelectItem value="compliance">Compliance</SelectItem>
-                        <SelectItem value="security">Security</SelectItem>
-                        <SelectItem value="communications">Communications</SelectItem>
-                        <SelectItem value="data_management">Data Management</SelectItem>
-                        <SelectItem value="approval">Approval</SelectItem>
-                        <SelectItem value="notification">Notification</SelectItem>
-                        <SelectItem value="integration">Integration</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label>Trigger Type</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select trigger" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="manual">Manual</SelectItem>
-                        <SelectItem value="scheduled">Scheduled</SelectItem>
-                        <SelectItem value="event_based">Event Based</SelectItem>
-                        <SelectItem value="webhook">Webhook</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label>Workflow Steps</Label>
-                  <div className="border rounded-lg p-4">
-                    <div className="text-sm text-muted-foreground mb-2">
-                      Add workflow steps using the visual workflow builder
-                    </div>
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Step
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsCreateWorkflowOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => setIsCreateWorkflowOpen(false)}>Create Workflow</Button>
               </div>
             </DialogContent>
           </Dialog>

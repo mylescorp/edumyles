@@ -15,7 +15,7 @@ export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
   hr_manager: { label: "HR Manager", level: 60 },
   board_member: { label: "Board Member", level: 55 },
   librarian: { label: "Librarian", level: 50 },
-  transport_officer: { label: "Transport Officer", level: 50 },
+  transport_manager: { label: "Transport Manager", level: 50 },
   teacher: { label: "Teacher", level: 40 },
   receptionist: { label: "Receptionist", level: 30 },
   partner: { label: "Partner", level: 25 },

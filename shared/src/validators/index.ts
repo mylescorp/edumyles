@@ -56,7 +56,7 @@ export const createUserSchema = z.object({
     "parent",
     "bursar",
     "librarian",
-    "transport_officer",
+    "transport_manager",
     "hr_manager",
     "receptionist",
     "alumni",
