@@ -2,13 +2,8 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
-// Plan price lookup (cents per month)
-const PLAN_PRICES_CENTS: Record<string, number> = {
-    free: 0,
-    starter: 4900,
-    growth: 12900,
-    enterprise: 49900,
-};
+// Import billing engine from shared lib
+const { BillingEngine } = require("../../../../shared/src/lib/billing");
 
 // List all tenant subscriptions
 export const listSubscriptions = query({

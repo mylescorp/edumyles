@@ -4,6 +4,25 @@ import { action } from "../../_generated/server";
 import { v } from "convex/values";
 import { requireActionTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
+import { normalisePhoneNumber } from "../../helpers/phoneUtils";
+
+/**
+ * Resolve the tenant's country from the DB so phone numbers are normalised correctly.
+ * Falls back to "KE" if the tenant record is unavailable.
+ */
+async function getTenantCountry(ctx: any, tenantId: string): Promise<string> {
+  try {
+    // Use runQuery to access the DB from within an action
+    const tenant = await ctx.runQuery(
+      (ctx as any).internal.tenants.getTenantByIdInternal,
+      { tenantId }
+    );
+    if (tenant?.country) return tenant.country as string;
+  } catch {
+    // fall through to default
+  }
+  return "KE";
+}
 
 /**
  * Send a single SMS via Africa's Talking API.
@@ -25,7 +44,9 @@ export const sendSms = action({
       throw new Error("Africa's Talking not configured. Set AFRICAS_TALKING_API_KEY and AFRICAS_TALKING_USERNAME.");
     }
 
-    const phoneNorm = args.phone.replace(/\D/g, "").replace(/^0/, "254");
+    const country = await getTenantCountry(ctx, tenant.tenantId);
+    const phoneNorm = normalisePhoneNumber(args.phone, country);
+
     const res = await fetch("https://api.africastalking.com/version1/messaging", {
       method: "POST",
       headers: {
@@ -46,14 +67,14 @@ export const sendSms = action({
 
     const data = (await res.json()) as { SMSMessageData?: { Recipients?: unknown[] } };
 
-    // 2. Log action using internal mutation
+    // 2. Audit log
     await ctx.runMutation((ctx as any).internal.helpers.auditLog.internalLogAction, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
       actorEmail: tenant.email,
       action: "communication.sms_sent",
       entityType: "sms",
-      entityId: "single", // Africa's Talkng doesn't give a single ID per recipient in the standard response predictably
+      entityId: "single",
       after: { phone: phoneNorm, message: args.message, count: data.SMSMessageData?.Recipients?.length ?? 0 },
     });
 
@@ -80,8 +101,9 @@ export const sendBulkSms = action({
       throw new Error("Africa's Talking not configured.");
     }
 
+    const country = await getTenantCountry(ctx, tenant.tenantId);
     const to = args.phones
-      .map((p) => p.replace(/\D/g, "").replace(/^0/, "254"))
+      .map((p) => normalisePhoneNumber(p, country))
       .filter(Boolean)
       .join(",");
     if (!to) throw new Error("No valid phone numbers");
@@ -106,7 +128,7 @@ export const sendBulkSms = action({
 
     const data = (await res.json()) as { SMSMessageData?: { Recipients?: unknown[] } };
 
-    // 2. Log action using internal mutation
+    // 2. Audit log
     await ctx.runMutation((ctx as any).internal.helpers.auditLog.internalLogAction, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,

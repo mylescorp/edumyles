@@ -4,9 +4,25 @@ import { action } from "../../_generated/server";
 import { v } from "convex/values";
 import { api, internal } from "../../_generated/api";
 
+/** Map tenant country (code or name) → Stripe-accepted lowercase currency code */
+const COUNTRY_TO_CURRENCY: Record<string, string> = {
+  KE: "kes", KENYA: "kes",
+  UG: "ugx", UGANDA: "ugx",
+  TZ: "tzs", TANZANIA: "tzs",
+  RW: "rwf", RWANDA: "rwf",
+  ET: "etb", ETHIOPIA: "etb",
+  GH: "ghs", GHANA: "ghs",
+};
+
+function resolveCurrency(country: string | undefined | null): string {
+  if (!country) return "kes";
+  return COUNTRY_TO_CURRENCY[country.trim().toUpperCase()] ?? "kes";
+}
+
 /**
  * Create a Stripe Checkout session for an invoice.
  * Returns the session URL to redirect the parent.
+ * Currency is derived from the tenant's country setting.
  */
 export const createCheckoutSession = action({
   args: {
@@ -33,6 +49,18 @@ export const createCheckoutSession = action({
       throw new Error("Invoice not eligible for payment");
     }
 
+    // Resolve tenant country → Stripe currency code
+    let tenantCountry: string | undefined;
+    try {
+      const tenantCtx = await ctx.runQuery(api.tenants.getTenantContext, {
+        sessionToken: identity.tokenIdentifier,
+      });
+      tenantCountry = tenantCtx?.tenant?.country;
+    } catch {
+      // fall through
+    }
+    const currency = resolveCurrency(tenantCountry);
+
     const secretKey = process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
       throw new Error("Stripe not configured. Set STRIPE_SECRET_KEY.");
@@ -46,8 +74,8 @@ export const createCheckoutSession = action({
       },
       body: new URLSearchParams({
         "payment_method_types[]": "card",
-        "line_items[0][price_data][currency]": "kes",
-        "line_items[0][price_data][unit_amount]": String(Math.round(invoice.amount * 100)), // Stripe expects minor units (KES cents)
+        "line_items[0][price_data][currency]": currency,
+        "line_items[0][price_data][unit_amount]": String(Math.round(invoice.amount * 100)),
         "line_items[0][price_data][product_data][name]": `Fee payment - Invoice ${args.invoiceId}`,
         "line_items[0][quantity]": "1",
         "mode": "payment",

@@ -21,6 +21,14 @@ import {
   Activity,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 type Route = {
   _id: string;
@@ -75,6 +83,8 @@ export default function TransportTrackingPage() {
     api.modules.transport.queries.listDrivers,
     sessionToken ? { sessionToken } : "skip"
   );
+
+  const [detailItem, setDetailItem] = useState<{ type: "route" | "vehicle" | "driver"; data: Route | Vehicle | Driver } | null>(null);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -149,10 +159,12 @@ export default function TransportTrackingPage() {
     {
       key: "actions",
       header: "Actions",
-      cell: () => (
+      cell: (row) => (
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline">View</Button>
-          <Button size="sm" variant="outline">Edit</Button>
+          <Button size="sm" variant="outline" onClick={() => setDetailItem({ type: "route", data: row })}>View</Button>
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/admin/transport/routes?edit=${row._id}`}>Edit</Link>
+          </Button>
         </div>
       ),
     },
@@ -208,10 +220,12 @@ export default function TransportTrackingPage() {
     {
       key: "actions",
       header: "Actions",
-      cell: () => (
+      cell: (row) => (
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline">Track</Button>
-          <Button size="sm" variant="outline">Edit</Button>
+          <Button size="sm" variant="outline" onClick={() => setDetailItem({ type: "vehicle", data: row })}>Track</Button>
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/admin/transport?edit=${row._id}`}>Edit</Link>
+          </Button>
         </div>
       ),
     },
@@ -269,10 +283,12 @@ export default function TransportTrackingPage() {
     {
       key: "actions",
       header: "Actions",
-      cell: () => (
+      cell: (row) => (
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline">View</Button>
-          <Button size="sm" variant="outline">Edit</Button>
+          <Button size="sm" variant="outline" onClick={() => setDetailItem({ type: "driver", data: row })}>View</Button>
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/admin/transport?edit=${row._id}`}>Edit</Link>
+          </Button>
         </div>
       ),
     },

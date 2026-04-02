@@ -73,5 +73,45 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Handle payment_intent.succeeded for direct charges
+  if (event.type === "payment_intent.succeeded") {
+    const paymentIntent = event.data?.object;
+    if (!paymentIntent?.id) {
+      return NextResponse.json({ error: "Missing payment intent id" }, { status: 400 });
+    }
+    try {
+      await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
+        webhookSecret,
+        gateway: "stripe",
+        externalId: paymentIntent.id,
+        resultCode: 0,
+        reference: paymentIntent.id,
+      });
+    } catch (e) {
+      console.error("Stripe payment intent webhook error:", e);
+      return NextResponse.json({ error: "Processing failed" }, { status: 500 });
+    }
+  }
+
+  // Handle payment failures
+  if (event.type === "payment_intent.payment_failed") {
+    const paymentIntent = event.data?.object;
+    if (!paymentIntent?.id) {
+      return NextResponse.json({ error: "Missing payment intent id" }, { status: 400 });
+    }
+    try {
+      await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
+        webhookSecret,
+        gateway: "stripe",
+        externalId: paymentIntent.id,
+        resultCode: 1, // Failed
+        reference: paymentIntent.id,
+      });
+    } catch (e) {
+      console.error("Stripe payment failed webhook error:", e);
+      return NextResponse.json({ error: "Processing failed" }, { status: 500 });
+    }
+  }
+
   return NextResponse.json({ received: true });
 }

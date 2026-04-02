@@ -4,22 +4,24 @@
 import type { Module, UserRole, TenantTier } from "../types/index.js";
 
 // ----------------------------------------------------------
-// Roles
+// Roles — canonical names match convex/helpers/authorize.ts
 // ----------------------------------------------------------
 export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
-  platform_admin:   { label: "Platform Admin",   level: 100 },
-  school_admin:     { label: "School Admin",      level: 90 },
-  principal:        { label: "Principal",          level: 80 },
-  finance_officer:  { label: "Finance Officer",   level: 60 },
-  hr_officer:       { label: "HR Officer",        level: 60 },
-  librarian:        { label: "Librarian",          level: 50 },
-  transport_officer:{ label: "Transport Officer", level: 50 },
-  teacher:          { label: "Teacher",            level: 40 },
-  receptionist:     { label: "Receptionist",      level: 30 },
-  parent:           { label: "Parent",             level: 20 },
-  alumni:           { label: "Alumni",             level: 15 },
-  student:          { label: "Student",            level: 10 },
-  partner:          { label: "Partner",            level: 25 },
+  platform_admin:    { label: "Platform Admin",   level: 100 },
+  master_admin:      { label: "Master Admin",     level: 100 },
+  school_admin:      { label: "School Admin",     level: 90 },
+  principal:         { label: "Principal",        level: 80 },
+  bursar:            { label: "Finance Officer",  level: 60 },
+  hr_manager:        { label: "HR Manager",       level: 60 },
+  board_member:      { label: "Board Member",     level: 55 },
+  librarian:         { label: "Librarian",        level: 50 },
+  transport_officer: { label: "Transport Officer",level: 50 },
+  teacher:           { label: "Teacher",          level: 40 },
+  receptionist:      { label: "Receptionist",     level: 30 },
+  partner:           { label: "Partner",          level: 25 },
+  parent:            { label: "Parent",           level: 20 },
+  alumni:            { label: "Alumni",           level: 15 },
+  student:           { label: "Student",          level: 10 },
 };
 
 // ----------------------------------------------------------
@@ -40,12 +42,12 @@ export const MODULES: Record<Module, { label: string; icon: string; description:
 };
 
 // ----------------------------------------------------------
-// Tiers & Feature Gates
+// Tiers & Feature Gates — canonical names match Convex billing
 // ----------------------------------------------------------
 export const TIER_MODULES: Record<TenantTier, Module[]> = {
+  free:       ["sis", "communications"],
   starter:    ["sis", "admissions", "finance", "communications"],
-  standard:   ["sis", "admissions", "finance", "timetable", "academics", "communications"],
-  pro:        ["sis", "admissions", "finance", "timetable", "academics", "hr", "library", "transport", "communications"],
+  growth:     ["sis", "admissions", "finance", "timetable", "academics", "hr", "library", "transport", "communications"],
   enterprise: ["sis", "admissions", "finance", "timetable", "academics", "hr", "library", "transport", "communications", "ewallet", "ecommerce"],
 };
 
@@ -68,13 +70,31 @@ export type CurriculumCode = (typeof CURRICULUM_CODES)[keyof typeof CURRICULUM_C
 // Supported Countries & Currencies
 // ----------------------------------------------------------
 export const SUPPORTED_COUNTRIES = [
-  { code: "KE", name: "Kenya",        currency: "KES", callingCode: "+254", flag: "🇰🇪" },
-  { code: "UG", name: "Uganda",       currency: "UGX", callingCode: "+256", flag: "🇺🇬" },
-  { code: "TZ", name: "Tanzania",     currency: "TZS", callingCode: "+255", flag: "🇹🇿" },
-  { code: "RW", name: "Rwanda",       currency: "RWF", callingCode: "+250", flag: "🇷🇼" },
-  { code: "ET", name: "Ethiopia",     currency: "ETB", callingCode: "+251", flag: "🇪🇹" },
-  { code: "GH", name: "Ghana",        currency: "GHS", callingCode: "+233", flag: "🇬🇭" },
+  { code: "KE", name: "Kenya",        currency: "KES", symbol: "KSh", callingCode: "+254", dialPrefix: "254", flag: "🇰🇪" },
+  { code: "UG", name: "Uganda",       currency: "UGX", symbol: "USh", callingCode: "+256", dialPrefix: "256", flag: "🇺🇬" },
+  { code: "TZ", name: "Tanzania",     currency: "TZS", symbol: "TSh", callingCode: "+255", dialPrefix: "255", flag: "🇹🇿" },
+  { code: "RW", name: "Rwanda",       currency: "RWF", symbol: "RF",  callingCode: "+250", dialPrefix: "250", flag: "🇷🇼" },
+  { code: "ET", name: "Ethiopia",     currency: "ETB", symbol: "Br",  callingCode: "+251", dialPrefix: "251", flag: "🇪🇹" },
+  { code: "GH", name: "Ghana",        currency: "GHS", symbol: "GH₵", callingCode: "+233", dialPrefix: "233", flag: "🇬🇭" },
 ] as const;
+
+/**
+ * Look up currency info by country code ("KE") or full country name ("Kenya").
+ * Falls back to KES if the country is unrecognised.
+ */
+export function getCurrencyForCountry(country: string): {
+  currency: string;
+  symbol: string;
+  dialPrefix: string;
+} {
+  const upper = country.toUpperCase();
+  const match =
+    SUPPORTED_COUNTRIES.find((c) => c.code === upper) ||
+    SUPPORTED_COUNTRIES.find((c) => c.name.toUpperCase() === upper);
+  return match
+    ? { currency: match.currency, symbol: match.symbol, dialPrefix: match.dialPrefix }
+    : { currency: "KES", symbol: "KSh", dialPrefix: "254" };
+}
 
 // ----------------------------------------------------------
 // Pagination

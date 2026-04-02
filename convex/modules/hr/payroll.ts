@@ -3,6 +3,10 @@ import { mutation, query } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
+import { logAction } from "../../helpers/auditLog";
+
+// Import payroll engine from shared lib
+const { PayrollEngine } = require("../../../../shared/src/lib/payroll");
 
 // Payroll calculation types
 export interface PayrollPeriod {
