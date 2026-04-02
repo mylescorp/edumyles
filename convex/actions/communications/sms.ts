@@ -1,7 +1,8 @@
 "use node";
 
-import { action } from "../../_generated/server";
+import { action, internalAction } from "../../_generated/server";
 import { v } from "convex/values";
+import { internal } from "../../_generated/api";
 import { requireActionTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { normalisePhoneNumber } from "../../helpers/phoneUtils";
@@ -24,6 +25,44 @@ async function getTenantCountry(ctx: any, tenantId: string): Promise<string> {
   return "KE";
 }
 
+async function sendSmsViaAfricasTalking(args: {
+  phone: string;
+  message: string;
+  country?: string;
+}) {
+  const apiKey = process.env.AFRICAS_TALKING_API_KEY;
+  const username = process.env.AFRICAS_TALKING_USERNAME;
+  if (!apiKey || !username) {
+    throw new Error("Africa's Talking not configured. Set AFRICAS_TALKING_API_KEY and AFRICAS_TALKING_USERNAME.");
+  }
+
+  const phoneNorm = normalisePhoneNumber(args.phone, args.country ?? "KE");
+
+  const res = await fetch("https://api.africastalking.com/version1/messaging", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      apiKey,
+    },
+    body: new URLSearchParams({
+      username,
+      to: phoneNorm,
+      message: args.message,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Africa's Talking SMS failed: ${res.status} ${text}`);
+  }
+
+  const data = (await res.json()) as { SMSMessageData?: { Recipients?: unknown[] } };
+  return {
+    phoneNorm,
+    count: data.SMSMessageData?.Recipients?.length ?? 0,
+  };
+}
+
 /**
  * Send a single SMS via Africa's Talking API.
  * Set AFRICAS_TALKING_API_KEY and AFRICAS_TALKING_USERNAME in Convex env.
@@ -38,47 +77,25 @@ export const sendSms = action({
     const tenant = await requireActionTenantContext(ctx);
     requirePermission(tenant, "communications:write");
 
-    const apiKey = process.env.AFRICAS_TALKING_API_KEY;
-    const username = process.env.AFRICAS_TALKING_USERNAME;
-    if (!apiKey || !username) {
-      throw new Error("Africa's Talking not configured. Set AFRICAS_TALKING_API_KEY and AFRICAS_TALKING_USERNAME.");
-    }
-
     const country = await getTenantCountry(ctx, tenant.tenantId);
-    const phoneNorm = normalisePhoneNumber(args.phone, country);
-
-    const res = await fetch("https://api.africastalking.com/version1/messaging", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        apiKey,
-      },
-      body: new URLSearchParams({
-        username,
-        to: phoneNorm,
-        message: args.message,
-      }),
+    const data = await sendSmsViaAfricasTalking({
+      phone: args.phone,
+      message: args.message,
+      country,
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Africa's Talking SMS failed: ${res.status} ${text}`);
-    }
-
-    const data = (await res.json()) as { SMSMessageData?: { Recipients?: unknown[] } };
-
     // 2. Audit log
-    await ctx.runMutation((ctx as any).internal.helpers.auditLog.internalLogAction, {
+    await ctx.runMutation(internal.helpers.auditLog.internalLogAction, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
       actorEmail: tenant.email,
       action: "communication.sms_sent",
       entityType: "sms",
       entityId: "single",
-      after: { phone: phoneNorm, message: args.message, count: data.SMSMessageData?.Recipients?.length ?? 0 },
+      after: { phone: data.phoneNorm, message: args.message, count: data.count },
     });
 
-    return { success: true, recipients: data.SMSMessageData?.Recipients?.length ?? 0 };
+    return { success: true, recipients: data.count };
   },
 });
 
@@ -140,5 +157,31 @@ export const sendBulkSms = action({
     });
 
     return { success: true, count: data.SMSMessageData?.Recipients?.length ?? 0 };
+  },
+});
+
+export const sendSmsInternal = internalAction({
+  args: {
+    tenantId: v.string(),
+    actorId: v.string(),
+    actorEmail: v.string(),
+    phone: v.string(),
+    message: v.string(),
+    country: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const data = await sendSmsViaAfricasTalking(args);
+
+    await ctx.runMutation(internal.helpers.auditLog.internalLogAction, {
+      tenantId: args.tenantId,
+      actorId: args.actorId,
+      actorEmail: args.actorEmail,
+      action: "communication.sms_sent",
+      entityType: "sms",
+      entityId: "single",
+      after: { phone: data.phoneNorm, message: args.message, count: data.count },
+    });
+
+    return { success: true, recipients: data.count };
   },
 });

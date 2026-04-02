@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { platformSessionArg, requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
@@ -393,6 +394,14 @@ export const sendPlatformMessageNow = mutation({
     const tenantIds = await resolveTargetTenantIds(ctx, message.segment);
     const now = Date.now();
     let delivered = 0;
+    const targetTenants = await Promise.all(
+      tenantIds.map((tenantId) =>
+        ctx.db
+          .query("tenants")
+          .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
+          .first()
+      )
+    );
 
     if (message.channels.includes("in_app")) {
       if (!message.inAppBody?.trim()) {
@@ -411,6 +420,44 @@ export const sendPlatformMessageNow = mutation({
           isRead: false,
           link: undefined,
           createdAt: now,
+        });
+        delivered += 1;
+      }
+    }
+
+    if (message.channels.includes("email")) {
+      if (!message.emailBody?.trim()) {
+        throw new Error("Email delivery requires an email body.");
+      }
+
+      for (const tenant of targetTenants) {
+        if (!tenant?.email) continue;
+        await ctx.scheduler.runAfter(0, (internal as any).actions.communications.email.sendEmailInternal, {
+          tenantId: tenant.tenantId,
+          actorId: actor.userId,
+          actorEmail: actor.email,
+          to: tenant.email,
+          subject: message.subject,
+          body: message.emailBody,
+        });
+        delivered += 1;
+      }
+    }
+
+    if (message.channels.includes("sms")) {
+      if (!message.smsBody?.trim()) {
+        throw new Error("SMS delivery requires an SMS body.");
+      }
+
+      for (const tenant of targetTenants) {
+        if (!tenant?.phone) continue;
+        await ctx.scheduler.runAfter(0, (internal as any).actions.communications.sms.sendSmsInternal, {
+          tenantId: tenant.tenantId,
+          actorId: actor.userId,
+          actorEmail: actor.email,
+          phone: tenant.phone,
+          message: message.smsBody,
+          country: tenant.country,
         });
         delivered += 1;
       }

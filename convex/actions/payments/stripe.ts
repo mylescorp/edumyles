@@ -19,6 +19,54 @@ function resolveCurrency(country: string | undefined | null): string {
   return COUNTRY_TO_CURRENCY[country.trim().toUpperCase()] ?? "kes";
 }
 
+export async function createStripeCheckoutSessionForPayment(args: {
+  amount: number;
+  currency?: string;
+  description: string;
+  successUrl: string;
+  cancelUrl: string;
+  clientReferenceId: string;
+  metadata?: Record<string, string>;
+}): Promise<{ sessionId?: string; url?: string }> {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error("Stripe not configured. Set STRIPE_SECRET_KEY.");
+  }
+
+  const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${secretKey}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      "payment_method_types[]": "card",
+      "line_items[0][price_data][currency]": args.currency ?? "kes",
+      "line_items[0][price_data][unit_amount]": String(Math.round(args.amount * 100)),
+      "line_items[0][price_data][product_data][name]": args.description,
+      "line_items[0][quantity]": "1",
+      "mode": "payment",
+      "success_url": args.successUrl,
+      "cancel_url": args.cancelUrl,
+      "client_reference_id": args.clientReferenceId,
+      ...Object.fromEntries(
+        Object.entries(args.metadata ?? {}).map(([key, value]) => [`metadata[${key}]`, value])
+      ),
+    }),
+  });
+
+  if (!res.ok) {
+    const err = (await res.json()) as { error?: { message?: string } };
+    throw new Error(err.error?.message ?? `Stripe API error: ${res.status}`);
+  }
+
+  const data = (await res.json()) as { id?: string; url?: string };
+  return {
+    sessionId: data.id,
+    url: data.url,
+  };
+}
+
 /**
  * Create a Stripe Checkout session for an invoice.
  * Returns the session URL to redirect the parent.
@@ -61,50 +109,30 @@ export const createCheckoutSession = action({
     }
     const currency = resolveCurrency(tenantCountry);
 
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    if (!secretKey) {
-      throw new Error("Stripe not configured. Set STRIPE_SECRET_KEY.");
-    }
-
-    const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${secretKey}`,
-        "Content-Type": "application/x-www-form-urlencoded",
+    const data = await createStripeCheckoutSessionForPayment({
+      amount: invoice.amount,
+      currency,
+      description: `Fee payment - Invoice ${args.invoiceId}`,
+      successUrl: args.successUrl,
+      cancelUrl: args.cancelUrl,
+      clientReferenceId: String(args.invoiceId),
+      metadata: {
+        tenantId: session.tenantId,
+        invoiceId: String(args.invoiceId),
       },
-      body: new URLSearchParams({
-        "payment_method_types[]": "card",
-        "line_items[0][price_data][currency]": currency,
-        "line_items[0][price_data][unit_amount]": String(Math.round(invoice.amount * 100)),
-        "line_items[0][price_data][product_data][name]": `Fee payment - Invoice ${args.invoiceId}`,
-        "line_items[0][quantity]": "1",
-        "mode": "payment",
-        "success_url": args.successUrl,
-        "cancel_url": args.cancelUrl,
-        "client_reference_id": String(args.invoiceId),
-        "metadata[tenantId]": session.tenantId,
-        "metadata[invoiceId]": String(args.invoiceId),
-      }),
     });
-
-    if (!res.ok) {
-      const err = (await res.json()) as { error?: { message?: string } };
-      throw new Error(err.error?.message ?? `Stripe API error: ${res.status}`);
-    }
-
-    const data = (await res.json()) as { id?: string; url?: string };
-    if (data.id) {
+    if (data.sessionId) {
       await ctx.runMutation(internal.modules.finance.mutations.savePaymentCallback, {
         tenantId: session.tenantId,
         gateway: "stripe",
-        externalId: data.id,
+        externalId: data.sessionId,
         invoiceId: String(args.invoiceId),
         amount: invoice.amount,
         status: "pending",
       });
     }
     return {
-      sessionId: data.id,
+      sessionId: data.sessionId,
       url: data.url,
     };
   },

@@ -3,6 +3,7 @@ import { mutation } from "../../_generated/server";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
+import { logAction } from "../../helpers/auditLog";
 
 export const createRoute = mutation({
     args: {
@@ -15,13 +16,23 @@ export const createRoute = mutation({
         requirePermission(tenant, "transport:write");
 
         const now = Date.now();
-        return await ctx.db.insert("transportRoutes", {
+        const routeId = await ctx.db.insert("transportRoutes", {
             tenantId: tenant.tenantId,
             name: args.name,
             stops: args.stops,
             createdAt: now,
             updatedAt: now,
         });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.route_created",
+            entityType: "transportRoute",
+            entityId: routeId.toString(),
+            after: { name: args.name, stops: args.stops },
+        });
+        return routeId;
     },
 });
 
@@ -43,6 +54,16 @@ export const updateRoute = mutation({
         if (args.name !== undefined) updates.name = args.name;
         if (args.stops !== undefined) updates.stops = args.stops;
         await ctx.db.patch(args.routeId, updates);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.route_updated",
+            entityType: "transportRoute",
+            entityId: args.routeId.toString(),
+            before: route,
+            after: { ...route, ...updates },
+        });
         return args.routeId;
     },
 });
@@ -61,7 +82,7 @@ export const createVehicle = mutation({
         requirePermission(tenant, "transport:write");
 
         const now = Date.now();
-        return await ctx.db.insert("vehicles", {
+        const vehicleId = await ctx.db.insert("vehicles", {
             tenantId: tenant.tenantId,
             plateNumber: args.plateNumber,
             capacity: args.capacity,
@@ -71,6 +92,22 @@ export const createVehicle = mutation({
             createdAt: now,
             updatedAt: now,
         });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.vehicle_created",
+            entityType: "vehicle",
+            entityId: vehicleId.toString(),
+            after: {
+                plateNumber: args.plateNumber,
+                capacity: args.capacity,
+                routeId: args.routeId,
+                driverId: args.driverId,
+                status: args.status ?? "active",
+            },
+        });
+        return vehicleId;
     },
 });
 
@@ -84,9 +121,20 @@ export const assignDriverToVehicle = mutation({
         const vehicle = await ctx.db.get(args.vehicleId);
         if (!vehicle || vehicle.tenantId !== tenant.tenantId) throw new Error("Vehicle not found");
 
-        await ctx.db.patch(args.vehicleId, {
+        const updates = {
             driverId: args.driverId,
             updatedAt: Date.now(),
+        };
+        await ctx.db.patch(args.vehicleId, updates);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.vehicle_driver_assigned",
+            entityType: "vehicle",
+            entityId: args.vehicleId.toString(),
+            before: vehicle,
+            after: { ...vehicle, ...updates },
         });
         return args.vehicleId;
     },
@@ -105,7 +153,7 @@ export const createDriver = mutation({
         requirePermission(tenant, "transport:write");
 
         const now = Date.now();
-        return await ctx.db.insert("drivers", {
+        const driverId = await ctx.db.insert("drivers", {
             tenantId: tenant.tenantId,
             firstName: args.firstName,
             lastName: args.lastName,
@@ -114,6 +162,21 @@ export const createDriver = mutation({
             createdAt: now,
             updatedAt: now,
         });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.driver_created",
+            entityType: "driver",
+            entityId: driverId.toString(),
+            after: {
+                firstName: args.firstName,
+                lastName: args.lastName,
+                phone: args.phone,
+                status: args.status ?? "active",
+            },
+        });
+        return driverId;
     },
 });
 
@@ -141,9 +204,24 @@ export const assignStudentToRoute = mutation({
                 stopIndex: args.stopIndex,
                 updatedAt: now,
             });
+            await logAction(ctx, {
+                tenantId: tenant.tenantId,
+                actorId: tenant.userId,
+                actorEmail: tenant.email,
+                action: "transport.assignment_updated",
+                entityType: "transportAssignment",
+                entityId: existing._id.toString(),
+                before: existing,
+                after: {
+                    ...existing,
+                    routeId: args.routeId,
+                    stopIndex: args.stopIndex,
+                    updatedAt: now,
+                },
+            });
             return existing._id;
         }
-        return await ctx.db.insert("transportAssignments", {
+        const assignmentId = await ctx.db.insert("transportAssignments", {
             tenantId: tenant.tenantId,
             studentId: args.studentId,
             routeId: args.routeId,
@@ -151,5 +229,19 @@ export const assignStudentToRoute = mutation({
             createdAt: now,
             updatedAt: now,
         });
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.assignment_updated",
+            entityType: "transportAssignment",
+            entityId: assignmentId.toString(),
+            after: {
+                studentId: args.studentId,
+                routeId: args.routeId,
+                stopIndex: args.stopIndex,
+            },
+        });
+        return assignmentId;
     },
 });
