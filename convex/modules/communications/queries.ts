@@ -77,7 +77,8 @@ export const listMyNotifications = query({
                 .query("notifications")
                 .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
                 .order("desc")
-                .take(limit);
+                .collect()
+                .then((rows) => rows.slice(0, limit));
         } catch (error) {
             console.error("listMyNotifications failed", error);
             return [];
@@ -361,7 +362,8 @@ export const getCampaignRecords = query({
             return await ctx.db
                 .query("messageRecords")
                 .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
-                .take(limit);
+                .collect()
+                .then((rows) => rows.slice(0, limit));
         } catch (error) {
             console.error("getCampaignRecords failed", error);
             return [];

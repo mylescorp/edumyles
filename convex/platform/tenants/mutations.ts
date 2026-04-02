@@ -6,6 +6,23 @@ import { generateTenantId } from "../../helpers/idGenerator";
 import { CORE_MODULE_IDS } from "../../modules/marketplace/moduleDefinitions";
 import { api } from "../../_generated/api";
 
+const planInputValidator = v.union(
+  v.literal("free"),
+  v.literal("starter"),
+  v.literal("growth"),
+  v.literal("standard"),
+  v.literal("pro"),
+  v.literal("enterprise")
+);
+
+const normalizePlan = (
+  plan: "free" | "starter" | "growth" | "standard" | "pro" | "enterprise"
+): "starter" | "standard" | "pro" | "enterprise" => {
+  if (plan === "free") return "starter";
+  if (plan === "growth") return "standard";
+  return plan;
+};
+
 export const createTenant = mutation({
   args: {
     sessionToken: v.string(),
@@ -13,12 +30,7 @@ export const createTenant = mutation({
     subdomain: v.string(),
     email: v.string(),
     phone: v.string(),
-    plan: v.union(
-      v.literal("free"),
-      v.literal("starter"),
-      v.literal("growth"),
-      v.literal("enterprise")
-    ),
+    plan: planInputValidator,
     county: v.string(),
     country: v.optional(v.string()),
   },
@@ -36,6 +48,7 @@ export const createTenant = mutation({
 
     const tenantId = generateTenantId();
     const now = Date.now();
+    const normalizedPlan = normalizePlan(args.plan);
 
     // 1. Create tenant record
     const id = await ctx.db.insert("tenants", {
@@ -44,7 +57,7 @@ export const createTenant = mutation({
       subdomain: args.subdomain,
       email: args.email,
       phone: args.phone,
-      plan: args.plan,
+      plan: normalizedPlan,
       status: "trial",
       county: args.county,
       country: args.country ?? "KE",
@@ -58,7 +71,7 @@ export const createTenant = mutation({
       workosOrgId: `edumyles-${tenantId}`,
       name: args.name,
       subdomain: args.subdomain,
-      tier: args.plan,
+      tier: normalizedPlan,
       isActive: true,
       createdAt: now,
     });
@@ -86,7 +99,7 @@ export const createTenant = mutation({
       after: {
         name: args.name,
         subdomain: args.subdomain,
-        plan: args.plan,
+        plan: normalizedPlan,
         coreModulesInstalled: CORE_MODULE_IDS,
       },
     });
@@ -169,12 +182,7 @@ export const updateTenant = mutation({
     name: v.optional(v.string()),
     email: v.optional(v.string()),
     phone: v.optional(v.string()),
-    plan: v.optional(v.union(
-      v.literal("free"),
-      v.literal("starter"),
-      v.literal("growth"),
-      v.literal("enterprise")
-    )),
+    plan: v.optional(planInputValidator),
     status: v.optional(v.union(
       v.literal("active"),
       v.literal("suspended"),
@@ -207,7 +215,7 @@ export const updateTenant = mutation({
     if (args.name !== undefined) patch.name = args.name;
     if (args.email !== undefined) patch.email = args.email;
     if (args.phone !== undefined) patch.phone = args.phone;
-    if (args.plan !== undefined) patch.plan = args.plan;
+    if (args.plan !== undefined) patch.plan = normalizePlan(args.plan);
     if (args.status !== undefined) patch.status = args.status;
     if (args.county !== undefined) patch.county = args.county;
     if (args.country !== undefined) patch.country = args.country;

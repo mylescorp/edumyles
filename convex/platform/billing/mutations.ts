@@ -3,6 +3,12 @@ import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
+const normalizePlan = (plan: "free" | "starter" | "growth" | "pro" | "enterprise") => {
+    if (plan === "free") return "starter" as const;
+    if (plan === "growth") return "standard" as const;
+    return plan;
+};
+
 // Update a tenant's subscription tier/plan
 export const updateTenantTier = mutation({
     args: {
@@ -12,6 +18,7 @@ export const updateTenantTier = mutation({
             v.literal("free"),
             v.literal("starter"),
             v.literal("growth"),
+            v.literal("pro"),
             v.literal("enterprise")
         ),
     },
@@ -26,9 +33,10 @@ export const updateTenantTier = mutation({
         if (!tenant) throw new Error("NOT_FOUND: Tenant not found");
 
         const previousPlan = tenant.plan;
+        const nextPlan = normalizePlan(args.plan);
 
         await ctx.db.patch(tenant._id, {
-            plan: args.plan,
+            plan: nextPlan,
             updatedAt: Date.now(),
         });
 
@@ -39,7 +47,7 @@ export const updateTenantTier = mutation({
             .first();
 
         if (org) {
-            await ctx.db.patch(org._id, { tier: args.plan });
+            await ctx.db.patch(org._id, { tier: nextPlan });
         }
 
         await logAction(ctx, {
@@ -50,7 +58,7 @@ export const updateTenantTier = mutation({
             entityType: "tenant",
             entityId: args.tenantId,
             before: { previousPlan },
-            after: { plan: args.plan },
+            after: { plan: nextPlan },
         });
     },
 });

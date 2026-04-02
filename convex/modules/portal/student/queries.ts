@@ -85,7 +85,7 @@ export const getMyGrades = query({
                 const subject = await ctx.db.get(grade.subjectId as any);
                 return {
                     ...grade,
-                    subjectName: subject?.name,
+                    subjectName: (subject as any)?.name,
                 };
             })
         );
@@ -116,9 +116,9 @@ export const getMyAttendance = query({
 
         return await ctx.db
             .query("attendance")
-            .withIndex("by_student", (q) => q.eq("studentId", student._id))
-            .order("desc")
-            .collect();
+            .withIndex("by_student_date", (q) => q.eq("studentId", student._id))
+            .collect()
+            .then((rows) => rows.sort((a, b) => b.date.localeCompare(a.date)));
     },
 });
 
@@ -180,9 +180,9 @@ export const getMyNotifications = query({
                 q.eq(q.field("type"), "announcement"),
                 q.eq(q.field("type"), "general")
             ))
-            .take(args.limit ?? 20)
             .order("desc")
-            .collect();
+            .collect()
+            .then((rows) => rows.slice(0, args.limit ?? 20));
     },
 });
 

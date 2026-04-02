@@ -672,9 +672,10 @@ export const sendBroadcast = mutation({
 
 export const createSMSTemplate = mutation({
   args: {
-    type: v.string(),
+    type: v.optional(v.string()),
     name: v.string(),
-    content: v.string(),
+    content: v.optional(v.string()),
+    body: v.optional(v.string()),
     variables: v.array(v.string()),
     isActive: v.optional(v.boolean()),
   },
@@ -686,11 +687,11 @@ export const createSMSTemplate = mutation({
     const now = Date.now();
     const id = await ctx.db.insert("smsTemplates", {
       tenantId: tenant.tenantId,
-      type: args.type as TemplateType,
       name: args.name,
-      content: args.content,
+      body: args.body ?? args.content ?? "",
       variables: args.variables,
-      isActive: args.isActive ?? true,
+      category: args.type ?? "general",
+      createdBy: tenant.userId,
       createdAt: now,
       updatedAt: now,
     });
@@ -703,8 +704,8 @@ export const updateSMSTemplate = mutation({
     templateId: v.id("smsTemplates"),
     name: v.optional(v.string()),
     content: v.optional(v.string()),
+    body: v.optional(v.string()),
     variables: v.optional(v.array(v.string())),
-    isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantContext(ctx);
@@ -718,9 +719,9 @@ export const updateSMSTemplate = mutation({
 
     const updates: any = { updatedAt: Date.now() };
     if (args.name !== undefined) updates.name = args.name;
-    if (args.content !== undefined) updates.content = args.content;
+    if (args.content !== undefined) updates.body = args.content;
+    if (args.body !== undefined) updates.body = args.body;
     if (args.variables !== undefined) updates.variables = args.variables;
-    if (args.isActive !== undefined) updates.isActive = args.isActive;
 
     await ctx.db.patch(args.templateId, updates);
     return args.templateId;
@@ -736,19 +737,20 @@ export const initializeDefaultSMSTemplates = mutation({
 
     const now = Date.now();
     for (const [type, defaultTemplate] of Object.entries(DEFAULT_SMS_TEMPLATES)) {
-      const existing = await ctx.db
+      const existingTemplates = await ctx.db
         .query("smsTemplates")
-        .withIndex("by_tenant_type", (q) => q.eq("tenantId", tenant.tenantId).eq("type", type))
-        .first();
+        .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+        .collect();
+      const existing = existingTemplates.find((template) => template.category === type);
 
       if (!existing) {
         await ctx.db.insert("smsTemplates", {
           tenantId: tenant.tenantId,
-          type: type as TemplateType,
           name: defaultTemplate.name,
-          content: defaultTemplate.content,
+          body: defaultTemplate.content,
           variables: defaultTemplate.variables,
-          isActive: defaultTemplate.isActive,
+          category: type as TemplateType,
+          createdBy: tenant.userId,
           createdAt: now,
           updatedAt: now,
         });
