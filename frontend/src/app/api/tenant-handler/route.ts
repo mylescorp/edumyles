@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "@/convex/_generated/api";
 
 // Extract subdomain from request hostname
 function extractSubdomain(req: NextRequest): string | null {
@@ -19,6 +21,12 @@ function extractSubdomain(req: NextRequest): string | null {
   return null;
 }
 
+function getConvexClient() {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) return null;
+  return new ConvexHttpClient(convexUrl);
+}
+
 // Handle tenant-specific routing
 export async function GET(req: NextRequest) {
   const subdomain = extractSubdomain(req);
@@ -28,12 +36,28 @@ export async function GET(req: NextRequest) {
     const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || "https://edumyles.com";
     return NextResponse.redirect(landingUrl);
   }
-  
-  // Redirect to the main app with tenant context
+
+  const convex = getConvexClient();
+  if (!convex) {
+    return NextResponse.json({ error: "Tenant routing is not configured" }, { status: 500 });
+  }
+
+  const tenant = await convex.query(api.tenants.getTenantBySubdomain, { subdomain });
+  if (!tenant || tenant.status !== "active") {
+    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || "https://edumyles.com";
+    const redirect = new URL(landingUrl);
+    redirect.searchParams.set("tenant", subdomain);
+    redirect.searchParams.set("error", tenant ? "tenant_inactive" : "tenant_not_found");
+    return NextResponse.redirect(redirect.toString());
+  }
+
+  // Redirect to the main app with validated tenant context
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.edumyles.com";
-  const redirectUrl = `${appUrl}?tenant=${subdomain}`;
+  const redirect = new URL(appUrl);
+  redirect.searchParams.set("tenant", tenant.subdomain);
+  redirect.searchParams.set("tenantId", tenant.tenantId);
   
-  return NextResponse.redirect(redirectUrl);
+  return NextResponse.redirect(redirect.toString());
 }
 
 // Handle all HTTP methods for subdomain routing

@@ -49,7 +49,7 @@ export default function RoleBuilderPage() {
 
   const roles = usePlatformQuery(
     api.platform.roleBuilder.queries.listCustomRoles,
-    { sessionToken: sessionToken || "" },
+    { sessionToken: sessionToken || "", tenantId: "PLATFORM", includeSystem: false },
     !!sessionToken
   );
 
@@ -72,6 +72,7 @@ export default function RoleBuilderPage() {
       } else {
         await createRole({
           sessionToken,
+          tenantId: "PLATFORM",
           name: roleName,
           description: roleDescription,
           permissions: selectedPermissions,

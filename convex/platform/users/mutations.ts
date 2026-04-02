@@ -246,6 +246,112 @@ export const deactivatePlatformAdmin = mutation({
   },
 });
 
+export const reactivatePlatformAdmin = mutation({
+  args: {
+    sessionToken: v.string(),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const tenantCtx = await requirePlatformSession(ctx, args);
+
+    const user = await ctx.db.get(args.userId);
+    if (!user) throw new Error("NOT_FOUND: User not found");
+
+    if (user.role !== "master_admin" && user.role !== "super_admin") {
+      throw new Error("FORBIDDEN: Can only reactivate platform admins");
+    }
+
+    await ctx.db.patch(args.userId, { isActive: true });
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "user.updated",
+      entityType: "user",
+      entityId: user.eduMylesUserId,
+      before: { isActive: user.isActive },
+      after: { isActive: true },
+    });
+
+    return { success: true };
+  },
+});
+
+export const updatePlatformAdminDetails = mutation({
+  args: {
+    sessionToken: v.string(),
+    userId: v.id("users"),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    location: v.optional(v.string()),
+    role: v.optional(v.union(v.literal("master_admin"), v.literal("super_admin"))),
+  },
+  handler: async (ctx, args) => {
+    const tenantCtx = await requirePlatformSession(ctx, args);
+    const user = await ctx.db.get(args.userId);
+
+    if (!user) throw new Error("NOT_FOUND: User not found");
+    if (user.role !== "master_admin" && user.role !== "super_admin") {
+      throw new Error("FORBIDDEN: Can only update platform admins");
+    }
+
+    if (
+      tenantCtx.userId === user.eduMylesUserId &&
+      args.role &&
+      args.role !== user.role &&
+      tenantCtx.role === "master_admin"
+    ) {
+      throw new Error("FORBIDDEN: Cannot change your own platform role");
+    }
+
+    if (args.email && args.email !== user.email) {
+      const existing = await ctx.db
+        .query("users")
+        .withIndex("by_tenant_email", (q) =>
+          q.eq("tenantId", user.tenantId).eq("email", args.email)
+        )
+        .first();
+
+      if (existing && existing._id !== args.userId) {
+        throw new Error(`CONFLICT: User with email '${args.email}' already exists`);
+      }
+    }
+
+    const updates: Record<string, string> = {};
+    if (args.firstName !== undefined) updates.firstName = args.firstName;
+    if (args.lastName !== undefined) updates.lastName = args.lastName;
+    if (args.email !== undefined) updates.email = args.email;
+    if (args.phone !== undefined) updates.phone = args.phone;
+    if (args.location !== undefined) updates.location = args.location;
+    if (args.role !== undefined) updates.role = args.role;
+
+    await ctx.db.patch(args.userId, updates);
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "user.updated",
+      entityType: "user",
+      entityId: user.eduMylesUserId,
+      before: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        location: user.location,
+        role: user.role,
+      },
+      after: updates,
+    });
+
+    return { success: true };
+  },
+});
+
 // Emergency repair for a master admin account that was provisioned with the wrong role.
 export const repairMasterAdminByEmail = mutation({
   args: {

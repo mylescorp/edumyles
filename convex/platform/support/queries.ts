@@ -87,6 +87,38 @@ export const getAISupportTickets = query({
   },
 });
 
+export const getPlatformTicketDetail = query({
+  args: {
+    sessionToken: v.string(),
+    ticketId: v.id("tickets"),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const ticket = await ctx.db.get(args.ticketId);
+    if (!ticket) {
+      throw new Error("Ticket not found");
+    }
+
+    const comments = await ctx.db
+      .query("ticketComments")
+      .withIndex("by_ticket", (q) => q.eq("ticketId", args.ticketId))
+      .order("asc")
+      .collect();
+
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", ticket.tenantId))
+      .first();
+
+    return {
+      ...ticket,
+      tenantName: tenant?.name ?? ticket.tenantId,
+      comments,
+    };
+  },
+});
+
 export const getAIInsights = query({
   args: {
     sessionToken: v.string(),

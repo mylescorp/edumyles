@@ -140,16 +140,30 @@ export const verifyBankTransfer = action({
       throw new Error("FORBIDDEN: Only finance officers may verify bank transfers");
     }
 
-    // Mark the pending payment as completed via the finance mutation
-    await ctx.runMutation(internal.modules.finance.mutations.savePaymentCallback, {
-      tenantId: session.tenantId,
-      gateway: "bank_transfer",
-      externalId: args.reference,
-      invoiceId: String(args.invoiceId),
-      amount: 0, // amount already stored; mutation will look it up
-      status: "completed",
-    });
+    const pendingTransfers = await ctx.runQuery(
+      api.modules.finance.queries.listPendingBankTransfers,
+      { sessionToken: identity.tokenIdentifier }
+    );
 
-    return { success: true, reference: args.reference };
+    const transfer = pendingTransfers.find(
+      (item: any) =>
+        item.externalId === args.reference &&
+        item.invoiceId === String(args.invoiceId)
+    );
+
+    if (!transfer) {
+      throw new Error("Pending bank transfer request not found");
+    }
+
+    const result = await ctx.runMutation(
+      api.modules.finance.mutations.verifyBankTransfer,
+      {
+        callbackId: transfer._id,
+        sessionToken: identity.tokenIdentifier,
+        adminNote: args.adminNote,
+      }
+    );
+
+    return { success: true, reference: args.reference, ...result };
   },
 });

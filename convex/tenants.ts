@@ -12,6 +12,26 @@ export const getTenantByTenantId = query({
   },
 });
 
+export const getTenantBySubdomain = query({
+  args: { subdomain: v.string() },
+  handler: async (ctx, args) => {
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_subdomain", (q) => q.eq("subdomain", args.subdomain))
+      .first();
+
+    if (!tenant) return null;
+
+    return {
+      tenantId: tenant.tenantId,
+      name: tenant.name,
+      subdomain: tenant.subdomain,
+      status: tenant.status,
+      country: tenant.country,
+    };
+  },
+});
+
 // Get tenant with its organization and installed modules
 export const getTenantContext = query({
   args: { sessionToken: v.string() },

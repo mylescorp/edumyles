@@ -1,41 +1,85 @@
 import { test, expect } from "@playwright/test";
 
-/**
- * Platform security & impersonation E2E tests.
- */
+async function allowAuthRedirect(page: import("@playwright/test").Page) {
+  await page.waitForLoadState("networkidle");
+  return page.url().includes("/auth/");
+}
+
 test.describe("Platform security", () => {
   test("/platform redirects non-platform-admins", async ({ page }) => {
-    // Inject a school_admin session (not a platform admin)
     await page.context().addCookies([
       { name: "edumyles_session", value: "school-admin-session", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
       { name: "edumyles_role", value: "school_admin", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
     ]);
+
     await page.goto("/platform");
-    // Should redirect away from /platform (either to login or to admin)
     await expect(page).not.toHaveURL(/^.*\/platform$/);
   });
 
-  test("impersonation page loads for master_admin", async ({ page }) => {
+  test("impersonation page loads for platform admins", async ({ page, context }) => {
+    await context.addCookies([
+      { name: "edumyles_session", value: "platform-admin-session", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
+      { name: "edumyles_role", value: "master_admin", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
+    ]);
+
     await page.goto("/platform/impersonation");
-    if (page.url().includes("/auth/")) return;
-    await page.waitForLoadState("networkidle");
-    const body = await page.content();
-    expect(body).toMatch(/impersonation|session/i);
+    if (await allowAuthRedirect(page)) return;
+
+    await expect(page.getByRole("heading", { name: /impersonation sessions/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /active/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /history/i })).toBeVisible();
   });
 
-  test("security dashboard loads", async ({ page }) => {
-    const response = await page.goto("/platform/security");
-    if (page.url().includes("/auth/")) return;
-    expect(response?.status()).toBeLessThan(500);
+  test("platform users page exposes live management surface", async ({ page, context }) => {
+    await context.addCookies([
+      { name: "edumyles_session", value: "platform-admin-session", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
+      { name: "edumyles_role", value: "master_admin", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
+    ]);
+
+    await page.goto("/platform/users");
+    if (await allowAuthRedirect(page)) return;
+
+    await expect(page.getByRole("heading", { name: /user management/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^users$/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /roles/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /invite platform admin/i })).toBeVisible();
+  });
+
+  test("operations page exposes incident and maintenance controls", async ({ page, context }) => {
+    await context.addCookies([
+      { name: "edumyles_session", value: "platform-admin-session", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
+      { name: "edumyles_role", value: "master_admin", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
+    ]);
+
+    await page.goto("/platform/operations");
+    if (await allowAuthRedirect(page)) return;
+
+    await expect(page.getByRole("heading", { name: /operations center/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^overview$/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /incidents/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /new incident/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /schedule maintenance/i })).toBeVisible();
+  });
+
+  test("security page exposes threat and compliance sections", async ({ page, context }) => {
+    await context.addCookies([
+      { name: "edumyles_session", value: "platform-admin-session", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
+      { name: "edumyles_role", value: "master_admin", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
+    ]);
+
+    await page.goto("/platform/security");
+    if (await allowAuthRedirect(page)) return;
+
+    await expect(page.getByRole("heading", { name: /advanced security dashboard/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /threats/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /compliance/i })).toBeVisible();
+    await expect(page.getByText(/security score/i)).toBeVisible();
   });
 });
 
 test.describe("IP blocking", () => {
-  test("blocked IP returns 403", async ({ request }) => {
-    // We can't easily test a real blocked IP in E2E without seeding the DB,
-    // but we can verify the middleware responds correctly to a normal request.
+  test("admin route avoids 5xx for normal requests", async ({ request }) => {
     const response = await request.get("/admin");
-    // Should either redirect (3xx) or serve page (2xx) — never 5xx
     expect(response.status()).toBeLessThan(500);
   });
 });

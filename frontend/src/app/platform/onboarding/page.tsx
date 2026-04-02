@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -390,6 +390,12 @@ export default function OnboardingPage() {
     { sessionToken: sessionToken ?? "" }
   ) as OnboardingRecord[] | undefined;
 
+  const tenants = usePlatformQuery(
+    api.platform.tenants.queries.listAllTenants,
+    { sessionToken: sessionToken ?? "" },
+    !!sessionToken
+  ) as Array<{ tenantId: string; name: string; status?: string }> | undefined;
+
   const currentProgress = usePlatformQuery(
     api.platform.onboarding.queries.getOnboardingProgress,
     { sessionToken: sessionToken ?? "", tenantId: selectedTenant ?? "" },
@@ -412,6 +418,24 @@ export default function OnboardingPage() {
     );
   }, [onboardingStatuses, searchQuery]);
 
+  const availableTenants = useMemo(() => {
+    if (!tenants) return [];
+    const inProgressTenantIds = new Set((onboardingStatuses ?? []).map((record) => record.tenantId));
+    return tenants
+      .filter((tenant) => !inProgressTenantIds.has(tenant.tenantId))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [tenants, onboardingStatuses]);
+
+  useEffect(() => {
+    if (!currentProgress) {
+      setStepData({});
+      return;
+    }
+
+    setWizardStep(currentProgress.currentStep);
+    setStepData(currentProgress.data?.[`step_${currentProgress.currentStep}`] ?? {});
+  }, [currentProgress?._id, currentProgress?.currentStep]);
+
   const handleStartOnboarding = async () => {
     if (!sessionToken || !newTenantId) return;
     try {
@@ -431,8 +455,9 @@ export default function OnboardingPage() {
         await saveStepData({ sessionToken, tenantId: selectedTenant, step: wizardStep, stepData });
       }
       await completeStep({ sessionToken, tenantId: selectedTenant, step: wizardStep });
-      setStepData({});
-      setWizardStep((s) => s + 1);
+      const nextStep = wizardStep + 1;
+      setWizardStep(nextStep);
+      setStepData(currentProgress?.data?.[`step_${nextStep}`] ?? {});
     } catch (err: any) {
       toast.error(err.message);
     }
@@ -442,8 +467,9 @@ export default function OnboardingPage() {
     if (!sessionToken || !selectedTenant) return;
     try {
       await skipStep({ sessionToken, tenantId: selectedTenant, step: wizardStep });
-      setStepData({});
-      setWizardStep((s) => s + 1);
+      const nextStep = wizardStep + 1;
+      setWizardStep(nextStep);
+      setStepData(currentProgress?.data?.[`step_${nextStep}`] ?? {});
     } catch (err: any) {
       toast.error(err.message);
     }
@@ -484,6 +510,10 @@ export default function OnboardingPage() {
     };
   }, [onboardingStatuses]);
 
+  if (!onboardingStatuses || !tenants) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -500,8 +530,24 @@ export default function OnboardingPage() {
               </DialogHeader>
               <div className="space-y-4 pt-4">
                 <div className="space-y-2">
-                  <Label>Tenant ID</Label>
-                  <Input value={newTenantId} onChange={(e) => setNewTenantId(e.target.value)} placeholder="tenant_..." />
+                  <Label>Tenant</Label>
+                  <Select value={newTenantId} onValueChange={setNewTenantId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select tenant" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableTenants.map((tenant) => (
+                        <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                          {tenant.name} ({tenant.tenantId})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {availableTenants.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Every tenant already has an onboarding record. Continue an existing onboarding from the list below.
+                    </p>
+                  ) : null}
                 </div>
                 <Button onClick={handleStartOnboarding} className="w-full" disabled={!newTenantId}>
                   Start
@@ -705,12 +751,12 @@ export default function OnboardingPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => {
-                            setSelectedTenant(record.tenantId);
-                            setWizardStep(record.currentStep);
-                            setStepData({});
-                          }}
-                        >
+                            onClick={() => {
+                              setSelectedTenant(record.tenantId);
+                              setWizardStep(record.currentStep);
+                              setStepData(record.data?.[`step_${record.currentStep}`] ?? {});
+                            }}
+                          >
                           <Play className="h-3 w-3 mr-1" />
                           {record.status === "completed" ? "View" : "Continue"}
                         </Button>

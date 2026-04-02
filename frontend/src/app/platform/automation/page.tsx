@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -24,34 +23,21 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import {
   Zap,
   Play,
-  Pause,
   Square,
   Plus,
   Search,
-  Filter,
-  Download,
   RefreshCw,
-  Settings,
   Eye,
-  Edit,
-  Trash2,
   Clock,
   CheckCircle,
   XCircle,
-  AlertTriangle,
-  BarChart3,
   TrendingUp,
-  TrendingDown,
-  Calendar,
-  Users,
-  FileText,
   Database,
   Mail,
-  Shield,
-  Key,
   Workflow,
   Bot,
   Timer,
@@ -60,7 +46,6 @@ import {
   GitBranch,
   Layers,
   ArrowRight,
-  MoreHorizontal,
   Star,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -141,38 +126,74 @@ export default function AutomationCenterPage() {
   const [activeTab, setActiveTab] = useState("workflows");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [workflowSearch, setWorkflowSearch] = useState("");
+  const [executionSearch, setExecutionSearch] = useState("");
+  const [executionStatus, setExecutionStatus] = useState("");
+  const [templateSearch, setTemplateSearch] = useState("");
+  const [templateCategory, setTemplateCategory] = useState("");
   const [isCreateWorkflowOpen, setIsCreateWorkflowOpen] = useState(false);
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   // Workflow form state
   const [workflowName, setWorkflowName] = useState("");
   const [workflowDescription, setWorkflowDescription] = useState("");
   const [workflowCategory, setWorkflowCategory] = useState<string>("");
   const [workflowTrigger, setWorkflowTrigger] = useState<string>("");
+  const [templateName, setTemplateName] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("");
+  const [templateCategoryValue, setTemplateCategoryValue] = useState("");
+  const [templateVisibility, setTemplateVisibility] = useState("public");
+  const [templateTags, setTemplateTags] = useState("");
 
   // Real Convex queries
-  const workflowsData = usePlatformQuery(api.platform.automation.queries.getWorkflows, {
-    sessionToken: sessionToken || "",
-  });
+  const workflowsData = usePlatformQuery(
+    api.platform.automation.queries.getWorkflows,
+    {
+      sessionToken: sessionToken || "",
+      category: selectedCategory && selectedCategory !== "all" ? (selectedCategory as any) : undefined,
+      status: selectedStatus && selectedStatus !== "all" ? (selectedStatus as any) : undefined,
+    },
+    !!sessionToken
+  );
 
-  const executionsData = usePlatformQuery(api.platform.automation.queries.getWorkflowExecutions, {
-    sessionToken: sessionToken || "",
-  });
+  const executionsData = usePlatformQuery(
+    api.platform.automation.queries.getWorkflowExecutions,
+    {
+      sessionToken: sessionToken || "",
+      status: executionStatus && executionStatus !== "all" ? (executionStatus as any) : undefined,
+    },
+    !!sessionToken
+  );
 
-  const templatesData = usePlatformQuery(api.platform.automation.queries.getWorkflowTemplates, {
-    sessionToken: sessionToken || "",
-  });
+  const templatesData = usePlatformQuery(
+    api.platform.automation.queries.getWorkflowTemplates,
+    {
+      sessionToken: sessionToken || "",
+      category: templateCategory && templateCategory !== "all" ? templateCategory : undefined,
+    },
+    !!sessionToken
+  );
 
-  const metricsData = usePlatformQuery(api.platform.automation.queries.getAutomationMetrics, {
-    sessionToken: sessionToken || "",
-  });
+  const metricsData = usePlatformQuery(
+    api.platform.automation.queries.getAutomationMetrics,
+    {
+      sessionToken: sessionToken || "",
+    },
+    !!sessionToken
+  );
 
   const triggerWorkflow = useMutation(api.platform.automation.mutations.triggerWorkflow);
   const updateWorkflowStatus = useMutation(api.platform.automation.mutations.updateWorkflowStatus);
   const createWorkflowMutation = useMutation(api.platform.automation.mutations.createWorkflow);
+  const cancelWorkflowExecution = useMutation(api.platform.automation.mutations.cancelWorkflowExecution);
+  const createWorkflowTemplate = useMutation(api.platform.automation.mutations.createWorkflowTemplate);
 
   const handleCreateWorkflow = async () => {
-    if (!sessionToken || !workflowName || !workflowCategory || !workflowTrigger) return;
+    if (!sessionToken || !workflowName || !workflowCategory || !workflowTrigger) {
+      toast.error("Workflow name, category, and trigger are required.");
+      return;
+    }
     try {
       await createWorkflowMutation({
         sessionToken,
@@ -184,13 +205,46 @@ export default function AutomationCenterPage() {
         isActive: false,
         createdBy: sessionToken,
       });
+      toast.success("Workflow created.");
       setIsCreateWorkflowOpen(false);
       setWorkflowName("");
       setWorkflowDescription("");
       setWorkflowCategory("");
       setWorkflowTrigger("");
     } catch (err) {
-      console.error("Failed to create workflow:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to create workflow.");
+    }
+  };
+
+  const handleCreateTemplate = async () => {
+    if (!sessionToken || !templateName || !templateCategoryValue) {
+      toast.error("Template name and category are required.");
+      return;
+    }
+
+    try {
+      await createWorkflowTemplate({
+        sessionToken,
+        name: templateName,
+        description: templateDescription,
+        category: templateCategoryValue,
+        templateSteps: [],
+        isPublic: templateVisibility === "public",
+        tags: templateTags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+        createdBy: sessionToken,
+      });
+      toast.success("Workflow template created.");
+      setIsCreateTemplateOpen(false);
+      setTemplateName("");
+      setTemplateDescription("");
+      setTemplateCategoryValue("");
+      setTemplateVisibility("public");
+      setTemplateTags("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create template.");
     }
   };
 
@@ -250,6 +304,85 @@ export default function AutomationCenterPage() {
     createdAt: t.createdAt,
     updatedAt: t.updatedAt,
   }));
+
+  const filteredWorkflows = useMemo(() => {
+    const search = workflowSearch.trim().toLowerCase();
+    if (!search) return workflows;
+    return workflows.filter((workflow) =>
+      `${workflow.name} ${workflow.description} ${workflow.category} ${workflow.trigger}`
+        .toLowerCase()
+        .includes(search)
+    );
+  }, [workflowSearch, workflows]);
+
+  const filteredExecutions = useMemo(() => {
+    const search = executionSearch.trim().toLowerCase();
+    if (!search) return workflowExecutions;
+    return workflowExecutions.filter((execution) =>
+      `${execution.workflowName} ${execution.executionId} ${execution.triggeredBy} ${execution.status}`
+        .toLowerCase()
+        .includes(search)
+    );
+  }, [executionSearch, workflowExecutions]);
+
+  const filteredTemplates = useMemo(() => {
+    const search = templateSearch.trim().toLowerCase();
+    if (!search) return workflowTemplates;
+    return workflowTemplates.filter((template) =>
+      `${template.name} ${template.description} ${template.category} ${template.tags.join(" ")}`
+        .toLowerCase()
+        .includes(search)
+    );
+  }, [templateSearch, workflowTemplates]);
+
+  const handleRunWorkflow = async (workflowId: string) => {
+    if (!sessionToken) return;
+    setActionLoadingId(workflowId);
+    try {
+      await triggerWorkflow({ sessionToken, workflowId });
+      toast.success("Workflow execution started.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to run workflow.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleToggleWorkflow = async (workflowId: string, isActive: boolean) => {
+    if (!sessionToken) return;
+    setActionLoadingId(workflowId);
+    try {
+      await updateWorkflowStatus({ sessionToken, workflowId, isActive: !isActive });
+      toast.success(`Workflow ${isActive ? "paused" : "activated"}.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update workflow status.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleCancelExecution = async (executionId: string) => {
+    if (!sessionToken) return;
+    setActionLoadingId(executionId);
+    try {
+      await cancelWorkflowExecution({ sessionToken, executionId });
+      toast.success("Execution cancelled.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to cancel execution.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleUseTemplate = (template: WorkflowTemplate) => {
+    setWorkflowName(template.name);
+    setWorkflowDescription(template.description);
+    setWorkflowCategory(template.category);
+    setWorkflowTrigger("manual");
+    setIsCreateWorkflowOpen(true);
+    setActiveTab("workflows");
+    toast.success("Template copied into the workflow form.");
+  };
 
   const getStepIcon = (stepType: string) => {
     switch (stepType) {
@@ -336,7 +469,12 @@ export default function AutomationCenterPage() {
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search workflows..." className="pl-10 w-80" />
+            <Input
+              placeholder="Search workflows..."
+              className="pl-10 w-80"
+              value={workflowSearch}
+              onChange={(e) => setWorkflowSearch(e.target.value)}
+            />
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-40">
@@ -368,13 +506,9 @@ export default function AutomationCenterPage() {
           </Select>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => window.location.reload()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
-          </Button>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export
           </Button>
           <Dialog open={isCreateWorkflowOpen} onOpenChange={setIsCreateWorkflowOpen}>
             <DialogTrigger asChild>
@@ -435,12 +569,8 @@ export default function AutomationCenterPage() {
                   <Label>Workflow Steps</Label>
                   <div className="border rounded-lg p-4">
                     <div className="text-sm text-muted-foreground mb-2">
-                      Add workflow steps using the visual workflow builder
+                      Workflow creation currently stores metadata only. Step-builder editing is still pending.
                     </div>
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Step
-                    </Button>
                   </div>
                 </div>
               </div>
@@ -522,7 +652,7 @@ export default function AutomationCenterPage() {
 
       {/* Workflows List */}
       <div className="space-y-4">
-        {workflows.map((workflow) => (
+        {filteredWorkflows.map((workflow) => (
           <Card key={workflow._id}>
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
@@ -591,11 +721,19 @@ export default function AutomationCenterPage() {
                       <div className="space-y-1">
                         <div className="flex justify-between text-sm">
                           <span>Last Execution</span>
-                          <span>2 days ago</span>
+                          <span>
+                            {workflowExecutions.find((execution) => execution.workflowId === workflow._id)?.startedAt
+                              ? formatRelativeTime(
+                                  workflowExecutions.find((execution) => execution.workflowId === workflow._id)!.startedAt
+                                )
+                              : "No runs yet"}
+                          </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>Status</span>
-                          <span className="text-green-600">Completed</span>
+                          <span className={workflow.isActive ? "text-green-600" : "text-muted-foreground"}>
+                            {workflow.isActive ? "Ready" : "Paused"}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -603,23 +741,46 @@ export default function AutomationCenterPage() {
                 </div>
 
                 <div className="flex items-center space-x-2 ml-4">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRunWorkflow(workflow._id)}
+                    disabled={actionLoadingId === workflow._id || !workflow.isActive}
+                  >
                     <Play className="h-4 w-4 mr-1" />
                     Run
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      toast.message("Detailed workflow designer is still pending. This card reflects live workflow state.")
+                    }
+                  >
                     <Eye className="h-4 w-4 mr-1" />
                     View
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4 mr-1" />
-                    Edit
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleToggleWorkflow(workflow._id, workflow.isActive)}
+                    disabled={actionLoadingId === workflow._id}
+                  >
+                    <Square className="h-4 w-4 mr-1" />
+                    {workflow.isActive ? "Pause" : "Activate"}
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         ))}
+        {filteredWorkflows.length === 0 && (
+          <Card>
+            <CardContent className="pt-6 text-sm text-muted-foreground">
+              No workflows matched the current filters.
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
@@ -630,9 +791,14 @@ export default function AutomationCenterPage() {
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search executions..." className="pl-10 w-80" />
+            <Input
+              placeholder="Search executions..."
+              className="pl-10 w-80"
+              value={executionSearch}
+              onChange={(e) => setExecutionSearch(e.target.value)}
+            />
           </div>
-          <Select>
+          <Select value={executionStatus || "all"} onValueChange={setExecutionStatus}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -646,20 +812,16 @@ export default function AutomationCenterPage() {
           </Select>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => window.location.reload()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
-          </Button>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export
           </Button>
         </div>
       </div>
 
       {/* Executions List */}
       <div className="space-y-4">
-        {workflowExecutions.map((execution) => (
+        {filteredExecutions.map((execution) => (
           <Card key={execution._id}>
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
@@ -731,12 +893,23 @@ export default function AutomationCenterPage() {
                 </div>
 
                 <div className="flex items-center space-x-2 ml-4">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      toast.message("Execution drill-down is not implemented yet, but this row reflects live execution data.")
+                    }
+                  >
                     <Eye className="h-4 w-4 mr-1" />
                     View Details
                   </Button>
                   {execution.status === "running" && (
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCancelExecution(execution.executionId)}
+                      disabled={actionLoadingId === execution.executionId}
+                    >
                       <Square className="h-4 w-4 mr-1" />
                       Cancel
                     </Button>
@@ -746,6 +919,13 @@ export default function AutomationCenterPage() {
             </CardContent>
           </Card>
         ))}
+        {filteredExecutions.length === 0 && (
+          <Card>
+            <CardContent className="pt-6 text-sm text-muted-foreground">
+              No workflow executions matched the current filters.
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
@@ -756,9 +936,14 @@ export default function AutomationCenterPage() {
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search templates..." className="pl-10 w-80" />
+            <Input
+              placeholder="Search templates..."
+              className="pl-10 w-80"
+              value={templateSearch}
+              onChange={(e) => setTemplateSearch(e.target.value)}
+            />
           </div>
-          <Select>
+          <Select value={templateCategory || "all"} onValueChange={setTemplateCategory}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
@@ -774,7 +959,7 @@ export default function AutomationCenterPage() {
           </Select>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => window.location.reload()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -792,16 +977,26 @@ export default function AutomationCenterPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="template-name">Template Name</Label>
-                  <Input id="template-name" placeholder="Enter template name" />
+                  <Input
+                    id="template-name"
+                    placeholder="Enter template name"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="template-description">Description</Label>
-                  <Textarea id="template-description" placeholder="Describe the template" />
+                  <Textarea
+                    id="template-description"
+                    placeholder="Describe the template"
+                    value={templateDescription}
+                    onChange={(e) => setTemplateDescription(e.target.value)}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label>Category</Label>
-                    <Select>
+                    <Select value={templateCategoryValue} onValueChange={setTemplateCategoryValue}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
@@ -817,7 +1012,7 @@ export default function AutomationCenterPage() {
                   </div>
                   <div className="grid gap-2">
                     <Label>Visibility</Label>
-                    <Select>
+                    <Select value={templateVisibility} onValueChange={setTemplateVisibility}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select visibility" />
                       </SelectTrigger>
@@ -830,14 +1025,18 @@ export default function AutomationCenterPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label>Tags</Label>
-                  <Input placeholder="Enter tags (comma separated)" />
+                  <Input
+                    placeholder="Enter tags (comma separated)"
+                    value={templateTags}
+                    onChange={(e) => setTemplateTags(e.target.value)}
+                  />
                 </div>
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsCreateTemplateOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => setIsCreateTemplateOpen(false)}>Create Template</Button>
+                <Button onClick={handleCreateTemplate}>Create Template</Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -846,7 +1045,7 @@ export default function AutomationCenterPage() {
 
       {/* Templates List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {workflowTemplates.map((template) => (
+        {filteredTemplates.map((template) => (
           <Card key={template._id}>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -886,11 +1085,22 @@ export default function AutomationCenterPage() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleUseTemplate(template)}
+                >
                   <Target className="h-4 w-4 mr-1" />
                   Use Template
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    toast.message("Template preview is limited to the summary card until the visual builder is added.")
+                  }
+                >
                   <Eye className="h-4 w-4 mr-1" />
                   Preview
                 </Button>
@@ -898,6 +1108,13 @@ export default function AutomationCenterPage() {
             </CardContent>
           </Card>
         ))}
+        {filteredTemplates.length === 0 && (
+          <Card className="md:col-span-2 lg:col-span-3">
+            <CardContent className="pt-6 text-sm text-muted-foreground">
+              No templates matched the current filters.
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

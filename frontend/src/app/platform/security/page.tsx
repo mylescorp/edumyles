@@ -6,51 +6,35 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelativeTime } from "@/lib/utils";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { 
   Shield, 
   AlertTriangle, 
   Activity, 
   Eye, 
-  Lock, 
-  Unlock, 
-  TrendingUp, 
-  TrendingDown,
-  Users,
-  Globe,
-  Database,
-  Wifi,
   Server,
   FileText,
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle,
-  Info,
   Target,
   Zap,
   BarChart3,
-  LineChart,
-  PieChart,
-  Filter,
   Download,
   RefreshCw,
   Settings,
-  Camera,
-  Fingerprint,
-  Key,
   ShieldCheck,
   Ban,
-  UserCheck,
-  Mail,
-  Phone
+  Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface SecurityIncident {
   _id: string;
@@ -148,8 +132,10 @@ interface SecurityMetrics {
 export default function SecurityDashboardPage() {
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
-  const [selectedTimeRange, setSelectedTimeRange] = useState("24h");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedTimeRange, setSelectedTimeRange] = useState<"1h" | "24h" | "7d" | "30d">("24h");
+  const [selectedCategory, setSelectedCategory] = useState<Threat["type"] | "all">("all");
+  const [pendingThreatId, setPendingThreatId] = useState<string | null>(null);
+  const [pendingBlockedIp, setPendingBlockedIp] = useState<string | null>(null);
 
   // Get security overview
   const securityOverview = usePlatformQuery(
@@ -168,7 +154,12 @@ export default function SecurityDashboardPage() {
   // Get active threats
   const threats = usePlatformQuery(
     api.platform.security.queries.getActiveThreats,
-    { sessionToken: sessionToken || "", status: "active", limit: 50 },
+    {
+      sessionToken: sessionToken || "",
+      status: "active",
+      ...(selectedCategory !== "all" ? { category: selectedCategory } : {}),
+      limit: 50,
+    },
     !!sessionToken
   );
 
@@ -193,6 +184,12 @@ export default function SecurityDashboardPage() {
     !!sessionToken
   );
 
+  const blockedIPs = usePlatformQuery(
+    api.platform.security.queries.listBlockedIPs,
+    { sessionToken: sessionToken || "", limit: 20 },
+    !!sessionToken
+  );
+
   // Mutations
   const acknowledgeThreatMutation = useMutation(api.platform.security.mutations.acknowledgeThreat);
   const mitigateThreatMutation = useMutation(api.platform.security.mutations.mitigateThreat);
@@ -213,8 +210,12 @@ export default function SecurityDashboardPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active": return "bg-red-100 text-red-800";
+      case "open": return "bg-red-100 text-red-800";
+      case "investigating": return "bg-yellow-100 text-yellow-800";
+      case "contained": return "bg-blue-100 text-blue-800";
       case "mitigating": return "bg-yellow-100 text-yellow-800";
       case "resolved": return "bg-green-100 text-green-800";
+      case "closed": return "bg-gray-100 text-gray-800";
       case "false_positive": return "bg-gray-100 text-gray-800";
       default: return "bg-gray-100 text-gray-800";
     }
@@ -234,32 +235,43 @@ export default function SecurityDashboardPage() {
 
   // Handle threat acknowledgment
   const handleAcknowledgeThreat = async (threatId: string) => {
+    setPendingThreatId(threatId);
     try {
       await acknowledgeThreatMutation({
         sessionToken,
         threatId,
         notes: "Acknowledged by security team",
       });
+      toast.success("Threat acknowledged.");
     } catch (error: any) {
       console.error("Failed to acknowledge threat:", error);
+      toast.error(error?.message || "Failed to acknowledge threat.");
+    } finally {
+      setPendingThreatId(null);
     }
   };
 
   // Handle threat mitigation
   const handleMitigateThreat = async (threatId: string, mitigation: string) => {
+    setPendingThreatId(threatId);
     try {
       await mitigateThreatMutation({
         sessionToken,
         threatId,
         mitigation,
       });
+      toast.success(mitigation === "block_ip" ? "Threat moved into mitigation." : "Threat resolved.");
     } catch (error: any) {
       console.error("Failed to mitigate threat:", error);
+      toast.error(error?.message || "Failed to mitigate threat.");
+    } finally {
+      setPendingThreatId(null);
     }
   };
 
   // Handle IP blocking
   const handleBlockIP = async (ip: string) => {
+    setPendingBlockedIp(ip);
     try {
       await blockIPMutation({
         sessionToken,
@@ -267,47 +279,57 @@ export default function SecurityDashboardPage() {
         reason: "Suspicious activity detected",
         duration: 24 * 60 * 60 * 1000, // 24 hours
       });
+      toast.success(`Blocked ${ip} for 24 hours.`);
     } catch (error: any) {
       console.error("Failed to block IP:", error);
+      toast.error(error?.message || "Failed to block IP.");
+    } finally {
+      setPendingBlockedIp(null);
     }
   };
 
-  if (!sessionToken) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading security dashboard...</p>
-        </div>
-      </div>
-    );
+  if (
+    !sessionToken ||
+    !securityOverview ||
+    !incidents ||
+    !threats ||
+    !compliance ||
+    !accessLogs ||
+    !vulnerabilityScan ||
+    !blockedIPs
+  ) {
+    return <LoadingSkeleton variant="page" />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Advanced Security Dashboard</h1>
-          <p className="text-gray-600 mt-1">Real-time threat detection and security monitoring</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1h">Last Hour</SelectItem>
-              <SelectItem value="24h">Last 24 Hours</SelectItem>
-              <SelectItem value="7d">Last 7 Days</SelectItem>
-              <SelectItem value="30d">Last 30 Days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" className="flex items-center gap-2">
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Advanced Security Dashboard"
+        description="Real-time threat detection, incident tracking, compliance signals, and access monitoring."
+        breadcrumbs={[
+          { label: "Platform", href: "/platform" },
+          { label: "Security", href: "/platform/security" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Select value={selectedTimeRange} onValueChange={(value) => setSelectedTimeRange(value as "1h" | "24h" | "7d" | "30d")}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1h">Last Hour</SelectItem>
+                <SelectItem value="24h">Last 24 Hours</SelectItem>
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="30d">Last 30 Days</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={() => toast.info("Security data refreshes automatically from Convex queries.")}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
+        }
+      />
 
       {/* Security Overview */}
       {securityOverview && (
@@ -421,38 +443,100 @@ export default function SecurityDashboardPage() {
                   <Target className="w-5 h-5" />
                   Threat Intelligence
                 </CardTitle>
-                <CardDescription>Automated threat detection and analysis</CardDescription>
+                <CardDescription>Live threat breakdown from currently active detections</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="font-medium">Malware Detected:</span>
-                      <div className="text-lg font-bold text-red-600">3</div>
+                      <div className="text-lg font-bold text-red-600">{threats.filter((threat: Threat) => threat.type === "malware").length}</div>
                     </div>
                     <div>
                       <span className="font-medium">Phishing Attempts:</span>
-                      <div className="text-lg font-bold text-orange-600">12</div>
+                      <div className="text-lg font-bold text-orange-600">{threats.filter((threat: Threat) => threat.type === "phishing").length}</div>
                     </div>
                     <div>
                       <span className="font-medium">Brute Force:</span>
-                      <div className="text-lg font-bold text-yellow-600">8</div>
+                      <div className="text-lg font-bold text-yellow-600">{threats.filter((threat: Threat) => threat.type === "brute_force").length}</div>
                     </div>
                     <div>
                       <span className="font-medium">DDoS Attacks:</span>
-                      <div className="text-lg font-bold text-purple-600">2</div>
+                      <div className="text-lg font-bold text-purple-600">{threats.filter((threat: Threat) => threat.type === "ddos").length}</div>
                     </div>
                   </div>
-                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-red-600" />
-                      <span className="font-medium text-red-800">High-Risk Threat Detected</span>
+                  {threats[0] ? (
+                    <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                        <span className="font-medium text-red-800">Highest-priority active threat</span>
+                      </div>
+                      <p className="mt-2 text-sm text-red-700">
+                        {threats[0].description}
+                      </p>
                     </div>
-                    <p className="text-sm text-red-700 mt-2">
-                      Suspicious login patterns detected from multiple IP addresses indicating potential brute force attack
-                    </p>
-                  </div>
+                  ) : (
+                    <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+                      No active threats are currently recorded for the selected filter window.
+                    </div>
+                  )}
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5" />
+                  Compliance Areas
+                </CardTitle>
+                <CardDescription>Computed from real compliance query data</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {(compliance?.areas ?? []).map((area: any) => (
+                  <div key={area.area} className="flex items-center justify-between rounded-lg border p-3">
+                    <div>
+                      <p className="font-medium">{area.area}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {area.violations?.length ? area.violations[0] : "No current violations recorded"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold">{area.score ?? "N/A"}{area.score !== null ? "%" : ""}</p>
+                      <Badge variant="outline">{String(area.status).replace(/_/g, " ")}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Ban className="w-5 h-5" />
+                  Blocked IPs
+                </CardTitle>
+                <CardDescription>Active IP blocks applied through security workflows</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {blockedIPs.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No blocked IPs are currently active.</p>
+                ) : (
+                  blockedIPs.slice(0, 8).map((blocked: any) => (
+                    <div key={blocked._id} className="flex items-center justify-between rounded-lg border p-3">
+                      <div>
+                        <p className="font-mono text-sm">{blocked.ip}</p>
+                        <p className="text-xs text-muted-foreground">{blocked.reason}</p>
+                      </div>
+                      <div className="text-right text-xs text-muted-foreground">
+                        <p>Blocked {formatRelativeTime(blocked.blockedAt)}</p>
+                        <p>Expires {blocked.expiresAt ? formatRelativeTime(blocked.expiresAt) : "never"}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
@@ -461,7 +545,7 @@ export default function SecurityDashboardPage() {
         <TabsContent value="threats" className="space-y-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as Threat["type"] | "all")}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
@@ -548,19 +632,23 @@ export default function SecurityDashboardPage() {
                     <div className="flex items-center gap-2">
                       {threat.status === "active" && (
                         <>
-                          <Button variant="outline" size="sm" onClick={() => handleAcknowledgeThreat(threat._id)}>
-                            <Eye className="w-4 h-4 mr-1" />
+                          <Button variant="outline" size="sm" disabled={pendingThreatId === threat._id} onClick={() => handleAcknowledgeThreat(threat._id)}>
+                            {pendingThreatId === threat._id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Eye className="w-4 h-4 mr-1" />}
                             Acknowledge
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleMitigateThreat(threat._id, "block_ip")}>
-                            <Ban className="w-4 h-4 mr-1" />
+                          <Button variant="outline" size="sm" disabled={pendingThreatId === threat._id || pendingBlockedIp === threat.source.ip} onClick={() => handleMitigateThreat(threat._id, "block_ip")}>
+                            {pendingThreatId === threat._id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Ban className="w-4 h-4 mr-1" />}
                             Block IP
+                          </Button>
+                          <Button variant="outline" size="sm" disabled={pendingBlockedIp === threat.source.ip} onClick={() => handleBlockIP(threat.source.ip)}>
+                            {pendingBlockedIp === threat.source.ip ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Shield className="w-4 h-4 mr-1" />}
+                            Manual Block
                           </Button>
                         </>
                       )}
                       {(threat.status as string) === "mitigating" && (
-                        <Button variant="outline" size="sm" onClick={() => handleMitigateThreat(threat._id, "resolve")}>
-                          <CheckCircle className="w-4 h-4 mr-1" />
+                        <Button variant="outline" size="sm" disabled={pendingThreatId === threat._id} onClick={() => handleMitigateThreat(threat._id, "resolve")}>
+                          {pendingThreatId === threat._id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-1" />}
                           Resolve
                         </Button>
                       )}
@@ -688,28 +776,24 @@ export default function SecurityDashboardPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  {[
-                    { area: "Access Control", score: 95, status: "compliant" },
-                    { area: "Data Protection", score: 88, status: "needs_improvement" },
-                    { area: "Network Security", score: 92, status: "compliant" },
-                    { area: "Incident Response", score: 78, status: "needs_improvement" },
-                    { area: "Audit Logging", score: 98, status: "compliant" },
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  {(compliance?.areas ?? []).map((item: any) => (
+                    <div key={item.area} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1">
                         <div className="font-medium">{item.area}</div>
-                        <div className="text-sm text-gray-600">Compliance status</div>
+                        <div className="text-sm text-gray-600">
+                          {item.violations?.length ? item.violations[0] : "Compliance status"}
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className={`text-lg font-bold ${
                           item.status === 'compliant' ? 'text-green-600' : 'text-yellow-600'
                         }`}>
-                          {item.score}%
+                          {item.score ?? "N/A"}{item.score !== null ? "%" : ""}
                         </div>
                         <Badge className={
                           item.status === 'compliant' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                         }>
-                          {item.status.replace('_', ' ')}
+                          {String(item.status).replace('_', ' ')}
                         </Badge>
                       </div>
                     </div>
@@ -721,41 +805,90 @@ export default function SecurityDashboardPage() {
         </TabsContent>
 
         <TabsContent value="access" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Recent Access Logs
-              </CardTitle>
-              <CardDescription>System access and authentication events</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {accessLogs?.slice(0, 20).map((log: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-3 border-b">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className={`w-2 h-2 rounded-full ${
-                        log.success ? 'bg-green-500' : 'bg-red-500'
-                      }`}></div>
-                      <div>
-                        <div className="font-medium">{log.action}</div>
-                        <div className="text-sm text-gray-600">
-                          {log.user} • {log.ip} • {formatRelativeTime(log.timestamp)}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Recent Access Logs
+                </CardTitle>
+                <CardDescription>System access and authentication events</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {accessLogs?.slice(0, 20).map((log: any, index: number) => (
+                    <div key={index} className="flex items-center justify-between border-b p-3">
+                      <div className="flex flex-1 items-center gap-3">
+                        <div className={`h-2 w-2 rounded-full ${log.success ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <div>
+                          <div className="font-medium">{log.action}</div>
+                          <div className="text-sm text-gray-600">
+                            {log.user} • {log.ip} • {formatRelativeTime(log.timestamp)}
+                          </div>
                         </div>
                       </div>
+                      <div className="text-right">
+                        {log.success ? (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-500" />
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      {log.success ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-red-500" />
-                      )}
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Vulnerability Scan
+                </CardTitle>
+                <CardDescription>Latest recorded vulnerability scan results</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium">Status:</span>
+                    <div className="text-gray-600">{vulnerabilityScan?.status ?? "not started"}</div>
+                  </div>
+                  <div>
+                    <span className="font-medium">Last Completed:</span>
+                    <div className="text-gray-600">
+                      {vulnerabilityScan?.completedAt ? formatRelativeTime(vulnerabilityScan.completedAt) : "Never"}
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div>
+                    <span className="font-medium">Vulnerabilities Found:</span>
+                    <div className="text-gray-600">{vulnerabilityScan?.vulnerabilitiesFound ?? 0}</div>
+                  </div>
+                  <div>
+                    <span className="font-medium">High Risk:</span>
+                    <div className="text-red-600 font-medium">{vulnerabilityScan?.highRiskVulnerabilities ?? 0}</div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {(vulnerabilityScan?.vulnerabilities ?? []).slice(0, 5).map((vulnerability: any) => (
+                    <div key={vulnerability._id ?? vulnerability.id} className="rounded-lg border p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{vulnerability.title}</p>
+                          <p className="text-sm text-muted-foreground">{vulnerability.affectedSystem}</p>
+                        </div>
+                        <Badge className={getSeverityColor(vulnerability.severity)}>{vulnerability.severity}</Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {(!vulnerabilityScan?.vulnerabilities || vulnerabilityScan.vulnerabilities.length === 0) && (
+                    <p className="text-sm text-muted-foreground">No vulnerability findings are stored yet.</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

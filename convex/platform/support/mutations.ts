@@ -140,6 +140,121 @@ export const createAISupportTicket = mutation({
   },
 });
 
+export const updatePlatformTicketStatus = mutation({
+  args: {
+    sessionToken: v.string(),
+    ticketId: v.id("tickets"),
+    status: v.union(
+      v.literal("open"),
+      v.literal("in_progress"),
+      v.literal("pending_school"),
+      v.literal("resolved"),
+      v.literal("closed")
+    ),
+    assignedTo: v.optional(v.string()),
+    priority: v.optional(v.union(v.literal("P0"), v.literal("P1"), v.literal("P2"), v.literal("P3"))),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
+    const ticket = await ctx.db.get(args.ticketId);
+    if (!ticket) throw new Error("Ticket not found");
+
+    const updates: Record<string, unknown> = {
+      status: args.status,
+      updatedAt: Date.now(),
+    };
+
+    if (args.status === "in_progress" && !ticket.firstResponseAt) {
+      updates.firstResponseAt = Date.now();
+    }
+
+    if (args.status === "resolved" || args.status === "closed") {
+      updates.resolvedAt = Date.now();
+    }
+
+    if (args.assignedTo !== undefined) {
+      updates.assignedTo = args.assignedTo;
+    }
+
+    if (args.priority) {
+      updates.priority = args.priority;
+    }
+
+    if (args.status === "pending_school") {
+      updates.slaClockPaused = true;
+    } else if (ticket.slaClockPaused) {
+      updates.slaClockPaused = false;
+    }
+
+    await ctx.db.patch(args.ticketId, updates);
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "support.ticket.updated",
+      entityType: "ticket",
+      entityId: args.ticketId,
+      before: {
+        status: ticket.status,
+        assignedTo: ticket.assignedTo,
+        priority: ticket.priority,
+      },
+      after: {
+        status: args.status,
+        assignedTo: args.assignedTo,
+        priority: args.priority,
+      },
+    });
+
+    return { success: true, message: "Ticket updated successfully" };
+  },
+});
+
+export const addPlatformTicketComment = mutation({
+  args: {
+    sessionToken: v.string(),
+    ticketId: v.id("tickets"),
+    content: v.string(),
+    isInternal: v.boolean(),
+    attachments: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, args);
+    const ticket = await ctx.db.get(args.ticketId);
+    if (!ticket) throw new Error("Ticket not found");
+
+    const commentId = await ctx.db.insert("ticketComments", {
+      ticketId: args.ticketId,
+      authorId: actor.userId,
+      authorEmail: actor.email,
+      authorRole: actor.role,
+      content: args.content,
+      isInternal: args.isInternal,
+      attachments: args.attachments ?? [],
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.patch(args.ticketId, { updatedAt: Date.now() });
+
+    await logAction(ctx, {
+      tenantId: actor.tenantId,
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "support.ticket.comment_added",
+      entityType: "ticket",
+      entityId: args.ticketId,
+      after: {
+        commentId,
+        isInternal: args.isInternal,
+        attachmentCount: args.attachments?.length ?? 0,
+      },
+    });
+
+    return { success: true, commentId, message: "Comment added successfully" };
+  },
+});
+
 export const analyzeTicketWithAI = mutation({
   args: {
     sessionToken: v.string(),

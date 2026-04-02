@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,53 +26,98 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import {
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Users,
-  Building2,
   AlertTriangle,
-  CheckCircle,
-  Target,
   Brain,
-  FileText,
-  Download,
+  Building2,
   Calendar,
-  Filter,
-  Plus,
-  Settings,
-  Eye,
-  Mail,
-  Smartphone,
+  CheckCircle,
   Clock,
-  Zap,
-  Activity,
-  PieChart,
+  DollarSign,
+  Download,
+  Eye,
+  FileText,
   LineChart,
-  Globe,
-  MapPin,
+  Plus,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  Users,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+
+type BusinessTimeRange = "7d" | "30d" | "90d" | "1y";
+type ReportTimeRange = "7d" | "30d" | "90d";
+type ReportFormat = "csv" | "excel" | "pdf";
+type ReportType =
+  | "user_analytics"
+  | "ticket_analytics"
+  | "workflow_analytics"
+  | "tenant_analytics"
+  | "system_analytics"
+  | "custom";
+type AvailableReportTemplate = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function getTrendIcon(trend: number) {
+  return trend > 0 ? (
+    <TrendingUp className="h-4 w-4 text-green-600" />
+  ) : (
+    <TrendingDown className="h-4 w-4 text-red-600" />
+  );
+}
+
+function getReportTimeRange(timeRange: BusinessTimeRange): ReportTimeRange {
+  return timeRange === "1y" ? "90d" : timeRange;
+}
+
+function getRelativeTime(timestamp?: number) {
+  if (!timestamp) return "Never";
+  const diffMs = Date.now() - timestamp;
+  const minutes = Math.floor(diffMs / (1000 * 60));
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
+function getReportTypeLabel(reportType: string) {
+  return reportType.replace(/_/g, " ");
+}
 
 export default function AdvancedAnalyticsPage() {
   const { sessionToken } = useAuth();
-  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "1y">("30d");
-  const [selectedReport, setSelectedReport] = useState("");
+  const [timeRange, setTimeRange] = useState<BusinessTimeRange>("30d");
+  const [selectedReport, setSelectedReport] = useState<string>("all");
   const [isCreateReportOpen, setIsCreateReportOpen] = useState(false);
+  const [isCreatingReport, setIsCreatingReport] = useState(false);
+  const [exportingReportId, setExportingReportId] = useState<string | null>(null);
 
-  // Report form state
   const [reportName, setReportName] = useState("");
   const [reportDescription, setReportDescription] = useState("");
-  const [reportType, setReportType] = useState<string>("");
-  const [reportFormat, setReportFormat] = useState<string>("");
-  const [reportSchedule, setReportSchedule] = useState<string>("");
+  const [reportType, setReportType] = useState<ReportType | "">("");
+  const [reportFormat, setReportFormat] = useState<ReportFormat | "pdf">("pdf");
+  const [reportSchedule, setReportSchedule] = useState<string>("once");
   const [reportRecipients, setReportRecipients] = useState("");
 
-  // Backend queries
   const businessIntelligence = usePlatformQuery(
     api.platform.analytics.queries.getBusinessIntelligence,
     { sessionToken: sessionToken || "", timeRange },
@@ -87,96 +132,122 @@ export default function AdvancedAnalyticsPage() {
 
   const reportsData = usePlatformQuery(
     api.platform.analytics.queries.getCustomReports,
-    { sessionToken: sessionToken || "" },
+    {
+      sessionToken: sessionToken || "",
+      reportType: selectedReport === "all" ? undefined : selectedReport,
+    },
     !!sessionToken
   );
 
-  // Backend mutations
   const createCustomReport = useMutation(api.platform.analytics.mutations.createCustomReport);
   const exportReport = useMutation(api.platform.analytics.mutations.exportReport);
+  const generateReport = useMutation(api.platform.analytics.queries.generateReport);
+
+  const recentReports = reportsData?.recentReports ?? [];
+  const scheduledReports = reportsData?.scheduledReports ?? [];
+  const availableReports = (reportsData?.availableReports ?? []) as AvailableReportTemplate[];
+
+  const templatesById = useMemo(
+    () => new Map<string, AvailableReportTemplate>(availableReports.map((report) => [report.id, report])),
+    [availableReports]
+  );
+
+  const handleExportReport = async (reportId: string, format: ReportFormat) => {
+    if (!sessionToken) {
+      toast.error("You need an active session to export reports.");
+      return;
+    }
+
+    setExportingReportId(reportId);
+    try {
+      const result = await exportReport({ sessionToken, reportId, format });
+      if (result?.exportUrl) {
+        window.open(result.exportUrl, "_blank", "noopener,noreferrer");
+        toast.success(`Export prepared as ${format.toUpperCase()}.`);
+      } else {
+        toast.success("Export request submitted.");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to export report.");
+    } finally {
+      setExportingReportId(null);
+    }
+  };
+
+  const handleGenerateTemplate = async (templateId: string, format: ReportFormat) => {
+    if (!sessionToken) {
+      toast.error("You need an active session to generate reports.");
+      return;
+    }
+
+    setExportingReportId(templateId);
+    try {
+      const result = await generateReport({
+        sessionToken,
+        reportId: templateId,
+        format,
+      });
+      toast.success(result.message || "Report generation queued.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to queue report generation.");
+    } finally {
+      setExportingReportId(null);
+    }
+  };
 
   const handleCreateReport = async () => {
-    if (!sessionToken || !reportName || !reportType) return;
+    if (!sessionToken || !reportName || !reportType) {
+      toast.error("Report name and report type are required.");
+      return;
+    }
+
+    setIsCreatingReport(true);
     try {
-      await createCustomReport({
+      const result = await createCustomReport({
         sessionToken,
         name: reportName,
-        description: reportDescription,
-        reportType: reportType as any,
+        description: reportDescription || `Custom ${getReportTypeLabel(reportType)} report`,
+        reportType,
         config: {
-          timeRange: timeRange as "7d" | "30d" | "90d",
+          timeRange: getReportTimeRange(timeRange),
           metrics: ["all"],
-          chartType: "table" as const,
+          chartType: "table",
         },
         schedule:
-          reportSchedule && reportSchedule !== "once"
+          reportSchedule !== "once"
             ? {
                 enabled: true,
                 frequency: reportSchedule as "daily" | "weekly" | "monthly",
                 recipients: reportRecipients
                   .split(",")
-                  .map((e) => e.trim())
+                  .map((email) => email.trim())
                   .filter(Boolean),
               }
             : undefined,
       });
+
+      await handleExportReport(result.reportId, reportFormat);
       setIsCreateReportOpen(false);
       setReportName("");
       setReportDescription("");
       setReportType("");
-      setReportFormat("");
-      setReportSchedule("");
+      setReportFormat("pdf");
+      setReportSchedule("once");
       setReportRecipients("");
-    } catch (err) {
-      console.error("Failed to create report:", err);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create report.");
+    } finally {
+      setIsCreatingReport(false);
     }
   };
 
-  const handleExportReport = async (reportId: string, format: "csv" | "excel" | "pdf") => {
-    if (!sessionToken) return;
-    try {
-      const result = await exportReport({ sessionToken, reportId, format });
-      if (result?.exportUrl) {
-        window.open(result.exportUrl, "_blank");
-      }
-    } catch (err) {
-      console.error("Failed to export report:", err);
-    }
-  };
-
-  if (!businessIntelligence) return <LoadingSkeleton variant="page" />;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("en-US").format(num);
-  };
-
-  const getTrendIcon = (trend: number) => {
-    return trend > 0 ? (
-      <TrendingUp className="h-4 w-4 text-green-600" />
-    ) : (
-      <TrendingDown className="h-4 w-4 text-red-600" />
-    );
-  };
-
-  const getHealthScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600 bg-green-100";
-    if (score >= 60) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
-  };
+  if (!businessIntelligence || !reportsData) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   const BusinessIntelligenceTab = () => (
     <div className="space-y-6">
-      {/* Key Metrics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Monthly Revenue (MRR)</CardTitle>
@@ -186,7 +257,7 @@ export default function AdvancedAnalyticsPage() {
             <div className="text-2xl font-bold">
               {formatCurrency(businessIntelligence.overview.totalRevenue)}
             </div>
-            <p className="text-xs text-muted-foreground flex items-center">
+            <p className="flex items-center text-xs text-muted-foreground">
               {getTrendIcon(businessIntelligence.overview.revenueGrowth)}
               <span className="ml-1">
                 {businessIntelligence.overview.revenueGrowth}% from last period
@@ -237,8 +308,7 @@ export default function AdvancedAnalyticsPage() {
         </Card>
       </div>
 
-      {/* Revenue Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Revenue by Plan</CardTitle>
@@ -247,19 +317,17 @@ export default function AdvancedAnalyticsPage() {
             {businessIntelligence.revenueAnalytics.revenueByPlan.map((plan: any) => (
               <div key={plan.plan} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="capitalize font-medium">{plan.plan}</span>
+                  <span className="font-medium capitalize">{plan.plan}</span>
                   <span className="font-medium">{formatCurrency(plan.revenue)}</span>
                 </div>
-                <div className="space-y-1">
-                  <Progress
-                    value={
-                      businessIntelligence.revenueAnalytics.mrr > 0
-                        ? (plan.revenue / businessIntelligence.revenueAnalytics.mrr) * 100
-                        : 0
-                    }
-                    className="h-2"
-                  />
-                </div>
+                <Progress
+                  value={
+                    businessIntelligence.revenueAnalytics.mrr > 0
+                      ? (plan.revenue / businessIntelligence.revenueAnalytics.mrr) * 100
+                      : 0
+                  }
+                  className="h-2"
+                />
               </div>
             ))}
           </CardContent>
@@ -285,30 +353,29 @@ export default function AdvancedAnalyticsPage() {
         </Card>
       </div>
 
-      {/* Tenant Summary */}
       <Card>
         <CardHeader>
           <CardTitle>Tenant Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-3 border rounded-lg text-center">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="rounded-lg border p-3 text-center">
               <div className="text-2xl font-bold">{businessIntelligence.tenantAnalytics.total}</div>
               <div className="text-sm text-muted-foreground">Total</div>
             </div>
-            <div className="p-3 border rounded-lg text-center">
+            <div className="rounded-lg border p-3 text-center">
               <div className="text-2xl font-bold text-green-600">
                 {businessIntelligence.tenantAnalytics.active}
               </div>
               <div className="text-sm text-muted-foreground">Active</div>
             </div>
-            <div className="p-3 border rounded-lg text-center">
+            <div className="rounded-lg border p-3 text-center">
               <div className="text-2xl font-bold text-blue-600">
                 {businessIntelligence.tenantAnalytics.new}
               </div>
               <div className="text-sm text-muted-foreground">New</div>
             </div>
-            <div className="p-3 border rounded-lg text-center">
+            <div className="rounded-lg border p-3 text-center">
               <div className="text-2xl font-bold text-red-600">
                 {businessIntelligence.tenantAnalytics.churned}
               </div>
@@ -318,7 +385,6 @@ export default function AdvancedAnalyticsPage() {
         </CardContent>
       </Card>
 
-      {/* Feature Adoption */}
       {businessIntelligence.usageAnalytics.featureAdoption.length > 0 && (
         <Card>
           <CardHeader>
@@ -328,9 +394,9 @@ export default function AdvancedAnalyticsPage() {
             {businessIntelligence.usageAnalytics.featureAdoption.map((item: any) => (
               <div
                 key={item.feature}
-                className="flex items-center justify-between p-3 border rounded-lg"
+                className="flex items-center justify-between rounded-lg border p-3"
               >
-                <span className="capitalize font-medium">{item.feature}</span>
+                <span className="font-medium capitalize">{item.feature}</span>
                 <Badge variant="secondary">{item.count} installations</Badge>
               </div>
             ))}
@@ -349,8 +415,7 @@ export default function AdvancedAnalyticsPage() {
 
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Churn Prediction */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -360,14 +425,14 @@ export default function AdvancedAnalyticsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {churnPrediction && (
-                <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
                   <div className="flex items-center justify-between">
                     <span className="font-medium">Predicted Churn (Next Month)</span>
                     <span className="text-2xl font-bold text-orange-600">
                       {Math.round(churnPrediction.nextMonthChurnRate * 10) / 10}%
                     </span>
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">
+                  <div className="mt-1 text-sm text-muted-foreground">
                     {churnPrediction.highRiskCount} high-risk tenants identified
                   </div>
                 </div>
@@ -379,15 +444,15 @@ export default function AdvancedAnalyticsPage() {
                   <p className="text-sm text-muted-foreground">No at-risk tenants detected.</p>
                 )}
                 {atRiskTenants.map((tenant: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded">
+                  <div key={index} className="flex items-center justify-between rounded border p-2">
                     <div>
-                      <div className="font-medium text-sm">{tenant.tenantName}</div>
+                      <div className="text-sm font-medium">{tenant.tenantName}</div>
                       <div className="text-xs text-muted-foreground">
                         {tenant.riskFactors.join(", ")}
                       </div>
                     </div>
                     <div
-                      className={`px-2 py-1 rounded text-xs font-medium ${
+                      className={`rounded px-2 py-1 text-xs font-medium ${
                         tenant.churnProbability > 0.7
                           ? "bg-red-100 text-red-700"
                           : tenant.churnProbability > 0.5
@@ -403,7 +468,6 @@ export default function AdvancedAnalyticsPage() {
             </CardContent>
           </Card>
 
-          {/* Retention Opportunities */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -417,12 +481,12 @@ export default function AdvancedAnalyticsPage() {
                   No retention opportunities at this time.
                 </p>
               )}
-              {retentionOpportunities.map((opp: any, index: number) => (
-                <div key={index} className="p-3 border rounded-lg space-y-2">
-                  <div className="font-medium">{opp.tenantName}</div>
+              {retentionOpportunities.map((opportunity: any, index: number) => (
+                <div key={index} className="space-y-2 rounded-lg border p-3">
+                  <div className="font-medium">{opportunity.tenantName}</div>
                   <div className="text-sm text-muted-foreground">
-                    {opp.recommendedActions?.map((action: string, i: number) => (
-                      <div key={i}>&#8226; {action}</div>
+                    {opportunity.recommendedActions?.map((action: string, actionIndex: number) => (
+                      <div key={actionIndex}>&#8226; {action}</div>
                     ))}
                   </div>
                 </div>
@@ -431,7 +495,6 @@ export default function AdvancedAnalyticsPage() {
           </Card>
         </div>
 
-        {/* AI Insights */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -440,9 +503,9 @@ export default function AdvancedAnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-2 flex items-center space-x-2">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <span className="font-medium">Tenant Health</span>
                 </div>
@@ -460,8 +523,8 @@ export default function AdvancedAnalyticsPage() {
                 </div>
               </div>
 
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
+              <div className="rounded-lg border p-4">
+                <div className="mb-2 flex items-center space-x-2">
                   <AlertTriangle className="h-4 w-4 text-orange-600" />
                   <span className="font-medium">Churn Alert</span>
                 </div>
@@ -473,8 +536,8 @@ export default function AdvancedAnalyticsPage() {
                 </div>
               </div>
 
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
+              <div className="rounded-lg border p-4">
+                <div className="mb-2 flex items-center space-x-2">
                   <Target className="h-4 w-4 text-blue-600" />
                   <span className="font-medium">Growth Opportunity</span>
                 </div>
@@ -493,11 +556,11 @@ export default function AdvancedAnalyticsPage() {
 
   const CustomReportsTab = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <Select
             value={timeRange}
-            onValueChange={(v) => setTimeRange(v as "7d" | "30d" | "90d" | "1y")}
+            onValueChange={(value) => setTimeRange(value as BusinessTimeRange)}
           >
             <SelectTrigger className="w-40">
               <SelectValue />
@@ -509,15 +572,27 @@ export default function AdvancedAnalyticsPage() {
               <SelectItem value="1y">Last Year</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
+
+          <Select value={selectedReport} onValueChange={setSelectedReport}>
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder="Filter report type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All report types</SelectItem>
+              <SelectItem value="user_analytics">User Analytics</SelectItem>
+              <SelectItem value="ticket_analytics">Ticket Analytics</SelectItem>
+              <SelectItem value="workflow_analytics">Workflow Analytics</SelectItem>
+              <SelectItem value="tenant_analytics">Tenant Analytics</SelectItem>
+              <SelectItem value="system_analytics">System Analytics</SelectItem>
+              <SelectItem value="custom">Custom Reports</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+
         <Dialog open={isCreateReportOpen} onOpenChange={setIsCreateReportOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4" />
               Create Report
             </Button>
           </DialogTrigger>
@@ -532,7 +607,7 @@ export default function AdvancedAnalyticsPage() {
                   id="report-name"
                   placeholder="Enter report name"
                   value={reportName}
-                  onChange={(e) => setReportName(e.target.value)}
+                  onChange={(event) => setReportName(event.target.value)}
                 />
               </div>
               <div className="grid gap-2">
@@ -541,13 +616,13 @@ export default function AdvancedAnalyticsPage() {
                   id="report-description"
                   placeholder="Describe your report"
                   value={reportDescription}
-                  onChange={(e) => setReportDescription(e.target.value)}
+                  onChange={(event) => setReportDescription(event.target.value)}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>Report Type</Label>
-                  <Select value={reportType} onValueChange={setReportType}>
+                  <Select value={reportType} onValueChange={(value) => setReportType(value as ReportType)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
@@ -556,13 +631,17 @@ export default function AdvancedAnalyticsPage() {
                       <SelectItem value="ticket_analytics">Ticket Analytics</SelectItem>
                       <SelectItem value="workflow_analytics">Workflow Analytics</SelectItem>
                       <SelectItem value="tenant_analytics">Tenant Analytics</SelectItem>
+                      <SelectItem value="system_analytics">System Analytics</SelectItem>
                       <SelectItem value="custom">Custom</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
                   <Label>Format</Label>
-                  <Select value={reportFormat} onValueChange={setReportFormat}>
+                  <Select
+                    value={reportFormat}
+                    onValueChange={(value) => setReportFormat(value as ReportFormat)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select format" />
                     </SelectTrigger>
@@ -593,7 +672,7 @@ export default function AdvancedAnalyticsPage() {
                 <Input
                   placeholder="Enter email addresses (comma separated)"
                   value={reportRecipients}
-                  onChange={(e) => setReportRecipients(e.target.value)}
+                  onChange={(event) => setReportRecipients(event.target.value)}
                 />
               </div>
             </div>
@@ -601,76 +680,207 @@ export default function AdvancedAnalyticsPage() {
               <Button variant="outline" onClick={() => setIsCreateReportOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateReport} disabled={!reportName || !reportType}>
-                Create Report
+              <Button onClick={handleCreateReport} disabled={isCreatingReport || !reportName || !reportType}>
+                {isCreatingReport ? "Creating..." : "Create Report"}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Available Reports */}
-      <div className="grid gap-4">
-        {[
-          {
-            name: "Revenue Summary Report",
-            description: "Comprehensive revenue analysis by plan, region, and time",
-            category: "financial",
-            lastGenerated: "2 hours ago",
-            schedule: "weekly",
-            format: "PDF",
-          },
-          {
-            name: "Tenant Performance Dashboard",
-            description: "Detailed tenant health and performance metrics",
-            category: "operational",
-            lastGenerated: "6 hours ago",
-            schedule: "daily",
-            format: "Dashboard",
-          },
-          {
-            name: "Product Usage Analytics",
-            description: "Feature adoption and user engagement analysis",
-            category: "product",
-            lastGenerated: "1 day ago",
-            schedule: "monthly",
-            format: "Excel",
-          },
-        ].map((report, index) => (
-          <Card key={index}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <h3 className="font-semibold">{report.name}</h3>
-                    <Badge variant="secondary">{report.category}</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{report.description}</p>
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span>Last generated: {report.lastGenerated}</span>
-                    <span>Schedule: {report.schedule}</span>
-                    <span>Format: {report.format}</span>
-                  </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Available Report Templates</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 lg:grid-cols-2">
+          {availableReports.map((report: any) => (
+            <div key={report.id} className="rounded-lg border p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <LineChart className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="font-semibold">{report.name}</h3>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Eye className="h-4 w-4 mr-1" />
-                    Preview
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-1" />
-                    Download
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4 mr-1" />
-                    Configure
-                  </Button>
+                <Badge variant="secondary">Template</Badge>
+              </div>
+              <p className="mb-4 text-sm text-muted-foreground">{report.description}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleGenerateTemplate(report.id, "pdf")}
+                  disabled={exportingReportId === report.id}
+                >
+                  <Eye className="mr-1 h-4 w-4" />
+                  Queue PDF
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleGenerateTemplate(report.id, "csv")}
+                  disabled={exportingReportId === report.id}
+                >
+                  <Download className="mr-1 h-4 w-4" />
+                  Queue CSV
+                </Button>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Scheduled Reports</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {scheduledReports.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No scheduled reports yet. Create one with a daily, weekly, or monthly schedule.
+              </p>
+            )}
+            {scheduledReports.map((report: any) => (
+              <div key={report._id} className="rounded-lg border p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">{report.name}</h3>
+                      <Badge variant="secondary">
+                        {getReportTypeLabel(report.reportType)}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {report.description || "No description provided."}
+                    </p>
+                  </div>
+                  <Badge>{report.schedule?.frequency || "scheduled"}</Badge>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    Next run: {getRelativeTime(report.nextScheduled)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <FileText className="h-4 w-4" />
+                    Status: {report.status}
+                  </span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Generated Reports</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {recentReports.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No reports have been generated yet.
+              </p>
+            )}
+            {recentReports.map((report: any) => {
+              const template = templatesById.get(report.name);
+              return (
+                <div key={report._id} className="rounded-lg border p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">{template?.name || report.name}</h3>
+                        <Badge variant="secondary">
+                          {getReportTypeLabel(report.reportType)}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {report.description || template?.description || "Generated platform report."}
+                      </p>
+                    </div>
+                    <Badge variant={report.status === "completed" ? "default" : "outline"}>
+                      {report.status}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      Created {getRelativeTime(report.createdAt)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      Last generated {getRelativeTime(report.lastGenerated)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <FileText className="h-4 w-4" />
+                      Format: {(report.exportFormat || "pdf").toUpperCase()}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        toast.message("Preview uses the stored report metadata until a dedicated viewer is added.")
+                      }
+                    >
+                      <Eye className="mr-1 h-4 w-4" />
+                      Preview Metadata
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExportReport(report._id, "pdf")}
+                      disabled={exportingReportId === report._id}
+                    >
+                      <Download className="mr-1 h-4 w-4" />
+                      PDF
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExportReport(report._id, "excel")}
+                      disabled={exportingReportId === report._id}
+                    >
+                      <Download className="mr-1 h-4 w-4" />
+                      Excel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExportReport(report._id, "csv")}
+                      disabled={exportingReportId === report._id}
+                    >
+                      <Download className="mr-1 h-4 w-4" />
+                      CSV
+                    </Button>
+                    {Array.isArray(report.schedule?.recipients) &&
+                      report.schedule.recipients.length > 0 && (
+                        <Badge variant="outline">
+                          {report.schedule.recipients.length} recipient(s)
+                        </Badge>
+                      )}
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Reporting Notes</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-muted-foreground">
+          <p>
+            Template actions queue generation in Convex and show the latest saved report records below.
+          </p>
+          <p>
+            Scheduled delivery recipients are stored with the report, but delivery automation still depends on the platform reporting worker.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 

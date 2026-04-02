@@ -4,6 +4,18 @@ import { requireTenantContext } from "../../../helpers/tenantGuard";
 import { requirePermission } from "../../../helpers/authorize";
 import { requireModule } from "../../../helpers/moduleGuard";
 
+function isSuccessfulPayment(payment: any) {
+  return payment.status === "completed" || payment.status === "success";
+}
+
+function sortByNewestTimestamp(items: Array<{ processedAt?: number; updatedAt?: number; createdAt?: number }>) {
+  return [...items].sort((a, b) => {
+    const aTime = a.processedAt ?? a.updatedAt ?? a.createdAt ?? 0;
+    const bTime = b.processedAt ?? b.updatedAt ?? b.createdAt ?? 0;
+    return bTime - aTime;
+  });
+}
+
 // Helper to resolve all children linked to the current parent
 async function resolveParentChildren(ctx: any, tenant: any) {
   const guardians = await ctx.db
@@ -181,7 +193,9 @@ export const getFeeBalance = query({
       .collect();
 
     const invoiceIds = new Set(invoices.map((i) => i._id.toString()));
-    const payments = allPayments.filter((p) => invoiceIds.has(p.invoiceId));
+    const payments = allPayments.filter(
+      (p) => invoiceIds.has(p.invoiceId) && isSuccessfulPayment(p)
+    );
 
     const totalInvoiced = invoices.reduce((sum, inv) => sum + inv.amount, 0);
     const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
@@ -220,8 +234,28 @@ export const getPaymentHistory = query({
       .collect();
 
     const payments = allPayments.filter((p) => invoiceIds.has(p.invoiceId));
+    const childMap = new Map(
+      children.map((child: any) => [child._id.toString(), child])
+    );
+    const invoiceMap = new Map(
+      invoices.map((invoice: any) => [invoice._id.toString(), invoice])
+    );
 
-    return payments;
+    return sortByNewestTimestamp(payments).map((payment: any) => {
+      const invoice = invoiceMap.get(payment.invoiceId);
+      const child = invoice ? childMap.get(invoice.studentId) : null;
+
+      return {
+        ...payment,
+        studentId: invoice?.studentId,
+        studentName: child
+          ? `${child.firstName} ${child.lastName}`
+          : "Unknown Student",
+        invoiceAmount: invoice?.amount ?? 0,
+        invoiceStatus: invoice?.status ?? "unknown",
+        dueDate: invoice?.dueDate ?? null,
+      };
+    });
   },
 });
 
@@ -291,7 +325,9 @@ export const getChildrenFeeOverview = query({
       .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
       .collect();
 
-    const payments = allPayments.filter((p: any) => invoiceIds.has(p.invoiceId));
+    const payments = allPayments.filter(
+      (p: any) => invoiceIds.has(p.invoiceId) && isSuccessfulPayment(p)
+    );
 
     return children.map((child: any) => {
       const childInvoices = invoices.filter(
@@ -312,6 +348,10 @@ export const getChildrenFeeOverview = query({
         (sum: number, p: any) => sum + p.amount,
         0
       );
+      const pendingInvoices = childInvoices.filter(
+        (invoice: any) =>
+          invoice.status === "pending" || invoice.status === "partially_paid"
+      );
 
       return {
         studentId: child._id.toString(),
@@ -320,6 +360,8 @@ export const getChildrenFeeOverview = query({
         totalInvoiced,
         totalPaid,
         balance: totalInvoiced - totalPaid,
+        pendingInvoiceCount: pendingInvoices.length,
+        paidInvoiceCount: childInvoices.filter((invoice: any) => invoice.status === "paid").length,
       };
     });
   },
@@ -341,10 +383,42 @@ export const getOutstandingInvoicesForChild = query({
         q.eq("tenantId", tenant.tenantId).eq("studentId", args.studentId)
       )
       .collect();
+    const allPayments = await ctx.db
+      .query("payments")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
 
-    return invoices.filter(
-      (inv: any) =>
-        inv.status === "pending" || inv.status === "partially_paid"
+    const invoicePayments = allPayments.filter((payment: any) =>
+      invoices.some((invoice: any) => invoice._id.toString() === payment.invoiceId)
+    );
+
+    return sortByNewestTimestamp(
+      invoices
+        .filter(
+          (inv: any) =>
+            inv.status === "pending" || inv.status === "partially_paid"
+        )
+        .map((invoice: any) => {
+          const successfulPayments = invoicePayments.filter(
+            (payment: any) =>
+              payment.invoiceId === invoice._id.toString() &&
+              isSuccessfulPayment(payment)
+          );
+          const amountPaid = successfulPayments.reduce(
+            (sum: number, payment: any) => sum + payment.amount,
+            0
+          );
+
+          return {
+            ...invoice,
+            amountPaid,
+            balance: Math.max(invoice.amount - amountPaid, 0),
+            lastPaymentAt:
+              successfulPayments[0]?.processedAt ??
+              successfulPayments[0]?.updatedAt ??
+              null,
+          };
+        })
     );
   },
 });

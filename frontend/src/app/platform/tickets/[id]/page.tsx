@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Id } from "@/convex/_generated/dataModel";
@@ -90,9 +92,17 @@ interface Ticket {
   attachments?: string[];
 }
 
+interface MentionUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
 export default function TicketDetailPage() {
   const params = useParams();
   const ticketId = params.id as string;
+  const { sessionToken, user } = useAuth();
 
   const [newComment, setNewComment] = useState("");
   const [isInternal, setIsInternal] = useState(false);
@@ -109,51 +119,55 @@ export default function TicketDetailPage() {
   const [selectedPriority, setSelectedPriority] = useState("");
 
   // Real Convex queries
-  const ticketData = useQuery(
-    api.tickets.getTicket,
-    ticketId ? { ticketId: ticketId as Id<"tickets"> } : "skip"
+  const ticketData = usePlatformQuery(
+    api.platform.support.queries.getPlatformTicketDetail,
+    ticketId && sessionToken ? { sessionToken, ticketId: ticketId as Id<"tickets"> } : "skip",
+    !!ticketId && !!sessionToken
   );
-  const updateStatus = useMutation(api.tickets.updateTicketStatus);
-  const addComment = useMutation(api.tickets.addComment);
+  const platformUsers = usePlatformQuery(
+    api.platform.users.queries.listAllUsers,
+    sessionToken ? { sessionToken, status: "active" } : "skip",
+    !!sessionToken
+  );
+  const updateStatus = useMutation(api.platform.support.mutations.updatePlatformTicketStatus);
+  const addComment = useMutation(api.platform.support.mutations.addPlatformTicketComment);
 
-  // Users for @mentions - could be fetched from a real query in future
-  const mockUsers = [
-    {
-      id: "agent1",
-      email: "michael.chen@edumyles.com",
-      name: "Michael Chen",
-      role: "Support Agent",
-    },
-    {
-      id: "agent2",
-      email: "sarah.wilson@edumyles.com",
-      name: "Sarah Wilson",
-      role: "Support Agent",
-    },
-    { id: "tech1", email: "david.kim@edumyles.com", name: "David Kim", role: "Technical Lead" },
-    { id: "admin1", email: "john.doe@edumyles.com", name: "John Doe", role: "System Admin" },
-    {
-      id: "customer1",
-      email: "sarah.johnson@nairobi-academy.edu",
-      name: "Sarah Johnson",
-      role: "School Admin",
-    },
-  ];
+  const mentionableUsers = useMemo<MentionUser[]>(
+    () =>
+      (platformUsers ?? []).map((platformUser: any) => ({
+        id: String(platformUser._id),
+        email: platformUser.email,
+        name: `${platformUser.firstName ?? ""} ${platformUser.lastName ?? ""}`.trim() || platformUser.email,
+        role: platformUser.role,
+      })),
+    [platformUsers]
+  );
+
+  useEffect(() => {
+    if (!ticketData) return;
+    setSelectedStatus(ticketData.status ?? "");
+    setSelectedPriority(ticketData.priority ?? "");
+    setSelectedAssignee(ticketData.assignedTo || "unassigned");
+  }, [ticketData]);
 
   const handleStatusUpdate = () => {
-    if (selectedStatus) {
+    if (selectedStatus && sessionToken) {
       updateStatus({
-        ticketId,
+        sessionToken,
+        ticketId: ticketId as Id<"tickets">,
         status: selectedStatus as any,
-        assignedTo: selectedAssignee || undefined,
+        assignedTo: !selectedAssignee || selectedAssignee === "unassigned" ? undefined : selectedAssignee,
+        priority: selectedPriority || undefined,
       });
     }
   };
 
   const handleAddComment = async () => {
+    if (!sessionToken) return;
     if (newComment.trim() || uploadedFiles.length > 0) {
       try {
         await addComment({
+          sessionToken,
           ticketId: ticketId as Id<"tickets">,
           content: newComment,
           isInternal,
@@ -190,7 +204,7 @@ export default function TicketDetailPage() {
     }
   };
 
-  const handleMentionSelect = (user: (typeof mockUsers)[0]) => {
+  const handleMentionSelect = (user: MentionUser) => {
     const beforeMention = newComment.substring(0, cursorPosition - mentionQuery.length - 1);
     const afterCursor = newComment.substring(cursorPosition);
 
@@ -222,7 +236,7 @@ export default function TicketDetailPage() {
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
   };
 
-  const filteredUsers = mockUsers.filter(
+  const filteredUsers = mentionableUsers.filter(
     (user) =>
       user.name.toLowerCase().includes(mentionQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(mentionQuery.toLowerCase())
@@ -290,7 +304,7 @@ export default function TicketDetailPage() {
     return { text: `${hours}h ${minutes}m`, color: hours < 2 ? "text-red-600" : "text-yellow-600" };
   };
 
-  if (ticketData === undefined) {
+  if (!sessionToken || ticketData === undefined || platformUsers === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
 
@@ -349,12 +363,12 @@ export default function TicketDetailPage() {
 
                 <div className="flex items-center gap-2 mt-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Nairobi, Kenya</span>
+                  <span className="text-sm text-muted-foreground">Location data is not stored on this ticket record</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">450 Students</span>
+                  <span className="text-sm text-muted-foreground">Use the tenant profile for roster details</span>
                 </div>
               </div>
 
@@ -366,10 +380,10 @@ export default function TicketDetailPage() {
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Contact</span>
                 </div>
-                <p className="text-sm text-muted-foreground">+254 712 345 678</p>
+                <p className="text-sm text-muted-foreground">Contact details are not captured in this platform ticket.</p>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">admin@school.edu</p>
+                  <p className="text-sm text-muted-foreground">Open the tenant profile or original request channel for requester info.</p>
                 </div>
               </div>
 
@@ -565,7 +579,7 @@ export default function TicketDetailPage() {
                               // Check if this part is a mention
                               if (part.startsWith("@")) {
                                 const userName = part.substring(1);
-                                const mentionedUser = mockUsers.find(
+                                const mentionedUser = mentionableUsers.find(
                                   (u) =>
                                     u.name.toLowerCase().includes(userName.toLowerCase()) ||
                                     u.email.toLowerCase().includes(userName.toLowerCase())
@@ -756,7 +770,7 @@ export default function TicketDetailPage() {
                       size="sm"
                       onClick={() => {
                         setSelectedStatus("in_progress");
-                        setSelectedAssignee("current-user@example.com");
+                        setSelectedAssignee(user?.email ?? "");
                       }}
                     >
                       <Reply className="h-4 w-4 mr-1" />
@@ -853,10 +867,12 @@ export default function TicketDetailPage() {
                     <SelectValue placeholder="Select assignee" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Unassigned</SelectItem>
-                    <SelectItem value="agent1@edumyles.com">Agent 1</SelectItem>
-                    <SelectItem value="agent2@edumyles.com">Agent 2</SelectItem>
-                    <SelectItem value="agent3@edumyles.com">Agent 3</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    {mentionableUsers.map((platformUser) => (
+                      <SelectItem key={platformUser.id} value={platformUser.email}>
+                        {platformUser.name} ({platformUser.role.replace(/_/g, " ")})
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
