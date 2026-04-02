@@ -1,667 +1,383 @@
 # EduMyles — End-to-End Implementation Audit Report
-
 Generated: 2026-04-02
-Auditor: Kilo (kilo-auto/free)
-Branch audited: `codex/marketplace-e2e-fixes`
-Monorepo root: `c:\Users\Admin\Projects\edumyles`
-
----
 
 ## 1. Executive Summary
-
-### Overall Implementation Completeness: **~72%**
-
-EduMyles is a mature, feature-rich school management SaaS with substantial implementation across backend, frontend, and infrastructure layers. The Convex backend is the strongest layer (~95% implemented). The frontend admin/platform panels are well-wired to real data (~85%). The shared layer has domain logic but critical type consistency issues. The mobile app is a non-functional scaffold (~5% complete).
-
-### Critical Blockers
-
-| #   | Blocker                                                                                                                                 | Impact                                                   |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| 1   | **Shared type/validator/backend schema mismatch** — `TenantTier`, `UserRole`, `Tenant` shape all diverge across layers                  | Runtime type errors, data corruption                     |
-| 2   | **Multiple unguarded mutations** — `promoteUserEmailToMasterAdmin`, `emergencyAdmin.ts`, `repairMasterAdminByEmail` have no auth checks | Security vulnerability — anyone can create master admins |
-| 3   | **`PLAN_PRICES_CENTS` undefined** in `platform/billing/queries.ts:101`                                                                  | Billing overview crashes at runtime                      |
-| 4   | **E2E test infrastructure broken** — missing `fixtures/auth.fixture.ts`, `global-setup.ts`, `global-teardown.ts`                        | CI pipeline `tenant-isolation` job will fail             |
-| 5   | **Hardcoded Convex deploy keys** in 5 PowerShell scripts                                                                                | Credential leak risk                                     |
-| 6   | **Mobile app cannot compile** — missing `useAuth` hook and 5 of 7 screen files                                                          | Zero mobile functionality                                |
-
-### Module Implementation Summary
-
-| Status                   | Count | Modules                                                                                                                                                                                                                                                    |
-| ------------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ✅ Fully Implemented     | 11    | SIS, Admissions, Finance, Timetable, Academics, HR, Library, Transport, Communications, eWallet, eCommerce                                                                                                                                                 |
-| ⚠️ Partially Implemented | 8     | Platform Billing (runtime bug), Platform Marketplace (mock payments), Platform Automation (mock steps), Platform AI Support (rule-based), Platform Communications (in-app only), Shared Layer (type mismatches), Mobile App (scaffold), E2E Tests (broken) |
-| ❌ Not Started           | 2     | Airtel Money payment integration, Real AI/ML features                                                                                                                                                                                                      |
-
----
+- Overall implementation completeness estimate: 58%
+- Critical blockers:
+  - `convex/sessions.ts` exposes unauthenticated session creation, reads, role mutation, and deletion. This is a critical auth break.
+  - `convex/notifications.ts` exposes notification reads and read-state mutations without tenant/session enforcement. This is a critical tenant-isolation break.
+  - Role vocabulary is inconsistent across layers: shared constants use `platform_admin`, while frontend/backend auth logic primarily use `super_admin`.
+  - `vercel.json` is configured to build `landing` and rewrite all traffic to `/api/tenant-handler`, which does not match the intended app-router multi-tenant frontend deployment.
+  - Payment and comms integrations have env-name and API-contract drift (`MPESA_*` vs `CONVEX_MPESA_*`, `AT_*` vs `AFRICAS_TALKING_*`), making real deployments likely to fail.
+  - Mobile auth is not a WorkOS mobile flow; users paste a session token manually.
+- Number of modules fully implemented / partially implemented / not started:
+  - Fully implemented: 7
+  - Partially implemented: 5
+  - Not started: 0
 
 ## 2. User Panels Identified
-
-| #   | Panel                             | Route Prefix        | Roles                                                                                                                | Status                     |
-| --- | --------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| 1   | **Platform Admin (Master Admin)** | `/platform`         | `master_admin`, `super_admin`                                                                                        | ✅ Operational             |
-| 2   | **School Admin**                  | `/admin`            | `school_admin`, `principal`, `bursar`, `hr_manager`, `librarian`, `transport_manager`, `master_admin`, `super_admin` | ✅ Operational             |
-| 3   | **Student Portal**                | `/portal/student`   | `student`                                                                                                            | ✅ Operational (read-only) |
-| 4   | **Teacher Portal**                | `/portal/teacher`   | `teacher`                                                                                                            | ✅ Operational             |
-| 5   | **Parent Portal**                 | `/portal/parent`    | `parent`                                                                                                             | ✅ Operational             |
-| 6   | **Alumni Portal**                 | `/portal/alumni`    | `alumni`                                                                                                             | ✅ Operational             |
-| 7   | **Partner Portal**                | `/portal/partner`   | `partner`                                                                                                            | ✅ Operational             |
-| 8   | **Portal Admin (Modular)**        | `/portal/admin`     | `school_admin`, `principal`                                                                                          | ✅ Operational             |
-| 9   | **Legacy Student Portal**         | `/(portal)/student` | `student`                                                                                                            | ⚠️ Duplicate routes exist  |
-| 10  | **Support Tickets**               | `/(portal)/support` | `student`                                                                                                            | ✅ Operational             |
-| 11  | **Landing/Marketing**             | Landing site        | Public                                                                                                               | ✅ Separate Next.js app    |
-| 12  | **Mobile App**                    | N/A                 | `student` (planned)                                                                                                  | ❌ Non-functional          |
-
----
+| Panel | Route Prefix | Roles |
+| --- | --- | --- |
+| Platform Admin Panel | `/platform` | `master_admin`, `super_admin` |
+| School Admin Panel | `/admin` | `school_admin`, `principal`, `bursar`, `hr_manager`, `librarian`, `transport_manager` |
+| Teacher Portal | `/portal/teacher` | `teacher` |
+| Student Portal | `/portal/student` | `student` |
+| Legacy Student Portal | `/student` | `student` |
+| Parent Portal | `/portal/parent` | `parent` |
+| Alumni Portal | `/portal/alumni` | `alumni` |
+| Partner Portal | `/portal/partner` | `partner` |
+| Support Portal | `/support` | shared portal users |
+| Roles without dedicated panel | none | `board_member`, `receptionist`, `platform_admin` |
 
 ## 3. Backend Module Status
-
-### 3.1 Core Modules
-
-| Module                         | Functions Found | Fully Impl. | Stubs/Partial | Missing | Notes                                                                 |
-| ------------------------------ | --------------- | ----------- | ------------- | ------- | --------------------------------------------------------------------- |
-| **SIS** (mutations)            | 5               | 5           | 0             | 0       | `createGuardian` missing audit log                                    |
-| **SIS** (queries)              | 5               | 5           | 0             | 0       | Silent error swallowing in catch blocks                               |
-| **Admissions** (mutations)     | 2               | 2           | 0             | 0       | Clean; cross-module dep on SIS                                        |
-| **Admissions** (queries)       | 3               | 3           | 0             | 0       | Clean                                                                 |
-| **Finance** (mutations)        | 9               | 9           | 0             | 0       | `pendingId: "pending"` bug; `generateReceipt` should be query         |
-| **Finance** (queries)          | 6               | 6           | 0             | 0       | Clean                                                                 |
-| **Finance** (actions)          | 4               | 4           | 0             | 0       | Real M-Pesa + Stripe; no `requireTenantContext` (uses webhook secret) |
-| **Timetable** (mutations)      | 5               | 5           | 0             | 0       | Clean; full audit logging                                             |
-| **Timetable** (queries)        | 6               | 6           | 0             | 0       | Real conflict detection (O(n²))                                       |
-| **Academics** (mutations)      | 7               | 7           | 0             | 0       | Hardcoded term dates (`2025-01-01`, `2025-04-01`)                     |
-| **Academics** (queries)        | 12              | 12          | 0             | 0       | Cross-module deps on SIS + Timetable                                  |
-| **HR** (mutations)             | 9               | 9           | 0             | 0       | 5/9 missing audit logs                                                |
-| **HR** (queries)               | 8               | 8           | 0             | 0       | `getRecentActivities` action string mismatch (underscores vs dots)    |
-| **Library** (mutations)        | 4               | 4           | 0             | 0       | Zero audit logging                                                    |
-| **Library** (queries)          | 6               | 6           | 0             | 0       | Comprehensive reports                                                 |
-| **Transport** (mutations)      | 6               | 6           | 0             | 0       | Zero audit logging                                                    |
-| **Transport** (queries)        | 5               | 5           | 0             | 0       | Unnecessary `"use node"` directive                                    |
-| **Communications** (mutations) | 22              | 22          | 0             | 0       | Schema mismatch on `createEmailTemplate`                              |
-| **Communications** (queries)   | 10              | 10          | 0             | 0       | Clean                                                                 |
-| **Communications** (platform)  | 24              | 24          | 0             | 0       | Uses `requirePlatformSession`                                         |
-| **eWallet** (mutations)        | 8               | 8           | 0             | 0       | Partial audit logging (3/8)                                           |
-| **eWallet** (queries)          | 6               | 6           | 0             | 0       | Clean                                                                 |
-| **eCommerce** (mutations)      | 6               | 6           | 0             | 0       | Zero audit logging; tight coupling to wallet tables                   |
-| **eCommerce** (queries)        | 5               | 5           | 0             | 0       | Clean                                                                 |
-
-### 3.2 Platform Modules
-
-| Module                | Functions | Fully Impl. | Mock/Stub | Notes                                                                         |
-| --------------------- | --------- | ----------- | --------- | ----------------------------------------------------------------------------- |
-| **Tenants**           | 11        | 11          | 0         | Complete provisioning flow                                                    |
-| **Billing**           | 8         | 8           | 0         | `PLAN_PRICES_CENTS` undefined (runtime crash)                                 |
-| **Onboarding**        | 7         | 7           | 0         | 6-step wizard complete                                                        |
-| **Users**             | 10        | 10          | 0         | Debug console.logs; unguarded `repairMasterAdminByEmail`                      |
-| **Analytics**         | 6         | 6           | 1         | `exportReport` generates mock URL                                             |
-| **Notifications**     | 7         | 7           | 0         | `createNotification` has no auth guard                                        |
-| **CRM**               | 21        | 21          | 0         | Full pipeline + proposals                                                     |
-| **Support (AI)**      | 13        | 13          | 2         | Rule-based keyword matching, not real ML                                      |
-| **Feature Flags**     | 7         | 7           | 0         | Supports percentage/tenant/user targeting                                     |
-| **Impersonation**     | 4         | 4           | 0         | 2-hour TTL, full audit logging                                                |
-| **Role Builder**      | 8         | 8           | 0         | Custom roles + permission groups                                              |
-| **Scheduled Reports** | 7         | 7           | 1         | `runNow` simulates completion                                                 |
-| **Settings**          | 4         | 4           | 0         | Requires `master_admin` role                                                  |
-| **Audit**             | 4         | 4           | 0         | Dual guard (platform + tenant)                                                |
-| **Security**          | 18        | 18          | 2         | Mock vulnerability scan; mock connection test                                 |
-| **Files**             | 5         | 5           | 0         | Clean                                                                         |
-| **Webhooks**          | 8         | 8           | 2         | `testEndpoint` doesn't send HTTP; `retryDelivery` marks success without retry |
-| **White Label**       | 4         | 4           | 0         | Clean                                                                         |
-| **Dashboard**         | 3         | 3           | 0         | Read-only KPIs + charts                                                       |
-| **Marketplace**       | 36        | 36          | 5         | M-Pesa/card/bank payments are ALL mocked                                      |
-| **Knowledge Base**    | 13        | 13          | 0         | Full CRUD + search + analytics                                                |
-| **Automation**        | 11        | 11          | 6         | All workflow action steps are mocked                                          |
-| **Changelog**         | 5         | 5           | 0         | Inconsistent auth (manual session check)                                      |
-| **Communications**    | 13        | 13          | 2         | Only `in_app` channel delivers; email/sms validated but not dispatched        |
-| **Data Export**       | 4         | 4           | 0         | Clean                                                                         |
-| **Health**            | 10        | 10          | 2         | Hardcoded service response times                                              |
-| **Integration**       | 14        | 14          | 3         | Mock sync/test; `testIntegrationConnection` always returns success            |
-| **Operations**        | 16        | 16          | 0         | Duplicate functions with platform/health                                      |
-| **SLA**               | 6         | 6           | 0         | Inconsistent auth (manual session check)                                      |
-| **Staff Performance** | 7         | 7           | 0         | Clean                                                                         |
-| **Tenant Success**    | 10        | 10          | 0         | Clean                                                                         |
-| **API Keys**          | 5         | 5           | 0         | Web Crypto API (SHA-256)                                                      |
-
-### 3.3 Core Files
-
-| File                | Functions  | Status | Notes                                                               |
-| ------------------- | ---------- | ------ | ------------------------------------------------------------------- |
-| `auth.ts`           | 0 (events) | ✅     | WorkOS AuthKit; `organizationId: undefined as any`                  |
-| `sessions.ts`       | 7          | ✅     | Throws plain strings instead of ConvexError                         |
-| `tenants.ts`        | 2          | ✅     | `getTenantByTenantId` has no auth guard                             |
-| `users.ts`          | 15         | ⚠️     | `promoteUserEmailToMasterAdmin` has NO auth guard                   |
-| `notifications.ts`  | 5          | ⚠️     | `createNotification` accepts any tenantId/userId without validation |
-| `organizations.ts`  | 2          | ⚠️     | No guards on either function                                        |
-| `tickets.ts`        | 7          | ✅     | SLA rules well-defined                                              |
-| `emergencyAdmin.ts` | 1          | 🔴     | No auth guard — backdoor to create master admin                     |
-| `testAdmin.ts`      | 1          | 🔴     | Hardcoded email — should be removed                                 |
-
-### 3.4 Helpers
-
-| File               | Functions | Status | Notes                                              |
-| ------------------ | --------- | ------ | -------------------------------------------------- |
-| `auditLog.ts`      | 3         | ✅     | 120+ action strings; some duplicates               |
-| `authorize.ts`     | 3         | ✅     | 14 roles, 38 permissions                           |
-| `idGenerator.ts`   | 6         | ✅     | `Math.random()` not cryptographically secure       |
-| `moduleGuard.ts`   | 6         | ✅     | Tier validation + dependency checking              |
-| `platformGuard.ts` | 1         | ⚠️     | Hardcoded master admin email `ayany004@gmail.com`  |
-| `tenantGuard.ts`   | 4         | ⚠️     | `console.log` leaks session metadata in production |
-
-### 3.5 Payment Integration Status
-
-| Provider               | Initiation                                       | Callback/Webhook                                    | Ledger Posting                                         | Auto-Reconciliation                              | Status            |
-| ---------------------- | ------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------ | ----------------- |
-| **M-Pesa STK Push**    | ✅ Real Daraja API (`actions/payments/mpesa.ts`) | ✅ Webhook at `/api/webhooks/mpesa`                 | ✅ `recordPaymentFromGateway` updates invoice + ledger | ⚠️ `pendingId: "pending"` bug may cause mismatch | **90% Complete**  |
-| **Stripe Checkout**    | ✅ Real API (`actions/payments/stripe.ts`)       | ✅ Webhook at `/api/webhooks/stripe`                | ✅ `recordPayment` updates invoice                     | ✅ Clean                                         | **100% Complete** |
-| **Airtel Money**       | ❌ No initiation action                          | ⚠️ Webhook handler exists at `/api/webhooks/airtel` | ❌ No ledger posting                                   | ❌ N/A                                           | **10% Complete**  |
-| **Bank Transfer**      | ❌ Not implemented                               | ❌ N/A                                              | ❌ N/A                                                 | ❌ N/A                                           | **0% Complete**   |
-| **Marketplace M-Pesa** | ⚠️ Mock                                          | ⚠️ `processPaymentCallback` exists                  | ⚠️ Mock                                                | ❌ N/A                                           | **20% Complete**  |
-| **Marketplace Stripe** | ⚠️ Mock                                          | ⚠️ Same callback                                    | ⚠️ Mock                                                | ❌ N/A                                           | **20% Complete**  |
-
-### 3.6 Communication Integration Status
-
-| Channel                    | Backend API                     | Templates                                                           | Trigger Points                   | Delivery                              | Status          |
-| -------------------------- | ------------------------------- | ------------------------------------------------------------------- | -------------------------------- | ------------------------------------- | --------------- |
-| **SMS (Africa's Talking)** | ✅ `sendSms`, `sendBulkSms`     | ✅ Default templates in `communications/templates`                  | Fee reminders, attendance alerts | ✅ Real API calls                     | **Implemented** |
-| **Email (Resend)**         | ✅ `sendEmail`                  | 4 templates (fee_reminder, exam_results, attendance_alert, payslip) | Fee reminders, invites           | ✅ Real API calls                     | **Implemented** |
-| **In-App Notifications**   | ✅ Full CRUD                    | N/A                                                                 | System events, announcements     | ✅ Real-time via Convex subscriptions | **Implemented** |
-| **Push Notifications**     | ❌ No FCM/APNs setup            | ❌                                                                  | ❌                               | ❌                                    | **Not Started** |
-| **Platform Comms (email)** | ⚠️ Validated but not dispatched | Stored in DB                                                        | `sendPlatformMessageNow`         | ❌ Only in_app channel works          | **Partial**     |
-| **Platform Comms (sms)**   | ⚠️ Validated but not dispatched | Stored in DB                                                        | `sendPlatformMessageNow`         | ❌ Only in_app channel works          | **Partial**     |
-
----
+| Module | Functions Found | Fully Impl. | Stubs/Partial | Missing | Notes |
+| --- | ---: | ---: | ---: | ---: | --- |
+| SIS | 10 | 10 | 0 | 0 | Guarded with tenant context; no cron/realtime wiring observed. |
+| Admissions | 5 | 5 | 0 | 0 | Core logic exists; frontend coverage is much thinner than backend. |
+| Finance | 15 | 11 | 4 | 0 | Payment initiation exists, but ledger auto-posting and bank-transfer verification are incomplete end-to-end. |
+| Timetable | 11 | 11 | 0 | 0 | Core CRUD exists; no scheduling/cron support found. |
+| Academics | 22 | 22 | 0 | 0 | Strongest backend module; still no watcher/cron support. |
+| HR | 17 | 17 | 0 | 0 | Backend logic exists; frontend payroll/leave pages are still stubbed. |
+| Library | 10 | 10 | 0 | 0 | Backend appears implemented; frontend is largely placeholder. |
+| Transport | 11 | 11 | 0 | 0 | Backend appears implemented; admin transport UI is largely placeholder. |
+| Communications | 60 | 45 | 15 | 0 | In-app comms are strongest; `templates.ts` is placeholder and `email.ts`/`sms.ts` skip normal tenant guards. |
+| eWallet | 13 | 9 | 4 | 0 | Backend exists, but wallet send/topup/transactions UX is still stubbed on student/admin panels. |
+| eCommerce | 11 | 8 | 3 | 0 | Backend exists, but admin storefront/product/order UI is mostly placeholder. |
+| Platform | 337 | 230 | 107 | 0 | Tenant management, onboarding, billing, and dashboards exist, but many functions/pages are partial and several files bypass `requirePlatformSession`. |
 
 ## 4. Frontend Panel Status
+### Platform Admin
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/platform` | ⚠️ Partial | Real dashboard shell, but page-level scan shows no direct Convex hook; relies on nested components. |
+| `/platform/ai-support` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/analytics` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/api-keys` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/audit` | ✅ Done | Real page present. |
+| `/platform/automation` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/billing` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/billing/invoices` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/billing/invoices/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/changelog` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/communications` | ✅ Done | Real page present. |
+| `/platform/communications/broadcast` | ⚠️ Partial | UI exists; no direct Convex hook in page file. |
+| `/platform/crm` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/crm/[dealId]` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/crm/leads` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/crm/leads/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/crm/proposals` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/crm/proposals/[proposalId]` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/data-export` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/feature-flags` | ⚠️ Partial | Page exists; no direct Convex hook in page file. |
+| `/platform/health` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/impersonation` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/knowledge-base` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/marketplace` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/marketplace/[moduleId]` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/marketplace/admin` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/marketplace/developer` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/marketplace/reviews` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/notifications` | ⚠️ Partial | UI exists, but relies on insecure global notification APIs. |
+| `/platform/onboarding` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/operations` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/pm` | ✅ Done | Real page present. |
+| `/platform/pm/[slug]` | ✅ Done | Real page present. |
+| `/platform/pm/[slug]/[projectId]` | ✅ Done | Real page present. |
+| `/platform/pm/[slug]/[projectId]/calendar` | ✅ Done | Real page present. |
+| `/platform/pm/[slug]/[projectId]/list` | ✅ Done | Real page present. |
+| `/platform/pm/[slug]/[projectId]/timeline` | ✅ Done | Real page present. |
+| `/platform/profile` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/role-builder` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/scheduled-reports` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/security` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/settings` | ✅ Done | Real page present. |
+| `/platform/sla` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/staff-performance` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/staff-performance/[staffId]` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/tenant-success` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/tenants` | ✅ Done | Real page present. |
+| `/platform/tenants/[tenantId]` | ✅ Done | Real page present. |
+| `/platform/tenants/create` | ⚠️ Partial | UI exists; no direct Convex hook in page file. |
+| `/platform/tickets` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/tickets/[id]` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/tickets/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/users` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/users/[userId]` | ✅ Done | Real page present. |
+| `/platform/users/invite` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/waitlist` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/webhooks` | 🔲 Stub | Placeholder/TODO page. |
+| `/platform/white-label` | 🔲 Stub | Placeholder/TODO page. |
 
-### 4.1 Platform Admin Panel (`/platform`) — 52 routes
+### School Admin
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/admin` | ✅ Done | Real dashboard page present. |
+| `/admin/academics` | ✅ Done | Real page present. |
+| `/admin/admissions` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/admissions/[appId]` | ✅ Done | Real page present. |
+| `/admin/audit` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/audit/reports` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/classes` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/classes/[classId]` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/classes/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/communications` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/communications/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/communications/email` | ✅ Done | Real page present. |
+| `/admin/ecommerce` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/ecommerce/orders` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/ecommerce/products` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/ecommerce/products/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/ewallet` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/ewallet/transactions` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/ewallet/wallets` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/finance` | ✅ Done | Real page present. |
+| `/admin/finance/fees` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/finance/invoices` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/finance/invoices/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/hr` | ✅ Done | Real page present. |
+| `/admin/hr/leave` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/hr/payroll` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/library` | ✅ Done | Real page present. |
+| `/admin/library/books` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/library/books/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/library/circulation` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/library/reports` | ✅ Done | Real page present. |
+| `/admin/marketplace` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/marketplace/[moduleId]` | ✅ Done | Real page present. |
+| `/admin/marketplace/requests` | ✅ Done | Real page present. |
+| `/admin/modules` | ✅ Done | Real page present. |
+| `/admin/notes` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/notifications` | ⚠️ Partial | UI exists, but relies on insecure global notification APIs. |
+| `/admin/profile` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/reports` | ⚠️ Partial | Page exists; no direct Convex hook in page file. |
+| `/admin/security` | ✅ Done | Real page present. |
+| `/admin/settings` | ⚠️ Partial | Page exists; no direct Convex hook in page file. |
+| `/admin/settings/billing` | ⚠️ Partial | Page exists; no direct Convex hook in page file. |
+| `/admin/settings/modules` | ✅ Done | Real page present. |
+| `/admin/settings/modules/[moduleId]` | ✅ Done | Real page present. |
+| `/admin/settings/roles` | ⚠️ Partial | Page exists; no direct Convex hook in page file. |
+| `/admin/staff` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/staff/[staffId]` | ✅ Done | Real page present. |
+| `/admin/staff/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/students` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/students/[studentId]` | ✅ Done | Real page present. |
+| `/admin/students/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/students/import` | 🔲 Stub | Hardcoded/mock import flow. |
+| `/admin/tasks` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/tickets` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/timetable` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/timetable/assignments` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/timetable/events` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/timetable/events/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/timetable/schedule` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/transport` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/transport/routes` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/transport/routes/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/transport/tracking` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/users` | 🔲 Stub | Placeholder/TODO page. |
+| `/admin/users/invite` | ✅ Done | Real page present. |
 
-| Route                                   | Status     | Issue                                                                                  |
-| --------------------------------------- | ---------- | -------------------------------------------------------------------------------------- |
-| `/platform` (Dashboard)                 | ✅ Done    | Real KPIs, charts, activity feed                                                       |
-| `/platform/tenants`                     | ✅ Done    | Real data via `usePlatformQuery`                                                       |
-| `/platform/tenants/create`              | ✅ Done    | 5-step provisioning wizard                                                             |
-| `/platform/tenants/[tenantId]`          | ✅ Done    | Real data; `TenantDetailTabs` component                                                |
-| `/platform/users`                       | ⚠️ Partial | Roles tab uses hardcoded `staticRoles`; Activity tab uses empty `useState([])`         |
-| `/platform/users/invite`                | ✅ Done    | Full invite flow via API route                                                         |
-| `/platform/users/[userId]`              | ⚠️ Partial | `handleResetPassword`, `handleToggle2FA`, `handleRevokeSession` are local-only         |
-| `/platform/billing`                     | ✅ Done    | Real subscriptions; tier update wired                                                  |
-| `/platform/billing/invoices`            | ✅ Done    | Real data                                                                              |
-| `/platform/billing/invoices/create`     | ✅ Done    | Full form with line items                                                              |
-| `/platform/analytics`                   | ⚠️ Partial | Custom Reports tab has 3 hardcoded entries; Create Report dialog doesn't call mutation |
-| `/platform/crm`                         | ✅ Done    | Full pipeline with drag-and-drop                                                       |
-| `/platform/crm/leads/create`            | ✅ Done    | Create wired to mutation                                                               |
-| `/platform/crm/[dealId]`                | ⚠️ Partial | Local state only; Quick Actions are non-functional buttons                             |
-| `/platform/crm/proposals`               | ✅ Done    | Create templates + generate proposals                                                  |
-| `/platform/crm/proposals/[proposalId]`  | ⚠️ Partial | `handleSendProposal` uses `setTimeout(2000)` simulation                                |
-| `/platform/tickets`                     | ✅ Done    | Real data                                                                              |
-| `/platform/tickets/create`              | ✅ Done    | Create wired                                                                           |
-| `/platform/tickets/[id]`                | ⚠️ Partial | `handleAddComment` logs to console instead of calling mutation                         |
-| `/platform/notifications`               | ✅ Done    | Real data + mark read                                                                  |
-| `/platform/communications`              | ✅ Done    | Real CRUD + send                                                                       |
-| `/platform/communications/broadcast`    | ✅ Done    | Redirect to comms with broadcast tab                                                   |
-| `/platform/feature-flags`               | ⚠️ Partial | Stats cards hardcoded (5 total, 3 active)                                              |
-| `/platform/impersonation`               | ✅ Done    | Begin/end sessions wired                                                               |
-| `/platform/health`                      | ✅ Done    | Real system health data                                                                |
-| `/platform/security`                    | ⚠️ Partial | Threat Intelligence counts hardcoded; Compliance areas hardcoded                       |
-| `/platform/audit`                       | ✅ Done    | Real audit logs                                                                        |
-| `/platform/settings`                    | ✅ Done    | Full settings with sectioned save                                                      |
-| `/platform/marketplace`                 | ✅ Done    | Fallback catalog for graceful degradation                                              |
-| `/platform/marketplace/admin`           | ✅ Done    | Full admin panel                                                                       |
-| `/platform/marketplace/[moduleId]`      | ✅ Done    | Install/uninstall/review wired                                                         |
-| `/platform/marketplace/developer`       | ✅ Done    | Publisher registration + module management                                             |
-| `/platform/marketplace/reviews`         | ✅ Done    | Review moderation                                                                      |
-| `/platform/onboarding`                  | ✅ Done    | Full 6-step wizard                                                                     |
-| `/platform/knowledge-base`              | ✅ Done    | Full CRUD                                                                              |
-| `/platform/automation`                  | ⚠️ Partial | Create Workflow dialog closes without mutation; Run/View/Edit non-functional           |
-| `/platform/changelog`                   | ✅ Done    | Create + delete wired                                                                  |
-| `/platform/operations`                  | ✅ Done    | Full incident/maintenance/alert management                                             |
-| `/platform/sla`                         | ✅ Done    | Create + delete wired                                                                  |
-| `/platform/white-label`                 | ✅ Done    | Update + reset wired                                                                   |
-| `/platform/webhooks`                    | ✅ Done    | Create + delete + test wired                                                           |
-| `/platform/api-keys`                    | ✅ Done    | Create + revoke + rotate wired                                                         |
-| `/platform/data-export`                 | ✅ Done    | Create export wired                                                                    |
-| `/platform/profile`                     | ✅ Done    | Full profile with avatar, password, 2FA                                                |
-| `/platform/role-builder`                | ✅ Done    | Full CRUD + duplicate                                                                  |
-| `/platform/scheduled-reports`           | ✅ Done    | Full CRUD + run now                                                                    |
-| `/platform/staff-performance`           | ⚠️ Partial | Feedback/goal dialogs close without mutation                                           |
-| `/platform/staff-performance/[staffId]` | ⚠️ Partial | `handleSendFeedback`, `handleCreateGoal` non-functional                                |
-| `/platform/tenant-success`              | ⚠️ Partial | Create Initiative/Metric dialogs non-functional                                        |
-| `/platform/ai-support`                  | ⚠️ Partial | `Math.random()` for category counts; rule-based "AI"                                   |
-| `/platform/pm`                          | ✅ Done    | Real workspace list                                                                    |
-| `/platform/pm/[slug]`                   | ✅ Done    | Real project list                                                                      |
-| `/platform/pm/[slug]/[projectId]`       | ✅ Done    | Kanban board                                                                           |
+### Teacher Portal
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/portal/teacher` | ✅ Done | Real dashboard page present. |
+| `/portal/teacher/assignments` | ✅ Done | Real page present. |
+| `/portal/teacher/assignments/create` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/teacher/attendance` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/teacher/classes` | ✅ Done | Real page present. |
+| `/portal/teacher/classes/[classId]` | ✅ Done | Real page present. |
+| `/portal/teacher/classes/[classId]/grades` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/teacher/communications` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/teacher/gradebook` | ✅ Done | Real page present. |
+| `/portal/teacher/notifications` | ⚠️ Partial | UI exists, but relies on insecure global notification APIs. |
+| `/portal/teacher/profile` | ⚠️ Partial | Mostly auth-session display, not teacher-domain data. |
+| `/portal/teacher/timetable` | ✅ Done | Real page present. |
 
-**Platform Summary**: 38/52 routes fully functional (73%), 14/52 partially functional (27%)
+### Student Portal
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/portal/student` | ✅ Done | Real dashboard page present. |
+| `/portal/student/assignments` | ✅ Done | Real page present. |
+| `/portal/student/assignments/[assignmentId]` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/student/attendance` | ✅ Done | Real page present. |
+| `/portal/student/communications` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/student/grades` | ✅ Done | Real page present. |
+| `/portal/student/notifications` | ⚠️ Partial | UI exists, but relies on insecure global notification APIs. |
+| `/portal/student/profile` | ✅ Done | Real page present. |
+| `/portal/student/report-cards` | ✅ Done | Real page present. |
+| `/portal/student/timetable` | ✅ Done | Real page present. |
+| `/portal/student/wallet` | ✅ Done | Real page present. |
+| `/portal/student/wallet/send` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/student/wallet/topup` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/student/wallet/transactions` | 🔲 Stub | Placeholder/TODO page. |
 
-### 4.2 School Admin Panel (`/admin`) — 60 routes
+### Legacy Student Portal
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/student` | ✅ Done | Duplicate legacy portal route exists alongside `/portal/student`. |
+| `/student/announcements` | ✅ Done | Duplicate legacy portal route. |
+| `/student/assignments` | ✅ Done | Duplicate legacy portal route. |
+| `/student/assignments/[assignmentId]` | 🔲 Stub | Placeholder/TODO page. |
+| `/student/attendance` | ✅ Done | Duplicate legacy portal route. |
+| `/student/grades` | ✅ Done | Duplicate legacy portal route. |
+| `/student/profile` | ✅ Done | Duplicate legacy portal route. |
+| `/student/report-cards` | ✅ Done | Duplicate legacy portal route. |
+| `/student/timetable` | ✅ Done | Duplicate legacy portal route. |
+| `/student/wallet` | 🔲 Stub | Placeholder/TODO page. |
 
-| Route                                | Status     | Issue                                            |
-| ------------------------------------ | ---------- | ------------------------------------------------ |
-| `/admin` (Dashboard)                 | ✅ Done    | Real stats from SIS, HR, Finance                 |
-| `/admin/students`                    | ✅ Done    | Real list                                        |
-| `/admin/students/create`             | ✅ Done    | Full form with validation                        |
-| `/admin/students/[studentId]`        | ⚠️ Partial | Academics tab says "module not installed" stub   |
-| `/admin/students/import`             | ✅ Done    | CSV import with validation                       |
-| `/admin/staff`                       | ✅ Done    | Real list                                        |
-| `/admin/staff/create`                | ✅ Done    | Create wired                                     |
-| `/admin/staff/[staffId]`             | ⚠️ Partial | Edit Profile button present but not wired        |
-| `/admin/classes`                     | ✅ Done    | Real list                                        |
-| `/admin/classes/create`              | ✅ Done    | Create wired                                     |
-| `/admin/classes/[classId]`           | ✅ Done    | Real data with student roster                    |
-| `/admin/admissions`                  | ✅ Done    | Real list                                        |
-| `/admin/admissions/[appId]`          | ✅ Done    | Status transitions + enroll wired                |
-| `/admin/finance`                     | ✅ Done    | Real financial report                            |
-| `/admin/finance/fees`                | ⚠️ Partial | "Add Fee Structure" button present but not wired |
-| `/admin/finance/invoices`            | ✅ Done    | Real list                                        |
-| `/admin/finance/invoices/create`     | ✅ Done    | Full form                                        |
-| `/admin/academics`                   | ✅ Done    | Real stats, exams, events                        |
-| `/admin/timetable`                   | ⚠️ Partial | Weekly Grid View is a placeholder div            |
-| `/admin/timetable/schedule`          | ⚠️ Partial | "Add Slot" button not wired                      |
-| `/admin/timetable/assignments`       | ✅ Done    | Real data                                        |
-| `/admin/timetable/events/create`     | ✅ Done    | Create wired                                     |
-| `/admin/hr`                          | ✅ Done    | Real stats + recent activities                   |
-| `/admin/hr/leave`                    | ✅ Done    | Real list                                        |
-| `/admin/hr/payroll`                  | ✅ Done    | Real list                                        |
-| `/admin/library`                     | ✅ Done    | Real stats                                       |
-| `/admin/library/books`               | ✅ Done    | Real list                                        |
-| `/admin/library/books/create`        | ✅ Done    | Create wired                                     |
-| `/admin/library/circulation`         | ✅ Done    | Borrow/return wired                              |
-| `/admin/library/reports`             | ✅ Done    | Real reports                                     |
-| `/admin/transport`                   | ✅ Done    | Real routes/vehicles/drivers                     |
-| `/admin/transport/routes/create`     | ✅ Done    | Create wired                                     |
-| `/admin/transport/tracking`          | ⚠️ Partial | Likely map placeholder                           |
-| `/admin/communications`              | ✅ Done    | Real announcements + templates                   |
-| `/admin/communications/create`       | ✅ Done    | Create wired                                     |
-| `/admin/communications/email`        | ✅ Done    | Email composer                                   |
-| `/admin/ecommerce`                   | ✅ Done    | Real products/orders                             |
-| `/admin/ecommerce/products/create`   | ✅ Done    | Create wired                                     |
-| `/admin/ecommerce/orders`            | ✅ Done    | Real list                                        |
-| `/admin/ewallet`                     | ✅ Done    | Real wallets                                     |
-| `/admin/ewallet/transactions`        | ✅ Done    | Real list                                        |
-| `/admin/ewallet/wallets`             | ✅ Done    | Real list                                        |
-| `/admin/notes`                       | ✅ Done    | Real data                                        |
-| `/admin/tasks`                       | ✅ Done    | Real data                                        |
-| `/admin/tickets`                     | ✅ Done    | Real tickets                                     |
-| `/admin/notifications`               | ✅ Done    | Real notifications                               |
-| `/admin/marketplace`                 | ✅ Done    | Real module browsing                             |
-| `/admin/marketplace/[moduleId]`      | ✅ Done    | Install/uninstall                                |
-| `/admin/marketplace/requests`        | ✅ Done    | Real list                                        |
-| `/admin/modules`                     | ✅ Done    | Real installed modules                           |
-| `/admin/settings`                    | ✅ Done    | Real settings                                    |
-| `/admin/settings/billing`            | ✅ Done    | Real billing info                                |
-| `/admin/settings/modules`            | ✅ Done    | Real module management                           |
-| `/admin/settings/modules/[moduleId]` | ✅ Done    | Module detail                                    |
-| `/admin/settings/roles`              | ✅ Done    | Real roles                                       |
-| `/admin/audit`                       | ✅ Done    | Real audit logs                                  |
-| `/admin/audit/reports`               | ✅ Done    | Real reports                                     |
-| `/admin/reports`                     | ✅ Done    | Real data                                        |
-| `/admin/security`                    | ✅ Done    | Real security data                               |
-| `/admin/profile`                     | ✅ Done    | Real profile                                     |
-| `/admin/users`                       | ✅ Done    | Real list                                        |
-| `/admin/users/invite`                | ✅ Done    | Invite wired                                     |
+### Parent Portal
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/portal/parent` | ✅ Done | Real dashboard page present. |
+| `/portal/parent/announcements` | ✅ Done | Real page present. |
+| `/portal/parent/children` | ✅ Done | Real page present. |
+| `/portal/parent/children/[studentId]` | ✅ Done | Real page present. |
+| `/portal/parent/children/[studentId]/assignments` | ✅ Done | Real page present. |
+| `/portal/parent/children/[studentId]/attendance` | ✅ Done | Real page present. |
+| `/portal/parent/children/[studentId]/grades` | ✅ Done | Real page present. |
+| `/portal/parent/children/[studentId]/timetable` | ✅ Done | Real page present. |
+| `/portal/parent/communications` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/parent/dashboard/enhanced` | ✅ Done | Real page present. |
+| `/portal/parent/fees` | ✅ Done | Real page present. |
+| `/portal/parent/fees/history` | ✅ Done | Real page present. |
+| `/portal/parent/fees/pay` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/parent/messages` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/parent/notifications` | ⚠️ Partial | UI exists, but relies on insecure global notification APIs. |
+| `/portal/parent/payments` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/parent/profile` | ✅ Done | Real page present. |
 
-**School Admin Summary**: 52/60 routes fully functional (87%), 8/60 partially functional (13%)
+### Alumni Portal
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/portal/alumni` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/alumni/directory` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/alumni/events` | ✅ Done | Real page present. |
+| `/portal/alumni/notifications` | ⚠️ Partial | UI exists, but relies on insecure global notification APIs. |
+| `/portal/alumni/profile` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/alumni/transcripts` | 🔲 Stub | Placeholder/TODO page. |
 
-### 4.3 Student Portal (`/portal/student`) — 14 routes
+### Partner Portal
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/portal/partner` | ✅ Done | Real dashboard page present. |
+| `/portal/partner/dashboard` | ✅ Done | Real page present. |
+| `/portal/partner/messages` | 🔲 Stub | Placeholder/TODO page. |
+| `/portal/partner/notifications` | ⚠️ Partial | UI exists, but relies on insecure global notification APIs. |
+| `/portal/partner/payments` | ✅ Done | Real page present. |
+| `/portal/partner/profile` | ✅ Done | Real page present. |
+| `/portal/partner/reports` | ✅ Done | Real page present. |
+| `/portal/partner/students` | ✅ Done | Real page present. |
+| `/portal/partner/students/[studentId]` | ✅ Done | Real page present. |
 
-| Route                                 | Status  | Issue                                                   |
-| ------------------------------------- | ------- | ------------------------------------------------------- |
-| `/portal/student` (Dashboard)         | ✅ Done | Real data                                               |
-| `/portal/student/assignments`         | ✅ Done | Real list                                               |
-| `/portal/student/assignments/[id]`    | ✅ Done | Submit wired                                            |
-| `/portal/student/attendance`          | ✅ Done | Real data                                               |
-| `/portal/student/communications`      | ✅ Done | Full messaging                                          |
-| `/portal/student/grades`              | ✅ Done | Real grades                                             |
-| `/portal/student/notifications`       | ✅ Done | Mark read wired                                         |
-| `/portal/student/profile`             | ✅ Done | Real profile                                            |
-| `/portal/student/wallet`              | ✅ Done | Real balance                                            |
-| `/portal/student/wallet/send`         | ❌ Stub | Submit handler sets local state, no mutation call       |
-| `/portal/student/wallet/topup`        | ❌ Stub | Submit handler sets local state, no payment integration |
-| `/portal/student/wallet/transactions` | ✅ Done | Real list                                               |
-
-**Student Summary**: 12/14 routes functional (86%), 2/14 are UI shells
-
-### 4.4 Teacher Portal (`/portal/teacher`) — 11 routes
-
-All routes fully functional with real Convex data. Attendance recording, grade entry, assignment creation all wired to mutations.
-
-### 4.5 Parent Portal (`/portal/parent`) — 16 routes
-
-All routes functional. M-Pesa STK Push and Stripe Checkout integrated in fee payment flow. Real child grade/attendance/assignment views.
-
-### 4.6 Alumni Portal (`/portal/alumni`) — 6 routes
-
-All routes functional. Transcript requests and event RSVPs wired to mutations.
-
-### 4.7 Partner Portal (`/portal/partner`) — 9 routes
-
-All routes functional. Sponsored student tracking, payment history, messaging all wired.
-
-### 4.8 Portal Admin (`/portal/admin`) — 12 routes
-
-All routes functional. Full CRUD for communications, finance, HR, library, and timetable builder with conflict detection.
-
----
+### Support Portal
+| Route | Status | Issue |
+| --- | --- | --- |
+| `/support` | ✅ Done | Real page present. |
+| `/support/tickets` | 🔲 Stub | Placeholder/TODO page. |
+| `/support/tickets/[id]` | 🔲 Stub | Placeholder/TODO page. |
+| `/support/tickets/create` | 🔲 Stub | Placeholder/TODO page. |
 
 ## 5. Missing Features — Prioritized List
-
-### CRITICAL (Blocks Core Usage)
-
-| #   | Module         | Panel    | Feature                      | What's Missing                                                                                                      | Suggested Fix                                                                          |
-| --- | -------------- | -------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 1   | Shared Layer   | All      | Type consistency             | `TenantTier`, `UserRole`, `Tenant` shape diverge across types/validators/backend                                    | Unify enum values and field names; create single source of truth in `shared/src/types` |
-| 2   | Security       | All      | Unguarded mutations          | `promoteUserEmailToMasterAdmin`, `emergencyAdmin.ts`, `repairMasterAdminByEmail`, `createNotification` have no auth | Add `requirePlatformSession` or `requireTenantContext` to all mutations                |
-| 3   | Billing        | Platform | Runtime crash                | `PLAN_PRICES_CENTS` undefined in `platform/billing/queries.ts`                                                      | Define constant or import from `shared/src/lib/billing.ts`                             |
-| 4   | Mobile         | Mobile   | App cannot compile           | Missing `useAuth` hook and 5 screen files                                                                           | Create hook and implement screens or remove from App.tsx imports                       |
-| 5   | Communications | Platform | Email/SMS not dispatched     | `sendPlatformMessageNow` only delivers in_app channel                                                               | Wire email via Resend and SMS via Africa's Talking in the send function                |
-| 6   | Auth           | Backend  | `emergencyAdmin.ts` backdoor | No auth guard, creates master admin                                                                                 | Remove file or add one-time token validation                                           |
+### CRITICAL
+| Module | Panel | Feature | What's Missing | Suggested Fix |
+| --- | --- | --- | --- | --- |
+| Auth/Core | All | Session security | `convex/sessions.ts` allows unauthenticated session CRUD and role updates. | Move all session operations behind WorkOS-backed auth and signed server-only flows. |
+| Notifications | All | Tenant isolation | Notification read/write APIs do not call tenant/session guards. | Require `requireTenantContext` or `requireTenantSession` on every notification function and scope by authenticated user. |
+| Infra | All | Multi-tenant routing | `vercel.json` currently builds `landing` and rewrites all traffic to one API handler. | Split landing/frontend deployment strategy or correct rewrites/build target to the actual app-router frontend. |
+| Roles/Auth | Platform/Admin | Role mapping | `platform_admin` vs `super_admin` mismatch breaks consistent authorization. | Normalize role constants and update frontend/backend/shared types together. |
+| Finance | Parent/Student/Admin | Fee ledger posting | Gateway callbacks record payments and invoice status, but do not fully allocate to student ledgers. | Add ledger posting and fee-allocation mutation invoked from confirmed payment handlers. |
 
 ### HIGH
-
-| #   | Module         | Panel        | Feature               | What's Missing                                                                      | Suggested Fix                                                                    |
-| --- | -------------- | ------------ | --------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| 7   | Airtel Money   | Finance      | Payment integration   | No initiation action exists                                                         | Create `actions/payments/airtel.ts` following M-Pesa pattern                     |
-| 8   | E2E Tests      | CI/CD        | Broken test infra     | Missing `fixtures/auth.fixture.ts`, `global-setup.ts`, `global-teardown.ts`         | Create fixture files or update playwright config                                 |
-| 9   | HR             | School Admin | Audit log mismatch    | `getRecentActivities` filters by `"staff_created"` but audit uses `"staff.created"` | Standardize to dot notation                                                      |
-| 10  | Communications | Backend      | Schema mismatch       | `createEmailTemplate` inserts `type`/`htmlContent`/`textContent` not in schema      | Align mutation fields with `emailTemplates` schema                               |
-| 11  | Finance        | Backend      | `pendingId` bug       | `initiateMpesaPayment` passes `pendingId: "pending"` literal                        | Pass actual callback document ID                                                 |
-| 12  | Scripts        | Infra        | Hardcoded deploy keys | 5 PowerShell scripts contain Convex deploy keys                                     | Move to env vars; rotate keys                                                    |
-| 13  | Marketplace    | Platform     | Mock payments         | M-Pesa/card/bank all mocked in `marketplace/payments.ts`                            | Integrate with real `actions/payments/mpesa.ts` and `actions/payments/stripe.ts` |
-| 14  | Security       | Backend      | Console.log leaks     | `tenantGuard.ts` logs session metadata on every validation                          | Remove or gate behind `NODE_ENV !== "production"`                                |
+| Module | Panel | Feature | What's Missing | Suggested Fix |
+| --- | --- | --- | --- | --- |
+| Platform | Platform Admin | Tenant lifecycle | Suspension exists, but tenant deletion is not implemented end-to-end. | Add safe soft-delete/archive flow with dependency checks. |
+| Communications | Admin/Platform | SMS/Email delivery consistency | Backend has multiple email/SMS paths with mismatched args and env names. | Consolidate onto one guarded action path per channel and align env contracts. |
+| Payments | Parent/Admin | Airtel/Bank transfer | Airtel is only partially wired and bank-transfer verification is not a full workflow. | Add verified callback/manual-review states and reconciliation UI. |
+| Mobile/Auth | Mobile | WorkOS mobile auth | Mobile login is manual session-token paste. | Implement proper WorkOS device/browser login handoff and secure token storage. |
+| Platform | Platform Admin | Scheduled reports/automation | Pages exist, but no real cron/scheduled backend implementation was found. | Add Convex scheduler/cron jobs and reporting actions. |
 
 ### MEDIUM
-
-| #   | Module         | Panel    | Feature                | What's Missing                                                                                    | Suggested Fix                                    |
-| --- | -------------- | -------- | ---------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 15  | Academics      | Backend  | Hardcoded term dates   | `getTermStartDate`/`getTermEndDate` return static strings                                         | Query from `academicTerms` table                 |
-| 16  | Platform       | Frontend | Non-functional dialogs | Analytics, automation, tenant-success, staff-performance create dialogs don't call mutations      | Wire `onSubmit` to `useMutation` calls           |
-| 17  | CRM            | Platform | Deal detail local-only | `handleAddActivity`, `handleUpdateDeal` modify local state                                        | Replace with Convex mutations                    |
-| 18  | Tickets        | Platform | Comment posting        | `handleAddComment` logs to console                                                                | Call `api.tickets.addComment` mutation           |
-| 19  | Timetable      | Admin    | Grid view stub         | Weekly grid is a placeholder div                                                                  | Implement timetable grid component               |
-| 20  | Finance        | Admin    | Fee structure create   | "Add Fee Structure" button not wired                                                              | Create dialog with `createFeeStructure` mutation |
-| 21  | Library        | Backend  | No audit logging       | 0/4 mutations have audit logs                                                                     | Add `auditLog.logAction` calls                   |
-| 22  | Transport      | Backend  | No audit logging       | 0/6 mutations have audit logs                                                                     | Add `auditLog.logAction` calls                   |
-| 23  | eCommerce      | Backend  | No audit logging       | 0/6 mutations have audit logs                                                                     | Add `auditLog.logAction` calls                   |
-| 24  | Communications | Backend  | No audit logging       | 0/22 mutations have audit logs                                                                    | Add `auditLog.logAction` calls                   |
-| 25  | Automation     | Platform | Mock action steps      | All workflow steps (create_user, send_email, etc.) return mock data                               | Implement real actions                           |
-| 26  | Frontend       | All      | `strict: false`        | Frontend tsconfig disables strict mode                                                            | Enable `strict: true` for type safety            |
-| 27  | Health         | Platform | Hardcoded metrics      | Service response times are static                                                                 | Derive from actual monitoring                    |
-| 28  | Student Wallet | Portal   | Send/topup stubs       | Forms render but submit does nothing                                                              | Wire to `ewallet` mutations and payment APIs     |
-| 29  | Schema         | Backend  | Duplicate tables       | `submissions`/`assignmentSubmissions`, `bookBorrows`/`bookLoans`, `timetables`/`timetableEntries` | Consolidate duplicate tables                     |
+| Module | Panel | Feature | What's Missing | Suggested Fix |
+| --- | --- | --- | --- | --- |
+| Admin UI | School Admin | Core CRUD coverage | Many route files exist but are placeholders: classes, staff, students, timetable, transport, ewallet, ecommerce. | Finish route-by-route CRUD wiring using existing Convex modules. |
+| Platform UI | Platform Admin | Platform operations tools | CRM, marketplace, SLA, security, white-label, waitlist, tickets are mostly placeholders. | Prioritize high-value platform ops pages and remove dead nav until implemented. |
+| Shared Layer | All | Types/validators completeness | Shared types and validators cover only a small subset of schema/forms. | Expand shared domain contracts and reuse them in forms and Convex args. |
+| Notifications | All | In-app notification safety | UI works, but it depends on insecure APIs. | Rewire hooks after guard fixes and add user ownership checks. |
 
 ### LOW
-
-| #   | Module         | Panel         | Feature              | What's Missing                                            | Suggested Fix                                    |
-| --- | -------------- | ------------- | -------------------- | --------------------------------------------------------- | ------------------------------------------------ |
-| 30  | Tests          | Backend       | Placeholder tests    | `convex.test.ts` is all `expect(true).toBe(true)`         | Write real tests or remove                       |
-| 31  | AI Support     | Platform      | Rule-based AI        | Keyword matching, not real ML                             | Integrate actual LLM or mark as "Smart Rules"    |
-| 32  | Seed Scripts   | Infra         | No database seeding  | No way to populate dev data                               | Create Convex seed script                        |
-| 33  | Documentation  | Root          | No AGENTS.md         | Missing agent config for Kilo                             | Create `.kilo/agent/*.md` files                  |
-| 34  | Shared         | Barrel export | `lib/` not exported  | Mpesa, airtel, billing etc. not in `shared/src/index.ts`  | Add `export * from "./lib"`                      |
-| 35  | Mobile         | Mobile        | Zero offline support | No `NetInfo`, AsyncStorage, offline queue                 | Implement offline-first patterns for East Africa |
-| 36  | Payments       | Backend       | No retry logic       | External API calls (M-Pesa, Stripe, Resend) have no retry | Add exponential backoff                          |
-| 37  | ID Generator   | Helpers       | `Math.random()`      | Not cryptographically secure                              | Use `crypto.randomUUID()`                        |
-| 38  | Platform Guard | Helpers       | Hardcoded email      | `ayany004@gmail.com` in source                            | Move to env var                                  |
-
----
+| Module | Panel | Feature | What's Missing | Suggested Fix |
+| --- | --- | --- | --- | --- |
+| Mobile | Student | Broader panel coverage | Only student-facing screens exist. | Add parent/teacher mobile scope after auth is fixed. |
+| Curriculum/Regionalization | All | East Africa defaults | Core constants exist, but code still contains tier/currency/demo assumptions (`free`, demo tenant fallback). | Remove demo fallbacks from production hooks and validate regional defaults centrally. |
+| Support | Support | Ticket workflows | Support ticket pages are placeholders. | Either implement ticketing or remove support nav links for now. |
 
 ## 6. Payment Integration Status
-
-| Provider               | Initiation                                       | Callback/Webhook                                    | Ledger Posting                                         | Auto-Reconciliation                              | Status            |
-| ---------------------- | ------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------ | ----------------- |
-| **M-Pesa STK Push**    | ✅ Real Daraja API (`actions/payments/mpesa.ts`) | ✅ Webhook at `/api/webhooks/mpesa`                 | ✅ `recordPaymentFromGateway` updates invoice + ledger | ⚠️ `pendingId: "pending"` bug may cause mismatch | **90% Complete**  |
-| **Stripe Checkout**    | ✅ Real API (`actions/payments/stripe.ts`)       | ✅ Webhook at `/api/webhooks/stripe`                | ✅ `recordPayment` updates invoice                     | ✅ Clean                                         | **100% Complete** |
-| **Airtel Money**       | ❌ No initiation action                          | ⚠️ Webhook handler exists at `/api/webhooks/airtel` | ❌ No ledger posting                                   | ❌ N/A                                           | **10% Complete**  |
-| **Bank Transfer**      | ❌ Not implemented                               | ❌ N/A                                              | ❌ N/A                                                 | ❌ N/A                                           | **0% Complete**   |
-| **Marketplace M-Pesa** | ⚠️ Mock                                          | ⚠️ `processPaymentCallback` exists                  | ⚠️ Mock                                                | ❌ N/A                                           | **20% Complete**  |
-| **Marketplace Stripe** | ⚠️ Mock                                          | ⚠️ Same callback                                    | ⚠️ Mock                                                | ❌ N/A                                           | **20% Complete**  |
-
----
+| Provider | Initiation Implemented? | Callback/Webhook Implemented? | Ledger Posting Done? | Notes |
+| --- | --- | --- | --- | --- |
+| M-Pesa | Yes | Yes | Partial | STK initiation exists and webhook records payment, but env names drift and ledger allocation is incomplete. |
+| Airtel Money | Partial | Partial | No | Initiation and webhook routes exist, but overall flow is inconsistent and not clearly completed end-to-end. |
+| Stripe | Yes | Yes | Partial | Checkout/initiate routes and webhook exist, but posting is invoice-centric rather than full student-ledger allocation. |
+| Bank Transfer | Partial | No | No | Manual verification workflow is not implemented as a complete review-and-post pipeline. |
 
 ## 7. Communication Integration Status
-
-| Channel                    | Backend API                     | Templates                                                           | Trigger Points                   | Delivery                              | Status          |
-| -------------------------- | ------------------------------- | ------------------------------------------------------------------- | -------------------------------- | ------------------------------------- | --------------- |
-| **SMS (Africa's Talking)** | ✅ `sendSms`, `sendBulkSms`     | ✅ Default templates                                                | Fee reminders, attendance alerts | ✅ Real API calls                     | **Implemented** |
-| **Email (Resend)**         | ✅ `sendEmail`                  | 4 templates (fee_reminder, exam_results, attendance_alert, payslip) | Fee reminders, invites           | ✅ Real API calls                     | **Implemented** |
-| **In-App Notifications**   | ✅ Full CRUD                    | N/A                                                                 | System events, announcements     | ✅ Real-time via Convex subscriptions | **Implemented** |
-| **Push Notifications**     | ❌ No FCM/APNs setup            | ❌                                                                  | ❌                               | ❌                                    | **Not Started** |
-| **Platform Comms (email)** | ⚠️ Validated but not dispatched | Stored in DB                                                        | `sendPlatformMessageNow`         | ❌ Only in_app channel works          | **Partial**     |
-| **Platform Comms (sms)**   | ⚠️ Validated but not dispatched | Stored in DB                                                        | `sendPlatformMessageNow`         | ❌ Only in_app channel works          | **Partial**     |
-
----
+| Channel | Status | Notes |
+| --- | --- | --- |
+| SMS | ⚠️ Partial | Africa's Talking integration code exists, but env names and API contracts are inconsistent across routes/actions. |
+| Email | ⚠️ Partial | Resend integration and email templates exist, but there are multiple send paths and some template flows are placeholder. |
+| In-app | ⚠️ Partial | Creation flows exist, but read/mark APIs are insecure and must be fixed before production use. |
+| Push | ⚠️ Partial | Expo push token registration exists in mobile, but no complete backend delivery pipeline was verified. |
 
 ## 8. Mobile App Status
-
-| Screen              | File Exists | Convex Connected     | Auth              | Offline | Status                      |
-| ------------------- | ----------- | -------------------- | ----------------- | ------- | --------------------------- |
-| `LoginScreen`       | ✅          | ❌                   | ❌ (hook missing) | ❌      | UI only — crashes on import |
-| `DashboardScreen`   | ✅          | ❌ (hardcoded stats) | ❌ (hook missing) | ❌      | UI with mock data           |
-| `GradesScreen`      | ❌ Missing  | N/A                  | N/A               | N/A     | Referenced in App.tsx       |
-| `AssignmentsScreen` | ❌ Missing  | N/A                  | N/A               | N/A     | Referenced in App.tsx       |
-| `AttendanceScreen`  | ❌ Missing  | N/A                  | N/A               | N/A     | Referenced in App.tsx       |
-| `FeesScreen`        | ❌ Missing  | N/A                  | N/A               | N/A     | Referenced in App.tsx       |
-| `ProfileScreen`     | ❌ Missing  | N/A                  | N/A               | N/A     | Referenced in App.tsx       |
-
-**Verdict**: The mobile app is a non-functional UI prototype. It would not compile (missing imports) and has zero Convex integration. No offline handling, no push notifications, no WorkOS integration despite providers being wrapped.
-
-**Panels with mobile coverage**: 0/7 user panels have working mobile screens.
-**Panels web-only**: All 7 panels (Platform Admin, School Admin, Student, Teacher, Parent, Alumni, Partner) are web-only.
-
----
+- Implemented screens in `mobile/src/screens/`: `DashboardScreen`, `GradesScreen`, `AssignmentsScreen`, `AttendanceScreen`, `FeesScreen`, `ProfileScreen`, `LoginScreen`
+- Coverage by panel:
+  - Student: partial coverage
+  - Teacher: none
+  - Parent: none
+  - Admin/platform: none
+- Findings:
+  - Screens are mostly implemented for student read-only use cases.
+  - Offline caching/sync support exists and is a strong point for low-connectivity contexts.
+  - Auth is not WorkOS-native; login asks for a pasted session token.
+  - Push token registration exists, but full push delivery was not verified.
+  - Duplicate hook files (`useAuth.ts` and `useAuth.tsx`) indicate unfinished mobile cleanup.
 
 ## 9. Auth & Tenant Isolation Issues
-
-### Unguarded Backend Functions (CRITICAL Security Issues)
-
-| File                          | Function                        | Auth Guard | Risk                                         |
-| ----------------------------- | ------------------------------- | ---------- | -------------------------------------------- |
-| `convex/emergencyAdmin.ts`    | `createEmergencyAdmin`          | **NONE**   | Anyone can create master admin               |
-| `convex/users.ts`             | `promoteUserEmailToMasterAdmin` | **NONE**   | Anyone can promote to master_admin           |
-| `convex/users.ts`             | `syncMasterAdminRole`           | **NONE**   | Anyone can sync master admin role            |
-| `convex/users.ts`             | `bootstrapMasterAdmin`          | **NONE**   | Anyone can bootstrap master admin            |
-| `convex/users.ts`             | `hasMasterAdmin`                | **NONE**   | Information disclosure                       |
-| `convex/users.ts`             | `getUserByWorkosIdGlobal`       | **NONE**   | Cross-tenant user lookup                     |
-| `convex/notifications.ts`     | `createNotification`            | **NONE**   | Can create notifications for any tenant/user |
-| `convex/organizations.ts`     | All (2 functions)               | **NONE**   | Unrestricted org operations                  |
-| `platform/users/mutations.ts` | `repairMasterAdminByEmail`      | **NONE**   | Anyone can repair master admin               |
-
-### Inconsistent Auth Patterns
-
-| Pattern                      | Files                                                                     | Issue                                     |
-| ---------------------------- | ------------------------------------------------------------------------- | ----------------------------------------- |
-| `requirePlatformSession`     | 31 platform modules                                                       | Standard — good                           |
-| `requireTenantContext`       | Core modules                                                              | Standard — good                           |
-| `requireActionTenantContext` | 2 action files                                                            | Good for actions                          |
-| Manual session check         | `platform/changelog/queries.ts`, `platform/sla/queries.ts`, `sessions.ts` | Inconsistent — should use standard guards |
-| No auth at all               | 9 functions listed above                                                  | **CRITICAL**                              |
-
-### Middleware Auth Coverage
-
-| Area                      | Status                                                                          |
-| ------------------------- | ------------------------------------------------------------------------------- |
-| Protected route detection | ✅ Covers `/admin`, `/dashboard`, `/portal`, `/platform`, `/student`            |
-| RBAC role enforcement     | ✅ Route-role mapping defined for all panels                                    |
-| IP blocking               | ✅ Real-time blocked IP checking with 60s cache                                 |
-| Maintenance mode          | ✅ Redirects non-admins during maintenance                                      |
-| Subdomain tenant routing  | ✅ Extracts `x-tenant-slug` header from subdomain                               |
-| Impersonation flag        | ✅ Passes `x-impersonating` header                                              |
-| Dev auth bypass           | ⚠️ `ENABLE_DEV_AUTH_BYPASS=true` skips ALL auth — must not be set in production |
-
----
+- Critical: `convex/sessions.ts` exposes unauthenticated `createSession`, `getSession`, `updateSessionRole`, and `deleteSession`.
+- Critical: `convex/notifications.ts` notification reads and mark-read mutations do not require tenant/session context.
+- High: `convex/platform/settings/maintenanceCheck.ts` is public.
+- High: `convex/platform/sla/queries.ts` validates only that a session token exists; it does not enforce platform role via `requirePlatformSession`.
+- High: `convex/platform/tenants/emailActions.ts`, `convex/modules/communications/email.ts`, and `convex/modules/communications/sms.ts` bypass the normal tenant-session guard pattern.
+- High: `frontend/src/hooks/useTenant.ts` falls back to a demo tenant, which can mask tenant-resolution failures.
+- High: subdomain handling is only partially implemented; `frontend/src/app/api/tenant-handler/route.ts` redirects based on subdomain but does not validate it against tenant records.
 
 ## 10. Shared Layer Gaps
-
-### Type/Validator Mismatches (CRITICAL)
-
-| Concept           | Shared Types                                      | Validators                                         | Backend Schema                                  | Billing                                            |
-| ----------------- | ------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
-| **Tenant Tier**   | `"free" \| "starter" \| "growth" \| "enterprise"` | `"starter" \| "standard" \| "pro" \| "enterprise"` | `plan` field (any string)                       | `"starter" \| "standard" \| "pro" \| "enterprise"` |
-| **User Role**     | 15 roles incl. `"bursar"`, `"hr_manager"`         | `"finance_officer"`, `"hr_officer"`                | 15 roles with `"bursar"`, `"hr_manager"`        | N/A                                                |
-| **Tenant fields** | `slug`, `tier`, `enabledModules`                  | `slug`, `tier`, `name`                             | `subdomain`, `plan`, `county`, `email`, `phone` | N/A                                                |
-
-### Missing Types
-
-| Expected Type            | Location           | Status                   |
-| ------------------------ | ------------------ | ------------------------ |
-| `Staff`                  | `shared/src/types` | ❌ Not defined in shared |
-| `Fee` / `Invoice`        | `shared/src/types` | ❌ Not defined in shared |
-| `Grade` / `Assignment`   | `shared/src/types` | ❌ Not defined in shared |
-| `Book` / `Borrow`        | `shared/src/types` | ❌ Not defined in shared |
-| `TimetableSlot`          | `shared/src/types` | ❌ Not defined in shared |
-| `Wallet` / `Transaction` | `shared/src/types` | ❌ Not defined in shared |
-| `Product` / `Order`      | `shared/src/types` | ❌ Not defined in shared |
-
-### Missing Validators
-
-| Expected Validator          | Status         |
-| --------------------------- | -------------- |
-| `createStaffSchema`         | ❌ Not defined |
-| `createFeeStructureSchema`  | ❌ Not defined |
-| `createGradeSchema`         | ❌ Not defined |
-| `createAssignmentSchema`    | ❌ Not defined |
-| `createBookSchema`          | ❌ Not defined |
-| `createTimetableSlotSchema` | ❌ Not defined |
-| `createProductSchema`       | ❌ Not defined |
-
-### Constants Quality
-
-| Constant              | Status          | Notes                                                        |
-| --------------------- | --------------- | ------------------------------------------------------------ |
-| `USER_ROLES`          | ⚠️ Inconsistent | 15 roles but names don't match validator enum                |
-| `MODULES`             | ✅ Good         | 11 modules with labels and icons                             |
-| `TIER_MODULES`        | ✅ Good         | Feature gates per tier                                       |
-| `CURRICULUM_CODES`    | ✅ Good         | KE-CBC, KE-8-4-4, UG-UNEB, TZ-NECTA, RW-REB, ET-MOE, GH-WAEC |
-| `SUPPORTED_COUNTRIES` | ✅ Good         | 6 East African countries with currency/dial info             |
-
----
+- `shared/src/types/index.ts` is too small for the domain surface implied by the Convex schema and frontend forms.
+- `shared/src/validators/index.ts` defines only a small handful of validators; most frontend forms and backend mutations use local validation instead of shared contracts.
+- `shared/src/constants/index.ts` is stronger, but role constants conflict with frontend/backend usage (`platform_admin` vs `super_admin`).
+- Shared module/tier assumptions are inconsistent: `moduleGuard` references a `free` tier fallback that does not match the main shared tier definitions.
 
 ## 11. Infra & CI/CD Gaps
-
-### CI/CD Pipeline
-
-| Component              | Status | Notes                                                                     |
-| ---------------------- | ------ | ------------------------------------------------------------------------- |
-| Lint + Type-check      | ✅     | Runs on PR and push                                                       |
-| Unit tests             | ✅     | Vitest with coverage upload                                               |
-| Tenant isolation tests | ⚠️     | Script `test:tenant-isolation` referenced in CI but not in `package.json` |
-| Security audit         | ✅     | `npm audit` + TruffleHog                                                  |
-| E2E tests (Playwright) | ❌     | Never run in CI; broken fixtures                                          |
-| Mobile build           | ❌     | No mobile CI workflow                                                     |
-| Preview deployments    | ✅     | Frontend + Landing on PRs                                                 |
-| Production deployment  | ✅     | Frontend + Landing + Convex on push to main                               |
-
-### Test Coverage
-
-| Layer               | Framework  | Files                                                          | Status             |
-| ------------------- | ---------- | -------------------------------------------------------------- | ------------------ |
-| Backend integration | Vitest     | 2 real files (`timetable.test.ts`, `academics.test.ts`)        | ⚠️ Limited         |
-| Backend placeholder | Vitest     | 1 file (`convex.test.ts`) — all `expect(true)`                 | ❌ Useless         |
-| Frontend            | Vitest     | 5 test files (auth, payments, RBAC, tenant isolation, modules) | ⚠️ Moderate        |
-| E2E                 | Playwright | 6 spec files (30 tests)                                        | ❌ Broken fixtures |
-| Load                | k6         | 1 file                                                         | ✅ Basic           |
-
-### Environment Variables
-
-`.env.example` is excellent — 236 lines covering all integrations (Convex, WorkOS, M-Pesa, Airtel, Stripe, Africa's Talking, Resend, monitoring).
-
-### Missing Infrastructure
-
-| Component                 | Status                                   |
-| ------------------------- | ---------------------------------------- |
-| Database seed script      | ❌ Not implemented                       |
-| Migration strategy        | ❌ Not implemented (Convex schema-first) |
-| AGENTS.md / .kilo/ config | ❌ Not found                             |
-| E2E global setup/teardown | ❌ Files referenced but don't exist      |
-| E2E auth fixture          | ❌ Referenced but doesn't exist          |
-| Mobile CI/CD              | ❌ Not implemented                       |
-
----
+- No `infra/vercel/` directory exists; deployment logic is centralized in root `vercel.json`.
+- `vercel.json` appears misaligned with the intended architecture:
+  - builds `landing`
+  - outputs `landing/.next`
+  - rewrites all requests to `/api/tenant-handler`
+- `.env.example` does not match all env names actually used by payment/SMS code.
+- CI workflows exist in `.github/workflows`, but there is a script mismatch: workflow references `test:e2e:smoke`, which is not present in root `package.json`.
+- Test status observed during audit:
+  - `npm run type-check`: passed
+  - `npm run test:tenant-isolation`: passed
+  - `npm test`: failed because frontend Vitest could not resolve `jsdom`
+- Seed scripts exist (`scripts/seed.ts`, `scripts/seed-cli.mjs`, `convex/dev/seed.ts`), but no formal migration strategy beyond schema/code evolution was found.
 
 ## 12. Recommended Implementation Priority Order
-
-### Sprint 1 — Critical Security & Stability (1-2 weeks)
-
-| #   | Task                                                                         | Effort | Impact      |
-| --- | ---------------------------------------------------------------------------- | ------ | ----------- |
-| 1   | Remove or guard `emergencyAdmin.ts`, `testAdmin.ts`                          | 1h     | Security    |
-| 2   | Add auth guards to all unguarded mutations (9 functions)                     | 4h     | Security    |
-| 3   | Fix `PLAN_PRICES_CENTS` undefined in billing queries                         | 1h     | Stability   |
-| 4   | Unify `TenantTier` enum across types/validators/backend/billing              | 4h     | Type safety |
-| 5   | Unify `UserRole` enum across types/validators                                | 2h     | Type safety |
-| 6   | Remove hardcoded deploy keys from PowerShell scripts; rotate keys            | 2h     | Security    |
-| 7   | Remove `console.log` from `tenantGuard.ts` and `platform/users/mutations.ts` | 1h     | Security    |
-
-### Sprint 2 — Payment & Communication Completions (2-3 weeks)
-
-| #   | Task                                                               | Effort | Impact              |
-| --- | ------------------------------------------------------------------ | ------ | ------------------- |
-| 8   | Implement Airtel Money initiation action                           | 8h     | Revenue             |
-| 9   | Fix `pendingId: "pending"` bug in M-Pesa flow                      | 2h     | Payment reliability |
-| 10  | Wire marketplace payments to real M-Pesa/Stripe actions            | 8h     | Marketplace revenue |
-| 11  | Implement email/sms dispatch in `sendPlatformMessageNow`           | 6h     | Communications      |
-| 12  | Wire student wallet send/topup to real mutations                   | 6h     | Student UX          |
-| 13  | Add audit logging to Library, Transport, eCommerce, Communications | 4h     | Compliance          |
-
-### Sprint 3 — Frontend Completion (2-3 weeks)
-
-| #   | Task                                                                                   | Effort | Impact     |
-| --- | -------------------------------------------------------------------------------------- | ------ | ---------- |
-| 14  | Wire non-functional dialogs (analytics, automation, tenant-success, staff-performance) | 8h     | UX         |
-| 15  | Wire CRM deal detail mutations to backend                                              | 4h     | Sales      |
-| 16  | Fix ticket comment posting (console.log → mutation)                                    | 1h     | Support    |
-| 17  | Implement timetable weekly grid view                                                   | 8h     | School ops |
-| 18  | Wire fee structure create dialog                                                       | 2h     | Finance    |
-| 19  | Wire staff profile edit                                                                | 2h     | HR         |
-
-### Sprint 4 — Shared Layer & Type Safety (1-2 weeks)
-
-| #   | Task                                                     | Effort | Impact          |
-| --- | -------------------------------------------------------- | ------ | --------------- |
-| 20  | Align `Tenant` type with backend schema fields           | 4h     | Type safety     |
-| 21  | Add missing shared types (Staff, Fee, Grade, Book, etc.) | 8h     | Type safety     |
-| 22  | Add missing shared validators                            | 6h     | Form validation |
-| 23  | Enable `strict: true` in frontend tsconfig               | 8h     | Type safety     |
-| 24  | Consolidate duplicate DB tables in schema                | 4h     | Data integrity  |
-| 25  | Fix HR `getRecentActivities` action string mismatch      | 1h     | HR              |
-
-### Sprint 5 — Mobile App Foundation (4-6 weeks)
-
-| #   | Task                                                                         | Effort | Impact                  |
-| --- | ---------------------------------------------------------------------------- | ------ | ----------------------- |
-| 26  | Create `useAuth` hook with WorkOS integration                                | 8h     | Mobile auth             |
-| 27  | Implement 5 missing screens (Grades, Assignments, Attendance, Fees, Profile) | 40h    | Mobile UX               |
-| 28  | Connect all screens to Convex queries/mutations                              | 16h    | Mobile data             |
-| 29  | Implement offline-first patterns (caching, queue)                            | 24h    | East Africa reliability |
-| 30  | Set up push notifications (FCM)                                              | 12h    | Mobile engagement       |
-
-### Sprint 6 — Testing & Infrastructure (1-2 weeks)
-
-| #   | Task                                                     | Effort | Impact         |
-| --- | -------------------------------------------------------- | ------ | -------------- |
-| 31  | Fix E2E test fixtures (auth, global setup/teardown)      | 4h     | CI/CD          |
-| 32  | Add E2E tests to CI pipeline                             | 2h     | CI/CD          |
-| 33  | Create database seed script                              | 8h     | Dev experience |
-| 34  | Replace placeholder `convex.test.ts` with real tests     | 4h     | Test quality   |
-| 35  | Implement real vulnerability scanning in security module | 8h     | Security       |
-| 36  | Add retry logic for external API calls                   | 4h     | Reliability    |
-
----
-
-## Appendix A: Schema Table Count
-
-The Convex schema (`convex/schema.ts`) defines **~90+ tables** covering all modules: users, tenants, organizations, sessions, auditLogs, notifications, students, classes, guardians, applications, feeStructures, invoices, payments, paymentCallbacks, timetableSlots, timetableEvents, assignments, assignmentSubmissions, grades, attendance, reportCards, examinations, staff, contracts, leaveRequests, payrollRuns, payslips, books, bookLoans, transportRoutes, vehicles, drivers, routeAssignments, announcements, campaigns, templates, conversations, messages, smsTemplates, emailTemplates, notificationPreferences, wallets, walletTransactions, products, orders, cartItems, plus 40+ platform tables (deals, leads, featureFlags, marketplaceModules, etc.).
-
-## Appendix B: File Count by Layer
-
-| Layer                                         | File Count     | Lines (est.) |
-| --------------------------------------------- | -------------- | ------------ |
-| Convex Backend (modules + platform + helpers) | ~120 files     | ~25,000      |
-| Frontend (app + components + hooks + lib)     | ~280 files     | ~45,000      |
-| Landing Site                                  | ~60 files      | ~8,000       |
-| Mobile                                        | 5 files        | ~500         |
-| Shared                                        | 14 files       | ~2,600       |
-| E2E + Tests                                   | ~15 files      | ~3,000       |
-| Scripts                                       | 10 files       | ~800         |
-| Docs                                          | 7 files        | ~15,000      |
-| Config (CI/CD, Vercel, TypeScript, etc.)      | ~20 files      | ~1,500       |
-| **TOTAL**                                     | **~530 files** | **~101,400** |
+1. Lock down auth and tenant isolation in Convex: fix `sessions.ts`, `notifications.ts`, and every platform/action file bypassing the standard guard helpers.
+2. Unify role definitions across shared, frontend, and backend (`platform_admin` vs `super_admin`) and remove demo/fallback tenant behavior from client hooks.
+3. Fix deployment architecture: correct Vercel build/rewrite strategy and validate subdomain-to-tenant resolution against real tenant records.
+4. Stabilize payments: align env names, consolidate gateway flows, and implement proper fee-ledger allocation after confirmed payment.
+5. Consolidate communications: one guarded SMS pipeline, one guarded email pipeline, and secure in-app notification reads/writes.
+6. Finish the school-admin routes that correspond to already-existing backend modules: students, staff, classes, timetable, transport, finance subpages, library CRUD.
+7. Finish the platform pages that are currently nav-visible placeholders, starting with billing, security, tickets, onboarding, and scheduled reports.
+8. Replace mobile manual-token login with a proper WorkOS mobile auth flow, then expand beyond student-only coverage.
+9. Expand shared types/validators so forms and Convex functions use the same contracts.
+10. Repair CI/test execution: align workflow scripts, fix `jsdom` test environment resolution, and then raise automated coverage around auth, payments, and tenant isolation.
