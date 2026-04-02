@@ -97,7 +97,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "M-Pesa access token missing" }, { status: 502 });
     }
 
-    const timestamp = new Date().toISOString().replace(/[-:.]/g, "").slice(0, 14);
+  const timestamp = new Date()
+    .toISOString()
+    .replaceAll("-", "")
+    .replaceAll(":", "")
+    .replaceAll(".", "")
+    .slice(0, 14);
     const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString("base64");
     const normalizedPhone = normalizePhone(phone);
 
