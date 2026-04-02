@@ -66,12 +66,16 @@ export const enterGrades = mutation({
 export const createAssignment = mutation({
   args: {
     classId: v.string(),
-    subjectId: v.string(),
+    subjectId: v.optional(v.string()),
     title: v.string(),
     description: v.string(),
     dueDate: v.string(),
-    maxPoints: v.number(),
-    status: v.string(),
+    maxPoints: v.optional(v.number()),
+    maxScore: v.optional(v.number()),
+    status: v.optional(v.string()),
+    type: v.optional(v.string()),
+    tenantId: v.optional(v.string()),
+    teacherId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantContext(ctx);
@@ -82,13 +86,14 @@ export const createAssignment = mutation({
     const assignmentId = await ctx.db.insert("assignments", {
       tenantId: tenant.tenantId,
       classId: args.classId,
-      subjectId: args.subjectId,
+      subjectId: args.subjectId ?? "general",
       teacherId: tenant.userId,
       title: args.title,
       description: args.description,
       dueDate: args.dueDate,
-      maxPoints: args.maxPoints,
-      status: args.status,
+      maxPoints: args.maxPoints ?? args.maxScore ?? 100,
+      status: args.status ?? "draft",
+      type: args.type ?? "homework",
       createdAt: now,
       updatedAt: now,
     });
@@ -194,13 +199,9 @@ export const generateReportCard = mutation({
     const now = Date.now();
     
     // Get student information
-    const student = await ctx.db
-      .query("students")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
-      .filter((q) => q.eq(q.field("_id"), args.studentId))
-      .first();
+    const student = await ctx.db.get(args.studentId as any);
     
-    if (!student) {
+    if (!student || (student as any).tenantId !== tenant.tenantId) {
       throw new Error("Student not found");
     }
 
@@ -228,15 +229,17 @@ export const generateReportCard = mutation({
     const gpa = calculateGPA(averageScore);
     
     // Get class ranking
-    const classGrades = await ctx.db
+    const classGrades = (await ctx.db
       .query("grades")
-      .withIndex("by_class_subject", (q) =>
-        q.eq("classId", student.classId).eq("term", args.term)
-      )
-      .filter((q) => q.eq(q.field("academicYear"), args.academicYear))
-      .collect();
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect())
+      .filter((grade) =>
+        grade.classId === (student as any).classId &&
+        grade.term === args.term &&
+        grade.academicYear === args.academicYear
+      );
     
-    const studentAverages = new Map();
+    const studentAverages = new Map<string, number[]>();
     classGrades.forEach(grade => {
       const current = studentAverages.get(grade.studentId) || [];
       current.push(grade.score);
@@ -256,7 +259,7 @@ export const generateReportCard = mutation({
     if (args.includeAttendance) {
       const attendance = await ctx.db
         .query("attendance")
-        .withIndex("by_student", (q) => q.eq("studentId", args.studentId))
+        .withIndex("by_student_date", (q) => q.eq("studentId", args.studentId))
         .collect();
       
       const termAttendance = attendance.filter(a => 
@@ -285,9 +288,6 @@ export const generateReportCard = mutation({
       academicYear: args.academicYear,
       gpa,
       rank,
-      averageScore,
-      totalSubjects: subjects.length,
-      attendanceSummary,
       status: "ready",
       generatedAt: now,
       createdAt: now,
@@ -315,8 +315,8 @@ export const generateReportCard = mutation({
         const subject = subjects.find(s => s?._id === grade.subjectId);
         return {
           ...grade,
-          subjectName: subject?.name || "Unknown",
-          subjectCode: subject?.code || ""
+          subjectName: (subject as any)?.name || "Unknown",
+          subjectCode: (subject as any)?.code || ""
         };
       }),
       gpa,

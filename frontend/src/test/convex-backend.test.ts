@@ -21,14 +21,14 @@ import {
   requirePermission,
   requireRole,
   getPermissions,
-} from '../../../../convex/helpers/authorize';
+} from '../../../convex/helpers/authorize';
 
 import {
   requireModule,
   activateModule,
   deactivateModule,
   getInstalledModule,
-} from '../../../../convex/helpers/moduleGuard';
+} from '../../../convex/helpers/moduleGuard';
 
 // ═════════════════════════════════════════════════════════════════════════════
 // convex/helpers/authorize.ts — pure RBAC functions

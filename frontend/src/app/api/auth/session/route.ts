@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
-const FALLBACK_MASTER_ADMIN_EMAILS = ["ayany004@gmail.com"];
 const MASTER_ADMIN_EMAILS = [
   process.env.MASTER_ADMIN_EMAIL,
-  ...FALLBACK_MASTER_ADMIN_EMAILS,
 ]
   .filter((value): value is string => Boolean(value))
   .map((value) => value.toLowerCase());
@@ -72,6 +70,7 @@ export async function GET(req: NextRequest) {
               await convex.mutation(api.users.syncMasterAdminRole, {
                 workosUserId: session.userId,
                 email: session.email,
+                sessionToken,
               });
               await convex.mutation(api.sessions.updateSessionRole, {
                 sessionToken,

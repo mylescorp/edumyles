@@ -354,7 +354,7 @@ export class BillingEngine {
   } {
     const currentPlan = currentPlanId ? this.getPlanById(currentPlanId) : null;
     
-    let recommendedPlan: SubscriptionPlan | null = this.PLANS[0]; // Default to starter
+    let recommendedPlan: SubscriptionPlan | null = this.PLANS[0] ?? null;
     let reason = 'Based on your current usage';
 
     // Recommend based on student count
@@ -384,7 +384,7 @@ export class BillingEngine {
     }
 
     return {
-      recommendedPlan: recommendedPlan || this.PLANS[0], // Fallback to starter if null
+      recommendedPlan: recommendedPlan ?? this.PLANS[0] ?? null,
       reason,
       savings,
     };
@@ -418,7 +418,9 @@ export class BillingEngine {
 
     // Allow immediate change for upgrades
     const currentPlan = this.getPlanById(currentSubscription.planId);
-    if (!currentPlan) return { canChange: false, reason: 'Current plan not found' };
+    if (!currentPlan) {
+      return { canChange: false, reason: 'Current plan not found' };
+    }
 
     const planTiers = ['starter', 'standard', 'pro', 'enterprise'];
     const currentIndex = planTiers.indexOf(currentPlan.tier);

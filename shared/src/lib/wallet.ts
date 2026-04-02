@@ -80,7 +80,7 @@ export class WalletEngine {
       return { valid: false, error: "Minimum transfer amount is KES 1.00" };
     }
 
-    const availableBalance = wallet.balanceCents - wallet.pendingOutCents;
+    const availableBalance = wallet.balanceCents;
     if (amountCents > availableBalance) {
       return { valid: false, error: "Insufficient balance" };
     }

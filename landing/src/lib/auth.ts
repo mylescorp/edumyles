@@ -5,7 +5,7 @@ export type LandingAuthState = {
   schoolName?: string;
 };
 
-const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL ?? "ayany004@gmail.com";
+const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL;
 
 export function resolveRole(email: string, _organizationId?: string): string {
   if (

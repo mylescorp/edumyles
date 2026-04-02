@@ -32,7 +32,18 @@ export const initiateBankTransfer = action({
   args: {
     invoiceId: v.id("invoices"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    reference: string;
+    bankDetails: {
+      accountNumber: string;
+      bankName: string;
+      branch: string;
+      swift: string;
+    };
+    amount: number;
+    invoiceId: string;
+    instructions: string[];
+  }> => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("UNAUTHENTICATED");
 
@@ -41,7 +52,7 @@ export const initiateBankTransfer = action({
     });
     if (!session) throw new Error("UNAUTHENTICATED: Session not found");
 
-    const invoice = await ctx.runQuery(api.modules.finance.queries.getInvoice, {
+    const invoice: any = await ctx.runQuery(api.modules.finance.queries.getInvoice, {
       invoiceId: args.invoiceId,
     });
     if (!invoice || invoice.tenantId !== session.tenantId) {

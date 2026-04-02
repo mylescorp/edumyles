@@ -11,15 +11,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle, 
-  MessageSquare, 
+import {
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  MessageSquare,
   User,
   Calendar,
   Paperclip,
@@ -51,7 +57,7 @@ import {
   Share,
   Info,
   X,
-  Zap
+  Zap,
 } from "lucide-react";
 
 interface Comment {
@@ -87,7 +93,7 @@ interface Ticket {
 export default function TicketDetailPage() {
   const params = useParams();
   const ticketId = params.id as string;
-  
+
   const [newComment, setNewComment] = useState("");
   const [isInternal, setIsInternal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -112,11 +118,26 @@ export default function TicketDetailPage() {
 
   // Users for @mentions - could be fetched from a real query in future
   const mockUsers = [
-    { id: "agent1", email: "michael.chen@edumyles.com", name: "Michael Chen", role: "Support Agent" },
-    { id: "agent2", email: "sarah.wilson@edumyles.com", name: "Sarah Wilson", role: "Support Agent" },
+    {
+      id: "agent1",
+      email: "michael.chen@edumyles.com",
+      name: "Michael Chen",
+      role: "Support Agent",
+    },
+    {
+      id: "agent2",
+      email: "sarah.wilson@edumyles.com",
+      name: "Sarah Wilson",
+      role: "Support Agent",
+    },
     { id: "tech1", email: "david.kim@edumyles.com", name: "David Kim", role: "Technical Lead" },
     { id: "admin1", email: "john.doe@edumyles.com", name: "John Doe", role: "System Admin" },
-    { id: "customer1", email: "sarah.johnson@nairobi-academy.edu", name: "Sarah Johnson", role: "School Admin" }
+    {
+      id: "customer1",
+      email: "sarah.johnson@nairobi-academy.edu",
+      name: "Sarah Johnson",
+      role: "School Admin",
+    },
   ];
 
   const handleStatusUpdate = () => {
@@ -129,35 +150,37 @@ export default function TicketDetailPage() {
     }
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (newComment.trim() || uploadedFiles.length > 0) {
-      // In a real app, this would call the mutation
-      console.log("Adding comment:", {
-        content: newComment,
-        isInternal,
-        attachments: uploadedFiles.map(f => f.name),
-        mentionedUsers
-      });
-      
-      // Reset form
-      setNewComment("");
-      setIsInternal(false);
-      setUploadedFiles([]);
-      setMentionedUsers([]);
+      try {
+        await addComment({
+          ticketId: ticketId as Id<"tickets">,
+          content: newComment,
+          isInternal,
+          attachments: uploadedFiles.map((f) => f.name),
+        });
+        // Reset form
+        setNewComment("");
+        setIsInternal(false);
+        setUploadedFiles([]);
+        setMentionedUsers([]);
+      } catch (err) {
+        console.error("Failed to add comment:", err);
+      }
     }
   };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     const position = e.target.selectionStart;
-    
+
     setNewComment(value);
     setCursorPosition(position);
-    
+
     // Check for @mentions
     const beforeCursor = value.substring(0, position);
     const mentionMatch = beforeCursor.match(/@(\w*)$/);
-    
+
     if (mentionMatch) {
       setMentionQuery(mentionMatch[1]);
       setShowMentionSuggestions(true);
@@ -167,21 +190,21 @@ export default function TicketDetailPage() {
     }
   };
 
-  const handleMentionSelect = (user: typeof mockUsers[0]) => {
+  const handleMentionSelect = (user: (typeof mockUsers)[0]) => {
     const beforeMention = newComment.substring(0, cursorPosition - mentionQuery.length - 1);
     const afterCursor = newComment.substring(cursorPosition);
-    
+
     const mentionText = `@${user.name} `;
     const newCommentText = beforeMention + mentionText + afterCursor;
-    
+
     setNewComment(newCommentText);
     setMentionedUsers([...mentionedUsers, user.email]);
     setShowMentionSuggestions(false);
     setMentionQuery("");
-    
+
     // Set cursor position after the mention
     setTimeout(() => {
-      const textarea = document.getElementById('comment-textarea') as HTMLTextAreaElement;
+      const textarea = document.getElementById("comment-textarea") as HTMLTextAreaElement;
       if (textarea) {
         const newPosition = beforeMention.length + mentionText.length;
         textarea.setSelectionRange(newPosition, newPosition);
@@ -199,9 +222,10 @@ export default function TicketDetailPage() {
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
   };
 
-  const filteredUsers = mockUsers.filter(user => 
-    user.name.toLowerCase().includes(mentionQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(mentionQuery.toLowerCase())
+  const filteredUsers = mockUsers.filter(
+    (user) =>
+      user.name.toLowerCase().includes(mentionQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(mentionQuery.toLowerCase())
   );
 
   const addCcEmail = () => {
@@ -212,46 +236,57 @@ export default function TicketDetailPage() {
   };
 
   const removeCcEmail = (email: string) => {
-    setCcEmails(ccEmails.filter(e => e !== email));
+    setCcEmails(ccEmails.filter((e) => e !== email));
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "P0": return "bg-red-100 text-red-700 border-red-200";
-      case "P1": return "bg-orange-100 text-orange-700 border-orange-200";
-      case "P2": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "P3": return "bg-gray-100 text-gray-700 border-gray-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
+      case "P0":
+        return "bg-red-100 text-red-700 border-red-200";
+      case "P1":
+        return "bg-orange-100 text-orange-700 border-orange-200";
+      case "P2":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "P3":
+        return "bg-gray-100 text-gray-700 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "open": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "in_progress": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "pending_school": return "bg-purple-100 text-purple-700 border-purple-200";
-      case "resolved": return "bg-green-100 text-green-700 border-green-200";
-      case "closed": return "bg-gray-100 text-gray-700 border-gray-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
+      case "open":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "in_progress":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "pending_school":
+        return "bg-purple-100 text-purple-700 border-purple-200";
+      case "resolved":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "closed":
+        return "bg-gray-100 text-gray-700 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
 
   const formatTimeRemaining = (deadline: number) => {
     const now = Date.now();
     const timeLeft = deadline - now;
-    
+
     if (timeLeft < 0) {
       return { text: "Overdue", color: "text-red-600" };
     }
-    
+
     const hours = Math.floor(timeLeft / (1000 * 60 * 60));
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (hours > 24) {
       const days = Math.floor(hours / 24);
       return { text: `${days}d ${hours % 24}h`, color: "text-yellow-600" };
     }
-    
+
     return { text: `${hours}h ${minutes}m`, color: hours < 2 ? "text-red-600" : "text-yellow-600" };
   };
 
@@ -265,18 +300,17 @@ export default function TicketDetailPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title={ticketData.title} 
+      <PageHeader
+        title={ticketData.title}
         description={`Ticket #${ticketId} • ${ticketData.category}`}
         breadcrumbs={[
           { label: "Tickets", href: "/platform/tickets" },
-          { label: ticketData.title, href: `/platform/tickets/${ticketId}` }
+          { label: ticketData.title, href: `/platform/tickets/${ticketId}` },
         ]}
       />
 
       {/* 3-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
         {/* Left Column - Info Panel (3 cols) */}
         <div className="lg:col-span-3 space-y-4">
           <Card>
@@ -312,12 +346,12 @@ export default function TicketDetailPage() {
                   <span className="text-sm font-medium">School</span>
                 </div>
                 <p className="text-sm text-muted-foreground">{ticketData.tenantName}</p>
-                
+
                 <div className="flex items-center gap-2 mt-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">Nairobi, Kenya</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">450 Students</span>
@@ -367,7 +401,7 @@ export default function TicketDetailPage() {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">SLA Status</span>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div>
                     <div className="flex items-center justify-between text-xs">
@@ -377,13 +411,15 @@ export default function TicketDetailPage() {
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <div 
+                      <div
                         className="bg-blue-600 h-1.5 rounded-full"
-                        style={{ width: `${Math.max(0, Math.min(100, ((ticketData.slaFirstResponseDL - Date.now()) / (ticketData.slaFirstResponseDL - ticketData.createdAt)) * 100))}%` }}
+                        style={{
+                          width: `${Math.max(0, Math.min(100, ((ticketData.slaFirstResponseDL - Date.now()) / (ticketData.slaFirstResponseDL - ticketData.createdAt)) * 100))}%`,
+                        }}
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <div className="flex items-center justify-between text-xs">
                       <span>Resolution</span>
@@ -392,9 +428,11 @@ export default function TicketDetailPage() {
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <div 
+                      <div
                         className="bg-green-600 h-1.5 rounded-full"
-                        style={{ width: `${Math.max(0, Math.min(100, ((ticketData.slaResolutionDL - Date.now()) / (ticketData.slaResolutionDL - ticketData.createdAt)) * 100))}%` }}
+                        style={{
+                          width: `${Math.max(0, Math.min(100, ((ticketData.slaResolutionDL - Date.now()) / (ticketData.slaResolutionDL - ticketData.createdAt)) * 100))}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -441,7 +479,7 @@ export default function TicketDetailPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground whitespace-pre-wrap">{ticketData.body}</p>
-              
+
               {ticketData.attachments && ticketData.attachments.length > 0 && (
                 <div className="mt-4 p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-2 text-sm font-medium mb-2">
@@ -450,7 +488,10 @@ export default function TicketDetailPage() {
                   </div>
                   <div className="space-y-2">
                     {ticketData.attachments.map((attachment, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 bg-white rounded border"
+                      >
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4" />
                           <span className="text-sm">{attachment}</span>
@@ -513,25 +554,29 @@ export default function TicketDetailPage() {
                             {new Date(comment.createdAt).toLocaleString()}
                           </span>
                         </div>
-                        
-                        <div className={`p-3 rounded-lg ${
-                          comment.isInternal 
-                            ? "bg-amber-50 border border-amber-200" 
-                            : "bg-muted"
-                        }`}>
+
+                        <div
+                          className={`p-3 rounded-lg ${
+                            comment.isInternal ? "bg-amber-50 border border-amber-200" : "bg-muted"
+                          }`}
+                        >
                           <div className="text-sm whitespace-pre-wrap">
                             {comment.content.split(/(@\w+)/).map((part, index) => {
                               // Check if this part is a mention
-                              if (part.startsWith('@')) {
+                              if (part.startsWith("@")) {
                                 const userName = part.substring(1);
-                                const mentionedUser = mockUsers.find(u => 
-                                  u.name.toLowerCase().includes(userName.toLowerCase()) ||
-                                  u.email.toLowerCase().includes(userName.toLowerCase())
+                                const mentionedUser = mockUsers.find(
+                                  (u) =>
+                                    u.name.toLowerCase().includes(userName.toLowerCase()) ||
+                                    u.email.toLowerCase().includes(userName.toLowerCase())
                                 );
-                                
+
                                 if (mentionedUser) {
                                   return (
-                                    <span key={index} className="inline-flex items-center gap-1 px-1 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                    <span
+                                      key={index}
+                                      className="inline-flex items-center gap-1 px-1 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium"
+                                    >
                                       <span>@{mentionedUser.name}</span>
                                     </span>
                                   );
@@ -540,7 +585,7 @@ export default function TicketDetailPage() {
                               return part;
                             })}
                           </div>
-                          
+
                           {comment.attachments && comment.attachments.length > 0 && (
                             <div className="mt-3 space-y-2">
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -549,10 +594,17 @@ export default function TicketDetailPage() {
                               </div>
                               <div className="space-y-1">
                                 {comment.attachments.map((attachment, index) => (
-                                  <div key={index} className="flex items-center gap-2 p-2 bg-white rounded border">
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-2 p-2 bg-white rounded border"
+                                  >
                                     <FileText className="h-4 w-4 text-gray-500" />
                                     <span className="text-sm">{attachment}</span>
-                                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 ml-auto">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0 ml-auto"
+                                    >
                                       <Download className="h-3 w-3" />
                                     </Button>
                                   </div>
@@ -579,7 +631,7 @@ export default function TicketDetailPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {index < ticketData.comments.length - 1 && <Separator />}
                   </div>
                 ))}
@@ -603,7 +655,7 @@ export default function TicketDetailPage() {
                     </label>
                   </div>
                 </div>
-                
+
                 {/* Mention Suggestions */}
                 {showMentionSuggestions && mentionQuery && (
                   <div className="relative">
@@ -628,7 +680,7 @@ export default function TicketDetailPage() {
                     </div>
                   </div>
                 )}
-                
+
                 <div className="relative">
                   <Textarea
                     id="comment-textarea"
@@ -637,25 +689,26 @@ export default function TicketDetailPage() {
                     placeholder="Type your comment here... Use @ to mention people"
                     className="min-h-24"
                   />
-                  
+
                   {/* Character count and mention indicators */}
                   <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
                     {newComment.length} chars
                     {mentionedUsers.length > 0 && (
-                      <span className="ml-2 text-blue-600">
-                        {mentionedUsers.length} mentioned
-                      </span>
+                      <span className="ml-2 text-blue-600">{mentionedUsers.length} mentioned</span>
                     )}
                   </div>
                 </div>
-                
+
                 {/* File Attachments */}
                 {uploadedFiles.length > 0 && (
                   <div className="space-y-2">
                     <div className="text-sm font-medium">Attachments</div>
                     <div className="space-y-2">
                       {uploadedFiles.map((file, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border">
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-2 bg-gray-50 rounded border"
+                        >
                           <div className="flex items-center gap-2">
                             <Paperclip className="h-4 w-4 text-gray-500" />
                             <span className="text-sm">{file.name}</span>
@@ -676,7 +729,7 @@ export default function TicketDetailPage() {
                     </div>
                   </div>
                 )}
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="relative">
@@ -696,7 +749,7 @@ export default function TicketDetailPage() {
                       Add Link
                     </Button>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -709,8 +762,8 @@ export default function TicketDetailPage() {
                       <Reply className="h-4 w-4 mr-1" />
                       Assign to Me
                     </Button>
-                    <Button 
-                      onClick={handleAddComment} 
+                    <Button
+                      onClick={handleAddComment}
                       disabled={!newComment.trim() && uploadedFiles.length === 0}
                     >
                       <Send className="h-4 w-4 mr-1" />
@@ -777,7 +830,7 @@ export default function TicketDetailPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label className="text-sm">Priority</Label>
                 <Select value={selectedPriority} onValueChange={setSelectedPriority}>
@@ -792,7 +845,7 @@ export default function TicketDetailPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label className="text-sm">Assign To</Label>
                 <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
@@ -807,12 +860,8 @@ export default function TicketDetailPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <Button 
-                onClick={handleStatusUpdate} 
-                disabled={!selectedStatus}
-                className="w-full"
-              >
+
+              <Button onClick={handleStatusUpdate} disabled={!selectedStatus} className="w-full">
                 Update Ticket
               </Button>
             </CardContent>
@@ -827,19 +876,18 @@ export default function TicketDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button 
-                className="w-full" 
-                variant="outline"
-                onClick={() => setShowCcModal(true)}
-              >
+              <Button className="w-full" variant="outline" onClick={() => setShowCcModal(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add CC/BCC
               </Button>
-              
+
               {ccEmails.length > 0 && (
                 <div className="space-y-1">
                   {ccEmails.map((email, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 bg-muted rounded"
+                    >
                       <span className="text-sm">{email}</span>
                       <Button variant="ghost" size="sm" onClick={() => removeCcEmail(email)}>
                         <Trash2 className="h-3 w-3" />
@@ -870,7 +918,7 @@ export default function TicketDetailPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 {ticketData.firstResponseAt && (
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full mt-1"></div>
@@ -882,7 +930,7 @@ export default function TicketDetailPage() {
                     </div>
                   </div>
                 )}
-                
+
                 {ticketData.resolvedAt && (
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-1"></div>
@@ -950,13 +998,16 @@ export default function TicketDetailPage() {
                   </Button>
                 </div>
               </div>
-              
+
               {ccEmails.length > 0 && (
                 <div className="space-y-2">
                   <Label>CC/BCC List</Label>
                   <div className="space-y-1">
                     {ccEmails.map((email, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 bg-muted rounded"
+                      >
                         <span className="text-sm">{email}</span>
                         <Button variant="ghost" size="sm" onClick={() => removeCcEmail(email)}>
                           <Trash2 className="h-3 w-3" />
@@ -966,14 +1017,12 @@ export default function TicketDetailPage() {
                   </div>
                 </div>
               )}
-              
+
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowCcModal(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => setShowCcModal(false)}>
-                  Save
-                </Button>
+                <Button onClick={() => setShowCcModal(false)}>Save</Button>
               </div>
             </CardContent>
           </Card>

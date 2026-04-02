@@ -6,7 +6,7 @@ import { requireModule } from "../../helpers/moduleGuard";
 import { logAction } from "../../helpers/auditLog";
 
 // Import payroll engine from shared lib
-const { PayrollEngine } = require("../../../../shared/src/lib/payroll");
+const { PayrollEngine } = require("../../../shared/src/lib/payroll");
 
 // Payroll calculation types
 export interface PayrollPeriod {

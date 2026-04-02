@@ -3,25 +3,30 @@
 /**
  * Direct API Call to Add Master Admin
  * 
- * This script attempts to call the Convex API directly using the deployment URL
+ * This script shows the direct API payload for promoting a master admin.
  */
 
 const https = require('https');
 
 async function callConvexAPI() {
-  const deploymentUrl = "https://warmhearted-hummingbird-522.convex.cloud";
-  const functionName = "emergencyAdmin:createEmergencyMasterAdmin";
+  const deploymentUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  const functionName = "users:promoteUserEmailToMasterAdmin";
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminSessionToken = process.env.ADMIN_SESSION_TOKEN;
+
+  if (!deploymentUrl || !adminEmail || !adminSessionToken) {
+    throw new Error("NEXT_PUBLIC_CONVEX_URL, ADMIN_EMAIL, and ADMIN_SESSION_TOKEN are required");
+  }
   
   const data = {
     args: {
-      email: "ayany004@gmail.com",
-      firstName: "Jonathan",
-      lastName: "Ayany"
+      email: adminEmail,
+      sessionToken: adminSessionToken,
     }
   };
 
   const options = {
-    hostname: "warmhearted-hummingbird-522.convex.cloud",
+    hostname: deploymentUrl.replace(/^https?:\/\//, ""),
     port: 443,
     path: `/api/mutation/${functionName}`,
     method: 'POST',
@@ -59,7 +64,7 @@ async function callConvexAPI() {
 }
 
 async function main() {
-  console.log("🚀 Attempting direct API call to add master admin...");
+  console.log("🚀 Attempting direct API call to promote master admin...");
   
   try {
     const result = await callConvexAPI();
@@ -69,9 +74,9 @@ async function main() {
     console.log("\n🔧 Alternative approach needed...");
     console.log("Please use the Convex Dashboard method:");
     console.log("1. Go to https://dashboard.convex.dev");
-    console.log("2. Select deployment: warmhearted-hummingbird-522");
-    console.log("3. Go to Functions → emergencyAdmin:createEmergencyMasterAdmin");
-    console.log("4. Run with: {\"email\": \"ayany004@gmail.com\", \"firstName\": \"Jonathan\", \"lastName\": \"Ayany\"}");
+    console.log("2. Select your deployment");
+    console.log("3. Go to Functions → users:promoteUserEmailToMasterAdmin");
+    console.log("4. Run with the configured ADMIN_EMAIL and ADMIN_SESSION_TOKEN");
   }
 }
 

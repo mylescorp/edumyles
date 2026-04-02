@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export type AuditAction =
   | "user.created" | "user.updated" | "user.deleted" | "user.login" | "user.logout"
+  | "user.invited"
   | "file.created" | "file.deleted"
   | "student.created" | "student.updated" | "student.deleted" | "student.graduated" | "student.enrolled"
   | "payment.initiated" | "payment.completed" | "payment.failed" | "payment.recorded" | "payment.bulk_invoices" | "payment.status_updated"
@@ -42,8 +43,9 @@ export type AuditAction =
   | "marketplace.dispute_filed" | "marketplace.dispute_resolved"
   | "marketplace.review_submitted" | "marketplace.review_moderated"
   | "marketplace.publisher_registered" | "marketplace.publisher_verified"
+  | "marketplace.publisher_activated" | "marketplace.publisher_suspended"
   | "marketplace.module_suspended" | "marketplace.module_deprecated" | "marketplace.module_installed" | "marketplace.module_uninstalled"
-  | "marketplace.module_submitted" | "marketplace.module_approved" | "marketplace.module_rejected" | "marketplace.module_published"
+  | "marketplace.module_submitted" | "marketplace.module_updated" | "marketplace.module_approved" | "marketplace.module_rejected" | "marketplace.module_published"
   | "api_key.created" | "api_key.revoked" | "api_key.rotated"
   | "changelog.created" | "changelog.updated" | "changelog.deleted"
   | "automation.workflow_created" | "automation.workflow_updated" | "automation.workflow_deleted" | "automation.workflow_toggled" | "automation.workflow_executed"
@@ -70,7 +72,9 @@ export type AuditAction =
   | "onboarding.initialized" | "onboarding.completed"
   | "analytics.report_generated" | "analytics.report_exported"
   | "crm.deal_created" | "crm.deal_updated" | "crm.lead_created" | "crm.lead_updated" | "crm.activity_added" | "crm.proposal_created" | "crm.proposal_updated" | "crm.proposal_sent"
-  | "billing.invoice.created" | "billing.invoice.status_updated" | "billing.subscription_updated";
+  | "billing.invoice.created" | "billing.invoice.status_updated" | "billing.subscription_updated"
+  | "subscription.updated" | "subscription.cancelled"
+  | "waitlist.approved" | "waitlist.rejected";
 
 export async function logAction(
   ctx: MutationCtx,

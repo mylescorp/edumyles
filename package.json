@@ -24,6 +24,7 @@
     "lint:fix": "node node_modules/turbo/bin/turbo run lint:fix",
     "type-check": "node node_modules/turbo/bin/turbo run type-check",
     "test": "node node_modules/turbo/bin/turbo run test",
+    "test:tenant-isolation": "vitest run --config vitest.tenant-isolation.config.ts",
     "clean": "node node_modules/turbo/bin/turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",

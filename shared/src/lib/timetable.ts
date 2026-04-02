@@ -142,8 +142,8 @@ export class TimetableEngine {
           type: 'teacher_conflict',
           teacherId: entry.teacherId,
           timeSlotId: entry.timeSlotId,
-          existingEntryId: teacherEntries[0].id,
-          newEntryId: entry.id || 'new',
+          existingEntryId: teacherEntries[0]!.id,
+          newEntryId: 'new',
           message: `Teacher ${teacher.firstName} ${teacher.lastName} is already scheduled at this time`,
         });
       }
@@ -163,8 +163,8 @@ export class TimetableEngine {
           type: 'classroom_conflict',
           classroomId: entry.classroomId,
           timeSlotId: entry.timeSlotId,
-          existingEntryId: classroomEntries[0].id,
-          newEntryId: entry.id || 'new',
+          existingEntryId: classroomEntries[0]!.id,
+          newEntryId: 'new',
           message: `Classroom ${classroom.name} is already occupied at this time`,
         });
       }
@@ -182,8 +182,8 @@ export class TimetableEngine {
         type: 'student_conflict',
         classId: entry.classId,
         timeSlotId: entry.timeSlotId,
-        existingEntryId: classEntries[0].id,
-        newEntryId: entry.id || 'new',
+        existingEntryId: classEntries[0]!.id,
+        newEntryId: 'new',
         message: `Class is already scheduled at this time`,
       });
     }
@@ -250,9 +250,11 @@ export class TimetableEngine {
 
       // Select best teacher (based on availability and preferences)
       const bestTeacher = this.selectBestTeacher(availableTeachers, timeSlot, teacherHours, constraints);
+      if (!bestTeacher) continue;
 
       // Select best classroom (based on capacity and equipment)
       const bestClassroom = this.selectBestClassroom(availableClassrooms, bestTeacher);
+      if (!bestClassroom) continue;
 
       // Select subject (prioritize core subjects and balance distribution)
       const bestSubject = this.selectBestSubject(
@@ -261,6 +263,7 @@ export class TimetableEngine {
         constraints,
         bestTeacher.subjects
       );
+      if (!bestSubject) continue;
 
       // Create timetable entry
       const entry: Omit<TimetableEntry, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -318,7 +321,7 @@ export class TimetableEngine {
     timeSlot: TimeSlot,
     teacherHours: Record<string, number>,
     constraints: SchedulingConstraints
-  ): Teacher {
+  ): Teacher | undefined {
     return availableTeachers.sort((a, b) => {
       // Prefer teachers with fewer hours
       const aHours = teacherHours[a.id] || 0;
@@ -345,7 +348,7 @@ export class TimetableEngine {
   private static selectBestClassroom(
     availableClassrooms: Classroom[],
     teacher: Teacher
-  ): Classroom {
+  ): Classroom | undefined {
     return availableClassrooms.sort((a, b) => {
       // Prefer larger classrooms
       if (a.capacity > b.capacity) return -1;
@@ -367,7 +370,7 @@ export class TimetableEngine {
     subjectHours: Record<string, number>,
     constraints: SchedulingConstraints,
     teacherSubjects: string[]
-  ): Subject {
+  ): Subject | undefined {
     // Filter subjects teacher can teach
     const teachableSubjects = subjects.filter(subject => 
       teacherSubjects.includes(subject.id)
@@ -398,7 +401,7 @@ export class TimetableEngine {
    * Get time of day from time string
    */
   private static getTimeOfDay(time: string): string {
-    const hour = parseInt(time.split(':')[0]);
+    const hour = parseInt(time.split(':')[0] ?? '0', 10);
     if (hour < 12) return 'morning';
     if (hour < 17) return 'afternoon';
     return 'evening';
@@ -459,7 +462,7 @@ export class TimetableEngine {
       entries.reduce((hours, entry) => {
         hours[entry.teacherId] = (hours[entry.teacherId] || 0) + 1;
         return hours;
-      }, {}),
+      }, {} as Record<string, number>),
       constraints
     );
 
@@ -475,7 +478,7 @@ export class TimetableEngine {
       entries.reduce((hours, entry) => {
         hours[entry.classroomId] = (hours[entry.classroomId] || 0) + 1;
         return hours;
-      }, {}),
+      }, {} as Record<string, number>),
       entries.length
     );
 
@@ -520,7 +523,8 @@ export class TimetableEngine {
     const entriesByClassroom: Record<string, number> = {};
 
     entries.forEach(entry => {
-      const day = this.DAYS_OF_WEEK[entry.timeSlotId.split('-')[1] - 1];
+      const dayIndex = Number.parseInt(entry.timeSlotId.split('-')[1] ?? '', 10) - 1;
+      const day = this.DAYS_OF_WEEK[dayIndex] ?? 'Unknown';
       entriesByDay[day] = (entriesByDay[day] || 0) + 1;
       entriesBySubject[entry.subjectId] = (entriesBySubject[entry.subjectId] || 0) + 1;
       entriesByTeacher[entry.teacherId] = (entriesByTeacher[entry.teacherId] || 0) + 1;
@@ -533,7 +537,7 @@ export class TimetableEngine {
     // Find peak usage time
     const timeSlotCounts: Record<string, number> = {};
     entries.forEach(entry => {
-      const timeSlot = entry.timeSlotId.split('-')[2];
+      const timeSlot = entry.timeSlotId.split('-')[2] ?? 'Unknown';
       timeSlotCounts[timeSlot] = (timeSlotCounts[timeSlot] || 0) + 1;
     });
 

@@ -48,7 +48,10 @@ export const initiateMpesaPayment: any = action({
     phoneNumber: v.string(),
     amount: v.number(),
   },
-  handler: async (ctx, args): Promise<{
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
     success: boolean;
     checkoutRequestID?: string;
     merchantRequestID?: string;
@@ -59,19 +62,22 @@ export const initiateMpesaPayment: any = action({
 
     try {
       const mpesaService = createMpesaService();
-      
+
       // Validate and format phone number
       const formattedPhone = MpesaService.validatePhoneNumber(args.phoneNumber);
-      
+
       // Store pending callback first
-      await ctx.runMutation(internal.modules.finance.mutations.savePaymentCallback, {
-        tenantId: args.tenantId,
-        gateway: "mpesa",
-        externalId: "pending", // Will be updated with actual CheckoutRequestID
-        invoiceId: args.invoiceId,
-        amount: args.amount,
-        status: "pending",
-      });
+      const callbackId = await ctx.runMutation(
+        internal.modules.finance.mutations.savePaymentCallback,
+        {
+          tenantId: args.tenantId,
+          gateway: "mpesa",
+          externalId: "pending",
+          invoiceId: args.invoiceId,
+          amount: args.amount,
+          status: "pending",
+        }
+      );
 
       // Initiate STK Push
       const response = await mpesaService.initiateStkPush({
@@ -83,9 +89,7 @@ export const initiateMpesaPayment: any = action({
 
       // Update the callback record with the actual CheckoutRequestID
       await ctx.runMutation(internal.modules.finance.mutations.updatePaymentCallbackExternalId, {
-        tenantId: args.tenantId,
-        gateway: "mpesa",
-        pendingId: "pending", // This needs to be improved to track the actual record
+        callbackId,
         externalId: response.CheckoutRequestID,
       });
 
@@ -115,7 +119,10 @@ export const initiateAirtelPayment: any = action({
     phoneNumber: v.string(),
     amount: v.number(),
   },
-  handler: async (ctx, args): Promise<{
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
     success: boolean;
     transactionId?: string;
     status?: string;
@@ -134,13 +141,13 @@ export const initiateAirtelPayment: any = action({
       }
 
       const airtelService = createAirtelService();
-      
+
       // Validate and format phone number
       const formattedPhone = AirtelService.validatePhoneNumber(args.phoneNumber);
-      
+
       // Generate unique transaction ID
       const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
-      
+
       // Store pending callback first
       await ctx.runMutation(internal.modules.finance.mutations.savePaymentCallback, {
         tenantId: args.tenantId,
@@ -164,7 +171,8 @@ export const initiateAirtelPayment: any = action({
         transactionId: response.transaction?.id,
         status: response.transaction?.transaction_status,
         message: response.status.response_message,
-        error: response.status.response_code !== "TS_00" ? response.status.response_message : undefined,
+        error:
+          response.status.response_code !== "TS_00" ? response.status.response_message : undefined,
       };
     } catch (error) {
       console.error("Airtel Money payment failed:", error);

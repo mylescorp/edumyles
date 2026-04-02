@@ -6,10 +6,7 @@ const PUBLIC_ROUTES = ["/auth/callback", "/auth/error", "/auth/pending"];
 
 // Master admin emails — these always get master_admin role regardless of the
 // stored cookie value (handles legacy sessions where role was set before DB sync).
-const MASTER_ADMIN_EMAILS = [
-  process.env.MASTER_ADMIN_EMAIL,
-  "ayany004@gmail.com",
-]
+const MASTER_ADMIN_EMAILS = [process.env.MASTER_ADMIN_EMAIL]
   .filter((v): v is string => Boolean(v))
   .map((v) => v.toLowerCase());
 
@@ -22,11 +19,24 @@ function isMasterAdminEmail(email?: string | null): boolean {
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
   "/platform": ["master_admin", "super_admin"],
   "/admin": [
-    "school_admin", "principal", "bursar", "hr_manager",
-    "librarian", "transport_manager", "master_admin", "super_admin",
+    "school_admin",
+    "principal",
+    "bursar",
+    "hr_manager",
+    "librarian",
+    "transport_manager",
+    "master_admin",
+    "super_admin",
   ],
   "/portal/teacher": ["teacher", "master_admin", "super_admin", "school_admin", "principal"],
-  "/portal/student": ["student", "master_admin", "super_admin", "school_admin", "principal", "teacher"],
+  "/portal/student": [
+    "student",
+    "master_admin",
+    "super_admin",
+    "school_admin",
+    "principal",
+    "teacher",
+  ],
   "/portal/parent": ["parent", "master_admin", "super_admin", "school_admin", "principal"],
   "/portal/alumni": ["alumni", "master_admin", "super_admin", "school_admin"],
   "/portal/partner": ["partner", "master_admin", "super_admin", "school_admin"],
@@ -114,26 +124,20 @@ export async function middleware(request: NextRequest) {
     if (clientIP && clientIP !== "unknown") {
       const blocked = await getBlockedIPs();
       if (blocked.has(clientIP)) {
-        return new NextResponse(
-          JSON.stringify({ error: "Access denied", code: "IP_BLOCKED" }),
-          {
-            status: 403,
-            headers: {
-              "Content-Type": "application/json",
-              "X-Blocked-IP": clientIP,
-            },
-          }
-        );
+        return new NextResponse(JSON.stringify({ error: "Access denied", code: "IP_BLOCKED" }), {
+          status: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "X-Blocked-IP": clientIP,
+          },
+        });
       }
     }
   }
 
   // Dev bypass — skip ALL auth checks. Only allowed outside production to prevent
   // the redirect loop: /admin → login → bypass → /admin → login → ...
-  if (
-    process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
-    process.env.NODE_ENV !== "production"
-  ) {
+  if (process.env.ENABLE_DEV_AUTH_BYPASS === "true" && process.env.NODE_ENV !== "production") {
     return NextResponse.next();
   }
 
@@ -154,17 +158,17 @@ export async function middleware(request: NextRequest) {
     // Malformed cookie — ignore; fall back to raw role cookie
   }
 
-  // Debug logging for protected routes
-  if (pathname.startsWith("/platform") || pathname.startsWith("/admin")) {
-    console.log(`[middleware] ${pathname} - session: ${session ? "present" : "missing"}, role: ${role || "none"}`);
-  }
-
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
 
   // 0b. Maintenance mode
   const maintenanceMode = request.cookies.get("edumyles_maintenance")?.value === "true";
-  if (maintenanceMode && !pathname.startsWith("/platform") && !pathname.startsWith("/maintenance") && !pathname.startsWith("/auth")) {
+  if (
+    maintenanceMode &&
+    !pathname.startsWith("/platform") &&
+    !pathname.startsWith("/maintenance") &&
+    !pathname.startsWith("/auth")
+  ) {
     const isPlatformAdmin = role === "master_admin" || role === "super_admin";
     if (!isPlatformAdmin) {
       return NextResponse.redirect(new URL("/maintenance", request.url));
@@ -173,7 +177,6 @@ export async function middleware(request: NextRequest) {
 
   // 1. Unauthenticated → login
   if (isProtected && !session) {
-    console.log(`[middleware] Redirecting unauthenticated user from ${pathname} to login`);
     const loginUrl = new URL("/auth/login/api", request.nextUrl.origin);
     loginUrl.searchParams.set("returnTo", pathname);
     return NextResponse.redirect(loginUrl);
@@ -215,7 +218,10 @@ export async function middleware(request: NextRequest) {
   // always hits the server (and middleware) rather than serving a stale page
   // after logout.
   if (isProtected) {
-    response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate, max-age=0");
+    response.headers.set(
+      "Cache-Control",
+      "private, no-store, no-cache, must-revalidate, max-age=0"
+    );
     response.headers.set("Pragma", "no-cache");
   }
 

@@ -1,13 +1,19 @@
 # PowerShell script to add master admin
 # Run this script in PowerShell
 
-Write-Host "🚀 Adding ayany004@gmail.com as Master Admin..."
+Write-Host "Adding master admin..."
 
-# Set the environment variable
-$env:CONVEX_DEPLOY_KEY = "dev:warmhearted-hummingbird-522|eyJ2MiI6IjNkNGZjYTc5Njg4YTQ5MjA4MzgxNDI4NjVlMDU1YTE3In0="
+if (-not $env:CONVEX_DEPLOY_KEY) {
+    Write-Error "CONVEX_DEPLOY_KEY environment variable is not set"
+    exit 1
+}
 
-# Run the Convex command with proper JSON escaping
-$jsonArgs = '{\"email\": \"ayany004@gmail.com\", \"firstName\": \"Jonathan\", \"lastName\": \"Ayany\"}'
-npx convex run emergencyAdmin:createEmergencyMasterAdmin $jsonArgs
+if (-not $env:ADMIN_SESSION_TOKEN) {
+    Write-Error "ADMIN_SESSION_TOKEN environment variable is not set"
+    exit 1
+}
 
-Write-Host "✅ Done!"
+$jsonArgs = "{`"email`": `"$env:ADMIN_EMAIL`", `"sessionToken`": `"$env:ADMIN_SESSION_TOKEN`"}"
+npx convex run users.promoteUserEmailToMasterAdmin $jsonArgs
+
+Write-Host "Done!"

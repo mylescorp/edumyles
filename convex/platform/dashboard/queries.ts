@@ -19,7 +19,7 @@ export const getDashboardKPIs = query({
     // Calculate MRR and ARR (using KES as specified)
     const PLAN_PRICES_KES = {
       starter: 250000, // KES 2,500 per month in cents
-      growth: 650000, // KES 6,500 per month in cents  
+      standard: 650000, // KES 6,500 per month in cents
       pro: 1500000,   // KES 15,000 per month in cents
       enterprise: 0,  // Custom pricing
     };
@@ -95,7 +95,7 @@ export const getDashboardCharts = query({
     const tenants = await ctx.db.query("tenants").collect();
     const PLAN_PRICES_KES = {
       starter: 250000,
-      growth: 650000,
+      standard: 650000,
       pro: 1500000,
       enterprise: 0,
     };
@@ -141,7 +141,7 @@ export const getDashboardCharts = query({
       // Count by plan tier
       const planCounts = {
         starter: newTenants.filter(t => t.plan === "starter").length,
-        growth: newTenants.filter(t => t.plan === "growth").length,
+        standard: newTenants.filter(t => t.plan === "standard").length,
         pro: newTenants.filter(t => t.plan === "pro").length,
         enterprise: newTenants.filter(t => t.plan === "enterprise").length,
       };

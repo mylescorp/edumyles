@@ -1,221 +1,175 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+
 import { useAuth } from '../hooks/useAuth';
 import { theme } from '../theme';
-import { createStyleSheet } from '../theme';
 
 const LoginScreen: React.FC = () => {
+  const { signIn, isLoading } = useAuth();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const [sessionToken, setSessionToken] = useState('');
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password');
-      return;
-    }
-
-    setIsLoading(true);
     try {
-      await signIn(email, password);
+      await signIn(email, sessionToken);
     } catch (error) {
-      Alert.alert('Login Failed', error instanceof Error ? error.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
+      Alert.alert('Sign-in failed', error instanceof Error ? error.message : 'Try again.');
     }
   };
-
-  const styles = createStyleSheet({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    content: {
-      flex: 1,
-      justifyContent: 'center',
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.xxl,
-    },
-    header: {
-      alignItems: 'center',
-      marginBottom: theme.spacing.xxxl,
-    },
-    logo: {
-      width: 80,
-      height: 80,
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.borderRadius.lg,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: theme.spacing.lg,
-    },
-    logoText: {
-      fontSize: theme.fontSizes.xxl,
-      color: theme.colors.white,
-      fontWeight: 'bold',
-    },
-    title: {
-      fontSize: theme.fontSizes.xxxl,
-      fontWeight: 'bold',
-      color: theme.colors.text,
-      marginBottom: theme.spacing.sm,
-    },
-    subtitle: {
-      fontSize: theme.fontSizes.base,
-      color: theme.colors.textSecondary,
-      textAlign: 'center',
-    },
-    form: {
-      marginBottom: theme.spacing.xxl,
-    },
-    inputGroup: {
-      marginBottom: theme.spacing.lg,
-    },
-    label: {
-      fontSize: theme.fontSizes.sm,
-      fontWeight: '600',
-      color: theme.colors.text,
-      marginBottom: theme.spacing.sm,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
-      fontSize: theme.fontSizes.base,
-      color: theme.colors.text,
-      backgroundColor: theme.colors.surface,
-    },
-    inputFocused: {
-      borderColor: theme.colors.primary,
-    },
-    forgotPassword: {
-      alignSelf: 'flex-end',
-      marginTop: theme.spacing.sm,
-    },
-    forgotPasswordText: {
-      fontSize: theme.fontSizes.sm,
-      color: theme.colors.primary,
-      fontWeight: '500',
-    },
-    loginButton: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.borderRadius.md,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-      marginBottom: theme.spacing.lg,
-    },
-    loginButtonDisabled: {
-      backgroundColor: theme.colors.textLight,
-    },
-    loginButtonText: {
-      color: theme.colors.white,
-      fontSize: theme.fontSizes.base,
-      fontWeight: '600',
-    },
-    signUpPrompt: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    signUpText: {
-      fontSize: theme.fontSizes.sm,
-      color: theme.colors.textSecondary,
-    },
-    signUpLink: {
-      fontSize: theme.fontSizes.sm,
-      color: theme.colors.primary,
-      fontWeight: '500',
-      marginLeft: theme.spacing.xs,
-    },
-  });
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <View style={styles.logo}>
-              <Text style={styles.logoText}>EM</Text>
-            </View>
-            <Text style={styles.title}>EduMyles</Text>
-            <Text style={styles.subtitle}>Your School Management Portal</Text>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View style={styles.hero}>
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>EM</Text>
           </View>
+          <Text style={styles.title}>EduMyles Mobile</Text>
+          <Text style={styles.subtitle}>
+            Sign in with the same email you use on the web portal, then paste your current
+            session token to unlock student data on this device.
+          </Text>
+        </View>
 
-          <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email Address</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
-            </View>
+        <View style={styles.form}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            placeholder="student@school.edu"
+            placeholderTextColor={theme.colors.textLight}
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+          />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                editable={!isLoading}
-              />
-            </View>
-
-            <TouchableOpacity style={styles.forgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.label}>Session Token</Text>
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="Paste your active EduMyles session token"
+            placeholderTextColor={theme.colors.textLight}
+            style={[styles.input, styles.tokenInput]}
+            value={sessionToken}
+            onChangeText={setSessionToken}
+          />
 
           <TouchableOpacity
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-            onPress={handleLogin}
             disabled={isLoading}
+            onPress={handleLogin}
+            style={[styles.button, isLoading && styles.buttonDisabled]}
           >
             {isLoading ? (
-              <ActivityIndicator color={theme.colors.white} size="small" />
+              <ActivityIndicator color={theme.colors.white} />
             ) : (
-              <Text style={styles.loginButtonText}>Sign In</Text>
+              <Text style={styles.buttonText}>Continue</Text>
             )}
           </TouchableOpacity>
-
-          <View style={styles.signUpPrompt}>
-            <Text style={styles.signUpText}>Don't have an account?</Text>
-            <TouchableOpacity>
-              <Text style={styles.signUpLink}>Contact School Admin</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#eff6ff',
+  },
+  content: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.xxl,
+  },
+  hero: {
+    marginBottom: theme.spacing.xl,
+    alignItems: 'center',
+  },
+  logo: {
+    width: 88,
+    height: 88,
+    borderRadius: 28,
+    backgroundColor: theme.colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: theme.spacing.lg,
+  },
+  logoText: {
+    color: theme.colors.white,
+    fontSize: theme.fontSizes.xxxl,
+    fontWeight: '800',
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.xxxl,
+    fontWeight: '800',
+    marginBottom: theme.spacing.sm,
+  },
+  subtitle: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.base,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  form: {
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: '#dbeafe',
+  },
+  label: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
+    marginBottom: theme.spacing.sm,
+    marginTop: theme.spacing.md,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.base,
+  },
+  tokenInput: {
+    minHeight: 88,
+    textAlignVertical: 'top',
+  },
+  button: {
+    marginTop: theme.spacing.xl,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: theme.spacing.md,
+    alignItems: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.75,
+  },
+  buttonText: {
+    color: theme.colors.white,
+    fontSize: theme.fontSizes.base,
+    fontWeight: '700',
+  },
+});
 
 export default LoginScreen;
