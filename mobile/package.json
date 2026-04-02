@@ -15,7 +15,7 @@
   "dependencies": {
     "@edumyles/shared": "*",
     "@workos-inc/authkit-nextjs": "2.15.0",
-    "convex": "^1.14.0",
+    "convex": "^1.34.1",
     "expo": "^55.0.4",
     "expo-router": "~4.0.0",
     "react": "^18.3.1",
