@@ -113,7 +113,7 @@ function isRoleAllowedForPath(pathname: string, role: string): boolean {
   return true;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── 0. IP blocking enforcement ────────────────────────────────

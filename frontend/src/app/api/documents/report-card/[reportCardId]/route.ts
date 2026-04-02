@@ -10,9 +10,9 @@ function getConvex() {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ reportCardId: string }> }
+  context: { params: Promise<{ reportCardId: string }> }
 ) {
-  await params;
+  await context.params;
   const sessionToken = req.cookies.get("session_token")?.value;
   if (!sessionToken) {
     return new NextResponse("Unauthorised", { status: 401 });
@@ -29,7 +29,7 @@ export async function GET(
   let term = "";
   let academicYear = "";
   let gpa: number | null = null;
-  let rank: number | null = null;
+  const rank: number | null = null;
 
   try {
     // Use the student portal query to resolve the current student if the viewer is the student
