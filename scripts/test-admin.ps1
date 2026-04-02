@@ -1,11 +1,12 @@
-# PowerShell script to test if master admin was created
+# PowerShell script to verify Convex admin setup
 
-Write-Host "Testing if ayany004@gmail.com was created as Master Admin..."
+Write-Host "Checking admin setup..."
 
-# Set the environment variable
-$env:CONVEX_DEPLOY_KEY = "dev:warmhearted-hummingbird-522|eyJ2MiI6IjNkNGZjYTc5Njg4YTQ5MjA4MzgxNDI4NjVlMDU1YTE3In0="
+if (-not $env:CONVEX_DEPLOY_KEY) {
+    Write-Error "CONVEX_DEPLOY_KEY environment variable is not set"
+    exit 1
+}
 
-# Run the test query
-npx convex run testAdmin:testMasterAdmin '{}'
+npx convex run users.hasMasterAdmin '{}'
 
-Write-Host "Test completed!"
+Write-Host "Check completed!"

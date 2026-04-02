@@ -77,7 +77,7 @@ export class MpesaService {
     }
 
     const data = await response.json();
-    this.accessToken = data.access_token;
+    this.accessToken = data.access_token as string;
     this.tokenExpiry = Date.now() + (data.expires_in - 60) * 1000; // Refresh 1 minute early
     
     return this.accessToken;
@@ -161,7 +161,15 @@ export class MpesaService {
   } {
     const { stkCallback } = callback.Body;
     
-    const result = {
+    const result: {
+      success: boolean;
+      checkoutRequestID: string;
+      merchantRequestID: string;
+      amount?: number;
+      mpesaReceiptNumber?: string;
+      transactionDate?: string;
+      phoneNumber?: string;
+    } = {
       success: stkCallback.ResultCode === 0,
       checkoutRequestID: stkCallback.CheckoutRequestID,
       merchantRequestID: stkCallback.MerchantRequestID,

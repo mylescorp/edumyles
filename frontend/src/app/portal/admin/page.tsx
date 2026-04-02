@@ -99,6 +99,8 @@ const QUICK_LINKS = [
 export default function PortalAdminHomePage() {
   const { isLoading, user } = useAuth();
   const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
+  const firstName =
+    user && typeof user === "object" && "firstName" in user ? (user.firstName as string) : "";
 
   if (isLoading || modulesLoading) return <LoadingSkeleton variant="page" />;
 
@@ -110,7 +112,7 @@ export default function PortalAdminHomePage() {
     <div className="space-y-8">
       <PageHeader
         title="Admin Portal"
-        description={`Welcome back${user?.firstName ? `, ${user.firstName}` : ""}. Manage your school's core modules from here.`}
+        description={`Welcome back${firstName ? `, ${firstName}` : ""}. Manage your school's core modules from here.`}
       />
 
       {/* Quick navigation */}

@@ -7,8 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -96,11 +108,17 @@ export default function AdvancedAnalyticsPage() {
           metrics: ["all"],
           chartType: "table" as const,
         },
-        schedule: reportSchedule && reportSchedule !== "once" ? {
-          enabled: true,
-          frequency: reportSchedule as "daily" | "weekly" | "monthly",
-          recipients: reportRecipients.split(",").map((e) => e.trim()).filter(Boolean),
-        } : undefined,
+        schedule:
+          reportSchedule && reportSchedule !== "once"
+            ? {
+                enabled: true,
+                frequency: reportSchedule as "daily" | "weekly" | "monthly",
+                recipients: reportRecipients
+                  .split(",")
+                  .map((e) => e.trim())
+                  .filter(Boolean),
+              }
+            : undefined,
       });
       setIsCreateReportOpen(false);
       setReportName("");
@@ -129,16 +147,16 @@ export default function AdvancedAnalyticsPage() {
   if (!businessIntelligence) return <LoadingSkeleton variant="page" />;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
+    return new Intl.NumberFormat("en-US").format(num);
   };
 
   const getTrendIcon = (trend: number) => {
@@ -165,10 +183,14 @@ export default function AdvancedAnalyticsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(businessIntelligence.overview.totalRevenue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(businessIntelligence.overview.totalRevenue)}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center">
               {getTrendIcon(businessIntelligence.overview.revenueGrowth)}
-              <span className="ml-1">{businessIntelligence.overview.revenueGrowth}% from last period</span>
+              <span className="ml-1">
+                {businessIntelligence.overview.revenueGrowth}% from last period
+              </span>
             </p>
           </CardContent>
         </Card>
@@ -205,7 +227,9 @@ export default function AdvancedAnalyticsPage() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(businessIntelligence.overview.avgRevenuePerUser)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(businessIntelligence.overview.avgRevenuePerUser)}
+            </div>
             <p className="text-xs text-muted-foreground">
               ARR: {formatCurrency(businessIntelligence.revenueAnalytics.arr)}
             </p>
@@ -228,9 +252,11 @@ export default function AdvancedAnalyticsPage() {
                 </div>
                 <div className="space-y-1">
                   <Progress
-                    value={businessIntelligence.revenueAnalytics.mrr > 0
-                      ? (plan.revenue / businessIntelligence.revenueAnalytics.mrr) * 100
-                      : 0}
+                    value={
+                      businessIntelligence.revenueAnalytics.mrr > 0
+                        ? (plan.revenue / businessIntelligence.revenueAnalytics.mrr) * 100
+                        : 0
+                    }
                     className="h-2"
                   />
                 </div>
@@ -271,15 +297,21 @@ export default function AdvancedAnalyticsPage() {
               <div className="text-sm text-muted-foreground">Total</div>
             </div>
             <div className="p-3 border rounded-lg text-center">
-              <div className="text-2xl font-bold text-green-600">{businessIntelligence.tenantAnalytics.active}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {businessIntelligence.tenantAnalytics.active}
+              </div>
               <div className="text-sm text-muted-foreground">Active</div>
             </div>
             <div className="p-3 border rounded-lg text-center">
-              <div className="text-2xl font-bold text-blue-600">{businessIntelligence.tenantAnalytics.new}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {businessIntelligence.tenantAnalytics.new}
+              </div>
               <div className="text-sm text-muted-foreground">New</div>
             </div>
             <div className="p-3 border rounded-lg text-center">
-              <div className="text-2xl font-bold text-red-600">{businessIntelligence.tenantAnalytics.churned}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {businessIntelligence.tenantAnalytics.churned}
+              </div>
               <div className="text-sm text-muted-foreground">Churned</div>
             </div>
           </div>
@@ -294,7 +326,10 @@ export default function AdvancedAnalyticsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {businessIntelligence.usageAnalytics.featureAdoption.map((item: any) => (
-              <div key={item.feature} className="flex items-center justify-between p-3 border rounded-lg">
+              <div
+                key={item.feature}
+                className="flex items-center justify-between p-3 border rounded-lg"
+              >
                 <span className="capitalize font-medium">{item.feature}</span>
                 <Badge variant="secondary">{item.count} installations</Badge>
               </div>
@@ -347,13 +382,19 @@ export default function AdvancedAnalyticsPage() {
                   <div key={index} className="flex items-center justify-between p-2 border rounded">
                     <div>
                       <div className="font-medium text-sm">{tenant.tenantName}</div>
-                      <div className="text-xs text-muted-foreground">{tenant.riskFactors.join(", ")}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {tenant.riskFactors.join(", ")}
+                      </div>
                     </div>
-                    <div className={`px-2 py-1 rounded text-xs font-medium ${
-                      tenant.churnProbability > 0.7 ? 'bg-red-100 text-red-700' :
-                      tenant.churnProbability > 0.5 ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-green-100 text-green-700'
-                    }`}>
+                    <div
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        tenant.churnProbability > 0.7
+                          ? "bg-red-100 text-red-700"
+                          : tenant.churnProbability > 0.5
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-green-100 text-green-700"
+                      }`}
+                    >
                       {Math.round(tenant.churnProbability * 100)}% risk
                     </div>
                   </div>
@@ -372,7 +413,9 @@ export default function AdvancedAnalyticsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {retentionOpportunities.length === 0 && (
-                <p className="text-sm text-muted-foreground">No retention opportunities at this time.</p>
+                <p className="text-sm text-muted-foreground">
+                  No retention opportunities at this time.
+                </p>
               )}
               {retentionOpportunities.map((opp: any, index: number) => (
                 <div key={index} className="p-3 border rounded-lg space-y-2">
@@ -404,10 +447,16 @@ export default function AdvancedAnalyticsPage() {
                   <span className="font-medium">Tenant Health</span>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {businessIntelligence.tenantAnalytics.active} of {businessIntelligence.tenantAnalytics.total} tenants
-                  are active ({businessIntelligence.tenantAnalytics.total > 0
-                    ? Math.round((businessIntelligence.tenantAnalytics.active / businessIntelligence.tenantAnalytics.total) * 100)
-                    : 0}% health rate).
+                  {businessIntelligence.tenantAnalytics.active} of{" "}
+                  {businessIntelligence.tenantAnalytics.total} tenants are active (
+                  {businessIntelligence.tenantAnalytics.total > 0
+                    ? Math.round(
+                        (businessIntelligence.tenantAnalytics.active /
+                          businessIntelligence.tenantAnalytics.total) *
+                          100
+                      )
+                    : 0}
+                  % health rate).
                 </div>
               </div>
 
@@ -446,7 +495,10 @@ export default function AdvancedAnalyticsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Select value={timeRange} onValueChange={(v) => setTimeRange(v as "7d" | "30d" | "90d" | "1y")}>
+          <Select
+            value={timeRange}
+            onValueChange={(v) => setTimeRange(v as "7d" | "30d" | "90d" | "1y")}
+          >
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
@@ -476,30 +528,41 @@ export default function AdvancedAnalyticsPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="report-name">Report Name</Label>
-                <Input id="report-name" placeholder="Enter report name" />
+                <Input
+                  id="report-name"
+                  placeholder="Enter report name"
+                  value={reportName}
+                  onChange={(e) => setReportName(e.target.value)}
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="report-description">Description</Label>
-                <Textarea id="report-description" placeholder="Describe your report" />
+                <Textarea
+                  id="report-description"
+                  placeholder="Describe your report"
+                  value={reportDescription}
+                  onChange={(e) => setReportDescription(e.target.value)}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>Report Type</Label>
-                  <Select>
+                  <Select value={reportType} onValueChange={setReportType}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="financial">Financial</SelectItem>
-                      <SelectItem value="operational">Operational</SelectItem>
-                      <SelectItem value="usage">Usage Analytics</SelectItem>
+                      <SelectItem value="user_analytics">User Analytics</SelectItem>
+                      <SelectItem value="ticket_analytics">Ticket Analytics</SelectItem>
+                      <SelectItem value="workflow_analytics">Workflow Analytics</SelectItem>
+                      <SelectItem value="tenant_analytics">Tenant Analytics</SelectItem>
                       <SelectItem value="custom">Custom</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
                   <Label>Format</Label>
-                  <Select>
+                  <Select value={reportFormat} onValueChange={setReportFormat}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select format" />
                     </SelectTrigger>
@@ -513,7 +576,7 @@ export default function AdvancedAnalyticsPage() {
               </div>
               <div className="grid gap-2">
                 <Label>Schedule</Label>
-                <Select>
+                <Select value={reportSchedule} onValueChange={setReportSchedule}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select schedule" />
                   </SelectTrigger>
@@ -527,14 +590,18 @@ export default function AdvancedAnalyticsPage() {
               </div>
               <div className="grid gap-2">
                 <Label>Recipients</Label>
-                <Input placeholder="Enter email addresses (comma separated)" />
+                <Input
+                  placeholder="Enter email addresses (comma separated)"
+                  value={reportRecipients}
+                  onChange={(e) => setReportRecipients(e.target.value)}
+                />
               </div>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsCreateReportOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setIsCreateReportOpen(false)}>
+              <Button onClick={handleCreateReport} disabled={!reportName || !reportType}>
                 Create Report
               </Button>
             </div>
@@ -609,12 +676,12 @@ export default function AdvancedAnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Advanced Analytics & Business Intelligence" 
+      <PageHeader
+        title="Advanced Analytics & Business Intelligence"
         description="Comprehensive analytics, predictive insights, and custom reporting"
         breadcrumbs={[
           { label: "Platform", href: "/platform" },
-          { label: "Advanced Analytics", href: "/platform/analytics" }
+          { label: "Advanced Analytics", href: "/platform/analytics" },
         ]}
       />
 
@@ -624,15 +691,15 @@ export default function AdvancedAnalyticsPage() {
           <TabsTrigger value="predictive-analytics">Predictive Analytics</TabsTrigger>
           <TabsTrigger value="custom-reports">Custom Reports</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="business-intelligence">
           <BusinessIntelligenceTab />
         </TabsContent>
-        
+
         <TabsContent value="predictive-analytics">
           <PredictiveAnalyticsTab />
         </TabsContent>
-        
+
         <TabsContent value="custom-reports">
           <CustomReportsTab />
         </TabsContent>

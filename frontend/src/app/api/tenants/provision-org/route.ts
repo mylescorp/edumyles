@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
 
     // ── 2. Look up existing org ──────────────────────────────────────────────
     const existingOrg = await convex.query(api.organizations.getOrgBySubdomain, {
+      sessionToken,
       subdomain: tenant.subdomain,
     });
 
@@ -89,11 +90,12 @@ export async function POST(req: NextRequest) {
 
     // ── 4. Update the Convex organization record with the real WorkOS org ID ─
     const orgId = await convex.mutation(api.organizations.upsertOrganization, {
+      sessionToken,
       tenantId,
       workosOrgId: workosOrg.id,
       name: tenant.name,
       subdomain: tenant.subdomain,
-      tier: (tenant.plan as "free" | "starter" | "growth" | "enterprise") ?? "starter",
+      tier: (tenant.plan as "starter" | "standard" | "pro" | "enterprise") ?? "starter",
     });
 
     console.log(

@@ -3,7 +3,7 @@
 /**
  * Add Master Admin Script
  * 
- * This script adds ayany004@gmail.com as a master admin to the EduMyles platform.
+ * This script shows how to promote a configured email to master admin.
  * Run this script with proper Convex environment configuration.
  * 
  * Usage:
@@ -15,10 +15,11 @@
 const { ConvexHttpClient } = require("convex/browser");
 
 async function addMasterAdmin() {
-  console.log("🔐 Adding ayany004@gmail.com as Master Admin...");
+  const adminEmail = process.env.ADMIN_EMAIL;
+  console.log("🔐 Preparing master admin promotion...");
   
   // Get Convex URL from environment or use default
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "https://insightful-alpaca-351.convex.cloud";
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
   
   if (!convexUrl) {
     console.error("❌ NEXT_PUBLIC_CONVEX_URL not found in environment");
@@ -33,29 +34,28 @@ async function addMasterAdmin() {
     // This requires a valid session token from an existing master admin
     
     // For now, let's show what the mutation call would look like
-    console.log("📋 To add ayany004@gmail.com as master admin, run this mutation:");
+    if (!adminEmail) {
+      console.error("❌ ADMIN_EMAIL is not set");
+      process.exit(1);
+    }
+
+    console.log(`📋 To add ${adminEmail} as master admin, run this mutation:`);
     console.log({
-      mutation: "createPlatformAdmin",
+      mutation: "users.promoteUserEmailToMasterAdmin",
       args: {
         sessionToken: "YOUR_ADMIN_SESSION_TOKEN", // Replace with valid session token
-        email: "ayany004@gmail.com",
-        firstName: "Jonathan",
-        lastName: "Ayany",
-        role: "master_admin"
+        email: adminEmail
       }
     });
 
     console.log("\n🔧 Alternative: Use Convex Dashboard");
     console.log("1. Go to https://dashboard.convex.dev");
     console.log("2. Select your deployment");
-    console.log("3. Go to Functions > platform/users/mutations:createPlatformAdmin");
+    console.log("3. Go to Functions > users:promoteUserEmailToMasterAdmin");
     console.log("4. Run the mutation with these arguments:");
     console.log(JSON.stringify({
       sessionToken: "YOUR_ADMIN_SESSION_TOKEN",
-      email: "ayany004@gmail.com",
-      firstName: "Jonathan", 
-      lastName: "Ayany",
-      role: "master_admin"
+      email: adminEmail
     }, null, 2));
 
     console.log("\n✅ Master admin addition prepared!");

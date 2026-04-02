@@ -32,6 +32,7 @@ interface DataTableProps<T> {
   pageSize?: number;
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyMessage?: string;
   className?: string;
 }
 
@@ -44,6 +45,7 @@ export function DataTable<T>({
   pageSize = 25,
   emptyTitle = "No data",
   emptyDescription = "No records found.",
+  emptyMessage,
   className,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
@@ -96,7 +98,11 @@ export function DataTable<T>({
       )}
 
       {paginated.length === 0 ? (
-        <EmptyState icon={Inbox} title={emptyTitle} description={emptyDescription} />
+        <EmptyState
+          icon={Inbox}
+          title={emptyTitle}
+          description={emptyMessage ?? emptyDescription}
+        />
       ) : (
         <>
           <div className="overflow-x-auto -mx-1">

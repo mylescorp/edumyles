@@ -1,10 +1,10 @@
 import { v } from "convex/values";
-import { mutation, internalMutation } from "../../../_generated/server";
+import { mutation, internalMutation } from "../../_generated/server";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
 // Import billing engine from shared lib
-const { BillingEngine } = require("../../../../shared/src/lib/billing");
+const { BillingEngine } = require("../../../shared/src/lib/billing");
 
 /**
  * Create new subscription for tenant

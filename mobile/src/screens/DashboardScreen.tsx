@@ -1,202 +1,249 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
-  View,
-  Text,
+  ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
-  RefreshControl,
-  ActivityIndicator,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
+import { useQuery } from 'convex/react';
+
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../lib/convexApi';
 import { theme } from '../theme';
-import { createStyleSheet } from '../theme';
 
-interface DashboardStats {
-  totalGrades: number;
-  averageScore: number;
-  pendingAssignments: number;
-  attendanceRate: number;
-}
+type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' | 'profile';
 
-const DashboardScreen: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const { user } = useAuth();
+const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = ({ onNavigate }) => {
+  const { sessionToken, user } = useAuth();
+  const profile = useQuery(
+    api.modules.portal.student.queries.getMyProfile,
+    sessionToken ? { sessionToken } : 'skip',
+  );
+  const grades = useQuery(
+    api.modules.portal.student.queries.getMyGrades,
+    sessionToken ? { sessionToken } : 'skip',
+  );
+  const assignments = useQuery(
+    api.modules.portal.student.queries.getMyAssignments,
+    sessionToken ? { sessionToken, limit: 5 } : 'skip',
+  );
+  const attendance = useQuery(
+    api.modules.portal.student.queries.getMyAttendance,
+    sessionToken ? { sessionToken } : 'skip',
+  );
+  const wallet = useQuery(
+    api.modules.ewallet.queries.getMyWalletBalance,
+    sessionToken ? { sessionToken } : 'skip',
+  );
 
-  const loadDashboardData = async () => {
-    try {
-      // Load dashboard data from Convex
-      // This would call the actual Convex queries
-      const mockStats: DashboardStats = {
-        totalGrades: 12,
-        averageScore: 78.5,
-        pendingAssignments: 3,
-        attendanceRate: 92,
-      };
-      setStats(mockStats);
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
-    } finally {
-      setIsLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadDashboardData();
-  };
-
-  const styles = createStyleSheet({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    header: {
-      padding: theme.spacing.lg,
-      backgroundColor: theme.colors.primary,
-    },
-    headerContent: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    welcomeText: {
-      color: theme.colors.white,
-      fontSize: theme.fontSizes.lg,
-      fontWeight: '600',
-    },
-    userName: {
-      color: theme.colors.white,
-      fontSize: theme.fontSizes.xl,
-      fontWeight: 'bold',
-      marginTop: theme.spacing.xs,
-    },
-    statsContainer: {
-      padding: theme.spacing.lg,
-    },
-    statsGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      justifyContent: 'space-between',
-      marginBottom: theme.spacing.lg,
-    },
-    statCard: {
-      width: '48%',
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.borderRadius.lg,
-      padding: theme.spacing.md,
-      marginBottom: theme.spacing.md,
-      ...theme.shadows.md,
-    },
-    statValue: {
-      fontSize: theme.fontSizes.xxl,
-      fontWeight: 'bold',
-      color: theme.colors.primary,
-    },
-    statLabel: {
-      fontSize: theme.fontSizes.sm,
-      color: theme.colors.textSecondary,
-      marginTop: theme.spacing.xs,
-    },
-    sectionTitle: {
-      fontSize: theme.fontSizes.lg,
-      fontWeight: '600',
-      color: theme.colors.text,
-      marginBottom: theme.spacing.md,
-    },
-    quickActions: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: theme.spacing.lg,
-    },
-    actionButton: {
-      width: '30%',
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.md,
-      alignItems: 'center',
-      ...theme.shadows.sm,
-    },
-    actionButtonText: {
-      fontSize: theme.fontSizes.sm,
-      color: theme.colors.text,
-      marginTop: theme.spacing.xs,
-    },
-  });
-
-  if (isLoading) {
+  if (!sessionToken) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={{ marginTop: theme.spacing.md, color: theme.colors.text }}>
-          Loading dashboard...
-        </Text>
+      <View style={styles.centerState}>
+        <Text style={styles.stateTitle}>No active session</Text>
+        <Text style={styles.stateText}>Sign in again to load your dashboard.</Text>
       </View>
     );
   }
 
+  if (
+    profile === undefined ||
+    grades === undefined ||
+    assignments === undefined ||
+    attendance === undefined ||
+    wallet === undefined
+  ) {
+    return (
+      <View style={styles.centerState}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={styles.stateText}>Loading your dashboard...</Text>
+      </View>
+    );
+  }
+
+  const completedAttendance = attendance.length;
+  const presentCount = attendance.filter((item: any) => item.status === 'present').length;
+  const attendanceRate = completedAttendance > 0 ? Math.round((presentCount / completedAttendance) * 100) : 0;
+  const averageScore =
+    grades.length > 0
+      ? Math.round(grades.reduce((sum: number, grade: any) => sum + grade.score, 0) / grades.length)
+      : 0;
+
   return (
     <ScrollView
-      style={styles.scrollView}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      refreshControl={<RefreshControl refreshing={false} onRefresh={() => undefined} />}
     >
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View>
-            <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.userName}>{user?.name || 'Student'}</Text>
-          </View>
+      <View style={styles.hero}>
+        <Text style={styles.eyebrow}>Student Portal</Text>
+        <Text style={styles.heroTitle}>
+          {profile?.firstName ?? user?.email?.split('@')[0] ?? 'Student'}
+        </Text>
+        <Text style={styles.heroSubtitle}>
+          {profile?.admissionNumber ? `Admission No. ${profile.admissionNumber}` : user?.email}
+        </Text>
+      </View>
+
+      <View style={styles.grid}>
+        <View style={styles.card}>
+          <Text style={styles.metricValue}>{grades.length}</Text>
+          <Text style={styles.metricLabel}>Grades recorded</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.metricValue}>{averageScore}%</Text>
+          <Text style={styles.metricLabel}>Average score</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.metricValue}>{assignments.length}</Text>
+          <Text style={styles.metricLabel}>Assignments due</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.metricValue}>{attendanceRate}%</Text>
+          <Text style={styles.metricLabel}>Attendance rate</Text>
         </View>
       </View>
 
-      <View style={styles.statsContainer}>
-        <Text style={styles.sectionTitle}>Your Progress</Text>
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats?.totalGrades || 0}</Text>
-            <Text style={styles.statLabel}>Total Grades</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats?.averageScore || 0}%</Text>
-            <Text style={styles.statLabel}>Average Score</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats?.pendingAssignments || 0}</Text>
-            <Text style={styles.statLabel}>Pending Tasks</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats?.attendanceRate || 0}%</Text>
-            <Text style={styles.statLabel}>Attendance</Text>
-          </View>
-        </View>
+      <View style={styles.walletCard}>
+        <Text style={styles.sectionTitle}>Wallet Balance</Text>
+        <Text style={styles.walletValue}>
+          {(wallet.balanceCents / 100).toLocaleString()} {wallet.currency}
+        </Text>
+      </View>
 
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>View Grades</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>Assignments</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>Attendance</Text>
-          </TouchableOpacity>
-        </View>
+      <Text style={styles.sectionTitle}>Quick Actions</Text>
+      <View style={styles.actionsRow}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('grades')}>
+          <Text style={styles.actionButtonText}>Grades</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('assignments')}>
+          <Text style={styles.actionButtonText}>Assignments</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('attendance')}>
+          <Text style={styles.actionButtonText}>Attendance</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fbff',
+  },
+  content: {
+    padding: theme.spacing.lg,
+    paddingBottom: theme.spacing.xxxl,
+  },
+  centerState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+    backgroundColor: theme.colors.background,
+  },
+  stateTitle: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.xl,
+    fontWeight: '700',
+    marginBottom: theme.spacing.sm,
+  },
+  stateText: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.base,
+    marginTop: theme.spacing.md,
+    textAlign: 'center',
+  },
+  hero: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.lg,
+  },
+  eyebrow: {
+    color: '#bfdbfe',
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  heroTitle: {
+    color: theme.colors.white,
+    fontSize: theme.fontSizes.xxxl,
+    fontWeight: '800',
+    marginTop: theme.spacing.sm,
+  },
+  heroSubtitle: {
+    color: '#dbeafe',
+    fontSize: theme.fontSizes.base,
+    marginTop: theme.spacing.sm,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.lg,
+  },
+  card: {
+    width: '48%',
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: '#e0ecff',
+  },
+  metricValue: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSizes.xxl,
+    fontWeight: '800',
+  },
+  metricLabel: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    marginTop: theme.spacing.xs,
+  },
+  walletCard: {
+    backgroundColor: '#ecfeff',
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: '#bae6fd',
+  },
+  sectionTitle: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.lg,
+    fontWeight: '700',
+    marginBottom: theme.spacing.md,
+  },
+  walletValue: {
+    color: theme.colors.info,
+    fontSize: theme.fontSizes.xxxl,
+    fontWeight: '800',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
+  },
+  actionButton: {
+    flex: 1,
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.borderRadius.lg,
+    paddingVertical: theme.spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  actionButtonText: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
+  },
+});
 
 export default DashboardScreen;

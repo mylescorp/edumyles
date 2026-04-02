@@ -53,22 +53,7 @@ export async function POST(req: NextRequest) {
 
     const convex = new ConvexHttpClient(convexUrl);
 
-    // ── 1. Fetch the application to get workosUserId ─────────────────────────
-    const application = await convex.query(api.waitlist.getApplicationByWorkosUserId, {
-      // We don't have a direct getById exposed without session — list and find
-      workosUserId: "", // placeholder, see below
-    });
-
-    // We need to get the application by ID. Let's use listApplications and find it.
-    // Actually, approve mutation will handle all validation. Let's get the org first.
-
-    // ── 2. Fetch the organization for this tenant ────────────────────────────
-    const org = await convex.query(api.organizations.getOrgBySubdomain, {
-      // We need the subdomain — get tenant first
-      subdomain: "",
-    });
-
-    // Better approach: get tenant to find its org
+    // ── 1. Fetch the tenant and organization ─────────────────────────────────
     const tenant = await convex.query(api.tenants.getTenantByTenantId, {
       tenantId: assignedTenantId,
     });
@@ -79,6 +64,7 @@ export async function POST(req: NextRequest) {
 
     // Get org for this tenant to get WorkOS org ID and Convex org _id
     const tenantOrg = await convex.query(api.organizations.getOrgBySubdomain, {
+      sessionToken,
       subdomain: tenant.subdomain,
     });
 
@@ -89,7 +75,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── 3. Add user to WorkOS Organization (if WorkOS is configured + has real org) ─
+    // ── 2. Add user to WorkOS Organization (if WorkOS is configured + has real org) ─
     // We need the workosUserId from the application. Since we need to call the
     // mutation anyway, let's get it from the application list.
     const allApplications = await convex.query(api.waitlist.listApplications, {
@@ -108,7 +94,7 @@ export async function POST(req: NextRequest) {
       // Only add to WorkOS org if the org has a real WorkOS-issued ID (not our local fallback)
       try {
         const workos = new WorkOS(workosApiKey);
-        await workos.organizations.createOrganizationMembership({
+        await workos.userManagement.createOrganizationMembership({
           organizationId: tenantOrg.workosOrgId,
           userId: appRecord.workosUserId,
           roleSlug: mapRoleToWorkOSRole(assignedRole),
@@ -126,7 +112,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── 4. Call Convex mutation to create user record and mark approved ───────
+    // ── 3. Call Convex mutation to create user record and mark approved ───────
     await convex.mutation(api.waitlist.approveWaitlistApplication, {
       sessionToken,
       applicationId: applicationId as Id<"waitlistApplications">,

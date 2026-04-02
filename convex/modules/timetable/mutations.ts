@@ -175,7 +175,7 @@ export const createEvent = mutation({
             tenantId: tenant.tenantId,
             actorId: tenant.userId,
             actorEmail: tenant.email,
-            action: "timetable.event_created",
+            action: "timetable.slot_created",
             entityType: "schoolEvents",
             entityId: id,
             after: args,

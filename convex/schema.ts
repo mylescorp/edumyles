@@ -5,7 +5,7 @@ export default defineSchema({
   // Auth sessions — canonical field is sessionToken
   sessions: defineTable({
     sessionToken: v.optional(v.string()), // canonical session token
-    token: v.optional(v.string()),        // legacy field kept for backward-compat; not indexed
+    token: v.optional(v.string()), // legacy field kept for backward-compat; not indexed
     tenantId: v.string(),
     userId: v.string(),
     email: v.optional(v.string()),
@@ -18,7 +18,7 @@ export default defineSchema({
     workosUserId: v.optional(v.string()),
     impersonatedBy: v.optional(v.string()), // adminId who created this impersonation session
   })
-    .index("by_token", ["sessionToken"])     // primary index — look up by sessionToken
+    .index("by_token", ["sessionToken"]) // primary index — look up by sessionToken
     .index("by_userId", ["userId"]),
 
   auditLogs: defineTable({
@@ -42,7 +42,12 @@ export default defineSchema({
     subdomain: v.string(),
     email: v.string(),
     phone: v.string(),
-    plan: v.string(),
+    plan: v.union(
+      v.literal("starter"),
+      v.literal("standard"),
+      v.literal("pro"),
+      v.literal("enterprise")
+    ),
     status: v.string(),
     county: v.string(),
     country: v.string(),
@@ -102,7 +107,12 @@ export default defineSchema({
     workosOrgId: v.string(),
     name: v.string(),
     subdomain: v.string(),
-    tier: v.string(),
+    tier: v.union(
+      v.literal("starter"),
+      v.literal("standard"),
+      v.literal("pro"),
+      v.literal("enterprise")
+    ),
     isActive: v.boolean(),
     createdAt: v.number(),
   })
@@ -127,16 +137,14 @@ export default defineSchema({
     value: v.string(),
     updatedBy: v.string(),
     updatedAt: v.number(),
-  })
-    .index("by_section_key", ["section", "key"]),
+  }).index("by_section_key", ["section", "key"]),
 
   loginAttempts: defineTable({
     email: v.string(),
     attempts: v.number(),
     lastAttemptAt: v.number(),
     lockedUntil: v.optional(v.number()),
-  })
-    .index("by_email", ["email"]),
+  }).index("by_email", ["email"]),
 
   platformFiles: defineTable({
     tenantId: v.string(),
@@ -175,20 +183,24 @@ export default defineSchema({
     version: v.string(),
     isCore: v.optional(v.boolean()),
     iconName: v.optional(v.string()),
-    pricing: v.optional(v.object({
-      monthly: v.number(),
-      quarterly: v.optional(v.number()),
-      annual: v.optional(v.number()),
-      currency: v.string(),
-    })),
+    pricing: v.optional(
+      v.object({
+        monthly: v.number(),
+        quarterly: v.optional(v.number()),
+        annual: v.optional(v.number()),
+        currency: v.string(),
+      })
+    ),
     features: v.optional(v.array(v.string())),
     dependencies: v.optional(v.array(v.string())),
     documentation: v.optional(v.string()),
-    support: v.optional(v.object({
-      email: v.string(),
-      phone: v.string(),
-      responseTime: v.string(),
-    })),
+    support: v.optional(
+      v.object({
+        email: v.string(),
+        phone: v.string(),
+        responseTime: v.string(),
+      })
+    ),
   })
     .index("by_module_id", ["moduleId"])
     .index("by_status", ["status"])
@@ -494,11 +506,15 @@ export default defineSchema({
     status: v.string(), // draft, published, closed, graded
     attachments: v.optional(v.array(v.string())),
     learningObjectives: v.optional(v.array(v.string())),
-    rubric: v.optional(v.array(v.object({
-      criteria: v.string(),
-      description: v.string(),
-      maxPoints: v.number(),
-    }))),
+    rubric: v.optional(
+      v.array(
+        v.object({
+          criteria: v.string(),
+          description: v.string(),
+          maxPoints: v.number(),
+        })
+      )
+    ),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -737,8 +753,7 @@ export default defineSchema({
     stops: v.array(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"]),
+  }).index("by_tenant", ["tenantId"]),
 
   vehicles: defineTable({
     tenantId: v.string(),
@@ -802,9 +817,9 @@ export default defineSchema({
     reference: v.optional(v.string()),
     orderId: v.optional(v.string()),
     createdAt: v.number(),
-    toWalletId: v.optional(v.string()),   // for transfer transactions
-    note: v.optional(v.string()),          // human-readable note
-    performedBy: v.optional(v.string()),   // actorId for admin-initiated transactions
+    toWalletId: v.optional(v.string()), // for transfer transactions
+    note: v.optional(v.string()), // human-readable note
+    performedBy: v.optional(v.string()), // actorId for admin-initiated transactions
   })
     .index("by_tenant", ["tenantId"])
     .index("by_wallet", ["walletId", "createdAt"]),
@@ -855,11 +870,13 @@ export default defineSchema({
     tenantId: v.string(),
     customerId: v.string(),
     customerType: v.string(),
-    items: v.array(v.object({
-      productId: v.string(),
-      quantity: v.number(),
-      unitPriceCents: v.number(),
-    })),
+    items: v.array(
+      v.object({
+        productId: v.string(),
+        quantity: v.number(),
+        unitPriceCents: v.number(),
+      })
+    ),
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
@@ -903,21 +920,23 @@ export default defineSchema({
       v.literal("webhook")
     ),
     triggerConfig: v.optional(v.record(v.string(), v.any())),
-    steps: v.array(v.object({
-      id: v.string(),
-      name: v.string(),
-      type: v.union(
-        v.literal("action"),
-        v.literal("condition"),
-        v.literal("approval"),
-        v.literal("notification"),
-        v.literal("delay"),
-        v.literal("integration"),
-        v.literal("data_operation")
-      ),
-      config: v.record(v.string(), v.any()),
-      position: v.number(),
-    })),
+    steps: v.array(
+      v.object({
+        id: v.string(),
+        name: v.string(),
+        type: v.union(
+          v.literal("action"),
+          v.literal("condition"),
+          v.literal("approval"),
+          v.literal("notification"),
+          v.literal("delay"),
+          v.literal("integration"),
+          v.literal("data_operation")
+        ),
+        config: v.record(v.string(), v.any()),
+        position: v.number(),
+      })
+    ),
     isActive: v.boolean(),
     createdBy: v.string(),
     createdAt: v.number(),
@@ -934,31 +953,47 @@ export default defineSchema({
     workflowId: v.string(),
     workflowName: v.string(),
     executionId: v.string(),
-    status: v.union(v.literal("running"), v.literal("completed"), v.literal("failed"), v.literal("cancelled")),
+    status: v.union(
+      v.literal("running"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("cancelled")
+    ),
     startedAt: v.number(),
     completedAt: v.optional(v.number()),
     duration: v.number(),
     triggeredBy: v.string(),
     triggerData: v.record(v.string(), v.any()),
-    steps: v.array(v.object({
-      id: v.string(),
-      name: v.string(),
-      type: v.string(),
-      status: v.union(v.literal("pending"), v.literal("running"), v.literal("completed"), v.literal("failed")),
-      startedAt: v.number(),
-      completedAt: v.optional(v.number()),
-      duration: v.number(),
-      output: v.optional(v.any()),
-      error: v.optional(v.object({
+    steps: v.array(
+      v.object({
+        id: v.string(),
+        name: v.string(),
+        type: v.string(),
+        status: v.union(
+          v.literal("pending"),
+          v.literal("running"),
+          v.literal("completed"),
+          v.literal("failed")
+        ),
+        startedAt: v.number(),
+        completedAt: v.optional(v.number()),
+        duration: v.number(),
+        output: v.optional(v.any()),
+        error: v.optional(
+          v.object({
+            message: v.string(),
+            timestamp: v.number(),
+          })
+        ),
+      })
+    ),
+    error: v.optional(
+      v.object({
         message: v.string(),
+        stack: v.string(),
         timestamp: v.number(),
-      })),
-    })),
-    error: v.optional(v.object({
-      message: v.string(),
-      stack: v.string(),
-      timestamp: v.number(),
-    })),
+      })
+    ),
     tenantId: v.string(),
   })
     .index("by_workflow", ["workflowId"])
@@ -974,7 +1009,12 @@ export default defineSchema({
     billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
     amount: v.number(),
     currency: v.string(),
-    status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed"), v.literal("cancelled")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("cancelled")
+    ),
     paymentReference: v.string(),
     paymentUrl: v.optional(v.string()),
     couponCode: v.optional(v.string()),
@@ -1040,18 +1080,31 @@ export default defineSchema({
       v.literal("custom")
     ),
     config: v.object({
-      timeRange: v.union(v.literal("1h"), v.literal("24h"), v.literal("7d"), v.literal("30d"), v.literal("90d")),
+      timeRange: v.union(
+        v.literal("1h"),
+        v.literal("24h"),
+        v.literal("7d"),
+        v.literal("30d"),
+        v.literal("90d")
+      ),
       filters: v.optional(v.record(v.string(), v.any())),
       metrics: v.array(v.string()),
       groupBy: v.optional(v.string()),
       chartType: v.union(v.literal("line"), v.literal("bar"), v.literal("pie"), v.literal("table")),
     }),
-    schedule: v.optional(v.object({
-      enabled: v.boolean(),
-      frequency: v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly")),
-      recipients: v.array(v.string()),
-    })),
-    status: v.union(v.literal("created"), v.literal("generating"), v.literal("completed"), v.literal("failed")),
+    schedule: v.optional(
+      v.object({
+        enabled: v.boolean(),
+        frequency: v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly")),
+        recipients: v.array(v.string()),
+      })
+    ),
+    status: v.union(
+      v.literal("created"),
+      v.literal("generating"),
+      v.literal("completed"),
+      v.literal("failed")
+    ),
     createdBy: v.string(),
     createdAt: v.number(),
     lastGenerated: v.optional(v.number()),
@@ -1071,8 +1124,18 @@ export default defineSchema({
     tenantId: v.string(),
     title: v.string(),
     description: v.string(),
-    severity: v.union(v.literal("critical"), v.literal("high"), v.literal("medium"), v.literal("low")),
-    status: v.union(v.literal("active"), v.literal("investigating"), v.literal("resolved"), v.literal("closed")),
+    severity: v.union(
+      v.literal("critical"),
+      v.literal("high"),
+      v.literal("medium"),
+      v.literal("low")
+    ),
+    status: v.union(
+      v.literal("active"),
+      v.literal("investigating"),
+      v.literal("resolved"),
+      v.literal("closed")
+    ),
     services: v.array(v.string()),
     impact: v.string(),
     assignedTo: v.optional(v.string()),
@@ -1105,7 +1168,12 @@ export default defineSchema({
 
   incidentTimeline: defineTable({
     incidentId: v.string(),
-    type: v.union(v.literal("status_change"), v.literal("note"), v.literal("action"), v.literal("notification")),
+    type: v.union(
+      v.literal("status_change"),
+      v.literal("note"),
+      v.literal("action"),
+      v.literal("notification")
+    ),
     message: v.string(),
     metadata: v.optional(v.any()),
     internal: v.boolean(),
@@ -1121,12 +1189,21 @@ export default defineSchema({
     tenantId: v.string(),
     title: v.string(),
     description: v.string(),
-    status: v.union(v.literal("scheduled"), v.literal("in_progress"), v.literal("completed"), v.literal("cancelled")),
+    status: v.union(
+      v.literal("scheduled"),
+      v.literal("in_progress"),
+      v.literal("completed"),
+      v.literal("cancelled")
+    ),
     scheduledStart: v.number(),
     scheduledEnd: v.number(),
     actualStart: v.optional(v.number()),
     actualEnd: v.optional(v.number()),
-    impact: v.union(v.literal("no_impact"), v.literal("degraded_performance"), v.literal("service_unavailable")),
+    impact: v.union(
+      v.literal("no_impact"),
+      v.literal("degraded_performance"),
+      v.literal("service_unavailable")
+    ),
     affectedServices: v.array(v.string()),
     notificationChannels: v.array(v.string()),
     autoNotify: v.boolean(),
@@ -1143,7 +1220,12 @@ export default defineSchema({
 
   operationsAlerts: defineTable({
     tenantId: v.string(),
-    type: v.union(v.literal("system"), v.literal("security"), v.literal("performance"), v.literal("capacity")),
+    type: v.union(
+      v.literal("system"),
+      v.literal("security"),
+      v.literal("performance"),
+      v.literal("capacity")
+    ),
     title: v.string(),
     description: v.string(),
     severity: v.union(v.literal("critical"), v.literal("warning"), v.literal("info")),
@@ -1209,14 +1291,16 @@ export default defineSchema({
     overall: v.string(),
     score: v.number(),
     lastChecked: v.number(),
-    services: v.array(v.object({
-      name: v.string(),
-      status: v.string(),
-      responseTime: v.number(),
-      uptime: v.number(),
-      lastCheck: v.number(),
-      metrics: v.record(v.string(), v.any()),
-    })),
+    services: v.array(
+      v.object({
+        name: v.string(),
+        status: v.string(),
+        responseTime: v.number(),
+        uptime: v.number(),
+        lastCheck: v.number(),
+        metrics: v.record(v.string(), v.any()),
+      })
+    ),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_overall", ["tenantId", "overall"])
@@ -1235,8 +1319,18 @@ export default defineSchema({
       v.literal("social_engineering"),
       v.literal("insider_threat")
     ),
-    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
-    status: v.union(v.literal("active"), v.literal("mitigating"), v.literal("resolved"), v.literal("false_positive")),
+    severity: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    ),
+    status: v.union(
+      v.literal("active"),
+      v.literal("mitigating"),
+      v.literal("resolved"),
+      v.literal("false_positive")
+    ),
     source: v.object({
       ip: v.string(),
       country: v.string(),
@@ -1304,7 +1398,12 @@ export default defineSchema({
     tenantId: v.string(),
     title: v.string(),
     description: v.string(),
-    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    severity: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    ),
     category: v.union(
       v.literal("unauthorized_access"),
       v.literal("data_breach"),
@@ -1315,7 +1414,13 @@ export default defineSchema({
       v.literal("policy_violation"),
       v.literal("other")
     ),
-    status: v.union(v.literal("open"), v.literal("investigating"), v.literal("contained"), v.literal("resolved"), v.literal("closed")),
+    status: v.union(
+      v.literal("open"),
+      v.literal("investigating"),
+      v.literal("contained"),
+      v.literal("resolved"),
+      v.literal("closed")
+    ),
     affectedSystems: v.array(v.string()),
     affectedTenants: v.array(v.string()),
     discoveredAt: v.number(),
@@ -1348,7 +1453,12 @@ export default defineSchema({
 
   securityIncidentTimeline: defineTable({
     incidentId: v.string(),
-    type: v.union(v.literal("status_change"), v.literal("note"), v.literal("action"), v.literal("notification")),
+    type: v.union(
+      v.literal("status_change"),
+      v.literal("note"),
+      v.literal("action"),
+      v.literal("notification")
+    ),
     message: v.string(),
     metadata: v.optional(v.any()),
     createdBy: v.string(),
@@ -1364,7 +1474,12 @@ export default defineSchema({
     title: v.string(),
     message: v.string(),
     incidentId: v.optional(v.string()),
-    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    severity: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    ),
     status: v.union(v.literal("unread"), v.literal("read")),
     sentTo: v.string(),
     sentBy: v.string(),
@@ -1400,7 +1515,12 @@ export default defineSchema({
   vulnerabilities: defineTable({
     scanId: v.string(),
     id: v.string(),
-    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    severity: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    ),
     category: v.string(),
     title: v.string(),
     description: v.string(),
@@ -1431,21 +1551,33 @@ export default defineSchema({
       v.literal("development"),
       v.literal("other")
     ),
-    type: v.union(v.literal("webhook"), v.literal("api"), v.literal("oauth"), v.literal("database")),
+    type: v.union(
+      v.literal("webhook"),
+      v.literal("api"),
+      v.literal("oauth"),
+      v.literal("database")
+    ),
     isCustom: v.boolean(),
     isPublic: v.boolean(),
     isFeatured: v.boolean(),
     status: v.union(v.literal("draft"), v.literal("published"), v.literal("deprecated")),
     configuration: v.record(v.string(), v.any()),
-    endpoints: v.array(v.object({
-      name: v.string(),
-      url: v.string(),
-      method: v.union(v.literal("GET"), v.literal("POST"), v.literal("PUT"), v.literal("DELETE")),
-      authentication: v.object({
-        type: v.union(v.literal("none"), v.literal("api_key"), v.literal("oauth"), v.literal("basic")),
-        credentials: v.optional(v.record(v.string(), v.any())),
-      }),
-    })),
+    endpoints: v.array(
+      v.object({
+        name: v.string(),
+        url: v.string(),
+        method: v.union(v.literal("GET"), v.literal("POST"), v.literal("PUT"), v.literal("DELETE")),
+        authentication: v.object({
+          type: v.union(
+            v.literal("none"),
+            v.literal("api_key"),
+            v.literal("oauth"),
+            v.literal("basic")
+          ),
+          credentials: v.optional(v.record(v.string(), v.any())),
+        }),
+      })
+    ),
     webhookUrl: v.optional(v.string()),
     documentationUrl: v.optional(v.string()),
     supportEmail: v.optional(v.string()),
@@ -1464,7 +1596,12 @@ export default defineSchema({
       currency: v.string(),
       billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
     }),
-    defaultPlan: v.union(v.literal("free"), v.literal("basic"), v.literal("pro"), v.literal("enterprise")),
+    defaultPlan: v.union(
+      v.literal("free"),
+      v.literal("basic"),
+      v.literal("pro"),
+      v.literal("enterprise")
+    ),
     features: v.array(v.string()),
     requirements: v.array(v.string()),
     limitations: v.array(v.string()),
@@ -1481,18 +1618,34 @@ export default defineSchema({
     tenantId: v.string(),
     integrationId: v.string(),
     configuration: v.record(v.string(), v.any()),
-    status: v.union(v.literal("installed"), v.literal("active"), v.literal("disabled"), v.literal("error"), v.literal("uninstalled")),
+    status: v.union(
+      v.literal("installed"),
+      v.literal("active"),
+      v.literal("disabled"),
+      v.literal("error"),
+      v.literal("uninstalled")
+    ),
     installedBy: v.string(),
     installedAt: v.number(),
     lastSyncAt: v.optional(v.number()),
-    syncStatus: v.union(v.literal("pending"), v.literal("running"), v.literal("completed"), v.literal("failed")),
+    syncStatus: v.union(
+      v.literal("pending"),
+      v.literal("running"),
+      v.literal("completed"),
+      v.literal("failed")
+    ),
     usage: v.object({
       apiCalls: v.number(),
       dataTransferred: v.number(),
       errors: v.number(),
     }),
     subscription: v.object({
-      plan: v.union(v.literal("free"), v.literal("basic"), v.literal("pro"), v.literal("enterprise")),
+      plan: v.union(
+        v.literal("free"),
+        v.literal("basic"),
+        v.literal("pro"),
+        v.literal("enterprise")
+      ),
       status: v.union(v.literal("active"), v.literal("cancelled"), v.literal("expired")),
       billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
       amount: v.number(),
@@ -1544,12 +1697,24 @@ export default defineSchema({
     tenantId: v.string(),
     title: v.string(),
     body: v.string(),
-    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
-      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
-      v.literal("legal"), v.literal("other")),
+    category: v.union(
+      v.literal("billing"),
+      v.literal("technical"),
+      v.literal("data"),
+      v.literal("feature"),
+      v.literal("onboarding"),
+      v.literal("account"),
+      v.literal("legal"),
+      v.literal("other")
+    ),
     priority: v.union(v.literal("P0"), v.literal("P1"), v.literal("P2"), v.literal("P3")),
-    status: v.union(v.literal("open"), v.literal("in_progress"),
-      v.literal("pending_school"), v.literal("resolved"), v.literal("closed")),
+    status: v.union(
+      v.literal("open"),
+      v.literal("in_progress"),
+      v.literal("pending_school"),
+      v.literal("resolved"),
+      v.literal("closed")
+    ),
     assignedTo: v.optional(v.string()),
     createdBy: v.string(),
     attachments: v.optional(v.array(v.string())),
@@ -1563,40 +1728,46 @@ export default defineSchema({
     csatComment: v.optional(v.string()),
     linearIssueUrl: v.optional(v.string()),
     // AI Analysis fields
-    aiAnalysis: v.optional(v.object({
-      sentiment: v.object({
-        sentiment: v.string(),
+    aiAnalysis: v.optional(
+      v.object({
+        sentiment: v.object({
+          sentiment: v.string(),
+          confidence: v.number(),
+          emotions: v.array(v.string()),
+          keyPhrases: v.array(v.string()),
+          urgency: v.string(),
+          escalationRecommended: v.boolean(),
+        }),
+        analyzedAt: v.number(),
+        analyzedBy: v.string(),
+      })
+    ),
+    aiCategorization: v.optional(
+      v.object({
+        category: v.string(),
         confidence: v.number(),
-        emotions: v.array(v.string()),
-        keyPhrases: v.array(v.string()),
-        urgency: v.string(),
-        escalationRecommended: v.boolean(),
-      }),
-      analyzedAt: v.number(),
-      analyzedBy: v.string(),
-    })),
-    aiCategorization: v.optional(v.object({
-      category: v.string(),
-      confidence: v.number(),
-      priority: v.string(),
-      reasoning: v.string(),
-      alternatives: v.array(v.string()),
-      factors: v.array(v.string()),
-      escalation: v.object({
-        recommended: v.boolean(),
-        confidence: v.number(),
-        reason: v.string(),
-        suggestedLevel: v.string(),
-      }),
-    })),
+        priority: v.string(),
+        reasoning: v.string(),
+        alternatives: v.array(v.string()),
+        factors: v.array(v.string()),
+        escalation: v.object({
+          recommended: v.boolean(),
+          confidence: v.number(),
+          reason: v.string(),
+          suggestedLevel: v.string(),
+        }),
+      })
+    ),
     categorizedAt: v.optional(v.number()),
     categorizedBy: v.optional(v.string()),
     escalatedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_tenant", ["tenantId"]).index("by_status", ["status"])
-    .index("by_priority", ["priority"]).index("by_assigned", ["assignedTo"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_priority", ["priority"])
+    .index("by_assigned", ["assignedTo"])
     .index("by_sla", ["slaResolutionDL"]),
 
   ticketComments: defineTable({
@@ -1615,9 +1786,16 @@ export default defineSchema({
   cannedResponses: defineTable({
     title: v.string(),
     content: v.string(),
-    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
-      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
-      v.literal("legal"), v.literal("other")),
+    category: v.union(
+      v.literal("billing"),
+      v.literal("technical"),
+      v.literal("data"),
+      v.literal("feature"),
+      v.literal("onboarding"),
+      v.literal("account"),
+      v.literal("legal"),
+      v.literal("other")
+    ),
     variables: v.optional(v.array(v.string())), // Variable names like {{school_name}}
     isActive: v.boolean(),
     usageCount: v.number(),
@@ -1629,9 +1807,16 @@ export default defineSchema({
     .index("by_active", ["isActive"]),
 
   slaRules: defineTable({
-    category: v.union(v.literal("billing"), v.literal("technical"), v.literal("data"),
-      v.literal("feature"), v.literal("onboarding"), v.literal("account"),
-      v.literal("legal"), v.literal("other")),
+    category: v.union(
+      v.literal("billing"),
+      v.literal("technical"),
+      v.literal("data"),
+      v.literal("feature"),
+      v.literal("onboarding"),
+      v.literal("account"),
+      v.literal("legal"),
+      v.literal("other")
+    ),
     priority: v.union(v.literal("P0"), v.literal("P1"), v.literal("P2"), v.literal("P3")),
     firstResponseHours: v.number(),
     resolutionHours: v.number(),
@@ -1652,11 +1837,16 @@ export default defineSchema({
     shortDescription: v.string(), // max 120 chars
     fullDescription: v.string(), // rich text, max 5000 chars
     category: v.union(
-      v.literal("academic_tools"), v.literal("communication"),
-      v.literal("finance_fees"), v.literal("analytics_bi"),
-      v.literal("content_packs"), v.literal("integrations"),
-      v.literal("ai_automation"), v.literal("accessibility"),
-      v.literal("administration"), v.literal("security_compliance")
+      v.literal("academic_tools"),
+      v.literal("communication"),
+      v.literal("finance_fees"),
+      v.literal("analytics_bi"),
+      v.literal("content_packs"),
+      v.literal("integrations"),
+      v.literal("ai_automation"),
+      v.literal("accessibility"),
+      v.literal("administration"),
+      v.literal("security_compliance")
     ),
     subCategory: v.optional(v.string()),
     tags: v.array(v.string()),
@@ -1672,18 +1862,27 @@ export default defineSchema({
     dataResidency: v.array(v.string()), // country codes
     // Pricing
     pricingModel: v.union(
-      v.literal("free"), v.literal("freemium"), v.literal("one_time"),
-      v.literal("monthly"), v.literal("annual"), v.literal("per_student"),
-      v.literal("per_user"), v.literal("free_trial")
+      v.literal("free"),
+      v.literal("freemium"),
+      v.literal("one_time"),
+      v.literal("monthly"),
+      v.literal("annual"),
+      v.literal("per_student"),
+      v.literal("per_user"),
+      v.literal("free_trial")
     ),
     priceCents: v.optional(v.number()),
     currency: v.optional(v.string()),
     trialDays: v.optional(v.number()), // 7-30
-    pricingTiers: v.optional(v.array(v.object({
-      name: v.string(),
-      priceCents: v.number(),
-      features: v.array(v.string()),
-    }))),
+    pricingTiers: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          priceCents: v.number(),
+          features: v.array(v.string()),
+        })
+      )
+    ),
     // Compatibility
     compatiblePlans: v.array(v.string()), // starter, growth, enterprise etc
     systemRequirements: v.optional(v.string()),
@@ -1701,8 +1900,12 @@ export default defineSchema({
     totalReviews: v.number(),
     // Lifecycle
     status: v.union(
-      v.literal("draft"), v.literal("pending_review"), v.literal("approved"),
-      v.literal("published"), v.literal("suspended"), v.literal("deprecated"),
+      v.literal("draft"),
+      v.literal("pending_review"),
+      v.literal("approved"),
+      v.literal("published"),
+      v.literal("suspended"),
+      v.literal("deprecated"),
       v.literal("rejected")
     ),
     reviewNotes: v.optional(v.string()),
@@ -1735,7 +1938,13 @@ export default defineSchema({
     packageSize: v.optional(v.number()), // bytes
     packageHash: v.optional(v.string()), // SHA-256
     storageId: v.optional(v.string()),
-    status: v.union(v.literal("draft"), v.literal("pending_review"), v.literal("approved"), v.literal("published"), v.literal("rejected")),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("pending_review"),
+      v.literal("approved"),
+      v.literal("published"),
+      v.literal("rejected")
+    ),
     reviewedBy: v.optional(v.string()),
     reviewedAt: v.optional(v.number()),
     publishedAt: v.optional(v.number()),
@@ -1754,7 +1963,11 @@ export default defineSchema({
     taxId: v.optional(v.string()),
     payoutMethod: v.union(v.literal("mpesa"), v.literal("bank_transfer"), v.literal("paypal")),
     payoutDetails: v.string(), // JSON string of payment details
-    verificationLevel: v.union(v.literal("basic"), v.literal("verified"), v.literal("featured_partner")),
+    verificationLevel: v.union(
+      v.literal("basic"),
+      v.literal("verified"),
+      v.literal("featured_partner")
+    ),
     totalModules: v.number(),
     totalInstalls: v.number(),
     totalEarningsCents: v.number(),
@@ -1782,9 +1995,13 @@ export default defineSchema({
     installedVersion: v.string(),
     // Lifecycle state
     status: v.union(
-      v.literal("active"), v.literal("degraded"), v.literal("suspended_non_payment"),
-      v.literal("update_available"), v.literal("update_required"),
-      v.literal("deprecated"), v.literal("uninstalled")
+      v.literal("active"),
+      v.literal("degraded"),
+      v.literal("suspended_non_payment"),
+      v.literal("update_available"),
+      v.literal("update_required"),
+      v.literal("deprecated"),
+      v.literal("uninstalled")
     ),
     // Licensing
     licenseType: v.string(), // matches module pricingModel
@@ -1886,8 +2103,11 @@ export default defineSchema({
     tenantId: v.string(),
     installationId: v.string(),
     type: v.union(
-      v.literal("purchase"), v.literal("subscription"), v.literal("renewal"),
-      v.literal("refund"), v.literal("trial_conversion")
+      v.literal("purchase"),
+      v.literal("subscription"),
+      v.literal("renewal"),
+      v.literal("refund"),
+      v.literal("trial_conversion")
     ),
     grossAmountCents: v.number(),
     commissionCents: v.number(),
@@ -1896,7 +2116,12 @@ export default defineSchema({
     currency: v.string(),
     paymentMethod: v.optional(v.string()), // mpesa, stripe, bank
     paymentReference: v.optional(v.string()),
-    status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed"), v.literal("refunded")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("refunded")
+    ),
     createdAt: v.number(),
   })
     .index("by_publisher", ["publisherId", "createdAt"])
@@ -1912,7 +2137,12 @@ export default defineSchema({
     payoutMethod: v.string(),
     payoutReference: v.optional(v.string()),
     transactionIds: v.array(v.string()), // which transactions are included
-    status: v.union(v.literal("pending"), v.literal("processing"), v.literal("completed"), v.literal("failed")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("failed")
+    ),
     periodStart: v.number(),
     periodEnd: v.number(),
     processedAt: v.optional(v.number()),
@@ -1924,10 +2154,17 @@ export default defineSchema({
   // Marketplace activity log (installs, reviews, purchases etc)
   marketplaceActivity: defineTable({
     type: v.union(
-      v.literal("install"), v.literal("uninstall"), v.literal("update"),
-      v.literal("review"), v.literal("purchase"), v.literal("refund"),
-      v.literal("submission"), v.literal("approval"), v.literal("rejection"),
-      v.literal("suspension"), v.literal("featured")
+      v.literal("install"),
+      v.literal("uninstall"),
+      v.literal("update"),
+      v.literal("review"),
+      v.literal("purchase"),
+      v.literal("refund"),
+      v.literal("submission"),
+      v.literal("approval"),
+      v.literal("rejection"),
+      v.literal("suspension"),
+      v.literal("featured")
     ),
     moduleId: v.optional(v.string()),
     moduleName: v.optional(v.string()),
@@ -1966,10 +2203,20 @@ export default defineSchema({
     tenantId: v.string(),
     installationId: v.string(),
     transactionId: v.optional(v.string()),
-    type: v.union(v.literal("refund"), v.literal("policy_violation"), v.literal("technical_failure"), v.literal("other")),
+    type: v.union(
+      v.literal("refund"),
+      v.literal("policy_violation"),
+      v.literal("technical_failure"),
+      v.literal("other")
+    ),
     description: v.string(),
     evidence: v.optional(v.array(v.string())),
-    status: v.union(v.literal("open"), v.literal("under_review"), v.literal("resolved"), v.literal("dismissed")),
+    status: v.union(
+      v.literal("open"),
+      v.literal("under_review"),
+      v.literal("resolved"),
+      v.literal("dismissed")
+    ),
     resolution: v.optional(v.string()),
     resolvedBy: v.optional(v.string()),
     resolvedAt: v.optional(v.number()),
@@ -1994,12 +2241,14 @@ export default defineSchema({
     subject: v.optional(v.string()), // email subject
     content: v.string(), // message body with {{variable}} placeholders
     htmlContent: v.optional(v.string()), // rich HTML content for email
-    variables: v.array(v.object({
-      name: v.string(),
-      type: v.string(), // text | date | time | number | url
-      defaultValue: v.optional(v.string()),
-      required: v.boolean(),
-    })),
+    variables: v.array(
+      v.object({
+        name: v.string(),
+        type: v.string(), // text | date | time | number | url
+        defaultValue: v.optional(v.string()),
+        required: v.boolean(),
+      })
+    ),
     isGlobal: v.optional(v.boolean()), // platform-wide template
     status: v.string(), // active | archived | draft
     usageCount: v.optional(v.number()),
@@ -2035,15 +2284,17 @@ export default defineSchema({
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
     isPlatformLevel: v.optional(v.boolean()),
-    stats: v.optional(v.object({
-      totalRecipients: v.number(),
-      sent: v.number(),
-      delivered: v.number(),
-      opened: v.number(),
-      clicked: v.number(),
-      failed: v.number(),
-      bounced: v.number(),
-    })),
+    stats: v.optional(
+      v.object({
+        totalRecipients: v.number(),
+        sent: v.number(),
+        delivered: v.number(),
+        opened: v.number(),
+        clicked: v.number(),
+        failed: v.number(),
+        bounced: v.number(),
+      })
+    ),
     createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -2102,12 +2353,16 @@ export default defineSchema({
     senderName: v.optional(v.string()),
     senderRole: v.optional(v.string()),
     content: v.string(),
-    attachments: v.optional(v.array(v.object({
-      name: v.string(),
-      url: v.string(),
-      type: v.string(),
-      size: v.optional(v.number()),
-    }))),
+    attachments: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          url: v.string(),
+          type: v.string(),
+          size: v.optional(v.number()),
+        })
+      )
+    ),
     isEdited: v.optional(v.boolean()),
     isDeleted: v.optional(v.boolean()),
     readBy: v.optional(v.array(v.string())), // userIds who read the message
@@ -2127,13 +2382,15 @@ export default defineSchema({
     inAppEnabled: v.optional(v.boolean()),
     quietHoursStart: v.optional(v.string()), // HH:mm
     quietHoursEnd: v.optional(v.string()), // HH:mm
-    categories: v.optional(v.object({
-      announcements: v.optional(v.boolean()),
-      academic: v.optional(v.boolean()),
-      finance: v.optional(v.boolean()),
-      system: v.optional(v.boolean()),
-      marketing: v.optional(v.boolean()),
-    })),
+    categories: v.optional(
+      v.object({
+        announcements: v.optional(v.boolean()),
+        academic: v.optional(v.boolean()),
+        finance: v.optional(v.boolean()),
+        system: v.optional(v.boolean()),
+        marketing: v.optional(v.boolean()),
+      })
+    ),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -2167,13 +2424,15 @@ export default defineSchema({
     name: v.string(),
     description: v.string(),
     category: v.string(),
-    templateSteps: v.array(v.object({
-      id: v.string(),
-      name: v.string(),
-      type: v.string(),
-      config: v.record(v.string(), v.any()),
-      position: v.number(),
-    })),
+    templateSteps: v.array(
+      v.object({
+        id: v.string(),
+        name: v.string(),
+        type: v.string(),
+        config: v.record(v.string(), v.any()),
+        position: v.number(),
+      })
+    ),
     isPublic: v.boolean(),
     tags: v.array(v.string()),
     usageCount: v.number(),
@@ -2199,12 +2458,14 @@ export default defineSchema({
     score: v.number(),
     grade: v.union(v.literal("A"), v.literal("B"), v.literal("C"), v.literal("D"), v.literal("F")),
     metrics: v.record(v.string(), v.any()),
-    factors: v.array(v.object({
-      name: v.string(),
-      weight: v.number(),
-      value: v.number(),
-      impact: v.string(),
-    })),
+    factors: v.array(
+      v.object({
+        name: v.string(),
+        weight: v.number(),
+        value: v.number(),
+        impact: v.string(),
+      })
+    ),
     recommendations: v.array(v.string()),
     trends: v.array(v.object({ date: v.string(), score: v.number() })),
     calculatedAt: v.number(),
@@ -2228,24 +2489,33 @@ export default defineSchema({
       v.literal("engagement"),
       v.literal("retention")
     ),
-    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    priority: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    ),
     targetScore: v.number(),
     currentScore: v.number(),
     progress: v.number(),
-    actions: v.array(v.object({
-      id: v.string(),
-      title: v.string(),
-      assignee: v.string(),
-      dueDate: v.string(),
-      status: v.string(),
-      completedAt: v.optional(v.string()),
-    })),
-    milestones: v.array(v.object({
-      title: v.string(),
-      targetDate: v.string(),
-      completed: v.boolean(),
-      completedAt: v.optional(v.string()),
-    })),
+    actions: v.array(
+      v.object({
+        id: v.string(),
+        title: v.string(),
+        assignee: v.string(),
+        dueDate: v.string(),
+        status: v.string(),
+        completedAt: v.optional(v.string()),
+      })
+    ),
+    milestones: v.array(
+      v.object({
+        title: v.string(),
+        targetDate: v.string(),
+        completed: v.boolean(),
+        completedAt: v.optional(v.string()),
+      })
+    ),
     createdBy: v.string(),
     assignedTo: v.string(),
     startDate: v.string(),
@@ -2305,7 +2575,12 @@ export default defineSchema({
       v.literal("bug_report"),
       v.literal("general")
     ),
-    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent")),
+    priority: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("urgent")
+    ),
     status: v.union(
       v.literal("open"),
       v.literal("in_progress"),
@@ -2325,23 +2600,27 @@ export default defineSchema({
       priority: v.string(),
       escalation: v.object({ recommended: v.boolean(), confidence: v.number() }),
     }),
-    aiResponses: v.array(v.object({
-      type: v.string(),
-      content: v.string(),
-      tone: v.string(),
-      confidence: v.number(),
-      generatedAt: v.number(),
-    })),
+    aiResponses: v.array(
+      v.object({
+        type: v.string(),
+        content: v.string(),
+        tone: v.string(),
+        confidence: v.number(),
+        generatedAt: v.number(),
+      })
+    ),
     tags: v.array(v.string()),
     satisfaction: v.optional(v.number()),
     resolutionTime: v.optional(v.number()),
-    escalationHistory: v.array(v.object({
-      escalatedAt: v.number(),
-      reason: v.string(),
-      urgency: v.string(),
-      escalatedBy: v.string(),
-      assignedTo: v.optional(v.string()),
-    })),
+    escalationHistory: v.array(
+      v.object({
+        escalatedAt: v.number(),
+        reason: v.string(),
+        urgency: v.string(),
+        escalatedBy: v.string(),
+        assignedTo: v.optional(v.string()),
+      })
+    ),
     knowledgeBaseRefs: v.array(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -2524,45 +2803,65 @@ export default defineSchema({
       v.literal("legal"),
       v.literal("pricing")
     ),
-    sections: v.array(v.object({
-      id: v.string(),
-      title: v.string(),
-      content: v.string(),
-      order: v.number(),
-      isRequired: v.boolean(),
-      variables: v.array(v.string()),
-    })),
-    variables: v.array(v.object({
-      id: v.string(),
-      name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("date"), v.literal("currency"), v.literal("select")),
-      defaultValue: v.optional(v.string()),
-      options: v.optional(v.array(v.string())),
-      description: v.string(),
-      required: v.boolean(),
-    })),
-    terms: v.array(v.object({
-      id: v.string(),
-      title: v.string(),
-      content: v.string(),
-      category: v.union(v.literal("payment"), v.literal("service"), v.literal("legal"), v.literal("termination"), v.literal("confidentiality")),
-      isDefault: v.boolean(),
-    })),
+    sections: v.array(
+      v.object({
+        id: v.string(),
+        title: v.string(),
+        content: v.string(),
+        order: v.number(),
+        isRequired: v.boolean(),
+        variables: v.array(v.string()),
+      })
+    ),
+    variables: v.array(
+      v.object({
+        id: v.string(),
+        name: v.string(),
+        type: v.union(
+          v.literal("text"),
+          v.literal("number"),
+          v.literal("date"),
+          v.literal("currency"),
+          v.literal("select")
+        ),
+        defaultValue: v.optional(v.string()),
+        options: v.optional(v.array(v.string())),
+        description: v.string(),
+        required: v.boolean(),
+      })
+    ),
+    terms: v.array(
+      v.object({
+        id: v.string(),
+        title: v.string(),
+        content: v.string(),
+        category: v.union(
+          v.literal("payment"),
+          v.literal("service"),
+          v.literal("legal"),
+          v.literal("termination"),
+          v.literal("confidentiality")
+        ),
+        isDefault: v.boolean(),
+      })
+    ),
     pricing: v.object({
       currency: v.string(),
       oneTime: v.boolean(),
       recurring: v.boolean(),
       customPricing: v.boolean(),
-      priceTiers: v.array(v.object({
-        id: v.string(),
-        name: v.string(),
-        minStudents: v.number(),
-        maxStudents: v.number(),
-        setupFee: v.number(),
-        monthlyFee: v.number(),
-        perStudentFee: v.number(),
-        features: v.array(v.string()),
-      })),
+      priceTiers: v.array(
+        v.object({
+          id: v.string(),
+          name: v.string(),
+          minStudents: v.number(),
+          maxStudents: v.number(),
+          setupFee: v.number(),
+          monthlyFee: v.number(),
+          perStudentFee: v.number(),
+          features: v.array(v.string()),
+        })
+      ),
     }),
     isDefault: v.boolean(),
     usageCount: v.number(),
@@ -2623,11 +2922,13 @@ export default defineSchema({
       escalationRate: v.number(),
       firstContactResolution: v.number(),
     }),
-    goals: v.optional(v.object({
-      ticketsTarget: v.optional(v.number()),
-      satisfactionTarget: v.optional(v.number()),
-      responseTimeTarget: v.optional(v.number()),
-    })),
+    goals: v.optional(
+      v.object({
+        ticketsTarget: v.optional(v.number()),
+        satisfactionTarget: v.optional(v.number()),
+        responseTimeTarget: v.optional(v.number()),
+      })
+    ),
     achievements: v.array(v.string()),
     trend: v.union(v.literal("up"), v.literal("down"), v.literal("stable")),
     overallScore: v.number(),
@@ -2692,12 +2993,14 @@ export default defineSchema({
       v.literal("completed"),
       v.literal("failed")
     ),
-    filters: v.optional(v.object({
-      dateFrom: v.optional(v.number()),
-      dateTo: v.optional(v.number()),
-      status: v.optional(v.string()),
-      search: v.optional(v.string()),
-    })),
+    filters: v.optional(
+      v.object({
+        dateFrom: v.optional(v.number()),
+        dateTo: v.optional(v.number()),
+        status: v.optional(v.string()),
+        search: v.optional(v.string()),
+      })
+    ),
     fileUrl: v.optional(v.string()),
     dataContent: v.optional(v.string()),
     createdBy: v.string(),
@@ -2722,11 +3025,13 @@ export default defineSchema({
     ),
     responseTimeHours: v.number(),
     resolutionTimeHours: v.number(),
-    escalationRules: v.array(v.object({
-      afterHours: v.number(),
-      action: v.string(),
-      notifyRole: v.string(),
-    })),
+    escalationRules: v.array(
+      v.object({
+        afterHours: v.number(),
+        action: v.string(),
+        notifyRole: v.string(),
+      })
+    ),
     isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -2920,8 +3225,7 @@ export default defineSchema({
     description: v.string(),
     permissions: v.array(v.string()),
     module: v.string(),
-  })
-    .index("by_module", ["module"]),
+  }).index("by_module", ["module"]),
 
   // ── Scheduled Reports ─────────────────────────────────────────────
   scheduledReports: defineTable({
@@ -2961,9 +3265,9 @@ export default defineSchema({
     planId: v.string(),
     name: v.string(),
     tier: v.union(
-      v.literal("free"),
       v.literal("starter"),
-      v.literal("growth"),
+      v.literal("standard"),
+      v.literal("pro"),
       v.literal("enterprise")
     ),
     monthlyPriceCents: v.number(),
@@ -3001,12 +3305,14 @@ export default defineSchema({
     paidAt: v.optional(v.number()),
     paymentMethod: v.optional(v.string()),
     paymentReference: v.optional(v.string()),
-    lineItems: v.array(v.object({
-      description: v.string(),
-      quantity: v.number(),
-      unitPriceCents: v.number(),
-      totalCents: v.number(),
-    })),
+    lineItems: v.array(
+      v.object({
+        description: v.string(),
+        quantity: v.number(),
+        unitPriceCents: v.number(),
+        totalCents: v.number(),
+      })
+    ),
     notes: v.optional(v.string()),
     creditAppliedCents: v.optional(v.number()),
     createdBy: v.string(),
@@ -3055,15 +3361,30 @@ export default defineSchema({
   pmWorkspaces: defineTable({
     name: v.string(),
     slug: v.string(),
-    type: v.union(v.literal("engineering"), v.literal("onboarding"), v.literal("bugs"), v.literal("okrs")),
+    type: v.union(
+      v.literal("engineering"),
+      v.literal("onboarding"),
+      v.literal("bugs"),
+      v.literal("okrs")
+    ),
     icon: v.string(),
-    customFieldSchema: v.array(v.object({
-      key: v.string(),
-      name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("select"), v.literal("multi_select"), v.literal("date"), v.literal("user"), v.literal("checkbox")),
-      options: v.optional(v.array(v.string())),
-      required: v.boolean(),
-    })),
+    customFieldSchema: v.array(
+      v.object({
+        key: v.string(),
+        name: v.string(),
+        type: v.union(
+          v.literal("text"),
+          v.literal("number"),
+          v.literal("select"),
+          v.literal("multi_select"),
+          v.literal("date"),
+          v.literal("user"),
+          v.literal("checkbox")
+        ),
+        options: v.optional(v.array(v.string())),
+        required: v.boolean(),
+      })
+    ),
     defaultStatuses: v.array(v.string()),
     createdBy: v.string(),
     createdAt: v.number(),
@@ -3078,7 +3399,12 @@ export default defineSchema({
     workspaceId: v.id("pmWorkspaces"),
     name: v.string(),
     description: v.string(),
-    status: v.union(v.literal("active"), v.literal("paused"), v.literal("completed"), v.literal("archived")),
+    status: v.union(
+      v.literal("active"),
+      v.literal("paused"),
+      v.literal("completed"),
+      v.literal("archived")
+    ),
     startDate: v.number(),
     dueDate: v.number(),
     ownerId: v.string(),
@@ -3116,7 +3442,13 @@ export default defineSchema({
     title: v.string(),
     description: v.string(),
     status: v.string(),
-    priority: v.union(v.literal("urgent"), v.literal("high"), v.literal("medium"), v.literal("low"), v.literal("none")),
+    priority: v.union(
+      v.literal("urgent"),
+      v.literal("high"),
+      v.literal("medium"),
+      v.literal("low"),
+      v.literal("none")
+    ),
     assigneeId: v.optional(v.string()),
     reporterId: v.string(),
     dueDate: v.optional(v.number()),
@@ -3179,7 +3511,7 @@ export default defineSchema({
 
   adminNotes: defineTable({
     tenantId: v.string(),
-    userId: v.string(),           // owner — only visible to this user
+    userId: v.string(), // owner — only visible to this user
     title: v.string(),
     content: v.optional(v.string()),
     color: v.string(),
@@ -3192,9 +3524,9 @@ export default defineSchema({
 
   adminTasks: defineTable({
     tenantId: v.string(),
-    userId: v.string(),           // owner — personal task list
+    userId: v.string(), // owner — personal task list
     title: v.string(),
-    priority: v.string(),         // "low" | "medium" | "high"
+    priority: v.string(), // "low" | "medium" | "high"
     done: v.boolean(),
     dueDate: v.optional(v.string()),
     createdAt: v.number(),
@@ -3213,7 +3545,7 @@ export default defineSchema({
     startTime: v.optional(v.string()),
     endTime: v.optional(v.string()),
     venue: v.optional(v.string()),
-    status: v.string(),           // "scheduled" | "ongoing" | "completed" | "cancelled"
+    status: v.string(), // "scheduled" | "ongoing" | "completed" | "cancelled"
     totalMarks: v.optional(v.number()),
     passMark: v.optional(v.number()),
     createdBy: v.string(),
@@ -3229,18 +3561,18 @@ export default defineSchema({
   // Master admin reviews and approves/rejects; on approval the user is
   // created in the `users` table and added to a WorkOS Organization.
   waitlistApplications: defineTable({
-    workosUserId: v.string(),         // WorkOS user ID (real, not pending-)
+    workosUserId: v.string(), // WorkOS user ID (real, not pending-)
     email: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
     // Application fields
-    schoolName: v.optional(v.string()),   // school/org they want to join
+    schoolName: v.optional(v.string()), // school/org they want to join
     requestedRole: v.optional(v.string()), // role they are requesting
-    message: v.optional(v.string()),       // optional message from applicant
+    message: v.optional(v.string()), // optional message from applicant
     // Review outcome
-    status: v.string(),               // "pending" | "approved" | "rejected"
+    status: v.string(), // "pending" | "approved" | "rejected"
     requestedAt: v.number(),
-    reviewedBy: v.optional(v.string()),   // master admin workosUserId
+    reviewedBy: v.optional(v.string()), // master admin workosUserId
     reviewedAt: v.optional(v.number()),
     reviewNotes: v.optional(v.string()),
     // Post-approval assignment (set by master admin before approving)
@@ -3257,7 +3589,12 @@ export default defineSchema({
     tenantId: v.string(),
     name: v.string(),
     description: v.string(),
-    type: v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly"), v.literal("one_time")),
+    type: v.union(
+      v.literal("daily"),
+      v.literal("weekly"),
+      v.literal("monthly"),
+      v.literal("one_time")
+    ),
     amount: v.number(),
     maxAmount: v.optional(v.number()),
     gracePeriodDays: v.number(),
@@ -3304,7 +3641,12 @@ export default defineSchema({
     startDate: v.number(),
     endDate: v.number(),
     payDate: v.number(),
-    status: v.union(v.literal("draft"), v.literal("processing"), v.literal("completed"), v.literal("paid")),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("paid")
+    ),
     totalGrossPay: v.number(),
     totalNetPay: v.number(),
     totalDeductions: v.number(),
@@ -3325,11 +3667,13 @@ export default defineSchema({
     overtimeRate: v.number(),
     overtimePay: v.number(),
     grossPay: v.number(),
-    deductions: v.array(v.object({
-      type: v.string(),
-      amount: v.number(),
-      description: v.string(),
-    })),
+    deductions: v.array(
+      v.object({
+        type: v.string(),
+        amount: v.number(),
+        description: v.string(),
+      })
+    ),
     totalDeductions: v.number(),
     netPay: v.number(),
     payeTax: v.number(),
@@ -3350,11 +3694,13 @@ export default defineSchema({
     type: v.union(v.literal("fixed"), v.literal("percentage")),
     amount: v.number(),
     appliesToRoles: v.array(v.string()),
-    conditions: v.array(v.object({
-      minSalary: v.optional(v.number()),
-      maxSalary: v.optional(v.number()),
-      department: v.optional(v.string()),
-    })),
+    conditions: v.array(
+      v.object({
+        minSalary: v.optional(v.number()),
+        maxSalary: v.optional(v.number()),
+        department: v.optional(v.string()),
+      })
+    ),
     isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -3369,11 +3715,13 @@ export default defineSchema({
     amount: v.number(),
     appliesToRoles: v.array(v.string()),
     isTaxDeductible: v.boolean(),
-    conditions: v.array(v.object({
-      minSalary: v.optional(v.number()),
-      maxSalary: v.optional(v.number()),
-      department: v.optional(v.string()),
-    })),
+    conditions: v.array(
+      v.object({
+        minSalary: v.optional(v.number()),
+        maxSalary: v.optional(v.number()),
+        department: v.optional(v.string()),
+      })
+    ),
     isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -3423,7 +3771,7 @@ export default defineSchema({
     tenantId: v.string(),
     dayOfWeek: v.number(), // 0-6 (Sunday-Saturday)
     startTime: v.string(), // "09:00"
-    endTime: v.string(),   // "10:00"
+    endTime: v.string(), // "10:00"
     subjectId: v.string(),
     teacherId: v.string(),
     classId: v.string(),
