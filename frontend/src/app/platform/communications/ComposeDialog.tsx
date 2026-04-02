@@ -24,6 +24,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Mail, Smartphone, Bell, Send, Calendar, Save } from "lucide-react";
+import { toast } from "sonner";
 
 interface ComposeDialogProps {
   open: boolean;
@@ -39,6 +40,7 @@ const MESSAGE_TYPES: { value: MessageType; label: string }[] = [
   { value: "alert", label: "Alert" },
   { value: "campaign", label: "Campaign" },
 ];
+const PLAN_TIERS = ["starter", "standard", "pro", "enterprise"] as const;
 
 export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
   const { sessionToken } = useAuth();
@@ -114,6 +116,7 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
         segment: buildSegment(),
         status: "draft",
       });
+      toast.success("Message saved as draft.");
       resetForm();
       onOpenChange(false);
     } catch (e: any) {
@@ -144,6 +147,7 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
         messageId,
         scheduledAt: new Date(scheduledAt).getTime(),
       });
+      toast.success("Message scheduled.");
       resetForm();
       onOpenChange(false);
     } catch (e: any) {
@@ -170,6 +174,7 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
         status: "draft",
       });
       await sendMessageNow({ sessionToken, messageId });
+      toast.success("Message sent.");
       resetForm();
       onOpenChange(false);
     } catch (e: any) {
@@ -309,7 +314,7 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
 
             {segmentType === "plan" && (
               <div className="flex flex-wrap gap-3 pt-1">
-                {["free", "basic", "pro", "enterprise"].map((tier) => (
+                {PLAN_TIERS.map((tier) => (
                   <label key={tier} className="flex items-center gap-2 cursor-pointer capitalize">
                     <Checkbox
                       checked={planTiers.includes(tier)}
