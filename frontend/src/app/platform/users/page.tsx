@@ -1,761 +1,377 @@
 "use client";
 
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Users,
-  Plus,
-  Search,
-  Filter,
-  Download,
-  Edit,
-  Trash2,
-  Eye,
-  Mail,
-  Phone,
-  Calendar,
-  Shield,
-  UserCheck,
-  UserX,
-  Settings,
-  Building,
-  MapPin,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  MoreHorizontal,
-  UserPlus,
-  Lock,
-  Unlock,
-  Key,
-  Activity,
-  LogOut
-} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import {
+  Activity,
+  CheckCircle,
+  Download,
+  Loader2,
+  MoreHorizontal,
+  Plus,
+  Shield,
+  UserCheck,
+  UserPlus,
+  UserX,
+} from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
-import { api } from "@/convex/_generated/api";
+import { PlatformAdminInviteForm } from "./PlatformAdminInviteForm";
 
-// User type matching the Convex users table schema
-interface User {
+type User = {
   _id: string;
   firstName?: string;
   lastName?: string;
   email: string;
   phone?: string;
   role: string;
-  status?: string;
   tenantId: string;
   isActive: boolean;
   permissions: string[];
   location?: string;
   createdAt: number;
   twoFactorEnabled?: boolean;
-  avatarUrl?: string;
   eduMylesUserId: string;
-}
+};
 
-interface Role {
+type TenantOption = {
+  tenantId: string;
+  name: string;
+  status: string;
+  subdomain: string;
+};
+
+type CustomRole = {
   _id: string;
   name: string;
   description: string;
   permissions: string[];
-  userCount: number;
   isSystem: boolean;
   createdAt: number;
-}
+};
 
-interface ActivityLog {
+type AuditLog = {
   _id: string;
-  userId: string;
+  actorId: string;
   action: string;
-  resource: string;
-  details: string;
-  ipAddress: string;
-  userAgent: string;
-  timestamp: number;
+  createdAt?: number;
+  timestamp?: number;
+  userName?: string;
+  userEmail?: string;
+  tenantName?: string;
+};
+
+const SYSTEM_PLATFORM_ROLES = [
+  {
+    _id: "master_admin",
+    name: "master_admin",
+    description: "Full platform control including billing, settings, and tenant operations.",
+    permissions: ["*"],
+    isSystem: true,
+    createdAt: 0,
+  },
+  {
+    _id: "super_admin",
+    name: "super_admin",
+    description: "Secondary platform admin role for operational oversight and support.",
+    permissions: ["platform:admin", "reports:read", "settings:read"],
+    isSystem: true,
+    createdAt: 0,
+  },
+];
+
+const PERMISSION_MODULES = {
+  Dashboard: ["dashboard:view"],
+  Users: ["users:view", "users:create", "users:edit", "users:delete"],
+  Tenants: ["tenants:view", "tenants:create", "tenants:edit", "tenants:delete"],
+  Tickets: ["tickets:view", "tickets:create", "tickets:assign", "tickets:resolve"],
+  Billing: ["billing:view", "billing:create", "billing:manage"],
+  Analytics: ["analytics:view", "analytics:export"],
+  Settings: ["settings:view", "settings:manage"],
+};
+
+function formatRoleLabel(role: string) {
+  return role.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-// Static roles (no backend query for roles yet)
-const staticRoles: Role[] = [
-  {
-    _id: "1",
-    name: "Super Admin",
-    description: "Full system access with all permissions",
-    permissions: ["all"],
-    userCount: 0,
-    isSystem: true,
-    createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
-  },
-  {
-    _id: "2",
-    name: "Admin",
-    description: "Tenant administrator with management capabilities",
-    permissions: ["tenant_management", "user_management", "reporting"],
-    userCount: 0,
-    isSystem: true,
-    createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
-  },
-  {
-    _id: "3",
-    name: "Manager",
-    description: "Department manager with operational permissions",
-    permissions: ["student_management", "grade_management", "parent_communication"],
-    userCount: 0,
-    isSystem: true,
-    createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
-  },
-  {
-    _id: "4",
-    name: "Agent",
-    description: "Support agent with limited permissions",
-    permissions: ["ticket_management", "basic_reporting"],
-    userCount: 0,
-    isSystem: true,
-    createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
-  },
-  {
-    _id: "5",
-    name: "Viewer",
-    description: "Read-only access for reporting and monitoring",
-    permissions: ["view_reports"],
-    userCount: 0,
-    isSystem: true,
-    createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000
-  }
-];
+function formatDate(timestamp?: number) {
+  if (!timestamp) return "Unknown";
+  return new Date(timestamp).toLocaleDateString("en-KE", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function StatCard({ title, value, icon }: { title: string; value: number; icon: ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="flex items-center justify-between pt-6">
+        <div>
+          <p className="text-sm text-muted-foreground">{title}</p>
+          <p className="text-2xl font-bold">{value}</p>
+        </div>
+        <div className="text-muted-foreground">{icon}</div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function UsersPage() {
   const { sessionToken } = useAuth();
-  const deactivateUser = useMutation(api.platform.users.mutations.deactivatePlatformAdmin);
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [selectedTenant, setSelectedTenant] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("users");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedTenant, setSelectedTenant] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isCreateRoleDialogOpen, setIsCreateRoleDialogOpen] = useState(false);
-  const [isEditRoleDialogOpen, setIsEditRoleDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [newRoleData, setNewRoleData] = useState({
-    name: "",
-    description: "",
-    permissions: [] as string[]
-  });
-  const [editRoleData, setEditRoleData] = useState({
-    name: "",
-    description: "",
-    permissions: [] as string[]
-  });
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const [editingCustomRole, setEditingCustomRole] = useState<CustomRole | null>(null);
+  const [roleName, setRoleName] = useState("");
+  const [roleDescription, setRoleDescription] = useState("");
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [actionUserId, setActionUserId] = useState<string | null>(null);
 
-  // Create user form state
-  const [createForm, setCreateForm] = useState({
+  const [editForm, setEditForm] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
+    location: "",
     role: "super_admin" as "master_admin" | "super_admin",
+    status: "active" as "active" | "inactive",
   });
-  const [createSubmitting, setCreateSubmitting] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [createResult, setCreateResult] = useState<{ emailSent: boolean; signUpUrl: string; workosError?: string; invitedEmail: string } | null>(null);
 
-  // Fetch users from Convex backend
-  const usersData = usePlatformQuery(
+  const users = usePlatformQuery(
     api.platform.users.queries.listAllUsers,
-    {
-      sessionToken: sessionToken ?? "",
-      ...(selectedRoleFilter !== "all" ? { role: selectedRoleFilter } : {}),
-      ...(selectedTenant !== "all" ? { tenantId: selectedTenant } : {}),
-    },
+    sessionToken
+      ? {
+          sessionToken,
+          ...(searchQuery.trim() ? { search: searchQuery.trim() } : {}),
+          ...(selectedRoleFilter !== "all" ? { role: selectedRoleFilter } : {}),
+          ...(selectedTenant !== "all" ? { tenantId: selectedTenant } : {}),
+          ...(selectedStatus !== "all" ? { status: selectedStatus } : {}),
+        }
+      : "skip",
     !!sessionToken
-  );
+  ) as User[] | undefined;
 
-  const users: User[] = (usersData as User[] | undefined) ?? [];
-  const [roles, setRoles] = useState<Role[]>(staticRoles);
-  const [activities] = useState<ActivityLog[]>([]);
+  const tenantOptions = usePlatformQuery(
+    api.platform.users.queries.listTenantFilterOptions,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as TenantOption[] | undefined;
 
-  // Derive user status from isActive field
-  const getUserStatus = (user: User): string => {
-    return user.isActive ? "active" : "inactive";
-  };
+  const customRoles = usePlatformQuery(
+    api.platform.roleBuilder.queries.listCustomRoles,
+    sessionToken ? { sessionToken, tenantId: "PLATFORM", includeSystem: false } : "skip",
+    !!sessionToken
+  ) as CustomRole[] | undefined;
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = searchQuery === "" ||
-      (user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-      (user.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+  const activityLogs = usePlatformQuery(
+    api.platform.audit.queries.listAuditLogs,
+    sessionToken ? { sessionToken, limit: 100 } : "skip",
+    !!sessionToken
+  ) as AuditLog[] | undefined;
 
-    const matchesStatus = selectedStatus === "all" || getUserStatus(user) === selectedStatus;
+  const deactivatePlatformAdmin = useMutation(api.platform.users.mutations.deactivatePlatformAdmin);
+  const reactivatePlatformAdmin = useMutation(api.platform.users.mutations.reactivatePlatformAdmin);
+  const updatePlatformAdminDetails = useMutation(api.platform.users.mutations.updatePlatformAdminDetails);
+  const createRole = useMutation(api.platform.roleBuilder.mutations.createRole);
+  const updateRole = useMutation(api.platform.roleBuilder.mutations.updateRole);
+  const deleteRole = useMutation(api.platform.roleBuilder.mutations.deleteRole);
+  const duplicateRole = useMutation(api.platform.roleBuilder.mutations.duplicateRole);
 
-    return matchesSearch && matchesStatus;
-  });
-
-  if (!usersData && sessionToken) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title="User Management"
-          description="Manage platform users, roles, and permissions"
-          breadcrumbs={[
-            { label: "Platform", href: "/platform" },
-            { label: "Users", href: "/platform/users" }
-          ]}
-        />
-        <div className="flex items-center justify-center py-12">
-          <div className="text-muted-foreground">Loading users...</div>
-        </div>
-      </div>
-    );
+  if (!sessionToken || users === undefined || tenantOptions === undefined || customRoles === undefined || activityLogs === undefined) {
+    return <LoadingSkeleton variant="page" />;
   }
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case "super_admin": return "bg-purple-100 text-purple-800";
-      case "admin": return "bg-blue-100 text-blue-800";
-      case "manager": return "bg-green-100 text-green-800";
-      case "agent": return "bg-yellow-100 text-yellow-800";
-      case "viewer": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
+  const userRows = users;
+  const tenantMap = new Map(tenantOptions.map((tenant) => [tenant.tenantId, tenant.name]));
+  const combinedRoles = [...SYSTEM_PLATFORM_ROLES, ...customRoles];
+  const stats = {
+    total: userRows.length,
+    active: userRows.filter((user) => user.isActive).length,
+    inactive: userRows.filter((user) => !user.isActive).length,
+    twoFactor: userRows.filter((user) => user.twoFactorEnabled).length,
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active": return "bg-green-100 text-green-800";
-      case "inactive": return "bg-gray-100 text-gray-800";
-      case "suspended": return "bg-red-100 text-red-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "active": return <UserCheck className="h-4 w-4" />;
-      case "inactive": return <UserX className="h-4 w-4" />;
-      case "suspended": return <Lock className="h-4 w-4" />;
-      case "pending": return <Clock className="h-4 w-4" />;
-      default: return <UserCheck className="h-4 w-4" />;
-    }
-  };
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString('en-KE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+  const openEditUser = (user: User) => {
+    setEditingUser(user);
+    setEditForm({
+      firstName: user.firstName ?? "",
+      lastName: user.lastName ?? "",
+      email: user.email,
+      phone: user.phone ?? "",
+      location: user.location ?? "",
+      role: user.role === "master_admin" ? "master_admin" : "super_admin",
+      status: user.isActive ? "active" : "inactive",
     });
-  };
-
-  const formatDateTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('en-KE');
-  };
-
-  const handleCreateUser = () => {
-    setCreateForm({ firstName: "", lastName: "", email: "", role: "super_admin" });
-    setCreateError(null);
-    setCreateResult(null);
-    setIsCreateDialogOpen(true);
-  };
-
-  const handleCreateUserSubmit = async () => {
-    if (!createForm.email || !createForm.firstName || !createForm.lastName) {
-      setCreateError("First name, last name, and email are required.");
-      return;
-    }
-    setCreateError(null);
-    setCreateSubmitting(true);
-    try {
-      const res = await fetch("/api/platform/invite-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...createForm, sessionToken }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setCreateError(data.error ?? "Failed to create user.");
-        return;
-      }
-      if (data.emailSent) {
-        setIsCreateDialogOpen(false);
-        toast.success(`Invitation email sent to ${createForm.email}`);
-      } else {
-        // Stay open and show the sign-up link so admin can share it manually
-        setCreateResult({
-          emailSent: false,
-          signUpUrl: data.signUpUrl ?? `${window.location.origin}/auth/login/api`,
-          workosError: data.workosError,
-          invitedEmail: createForm.email,
-        });
-      }
-    } catch (err: any) {
-      setCreateError(err.message ?? "Unexpected error");
-    } finally {
-      setCreateSubmitting(false);
-    }
-  };
-
-  const handleEditUser = (user: User) => {
-    setSelectedUser(user);
     setIsEditDialogOpen(true);
   };
 
-  const handleCreateRole = () => {
-    setIsCreateRoleDialogOpen(true);
+  const openRoleDialog = (role?: CustomRole) => {
+    setEditingCustomRole(role ?? null);
+    setRoleName(role?.name ?? "");
+    setRoleDescription(role?.description ?? "");
+    setSelectedPermissions(role?.permissions ?? []);
+    setIsRoleDialogOpen(true);
   };
 
-  const handleEditRole = (role: Role) => {
-    setSelectedRole(role);
-    setEditRoleData({
-      name: role.name,
-      description: role.description,
-      permissions: role.permissions
-    });
-    setIsEditRoleDialogOpen(true);
+  const resetRoleDialog = () => {
+    setEditingCustomRole(null);
+    setRoleName("");
+    setRoleDescription("");
+    setSelectedPermissions([]);
   };
 
-  const handleDeleteRole = (roleId: string) => {
-    const role = roles.find(r => r._id === roleId);
-    if (role?.isSystem) {
-      toast.error("Cannot delete system roles");
+  const handleSaveUser = async () => {
+    if (!editingUser) return;
+
+    setActionUserId(editingUser._id);
+    try {
+      await updatePlatformAdminDetails({
+        sessionToken,
+        userId: editingUser._id as any,
+        firstName: editForm.firstName,
+        lastName: editForm.lastName,
+        email: editForm.email,
+        phone: editForm.phone,
+        location: editForm.location,
+        role: editForm.role,
+      });
+
+      if (editingUser.isActive && editForm.status === "inactive") {
+        await deactivatePlatformAdmin({ sessionToken, userId: editingUser._id as any });
+      } else if (!editingUser.isActive && editForm.status === "active") {
+        await reactivatePlatformAdmin({ sessionToken, userId: editingUser._id as any });
+      }
+
+      toast.success("Platform admin updated");
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to update platform admin");
+    } finally {
+      setActionUserId(null);
+    }
+  };
+
+  const handleToggleStatus = async (user: User) => {
+    if (user.role !== "master_admin" && user.role !== "super_admin") {
+      toast.error("Only platform admins can be activated or deactivated from this page.");
       return;
     }
-    if (role?.userCount && role.userCount > 0) {
-      toast.error("Cannot delete role with assigned users");
-      return;
-    }
-    if (confirm("Are you sure you want to delete this role?")) {
-      setRoles(roles.filter(role => role._id !== roleId));
-    }
-  };
 
-  const handleCreateRoleSubmit = () => {
-    const newRole: Role = {
-      _id: Date.now().toString(),
-      name: newRoleData.name,
-      description: newRoleData.description,
-      permissions: newRoleData.permissions,
-      userCount: 0,
-      isSystem: false,
-      createdAt: Date.now()
-    };
-    setRoles([...roles, newRole]);
-    setIsCreateRoleDialogOpen(false);
-    resetNewRoleData();
-  };
-
-  const resetNewRoleData = () => {
-    setNewRoleData({
-      name: "",
-      description: "",
-      permissions: []
-    });
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    if (confirm("Are you sure you want to deactivate this user?")) {
-      try {
-        await deactivateUser({ sessionToken: sessionToken ?? "", userId: userId as any });
-      } catch (error) {
-        console.error("Failed to deactivate user:", error);
+    setActionUserId(user._id);
+    try {
+      if (user.isActive) {
+        await deactivatePlatformAdmin({ sessionToken, userId: user._id as any });
+        toast.success("Platform admin deactivated");
+      } else {
+        await reactivatePlatformAdmin({ sessionToken, userId: user._id as any });
+        toast.success("Platform admin reactivated");
       }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to update account status");
+    } finally {
+      setActionUserId(null);
     }
   };
 
-  const handleEditRoleSubmit = () => {
-    if (!selectedRole) return;
-    
-    setRoles(roles.map(role => 
-      role._id === selectedRole._id 
-        ? { ...role, ...editRoleData }
-        : role
-    ));
-    setIsEditRoleDialogOpen(false);
-    setSelectedRole(null);
-  };
+  const handleSaveRole = async () => {
+    if (!roleName.trim()) return;
 
-  const handleToggleUserStatus = async (userId: string, newStatus: string) => {
-    if (newStatus === "inactive" || newStatus === "suspended") {
-      try {
-        await deactivateUser({ sessionToken: sessionToken ?? "", userId: userId as any });
-      } catch (error) {
-        console.error("Failed to deactivate user:", error);
+    try {
+      if (editingCustomRole) {
+        await updateRole({
+          sessionToken,
+          roleId: editingCustomRole._id,
+          name: roleName.trim(),
+          description: roleDescription.trim(),
+          permissions: selectedPermissions,
+        });
+        toast.success("Custom role updated");
+      } else {
+        await createRole({
+          sessionToken,
+          tenantId: "PLATFORM",
+          name: roleName.trim(),
+          description: roleDescription.trim(),
+          permissions: selectedPermissions,
+        });
+        toast.success("Custom role created");
       }
+
+      setIsRoleDialogOpen(false);
+      resetRoleDialog();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to save role");
     }
-    // Note: reactivation would require a separate backend mutation
   };
 
-  const handleExportUsers = () => {
+  const togglePermission = (permission: string) => {
+    setSelectedPermissions((current) =>
+      current.includes(permission)
+        ? current.filter((item) => item !== permission)
+        : [...current, permission]
+    );
+  };
+
+  const exportUsers = () => {
     const csvContent = [
       ["Name", "Email", "Role", "Status", "Tenant", "Location", "Created"],
-      ...filteredUsers.map(user => [
-        `${user.firstName ?? ""} ${user.lastName ?? ""}`,
+      ...userRows.map((user) => [
+        `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
         user.email,
         user.role,
-        getUserStatus(user),
-        user.tenantId || "N/A",
-        user.location || "N/A",
-        formatDate(user.createdAt)
-      ])
-    ].map(row => row.join(",")).join("\n");
+        user.isActive ? "active" : "inactive",
+        tenantMap.get(user.tenantId) ?? user.tenantId,
+        user.location ?? "",
+        formatDate(user.createdAt),
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `platform-users-${new Date().toISOString().split("T")[0]}.csv`;
+    anchor.click();
     window.URL.revokeObjectURL(url);
   };
 
-  const UsersList = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">User Management</h2>
-        <Button onClick={handleCreateUser}>
-          <Plus className="h-4 w-4 mr-1" />
-          Add User
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-600">{users.length}</div>
-            <div className="text-sm text-muted-foreground">Total Users</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">{users.filter(u => u.isActive).length}</div>
-            <div className="text-sm text-muted-foreground">Active Users</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-yellow-600">{users.filter(u => !u.isActive).length}</div>
-            <div className="text-sm text-muted-foreground">Inactive Users</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-purple-600">{users.filter(u => u.twoFactorEnabled === true).length}</div>
-            <div className="text-sm text-muted-foreground">2FA Enabled</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search users..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-80"
-                />
-              </div>
-              <Select value={selectedRoleFilter} onValueChange={setSelectedRoleFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="super_admin">Super Admin</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="agent">Agent</SelectItem>
-                  <SelectItem value="viewer">Viewer</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={selectedTenant} onValueChange={setSelectedTenant}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Tenant" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Tenants</SelectItem>
-                  <SelectItem value="tenant-1">Nairobi International Academy</SelectItem>
-                  <SelectItem value="tenant-2">Mombasa Primary School</SelectItem>
-                  <SelectItem value="tenant-3">Kisumu High School</SelectItem>
-                  <SelectItem value="tenant-4">Eldoret Academy</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleExportUsers}>
-                <Download className="h-4 w-4 mr-1" />
-                Export
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Users Table */}
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-3 font-semibold">User</th>
-                  <th className="text-left p-3 font-semibold">Role</th>
-                  <th className="text-left p-3 font-semibold">Status</th>
-                  <th className="text-left p-3 font-semibold">Tenant</th>
-                  <th className="text-left p-3 font-semibold">Location</th>
-                  <th className="text-left p-3 font-semibold">Created</th>
-                  <th className="text-left p-3 font-semibold">Security</th>
-                  <th className="text-left p-3 font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <tr key={user._id} className="border-b hover:bg-muted/50">
-                    <td className="p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium">
-                            {user.firstName?.[0]?.toUpperCase()}{user.lastName?.[0]?.toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <div className="font-medium">{user.firstName ?? ""} {user.lastName ?? ""}</div>
-                          <div className="text-sm text-muted-foreground">{user.email}</div>
-                          {user.phone && (
-                            <div className="text-xs text-muted-foreground">{user.phone}</div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <Badge className={getRoleColor(user.role)}>
-                        {user.role.replace("_", " ")}
-                      </Badge>
-                    </td>
-                    <td className="p-3">
-                      <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(getUserStatus(user))}`}>
-                        {getStatusIcon(getUserStatus(user))}
-                        <span>{getUserStatus(user).charAt(0).toUpperCase() + getUserStatus(user).slice(1)}</span>
-                      </div>
-                    </td>
-                    <td className="p-3 text-sm">{user.tenantId || "Platform"}</td>
-                    <td className="p-3 text-sm">{user.location || "-"}</td>
-                    <td className="p-3 text-sm">
-                      {formatDate(user.createdAt)}
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        {user.twoFactorEnabled && (
-                          <div className="w-2 h-2 bg-green-500 rounded-full" title="2FA Enabled" />
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => handleEditUser(user)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => handleToggleUserStatus(user._id, "active")}>
-                              <UserCheck className="h-4 w-4 mr-2" />
-                              Activate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleUserStatus(user._id, "inactive")}>
-                              <UserX className="h-4 w-4 mr-2" />
-                              Deactivate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleUserStatus(user._id, "suspended")}>
-                              <Lock className="h-4 w-4 mr-2" />
-                              Suspend
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteUser(user._id)}>
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const RolesManagement = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Role Management</h2>
-        <Button onClick={handleCreateRole}>
-          <Plus className="h-4 w-4 mr-1" />
-          Create Role
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {roles.map((role) => (
-          <Card key={role._id}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{role.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">{role.description}</p>
-                </div>
-                {role.isSystem && (
-                  <Badge variant="secondary">System</Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="text-sm font-medium mb-2">Permissions:</div>
-                <div className="flex flex-wrap gap-1">
-                  {role.permissions.slice(0, 3).map((permission) => (
-                    <Badge key={permission} variant="outline" className="text-xs">
-                      {permission.replace("_", " ")}
-                    </Badge>
-                  ))}
-                  {role.permissions.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{role.permissions.length - 3}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{role.userCount} users</span>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => handleEditRole(role)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  {!role.isSystem && (
-                    <Button variant="ghost" size="sm" className="text-red-500" onClick={() => handleDeleteRole(role._id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-
-  const ActivityLogs = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Activity Logs</h2>
-        <Button variant="outline">
-          <Download className="h-4 w-4 mr-1" />
-          Export Logs
-        </Button>
-      </div>
-
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-3 font-semibold">User</th>
-                  <th className="text-left p-3 font-semibold">Action</th>
-                  <th className="text-left p-3 font-semibold">Resource</th>
-                  <th className="text-left p-3 font-semibold">Details</th>
-                  <th className="text-left p-3 font-semibold">IP Address</th>
-                  <th className="text-left p-3 font-semibold">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activities.map((activity) => {
-                  const user = users.find(u => u._id === activity.userId);
-                  return (
-                    <tr key={activity._id} className="border-b hover:bg-muted/50">
-                      <td className="p-3">
-                        <div className="font-medium">
-                          {user ? `${user.firstName} ${user.lastName}` : "Unknown User"}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {user?.email}
-                        </div>
-                      </td>
-                      <td className="p-3">
-                        <Badge variant="outline">
-                          {activity.action.replace("_", " ")}
-                        </Badge>
-                      </td>
-                      <td className="p-3 text-sm">{activity.resource}</td>
-                      <td className="p-3 text-sm">{activity.details}</td>
-                      <td className="p-3 text-sm font-mono">{activity.ipAddress}</td>
-                      <td className="p-3 text-sm">{formatDateTime(activity.timestamp)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="User Management" 
-        description="Manage platform users, roles, and permissions"
+      <PageHeader
+        title="User Management"
+        description="Manage platform users, custom roles, and recent admin activity"
         breadcrumbs={[
           { label: "Platform", href: "/platform" },
-          { label: "Users", href: "/platform/users" }
+          { label: "Users", href: "/platform/users" },
         ]}
       />
 
@@ -765,119 +381,366 @@ export default function UsersPage() {
           <TabsTrigger value="roles">Roles</TabsTrigger>
           <TabsTrigger value="activity">Activity Logs</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="users">
-          <UsersList />
+
+        <TabsContent value="users" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <StatCard title="Total Users" value={stats.total} icon={<Activity className="h-4 w-4" />} />
+            <StatCard title="Active Users" value={stats.active} icon={<UserCheck className="h-4 w-4" />} />
+            <StatCard title="Inactive Users" value={stats.inactive} icon={<UserX className="h-4 w-4" />} />
+            <StatCard title="2FA Enabled" value={stats.twoFactor} icon={<Shield className="h-4 w-4" />} />
+          </div>
+
+          <Card>
+            <CardContent className="flex flex-col gap-4 pt-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <Input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search name, email, tenant, or role"
+                />
+                <Select value={selectedRoleFilter} onValueChange={setSelectedRoleFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    {combinedRoles.map((role) => (
+                      <SelectItem key={role._id} value={role.name}>
+                        {formatRoleLabel(role.name)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={selectedTenant} onValueChange={setSelectedTenant}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tenant" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Tenants</SelectItem>
+                    {tenantOptions.map((tenant) => (
+                      <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                        {tenant.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={exportUsers}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsCreateDialogOpen(true);
+                  }}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Invite Platform Admin
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Users</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {userRows.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No users matched the current filters.</p>
+              ) : (
+                userRows.map((user) => {
+                  const isPlatformAdmin = user.role === "master_admin" || user.role === "super_admin";
+
+                  return (
+                    <div
+                      key={user._id}
+                      className="flex flex-col gap-3 rounded-lg border p-4 lg:flex-row lg:items-center lg:justify-between"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-medium">
+                            {`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email}
+                          </p>
+                          <Badge variant={user.isActive ? "default" : "secondary"}>
+                            {user.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                          <Badge variant="outline">{formatRoleLabel(user.role)}</Badge>
+                          {isPlatformAdmin && <Badge variant="secondary">Platform Admin</Badge>}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {user.email}
+                          {user.phone ? ` • ${user.phone}` : ""}
+                          {user.location ? ` • ${user.location}` : ""}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {tenantMap.get(user.tenantId) ?? user.tenantId} • Created {formatDate(user.createdAt)}
+                        </p>
+                      </div>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            asChild
+                          >
+                            <Link href={`/platform/users/${user._id}`}>View Details</Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (!isPlatformAdmin) {
+                                toast.error("Only platform admins can be edited from this page.");
+                                return;
+                              }
+                              openEditUser(user);
+                            }}
+                          >
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleToggleStatus(user)}
+                            disabled={actionUserId === user._id}
+                          >
+                            {actionUserId === user._id ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : user.isActive ? (
+                              <UserX className="mr-2 h-4 w-4" />
+                            ) : (
+                              <UserCheck className="mr-2 h-4 w-4" />
+                            )}
+                            {user.isActive ? "Deactivate" : "Reactivate"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  );
+                })
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
-        
-        <TabsContent value="roles">
-          <RolesManagement />
+
+        <TabsContent value="roles" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Platform Roles</h2>
+              <p className="text-sm text-muted-foreground">
+                System roles are read-only. Custom roles are stored in Convex and can be edited here.
+              </p>
+            </div>
+            <Button onClick={() => openRoleDialog()}>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Create Custom Role
+            </Button>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {combinedRoles.map((role) => (
+              <Card key={role._id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <CardTitle className="text-lg">{formatRoleLabel(role.name)}</CardTitle>
+                      <p className="mt-1 text-sm text-muted-foreground">{role.description}</p>
+                    </div>
+                    <Badge variant={role.isSystem ? "secondary" : "outline"}>
+                      {role.isSystem ? "System" : "Custom"}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap gap-1">
+                    {role.permissions.slice(0, 6).map((permission) => (
+                      <Badge key={permission} variant="outline" className="text-xs">
+                        {permission}
+                      </Badge>
+                    ))}
+                    {role.permissions.length > 6 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{role.permissions.length - 6} more
+                      </Badge>
+                    )}
+                  </div>
+
+                  {!role.isSystem && (
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openRoleDialog(role as CustomRole)}>
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            await duplicateRole({ sessionToken, roleId: role._id });
+                            toast.success("Custom role duplicated");
+                          } catch (error) {
+                            toast.error(error instanceof Error ? error.message : "Unable to duplicate role");
+                          }
+                        }}
+                      >
+                        Duplicate
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={async () => {
+                          try {
+                            await deleteRole({ sessionToken, roleId: role._id });
+                            toast.success("Custom role deleted");
+                          } catch (error) {
+                            toast.error(error instanceof Error ? error.message : "Unable to delete role");
+                          }
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
-        
-        <TabsContent value="activity">
-          <ActivityLogs />
+
+        <TabsContent value="activity" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Platform Activity</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {activityLogs.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No recent audit activity found.</p>
+              ) : (
+                activityLogs.map((log) => (
+                  <div
+                    key={log._id}
+                    className="flex flex-col gap-2 rounded-lg border p-4 lg:flex-row lg:items-center lg:justify-between"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline">{log.action}</Badge>
+                        <span className="text-sm font-medium">{log.userName ?? log.actorId}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {log.userEmail ? `${log.userEmail} • ` : ""}
+                        {log.tenantName ?? "Platform"}
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(log.createdAt ?? log.timestamp)}
+                    </p>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Create User Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={(open) => { setIsCreateDialogOpen(open); if (!open) setCreateResult(null); }}>
+      <Dialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      >
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle>Invite Platform Admin</DialogTitle>
           </DialogHeader>
+          <PlatformAdminInviteForm
+            mode="dialog"
+            sessionToken={sessionToken}
+            onCancel={() => setIsCreateDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
-          {createResult ? (
-            /* ── Email failed: show copy-able sign-up link ── */
-            <div className="space-y-4 py-2">
-              <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 flex items-start gap-2">
-                <CheckCircle className="h-4 w-4 mt-0.5 shrink-0 text-green-600" />
-                <span>User <strong>{createResult.invitedEmail}</strong> created successfully.</span>
-              </div>
-
-              {createResult.workosError && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-                  <p className="font-semibold mb-1">Invitation email not sent</p>
-                  <p>{createResult.workosError}</p>
-                </div>
-              )}
-
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Platform Admin</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium mb-2">Share this sign-up link directly:</p>
-                <div className="flex gap-2">
-                  <Input readOnly value={createResult.signUpUrl} className="font-mono text-xs" />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      navigator.clipboard.writeText(createResult.signUpUrl);
-                      toast.success("Link copied!");
-                    }}
-                  >
-                    Copy
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Send this link to <strong>{createResult.invitedEmail}</strong> via email, WhatsApp, or Slack.
-                  It will take them directly to the sign-up page.
-                </p>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-1">
-                <Button variant="outline" onClick={() => { setCreateResult(null); setCreateForm({ firstName: "", lastName: "", email: "", role: "super_admin" }); }}>
-                  <UserPlus className="h-4 w-4 mr-1" /> Invite Another
-                </Button>
-                <Button onClick={() => setIsCreateDialogOpen(false)}>Done</Button>
-              </div>
-            </div>
-          ) : (
-            /* ── Invite form ── */
-            <div className="grid gap-4 py-4">
-              {createError && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                  {createError}
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="create-firstName">First Name *</Label>
-                  <Input
-                    id="create-firstName"
-                    placeholder="John"
-                    value={createForm.firstName}
-                    onChange={(e) => setCreateForm(p => ({ ...p, firstName: e.target.value }))}
-                    disabled={createSubmitting}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="create-lastName">Last Name *</Label>
-                  <Input
-                    id="create-lastName"
-                    placeholder="Doe"
-                    value={createForm.lastName}
-                    onChange={(e) => setCreateForm(p => ({ ...p, lastName: e.target.value }))}
-                    disabled={createSubmitting}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="create-email">Email *</Label>
+                <Label htmlFor="edit-firstName">First Name</Label>
                 <Input
-                  id="create-email"
-                  type="email"
-                  placeholder="john@example.com"
-                  value={createForm.email}
-                  onChange={(e) => setCreateForm(p => ({ ...p, email: e.target.value }))}
-                  disabled={createSubmitting}
+                  id="edit-firstName"
+                  value={editForm.firstName}
+                  onChange={(event) =>
+                    setEditForm((current) => ({ ...current, firstName: event.target.value }))
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="create-role">Role *</Label>
+                <Label htmlFor="edit-lastName">Last Name</Label>
+                <Input
+                  id="edit-lastName"
+                  value={editForm.lastName}
+                  onChange={(event) =>
+                    setEditForm((current) => ({ ...current, lastName: event.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editForm.email}
+                  onChange={(event) =>
+                    setEditForm((current) => ({ ...current, email: event.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-phone">Phone</Label>
+                <Input
+                  id="edit-phone"
+                  value={editForm.phone}
+                  onChange={(event) =>
+                    setEditForm((current) => ({ ...current, phone: event.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-location">Location</Label>
+                <Input
+                  id="edit-location"
+                  value={editForm.location}
+                  onChange={(event) =>
+                    setEditForm((current) => ({ ...current, location: event.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-role">Role</Label>
                 <Select
-                  value={createForm.role}
-                  onValueChange={(v) => setCreateForm(p => ({ ...p, role: v as "master_admin" | "super_admin" }))}
-                  disabled={createSubmitting}
+                  value={editForm.role}
+                  onValueChange={(value) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      role: value as "master_admin" | "super_admin",
+                    }))
+                  }
                 >
-                  <SelectTrigger id="create-role">
+                  <SelectTrigger id="edit-role">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -885,254 +748,97 @@ export default function UsersPage() {
                     <SelectItem value="master_admin">Master Admin</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {createForm.role === "master_admin"
-                    ? "Full platform control including billing and tenant management."
-                    : "Can view tenants and audit logs; limited platform access."}
-                </p>
-              </div>
-              <div className="flex justify-end space-x-2 pt-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={createSubmitting}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateUserSubmit} disabled={createSubmitting}>
-                  <UserPlus className="h-4 w-4 mr-1" />
-                  {createSubmitting ? "Sending…" : "Send Invitation"}
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit User Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-          </DialogHeader>
-          {selectedUser && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-firstName">First Name</Label>
-                  <Input id="edit-firstName" defaultValue={selectedUser.firstName} />
-                </div>
-                <div>
-                  <Label htmlFor="edit-lastName">Last Name</Label>
-                  <Input id="edit-lastName" defaultValue={selectedUser.lastName} />
-                </div>
-                <div>
-                  <Label htmlFor="edit-email">Email</Label>
-                  <Input id="edit-email" type="email" defaultValue={selectedUser.email} />
-                </div>
-                <div>
-                  <Label htmlFor="edit-phone">Phone</Label>
-                  <Input id="edit-phone" defaultValue={selectedUser.phone} />
-                </div>
-                <div>
-                  <Label htmlFor="edit-role">Role</Label>
-                  <Select defaultValue={selectedUser.role}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="agent">Agent</SelectItem>
-                      <SelectItem value="viewer">Viewer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="edit-status">Status</Label>
-                  <Select defaultValue={selectedUser.status}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="suspended">Suspended</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => setIsEditDialogOpen(false)}>
-                  <Edit className="h-4 w-4 mr-1" />
-                  Update User
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Create Role Dialog */}
-      <Dialog open={isCreateRoleDialogOpen} onOpenChange={setIsCreateRoleDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Create New Role</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="role-name">Role Name *</Label>
-                <Input 
-                  id="role-name" 
-                  placeholder="Enter role name"
-                  value={newRoleData.name}
-                  onChange={(e) => setNewRoleData({...newRoleData, name: e.target.value})}
-                />
               </div>
               <div>
-                <Label htmlFor="role-description">Description</Label>
-                <Input 
-                  id="role-description" 
-                  placeholder="Enter role description"
-                  value={newRoleData.description}
-                  onChange={(e) => setNewRoleData({...newRoleData, description: e.target.value})}
-                />
+                <Label htmlFor="edit-status">Status</Label>
+                <Select
+                  value={editForm.status}
+                  onValueChange={(value) =>
+                    setEditForm((current) => ({
+                      ...current,
+                      status: value as "active" | "inactive",
+                    }))
+                  }
+                >
+                  <SelectTrigger id="edit-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            
-            <div>
-              <Label>Permissions</Label>
-              <div className="space-y-2 mt-2">
-                {[
-                  "user_management",
-                  "tenant_management", 
-                  "reporting",
-                  "student_management",
-                  "grade_management",
-                  "parent_communication",
-                  "ticket_management",
-                  "basic_reporting",
-                  "view_reports",
-                  "financial_management",
-                  "system_settings",
-                  "api_access"
-                ].map((permission) => (
-                  <div key={permission} className="flex items-center gap-2">
-                    <input 
-                      type="checkbox" 
-                      id={`perm-${permission}`}
-                      checked={newRoleData.permissions.includes(permission)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setNewRoleData({...newRoleData, permissions: [...newRoleData.permissions, permission]});
-                        } else {
-                          setNewRoleData({...newRoleData, permissions: newRoleData.permissions.filter(p => p !== permission)});
-                        }
-                      }}
-                      className="rounded"
-                    />
-                    <Label htmlFor={`perm-${permission}`} className="text-sm">
-                      {permission.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsCreateRoleDialogOpen(false)}>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateRoleSubmit}>
-                <Shield className="h-4 w-4 mr-1" />
-                Create Role
+              <Button onClick={handleSaveUser} disabled={actionUserId === editingUser?._id}>
+                {actionUserId === editingUser?._id ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving…
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Role Dialog */}
-      <Dialog open={isEditRoleDialogOpen} onOpenChange={setIsEditRoleDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+      <Dialog
+        open={isRoleDialogOpen}
+        onOpenChange={(open) => {
+          setIsRoleDialogOpen(open);
+          if (!open) resetRoleDialog();
+        }}
+      >
+        <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Role</DialogTitle>
+            <DialogTitle>{editingCustomRole ? "Edit Custom Role" : "Create Custom Role"}</DialogTitle>
           </DialogHeader>
-          {selectedRole && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-role-name">Role Name *</Label>
-                  <Input 
-                    id="edit-role-name" 
-                    placeholder="Enter role name"
-                    defaultValue={selectedRole.name}
-                    onChange={(e) => setEditRoleData({...editRoleData, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-role-description">Description</Label>
-                  <Input 
-                    id="edit-role-description" 
-                    placeholder="Enter role description"
-                    defaultValue={selectedRole.description}
-                    onChange={(e) => setEditRoleData({...editRoleData, description: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <Label>Permissions</Label>
-                <div className="space-y-2 mt-2">
-                  {[
-                    "user_management",
-                    "tenant_management", 
-                    "reporting",
-                    "student_management",
-                    "grade_management",
-                    "parent_communication",
-                    "ticket_management",
-                    "basic_reporting",
-                    "view_reports",
-                    "financial_management",
-                    "system_settings",
-                    "api_access"
-                  ].map((permission) => (
-                    <div key={permission} className="flex items-center gap-2">
-                      <input 
-                        type="checkbox" 
-                        id={`edit-perm-${permission}`}
-                        checked={editRoleData.permissions.includes(permission) || selectedRole.permissions.includes(permission)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setEditRoleData({...editRoleData, permissions: [...editRoleData.permissions, permission]});
-                          } else {
-                            setEditRoleData({...editRoleData, permissions: editRoleData.permissions.filter(p => p !== permission)});
-                          }
-                        }}
-                        className="rounded"
-                      />
-                      <Label htmlFor={`edit-perm-${permission}`} className="text-sm">
-                        {permission.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsEditRoleDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleEditRoleSubmit}>
-                  <Shield className="h-4 w-4 mr-1" />
-                  Update Role
-                </Button>
-              </div>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Role Name</Label>
+              <Input value={roleName} onChange={(event) => setRoleName(event.target.value)} />
             </div>
-          )}
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Input
+                value={roleDescription}
+                onChange={(event) => setRoleDescription(event.target.value)}
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Permissions ({selectedPermissions.length} selected)</Label>
+              {Object.entries(PERMISSION_MODULES).map(([module, permissions]) => (
+                <div key={module} className="rounded-lg border p-3">
+                  <p className="mb-2 text-sm font-medium">{module}</p>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {permissions.map((permission) => (
+                      <label key={permission} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={selectedPermissions.includes(permission)}
+                          onChange={() => togglePermission(permission)}
+                        />
+                        {permission}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveRole}>Save Role</Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

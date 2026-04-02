@@ -1,6 +1,7 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { filterAndSortUsers } from "./utils";
 
 // List all platform admins (master_admin + super_admin)
 export const listPlatformAdmins = query({
@@ -69,30 +70,30 @@ export const listAllUsers = query({
         search: v.optional(v.string()),
         role: v.optional(v.string()),
         tenantId: v.optional(v.string()),
+        status: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         await requirePlatformSession(ctx, args);
 
-        let users = await ctx.db.query("users").collect();
+        const users = await ctx.db.query("users").collect();
+        return filterAndSortUsers(users, args);
+    },
+});
 
-        if (args.tenantId) {
-            users = users.filter((u) => u.tenantId === args.tenantId);
-        }
+export const listTenantFilterOptions = query({
+    args: { sessionToken: v.string() },
+    handler: async (ctx, args) => {
+        await requirePlatformSession(ctx, args);
 
-        if (args.role) {
-            users = users.filter((u) => u.role === args.role);
-        }
+        const tenants = await ctx.db.query("tenants").collect();
 
-        if (args.search) {
-            const lower = args.search.toLowerCase();
-            users = users.filter(
-                (u) =>
-                    u.email.toLowerCase().includes(lower) ||
-                    (u.firstName?.toLowerCase().includes(lower) ?? false) ||
-                    (u.lastName?.toLowerCase().includes(lower) ?? false)
-            );
-        }
-
-        return users;
+        return [...tenants]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((tenant) => ({
+                tenantId: tenant.tenantId,
+                name: tenant.name,
+                status: tenant.status,
+                subdomain: tenant.subdomain,
+            }));
     },
 });

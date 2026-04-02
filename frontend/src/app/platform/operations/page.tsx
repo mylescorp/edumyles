@@ -9,38 +9,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { formatRelativeTime } from "@/lib/utils";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { 
   AlertTriangle, 
   CheckCircle, 
-  Clock, 
   Activity, 
-  AlertCircle, 
   Plus, 
   Edit, 
-  Trash2, 
   Bell, 
   Calendar,
   Server,
-  Cpu,
-  HardDrive,
-  Wifi,
-  Shield,
-  TrendingUp,
-  Users,
   Eye,
   EyeOff,
-  RefreshCw,
   Play,
   Pause,
-  Square
+  Square,
+  Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Incident {
   _id: string;
@@ -138,13 +131,57 @@ interface SystemHealth {
   }>;
 }
 
+const EMPTY_INCIDENT_FORM = {
+  title: "",
+  description: "",
+  severity: "high" as Incident["severity"],
+  services: "",
+  impact: "",
+  assignedTo: "",
+  tags: "",
+};
+
+const EMPTY_MAINTENANCE_FORM = {
+  title: "",
+  description: "",
+  impact: "degraded_performance" as MaintenanceWindow["impact"],
+  scheduledStart: "",
+  scheduledEnd: "",
+  affectedServices: "",
+  notificationChannels: "email,dashboard",
+  autoNotify: true,
+};
+
+function splitCsv(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function toTimestamp(value: string) {
+  const parsed = new Date(value).getTime();
+  return Number.isFinite(parsed) ? parsed : NaN;
+}
+
 export default function OperationsCenterPage() {
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
   const [isMaintenanceDialogOpen, setIsMaintenanceDialogOpen] = useState(false);
-  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [isIncidentDetailsOpen, setIsIncidentDetailsOpen] = useState(false);
+  const [incidentStatusFilter, setIncidentStatusFilter] = useState<"active" | "investigating" | "resolved" | "all">("active");
+  const [incidentSeverityFilter, setIncidentSeverityFilter] = useState<"all" | Incident["severity"]>("all");
+  const [maintenanceStatusFilter, setMaintenanceStatusFilter] = useState<"scheduled" | "in_progress" | "completed" | "all">("all");
+  const [maintenanceTimeFilter, setMaintenanceTimeFilter] = useState<"upcoming" | "past" | "all">("upcoming");
+  const [alertTypeFilter, setAlertTypeFilter] = useState<"all" | OperationsAlert["type"]>("all");
+  const [alertSeverityFilter, setAlertSeverityFilter] = useState<"all" | OperationsAlert["severity"]>("all");
+  const [incidentForm, setIncidentForm] = useState(EMPTY_INCIDENT_FORM);
+  const [maintenanceForm, setMaintenanceForm] = useState(EMPTY_MAINTENANCE_FORM);
+  const [isSubmittingIncident, setIsSubmittingIncident] = useState(false);
+  const [isSubmittingMaintenance, setIsSubmittingMaintenance] = useState(false);
+  const [pendingActionId, setPendingActionId] = useState<string | null>(null);
 
   // Get operations overview
   const overview = usePlatformQuery(
@@ -156,21 +193,34 @@ export default function OperationsCenterPage() {
   // Get incidents
   const incidents = usePlatformQuery(
     api.platform.operations.queries.getIncidents,
-    { sessionToken: sessionToken || "", status: "active" },
+    {
+      sessionToken: sessionToken || "",
+      status: incidentStatusFilter,
+      ...(incidentSeverityFilter !== "all" ? { severity: incidentSeverityFilter } : {}),
+    },
     !!sessionToken
   );
 
   // Get maintenance windows
   const maintenance = usePlatformQuery(
     api.platform.operations.queries.getMaintenanceWindows,
-    { sessionToken: sessionToken || "", status: "upcoming" },
+    {
+      sessionToken: sessionToken || "",
+      status: maintenanceStatusFilter,
+      timeRange: maintenanceTimeFilter,
+    },
     !!sessionToken
   );
 
   // Get alerts
   const alerts = usePlatformQuery(
     api.platform.operations.queries.getAlerts,
-    { sessionToken: sessionToken || "", status: "active" },
+    {
+      sessionToken: sessionToken || "",
+      status: "active",
+      ...(alertTypeFilter !== "all" ? { type: alertTypeFilter } : {}),
+      ...(alertSeverityFilter !== "all" ? { severity: alertSeverityFilter } : {}),
+    },
     !!sessionToken
   );
 
@@ -206,18 +256,35 @@ export default function OperationsCenterPage() {
   };
 
   // Handle incident creation
-  const handleCreateIncident = async (formData: any) => {
+  const handleCreateIncident = async () => {
+    const services = splitCsv(incidentForm.services);
+    const tags = splitCsv(incidentForm.tags);
+
+    if (!incidentForm.title.trim() || !incidentForm.description.trim() || services.length === 0) {
+      toast.error("Title, description, and at least one affected service are required.");
+      return;
+    }
+
+    setIsSubmittingIncident(true);
     try {
       await createIncidentMutation({
         sessionToken,
-        ...formData,
+        title: incidentForm.title.trim(),
+        description: incidentForm.description.trim(),
+        severity: incidentForm.severity,
+        services,
+        impact: incidentForm.impact.trim() || undefined,
+        assignedTo: incidentForm.assignedTo.trim() || undefined,
+        tags: tags.length > 0 ? tags : undefined,
       });
       setIsIncidentDialogOpen(false);
-      // Reset form
-      const form = document.getElementById("incident-form") as HTMLFormElement;
-      if (form) form.reset();
+      setIncidentForm(EMPTY_INCIDENT_FORM);
+      toast.success("Incident created successfully.");
     } catch (error: any) {
       console.error("Failed to create incident:", error);
+      toast.error(error?.message || "Failed to create incident.");
+    } finally {
+      setIsSubmittingIncident(false);
     }
   };
 
@@ -226,78 +293,112 @@ export default function OperationsCenterPage() {
     if (!selectedIncident) return;
     
     try {
+      setPendingActionId(selectedIncident._id);
       await updateIncidentMutation({
         sessionToken,
         incidentId: selectedIncident._id,
         updates,
       });
+      toast.success("Incident updated successfully.");
     } catch (error: any) {
       console.error("Failed to update incident:", error);
+      toast.error(error?.message || "Failed to update incident.");
+    } finally {
+      setPendingActionId(null);
     }
   };
 
   // Handle maintenance creation
-  const handleCreateMaintenance = async (formData: any) => {
+  const handleCreateMaintenance = async () => {
+    const scheduledStart = toTimestamp(maintenanceForm.scheduledStart);
+    const scheduledEnd = toTimestamp(maintenanceForm.scheduledEnd);
+    const affectedServices = splitCsv(maintenanceForm.affectedServices);
+    const notificationChannels = splitCsv(maintenanceForm.notificationChannels);
+
+    if (
+      !maintenanceForm.title.trim() ||
+      !maintenanceForm.description.trim() ||
+      !Number.isFinite(scheduledStart) ||
+      !Number.isFinite(scheduledEnd) ||
+      scheduledEnd <= scheduledStart ||
+      affectedServices.length === 0
+    ) {
+      toast.error("Provide a valid title, time window, and affected services.");
+      return;
+    }
+
+    setIsSubmittingMaintenance(true);
     try {
       await createMaintenanceMutation({
         sessionToken,
-        ...formData,
+        title: maintenanceForm.title.trim(),
+        description: maintenanceForm.description.trim(),
+        scheduledStart,
+        scheduledEnd,
+        impact: maintenanceForm.impact,
+        affectedServices,
+        notificationChannels,
+        autoNotify: maintenanceForm.autoNotify,
       });
       setIsMaintenanceDialogOpen(false);
-      // Reset form
-      const form = document.getElementById("maintenance-form") as HTMLFormElement;
-      if (form) form.reset();
+      setMaintenanceForm(EMPTY_MAINTENANCE_FORM);
+      toast.success("Maintenance window scheduled.");
     } catch (error: any) {
       console.error("Failed to create maintenance window:", error);
+      toast.error(error?.message || "Failed to create maintenance window.");
+    } finally {
+      setIsSubmittingMaintenance(false);
     }
   };
 
   // Handle alert acknowledgment
   const handleAcknowledgeAlert = async (alertId: string) => {
+    setPendingActionId(alertId);
     try {
       await acknowledgeAlertMutation({
         sessionToken,
         alertId,
         notes: "Acknowledged by operations team",
       });
+      toast.success("Alert acknowledged.");
     } catch (error: any) {
       console.error("Failed to acknowledge alert:", error);
+      toast.error(error?.message || "Failed to acknowledge alert.");
+    } finally {
+      setPendingActionId(null);
     }
   };
 
-  if (!sessionToken) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading operations center...</p>
-        </div>
-      </div>
-    );
+  if (!sessionToken || !overview || !incidents || !maintenance || !alerts) {
+    return <LoadingSkeleton variant="page" />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Operations Center</h1>
-          <p className="text-gray-600 mt-1">System monitoring, incident management, and operational oversight</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setIsIncidentDialogOpen(true)} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            New Incident
-          </Button>
-          <Button onClick={() => setIsMaintenanceDialogOpen(true)} variant="outline" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Schedule Maintenance
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Operations Center"
+        description="System monitoring, incident management, and operational oversight"
+        breadcrumbs={[
+          { label: "Platform", href: "/platform" },
+          { label: "Operations", href: "/platform/operations" },
+        ]}
+        actions={
+          <>
+            <Button onClick={() => setIsIncidentDialogOpen(true)} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              New Incident
+            </Button>
+            <Button onClick={() => setIsMaintenanceDialogOpen(true)} variant="outline" className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Schedule Maintenance
+            </Button>
+          </>
+        }
+      />
 
       {/* Overview Stats */}
       {overview && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg">Active Incidents</CardTitle>
@@ -430,9 +531,9 @@ export default function OperationsCenterPage() {
         <TabsContent value="incidents" className="space-y-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <Select>
+              <Select value={incidentSeverityFilter} onValueChange={(value) => setIncidentSeverityFilter(value as "all" | Incident["severity"])}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by severity" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Severities</SelectItem>
@@ -442,9 +543,9 @@ export default function OperationsCenterPage() {
                   <SelectItem value="low">Low</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
+              <Select value={incidentStatusFilter} onValueChange={(value) => setIncidentStatusFilter(value as "active" | "investigating" | "resolved" | "all")}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
@@ -515,14 +616,20 @@ export default function OperationsCenterPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={() => setSelectedIncident(incident)}>
+                  <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={() => {
+                        setSelectedIncident(incident);
+                        setIsIncidentDetailsOpen(true);
+                      }}>
                         <Edit className="w-4 h-4 mr-1" />
                         View Details
                       </Button>
                       {incident.status === "active" && (
-                        <Button variant="outline" size="sm" onClick={() => handleUpdateIncident({ status: "investigating" })}>
-                          <Play className="w-4 h-4 mr-1" />
+                        <Button variant="outline" size="sm" disabled={pendingActionId === incident._id} onClick={() => {
+                          setSelectedIncident(incident);
+                          void handleUpdateIncident({ status: "investigating" });
+                        }}>
+                          {pendingActionId === incident._id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Play className="w-4 h-4 mr-1" />}
                           Start Investigation
                         </Button>
                       )}
@@ -537,9 +644,9 @@ export default function OperationsCenterPage() {
         <TabsContent value="maintenance" className="space-y-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <Select>
+              <Select value={maintenanceStatusFilter} onValueChange={(value) => setMaintenanceStatusFilter(value as "scheduled" | "in_progress" | "completed" | "all")}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
@@ -548,9 +655,9 @@ export default function OperationsCenterPage() {
                   <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
+              <Select value={maintenanceTimeFilter} onValueChange={(value) => setMaintenanceTimeFilter(value as "upcoming" | "past" | "all")}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by time" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Time</SelectItem>
@@ -613,24 +720,38 @@ export default function OperationsCenterPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {window.status === "scheduled" && (
-                        <Button variant="outline" size="sm" onClick={async () => {
+                        <Button variant="outline" size="sm" disabled={pendingActionId === window._id} onClick={async () => {
                           if (!sessionToken) return;
+                          setPendingActionId(window._id);
                           try {
                             await updateMaintenanceMutation({ sessionToken, maintenanceId: window._id, status: "in_progress" });
-                          } catch (e) { console.error(e); }
+                            toast.success("Maintenance started.");
+                          } catch (e: any) {
+                            console.error(e);
+                            toast.error(e?.message || "Failed to start maintenance.");
+                          } finally {
+                            setPendingActionId(null);
+                          }
                         }}>
-                          <Pause className="w-4 h-4 mr-1" />
+                          {pendingActionId === window._id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Pause className="w-4 h-4 mr-1" />}
                           Start Now
                         </Button>
                       )}
                       {window.status === "in_progress" && (
-                        <Button variant="outline" size="sm" onClick={async () => {
+                        <Button variant="outline" size="sm" disabled={pendingActionId === window._id} onClick={async () => {
                           if (!sessionToken) return;
+                          setPendingActionId(window._id);
                           try {
                             await updateMaintenanceMutation({ sessionToken, maintenanceId: window._id, status: "completed" });
-                          } catch (e) { console.error(e); }
+                            toast.success("Maintenance completed.");
+                          } catch (e: any) {
+                            console.error(e);
+                            toast.error(e?.message || "Failed to complete maintenance.");
+                          } finally {
+                            setPendingActionId(null);
+                          }
                         }}>
-                          <Square className="w-4 h-4 mr-1" />
+                          {pendingActionId === window._id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Square className="w-4 h-4 mr-1" />}
                           Complete
                         </Button>
                       )}
@@ -645,9 +766,9 @@ export default function OperationsCenterPage() {
         <TabsContent value="alerts" className="space-y-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <Select>
+              <Select value={alertTypeFilter} onValueChange={(value) => setAlertTypeFilter(value as "all" | OperationsAlert["type"])}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by type" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
@@ -657,9 +778,9 @@ export default function OperationsCenterPage() {
                   <SelectItem value="capacity">Capacity</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
+              <Select value={alertSeverityFilter} onValueChange={(value) => setAlertSeverityFilter(value as "all" | OperationsAlert["severity"])}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by severity" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Severities</SelectItem>
@@ -732,19 +853,26 @@ export default function OperationsCenterPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {!alert.acknowledged && (
-                        <Button variant="outline" size="sm" onClick={() => handleAcknowledgeAlert(alert._id)}>
-                          <Eye className="w-4 h-4 mr-1" />
+                        <Button variant="outline" size="sm" disabled={pendingActionId === alert._id} onClick={() => handleAcknowledgeAlert(alert._id)}>
+                          {pendingActionId === alert._id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Eye className="w-4 h-4 mr-1" />}
                           Acknowledge
                         </Button>
                       )}
                       {alert.status === "active" && (
-                        <Button variant="outline" size="sm" onClick={async () => {
+                        <Button variant="outline" size="sm" disabled={pendingActionId === alert._id} onClick={async () => {
                           if (!sessionToken) return;
+                          setPendingActionId(alert._id);
                           try {
                             await resolveAlertMutation({ sessionToken, alertId: alert._id, resolution: "Manually resolved by admin" });
-                          } catch (e) { console.error(e); }
+                            toast.success("Alert resolved.");
+                          } catch (e: any) {
+                            console.error(e);
+                            toast.error(e?.message || "Failed to resolve alert.");
+                          } finally {
+                            setPendingActionId(null);
+                          }
                         }}>
-                          <CheckCircle className="w-4 h-4 mr-1" />
+                          {pendingActionId === alert._id ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-1" />}
                           Resolve
                         </Button>
                       )}
@@ -766,18 +894,25 @@ export default function OperationsCenterPage() {
               Report a new system incident for tracking and resolution
             </DialogDescription>
           </DialogHeader>
-          <form id="incident-form" onSubmit={(e) => { e.preventDefault(); handleCreateIncident(Object.fromEntries(new FormData(e.currentTarget))); }}>
+          <form id="incident-form" onSubmit={(e) => { e.preventDefault(); void handleCreateIncident(); }}>
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="title">Title *</Label>
-                  <Input id="title" name="title" required placeholder="Brief description of the incident" />
+                  <Input
+                    id="title"
+                    name="title"
+                    required
+                    placeholder="Brief description of the incident"
+                    value={incidentForm.title}
+                    onChange={(e) => setIncidentForm((current) => ({ ...current, title: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="severity">Severity *</Label>
-                  <Select>
+                  <Select value={incidentForm.severity} onValueChange={(value) => setIncidentForm((current) => ({ ...current, severity: value as Incident["severity"] }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select severity" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="critical">Critical</SelectItem>
@@ -791,36 +926,75 @@ export default function OperationsCenterPage() {
 
               <div>
                 <Label htmlFor="description">Description *</Label>
-                <Textarea id="description" name="description" required placeholder="Detailed description of the incident" rows={4} />
+                <Textarea
+                  id="description"
+                  name="description"
+                  required
+                  placeholder="Detailed description of the incident"
+                  rows={4}
+                  value={incidentForm.description}
+                  onChange={(e) => setIncidentForm((current) => ({ ...current, description: e.target.value }))}
+                />
               </div>
 
               <div>
                 <Label htmlFor="services">Affected Services *</Label>
-                <Input id="services" name="services" placeholder="e.g., API Server, Database, Email Service" />
+                <Input
+                  id="services"
+                  name="services"
+                  placeholder="e.g., API Server, Database, Email Service"
+                  value={incidentForm.services}
+                  onChange={(e) => setIncidentForm((current) => ({ ...current, services: e.target.value }))}
+                />
               </div>
 
               <div>
                 <Label htmlFor="impact">Business Impact</Label>
-                <Input id="impact" name="impact" placeholder="Describe the business impact" />
+                <Input
+                  id="impact"
+                  name="impact"
+                  placeholder="Describe the business impact"
+                  value={incidentForm.impact}
+                  onChange={(e) => setIncidentForm((current) => ({ ...current, impact: e.target.value }))}
+                />
               </div>
 
               <div>
                 <Label htmlFor="assignedTo">Assigned To</Label>
-                <Input id="assignedTo" name="assignedTo" placeholder="Email or team name" />
+                <Input
+                  id="assignedTo"
+                  name="assignedTo"
+                  placeholder="Email or team name"
+                  value={incidentForm.assignedTo}
+                  onChange={(e) => setIncidentForm((current) => ({ ...current, assignedTo: e.target.value }))}
+                />
               </div>
 
               <div>
                 <Label htmlFor="tags">Tags</Label>
-                <Input id="tags" name="tags" placeholder="e.g., database, api, security" />
+                <Input
+                  id="tags"
+                  name="tags"
+                  placeholder="e.g., database, api, security"
+                  value={incidentForm.tags}
+                  onChange={(e) => setIncidentForm((current) => ({ ...current, tags: e.target.value }))}
+                />
               </div>
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsIncidentDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsIncidentDialogOpen(false)} type="button">
                 Cancel
               </Button>
-              <Button type="submit">
-                Create Incident
+              <Button type="submit" disabled={isSubmittingIncident}>
+                {isSubmittingIncident ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Incident"
+                )}
               </Button>
             </DialogFooter>
           </form>
@@ -836,18 +1010,25 @@ export default function OperationsCenterPage() {
               Schedule a planned maintenance window for system updates or improvements
             </DialogDescription>
           </DialogHeader>
-          <form id="maintenance-form" onSubmit={(e) => { e.preventDefault(); handleCreateMaintenance(Object.fromEntries(new FormData(e.currentTarget))); }}>
+          <form id="maintenance-form" onSubmit={(e) => { e.preventDefault(); void handleCreateMaintenance(); }}>
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="title">Title *</Label>
-                  <Input id="title" name="title" required placeholder="Maintenance title" />
+                  <Input
+                    id="maintenance-title"
+                    name="title"
+                    required
+                    placeholder="Maintenance title"
+                    value={maintenanceForm.title}
+                    onChange={(e) => setMaintenanceForm((current) => ({ ...current, title: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="impact">Impact *</Label>
-                  <Select>
+                  <Select value={maintenanceForm.impact} onValueChange={(value) => setMaintenanceForm((current) => ({ ...current, impact: value as MaintenanceWindow["impact"] }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select impact level" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="no_impact">No Impact</SelectItem>
@@ -860,45 +1041,186 @@ export default function OperationsCenterPage() {
 
               <div>
                 <Label htmlFor="description">Description *</Label>
-                <Textarea id="description" name="description" required placeholder="Describe the maintenance activities" rows={4} />
+                <Textarea
+                  id="maintenance-description"
+                  name="description"
+                  required
+                  placeholder="Describe the maintenance activities"
+                  rows={4}
+                  value={maintenanceForm.description}
+                  onChange={(e) => setMaintenanceForm((current) => ({ ...current, description: e.target.value }))}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="scheduledStart">Scheduled Start *</Label>
-                  <Input id="scheduledStart" name="scheduledStart" type="datetime-local" required />
+                  <Input
+                    id="scheduledStart"
+                    name="scheduledStart"
+                    type="datetime-local"
+                    required
+                    value={maintenanceForm.scheduledStart}
+                    onChange={(e) => setMaintenanceForm((current) => ({ ...current, scheduledStart: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="scheduledEnd">Scheduled End *</Label>
-                  <Input id="scheduledEnd" name="scheduledEnd" type="datetime-local" required />
+                  <Input
+                    id="scheduledEnd"
+                    name="scheduledEnd"
+                    type="datetime-local"
+                    required
+                    value={maintenanceForm.scheduledEnd}
+                    onChange={(e) => setMaintenanceForm((current) => ({ ...current, scheduledEnd: e.target.value }))}
+                  />
                 </div>
               </div>
 
               <div>
                 <Label htmlFor="affectedServices">Affected Services *</Label>
-                <Input id="affectedServices" name="affectedServices" placeholder="e.g., API Server, Database" />
+                <Input
+                  id="affectedServices"
+                  name="affectedServices"
+                  placeholder="e.g., API Server, Database"
+                  value={maintenanceForm.affectedServices}
+                  onChange={(e) => setMaintenanceForm((current) => ({ ...current, affectedServices: e.target.value }))}
+                />
               </div>
 
               <div>
                 <Label htmlFor="notificationChannels">Notification Channels</Label>
-                <Input id="notificationChannels" name="notificationChannels" placeholder="e.g., email, slack, dashboard" />
+                <Input
+                  id="notificationChannels"
+                  name="notificationChannels"
+                  placeholder="e.g., email, slack, dashboard"
+                  value={maintenanceForm.notificationChannels}
+                  onChange={(e) => setMaintenanceForm((current) => ({ ...current, notificationChannels: e.target.value }))}
+                />
               </div>
 
               <div className="flex items-center space-x-2">
-                <input type="checkbox" id="autoNotify" name="autoNotify" defaultChecked />
+                <input
+                  type="checkbox"
+                  id="autoNotify"
+                  name="autoNotify"
+                  checked={maintenanceForm.autoNotify}
+                  onChange={(e) => setMaintenanceForm((current) => ({ ...current, autoNotify: e.target.checked }))}
+                />
                 <Label htmlFor="autoNotify">Send automatic notifications</Label>
               </div>
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsMaintenanceDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsMaintenanceDialogOpen(false)} type="button">
                 Cancel
               </Button>
-              <Button type="submit">
-                Schedule Maintenance
+              <Button type="submit" disabled={isSubmittingMaintenance}>
+                {isSubmittingMaintenance ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    Scheduling...
+                  </>
+                ) : (
+                  "Schedule Maintenance"
+                )}
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isIncidentDetailsOpen} onOpenChange={setIsIncidentDetailsOpen}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>{selectedIncident?.title || "Incident Details"}</DialogTitle>
+            <DialogDescription>
+              Review the current status, impact, and recent timeline for this incident.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedIncident && (
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-2">
+                <Badge className={getSeverityColor(selectedIncident.severity)}>
+                  {selectedIncident.severity}
+                </Badge>
+                <Badge className={getStatusColor(selectedIncident.status)}>
+                  {selectedIncident.status}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Services</span>
+                  <div className="text-gray-600">{selectedIncident.services.join(", ")}</div>
+                </div>
+                <div>
+                  <span className="font-medium">Assigned To</span>
+                  <div className="text-gray-600">{selectedIncident.assignedTo || "Unassigned"}</div>
+                </div>
+                <div>
+                  <span className="font-medium">Created</span>
+                  <div className="text-gray-600">{new Date(selectedIncident.createdAt).toLocaleString()}</div>
+                </div>
+                <div>
+                  <span className="font-medium">Impact</span>
+                  <div className="text-gray-600">{selectedIncident.impact || "Not specified"}</div>
+                </div>
+              </div>
+
+              <div>
+                <Label>Description</Label>
+                <p className="mt-2 text-sm text-gray-600">{selectedIncident.description}</p>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Timeline</Label>
+                {selectedIncident.timeline && selectedIncident.timeline.length > 0 ? (
+                  selectedIncident.timeline.slice(0, 8).map((entry, index) => (
+                    <div key={`${entry.createdAt}-${index}`} className="rounded-lg border p-3">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{entry.type}</Badge>
+                        <span className="text-xs text-gray-500">{formatRelativeTime(entry.createdAt)}</span>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-700">{entry.message}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">No timeline entries available yet.</p>
+                )}
+              </div>
+
+              <DialogFooter>
+                {selectedIncident.status === "active" && (
+                  <Button
+                    variant="outline"
+                    disabled={pendingActionId === selectedIncident._id}
+                    onClick={() => void handleUpdateIncident({ status: "investigating" })}
+                  >
+                    {pendingActionId === selectedIncident._id ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <Play className="w-4 h-4 mr-1" />
+                    )}
+                    Start Investigation
+                  </Button>
+                )}
+                {selectedIncident.status === "investigating" && (
+                  <Button
+                    disabled={pendingActionId === selectedIncident._id}
+                    onClick={() => void handleUpdateIncident({ status: "resolved", resolution: "Resolved from operations center" })}
+                  >
+                    {pendingActionId === selectedIncident._id ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                    )}
+                    Resolve Incident
+                  </Button>
+                )}
+              </DialogFooter>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

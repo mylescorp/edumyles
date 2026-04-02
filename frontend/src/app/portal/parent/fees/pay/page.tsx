@@ -20,6 +20,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { CreditCard, Smartphone, Building, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { formatCurrency, formatDate } from "@/lib/formatters";
+
+type BankTransferInstructions = {
+  reference: string;
+  amount: number;
+  instructions: string[];
+  bankDetails: {
+    accountNumber: string;
+    bankName: string;
+    branch: string;
+    swift: string;
+  };
+};
 
 export default function ParentPayFeesPage() {
   const { isLoading } = useAuth();
@@ -28,8 +42,6 @@ export default function ParentPayFeesPage() {
     api.modules.portal.parent.queries.getChildren,
     {}
   );
-
-  const getOutstanding = useQuery(api.modules.portal.parent.queries.getChildrenFeeOverview, {});
 
   const initiateStkPush = useAction(api.actions.payments.mpesa.initiateStkPush);
 
@@ -42,15 +54,15 @@ export default function ParentPayFeesPage() {
   }>({ open: false, invoiceId: null, amount: 0, paymentMethod: "mpesa" });
   const [phone, setPhone] = useState("");
   const [cardDetails, setCardDetails] = useState({ number: "", expiry: "", cvv: "" });
-  const [bankDetails, setBankDetails] = useState({ accountName: "", accountNumber: "", bankName: "" });
   const [submitting, setSubmitting] = useState(false);
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [bankTransferInstructions, setBankTransferInstructions] =
+    useState<BankTransferInstructions | null>(null);
 
   const handlePayClick = (invoiceId: Id<"invoices">, amount: number, label?: string) => {
     setPayDialog({ open: true, invoiceId, amount, label, paymentMethod: "mpesa" });
     setPhone("");
     setCardDetails({ number: "", expiry: "", cvv: "" });
-    setBankDetails({ accountName: "", accountNumber: "", bankName: "" });
   };
 
   const handlePaySubmit = async () => {
@@ -70,15 +82,6 @@ export default function ParentPayFeesPage() {
       toast({
         title: "Card details required",
         description: "Please enter complete card information",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (payDialog.paymentMethod === "bank_transfer" && (!bankDetails.accountName || !bankDetails.accountNumber || !bankDetails.bankName)) {
-      toast({
-        title: "Bank details required",
-        description: "Please enter complete bank transfer information",
         variant: "destructive",
       });
       return;
@@ -137,12 +140,21 @@ export default function ParentPayFeesPage() {
           break;
           
         case "bank_transfer":
-          // For now, log bank transfer intent
-          result = { message: "Bank transfer instructions will be available soon" };
-          toast({
-            title: "Info", 
-            description: "Bank transfers will be available in Phase 11",
-          });
+          {
+            const res = await fetch("/api/payments/bank-transfer/initiate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                invoiceId: payDialog.invoiceId,
+              }),
+            });
+            const payload = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              throw new Error(payload.error ?? "Unable to start bank transfer");
+            }
+            result = payload;
+            setBankTransferInstructions(payload);
+          }
           break;
       }
       
@@ -236,6 +248,11 @@ export default function ParentPayFeesPage() {
                     <span>Bank Transfer</span>
                   </button>
                 </div>
+                {payDialog.paymentMethod === "bank_transfer" && (
+                  <p className="text-xs text-muted-foreground">
+                    Bank transfer uses the school account details below after initiation.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -293,27 +310,10 @@ export default function ParentPayFeesPage() {
 
             {payDialog.paymentMethod === "bank_transfer" && (
               <div className="space-y-2">
-                <Label htmlFor="bank-name">Bank Name</Label>
-                <Input
-                  id="bank-name"
-                  placeholder="Equity Bank"
-                  value={bankDetails.bankName}
-                  onChange={(e) => setBankDetails((d) => ({ ...d, bankName: e.target.value }))}
-                />
-                <Label htmlFor="account-name">Account Name</Label>
-                <Input
-                  id="account-name"
-                  placeholder="John Doe"
-                  value={bankDetails.accountName}
-                  onChange={(e) => setBankDetails((d) => ({ ...d, accountName: e.target.value }))}
-                />
-                <Label htmlFor="account-number">Account Number</Label>
-                <Input
-                  id="account-number"
-                  placeholder="1234567890"
-                  value={bankDetails.accountNumber}
-                  onChange={(e) => setBankDetails((d) => ({ ...d, accountNumber: e.target.value }))}
-                />
+                <p className="text-sm text-muted-foreground">
+                  We will generate a unique transfer reference and show the school bank details
+                  after you continue.
+                </p>
               </div>
             )}
 
@@ -321,7 +321,7 @@ export default function ParentPayFeesPage() {
             <div className="bg-muted p-3 rounded-md">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Amount to Pay:</span>
-                <span className="text-lg font-bold">KES {payDialog.amount}</span>
+                <span className="text-lg font-bold">{formatCurrency(payDialog.amount)}</span>
               </div>
               {payDialog.label && (
                 <div className="text-xs text-muted-foreground">
@@ -348,6 +348,72 @@ export default function ParentPayFeesPage() {
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={!!bankTransferInstructions}
+        onOpenChange={(open) => {
+          if (!open) setBankTransferInstructions(null);
+        }}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Bank Transfer Instructions</DialogTitle>
+          </DialogHeader>
+          {bankTransferInstructions && (
+            <div className="space-y-4">
+              <div className="rounded-md border bg-muted/40 p-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Reference</span>
+                  <span className="font-semibold">{bankTransferInstructions.reference}</span>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Amount</span>
+                  <span className="font-semibold">
+                    {formatCurrency(bankTransferInstructions.amount)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2 rounded-md border p-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Bank</span>
+                  <span className="font-medium">{bankTransferInstructions.bankDetails.bankName}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Account Number</span>
+                  <span className="font-medium">{bankTransferInstructions.bankDetails.accountNumber}</span>
+                </div>
+                {bankTransferInstructions.bankDetails.branch && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Branch</span>
+                    <span className="font-medium">{bankTransferInstructions.bankDetails.branch}</span>
+                  </div>
+                )}
+                {bankTransferInstructions.bankDetails.swift && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">SWIFT</span>
+                    <span className="font-medium">{bankTransferInstructions.bankDetails.swift}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Next steps</Label>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {bankTransferInstructions.instructions.map((instruction) => (
+                    <li key={instruction} className="rounded-md border bg-background p-3">
+                      {instruction}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setBankTransferInstructions(null)}>Done</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Payment History */}
       {paymentHistory.length > 0 && (
         <Card className="mt-6">
@@ -369,7 +435,7 @@ export default function ParentPayFeesPage() {
                     <div>
                       <p className="font-medium">{payment.label || 'Payment'}</p>
                       <p className="text-sm text-muted-foreground">
-                        KES {payment.amount} • {payment.method.replace('_', ' ').toUpperCase()}
+                        {formatCurrency(payment.amount)} • {payment.method.replace('_', ' ').toUpperCase()}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(payment.timestamp).toLocaleString()}
@@ -421,7 +487,16 @@ function ChildPayCard({
   const outstandingInvoices = useQuery(
     api.modules.portal.parent.queries.getOutstandingInvoicesForChild,
     { studentId: String(child._id) }
-  );
+  ) as
+    | Array<{
+        _id: Id<"invoices">;
+        dueDate: string;
+        amount: number;
+        amountPaid: number;
+        balance: number;
+        status: string;
+      }>
+    | undefined;
 
   if (outstandingInvoices === undefined) {
     return (
@@ -450,16 +525,32 @@ function ChildPayCard({
       <CardContent className="space-y-2 text-sm text-muted-foreground">
         {hasOutstanding ? (
           <>
-            {outstandingInvoices.map((inv: { _id: Id<"invoices">; dueDate: string; amount: number }) => (
-              <div key={inv._id} className="flex items-center justify-between">
-                <span>
-                  Invoice • Due {inv.dueDate} • KES {inv.amount}
-                </span>
+            {outstandingInvoices.map((inv) => (
+              <div
+                key={inv._id}
+                className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-foreground">
+                      Invoice due {formatDate(inv.dueDate)}
+                    </span>
+                    <Badge variant={inv.status === "partially_paid" ? "secondary" : "outline"}>
+                      {inv.status.replace("_", " ")}
+                    </Badge>
+                  </div>
+                  <p>
+                    Total {formatCurrency(inv.amount)} • Paid {formatCurrency(inv.amountPaid)} •
+                    Balance {formatCurrency(inv.balance)}
+                  </p>
+                </div>
                 <Button
                   size="sm"
-                  onClick={() => onPayClick(inv._id, inv.amount, `${child.firstName} ${child.lastName}`)}
+                  onClick={() =>
+                    onPayClick(inv._id, inv.balance, `${child.firstName} ${child.lastName}`)
+                  }
                 >
-                  Pay with M-Pesa
+                  Pay Balance
                 </Button>
               </div>
             ))}

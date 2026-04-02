@@ -75,7 +75,27 @@ export const listInvoices = query({
                     );
             }
 
-            return await invoicesQuery.order("desc").collect();
+            const invoices = await invoicesQuery.order("desc").collect();
+            const allPayments = await ctx.db
+                .query("payments")
+                .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                .collect();
+
+            const completedPayments = allPayments.filter(
+                (payment) => payment.status === "completed" || payment.status === "success"
+            );
+
+            return invoices.map((invoice) => {
+                const amountPaid = completedPayments
+                    .filter((payment) => payment.invoiceId === invoice._id.toString())
+                    .reduce((sum, payment) => sum + payment.amount, 0);
+
+                return {
+                    ...invoice,
+                    amountPaid,
+                    balance: Math.max(invoice.amount - amountPaid, 0),
+                };
+            });
         } catch {
             return [];
         }
@@ -160,6 +180,45 @@ export const getReceiptData = query({
     },
 });
 
+export const getPaymentStatusForInvoice = query({
+    args: {
+        invoiceId: v.id("invoices"),
+        sessionToken: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        try {
+            const tenant = args.sessionToken
+                ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+                : await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "finance");
+            requirePermission(tenant, "finance:read");
+
+            const invoice = await ctx.db.get(args.invoiceId);
+            if (!invoice || invoice.tenantId !== tenant.tenantId) return null;
+
+            const payments = await ctx.db
+                .query("payments")
+                .withIndex("by_invoice", (q) => q.eq("invoiceId", args.invoiceId))
+                .collect();
+
+            const paid = payments
+                .filter((payment) => payment.status === "completed")
+                .reduce((sum, payment) => sum + payment.amount, 0);
+
+            return {
+                invoiceId: invoice._id,
+                amount: invoice.amount,
+                status: invoice.status,
+                amountPaid: paid,
+                balance: Math.max(invoice.amount - paid, 0),
+                payments,
+            };
+        } catch {
+            return null;
+        }
+    },
+});
+
 export const getFeeReminders = query({
     args: { sessionToken: v.optional(v.string()), dueBefore: v.optional(v.string()), status: v.optional(v.string()) },
     handler: async (ctx, args) => {
@@ -177,6 +236,60 @@ export const getFeeReminders = query({
                 .collect();
             if (args.dueBefore) list = list.filter((i) => i.dueDate <= args.dueBefore!);
             return list;
+        } catch {
+            return [];
+        }
+    },
+});
+
+export const listPendingBankTransfers = query({
+    args: { sessionToken: v.optional(v.string()) },
+    handler: async (ctx, args) => {
+        try {
+            const tenant = args.sessionToken
+                ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+                : await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "finance");
+            requirePermission(tenant, "finance:read");
+
+            const callbacks = await ctx.db
+                .query("paymentCallbacks")
+                .withIndex("by_tenant_gateway", (q) =>
+                    q.eq("tenantId", tenant.tenantId).eq("gateway", "bank_transfer")
+                )
+                .collect();
+
+            const pendingCallbacks = callbacks
+                .filter((callback) => callback.status === "pending")
+                .sort((a, b) => (b.updatedAt ?? b.createdAt) - (a.updatedAt ?? a.createdAt));
+
+            const invoices = await ctx.db
+                .query("invoices")
+                .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                .collect();
+            const students = await ctx.db
+                .query("students")
+                .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                .collect();
+
+            const invoiceMap = new Map(invoices.map((invoice) => [invoice._id.toString(), invoice]));
+            const studentMap = new Map(students.map((student) => [student._id.toString(), student]));
+
+            return pendingCallbacks.map((callback) => {
+                const invoice = callback.invoiceId ? invoiceMap.get(callback.invoiceId) : null;
+                const student = invoice ? studentMap.get(invoice.studentId) : null;
+
+                return {
+                    ...callback,
+                    invoiceStatus: invoice?.status ?? "unknown",
+                    invoiceAmount: invoice?.amount ?? callback.amount ?? 0,
+                    dueDate: invoice?.dueDate ?? null,
+                    studentId: invoice?.studentId ?? null,
+                    studentName: student
+                        ? `${student.firstName} ${student.lastName}`
+                        : "Unknown Student",
+                };
+            });
         } catch {
             return [];
         }

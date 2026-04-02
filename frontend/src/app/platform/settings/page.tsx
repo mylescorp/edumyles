@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -28,128 +29,17 @@ import {
   CheckCircle2,
   Loader2,
 } from "lucide-react";
-
-type SettingsDraft = {
-  general: {
-    platformName: string;
-    platformDescription: string;
-    timezone: string;
-    dateFormat: string;
-  };
-  security: {
-    passwordMinLength: number;
-    passwordRequireUppercase: boolean;
-    passwordRequireLowercase: boolean;
-    passwordRequireNumbers: boolean;
-    passwordRequireSpecialChars: boolean;
-    passwordMaxLength: number;
-    sessionTimeoutMinutes: number;
-    maxLoginAttempts: number;
-    twoFactorRequired: boolean;
-    allowedDomains: string[];
-  };
-  integrations: {
-    paymentGateway: string;
-    smsProvider: string;
-    analyticsEnabled: boolean;
-  };
-  operations: {
-    maintenanceMode: boolean;
-    registrationEnabled: boolean;
-    backupFrequency: string;
-    retentionDays: number;
-  };
-};
-
-const DEFAULT_DRAFT: SettingsDraft = {
-  general: {
-    platformName: "EduMyles",
-    platformDescription: "Comprehensive school management platform",
-    timezone: "Africa/Nairobi",
-    dateFormat: "DD/MM/YYYY",
-  },
-  security: {
-    passwordMinLength: 8,
-    passwordRequireUppercase: true,
-    passwordRequireLowercase: true,
-    passwordRequireNumbers: true,
-    passwordRequireSpecialChars: true,
-    passwordMaxLength: 128,
-    sessionTimeoutMinutes: 480,
-    maxLoginAttempts: 5,
-    twoFactorRequired: false,
-    allowedDomains: ["edumyles.com"],
-  },
-  integrations: {
-    paymentGateway: "stripe",
-    smsProvider: "africastalking",
-    analyticsEnabled: true,
-  },
-  operations: {
-    maintenanceMode: false,
-    registrationEnabled: true,
-    backupFrequency: "daily",
-    retentionDays: 30,
-  },
-};
-
-function sectionToSettings(section: string, data: Record<string, any>): Array<{ key: string; value: string }> {
-  return Object.entries(data).map(([key, value]) => ({
-    key,
-    value: typeof value === "object" ? JSON.stringify(value) : String(value),
-  }));
-}
-
-function applyDbSettings(draft: SettingsDraft, dbSettings: Record<string, Record<string, string>>): SettingsDraft {
-  const result = { ...draft };
-
-  if (dbSettings.general) {
-    const g = dbSettings.general;
-    result.general = {
-      platformName: g.platformName ?? draft.general.platformName,
-      platformDescription: g.platformDescription ?? draft.general.platformDescription,
-      timezone: g.timezone ?? draft.general.timezone,
-      dateFormat: g.dateFormat ?? draft.general.dateFormat,
-    };
-  }
-
-  if (dbSettings.security) {
-    const s = dbSettings.security;
-    result.security = {
-      passwordMinLength: s.passwordMinLength ? Number(s.passwordMinLength) : draft.security.passwordMinLength,
-      passwordRequireUppercase: s.passwordRequireUppercase === "true",
-      passwordRequireLowercase: s.passwordRequireLowercase === "true",
-      passwordRequireNumbers: s.passwordRequireNumbers === "true",
-      passwordRequireSpecialChars: s.passwordRequireSpecialChars === "true",
-      passwordMaxLength: s.passwordMaxLength ? Number(s.passwordMaxLength) : draft.security.passwordMaxLength,
-      sessionTimeoutMinutes: s.sessionTimeoutMinutes ? Number(s.sessionTimeoutMinutes) : draft.security.sessionTimeoutMinutes,
-      maxLoginAttempts: s.maxLoginAttempts ? Number(s.maxLoginAttempts) : draft.security.maxLoginAttempts,
-      twoFactorRequired: s.twoFactorRequired === "true",
-      allowedDomains: s.allowedDomains ? JSON.parse(s.allowedDomains) : draft.security.allowedDomains,
-    };
-  }
-
-  if (dbSettings.integrations) {
-    const i = dbSettings.integrations;
-    result.integrations = {
-      paymentGateway: i.paymentGateway ?? draft.integrations.paymentGateway,
-      smsProvider: i.smsProvider ?? draft.integrations.smsProvider,
-      analyticsEnabled: i.analyticsEnabled === "true",
-    };
-  }
-
-  if (dbSettings.operations) {
-    const o = dbSettings.operations;
-    result.operations = {
-      maintenanceMode: o.maintenanceMode === "true",
-      registrationEnabled: o.registrationEnabled !== "false",
-      backupFrequency: o.backupFrequency ?? draft.operations.backupFrequency,
-      retentionDays: o.retentionDays ? Number(o.retentionDays) : draft.operations.retentionDays,
-    };
-  }
-
-  return result;
-}
+import {
+  applyDbSettings,
+  BACKUP_FREQUENCIES,
+  DATE_FORMATS,
+  DEFAULT_SETTINGS_DRAFT,
+  PAYMENT_GATEWAYS,
+  PLATFORM_TIMEZONES,
+  sectionToSettings,
+  SettingsDraft,
+  SMS_PROVIDERS,
+} from "./settingsDraft";
 
 export default function PlatformSettingsPage() {
   const { isLoading, sessionToken } = useAuth();
@@ -158,7 +48,7 @@ export default function PlatformSettingsPage() {
   const isMasterAdmin = hasRole("master_admin");
   const isPlatformAdmin = hasRole("master_admin", "super_admin");
 
-  const [draft, setDraft] = useState<SettingsDraft>(DEFAULT_DRAFT);
+  const [draft, setDraft] = useState<SettingsDraft>(DEFAULT_SETTINGS_DRAFT);
   const [dirty, setDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [loadedFromDb, setLoadedFromDb] = useState(false);
@@ -175,7 +65,7 @@ export default function PlatformSettingsPage() {
   // Load DB settings into draft when they arrive
   useEffect(() => {
     if (dbSettings && !loadedFromDb) {
-      setDraft(applyDbSettings(DEFAULT_DRAFT, dbSettings));
+      setDraft(applyDbSettings(DEFAULT_SETTINGS_DRAFT, dbSettings));
       setLoadedFromDb(true);
     }
   }, [dbSettings, loadedFromDb]);
@@ -219,27 +109,19 @@ export default function PlatformSettingsPage() {
     if (!sessionToken) return;
     setIsSaving(true);
     try {
-      // Save each section
-      const sections: Array<{ section: string; data: Record<string, any> }> = [
-        { section: "general", data: draft.general },
-        { section: "security", data: draft.security },
-        { section: "integrations", data: draft.integrations },
-        { section: "operations", data: draft.operations },
+          const sections: Array<{ section: string; data: Record<string, any> }> = [
+            { section: "general", data: draft.general },
+            { section: "security", data: draft.security },
+            { section: "integrations", data: draft.integrations },
+            { section: "operations", data: draft.operations },
       ];
 
       for (const { section, data } of sections) {
         await updateSettings({
           sessionToken,
           section,
-          settings: sectionToSettings(section, data),
+          settings: sectionToSettings(data),
         });
-      }
-
-      // Set/clear maintenance mode cookie for middleware enforcement
-      if (draft.operations.maintenanceMode) {
-        document.cookie = "edumyles_maintenance=true; path=/; max-age=31536000";
-      } else {
-        document.cookie = "edumyles_maintenance=; path=/; max-age=0";
       }
 
       setDirty(false);
@@ -259,7 +141,7 @@ export default function PlatformSettingsPage() {
   };
 
   const resetToDefaults = async () => {
-    setDraft(DEFAULT_DRAFT);
+    setDraft(DEFAULT_SETTINGS_DRAFT);
     setDirty(true);
     toast({
       title: "Reset to Defaults",
@@ -383,6 +265,50 @@ export default function PlatformSettingsPage() {
                   }}
                 />
               </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Timezone</Label>
+                  <Select
+                    value={draft.general.timezone}
+                    onValueChange={(value) => {
+                      setDirty(true);
+                      setDraft({ ...draft, general: { ...draft.general, timezone: value } });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PLATFORM_TIMEZONES.map((timezone) => (
+                        <SelectItem key={timezone} value={timezone}>
+                          {timezone}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Date Format</Label>
+                  <Select
+                    value={draft.general.dateFormat}
+                    onValueChange={(value) => {
+                      setDirty(true);
+                      setDraft({ ...draft, general: { ...draft.general, dateFormat: value } });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DATE_FORMATS.map((format) => (
+                        <SelectItem key={format} value={format}>
+                          {format}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -468,23 +394,45 @@ export default function PlatformSettingsPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Primary Payment Gateway</Label>
-                  <Input
+                  <Select
                     value={draft.integrations.paymentGateway}
-                    onChange={(e) => {
+                    onValueChange={(value) => {
                       setDirty(true);
-                      setDraft({ ...draft, integrations: { ...draft.integrations, paymentGateway: e.target.value } });
+                      setDraft({ ...draft, integrations: { ...draft.integrations, paymentGateway: value } });
                     }}
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_GATEWAYS.map((gateway) => (
+                        <SelectItem key={gateway} value={gateway}>
+                          {gateway}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>SMS Provider</Label>
-                  <Input
+                  <Select
                     value={draft.integrations.smsProvider}
-                    onChange={(e) => {
+                    onValueChange={(value) => {
                       setDirty(true);
-                      setDraft({ ...draft, integrations: { ...draft.integrations, smsProvider: e.target.value } });
+                      setDraft({ ...draft, integrations: { ...draft.integrations, smsProvider: value } });
                     }}
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SMS_PROVIDERS.map((provider) => (
+                        <SelectItem key={provider} value={provider}>
+                          {provider}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="flex items-center justify-between rounded-md border p-3">
@@ -542,13 +490,24 @@ export default function PlatformSettingsPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Backup Frequency</Label>
-                  <Input
+                  <Select
                     value={draft.operations.backupFrequency}
-                    onChange={(e) => {
+                    onValueChange={(value) => {
                       setDirty(true);
-                      setDraft({ ...draft, operations: { ...draft.operations, backupFrequency: e.target.value } });
+                      setDraft({ ...draft, operations: { ...draft.operations, backupFrequency: value } });
                     }}
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BACKUP_FREQUENCIES.map((frequency) => (
+                        <SelectItem key={frequency} value={frequency}>
+                          {frequency}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Retention Days</Label>

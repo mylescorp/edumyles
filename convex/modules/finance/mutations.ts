@@ -1,9 +1,46 @@
 import { v } from "convex/values";
 import { mutation, internalMutation } from "../../_generated/server";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { logAction } from "../../helpers/auditLog";
+
+async function calculateInvoicePaymentSummary(ctx: any, invoiceId: any) {
+  const payments = await ctx.db
+    .query("payments")
+    .withIndex("by_invoice", (q: any) => q.eq("invoiceId", invoiceId))
+    .collect();
+
+  const completedAmount = payments
+    .filter((payment: any) => payment.status === "completed")
+    .reduce((sum: number, payment: any) => sum + payment.amount, 0);
+
+  return {
+    payments,
+    completedAmount,
+  };
+}
+
+async function reconcileInvoiceStatus(ctx: any, invoice: any, now: number) {
+  const { completedAmount } = await calculateInvoicePaymentSummary(ctx, invoice._id);
+  const newStatus =
+    completedAmount >= invoice.amount
+      ? "paid"
+      : completedAmount > 0
+        ? "partially_paid"
+        : "pending";
+
+  await ctx.db.patch(invoice._id, {
+    status: newStatus,
+    updatedAt: now,
+  });
+
+  return {
+    amountPaid: completedAmount,
+    balance: Math.max(invoice.amount - completedAmount, 0),
+    status: newStatus,
+  };
+}
 
 export const createFeeStructure = mutation({
   args: {
@@ -166,14 +203,7 @@ export const recordPayment = mutation({
       processedAt: now,
     });
 
-    const paidSoFar = (
-      await ctx.db
-        .query("payments")
-        .withIndex("by_invoice", (q) => q.eq("invoiceId", args.invoiceId))
-        .collect()
-    ).reduce((s, p) => s + p.amount, 0);
-    const newStatus = paidSoFar >= invoice.amount ? "paid" : "partially_paid";
-    await ctx.db.patch(args.invoiceId, { status: newStatus, updatedAt: now });
+    const summary = await reconcileInvoiceStatus(ctx, invoice, now);
 
     await logAction(ctx, {
       tenantId: tenant.tenantId,
@@ -182,7 +212,12 @@ export const recordPayment = mutation({
       action: "payment.recorded",
       entityType: "payment",
       entityId: paymentId,
-      after: { invoiceId: args.invoiceId, amount: args.amount },
+      after: {
+        invoiceId: args.invoiceId,
+        amount: args.amount,
+        invoiceStatus: summary.status,
+        balance: summary.balance,
+      },
     });
     return paymentId;
   },
@@ -290,10 +325,7 @@ export const updatePaymentStatus = mutation({
     if (args.status === "completed") {
       const invoice = await ctx.db.get(payment.invoiceId as any);
       if (invoice && (invoice as any).tenantId === tenant.tenantId) {
-        await ctx.db.patch(payment.invoiceId as any, {
-          status: "paid",
-          updatedAt: Date.now(),
-        });
+        await reconcileInvoiceStatus(ctx, invoice, Date.now());
       }
     }
 
@@ -308,6 +340,104 @@ export const updatePaymentStatus = mutation({
     });
 
     return payment._id;
+  },
+});
+
+export const verifyBankTransfer = mutation({
+  args: {
+    callbackId: v.id("paymentCallbacks"),
+    sessionToken: v.optional(v.string()),
+    adminNote: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "finance");
+    requirePermission(tenant, "finance:write");
+
+    const callback = await ctx.db.get(args.callbackId);
+    if (!callback || callback.tenantId !== tenant.tenantId) {
+      throw new Error("Bank transfer request not found");
+    }
+    if (callback.gateway !== "bank_transfer") {
+      throw new Error("Invalid payment gateway");
+    }
+    if (callback.status === "completed") {
+      return { success: true, alreadyVerified: true };
+    }
+    if (callback.status !== "pending") {
+      throw new Error("Only pending bank transfers can be verified");
+    }
+    if (!callback.invoiceId) {
+      throw new Error("Bank transfer request is missing invoice details");
+    }
+
+    const invoice = await ctx.db.get(callback.invoiceId as any);
+    if (!invoice || (invoice as any).tenantId !== tenant.tenantId) {
+      throw new Error("Invoice not found");
+    }
+    if ((invoice as any).status === "cancelled") {
+      throw new Error("Cannot verify payment for a cancelled invoice");
+    }
+
+    const now = Date.now();
+    const amount = callback.amount ?? (invoice as any).amount;
+    const reference = callback.reference ?? callback.externalId;
+
+    const paymentId = await ctx.db.insert("payments", {
+      tenantId: tenant.tenantId,
+      invoiceId: callback.invoiceId,
+      amount,
+      method: "bank_transfer",
+      reference,
+      status: "completed",
+      processedAt: now,
+      updatedAt: now,
+      notes: args.adminNote,
+    });
+
+    const summary = await reconcileInvoiceStatus(ctx, invoice, now);
+
+    await ctx.db.patch(args.callbackId, {
+      status: "completed",
+      reference,
+      updatedAt: now,
+      payload: {
+        ...(callback.payload ?? {}),
+        adminNote: args.adminNote,
+        verifiedAt: now,
+        verifiedBy: tenant.userId,
+        paymentId,
+        amountPaid: summary.amountPaid,
+        balance: summary.balance,
+      },
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "payment.verified",
+      entityType: "paymentCallback",
+      entityId: args.callbackId,
+      after: {
+        gateway: "bank_transfer",
+        paymentId,
+        invoiceId: callback.invoiceId,
+        amount,
+        invoiceStatus: summary.status,
+        balance: summary.balance,
+      },
+    });
+
+    return {
+      success: true,
+      alreadyVerified: false,
+      paymentId,
+      invoiceStatus: summary.status,
+      balance: summary.balance,
+    };
   },
 });
 
@@ -389,7 +519,7 @@ export const recordPaymentFromGatewayInternal = internalMutation({
     const amount = existing.amount ?? (invoice as any).amount;
     const reference = args.reference ?? existing.externalId;
 
-    await ctx.db.insert("payments", {
+    const paymentId = await ctx.db.insert("payments", {
       tenantId: existing.tenantId,
       invoiceId: invoiceId as any,
       amount,
@@ -399,18 +529,28 @@ export const recordPaymentFromGatewayInternal = internalMutation({
       processedAt: now,
     });
 
-    const paidSoFar = (
-      await ctx.db
-        .query("payments")
-        .withIndex("by_invoice", (q) => q.eq("invoiceId", invoiceId as any))
-        .collect()
-    ).reduce((s: number, p: any) => s + p.amount, 0);
-    const newStatus = paidSoFar >= (invoice as any).amount ? "paid" : "partially_paid";
-    await ctx.db.patch(invoiceId as any, { status: newStatus, updatedAt: now });
+    const summary = await reconcileInvoiceStatus(ctx, invoice, now);
 
-    await ctx.db.patch(existing._id, { status: "completed", reference, updatedAt: now });
+    await ctx.db.patch(existing._id, {
+      status: "completed",
+      reference,
+      updatedAt: now,
+      payload: {
+        ...(existing.payload ?? {}),
+        resultCode: args.resultCode,
+        paymentId,
+        amountPaid: summary.amountPaid,
+        balance: summary.balance,
+      },
+    });
 
-    return { success: true, alreadyProcessed: false };
+    return {
+      success: true,
+      alreadyProcessed: false,
+      paymentId,
+      invoiceStatus: summary.status,
+      balance: summary.balance,
+    };
   },
 });
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,15 +16,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, FileText, Plus, Trash2 } from "lucide-react";
-import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { toast } from "sonner";
 
 interface LineItem {
   description: string;
   quantity: number;
   unitPriceCents: number;
 }
+
+type Subscription = {
+  tenantId: string;
+  name: string;
+  plan: string;
+};
+
+const PLAN_PRICE_CENTS: Record<string, number> = {
+  starter: 2999,
+  standard: 7999,
+  pro: 19999,
+  enterprise: 49999,
+};
 
 function toTimestamp(dateValue: string | undefined): number {
   if (!dateValue) {
@@ -33,52 +49,92 @@ function toTimestamp(dateValue: string | undefined): number {
   return new Date(dateValue).getTime();
 }
 
+function formatKes(amountCents: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amountCents / 100);
+}
+
 export default function CreateInvoicePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const preselectedTenantId = searchParams.get("tenantId") ?? "";
   const { sessionToken } = useAuth();
-  const createInvoice = useMutation(api.platform.billing.createInvoice);
 
-  const tenants = useQuery(
-    api.platform.billing.listSubscriptions,
-    sessionToken ? { sessionToken } : "skip"
+  const createInvoice = useMutation(api.platform.billing.mutations.createInvoice);
+  const tenants = usePlatformQuery(
+    api.platform.billing.queries.listSubscriptions,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
   );
 
-  const [selectedTenantId, setSelectedTenantId] = useState("");
+  const [selectedTenantId, setSelectedTenantId] = useState(preselectedTenantId);
   const [dueDate, setDueDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 30);
-    return d.toISOString().split("T")[0];
+    const date = new Date();
+    date.setDate(date.getDate() + 30);
+    return date.toISOString().split("T")[0];
   });
   const [periodStart, setPeriodStart] = useState(() => {
-    const d = new Date();
-    d.setDate(1);
-    return d.toISOString().split("T")[0];
+    const date = new Date();
+    date.setDate(1);
+    return date.toISOString().split("T")[0];
   });
   const [periodEnd, setPeriodEnd] = useState(() => {
-    const d = new Date();
-    d.setMonth(d.getMonth() + 1, 0);
-    return d.toISOString().split("T")[0];
+    const date = new Date();
+    date.setMonth(date.getMonth() + 1, 0);
+    return date.toISOString().split("T")[0];
   });
   const [lineItems, setLineItems] = useState<LineItem[]>([
-    { description: "Subscription fee", quantity: 1, unitPriceCents: 0 },
+    { description: "Platform subscription", quantity: 1, unitPriceCents: 0 },
   ]);
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const selectedTenant = (tenants as any[])?.find((t: any) => t.tenantId === selectedTenantId);
-  const totalCents = lineItems.reduce((sum, item) => sum + item.quantity * item.unitPriceCents, 0);
+  const tenantOptions = (tenants ?? []) as Subscription[];
+  const selectedTenant = tenantOptions.find((tenant) => tenant.tenantId === selectedTenantId);
+
+  const totalCents = useMemo(
+    () => lineItems.reduce((sum, item) => sum + item.quantity * item.unitPriceCents, 0),
+    [lineItems]
+  );
 
   const updateLineItem = (index: number, field: keyof LineItem, value: string | number) => {
-    setLineItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
+    setLineItems((previous) =>
+      previous.map((item, currentIndex) =>
+        currentIndex === index ? { ...item, [field]: value } : item
+      )
+    );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!sessionToken || !selectedTenant || lineItems.length === 0) return;
+  const applySuggestedSubscriptionLine = (tenant: Subscription | undefined) => {
+    if (!tenant) return;
+    const suggestedPrice = PLAN_PRICE_CENTS[tenant.plan] ?? 0;
+    setLineItems([
+      {
+        description: `${tenant.name} ${tenant.plan === "standard" ? "growth" : tenant.plan} subscription`,
+        quantity: 1,
+        unitPriceCents: suggestedPrice,
+      },
+    ]);
+  };
+
+  const handleTenantChange = (tenantId: string) => {
+    setSelectedTenantId(tenantId);
+    const tenant = tenantOptions.find((option) => option.tenantId === tenantId);
+    applySuggestedSubscriptionLine(tenant);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!sessionToken || !selectedTenant || lineItems.length === 0) {
+      toast.error("Select a tenant and add at least one line item.");
+      return;
+    }
 
     setIsSubmitting(true);
-    setError(null);
     try {
       await createInvoice({
         sessionToken,
@@ -97,25 +153,33 @@ export default function CreateInvoicePage() {
         })),
         notes: notes || undefined,
       });
-      router.push("/platform/billing");
-    } catch (err: any) {
-      setError(err.message ?? "Failed to create invoice");
+      toast.success("Invoice created.");
+      router.push("/platform/billing/invoices");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create invoice.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (!sessionToken || tenants === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <PageHeader title="Create Invoice" description="Generate a billing invoice for a tenant" />
+        <PageHeader
+          title="Create Platform Invoice"
+          description="Generate a billing invoice for a tenant using the platform billing ledger."
+        />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
+      <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -126,32 +190,50 @@ export default function CreateInvoicePage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Tenant *</Label>
-              <Select value={selectedTenantId} onValueChange={setSelectedTenantId}>
+              <Select value={selectedTenantId} onValueChange={handleTenantChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select tenant..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {(tenants as any[])?.map((t: any) => (
-                    <SelectItem key={t.tenantId} value={t.tenantId}>
-                      {t.name} ({t.plan})
+                  {tenantOptions.map((tenant) => (
+                    <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                      {tenant.name} ({tenant.plan === "standard" ? "growth" : tenant.plan})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="periodStart">Period Start *</Label>
-                <Input id="periodStart" type="date" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} required />
+                <Input
+                  id="periodStart"
+                  type="date"
+                  value={periodStart}
+                  onChange={(event) => setPeriodStart(event.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="periodEnd">Period End *</Label>
-                <Input id="periodEnd" type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} required />
+                <Input
+                  id="periodEnd"
+                  type="date"
+                  value={periodEnd}
+                  onChange={(event) => setPeriodEnd(event.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dueDate">Due Date *</Label>
-                <Input id="dueDate" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={dueDate}
+                  onChange={(event) => setDueDate(event.target.value)}
+                  required
+                />
               </div>
             </div>
           </CardContent>
@@ -160,24 +242,40 @@ export default function CreateInvoicePage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Line Items</CardTitle>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setLineItems((p) => [...p, { description: "", quantity: 1, unitPriceCents: 0 }])}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add Item
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => applySuggestedSubscriptionLine(selectedTenant)}
+                disabled={!selectedTenant}
+              >
+                Use Suggested Plan Price
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setLineItems((previous) => [
+                    ...previous,
+                    { description: "", quantity: 1, unitPriceCents: 0 },
+                  ])
+                }
+              >
+                <Plus className="mr-1 h-4 w-4" />
+                Add Item
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {lineItems.map((item, index) => (
-              <div key={index} className="grid grid-cols-12 gap-2 items-end">
+              <div key={index} className="grid grid-cols-12 items-end gap-2">
                 <div className="col-span-6 space-y-1">
                   {index === 0 && <Label className="text-xs">Description</Label>}
                   <Input
                     value={item.description}
-                    onChange={(e) => updateLineItem(index, "description", e.target.value)}
+                    onChange={(event) => updateLineItem(index, "description", event.target.value)}
                     placeholder="e.g. Monthly subscription"
                     required
                   />
@@ -188,7 +286,7 @@ export default function CreateInvoicePage() {
                     type="number"
                     min={1}
                     value={item.quantity}
-                    onChange={(e) => updateLineItem(index, "quantity", Number(e.target.value))}
+                    onChange={(event) => updateLineItem(index, "quantity", Number(event.target.value))}
                   />
                 </div>
                 <div className="col-span-3 space-y-1">
@@ -197,7 +295,9 @@ export default function CreateInvoicePage() {
                     type="number"
                     min={0}
                     value={item.unitPriceCents}
-                    onChange={(e) => updateLineItem(index, "unitPriceCents", Number(e.target.value))}
+                    onChange={(event) =>
+                      updateLineItem(index, "unitPriceCents", Number(event.target.value))
+                    }
                   />
                 </div>
                 <div className="col-span-1">
@@ -207,7 +307,9 @@ export default function CreateInvoicePage() {
                       variant="ghost"
                       size="sm"
                       className="text-destructive"
-                      onClick={() => setLineItems((p) => p.filter((_, i) => i !== index))}
+                      onClick={() =>
+                        setLineItems((previous) => previous.filter((_, currentIndex) => currentIndex !== index))
+                      }
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -215,8 +317,8 @@ export default function CreateInvoicePage() {
                 </div>
               </div>
             ))}
-            <div className="flex justify-end pt-2 border-t">
-              <p className="text-sm font-medium">Total: {(totalCents / 100).toFixed(2)} KES</p>
+            <div className="flex justify-end border-t pt-2">
+              <p className="text-sm font-medium">Total: {formatKes(totalCents)}</p>
             </div>
           </CardContent>
         </Card>
@@ -228,7 +330,7 @@ export default function CreateInvoicePage() {
               <Textarea
                 id="notes"
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(event) => setNotes(event.target.value)}
                 placeholder="Additional notes..."
                 rows={3}
               />
@@ -236,10 +338,10 @@ export default function CreateInvoicePage() {
           </CardContent>
         </Card>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
-
         <div className="flex gap-3">
-          <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
+          <Button type="button" variant="outline" onClick={() => router.back()}>
+            Cancel
+          </Button>
           <Button type="submit" disabled={isSubmitting || !selectedTenantId}>
             {isSubmitting ? "Creating..." : "Create Invoice"}
           </Button>
