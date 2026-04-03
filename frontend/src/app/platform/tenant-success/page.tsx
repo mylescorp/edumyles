@@ -202,6 +202,11 @@ export default function TenantSuccessPage() {
     sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   );
+  const tenants = usePlatformQuery(
+    api.platform.tenants.queries.listAllTenants,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  );
 
   // Mutations
   const createInitiative = useMutation(
@@ -210,11 +215,11 @@ export default function TenantSuccessPage() {
   const createMetric = useMutation(api.platform.tenantSuccess.mutations.createSuccessMetric);
 
   const handleCreateInitiative = async () => {
-    if (!sessionToken || !initTitle || !initCategory || !initPriority) return;
+    if (!sessionToken || !selectedTenant || !initTitle || !initCategory || !initPriority) return;
     try {
       await createInitiative({
         sessionToken,
-        tenantId: "",
+        tenantId: selectedTenant,
         title: initTitle,
         description: initDescription,
         category: initCategory as any,
@@ -223,7 +228,7 @@ export default function TenantSuccessPage() {
         currentScore: 0,
         actions: [],
         milestones: [],
-        createdBy: sessionToken,
+        createdBy: "platform_admin",
         assignedTo: initAssignedTo,
         startDate: initStartDate || new Date().toISOString(),
         targetDate: initTargetDate || new Date().toISOString(),
@@ -244,11 +249,11 @@ export default function TenantSuccessPage() {
   };
 
   const handleCreateMetric = async () => {
-    if (!sessionToken || !metricName || !metricCategory) return;
+    if (!sessionToken || !selectedTenant || !metricName || !metricCategory) return;
     try {
       await createMetric({
         sessionToken,
-        tenantId: "",
+        tenantId: selectedTenant,
         name: metricName,
         description: metricDescription,
         category: metricCategory as any,
@@ -259,7 +264,7 @@ export default function TenantSuccessPage() {
         calculationMethod: (metricCalcMethod || "manual") as any,
         frequency: (metricFrequency || "monthly") as any,
         isActive: true,
-        createdBy: sessionToken,
+        createdBy: "platform_admin",
       });
       setIsCreateMetricOpen(false);
       setMetricName("");
@@ -336,6 +341,9 @@ export default function TenantSuccessPage() {
 
   const tenantHealthScores: TenantHealthScore[] = ((rawHealthScores as any[]) ??
     []) as TenantHealthScore[];
+  const filteredHealthScores = tenantHealthScores.filter(
+    (score) => !selectedTenant || score.tenantId === selectedTenant
+  );
 
   const getGradeColor = (grade: string) => {
     switch (grade) {
@@ -436,7 +444,9 @@ export default function TenantSuccessPage() {
             <div className="text-2xl font-bold text-green-600">
               {tenantSuccessOverview.overview.averageHealthScore}
             </div>
-            <p className="text-xs text-muted-foreground">+2.5 from last month</p>
+            <p className="text-xs text-muted-foreground">
+              Based on current tenant health scores.
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -584,6 +594,19 @@ export default function TenantSuccessPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          <Select value={selectedTenant || "all"} onValueChange={(value) => setSelectedTenant(value === "all" ? "" : value)}>
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder="All tenants" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All tenants</SelectItem>
+              {(tenants ?? []).map((tenant: any) => (
+                <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                  {tenant.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search tenants..." className="pl-10 w-80" />
@@ -629,7 +652,7 @@ export default function TenantSuccessPage() {
 
       {/* Health Scores List */}
       <div className="space-y-4">
-        {tenantHealthScores.map((healthScore) => (
+        {filteredHealthScores.map((healthScore) => (
           <Card key={healthScore._id}>
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
@@ -783,6 +806,21 @@ export default function TenantSuccessPage() {
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
+                  <Label>Tenant</Label>
+                  <Select value={selectedTenant} onValueChange={setSelectedTenant}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select tenant" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(tenants ?? []).map((tenant: any) => (
+                        <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                          {tenant.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
                   <Label htmlFor="initiative-title">Initiative Title</Label>
                   <Input id="initiative-title" placeholder="Enter initiative title" value={initTitle} onChange={(e) => setInitTitle(e.target.value)} />
                 </div>
@@ -846,7 +884,7 @@ export default function TenantSuccessPage() {
                 <Button variant="outline" onClick={() => setIsCreateInitiativeOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleCreateInitiative} disabled={!initTitle || !initCategory || !initPriority}>
+                <Button onClick={handleCreateInitiative} disabled={!selectedTenant || !initTitle || !initCategory || !initPriority}>
                   Create Initiative
                 </Button>
               </div>
@@ -862,7 +900,9 @@ export default function TenantSuccessPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {tenantSuccessOverview.topPerformers.initiatives.map((initiative) => (
+            {tenantSuccessOverview.topPerformers.initiatives
+              .filter((initiative) => !selectedTenant || initiative.tenantName === (tenants ?? []).find((tenant: any) => tenant.tenantId === selectedTenant)?.name)
+              .map((initiative) => (
               <div
                 key={initiative.initiativeId}
                 className="flex items-center justify-between p-4 border rounded-lg"

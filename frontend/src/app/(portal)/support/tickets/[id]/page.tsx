@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,19 +57,22 @@ interface Ticket {
 export default function SchoolTicketDetailPage() {
   const params = useParams();
   const ticketId = params.id as string;
-  
+  const { sessionToken } = useAuth();
   const [newComment, setNewComment] = useState("");
 
-  const ticket = useQuery(api.tickets.getTicket, { ticketId: ticketId as Id<"tickets"> });
-  const isLoading = ticket === undefined;
-  const addComment = useMutation(api.tickets.addComment);
+  const ticket = useQuery(
+    api.tickets.getTenantTicketDetail,
+    sessionToken ? { sessionToken, ticketId: ticketId as Id<"tickets"> } : "skip"
+  );
+  const isLoading = !!sessionToken && ticket === undefined;
+  const addComment = useMutation(api.tickets.addTenantTicketComment);
 
-  const handleAddComment = () => {
-    if (newComment.trim()) {
+  const handleAddComment = async () => {
+    if (newComment.trim() && sessionToken) {
       addComment({
+        sessionToken,
         ticketId: ticketId as Id<"tickets">,
         content: newComment,
-        isInternal: false,
       });
       setNewComment("");
     }
@@ -123,7 +127,7 @@ export default function SchoolTicketDetailPage() {
   }
 
   // Filter out internal comments for school view
-  const publicComments = (ticket.comments?.filter((comment: Comment) => !comment.isInternal) || []) as Comment[];
+  const publicComments = (ticket.comments || []) as Comment[];
 
   return (
     <div className="space-y-6">

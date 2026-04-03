@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
@@ -232,7 +232,6 @@ export default function SLAManagementPage() {
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
                   <SelectItem value="critical">Critical</SelectItem>
                 </SelectContent>
               </Select>

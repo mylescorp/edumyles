@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { FeatureFlagsManager } from "@/components/platform/FeatureFlagsManager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,10 +21,28 @@ import {
   Globe,
   Rocket
 } from "lucide-react";
+import { api } from "@/convex/_generated/api";
 
 export default function FeatureFlagsPage() {
   const { isLoading, sessionToken } = useAuth();
-  const { hasPermission } = usePermissions();
+  const flags = usePlatformQuery(
+    api.platform.featureFlags.queries.listFeatureFlags,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
+  const stats = useMemo(() => {
+    const flagList = flags ?? [];
+    return {
+      total: flagList.length,
+      active: flagList.filter((flag: any) => flag.enabled).length,
+      beta: flagList.filter(
+        (flag: any) => flag.environment === "staging" || flag.targetType === "percentage"
+      ).length,
+      globalActive: flagList.filter(
+        (flag: any) => (flag.targetType === "all" || !flag.targetType) && flag.enabled
+      ).length,
+    };
+  }, [flags]);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -156,28 +174,28 @@ export default function FeatureFlagsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">5</div>
+            <div className="text-3xl font-bold text-blue-600 mb-2">{stats.total}</div>
             <div className="text-sm text-muted-foreground">Total Flags</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">3</div>
+            <div className="text-3xl font-bold text-green-600 mb-2">{stats.active}</div>
             <div className="text-sm text-muted-foreground">Active</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-2">1</div>
+            <div className="text-3xl font-bold text-purple-600 mb-2">{stats.beta}</div>
             <div className="text-sm text-muted-foreground">Beta Features</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-orange-600 mb-2">0</div>
+            <div className="text-3xl font-bold text-orange-600 mb-2">{stats.globalActive}</div>
             <div className="text-sm text-muted-foreground">Global Active</div>
           </CardContent>
         </Card>

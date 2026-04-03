@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -21,8 +21,8 @@ import {
 
 export default function CreateTicketPage() {
   const router = useRouter();
-  const { tenantId: authTenantId } = useAuth();
-  const createTicket = useMutation(api.tickets.createTicket);
+  const { sessionToken } = useAuth();
+  const createTicket = useMutation(api.tickets.createTenantTicket);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -59,10 +59,12 @@ export default function CreateTicketPage() {
     setSubmitStatus("idle");
 
     try {
-      const tenantId = (authTenantId ?? "temp-tenant-id") as any;
-      
+      if (!sessionToken) {
+        throw new Error("You must be signed in to create a ticket.");
+      }
+
       await createTicket({
-        tenantId,
+        sessionToken,
         title: formData.title,
         body: formData.body,
         category: formData.category as any,

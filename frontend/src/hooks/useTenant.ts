@@ -7,6 +7,45 @@ import { useAuth } from "./useAuth";
 /** Core module IDs — always considered installed regardless of DB state */
 const CORE_MODULE_IDS = ["sis", "communications", "users"];
 
+export function deriveTenantResolutionState(args: {
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  hasLiveTenantSession: boolean;
+  isPlatformSession: boolean;
+  resolvedTenantId: string | null;
+}) {
+  const queryPending =
+    !args.isLoading &&
+    args.isAuthenticated &&
+    args.hasLiveTenantSession &&
+    !args.isPlatformSession &&
+    !args.resolvedTenantId;
+  const isUnauthenticated = !args.isLoading && !args.isAuthenticated;
+  const tenantResolutionError =
+    !args.isLoading &&
+    !isUnauthenticated &&
+    !args.isPlatformSession &&
+    args.hasLiveTenantSession &&
+    !queryPending &&
+    !args.resolvedTenantId
+      ? "Tenant context could not be resolved for the current session."
+      : null;
+  const status = args.isLoading || queryPending
+    ? "loading"
+    : isUnauthenticated
+      ? "unauthenticated"
+      : tenantResolutionError
+        ? "error"
+        : "resolved";
+
+  return {
+    status,
+    isUnauthenticated,
+    tenantResolutionError,
+    queryPending,
+  } as const;
+}
+
 export function useTenant() {
   const {
     sessionToken,
@@ -40,24 +79,13 @@ export function useTenant() {
   const resolvedTier =
     tenantContext?.organization?.tier ?? tenantContext?.tenant?.plan ?? null;
   const hasTenantContext = !!resolvedTenantId;
-  const queryPending = canQueryTenant && !resolvedTenantId;
-  const isUnauthenticated = !isLoading && !isAuthenticated;
-  const tenantResolutionError =
-    !isLoading &&
-    !isUnauthenticated &&
-    !isPlatformSession &&
-    hasLiveTenantSession &&
-    !queryPending &&
-    !hasTenantContext
-      ? "Tenant context could not be resolved for the current session."
-      : null;
-  const status = isLoading || queryPending
-    ? "loading"
-    : isUnauthenticated
-      ? "unauthenticated"
-      : tenantResolutionError
-        ? "error"
-        : "resolved";
+  const resolution = deriveTenantResolutionState({
+    isLoading,
+    isAuthenticated,
+    hasLiveTenantSession,
+    isPlatformSession,
+    resolvedTenantId,
+  });
 
   return {
     tenantId: resolvedTenantId,
@@ -84,10 +112,10 @@ export function useTenant() {
     installedModules: resolvedModules,
     tier: resolvedTier,
     hasResolvedTenant: isPlatformSession ? !!resolvedTenantId : hasTenantContext,
-    tenantResolutionError,
-    status,
-    isUnauthenticated,
+    tenantResolutionError: resolution.tenantResolutionError,
+    status: resolution.status,
+    isUnauthenticated: resolution.isUnauthenticated,
     isPlatformTenant: isPlatformSession,
-    isLoading: status === "loading",
+    isLoading: resolution.status === "loading",
   };
 }

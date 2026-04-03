@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { useMutation } from "convex/react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
@@ -44,9 +44,34 @@ export default function WhiteLabelPage() {
     { sessionToken: sessionToken || "" },
     !!sessionToken
   );
+  const tenants = usePlatformQuery(
+    api.platform.tenants.queries.listAllTenants,
+    { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
 
   const updateConfig = useMutation(api.platform.whiteLabel.mutations.updateWhiteLabelConfig);
   const resetConfig = useMutation(api.platform.whiteLabel.mutations.resetToDefault);
+
+  const selectedConfig = useMemo(
+    () => configs?.find((config: any) => config.tenantId === tenantId) ?? null,
+    [configs, tenantId]
+  );
+
+  useEffect(() => {
+    if (!selectedConfig) return;
+    setBrandName(selectedConfig.brandName || "");
+    setPrimaryColor(selectedConfig.primaryColor || "#3b82f6");
+    setSecondaryColor(selectedConfig.secondaryColor || "#6366f1");
+    setAccentColor(selectedConfig.accentColor || "#f59e0b");
+    setLogoUrl(selectedConfig.logoUrl || "");
+    setFavicon(selectedConfig.favicon || "");
+    setCustomDomain(selectedConfig.customDomain || "");
+    setEmailFromName(selectedConfig.emailFromName || "");
+    setEmailFromAddress(selectedConfig.emailFromAddress || "");
+    setFooterText(selectedConfig.footerText || "");
+    setCustomCSS(selectedConfig.customCSS || "");
+  }, [selectedConfig]);
 
   const handleSave = async () => {
     if (!sessionToken || !tenantId) return;
@@ -111,8 +136,19 @@ export default function WhiteLabelPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Tenant ID</Label>
-                <Input value={tenantId} onChange={(e) => setTenantId(e.target.value)} placeholder="Enter tenant ID to configure" />
+                <Label>Tenant</Label>
+                <Select value={tenantId} onValueChange={setTenantId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a tenant" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(tenants ?? []).map((tenant: any) => (
+                      <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                        {tenant.name} ({tenant.tenantId})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Brand Name</Label>
@@ -247,17 +283,6 @@ export default function WhiteLabelPage() {
                       <div key={c._id} className="text-xs p-2 border rounded flex items-center gap-2 cursor-pointer hover:bg-muted/50"
                         onClick={() => {
                           setTenantId(c.tenantId);
-                          setBrandName(c.brandName || "");
-                          setPrimaryColor(c.primaryColor || "#3b82f6");
-                          setSecondaryColor(c.secondaryColor || "#6366f1");
-                          setAccentColor(c.accentColor || "#f59e0b");
-                          setLogoUrl(c.logoUrl || "");
-                          setFavicon(c.favicon || "");
-                          setCustomDomain(c.customDomain || "");
-                          setEmailFromName(c.emailFromName || "");
-                          setEmailFromAddress(c.emailFromAddress || "");
-                          setFooterText(c.footerText || "");
-                          setCustomCSS(c.customCSS || "");
                         }}>
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.primaryColor || "#3b82f6" }} />
                         {c.brandName || c.tenantId}
