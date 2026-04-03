@@ -1,10 +1,80 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { logAction } from "../../helpers/auditLog";
 import { DEFAULT_SMS_TEMPLATES, TemplateType, substituteTemplateVariables } from "./templates";
+
+const DEFAULT_CONVERSATION_CONTACT_ROLES = [
+  "school_admin",
+  "principal",
+  "bursar",
+  "hr_manager",
+  "librarian",
+  "transport_manager",
+  "receptionist",
+];
+
+async function resolveConversationParticipants(ctx: any, tenant: any, requestedParticipants: string[]) {
+  const explicitParticipants = Array.from(
+    new Set(
+      requestedParticipants.filter(
+        (participant) => participant && participant !== tenant.userId
+      )
+    )
+  );
+
+  if (explicitParticipants.length > 0) {
+    return explicitParticipants;
+  }
+
+  const tenantUsers = await ctx.db
+    .query("users")
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+    .collect();
+
+  const schoolContacts = tenantUsers
+    .filter(
+      (user: any) =>
+        user.isActive &&
+        user._id.toString() !== tenant.userId &&
+        DEFAULT_CONVERSATION_CONTACT_ROLES.includes(user.role)
+    )
+    .map((user: any) => user._id.toString());
+
+  if (schoolContacts.length === 0) {
+    throw new Error("No school staff contact is available yet");
+  }
+
+  return Array.from(new Set(schoolContacts));
+}
+
+async function getPushRecipientsForUsers(ctx: any, tenantId: string, userIds: string[]) {
+  if (userIds.length === 0) {
+    return [];
+  }
+
+  const tokens = await ctx.db
+    .query("mobileDeviceTokens")
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId))
+    .collect();
+
+  return tokens
+    .filter(
+      (token: any) =>
+        token.notificationsEnabled &&
+        token.provider === "expo" &&
+        userIds.includes(token.userId)
+    )
+    .map((token: any) => ({
+      userId: token.userId,
+      pushToken: token.pushToken,
+      platform: token.platform,
+      deviceName: token.deviceName,
+    }));
+}
 
 // ─── Announcements ─────────────────────────────────────────────────
 
@@ -308,6 +378,47 @@ export const launchCampaign = mutation({
       }
     }
 
+    if (campaign.channels.includes("push")) {
+      const pushRecipients = await getPushRecipientsForUsers(
+        ctx,
+        tenant.tenantId,
+        targetUsers.map((user: any) => (user as any).userId ?? (user as any)._id.toString())
+      );
+
+      if (pushRecipients.length > 0) {
+        await ctx.scheduler.runAfter(
+          0,
+          (internal as any).actions.communications.push.sendPushInternal,
+          {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            recipients: pushRecipients,
+            title: campaign.subject ?? campaign.name,
+            body: campaign.message,
+            link: `/communications/campaigns/${args.campaignId}`,
+            metadata: {
+              campaignId: args.campaignId.toString(),
+              channel: "push",
+            },
+          }
+        );
+
+        for (const recipient of pushRecipients) {
+          await ctx.db.insert("messageRecords", {
+            tenantId: tenant.tenantId,
+            campaignId: args.campaignId,
+            channel: "push",
+            recipientId: recipient.userId,
+            content: campaign.message,
+            status: "queued",
+            sentAt: now,
+            createdAt: now,
+          });
+        }
+      }
+    }
+
     await ctx.db.patch(args.campaignId, {
       status: "running",
       startedAt: now,
@@ -551,7 +662,14 @@ export const createConversation = mutation({
     requirePermission(tenant, "communications:messaging");
 
     const now = Date.now();
-    const participants = Array.from(new Set([tenant.userId, ...args.participants]));
+    const resolvedParticipants = await resolveConversationParticipants(
+      ctx,
+      tenant,
+      args.participants
+    );
+    const participants: string[] = Array.from(
+      new Set<string>([String(tenant.userId), ...resolvedParticipants.map(String)])
+    );
 
     const conversationId = await ctx.db.insert("conversations", {
       tenantId: tenant.tenantId,
@@ -859,6 +977,48 @@ export const sendBroadcast = mutation({
           isRead: false,
           createdAt: now,
         });
+      }
+    }
+
+    if (args.channels.includes("push")) {
+      const pushRecipients = await getPushRecipientsForUsers(
+        ctx,
+        tenant.tenantId,
+        targetUsers.map((user: any) => (user as any).userId ?? (user as any)._id.toString())
+      );
+
+      if (pushRecipients.length > 0) {
+        await ctx.scheduler.runAfter(
+          0,
+          (internal as any).actions.communications.push.sendPushInternal,
+          {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            recipients: pushRecipients,
+            title: args.subject ?? "Broadcast",
+            body: args.message,
+            link: "/communications",
+            metadata: {
+              campaignId: campaignId.toString(),
+              audience: args.audience,
+              channel: "push",
+            },
+          }
+        );
+
+        for (const recipient of pushRecipients) {
+          await ctx.db.insert("messageRecords", {
+            tenantId: tenant.tenantId,
+            campaignId,
+            channel: "push",
+            recipientId: recipient.userId,
+            content: args.message,
+            status: "queued",
+            sentAt: now,
+            createdAt: now,
+          });
+        }
       }
     }
     await logAction(ctx, {

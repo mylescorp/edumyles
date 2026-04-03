@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function StudentDashboardPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, sessionToken } = useAuth();
   const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
   const academicsEnabled = isModuleInstalled("academics");
   const walletEnabled = isModuleInstalled("ewallet");
@@ -40,8 +40,8 @@ export default function StudentDashboardPage() {
   );
 
   const myWallet = useQuery(
-    api.modules.portal.student.queries.getMyWalletBalance,
-    walletEnabled ? {} : "skip"
+    api.modules.ewallet.queries.getMyWalletBalance,
+    walletEnabled && sessionToken ? { sessionToken } : "skip"
   );
 
   if (

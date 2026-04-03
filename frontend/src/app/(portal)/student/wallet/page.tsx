@@ -43,9 +43,15 @@ const TYPE_COLOR: Record<string, string> = {
 
 export default function StudentWallet() {
   const { sessionToken } = useAuth();
-  const wallet = useQuery(api.modules.portal.student.queries.getMyWalletBalance);
-  const transactions = useQuery(api.modules.ewallet.queries.getMyTransactionHistory, { limit: 30 });
-  const transferMutation = useMutation(api.modules.ewallet.mutations.transfer);
+  const wallet = useQuery(
+    api.modules.ewallet.queries.getMyWalletBalance,
+    sessionToken ? { sessionToken } : "skip"
+  );
+  const transactions = useQuery(
+    api.modules.ewallet.queries.getMyTransactionHistory,
+    sessionToken ? { sessionToken, limit: 30 } : "skip"
+  );
+  const transferMutation = useMutation(api.modules.portal.student.mutations.sendWalletTransfer);
 
   const [transferOpen, setTransferOpen] = useState(false);
   const [toOwnerId, setToOwnerId] = useState("");
@@ -66,12 +72,12 @@ export default function StudentWallet() {
     setTransferLoading(true);
     try {
       const result = await transferMutation({
-        fromOwnerId: sessionToken ?? "",
-        toOwnerId: toOwnerId.trim(),
+        sessionToken: sessionToken ?? "",
+        recipientAdmissionNumber: toOwnerId.trim().toUpperCase(),
         amountCents,
         note: transferNote || undefined,
       });
-      setTransferSuccess(`Transferred successfully. Ref: ${result.reference}`);
+      setTransferSuccess(`Transferred successfully to ${result.recipientName}. Ref: ${result.reference}`);
       setToOwnerId("");
       setTransferAmount("");
       setTransferNote("");
@@ -188,7 +194,7 @@ export default function StudentWallet() {
               <p className="text-lg font-semibold">{balanceDisplay}</p>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="to-owner">Recipient Student ID</Label>
+              <Label htmlFor="to-owner">Recipient Admission Number</Label>
               <Input
                 id="to-owner"
                 placeholder="e.g. STU-ABC-001234"

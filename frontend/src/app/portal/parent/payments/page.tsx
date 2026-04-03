@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
+import { format } from "date-fns";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,66 +14,129 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  CreditCard, 
-  DollarSign, 
-  Calendar, 
-  FileText, 
-  CheckCircle, 
-  Clock, 
-  AlertCircle, 
+import {
+  AlertCircle,
+  Calendar,
+  CheckCircle,
+  DollarSign,
   Download,
   Eye,
+  FileText,
   Filter,
-  Search
+  Search,
 } from "lucide-react";
-import { format } from "date-fns";
-import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-import Link from "next/link";
+
+type ChildFeeOverview = {
+  studentId: string;
+  firstName: string;
+  lastName: string;
+  totalInvoiced: number;
+  totalPaid: number;
+  balance: number;
+  pendingInvoiceCount: number;
+  paidInvoiceCount: number;
+};
+
+type ParentPaymentHistoryItem = {
+  _id: string;
+  amount: number;
+  method: string;
+  reference: string;
+  status: string;
+  processedAt?: number;
+  createdAt?: number;
+  studentName: string;
+  invoiceAmount: number;
+  invoiceStatus: string;
+  dueDate?: string | null;
+};
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case "completed":
+    case "success":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    case "failed":
+      return "bg-red-100 text-red-800 border-red-200";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200";
+  }
+}
 
 export default function ParentPaymentsPage() {
-  const { user, isLoading, sessionToken } = useAuth();
+  const { isLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
 
-  const invoices = useQuery(
-    api.modules.finance.queries.listInvoices,
-    user ? { sessionToken: sessionToken ?? undefined, studentId: user._id } : "skip"
-  );
+  const childOverview = useQuery(
+    api.modules.portal.parent.queries.getChildrenFeeOverview,
+    {}
+  ) as ChildFeeOverview[] | undefined;
 
-  const payments = useQuery(
-    api.modules.finance.queries.getFinancialReport,
-    user ? { sessionToken: sessionToken ?? undefined } : "skip"
-  );
+  const paymentHistory = useQuery(
+    api.modules.portal.parent.queries.getPaymentHistory,
+    {}
+  ) as ParentPaymentHistoryItem[] | undefined;
 
   const generateReceipt = useMutation(api.modules.finance.mutations.generateReceipt);
 
-  if (isLoading) return <LoadingSkeleton variant="page" />;
+  if (isLoading || childOverview === undefined || paymentHistory === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  const totalBilled = childOverview.reduce((sum, child) => sum + child.totalInvoiced, 0);
+  const totalPaid = childOverview.reduce((sum, child) => sum + child.totalPaid, 0);
+  const outstanding = childOverview.reduce((sum, child) => sum + child.balance, 0);
+
+  const filteredPayments = paymentHistory.filter((payment) =>
+    payment.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    payment.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    payment.method.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const statusFilteredPayments =
+    statusFilter === "all"
+      ? filteredPayments
+      : filteredPayments.filter((payment) => payment.status === statusFilter);
+
+  const dateFilteredPayments = dateFilter
+    ? statusFilteredPayments.filter((payment) => {
+        const timestamp = payment.processedAt ?? payment.createdAt;
+        return timestamp ? new Date(timestamp) <= new Date(dateFilter) : false;
+      })
+    : statusFilteredPayments;
+
+  const methodTotals = dateFilteredPayments.reduce<Record<string, number>>((acc, payment) => {
+    const key = payment.method || "unknown";
+    acc[key] = (acc[key] ?? 0) + payment.amount;
+    return acc;
+  }, {});
 
   const handleGenerateReceipt = async (paymentId: string) => {
     try {
-      const receiptData = await generateReceipt({ paymentId, format: "html" });
-      
-      // Create and download receipt
-      const receiptWindow = window.open('', '_blank');
+      const receiptData = await generateReceipt({ paymentId: paymentId as any, format: "html" });
+      const receiptWindow = window.open("", "_blank");
+
       if (!receiptWindow) {
         throw new Error("Unable to open receipt window");
       }
-      receiptWindow.document.write(receiptData);
+
+      receiptWindow.document.write(String(receiptData));
       receiptWindow.document.close();
-      
+
       toast({
-        title: "Receipt Generated",
-        description: "Receipt has been generated successfully",
+        title: "Receipt generated",
+        description: "The receipt has been opened in a new tab.",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to generate receipt",
-        variant: "destructive"
+        title: "Failed to generate receipt",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -84,16 +150,12 @@ export default function ParentPaymentsPage() {
         dateFilter,
       },
       summary: {
-        totalBilled: payments?.totalBilled ?? 0,
-        totalPaid: payments?.totalPaid ?? 0,
-        outstanding: payments?.outstanding ?? 0,
+        totalBilled,
+        totalPaid,
+        outstanding,
       },
-      invoices: dateFilteredInvoices?.map((invoice: any) => ({
-        invoiceNumber: invoice.invoiceNumber,
-        dueDate: invoice.dueDate,
-        amount: invoice.amount,
-        status: invoice.status,
-      })),
+      childOverview,
+      payments: dateFilteredPayments,
     };
 
     const dataStr = JSON.stringify(payload, null, 2);
@@ -109,264 +171,237 @@ export default function ParentPaymentsPage() {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "partially_paid":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "pending":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "overdue":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "paid":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "partially_paid":
-        return <Clock className="h-4 w-4 text-yellow-600" />;
-      case "pending":
-        return <Clock className="h-4 w-4 text-blue-600" />;
-      case "overdue":
-        return <AlertCircle className="h-4 w-4 text-red-600" />;
-      default:
-        return <FileText className="h-4 w-4 text-gray-600" />;
-    }
-  };
-
-  const filteredInvoices = invoices?.filter((invoice: any) =>
-    invoice.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.studentName?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
-
-  const statusFilteredInvoices = statusFilter === "all" 
-    ? filteredInvoices 
-    : filteredInvoices?.filter((invoice: any) => invoice.status === statusFilter);
-
-  const dateFilteredInvoices = dateFilter
-    ? statusFilteredInvoices?.filter((invoice: any) => 
-        new Date(invoice.dueDate) <= new Date(dateFilter)
-      )
-    : statusFilteredInvoices;
-
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Payment History"
-        description="View invoices, payments, and generate receipts"
+        description="Track fee balances, payment receipts, and payment activity for all linked children"
       />
 
-      <div className="space-y-6">
-        {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Filters
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="space-y-2">
-                <Label htmlFor="search">Search</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="search"
-                    placeholder="Search by invoice number or student..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All statuses" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="partially_paid">Partially Paid</SelectItem>
-                    <SelectItem value="paid">Paid</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date">Due Date</Label>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filters
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="space-y-2">
+              <Label htmlFor="search">Search</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="date"
-                  type="date"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  placeholder="Filter by due date"
+                  id="search"
+                  placeholder="Search by child, reference, or method..."
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  className="pl-10"
                 />
               </div>
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">
-                  <div className="font-medium">Total Billed:</div>
-                  <div className="text-lg font-bold">
-                    KES {payments?.totalBilled?.toLocaleString() || "0"}
-                  </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="success">Success</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="date">Payment Date</Label>
+              <Input
+                id="date"
+                type="date"
+                value={dateFilter}
+                onChange={(event) => setDateFilter(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div>
+                <div className="font-medium">Total Billed</div>
+                <div className="text-lg font-bold text-foreground">KES {totalBilled.toLocaleString()}</div>
+              </div>
+              <div>
+                <div className="font-medium">Total Paid</div>
+                <div className="text-lg font-bold text-green-600">KES {totalPaid.toLocaleString()}</div>
+              </div>
+              <div>
+                <div className="font-medium">Outstanding</div>
+                <div className="text-lg font-bold text-red-600">KES {outstanding.toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Child Fee Balances</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {childOverview.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              No linked children were found for this account.
+            </div>
+          ) : (
+            childOverview.map((child) => (
+              <div key={child.studentId} className="flex items-center justify-between rounded-lg border p-4">
+                <div>
+                  <p className="font-medium">
+                    {child.firstName} {child.lastName}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Invoiced KES {child.totalInvoiced.toLocaleString()} • Paid KES {child.totalPaid.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {child.pendingInvoiceCount} pending invoice(s) • {child.paidInvoiceCount} paid invoice(s)
+                  </p>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  <div className="font-medium">Total Paid:</div>
-                  <div className="text-lg font-bold text-green-600">
-                    KES {payments?.totalPaid?.toLocaleString() || "0"}
+                <div className="text-right">
+                  <div className={`text-lg font-bold ${child.balance > 0 ? "text-red-600" : "text-green-600"}`}>
+                    KES {child.balance.toLocaleString()}
                   </div>
+                  <Button variant="outline" size="sm" className="mt-2" asChild>
+                    <Link href="/portal/parent/fees/pay">
+                      <DollarSign className="mr-1 h-4 w-4" />
+                      Pay Fees
+                    </Link>
+                  </Button>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  <div className="font-medium">Outstanding:</div>
-                  <div className="text-lg font-bold text-red-600">
-                    KES {payments?.outstanding?.toLocaleString() || "0"}
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Payments ({dateFilteredPayments.length})</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {dateFilteredPayments.length === 0 ? (
+            <div className="py-10 text-center">
+              <FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <h3 className="mb-2 text-lg font-semibold">No Payments Found</h3>
+              <p className="text-muted-foreground">No payment activity matches your current filters.</p>
+            </div>
+          ) : (
+            dateFilteredPayments.map((payment) => (
+              <div
+                key={payment._id}
+                className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Badge className={getStatusColor(payment.status)}>
+                      {payment.status === "failed" ? (
+                        <AlertCircle className="mr-1 h-3.5 w-3.5" />
+                      ) : (
+                        <CheckCircle className="mr-1 h-3.5 w-3.5" />
+                      )}
+                      <span className="capitalize">{payment.status.replace("_", " ")}</span>
+                    </Badge>
+                    <span className="font-medium">{payment.studentName}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Ref: {payment.reference} • {payment.method.toUpperCase()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {payment.processedAt || payment.createdAt
+                      ? format(new Date(payment.processedAt ?? payment.createdAt ?? Date.now()), "PPP p")
+                      : "Awaiting processing"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Invoice status: {payment.invoiceStatus.replace("_", " ")}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold">KES {payment.amount.toLocaleString()}</div>
+                  <div className="mt-2 flex justify-end gap-2">
+                    {(payment.status === "completed" || payment.status === "success") && (
+                      <Button variant="outline" size="sm" onClick={() => handleGenerateReceipt(payment._id)}>
+                        <Download className="mr-1 h-4 w-4" />
+                        Receipt
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/portal/parent/fees">
+                        <Eye className="mr-1 h-4 w-4" />
+                        View Fees
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Collection Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">
+                {totalBilled > 0 ? ((totalPaid / totalBilled) * 100).toFixed(1) : "0.0"}%
+              </div>
+              <p className="text-sm text-muted-foreground">of invoiced fees have been paid</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Invoices List */}
         <Card>
           <CardHeader>
-            <CardTitle>Invoices ({dateFilteredInvoices?.length || 0})</CardTitle>
+            <CardTitle>Payment Methods</CardTitle>
           </CardHeader>
-          <CardContent>
-            {dateFilteredInvoices?.length === 0 ? (
-              <div className="text-center py-8">
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Invoices Found</h3>
-                <p className="text-muted-foreground">
-                  No invoices match your current filters.
-                </p>
-              </div>
+          <CardContent className="space-y-3">
+            {Object.keys(methodTotals).length === 0 ? (
+              <p className="text-sm text-muted-foreground">No payment activity yet.</p>
             ) : (
-              <div className="space-y-4">
-                {dateFilteredInvoices?.map((invoice: any) => (
-                  <div
-                    key={invoice._id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3">
-                        <Badge className={getStatusColor(invoice.status)}>
-                          {getStatusIcon(invoice.status)}
-                          <span className="ml-2 capitalize">
-                            {invoice.status.replace('_', ' ')}
-                          </span>
-                        </Badge>
-                        <div>
-                          <p className="font-medium">{invoice.invoiceNumber}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Due: {format(new Date(invoice.dueDate), "PPP")}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold">
-                        KES {invoice.amount.toLocaleString()}
-                      </div>
-                      <div className="flex space-x-2 mt-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleGenerateReceipt(invoice._id)}
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Receipt
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href="/portal/parent/fees">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              Object.entries(methodTotals).map(([method, amount]) => (
+                <div key={method} className="flex items-center justify-between">
+                  <span className="text-sm capitalize">{method.replace("_", " ")}</span>
+                  <span className="font-medium">KES {amount.toLocaleString()}</span>
+                </div>
+              ))
             )}
           </CardContent>
         </Card>
 
-        {/* Payment Statistics */}
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Collection Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">
-                  {payments?.collectionRate?.toFixed(1) || "0"}%
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  of invoices paid on time
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Methods</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Cash</span>
-                  <span className="font-medium">KES 0</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Bank Transfer</span>
-                  <span className="font-medium">KES 0</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Mobile Money</span>
-                  <span className="font-medium">KES 0</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Card</span>
-                  <span className="font-medium">KES 0</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button className="w-full justify-start" asChild>
-                <Link href="/portal/parent/fees/pay">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Make Payment
-                </Link>
-              </Button>
-              <Button variant="outline" className="w-full justify-start" onClick={handleExportReport}>
-                <FileText className="h-4 w-4 mr-2" />
-                Generate Report
-              </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/portal/parent/messages">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Schedule Reminders
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button className="w-full justify-start" asChild>
+              <Link href="/portal/parent/fees/pay">
+                <DollarSign className="mr-2 h-4 w-4" />
+                Make Payment
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" onClick={handleExportReport}>
+              <FileText className="mr-2 h-4 w-4" />
+              Generate Report
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link href="/portal/parent/messages">
+                <Calendar className="mr-2 h-4 w-4" />
+                Contact School
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

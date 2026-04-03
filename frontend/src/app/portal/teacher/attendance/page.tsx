@@ -25,11 +25,12 @@ export default function TeacherAttendancePage() {
 
     const [selectedClassId, setSelectedClassId] = useState<string>("");
 
-    const students = useQuery(api.modules.academics.queries.getClassStudents,
-        selectedClassId ? { tenantId: user?.tenantId || "", classId: selectedClassId } : "skip"
+    const students = useQuery(
+        api.modules.academics.queries.getClassStudents,
+        selectedClassId ? { classId: selectedClassId } : "skip"
     );
 
-    const submitAttendanceMutation = useMutation(api.modules.academics.mutations.recordAttendance);
+    const submitAttendanceMutation = useMutation(api.modules.academics.mutations.markAttendance);
 
     if (authLoading || classes === undefined || students === undefined) {
         return <LoadingSkeleton variant="page" />;
@@ -55,11 +56,10 @@ export default function TeacherAttendancePage() {
                 status,
                 date,
                 classId: selectedClassId,
-                tenantId: user?.tenantId || "",
                 recordedBy: user?._id || "",
             }));
 
-            await submitAttendanceMutation({ attendance: attendanceData });
+            await submitAttendanceMutation({ records: attendanceData });
             toast({
                 title: "Success",
                 description: "Attendance recorded successfully",

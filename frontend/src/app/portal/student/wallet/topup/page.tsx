@@ -22,12 +22,15 @@ const PAYMENT_METHODS = [
 ];
 
 export default function WalletTopupPage() {
-  const { isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("mpesa");
   const [submitted, setSubmitted] = useState(false);
 
-  const myWallet = useQuery(api.modules.portal.student.queries.getMyWalletBalance, {});
+  const myWallet = useQuery(
+    api.modules.ewallet.queries.getMyWalletBalance,
+    sessionToken ? { sessionToken } : "skip"
+  );
 
   if (isLoading || myWallet === undefined) {
     return <LoadingSkeleton variant="page" />;
