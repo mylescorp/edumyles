@@ -1,6 +1,3 @@
-"use node";
-
-import { createHmac } from "node:crypto";
 import { internalAction, internalMutation, mutation } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
@@ -8,8 +5,19 @@ import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
-function buildSignature(secret: string, payload: string) {
-  return createHmac("sha256", secret).update(payload).digest("hex");
+async function buildSignature(secret: string, payload: string) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+  return Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export const createEndpoint = mutation({
@@ -237,7 +245,7 @@ export const deliverWebhookInternal = internalAction({
         headers: {
           "Content-Type": "application/json",
           "X-EduMyles-Event": delivery.event,
-          "X-EduMyles-Signature": buildSignature(endpoint.secret, delivery.payload),
+          "X-EduMyles-Signature": await buildSignature(endpoint.secret, delivery.payload),
           "X-EduMyles-Delivery": String(delivery._id),
         },
         body: delivery.payload,
