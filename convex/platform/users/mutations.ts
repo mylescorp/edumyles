@@ -307,11 +307,12 @@ export const updatePlatformAdminDetails = mutation({
       throw new Error("FORBIDDEN: Cannot change your own platform role");
     }
 
-    if (args.email && args.email !== user.email) {
+    if (args.email !== undefined && args.email !== user.email) {
+      const email = args.email;
       const existing = await ctx.db
         .query("users")
         .withIndex("by_tenant_email", (q) =>
-          q.eq("tenantId", user.tenantId).eq("email", args.email)
+          q.eq("tenantId", user.tenantId).eq("email", email)
         )
         .first();
 

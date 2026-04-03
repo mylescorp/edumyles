@@ -393,8 +393,6 @@ export const verifyBankTransfer = mutation({
       reference,
       status: "completed",
       processedAt: now,
-      updatedAt: now,
-      notes: args.adminNote,
     });
 
     const summary = await reconcileInvoiceStatus(ctx, invoice, now);
@@ -418,7 +416,7 @@ export const verifyBankTransfer = mutation({
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
       actorEmail: tenant.email,
-      action: "payment.verified",
+      action: "payment.completed",
       entityType: "paymentCallback",
       entityId: args.callbackId,
       after: {
