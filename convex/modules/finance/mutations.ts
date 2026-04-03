@@ -416,7 +416,7 @@ export const verifyBankTransfer = mutation({
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
       actorEmail: tenant.email,
-      action: "payment.completed",
+      action: "payment.verified",
       entityType: "paymentCallback",
       entityId: args.callbackId,
       after: {

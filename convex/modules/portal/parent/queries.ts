@@ -413,7 +413,10 @@ export const getOutstandingInvoicesForChild = query({
             ...invoice,
             amountPaid,
             balance: Math.max(invoice.amount - amountPaid, 0),
-            lastPaymentAt: successfulPayments[0]?.processedAt ?? null,
+            lastPaymentAt:
+              successfulPayments[0]?.processedAt ??
+              successfulPayments[0]?._creationTime ??
+              null,
           };
         })
     );
