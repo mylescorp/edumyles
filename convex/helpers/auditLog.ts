@@ -6,7 +6,7 @@ export type AuditAction =
   | "user.invited"
   | "file.created" | "file.deleted"
   | "student.created" | "student.updated" | "student.deleted" | "student.graduated" | "student.enrolled"
-  | "payment.initiated" | "payment.completed" | "payment.failed" | "payment.recorded" | "payment.bulk_invoices" | "payment.status_updated"
+  | "payment.initiated" | "payment.completed" | "payment.failed" | "payment.recorded" | "payment.bulk_invoices" | "payment.status_updated" | "payment.verified"
   | "grade.entered" | "grade.updated"
   | "attendance.marked"
   | "payroll.processed" | "payroll.approved"

@@ -234,10 +234,10 @@ export const getPaymentHistory = query({
       .collect();
 
     const payments = allPayments.filter((p) => invoiceIds.has(p.invoiceId));
-    const childMap = new Map(
+    const childMap = new Map<string, any>(
       children.map((child: any) => [child._id.toString(), child])
     );
-    const invoiceMap = new Map(
+    const invoiceMap = new Map<string, any>(
       invoices.map((invoice: any) => [invoice._id.toString(), invoice])
     );
 
@@ -415,7 +415,7 @@ export const getOutstandingInvoicesForChild = query({
             balance: Math.max(invoice.amount - amountPaid, 0),
             lastPaymentAt:
               successfulPayments[0]?.processedAt ??
-              successfulPayments[0]?.updatedAt ??
+              successfulPayments[0]?._creationTime ??
               null,
           };
         })

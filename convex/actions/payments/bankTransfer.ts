@@ -3,6 +3,7 @@
 import { action } from "../../_generated/server";
 import { v } from "convex/values";
 import { api, internal } from "../../_generated/api";
+import type { Id } from "../../_generated/dataModel";
 
 /**
  * Generate a human-readable payment reference such as "EMB-2026-A3F7".
@@ -125,7 +126,17 @@ export const verifyBankTransfer = action({
     invoiceId: v.id("invoices"),
     adminNote: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
+    success: boolean;
+    reference: string;
+    alreadyVerified?: boolean;
+    paymentId?: string;
+    invoiceStatus?: string;
+    balance?: number;
+  }> => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("UNAUTHENTICATED");
 
@@ -140,30 +151,38 @@ export const verifyBankTransfer = action({
       throw new Error("FORBIDDEN: Only finance officers may verify bank transfers");
     }
 
-    const pendingTransfers = await ctx.runQuery(
+    const pendingTransfers = (await ctx.runQuery(
       api.modules.finance.queries.listPendingBankTransfers,
       { sessionToken: identity.tokenIdentifier }
-    );
+    )) as Array<{
+      _id: Id<"paymentCallbacks">;
+      externalId: string;
+      invoiceId: string;
+    }>;
 
     const transfer = pendingTransfers.find(
-      (item: any) =>
-        item.externalId === args.reference &&
-        item.invoiceId === String(args.invoiceId)
+      (item) => item.externalId === args.reference && item.invoiceId === String(args.invoiceId)
     );
 
     if (!transfer) {
       throw new Error("Pending bank transfer request not found");
     }
 
-    const result = await ctx.runMutation(
+    const result = (await ctx.runMutation(
       api.modules.finance.mutations.verifyBankTransfer,
       {
         callbackId: transfer._id,
         sessionToken: identity.tokenIdentifier,
         adminNote: args.adminNote,
       }
-    );
+    )) as {
+      success: boolean;
+      alreadyVerified?: boolean;
+      paymentId?: string;
+      invoiceStatus?: string;
+      balance?: number;
+    };
 
-    return { success: true, reference: args.reference, ...result };
+    return { reference: args.reference, ...result };
   },
 });

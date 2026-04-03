@@ -241,7 +241,7 @@ export const addPlatformTicketComment = mutation({
       tenantId: actor.tenantId,
       actorId: actor.userId,
       actorEmail: actor.email,
-      action: "support.ticket.comment_added",
+      action: "ticket.comment_added",
       entityType: "ticket",
       entityId: args.ticketId,
       after: {

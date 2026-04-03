@@ -393,8 +393,6 @@ export const verifyBankTransfer = mutation({
       reference,
       status: "completed",
       processedAt: now,
-      updatedAt: now,
-      notes: args.adminNote,
     });
 
     const summary = await reconcileInvoiceStatus(ctx, invoice, now);
