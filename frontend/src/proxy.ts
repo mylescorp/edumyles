@@ -83,7 +83,8 @@ function getClientIP(request: NextRequest): string {
 }
 
 function getRoleDashboard(role: string): string {
-  switch (role) {
+  const normalizedRole = role === "platform_admin" ? "super_admin" : role;
+  switch (normalizedRole) {
     case "master_admin":
     case "super_admin":
       return "/platform";
@@ -143,6 +144,9 @@ export async function proxy(request: NextRequest) {
 
   const session = request.cookies.get("edumyles_session");
   let role = request.cookies.get("edumyles_role")?.value;
+  if (role === "platform_admin") {
+    role = "super_admin";
+  }
 
   // Override role for known master admins — handles sessions created before role
   // was correctly set in DB (cookie may still say "school_admin").

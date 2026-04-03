@@ -16,11 +16,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { createSchoolEventSchema } from "@shared/validators";
 
 const EVENT_TYPES = [
   { value: "academic", label: "Academic" },
@@ -49,21 +50,34 @@ export default function CreateEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !startDate) {
-      toast.error("Please fill in all required fields.");
+
+    const parsed = createSchoolEventSchema.safeParse({
+      title,
+      description: description || undefined,
+      eventType,
+      startDate,
+      endDate: endDate || "",
+      startTime: startTime || "",
+      endTime: endTime || "",
+      location: location || undefined,
+    });
+
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Please fix the highlighted event details.");
       return;
     }
+
     setIsSubmitting(true);
     try {
       await createEvent({
-        title,
-        description: description || undefined,
-        eventType,
-        startDate,
-        endDate: endDate || undefined,
-        startTime: startTime || undefined,
-        endTime: endTime || undefined,
-        location: location || undefined,
+        title: parsed.data.title,
+        description: parsed.data.description,
+        eventType: parsed.data.eventType,
+        startDate: parsed.data.startDate,
+        endDate: parsed.data.endDate || undefined,
+        startTime: parsed.data.startTime || undefined,
+        endTime: parsed.data.endTime || undefined,
+        location: parsed.data.location,
       });
       toast.success("Event scheduled successfully.");
       router.push("/admin/timetable");

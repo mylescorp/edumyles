@@ -23,7 +23,7 @@ export const checkActionSession = internalQuery({
     return {
       tenantId: session.tenantId,
       userId: session.userId,
-      role: session.role,
+      role: session.role === "platform_admin" ? "super_admin" : session.role,
       email: session.email || "",
     };
   },
@@ -53,7 +53,7 @@ export async function requireTenantSession(
   return {
     tenantId: session.tenantId,
     userId: session.userId,
-    role: session.role,
+    role: session.role === "platform_admin" ? "super_admin" : session.role,
     email: session.email || "",
   };
 }
@@ -84,7 +84,7 @@ export async function requireTenantContext(ctx: QueryCtx | MutationCtx): Promise
   return {
     tenantId: session.tenantId,
     userId: session.userId,
-    role: session.role,
+    role: session.role === "platform_admin" ? "super_admin" : session.role,
     email: session.email || "",
   };
 }

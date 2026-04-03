@@ -11,12 +11,14 @@ export function useTenant() {
   const {
     sessionToken,
     tenantId: sessionTenantId,
+    role,
     isLoading,
     isAuthenticated,
   } = useAuth();
   const hasLiveTenantSession =
     !!sessionToken && sessionToken !== "dev_session_token";
-  const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession;
+  const isPlatformSession = role === "master_admin" || role === "super_admin";
+  const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatformSession;
 
   const tenantContext = useQuery(
     api.tenants.getTenantContext,
@@ -30,12 +32,31 @@ export function useTenant() {
     canQueryTenant
   );
 
-  // Always include core modules even if the query hasn't loaded yet
-  const resolvedModules = installedModuleIds ?? CORE_MODULE_IDS;
-  const resolvedTenantId = tenantContext?.tenantId ?? sessionTenantId ?? null;
+  const resolvedModules = installedModuleIds ?? (isAuthenticated ? CORE_MODULE_IDS : []);
+  const resolvedTenantId = tenantContext?.tenantId ?? (isPlatformSession ? sessionTenantId : null) ?? null;
   const resolvedTier =
     tenantContext?.organization?.tier ?? tenantContext?.tenant?.plan ?? null;
   const hasTenantContext = !!tenantContext?.tenant && !!resolvedTenantId;
+  const queryPending =
+    canQueryTenant &&
+    (tenantContext === undefined || installedModuleIds === undefined);
+  const isUnauthenticated = !isLoading && !isAuthenticated;
+  const tenantResolutionError =
+    !isLoading &&
+    !isUnauthenticated &&
+    !isPlatformSession &&
+    hasLiveTenantSession &&
+    !queryPending &&
+    !hasTenantContext
+      ? "Tenant context could not be resolved for the current session."
+      : null;
+  const status = isLoading || queryPending
+    ? "loading"
+    : isUnauthenticated
+      ? "unauthenticated"
+      : tenantResolutionError
+        ? "error"
+        : "resolved";
 
   return {
     tenantId: resolvedTenantId,
@@ -46,7 +67,7 @@ export function useTenant() {
           plan: tenantContext.tenant.plan,
           status: tenantContext.tenant.status,
           subdomain: tenantContext.tenant.subdomain,
-          email: tenantContext.tenant.email ?? "support@edumyles.com",
+          email: tenantContext.tenant.email ?? "",
           phone: tenantContext.tenant.phone ?? "",
           country: tenantContext.tenant.country,
           county: tenantContext.tenant.county ?? "",
@@ -61,9 +82,11 @@ export function useTenant() {
       : null,
     installedModules: resolvedModules,
     tier: resolvedTier,
-    hasResolvedTenant: !!resolvedTenantId,
-    isLoading:
-      canQueryTenant &&
-      (tenantContext === undefined || installedModuleIds === undefined),
+    hasResolvedTenant: isPlatformSession ? !!resolvedTenantId : hasTenantContext,
+    tenantResolutionError,
+    status,
+    isUnauthenticated,
+    isPlatformTenant: isPlatformSession,
+    isLoading: status === "loading",
   };
 }

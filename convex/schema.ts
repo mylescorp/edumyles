@@ -486,6 +486,22 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_invoice", ["invoiceId"]),
 
+  ledgerEntries: defineTable({
+    tenantId: v.string(),
+    studentId: v.string(),
+    invoiceId: v.string(),
+    paymentId: v.optional(v.string()),
+    type: v.string(),
+    amount: v.number(),
+    currency: v.string(),
+    description: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_student", ["studentId", "createdAt"])
+    .index("by_invoice", ["invoiceId", "createdAt"])
+    .index("by_payment", ["paymentId", "createdAt"]),
+
   paymentCallbacks: defineTable({
     tenantId: v.string(),
     gateway: v.string(), // mpesa | stripe | airtel

@@ -273,11 +273,12 @@ export class SMSService {
 
 // Factory function to create SMS service
 export function createSMSService(): SMSService {
+  const resolved = resolveAfricasTalkingConfig();
   const config: SMSConfig = {
-    username: process.env.AT_USERNAME!,
-    apiKey: process.env.AT_API_KEY!,
-    senderId: process.env.AT_SENDER_ID,
-    environment: (process.env.AT_ENVIRONMENT as 'sandbox' | 'production') || 'sandbox',
+    username: resolved.username!,
+    apiKey: resolved.apiKey!,
+    senderId: resolved.senderId,
+    environment: resolved.environment as 'sandbox' | 'production',
   };
 
   // Validate required environment variables
@@ -290,3 +291,4 @@ export function createSMSService(): SMSService {
 
   return new SMSService(config);
 }
+import { resolveAfricasTalkingConfig } from "./env.js";

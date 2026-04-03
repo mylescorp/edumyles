@@ -103,6 +103,7 @@ export default function BookCatalogPage() {
                 columns={columns}
                 searchable
                 searchPlaceholder="Search by title, author, or ISBN..."
+                searchKey={(row) => `${row.title} ${row.author} ${row.isbn ?? ""} ${row.category}`}
                 emptyTitle="No books found"
                 emptyDescription="Start adding books to your library catalog."
             />

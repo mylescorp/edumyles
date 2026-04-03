@@ -55,11 +55,19 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   partner: ["students:read", "finance:read", "reports:read", "communications:read"],
 };
 
+function normalizeRole(role: string): Role | null {
+  if (role === "platform_admin") {
+    return "super_admin";
+  }
+  return role in ROLE_PERMISSIONS ? (role as Role) : null;
+}
+
 export function requirePermission(
   ctx: TenantContext,
   permission: Permission
 ): void {
-  const permissions = ROLE_PERMISSIONS[ctx.role as Role] ?? [];
+  const normalizedRole = normalizeRole(ctx.role);
+  const permissions = normalizedRole ? ROLE_PERMISSIONS[normalizedRole] ?? [] : [];
   if (!permissions.includes(permission)) {
     throw new ConvexError({
       code: "FORBIDDEN",
@@ -72,7 +80,8 @@ export function requireRole(
   ctx: TenantContext,
   ...roles: Role[]
 ): void {
-  if (!roles.includes(ctx.role as Role)) {
+  const normalizedRole = normalizeRole(ctx.role);
+  if (!normalizedRole || !roles.includes(normalizedRole)) {
     throw new ConvexError({
       code: "FORBIDDEN",
       message: `Required role(s) [${roles.join(", ")}], got '${ctx.role}'`,

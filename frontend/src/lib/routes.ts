@@ -155,7 +155,8 @@ export const partnerNavItems: NavItem[] = [
 ];
 
 export function getNavItemsForRole(role: string): NavItem[] {
-  switch (role) {
+  const normalizedRole = role === "platform_admin" ? "super_admin" : role;
+  switch (normalizedRole) {
     case "master_admin":
     case "super_admin":
       return platformNavItems;
@@ -182,7 +183,8 @@ export function getNavItemsForRole(role: string): NavItem[] {
 }
 
 export function getRoleDashboard(role: string): string {
-  switch (role) {
+  const normalizedRole = role === "platform_admin" ? "super_admin" : role;
+  switch (normalizedRole) {
     case "master_admin":
     case "super_admin":
       return "/platform";
@@ -225,5 +227,6 @@ export function getRoleLabel(role: string): string {
     alumni: "Alumni",
     partner: "Partner",
   };
-  return labels[role] ?? role;
+  const normalizedRole = role === "platform_admin" ? "super_admin" : role;
+  return labels[normalizedRole] ?? normalizedRole;
 }

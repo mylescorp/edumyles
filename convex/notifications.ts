@@ -20,6 +20,7 @@ async function getOwnedNotification(ctx: any, sessionToken: string, notification
 export const getNotifications = query({
   args: {
     sessionToken: v.string(),
+    userId: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {

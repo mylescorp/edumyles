@@ -57,7 +57,10 @@ const MODULE_ICONS: Record<string, any> = {
 
 const TIER_COLORS: Record<string, string> = {
   free: "bg-gray-100 text-gray-800 border-gray-200",
-  basic: "bg-blue-100 text-blue-800 border-blue-200",
+  starter: "bg-blue-100 text-blue-800 border-blue-200",
+  standard: "bg-violet-100 text-violet-800 border-violet-200",
+  growth: "bg-violet-100 text-violet-800 border-violet-200",
+  pro: "bg-purple-100 text-purple-800 border-purple-200",
   premium: "bg-purple-100 text-purple-800 border-purple-200",
   enterprise: "bg-em-primary/10 text-em-primary border-em-primary/20",
 };
@@ -73,9 +76,13 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function ModuleInstallationPanel() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, isLoading, isAuthenticated } = useAuth();
   const { tenantId } = useTenant();
   const { isModuleInstalled, isModuleActive, installedModuleIds } = useInstalledModules();
+  const hasLiveTenantSession =
+    !!sessionToken && sessionToken !== "dev_session_token";
+  const canQueryModules =
+    !isLoading && isAuthenticated && hasLiveTenantSession;
   
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [isInstalling, setIsInstalling] = useState<string | null>(null);
@@ -88,8 +95,9 @@ export function ModuleInstallationPanel() {
   // Queries
   const availableModules = useQuery(
     api.modules.marketplace.queries.getAvailableForTier,
-    sessionToken ? { sessionToken } : "skip"
+    canQueryModules ? { sessionToken } : "skip"
   );
+  const resolvedAvailableModules = (availableModules as any[]) ?? [];
 
   const handleInstall = async (moduleId: string) => {
     if (!sessionToken || !tenantId) return;
@@ -214,7 +222,7 @@ export function ModuleInstallationPanel() {
         <CardContent className="space-y-3">
           {/* Module metadata */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className={TIER_COLORS[module.tier] ?? TIER_COLORS.free}>
+            <Badge variant="outline" className={TIER_COLORS[module.tier] ?? TIER_COLORS.starter}>
               {module.tier.charAt(0).toUpperCase() + module.tier.slice(1)}
             </Badge>
             <Badge variant="outline" className={CATEGORY_COLORS[module.category] ?? CATEGORY_COLORS.academics}>
@@ -245,8 +253,8 @@ export function ModuleInstallationPanel() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Pricing:</span>
               <span className="font-medium">
-                ${module.pricing.monthly}/mo
-                {module.pricing.annual && (
+                ${module.pricing?.monthly ?? 0}/mo
+                {module.pricing?.annual && (
                   <span className="text-xs text-muted-foreground ml-1">
                     (${module.pricing.annual}/yr)
                   </span>
@@ -324,7 +332,7 @@ export function ModuleInstallationPanel() {
     );
   };
 
-  if (!availableModules) {
+  if (canQueryModules && availableModules === undefined) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-em-primary"></div>
@@ -341,7 +349,7 @@ export function ModuleInstallationPanel() {
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-2xl font-bold">{availableModules.length}</p>
+                <p className="text-2xl font-bold">{resolvedAvailableModules.length}</p>
                 <p className="text-xs text-muted-foreground">Available Modules</p>
               </div>
             </div>
@@ -366,7 +374,7 @@ export function ModuleInstallationPanel() {
               <Star className="h-5 w-5 text-amber-500" />
               <div>
                 <p className="text-2xl font-bold">
-                  {availableModules.filter((m: any) => m.isCore).length}
+                  {resolvedAvailableModules.filter((m: any) => m.isCore).length}
                 </p>
                 <p className="text-xs text-muted-foreground">Core Modules</p>
               </div>
@@ -392,7 +400,7 @@ export function ModuleInstallationPanel() {
       {/* Module grid */}
       <ScrollArea className="h-[600px]">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {availableModules.map(renderModuleCard)}
+          {resolvedAvailableModules.map(renderModuleCard)}
         </div>
       </ScrollArea>
     </div>

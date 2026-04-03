@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { createClassSchema } from "@shared/validators";
 
 export default function CreateClassPage() {
     const { isLoading } = useAuth();
@@ -39,14 +40,20 @@ export default function CreateClassPage() {
         setError(null);
 
         try {
-            if (!form.name) throw new Error("Class name is required.");
+            const parsed = createClassSchema.safeParse({
+                name: form.name.trim(),
+                level: form.level.trim() || undefined,
+                stream: form.stream.trim() || undefined,
+                capacity: form.capacity ? parseInt(form.capacity, 10) : undefined,
+                academicYear: form.academicYear.trim() || undefined,
+            });
+
+            if (!parsed.success) {
+                throw new Error(parsed.error.errors[0]?.message ?? "Class details are invalid.");
+            }
 
             await createClass({
-                name: form.name,
-                level: form.level || undefined,
-                stream: form.stream || undefined,
-                capacity: form.capacity ? parseInt(form.capacity) : undefined,
-                academicYear: form.academicYear || undefined,
+                ...parsed.data,
             });
 
             router.push("/admin/classes");

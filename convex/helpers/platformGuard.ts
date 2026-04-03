@@ -33,7 +33,8 @@ export async function requirePlatformSession(
   if (session.expiresAt < Date.now()) throw new Error("UNAUTHENTICATED: Session expired");
   const normalizedEmail = session.email?.toLowerCase() || "";
   const isConfiguredMasterAdmin = FALLBACK_MASTER_ADMIN_EMAILS.includes(normalizedEmail);
-  const effectiveRole = isConfiguredMasterAdmin ? "master_admin" : session.role;
+  const normalizedRole = session.role === "platform_admin" ? "super_admin" : session.role;
+  const effectiveRole = isConfiguredMasterAdmin ? "master_admin" : normalizedRole;
   const effectiveTenantId = effectiveRole === "master_admin" ? "PLATFORM" : session.tenantId;
 
   if (!["master_admin", "super_admin"].includes(effectiveRole)) {

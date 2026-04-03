@@ -18,7 +18,11 @@ export async function POST(req: NextRequest) {
     const sessionToken =
       cookieStore.get("edumyles_session")?.value ?? cookieStore.get("edumyles-session")?.value;
     const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
-    
+
+    if (!serverSecret) {
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+
     if (!sessionToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -29,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { recipients, message, priority, category } = body;
+    const { recipients, message } = body;
 
     // Validate required fields
     if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
@@ -48,10 +52,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message too long (max 1600 characters)" }, { status: 400 });
     }
 
-    if (!serverSecret) {
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
-    }
-
     // Check user permissions for SMS sending
     const userPermissions = await convex.query(api.modules.communications.queries.getUserPermissions, {
       sessionToken,
@@ -62,13 +62,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Send SMS via Convex action
-    const result = await convex.action(api.modules.communications.sms.sendSMS, {
-      webhookSecret: serverSecret,
-      tenantId: session.tenantId,
-      recipients,
+    const result = await convex.action((api as any).actions.communications.sms.sendBulkSms, {
+      phones: recipients,
       message,
-      priority,
-      category,
     });
 
     if (!result.success) {
@@ -80,9 +76,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      messageId: result.messageId,
-      recipientsSent: result.recipientsSent,
-      recipientsFailed: result.recipientsFailed,
+      recipientsSent: result.count,
+      recipientsFailed: Math.max(recipients.length - (result.count ?? 0), 0),
       message: "SMS sent successfully",
     });
   } catch (e) {

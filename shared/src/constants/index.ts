@@ -1,7 +1,7 @@
 // ============================================================
 // EduMyles — Shared Constants
 // ============================================================
-import type { Module, UserRole, TenantTier } from "../types/index.js";
+import type { LegacyUserRoleAlias, Module, UserRole, TenantTier } from "../types/index.js";
 
 // ----------------------------------------------------------
 // Roles — canonical names match convex/helpers/authorize.ts
@@ -9,7 +9,6 @@ import type { Module, UserRole, TenantTier } from "../types/index.js";
 export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
   master_admin: { label: "Master Admin", level: 100 },
   super_admin: { label: "Super Admin", level: 95 },
-  platform_admin: { label: "Platform Admin (Legacy)", level: 95 },
   school_admin: { label: "School Admin", level: 90 },
   principal: { label: "Principal", level: 80 },
   bursar: { label: "Finance Officer", level: 60 },
@@ -24,6 +23,20 @@ export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
   alumni: { label: "Alumni", level: 15 },
   student: { label: "Student", level: 10 },
 };
+
+export const LEGACY_ROLE_ALIASES: Record<LegacyUserRoleAlias, UserRole> = {
+  platform_admin: "super_admin",
+};
+
+export const CANONICAL_PLATFORM_ROLES: UserRole[] = ["master_admin", "super_admin"];
+
+export function normalizeUserRole(role: string | null | undefined): UserRole | null {
+  if (!role) return null;
+  if (role in LEGACY_ROLE_ALIASES) {
+    return LEGACY_ROLE_ALIASES[role as LegacyUserRoleAlias];
+  }
+  return role in USER_ROLES ? (role as UserRole) : null;
+}
 
 // ----------------------------------------------------------
 // Modules
