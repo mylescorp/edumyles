@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "./useAuth";
@@ -57,6 +58,7 @@ export function useTenant() {
     !!sessionToken && sessionToken !== "dev_session_token";
   const isPlatformSession = role === "master_admin" || role === "super_admin";
   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatformSession;
+  const [queryTimedOut, setQueryTimedOut] = useState(false);
 
   const tenantContext = useQuery(
     api.tenants.getTenantContext,
@@ -70,16 +72,36 @@ export function useTenant() {
     canQueryTenant
   );
 
-  const resolvedModules = installedModuleIds ?? (isAuthenticated ? CORE_MODULE_IDS : []);
+  useEffect(() => {
+    if (!canQueryTenant) {
+      setQueryTimedOut(false);
+      return;
+    }
+
+    if (tenantContext !== undefined && installedModuleIds !== undefined) {
+      setQueryTimedOut(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setQueryTimedOut(true);
+    }, 6000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [canQueryTenant, installedModuleIds, tenantContext]);
+
+  const resolvedTenantContext = queryTimedOut ? (tenantContext ?? null) : tenantContext;
+  const resolvedInstalledModuleIds = queryTimedOut ? (installedModuleIds ?? null) : installedModuleIds;
+  const resolvedModules = resolvedInstalledModuleIds ?? (isAuthenticated ? CORE_MODULE_IDS : []);
   const resolvedTenantId =
-    tenantContext?.tenantId ??
+    resolvedTenantContext?.tenantId ??
     sessionTenantId ??
     null;
   const resolvedTier =
-    tenantContext?.organization?.tier ?? tenantContext?.tenant?.plan ?? null;
+    resolvedTenantContext?.organization?.tier ?? resolvedTenantContext?.tenant?.plan ?? null;
   const hasTenantContext = !!resolvedTenantId;
   const resolution = deriveTenantResolutionState({
-    isLoading,
+    isLoading: queryTimedOut ? false : isLoading,
     isAuthenticated,
     hasLiveTenantSession,
     isPlatformSession,
@@ -91,21 +113,21 @@ export function useTenant() {
     tenant: hasTenantContext
       ? {
           _id: resolvedTenantId!,
-          name: tenantContext?.tenant?.name ?? "My School",
-          plan: tenantContext?.tenant?.plan ?? resolvedTier ?? "starter",
-          status: tenantContext?.tenant?.status ?? "active",
-          subdomain: tenantContext?.tenant?.subdomain ?? "",
-          email: tenantContext?.tenant?.email ?? "",
-          phone: tenantContext?.tenant?.phone ?? "",
-          country: tenantContext?.tenant?.country ?? "KE",
-          county: tenantContext?.tenant?.county ?? "",
+          name: resolvedTenantContext?.tenant?.name ?? "My School",
+          plan: resolvedTenantContext?.tenant?.plan ?? resolvedTier ?? "starter",
+          status: resolvedTenantContext?.tenant?.status ?? "active",
+          subdomain: resolvedTenantContext?.tenant?.subdomain ?? "",
+          email: resolvedTenantContext?.tenant?.email ?? "",
+          phone: resolvedTenantContext?.tenant?.phone ?? "",
+          country: resolvedTenantContext?.tenant?.country ?? "KE",
+          county: resolvedTenantContext?.tenant?.county ?? "",
         }
       : null,
-    organization: tenantContext?.organization && resolvedTier
+    organization: resolvedTenantContext?.organization && resolvedTier
       ? {
-          _id: tenantContext.organization.subdomain ?? "org",
-          name: tenantContext.organization.name,
-          tier: tenantContext.organization.tier,
+          _id: resolvedTenantContext.organization.subdomain ?? "org",
+          name: resolvedTenantContext.organization.name,
+          tier: resolvedTenantContext.organization.tier,
         }
       : null,
     installedModules: resolvedModules,
@@ -115,6 +137,6 @@ export function useTenant() {
     status: resolution.status,
     isUnauthenticated: resolution.isUnauthenticated,
     isPlatformTenant: isPlatformSession,
-    isLoading: resolution.status === "loading",
+    isLoading: !queryTimedOut && resolution.status === "loading",
   };
 }
