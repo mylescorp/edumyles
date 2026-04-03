@@ -1,101 +1,162 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
-
-type WalletTransaction = {
-    _id: string;
-    tenantId: string;
-    walletId: string;
-    type: string;
-    amountCents: number;
-    reference?: string;
-    orderId?: string;
-    createdAt: number;
-};
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { Id } from "@/convex/_generated/dataModel";
 
 type WalletSummary = {
-    walletId: string;
-    tenantId: string;
+    _id: Id<"wallets">;
+    ownerId: string;
+    ownerType: string;
     balanceCents: number;
-    transactionCount: number;
-    lastActivity: number;
+    currency: string;
+    frozen?: boolean;
+    updatedAt: number;
 };
 
 export default function WalletsPage() {
     const { isLoading, sessionToken } = useAuth();
+    const { toast } = useToast();
+    const [selectedWallet, setSelectedWallet] = useState<WalletSummary | null>(null);
+    const [topUpAmount, setTopUpAmount] = useState("");
+    const [topUpNote, setTopUpNote] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const transactions = useQuery(
-        api.modules.ewallet.queries.listWalletTransactions,
-        sessionToken ? { sessionToken } : "skip"
-    );
+    const wallets = useQuery(
+        api.modules.ewallet.queries.listAllWallets,
+        sessionToken ? { sessionToken, limit: 250 } : "skip"
+    ) as WalletSummary[] | undefined;
 
-    const wallets = useMemo<WalletSummary[]>(() => {
-        if (!transactions) return [];
-        const map = new Map<string, WalletSummary>();
-        for (const tx of transactions as WalletTransaction[]) {
-            const existing = map.get(tx.walletId);
-            if (existing) {
-                existing.balanceCents += tx.amountCents;
-                existing.transactionCount += 1;
-                if (tx.createdAt > existing.lastActivity) {
-                    existing.lastActivity = tx.createdAt;
-                }
-            } else {
-                map.set(tx.walletId, {
-                    walletId: tx.walletId,
-                    tenantId: tx.tenantId,
-                    balanceCents: tx.amountCents,
-                    transactionCount: 1,
-                    lastActivity: tx.createdAt,
-                });
-            }
+    const adminTopUp = useMutation(api.modules.ewallet.mutations.adminTopUp);
+    const freezeWallet = useMutation(api.modules.ewallet.mutations.freezeWallet);
+
+    const handleTopUp = async () => {
+        if (!sessionToken || !selectedWallet) return;
+        const amountCents = Math.round(Number(topUpAmount) * 100);
+        if (!amountCents || amountCents <= 0) {
+            toast({
+                title: "Invalid amount",
+                description: "Enter a positive amount to top up.",
+                variant: "destructive",
+            });
+            return;
         }
-        return Array.from(map.values());
-    }, [transactions]);
+
+        setIsSubmitting(true);
+        try {
+            await adminTopUp({
+                sessionToken,
+                targetOwnerId: selectedWallet.ownerId,
+                targetOwnerType: selectedWallet.ownerType,
+                amountCents,
+                note: topUpNote.trim() || "Admin wallet top-up",
+                currency: selectedWallet.currency,
+            });
+            toast({
+                title: "Wallet topped up",
+                description: `${selectedWallet.ownerId} received ${(amountCents / 100).toFixed(2)} ${selectedWallet.currency}.`,
+            });
+            setSelectedWallet(null);
+            setTopUpAmount("");
+            setTopUpNote("");
+        } catch (error) {
+            toast({
+                title: "Top-up failed",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleFreeze = async (wallet: WalletSummary) => {
+        if (!sessionToken) return;
+        try {
+            await freezeWallet({
+                sessionToken,
+                ownerId: wallet.ownerId,
+                reason: "Frozen by school admin from wallet management",
+            });
+            toast({
+                title: "Wallet frozen",
+                description: `${wallet.ownerId} can no longer transact until the wallet is reopened.`,
+            });
+        } catch (error) {
+            toast({
+                title: "Freeze failed",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
+    const walletList = wallets ?? [];
+    const summary = useMemo(() => ({
+        active: walletList.filter((wallet) => !wallet.frozen).length,
+        frozen: walletList.filter((wallet) => wallet.frozen).length,
+        totalBalanceCents: walletList.reduce((sum, wallet) => sum + wallet.balanceCents, 0),
+    }), [walletList]);
+
     const columns: Column<WalletSummary>[] = [
         {
-            key: "walletId",
-            header: "Wallet ID",
+            key: "ownerId",
+            header: "Owner",
             cell: (row) => (
-                <span className="font-mono text-sm">{row.walletId.slice(0, 16)}…</span>
+                <div>
+                    <p className="font-medium">{row.ownerId}</p>
+                    <p className="text-sm capitalize text-muted-foreground">{row.ownerType}</p>
+                </div>
             ),
+            sortable: true,
         },
         {
             key: "balanceCents",
             header: "Balance",
-            cell: (row) => {
-                const amount = row.balanceCents / 100;
-                return (
-                    <span className={amount < 0 ? "text-destructive" : "text-foreground"}>
-                        KES {amount.toFixed(2)}
-                    </span>
-                );
-            },
+            cell: (row) => `${row.currency} ${(row.balanceCents / 100).toFixed(2)}`,
             sortable: true,
         },
         {
-            key: "transactionCount",
-            header: "Transactions",
+            key: "status",
+            header: "Status",
             cell: (row) => (
-                <Badge variant="outline">{row.transactionCount}</Badge>
+                <Badge variant={row.frozen ? "destructive" : "default"}>
+                    {row.frozen ? "Frozen" : "Active"}
+                </Badge>
             ),
+        },
+        {
+            key: "updatedAt",
+            header: "Last Activity",
+            cell: (row) => new Date(row.updatedAt).toLocaleDateString(),
             sortable: true,
         },
         {
-            key: "lastActivity",
-            header: "Last Activity",
-            cell: (row) => new Date(row.lastActivity).toLocaleDateString(),
-            sortable: true,
+            key: "actions",
+            header: "",
+            cell: (row) => (
+                <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setSelectedWallet(row)}>
+                        Top Up
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => handleFreeze(row)} disabled={!!row.frozen}>
+                        Freeze
+                    </Button>
+                </div>
+            ),
         },
     ];
 
@@ -103,18 +164,64 @@ export default function WalletsPage() {
         <div>
             <PageHeader
                 title="Wallets"
-                description="Review wallet balances, statuses, and user accounts"
+                description={`Review balances across ${walletList.length} wallets. ${summary.active} active, ${summary.frozen} frozen, total balance KES ${(summary.totalBalanceCents / 100).toFixed(2)}.`}
             />
 
             <DataTable
-                data={wallets}
+                data={walletList}
                 columns={columns}
                 searchable
-                searchPlaceholder="Search by wallet ID..."
-                searchKey={(row) => row.walletId}
+                searchPlaceholder="Search by owner ID or type..."
+                searchKey={(row) => `${row.ownerId} ${row.ownerType}`}
                 emptyTitle="No wallets found"
                 emptyDescription="Wallet accounts will appear here once users transact."
             />
+
+            <Dialog open={!!selectedWallet} onOpenChange={(open) => !open && setSelectedWallet(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Admin Wallet Top-up</DialogTitle>
+                    </DialogHeader>
+                    {selectedWallet && (
+                        <div className="space-y-4">
+                            <div className="rounded-lg border p-3 text-sm">
+                                <p className="font-medium">{selectedWallet.ownerId}</p>
+                                <p className="text-muted-foreground">
+                                    Current balance: {selectedWallet.currency} {(selectedWallet.balanceCents / 100).toFixed(2)}
+                                </p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="amount">Amount</Label>
+                                <Input
+                                    id="amount"
+                                    type="number"
+                                    min="1"
+                                    step="0.01"
+                                    value={topUpAmount}
+                                    onChange={(event) => setTopUpAmount(event.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="note">Note</Label>
+                                <Input
+                                    id="note"
+                                    value={topUpNote}
+                                    onChange={(event) => setTopUpNote(event.target.value)}
+                                    placeholder="Reason for adjustment"
+                                />
+                            </div>
+                            <div className="flex justify-end gap-2">
+                                <Button type="button" variant="outline" onClick={() => setSelectedWallet(null)}>
+                                    Cancel
+                                </Button>
+                                <Button type="button" onClick={handleTopUp} disabled={isSubmitting}>
+                                    {isSubmitting ? "Applying..." : "Apply top-up"}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

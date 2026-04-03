@@ -1,5 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const listSLAConfigurations = query({
   args: {
@@ -7,14 +8,11 @@ export const listSLAConfigurations = query({
     tenantId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const platform = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const configs = await ctx.db.query("slaConfigurations").collect();
-    return args.tenantId ? configs.filter((c) => c.tenantId === args.tenantId) : configs;
+    const targetTenantId = args.tenantId ?? platform.tenantId;
+    return configs.filter((c) => c.tenantId === targetTenantId);
   },
 });
 
@@ -24,16 +22,14 @@ export const getSLAMetrics = query({
     timeRange: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const platform = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const cutoff = Date.now() - (args.timeRange === "7d" ? 604800000 : args.timeRange === "90d" ? 7776000000 : 2592000000);
 
     const breaches = await ctx.db.query("slaBreaches").collect();
-    const recentBreaches = breaches.filter((b) => b.breachedAt >= cutoff);
+    const recentBreaches = breaches.filter(
+      (b) => b.tenantId === platform.tenantId && b.breachedAt >= cutoff
+    );
     const configs = await ctx.db.query("slaConfigurations").collect();
     const activeConfigs = configs.filter((c) => c.isActive);
 
@@ -41,8 +37,9 @@ export const getSLAMetrics = query({
       .query("tickets")
       .filter((q) => q.gte(q.field("createdAt"), cutoff))
       .collect();
+    const tenantTickets = tickets.filter((ticket) => ticket.tenantId === platform.tenantId);
 
-    const totalTickets = tickets.length || 1;
+    const totalTickets = tenantTickets.length || 1;
     const complianceRate = Math.round(((totalTickets - recentBreaches.length) / totalTickets) * 100) / 100;
 
     return {
@@ -63,17 +60,15 @@ export const listBreaches = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    const platform = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const breaches = await ctx.db
       .query("slaBreaches")
       .order("desc")
       .collect();
 
-    return breaches.slice(0, args.limit || 50);
+    return breaches
+      .filter((breach) => breach.tenantId === platform.tenantId)
+      .slice(0, args.limit || 50);
   },
 });

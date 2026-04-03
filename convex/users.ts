@@ -401,21 +401,51 @@ export const getCurrentUser = query({
 // List users within a tenant
 export const listTenantUsers = query({
   args: {
-    tenantId: v.string(),
+    sessionToken: v.string(),
     role: v.optional(v.string()),
+    search: v.optional(v.string()),
+    isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    requirePermission(tenant, "users:manage");
+
+    const normalizedSearch = args.search?.trim().toLowerCase();
     if (args.role) {
-      return await ctx.db
+      const users = await ctx.db
         .query("users")
-        .withIndex("by_tenant_role", (q) => q.eq("tenantId", args.tenantId).eq("role", args.role!))
+        .withIndex("by_tenant_role", (q) => q.eq("tenantId", tenant.tenantId).eq("role", args.role!))
         .collect();
+      return users.filter((user) => {
+        if (args.isActive !== undefined && user.isActive !== args.isActive) {
+          return false;
+        }
+        if (!normalizedSearch) return true;
+        const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim().toLowerCase();
+        return (
+          user.email.toLowerCase().includes(normalizedSearch) ||
+          name.includes(normalizedSearch) ||
+          user.role.toLowerCase().includes(normalizedSearch)
+        );
+      });
     }
 
-    return await ctx.db
+    const users = await ctx.db
       .query("users")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
       .collect();
+    return users.filter((user) => {
+      if (args.isActive !== undefined && user.isActive !== args.isActive) {
+        return false;
+      }
+      if (!normalizedSearch) return true;
+      const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim().toLowerCase();
+      return (
+        user.email.toLowerCase().includes(normalizedSearch) ||
+        name.includes(normalizedSearch) ||
+        user.role.toLowerCase().includes(normalizedSearch)
+      );
+    });
   },
 });
 
@@ -500,6 +530,51 @@ export const inviteTenantUser = mutation({
     });
 
     return { id, eduMylesUserId };
+  },
+});
+
+export const updateTenantUser = mutation({
+  args: {
+    sessionToken: v.string(),
+    userId: v.id("users"),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    role: v.optional(v.string()),
+    isActive: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    requirePermission(tenant, "users:manage");
+
+    const existing = await ctx.db.get(args.userId);
+    if (!existing || existing.tenantId !== tenant.tenantId) {
+      throw new Error("User not found");
+    }
+
+    if (existing.eduMylesUserId === tenant.userId && args.isActive === false) {
+      throw new Error("You cannot deactivate your own account.");
+    }
+
+    const updates: Record<string, unknown> = {};
+    if (args.firstName !== undefined) updates.firstName = args.firstName;
+    if (args.lastName !== undefined) updates.lastName = args.lastName;
+    if (args.role !== undefined) updates.role = args.role;
+    if (args.isActive !== undefined) updates.isActive = args.isActive;
+
+    await ctx.db.patch(args.userId, updates);
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "user.updated",
+      entityType: "user",
+      entityId: existing.eduMylesUserId,
+      before: existing,
+      after: updates,
+    });
+
+    return { success: true };
   },
 });
 

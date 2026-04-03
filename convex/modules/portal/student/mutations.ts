@@ -231,3 +231,135 @@ export const registerMobileDeviceToken = mutation({
     return { success: true, tokenId: insertedId };
   },
 });
+
+export const sendWalletTransfer = mutation({
+  args: {
+    sessionToken: v.string(),
+    recipientAdmissionNumber: v.string(),
+    amountCents: v.number(),
+    note: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    await requireModule(ctx, tenant.tenantId, "ewallet");
+
+    const sender = await getStudentRecord(ctx, tenant);
+    if (!sender) {
+      throw new Error("Student profile not found");
+    }
+
+    if (args.amountCents <= 0) {
+      throw new Error("Amount must be positive");
+    }
+
+    const recipient = await ctx.db
+      .query("students")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .filter((q) => q.eq(q.field("admissionNumber"), args.recipientAdmissionNumber))
+      .first();
+
+    if (!recipient || recipient.status !== "active") {
+      throw new Error("Recipient student was not found");
+    }
+
+    if (recipient._id === sender._id) {
+      throw new Error("You cannot send money to your own wallet");
+    }
+
+    const fromWallet = await ctx.db
+      .query("wallets")
+      .withIndex("by_owner", (q: any) =>
+        q.eq("tenantId", tenant.tenantId).eq("ownerId", sender._id)
+      )
+      .first();
+
+    if (!fromWallet) {
+      throw new Error("You do not have a wallet yet");
+    }
+
+    if (fromWallet.frozen) {
+      throw new Error("Your wallet is frozen");
+    }
+
+    if (fromWallet.balanceCents < args.amountCents) {
+      throw new Error("Insufficient wallet balance");
+    }
+
+    let recipientWallet = await ctx.db
+      .query("wallets")
+      .withIndex("by_owner", (q: any) =>
+        q.eq("tenantId", tenant.tenantId).eq("ownerId", recipient._id)
+      )
+      .first();
+
+    const now = Date.now();
+    if (!recipientWallet) {
+      const walletId = await ctx.db.insert("wallets", {
+        tenantId: tenant.tenantId,
+        ownerId: recipient._id,
+        ownerType: "student",
+        balanceCents: 0,
+        currency: fromWallet.currency ?? "KES",
+        createdAt: now,
+        updatedAt: now,
+      });
+      recipientWallet = await ctx.db.get(walletId);
+    }
+
+    if (!recipientWallet) {
+      throw new Error("Recipient wallet could not be created");
+    }
+
+    const reference = `TRF-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    await ctx.db.insert("walletTransactions", {
+      tenantId: tenant.tenantId,
+      walletId: fromWallet._id,
+      type: "transfer_out",
+      amountCents: -args.amountCents,
+      reference,
+      toWalletId: recipientWallet._id.toString(),
+      note: args.note,
+      createdAt: now,
+    });
+    await ctx.db.insert("walletTransactions", {
+      tenantId: tenant.tenantId,
+      walletId: recipientWallet._id,
+      type: "transfer_in",
+      amountCents: args.amountCents,
+      reference,
+      toWalletId: fromWallet._id.toString(),
+      note: args.note,
+      createdAt: now,
+    });
+
+    await ctx.db.patch(fromWallet._id, {
+      balanceCents: fromWallet.balanceCents - args.amountCents,
+      updatedAt: now,
+    });
+    await ctx.db.patch(recipientWallet._id, {
+      balanceCents: recipientWallet.balanceCents + args.amountCents,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "payment.initiated",
+      entityType: "wallet",
+      entityId: fromWallet._id.toString(),
+      after: {
+        type: "transfer",
+        amountCents: args.amountCents,
+        recipientAdmissionNumber: args.recipientAdmissionNumber,
+        reference,
+      },
+    });
+
+    return {
+      success: true,
+      reference,
+      recipientName: `${recipient.firstName} ${recipient.lastName}`.trim(),
+    };
+  },
+});

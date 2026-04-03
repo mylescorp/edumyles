@@ -43,6 +43,45 @@ function setAuthState(next: Partial<AuthStoreState>) {
   emitAuthState();
 }
 
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
+  const value = match?.[1];
+  return value ? decodeURIComponent(value) : null;
+}
+
+function buildFallbackSessionFromCookies(): Session | null {
+  const userCookie = readCookie("edumyles_user");
+  const roleCookie = normalizeRole(readCookie("edumyles_role"));
+
+  if (!userCookie) return null;
+
+  try {
+    const user = JSON.parse(userCookie) as {
+      email?: string;
+      role?: string;
+      tenantId?: string;
+    };
+
+    if (!user.email) return null;
+
+    const role = normalizeRole(user.role) ?? roleCookie ?? "school_admin";
+    const tenantId = role === "master_admin" ? "PLATFORM" : (user.tenantId ?? "PLATFORM");
+
+    return {
+      sessionToken: "",
+      tenantId,
+      userId: user.email,
+      email: user.email,
+      role,
+      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function loadAuthSession(force = false) {
   if (authLoadPromise && !force) {
     return authLoadPromise;
@@ -52,12 +91,19 @@ async function loadAuthSession(force = false) {
     setAuthState({ isLoading: true });
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
       const res = await fetch("/api/auth/session", {
         credentials: "same-origin",
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
       if (!res.ok) {
-        setAuthState({ session: null, isLoading: false });
+        setAuthState({
+          session: buildFallbackSessionFromCookies(),
+          isLoading: false,
+        });
         return;
       }
 
@@ -70,11 +116,14 @@ async function loadAuthSession(force = false) {
         : null;
 
       setAuthState({
-        session: nextSession,
+        session: nextSession ?? buildFallbackSessionFromCookies(),
         isLoading: false,
       });
     } catch {
-      setAuthState({ session: null, isLoading: false });
+      setAuthState({
+        session: buildFallbackSessionFromCookies(),
+        isLoading: false,
+      });
     } finally {
       authLoadPromise = null;
     }
@@ -102,35 +151,30 @@ export function useAuth() {
     };
   }, []);
 
-  // Get platform user profile if session exists
   const platformProfile = useQuery(
     api.platform.users.queries.getCurrentPlatformUser,
     { sessionToken: session?.sessionToken ?? "" },
     !!session?.sessionToken && (session.role === "master_admin" || session.role === "super_admin")
   );
 
-  // Get tenant user profile if session exists and not platform admin
   const tenantProfile = useQuery(
     api.users.getCurrentUser,
     { sessionToken: session?.sessionToken ?? "" },
     !!session?.sessionToken && session.role !== "master_admin" && session.role !== "super_admin"
   );
 
-  // Get student profile if role is student
   const studentProfile = useQuery(
     api.modules.portal.student.queries.getMyProfile,
     {},
     !!session?.sessionToken && session.role === "student"
   );
 
-  // Get parent profile if role is parent
   const parentProfile = useQuery(
     api.modules.portal.parent.queries.getParentProfile,
     {},
     !!session?.sessionToken && session.role === "parent"
   );
 
-  // Get partner profile if role is partner
   const partnerProfile = useQuery(
     api.modules.portal.partner.queries.getPartnerProfile,
     {},
@@ -138,27 +182,23 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
-    // Clear client state immediately so UI reacts right away
     setAuthState({ session: null, isLoading: false });
     localStorage.clear();
     sessionStorage.clear();
 
     try {
-      // Invalidate server session + clear cookies
       await fetch("/auth/logout", {
         method: "POST",
         credentials: "same-origin",
       });
     } catch {
-      // Ignore — we still redirect to login regardless
+      // Ignore logout transport failures and continue redirecting.
     }
 
-    // Redirect to landing page after logout
     const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL;
     window.location.replace(landingUrl && landingUrl.startsWith("http") ? landingUrl : "/auth/login");
   }, []);
 
-  // Build user object based on role and available profile data
   const buildUserObject = () => {
     if (!session) return null;
 
@@ -170,7 +210,6 @@ export function useAuth() {
       sessionToken: session.sessionToken,
     };
 
-    // Platform users (master_admin, super_admin)
     if (platformProfile) {
       return {
         ...baseUser,
@@ -184,7 +223,6 @@ export function useAuth() {
       };
     }
 
-    // Tenant users (school_admin, principal, teacher, etc.)
     if (tenantProfile) {
       return {
         ...baseUser,
@@ -196,7 +234,6 @@ export function useAuth() {
       };
     }
 
-    // Students
     if (studentProfile) {
       return {
         ...baseUser,
@@ -214,7 +251,6 @@ export function useAuth() {
       };
     }
 
-    // Parents
     if (parentProfile) {
       return {
         ...baseUser,
@@ -229,7 +265,6 @@ export function useAuth() {
       };
     }
 
-    // Partners
     if (partnerProfile) {
       return {
         ...baseUser,
@@ -242,7 +277,6 @@ export function useAuth() {
       };
     }
 
-    // Fallback to basic session data
     return {
       ...baseUser,
       firstName: session.email.split("@")[0],
@@ -261,7 +295,6 @@ export function useAuth() {
     tenantId: session?.tenantId ?? null,
     logout,
     sessionToken: session?.sessionToken ?? null,
-    // Additional profile data for convenience
     platformProfile,
     tenantProfile,
     studentProfile,

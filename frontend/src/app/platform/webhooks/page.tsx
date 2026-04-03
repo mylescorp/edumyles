@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
-import { useMutation } from "convex/react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
@@ -24,6 +24,7 @@ import {
   Loader2,
   ExternalLink,
   RefreshCw,
+  Copy,
 } from "lucide-react";
 
 const EVENT_TYPES = [
@@ -38,10 +39,16 @@ export default function WebhooksPage() {
   const [newUrl, setNewUrl] = useState("");
   const [newSecret, setNewSecret] = useState("");
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
+  const [latestSecret, setLatestSecret] = useState<string | null>(null);
 
   const endpoints = usePlatformQuery(
     api.platform.webhooks.queries.listEndpoints,
     { sessionToken: sessionToken || "" },
+    !!sessionToken
+  );
+  const deliveries = usePlatformQuery(
+    api.platform.webhooks.queries.listDeliveries,
+    { sessionToken: sessionToken || "", limit: 20 },
     !!sessionToken
   );
 
@@ -52,12 +59,13 @@ export default function WebhooksPage() {
   const handleCreate = async () => {
     if (!sessionToken || !newUrl || selectedEvents.length === 0) return;
     try {
-      await createEndpoint({
+      const result = await createEndpoint({
         sessionToken,
         url: newUrl,
         events: selectedEvents,
         secret: newSecret || undefined,
       });
+      setLatestSecret(result.secret ?? null);
       setIsCreateOpen(false);
       setNewUrl("");
       setNewSecret("");
@@ -130,6 +138,20 @@ export default function WebhooksPage() {
           <CardTitle>Webhook Endpoints</CardTitle>
         </CardHeader>
         <CardContent>
+          {latestSecret && (
+            <Alert className="mb-4">
+              <AlertDescription className="flex items-center justify-between gap-3">
+                <span>New endpoint secret: <code className="rounded bg-muted px-2 py-1">{latestSecret}</code></span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void navigator.clipboard.writeText(latestSecret)}
+                >
+                  <Copy className="h-4 w-4 mr-1" /> Copy
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
           {endpoints.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Webhook className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -183,6 +205,52 @@ export default function WebhooksPage() {
                       )}
                     </p>
                   )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Deliveries</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {!deliveries || deliveries.length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground">
+              <Clock className="h-10 w-10 mx-auto mb-2 opacity-50" />
+              <p>No webhook deliveries recorded yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {deliveries.map((delivery: any) => (
+                <div key={delivery._id} className="rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{delivery.event}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Attempt {delivery.attemptCount} • {new Date(delivery.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          delivery.status === "success"
+                            ? "default"
+                            : delivery.status === "failed"
+                              ? "destructive"
+                              : "secondary"
+                        }
+                      >
+                        {delivery.status}
+                      </Badge>
+                      <Badge variant="outline">{delivery.statusCode || "pending"}</Badge>
+                    </div>
+                  </div>
+                  {delivery.response ? (
+                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{delivery.response}</p>
+                  ) : null}
                 </div>
               ))}
             </div>

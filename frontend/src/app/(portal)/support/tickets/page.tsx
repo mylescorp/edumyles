@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
-import { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -42,12 +41,19 @@ export default function SchoolTicketsPage() {
   });
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { tenantId: rawTenantId } = useAuth();
-  const tenantId = (rawTenantId ?? "") as Id<"tenants">;
+  const { sessionToken } = useAuth();
 
   const tickets = useQuery(
-    api.tickets.getTenantTickets,
-    tenantId ? { tenantId, status: filters.status === "all" ? undefined : (filters.status as "open" | "in_progress" | "pending_school" | "resolved" | "closed") } : "skip"
+    api.tickets.listTenantTickets,
+    sessionToken
+      ? {
+          sessionToken,
+          status:
+            filters.status === "all"
+              ? undefined
+              : (filters.status as "open" | "in_progress" | "pending_school" | "resolved" | "closed"),
+        }
+      : "skip"
   );
   const isLoading = tickets === undefined;
 

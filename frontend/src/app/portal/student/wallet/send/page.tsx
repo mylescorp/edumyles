@@ -1,27 +1,35 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Wallet, Send, ArrowLeft, CheckCircle, AlertTriangle } from "lucide-react";
-import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function WalletSendPage() {
-  const { isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
+  const { toast } = useToast();
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [recipientName, setRecipientName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const myWallet = useQuery(api.modules.portal.student.queries.getMyWalletBalance, {});
+  const myWallet = useQuery(
+    api.modules.ewallet.queries.getMyWalletBalance,
+    sessionToken ? { sessionToken } : "skip"
+  );
+  const sendWalletTransfer = useMutation(api.modules.portal.student.mutations.sendWalletTransfer);
 
   if (isLoading || myWallet === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -31,20 +39,44 @@ export default function WalletSendPage() {
   const balanceKES = myWallet.balanceCents / 100;
   const isValid =
     recipient.trim().length > 0 &&
-    !isNaN(amountNum) &&
+    !Number.isNaN(amountNum) &&
     amountNum >= 1 &&
     amountNum <= balanceKES;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError("");
+
     if (!isValid) {
       if (amountNum > balanceKES) {
         setError("Insufficient wallet balance.");
       }
       return;
     }
-    setSubmitted(true);
+
+    if (!sessionToken) return;
+
+    setIsSubmitting(true);
+    try {
+      const result = await sendWalletTransfer({
+        sessionToken,
+        recipientAdmissionNumber: recipient.trim().toUpperCase(),
+        amountCents: Math.round(amountNum * 100),
+        note: note.trim() || undefined,
+      });
+      setRecipientName(result.recipientName);
+      setSubmitted(true);
+    } catch (submitError) {
+      const message = submitError instanceof Error ? submitError.message : "Failed to send wallet transfer.";
+      setError(message);
+      toast({
+        title: "Transfer failed",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -57,7 +89,7 @@ export default function WalletSendPage() {
             <h3 className="text-xl font-bold mb-2">Transfer Sent!</h3>
             <p className="text-muted-foreground mb-1">
               KES {amountNum.toFixed(2)} sent to{" "}
-              <span className="font-medium">{recipient}</span>.
+              <span className="font-medium">{recipientName || recipient}</span>.
             </p>
             {note && (
               <p className="text-sm text-muted-foreground italic mb-4">
@@ -77,6 +109,7 @@ export default function WalletSendPage() {
                   setRecipient("");
                   setAmount("");
                   setNote("");
+                  setRecipientName("");
                 }}
               >
                 Send Again
@@ -93,7 +126,6 @@ export default function WalletSendPage() {
       <PageHeader title="Send Money" description="Transfer funds to another student" />
 
       <div className="max-w-lg space-y-6">
-        {/* Current balance */}
         <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
           <CardContent className="flex items-center gap-4 p-6">
             <Wallet className="h-8 w-8" />
@@ -110,11 +142,7 @@ export default function WalletSendPage() {
           <div className="flex items-center gap-3 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-yellow-800">
             <AlertTriangle className="h-4 w-4 flex-shrink-0" />
             <p className="text-sm">
-              Your wallet balance is empty.{" "}
-              <Link href="/portal/student/wallet/topup" className="underline font-medium">
-                Add funds
-              </Link>{" "}
-              before sending money.
+              Your wallet balance is empty. Ask your school finance team to top up your wallet before sending money.
             </p>
           </div>
         )}
@@ -126,12 +154,12 @@ export default function WalletSendPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <Label htmlFor="recipient">Recipient Student ID or Username</Label>
+                <Label htmlFor="recipient">Recipient Admission Number</Label>
                 <Input
                   id="recipient"
-                  placeholder="e.g., STU-00123"
+                  placeholder="e.g., ADM-2026-001"
                   value={recipient}
-                  onChange={(e) => setRecipient(e.target.value)}
+                  onChange={(event) => setRecipient(event.target.value)}
                   required
                 />
               </div>
@@ -146,8 +174,8 @@ export default function WalletSendPage() {
                   max={balanceKES}
                   placeholder="Enter amount"
                   value={amount}
-                  onChange={(e) => {
-                    setAmount(e.target.value);
+                  onChange={(event) => {
+                    setAmount(event.target.value);
                     setError("");
                   }}
                   required
@@ -161,7 +189,7 @@ export default function WalletSendPage() {
                   id="note"
                   placeholder="What is this for?"
                   value={note}
-                  onChange={(e) => setNote(e.target.value)}
+                  onChange={(event) => setNote(event.target.value)}
                 />
               </div>
             </CardContent>
@@ -174,11 +202,12 @@ export default function WalletSendPage() {
             <Button
               type="submit"
               className="flex-1"
-              disabled={!isValid || balanceKES <= 0}
+              disabled={!isValid || balanceKES <= 0 || isSubmitting}
             >
               <Send className="h-4 w-4 mr-2" />
-              Send{" "}
-              {!isNaN(amountNum) && amountNum > 0
+              {isSubmitting ? "Sending..." : "Send"}
+              {" "}
+              {!Number.isNaN(amountNum) && amountNum > 0
                 ? `KES ${amountNum.toLocaleString()}`
                 : ""}
             </Button>

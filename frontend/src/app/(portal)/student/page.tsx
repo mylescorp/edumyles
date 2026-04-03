@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { StatCard } from "@/components/shared/StatCard";
@@ -42,6 +43,7 @@ type StudentAnnouncement = {
 };
 
 export default function StudentDashboard() {
+  const { sessionToken } = useAuth();
   const profile = usePlatformQuery(api.modules.portal.student.queries.getMyProfile, {});
   const grades = usePlatformQuery(api.modules.portal.student.queries.getMyGrades, {}) as
     | StudentGrade[]
@@ -52,7 +54,10 @@ export default function StudentDashboard() {
   const assignments = usePlatformQuery(api.modules.portal.student.queries.getMyAssignments, {}) as
     | StudentAssignment[]
     | undefined;
-  const wallet = usePlatformQuery(api.modules.portal.student.queries.getMyWalletBalance, {}) as
+  const wallet = usePlatformQuery(
+    api.modules.ewallet.queries.getMyWalletBalance,
+    sessionToken ? { sessionToken } : "skip"
+  ) as
     | StudentWallet
     | undefined;
   const announcements = usePlatformQuery(api.modules.portal.student.queries.getAnnouncements, {}) as

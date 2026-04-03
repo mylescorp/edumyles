@@ -13,16 +13,16 @@ import { format } from "date-fns";
 import Link from "next/link";
 
 export default function StudentWalletPage() {
-  const { user, isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
 
   const myWallet = useQuery(
-    api.modules.portal.student.queries.getMyWalletBalance,
-    {}
+    api.modules.ewallet.queries.getMyWalletBalance,
+    sessionToken ? { sessionToken } : "skip"
   );
 
   const myTransactions = useQuery(
-    api.modules.portal.student.queries.getMyTransactionHistory,
-    { limit: 20 }
+    api.modules.ewallet.queries.getMyTransactionHistory,
+    sessionToken ? { sessionToken, limit: 20 } : "skip"
   );
 
   if (isLoading || myWallet === undefined || myTransactions === undefined) {

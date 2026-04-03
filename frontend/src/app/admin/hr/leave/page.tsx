@@ -4,13 +4,16 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/formatters";
+import { useToast } from "@/components/ui/use-toast";
+import { Id } from "@/convex/_generated/dataModel";
 
 type LeaveRequest = {
-    _id: string;
+    _id: Id<"staffLeave">;
     staffId: string;
     type: string;
     startDate: string;
@@ -28,6 +31,7 @@ const statusColors: Record<string, "default" | "secondary" | "destructive" | "ou
 
 export default function LeaveRequestsPage() {
     const { isLoading, sessionToken } = useAuth();
+    const { toast } = useToast();
 
     const leaveRequests = useQuery(
         api.modules.hr.queries.listLeave,
@@ -39,9 +43,27 @@ export default function LeaveRequestsPage() {
         sessionToken ? { sessionToken } : "skip"
     );
 
+    const approveLeaveRequest = useMutation(api.modules.hr.mutations.approveLeaveRequest);
+
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
     const staffMap = new Map((staff as any[])?.map((s) => [s._id, `${s.firstName} ${s.lastName}`]) ?? []);
+
+    const handleDecision = async (leaveId: Id<"staffLeave">, approved: boolean) => {
+        try {
+            await approveLeaveRequest({ leaveId, approved });
+            toast({
+                title: approved ? "Leave approved" : "Leave rejected",
+                description: "The leave request has been updated.",
+            });
+        } catch (error) {
+            toast({
+                title: "Unable to update leave request",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
 
     const columns: Column<LeaveRequest>[] = [
         {
@@ -73,6 +95,22 @@ export default function LeaveRequestsPage() {
                 <Badge variant={statusColors[row.status] ?? "outline"}>
                     {row.status}
                 </Badge>
+            ),
+        },
+        {
+            key: "actions",
+            header: "",
+            cell: (row: LeaveRequest) => row.status === "pending" ? (
+                <div className="flex gap-2">
+                    <Button size="sm" onClick={() => handleDecision(row._id, true)}>
+                        Approve
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleDecision(row._id, false)}>
+                        Reject
+                    </Button>
+                </div>
+            ) : (
+                <span className="text-sm text-muted-foreground">Reviewed</span>
             ),
         },
     ];

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { format } from "date-fns";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,32 +13,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowUpCircle, ArrowDownCircle, Clock, Wallet, Search, Filter } from "lucide-react";
-import { format } from "date-fns";
-import { useState } from "react";
+
+type WalletTransaction = {
+  _id: string;
+  description: string;
+  type: "credit" | "debit" | "refund";
+  amountCents: number;
+  balanceAfter: number;
+  referenceType: string;
+  createdAt: number;
+};
 
 export default function StudentTransactionsPage() {
-  const { user, isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [limit, setLimit] = useState(50);
 
   const myTransactions = useQuery(
-    api.modules.portal.student.queries.getMyTransactionHistory,
-    { limit, type: typeFilter === "all" ? undefined : typeFilter as any }
-  );
+    api.modules.ewallet.queries.getMyTransactionHistory,
+    sessionToken
+      ? { sessionToken, limit, type: typeFilter === "all" ? undefined : typeFilter }
+      : "skip"
+  ) as WalletTransaction[] | undefined;
 
   const myWallet = useQuery(
-    api.modules.portal.student.queries.getMyWalletBalance,
-    {}
+    api.modules.ewallet.queries.getMyWalletBalance,
+    sessionToken ? { sessionToken } : "skip"
   );
 
   if (isLoading || myTransactions === undefined || myWallet === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const formatCurrency = (cents: number, currency: string) => {
-    return `${(cents / 100).toFixed(2)} ${currency}`;
-  };
+  const formatCurrency = (cents: number, currency: string) => `${(cents / 100).toFixed(2)} ${currency}`;
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
@@ -64,8 +74,8 @@ export default function StudentTransactionsPage() {
     }
   };
 
-  const filteredTransactions = myTransactions.filter((transaction: any) =>
-    transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTransactions = myTransactions.filter((transaction) =>
+    `${transaction.description} ${transaction.referenceType}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -76,7 +86,6 @@ export default function StudentTransactionsPage() {
       />
 
       <div className="space-y-6">
-        {/* Filters */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -122,7 +131,6 @@ export default function StudentTransactionsPage() {
           </CardContent>
         </Card>
 
-        {/* Transactions List */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -142,7 +150,7 @@ export default function StudentTransactionsPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredTransactions.map((transaction: any) => (
+                {filteredTransactions.map((transaction) => (
                   <div
                     key={transaction._id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -155,16 +163,14 @@ export default function StudentTransactionsPage() {
                         <p className="font-medium">{transaction.description}</p>
                         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                           <span>{format(new Date(transaction.createdAt), "PPP p")}</span>
-                          {transaction.referenceType && (
-                            <Badge variant="outline" className="text-xs">
-                              {transaction.referenceType}
-                            </Badge>
-                          )}
+                          <Badge variant="outline" className="text-xs">
+                            {transaction.referenceType.replaceAll("_", " ")}
+                          </Badge>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge 
+                      <Badge
                         className={`${getTransactionColor(transaction.type)} border mb-2`}
                         variant="outline"
                       >
@@ -188,7 +194,6 @@ export default function StudentTransactionsPage() {
           </CardContent>
         </Card>
 
-        {/* Load More */}
         {filteredTransactions.length >= limit && (
           <div className="text-center">
             <Button variant="outline" onClick={() => setLimit((current) => current + 50)}>

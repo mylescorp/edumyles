@@ -334,3 +334,109 @@ export const listTenantTickets = query({
     return tenantTickets.sort((a, b) => b.createdAt - a.createdAt);
   },
 });
+
+export const createTenantTicket = mutation({
+  args: {
+    sessionToken: v.string(),
+    title: v.string(),
+    body: v.string(),
+    category: v.union(
+      v.literal("billing"),
+      v.literal("technical"),
+      v.literal("data"),
+      v.literal("feature"),
+      v.literal("onboarding"),
+      v.literal("account"),
+      v.literal("legal"),
+      v.literal("other")
+    ),
+    priority: v.union(v.literal("P0"), v.literal("P1"), v.literal("P2"), v.literal("P3")),
+    attachments: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const tenantCtx = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    const now = Date.now();
+    const sla = SLA_RULES[args.priority];
+
+    return await ctx.db.insert("tickets", {
+      tenantId: tenantCtx.tenantId,
+      title: args.title,
+      body: args.body,
+      category: args.category,
+      priority: args.priority,
+      status: "open",
+      assignedTo: undefined,
+      createdBy: tenantCtx.userId,
+      attachments: args.attachments || [],
+      slaFirstResponseDL: now + sla.firstResponse * 60 * 60 * 1000,
+      slaResolutionDL: now + sla.resolution * 60 * 60 * 1000,
+      slaBreached: false,
+      slaClockPaused: false,
+      firstResponseAt: undefined,
+      resolvedAt: undefined,
+      csatScore: undefined,
+      csatComment: undefined,
+      linearIssueUrl: undefined,
+      createdAt: now,
+      updatedAt: now,
+    });
+  },
+});
+
+export const getTenantTicketDetail = query({
+  args: {
+    sessionToken: v.string(),
+    ticketId: v.id("tickets"),
+  },
+  handler: async (ctx, args) => {
+    const tenantCtx = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    const ticket = await ctx.db.get(args.ticketId);
+    if (!ticket || ticket.tenantId !== tenantCtx.tenantId) {
+      throw new Error("Ticket not found");
+    }
+
+    const comments = await ctx.db
+      .query("ticketComments")
+      .withIndex("by_ticket", (q) => q.eq("ticketId", args.ticketId))
+      .order("asc")
+      .collect();
+
+    const publicComments = comments.filter((comment) => !comment.isInternal);
+
+    return {
+      ...ticket,
+      comments: publicComments,
+    };
+  },
+});
+
+export const addTenantTicketComment = mutation({
+  args: {
+    sessionToken: v.string(),
+    ticketId: v.id("tickets"),
+    content: v.string(),
+    attachments: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const tenantCtx = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    const ticket = await ctx.db.get(args.ticketId);
+    if (!ticket || ticket.tenantId !== tenantCtx.tenantId) {
+      throw new Error("Ticket not found");
+    }
+
+    await ctx.db.insert("ticketComments", {
+      ticketId: args.ticketId,
+      authorId: tenantCtx.userId,
+      authorEmail: tenantCtx.email,
+      authorRole: tenantCtx.role,
+      content: args.content,
+      isInternal: false,
+      attachments: args.attachments || [],
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.patch(args.ticketId, { updatedAt: Date.now() });
+
+    return { success: true };
+  },
+});
