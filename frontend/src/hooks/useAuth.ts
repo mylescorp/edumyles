@@ -138,8 +138,13 @@ async function loadAuthSession(force = false) {
 
     if (cachedSession && !force) {
       setAuthState({ session: cachedSession, isLoading: false });
-    } else {
+    } else if (!authState.session || force) {
       setAuthState({ isLoading: true });
+    } else {
+      // Keep the existing authenticated shell rendered while we refresh
+      // the session in the background. Flipping back to `isLoading: true`
+      // here causes RoleGuard to unmount the page and creates a blink loop.
+      setAuthState({ isLoading: false });
     }
 
     try {
