@@ -148,7 +148,9 @@ export default defineSchema({
     name: v.string(),
     subdomain: v.string(),
     tier: v.union(
+      v.literal("free"),
       v.literal("starter"),
+      v.literal("growth"),
       v.literal("standard"),
       v.literal("pro"),
       v.literal("enterprise")
