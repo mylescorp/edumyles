@@ -5,7 +5,7 @@ import { useAuth } from "./useAuth";
 import { useQuery, useMutation } from "./useSSRSafeConvex";
 
 export function useNotifications() {
-  const { sessionToken, user, isLoading, isAuthenticated } = useAuth();
+  const { sessionToken, isLoading, isAuthenticated } = useAuth();
   const hasLiveTenantSession =
     !!sessionToken && sessionToken !== "dev_session_token";
   const isLocalBootstrapSession =
@@ -14,12 +14,11 @@ export function useNotifications() {
     !isLoading &&
     isAuthenticated &&
     hasLiveTenantSession &&
-    !isLocalBootstrapSession &&
-    !!user?._id;
+    !isLocalBootstrapSession;
 
   const notifications = useQuery(
     api.notifications.getNotifications,
-    canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+    canQueryNotifications ? { sessionToken, limit: 20 } : "skip"
   );
 
   const unreadCount = useQuery(

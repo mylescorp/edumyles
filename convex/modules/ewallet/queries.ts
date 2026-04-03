@@ -41,6 +41,7 @@ export const getMyWalletBalance = query({
 export const getMyTransactionHistory = query({
   args: {
     limit: v.optional(v.number()),
+    type: v.optional(v.string()),
     sessionToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -59,13 +60,43 @@ export const getMyTransactionHistory = query({
 
       if (!wallet) return [];
 
-      const transactions = await ctx.db
+      let transactions = await ctx.db
         .query("walletTransactions")
         .withIndex("by_wallet", (q) => q.eq("walletId", wallet._id))
         .order("desc")
         .take(args.limit ?? 50);
 
-      return transactions;
+      if (args.type) {
+        const allowedTypesByBucket: Record<string, string[]> = {
+          credit: ["top_up", "transfer_in", "admin_top_up", "refund"],
+          debit: ["spend", "transfer_out", "withdrawal"],
+          refund: ["refund"],
+        };
+        const allowedTypes = allowedTypesByBucket[args.type] ?? [args.type];
+        transactions = transactions.filter((transaction) => allowedTypes.includes(transaction.type));
+      }
+
+      let runningBalance = wallet.balanceCents;
+      return transactions.map((transaction) => {
+        const balanceAfter = runningBalance;
+        runningBalance -= transaction.amountCents;
+
+        return {
+          ...transaction,
+          type:
+            transaction.amountCents >= 0
+              ? transaction.type === "refund"
+                ? "refund"
+                : "credit"
+              : "debit",
+          referenceType: transaction.type,
+          description:
+            transaction.note ??
+            transaction.reference ??
+            transaction.type.replaceAll("_", " "),
+          balanceAfter,
+        };
+      });
     } catch (error) {
       console.error("getMyTransactionHistory failed", error);
       return [];

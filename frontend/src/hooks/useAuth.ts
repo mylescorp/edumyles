@@ -43,6 +43,45 @@ function setAuthState(next: Partial<AuthStoreState>) {
   emitAuthState();
 }
 
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
+  const value = match?.[1];
+  return value ? decodeURIComponent(value) : null;
+}
+
+function buildFallbackSessionFromCookies(): Session | null {
+  const userCookie = readCookie("edumyles_user");
+  const roleCookie = normalizeRole(readCookie("edumyles_role"));
+
+  if (!userCookie) return null;
+
+  try {
+    const user = JSON.parse(userCookie) as {
+      email?: string;
+      role?: string;
+      tenantId?: string;
+    };
+
+    if (!user.email) return null;
+
+    const role = normalizeRole(user.role) ?? roleCookie ?? "school_admin";
+    const tenantId = role === "master_admin" ? "PLATFORM" : (user.tenantId ?? "PLATFORM");
+
+    return {
+      sessionToken: "",
+      tenantId,
+      userId: user.email,
+      email: user.email,
+      role,
+      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function loadAuthSession(force = false) {
   if (authLoadPromise && !force) {
     return authLoadPromise;
@@ -52,12 +91,19 @@ async function loadAuthSession(force = false) {
     setAuthState({ isLoading: true });
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
       const res = await fetch("/api/auth/session", {
         credentials: "same-origin",
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
       if (!res.ok) {
-        setAuthState({ session: null, isLoading: false });
+        setAuthState({
+          session: buildFallbackSessionFromCookies(),
+          isLoading: false,
+        });
         return;
       }
 
@@ -70,11 +116,14 @@ async function loadAuthSession(force = false) {
         : null;
 
       setAuthState({
-        session: nextSession,
+        session: nextSession ?? buildFallbackSessionFromCookies(),
         isLoading: false,
       });
     } catch {
-      setAuthState({ session: null, isLoading: false });
+      setAuthState({
+        session: buildFallbackSessionFromCookies(),
+        isLoading: false,
+      });
     } finally {
       authLoadPromise = null;
     }

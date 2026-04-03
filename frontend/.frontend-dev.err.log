@@ -1,0 +1,4025 @@
+⚠ `eslint` configuration in next.config.ts is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+⚠ Invalid next.config.ts options detected: 
+⚠     Unrecognized key(s) in object: 'eslint'
+⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Session validation failed: Error: [Request ID: 0574e49e47844a0e] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: e9454f088dbfc2f7] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: c6bd9824be93a49c] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: 7bbc38a8a0f9dbf5] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: e986c02a552922f9] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: 996f9e52490d2be7] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: 7004b895e3fe033a] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: 72baf68c2a16008e] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: e6673f38e9bec2bd] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: 4fffb7d309acb7bd] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: a5cbcbfeaf317601] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: c451ef20905ab183] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: 3d9b757265e4ad21] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: 32e14bf46d8e153c] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: 6c978204e2c527a3] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: d4e479a6c5a709d2] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[api/auth/session] Session validation failed: Error: [Request ID: e59067bdf0025f54] Server Error
+Could not find public function for 'tenants:getTenantBySubdomain'. Did you forget to run `npx convex dev`?
+
+    at async ensureDevTenantSession (src\app\api\auth\session\route.ts:61:16)
+    at async GET (src\app\api\auth\session\route.ts:186:22)
+  59 |   }
+  60 |
+> 61 |   let tenant = await convex.query(api.tenants.getTenantBySubdomain, {
+     |                ^
+  62 |     subdomain: tenantSubdomain,
+  63 |   });
+  64 |
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Error: [CONVEX Q(notifications:getNotifications)] [Request ID: 33dbb21c3a520f75] Server Error
+ArgumentValidationError: Object is missing the required field `userId`. Consider wrapping the field validator in `v.optional(...)` if this is expected.
+
+Object: {limit: 20.0, sessionToken: "dev-tenant-admin-session"}
+Validator: v.object({limit: v.optional(v.float64()), userId: v.string()})
+
+
+  Called by client (src/app/error.tsx:16:13)
+[browser] Error: [CONVEX Q(notifications:getNotifications)] [Request ID: 33dbb21c3a520f75] Server Error
+ArgumentValidationError: Object is missing the required field `userId`. Consider wrapping the field validator in `v.optional(...)` if this is expected.
+
+Object: {limit: 20.0, sessionToken: "dev-tenant-admin-session"}
+Validator: v.object({limit: v.optional(v.float64()), userId: v.string()})
+
+
+  Called by client (src/app/error.tsx:16:13)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Error: [CONVEX Q(notifications:getNotifications)] [Request ID: 9f8666c4abaf9804] Server Error
+ArgumentValidationError: Object contains extra field `sessionToken` that is not in the validator.
+
+Object: {limit: 20.0, sessionToken: "dev-tenant-admin-session", userId: "ayany004@gmail.com"}
+Validator: v.object({limit: v.optional(v.float64()), userId: v.string()})
+
+
+  Called by client (src/app/error.tsx:16:13)
+[browser] Error: [CONVEX Q(notifications:getNotifications)] [Request ID: 9f8666c4abaf9804] Server Error
+ArgumentValidationError: Object contains extra field `sessionToken` that is not in the validator.
+
+Object: {limit: 20.0, sessionToken: "dev-tenant-admin-session", userId: "ayany004@gmail.com"}
+Validator: v.object({limit: v.optional(v.float64()), userId: v.string()})
+
+
+  Called by client (src/app/error.tsx:16:13)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] [CONVEX M(modules/marketplace/mutations:installModule)] [Request ID: 80f2ab906dd285ac] Server Error
+Uncaught Error: UNAUTHORIZED: Cross-tenant access denied
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38:0)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+ 
+[browser] Module operation failed: Error: [CONVEX M(modules/marketplace/mutations:installModule)] [Request ID: 80f2ab906dd285ac] Server Error
+Uncaught Error: UNAUTHORIZED: Cross-tenant access denied
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38:0)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+
+  Called by client
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+    at async handleConfirm (src/app/admin/marketplace/page.tsx:151:9)
+  149 |     try {
+  150 |       if (dialogState.action === "install") {
+> 151 |         await installModule({
+      |         ^
+  152 |           sessionToken: sessionToken ?? "",
+  153 |           tenantId,
+  154 |           moduleId: dialogState.moduleId, (src/app/admin/marketplace/page.tsx:167:15)
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 00ed6de5eb8291bc] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: fb0057345e2dec2e] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[browser] [CONVEX M(modules/marketplace/mutations:installModule)] [Request ID: 9df8812f8a410a62] Server Error
+Uncaught Error: UNAUTHORIZED: Cross-tenant access denied
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38:0)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+ 
+[browser] Module operation failed: Error: [CONVEX M(modules/marketplace/mutations:installModule)] [Request ID: 9df8812f8a410a62] Server Error
+Uncaught Error: UNAUTHORIZED: Cross-tenant access denied
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38:0)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+
+  Called by client
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+    at async handleConfirm (src/app/admin/marketplace/page.tsx:152:9)
+  150 |     try {
+  151 |       if (dialogState.action === "install") {
+> 152 |         await installModule({
+      |         ^
+  153 |           sessionToken: sessionToken ?? "",
+  154 |           tenantId: targetTenantId,
+  155 |           moduleId: dialogState.moduleId, (src/app/admin/marketplace/page.tsx:168:15)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: d76095f2a6e1add5] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: be3f6da7646415b4] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 9573346bd186a8f7] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: e40fcaab42bbf2cd] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: bcea61b235c2c132] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 97531b33a84fcffb] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: df0ec6a8436c1341] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 2df5243315008ba1] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 026e530ff1a3c65c] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 9d307a3326927704] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 4d98e4e735917ce2] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 8a7e16215529267e] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 9c1c3357ed6bf67b] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 83246f53babc66a6] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 7e6a5b06bdf31601] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 029d921b639afadd] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 7944b12a9de52756] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 903b43846fc799e9] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 716972b4f8eb1ebb] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 0cc2cf2b4268a0c3] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 13b58ba5843d6b6d] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: f2753b30efcad7a6] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 18239d9c171077c6] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: c4032ce30141f671] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 66958ab4dee430f3] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 2e41fba8fa364988] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: a57f38b42c53ee3e] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: d95c769f35d318e7] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: ad6b81ba9dd21fbb] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 7d73dc0951d2d454] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 60c6f14b88db4780] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 7a861226452d84a9] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 02f57441adce628b] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 8e15b0038f19389a] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 40f1554b65e21185] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: e46af939d051a840] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: c71311a13614cc1f] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 7f75ca08ee4a8407] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: d7227c406b0a03f9] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: dcb2483783c3dc9a] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 21fababb4a8ea7af] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 1b0288c9c59d2cb3] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 00e4b3a63675f2a1] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: a80adc0003ced75f] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 7fbb76671afc0fb5] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: b7c4b539b2be8e90] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 91e4a8f3d42fdbc5] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: e19e195b62487849] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 09cf1fa7a1ed994c] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 3c744d0594ad2959] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[browser] [CONVEX M(modules/marketplace/mutations:installModule)] [Request ID: 519c3c883aa4256b] Server Error
+Uncaught Error: UNAUTHORIZED: Cross-tenant access denied
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38:0)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+ 
+[browser] Module operation failed: Error: [CONVEX M(modules/marketplace/mutations:installModule)] [Request ID: 519c3c883aa4256b] Server Error
+Uncaught Error: UNAUTHORIZED: Cross-tenant access denied
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38:0)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+
+  Called by client
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+    at async handleConfirm (src/app/admin/marketplace/page.tsx:152:9)
+  150 |     try {
+  151 |       if (dialogState.action === "install") {
+> 152 |         await installModule({
+      |         ^
+  153 |           sessionToken: sessionToken ?? "",
+  154 |           tenantId: targetTenantId,
+  155 |           moduleId: dialogState.moduleId, (src/app/admin/marketplace/page.tsx:168:15)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 6fa99d03836a29be] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: d5481ab1ee149d13] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: f1720ab5d1e803b3] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: dada88f6df559aa5] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 13a3c7a2a42ce112] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 6a13597d456f4d37] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: adeeaed447d4b442] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 8e8c9620e01ca24a] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: a4b393b00490c8f1] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 3d182bb93bc7f8a4] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 387c1d6b205f7979] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 080dce50b3bc7126] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 4bfecffa9a40b447] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 09ec0b7d9b7af7e8] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 97fce750f9170327] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 2cc71800e0c727ec] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 0d1e59b1162dae02] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: a1ce2fb120bfe2c0] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: d28c15702f7ceb0b] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: c9054377032490f7] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[api/auth/session] Failed to repair master admin role: Error: [Request ID: 79e410af83c2c1a5] Server Error
+Could not find public function for 'users:syncMasterAdminRole'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[browser] [CONVEX M(modules/marketplace/mutations:installModule)] [Request ID: 66d635b66e2891a3] Server Error
+Uncaught Error: UNAUTHORIZED: Cross-tenant access denied
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38:0)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+ 
+[browser] Module operation failed: Error: [CONVEX M(modules/marketplace/mutations:installModule)] [Request ID: 66d635b66e2891a3] Server Error
+Uncaught Error: UNAUTHORIZED: Cross-tenant access denied
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38:0)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+
+  Called by client
+    at assertTenantMatch (../../../convex/modules/marketplace/mutations.ts:38)
+    at handler (../../../convex/modules/marketplace/mutations.ts:59:13)
+    at async handleConfirm (src/app/admin/marketplace/page.tsx:161:9)
+  159 |
+  160 |       if (dialogState.action === "install") {
+> 161 |         await installModule({
+      |         ^
+  162 |           sessionToken: sessionToken ?? "",
+  163 |           tenantId: liveTenantId,
+  164 |           moduleId: dialogState.moduleId, (src/app/admin/marketplace/page.tsx:177:15)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/marketplace. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+⨯ ./frontend/src/app/api/auth/session/route.ts:29:1
+Merge conflict marker encountered.
+  [90m27 |[0m }
+  [90m28 |[0m
+[31m[1m>[0m [90m29 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m30 |[0m [36masync[0m [36mfunction[0m getSessionCompat(convex: [33mConvexHttpClient[0m, sessionToken: string, serverSecr...
+  [90m31 |[0m   [36mconst[0m getSessionRef = (api.sessions [36mas[0m any).getSession;
+  [90m32 |[0m
+
+Parsing ecmascript source code failed
+
+
+
+./frontend/src/app/api/auth/session/route.ts:216:1
+Merge conflict marker encountered.
+  [90m214 |[0m }
+  [90m215 |[0m
+[31m[1m>[0m [90m216 |[0m =======
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m217 |[0m >>>>>>> origin/main
+  [90m218 |[0m /**
+  [90m219 |[0m  * [33mGET[0m /api/auth/session
+
+Parsing ecmascript source code failed
+
+
+
+./frontend/src/app/api/auth/session/route.ts:217:1
+Merge conflict marker encountered.
+  [90m215 |[0m
+  [90m216 |[0m =======
+[31m[1m>[0m [90m217 |[0m >>>>>>> origin/main
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m218 |[0m /**
+  [90m219 |[0m  * [33mGET[0m /api/auth/session
+  [90m220 |[0m  *
+
+Parsing ecmascript source code failed
+
+
+
+./frontend/src/app/api/auth/session/route.ts:275:1
+Merge conflict marker encountered.
+  [90m273 |[0m       [36mtry[0m {
+  [90m274 |[0m         [36mconst[0m convex = getConvexClient();
+[31m[1m>[0m [90m275 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m276 |[0m         [36mconst[0m session = [36mawait[0m getSessionCompat(convex, sessionToken, serverSecret);
+  [90m277 |[0m =======
+  [90m278 |[0m         [36mconst[0m session = [36mawait[0m convex.query(api.sessions.getSession, {
+
+Parsing ecmascript source code failed
+
+
+
+./frontend/src/app/api/auth/session/route.ts:277:1
+Merge conflict marker encountered.
+  [90m275 |[0m <<<<<<< [33mHEAD[0m
+  [90m276 |[0m         [36mconst[0m session = [36mawait[0m getSessionCompat(convex, sessionToken, serverSecret);
+[31m[1m>[0m [90m277 |[0m =======
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m278 |[0m         [36mconst[0m session = [36mawait[0m convex.query(api.sessions.getSession, {
+  [90m279 |[0m           sessionToken,
+  [90m280 |[0m           serverSecret,
+
+Parsing ecmascript source code failed
+
+
+
+./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  [90m280 |[0m           serverSecret,
+  [90m281 |[0m         });
+[31m[1m>[0m [90m282 |[0m >>>>>>> origin/main
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m283 |[0m
+  [90m284 |[0m         [36mif[0m (session) {
+  [90m285 |[0m           [36mconst[0m normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+⨯ ./frontend/src/hooks/useAuth.ts:20:1
+Merge conflict marker encountered.
+  [90m18 |[0m }
+  [90m19 |[0m
+[31m[1m>[0m [90m20 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m21 |[0m [36mtype[0m [33mAuthStoreState[0m = {
+  [90m22 |[0m   session: [33mSession[0m | [36mnull[0m;
+  [90m23 |[0m   isLoading: boolean;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:87:1
+Merge conflict marker encountered.
+  [90m85 |[0m }
+  [90m86 |[0m
+[31m[1m>[0m [90m87 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m88 |[0m >>>>>>> origin/main
+  [90m89 |[0m [36mexport[0m [36mfunction[0m useAuth() {
+  [90m90 |[0m   [36mconst[0m [session, setSession] = useState<[33mSession[0m | [36mnull[0m>(authState.session);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:88:1
+Merge conflict marker encountered.
+  [90m86 |[0m
+  [90m87 |[0m =======
+[31m[1m>[0m [90m88 |[0m >>>>>>> origin/main
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m89 |[0m [36mexport[0m [36mfunction[0m useAuth() {
+  [90m90 |[0m   [36mconst[0m [session, setSession] = useState<[33mSession[0m | [36mnull[0m>(authState.session);
+  [90m91 |[0m   [36mconst[0m [isLoading, setIsLoading] = useState(authState.isLoading);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:99:1
+Merge conflict marker encountered.
+  [90m 97 |[0m     };
+  [90m 98 |[0m
+[31m[1m>[0m [90m 99 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m100 |[0m     authListeners.add(listener);
+  [90m101 |[0m     listener(authState);
+  [90m102 |[0m     [36mvoid[0m loadAuthSession();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:103:1
+Merge conflict marker encountered.
+  [90m101 |[0m     listener(authState);
+  [90m102 |[0m     [36mvoid[0m loadAuthSession();
+[31m[1m>[0m [90m103 |[0m =======
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m104 |[0m     [36masync[0m [36mfunction[0m loadSession() {
+  [90m105 |[0m       [36mtry[0m {
+  [90m106 |[0m         [90m// Use server-side API endpoint to validate the httpOnly session cookie[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  [90m138 |[0m
+  [90m139 |[0m     loadSession();
+[31m[1m>[0m [90m140 |[0m >>>>>>> origin/main
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m141 |[0m
+  [90m142 |[0m     [36mreturn[0m () => {
+  [90m143 |[0m       authListeners.[36mdelete[0m(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useInstalledModules.ts:21:1
+Merge conflict marker encountered.
+  [90m19 |[0m [36mexport[0m [36mfunction[0m useInstalledModules() {
+  [90m20 |[0m   [36mconst[0m { sessionToken, isLoading, isAuthenticated } = useAuth();
+[31m[1m>[0m [90m21 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m22 |[0m   [36mconst[0m hasLiveTenantSession =
+  [90m23 |[0m     !!sessionToken && sessionToken !== [32m"dev_session_token"[0m;
+  [90m24 |[0m   [36mconst[0m canQueryModules = !isLoading && isAuthenticated && hasLiveTenantSession;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useInstalledModules.ts:25:1
+Merge conflict marker encountered.
+  [90m23 |[0m     !!sessionToken && sessionToken !== [32m"dev_session_token"[0m;
+  [90m24 |[0m   [36mconst[0m canQueryModules = !isLoading && isAuthenticated && hasLiveTenantSession;
+[31m[1m>[0m [90m25 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m26 |[0m   [36mconst[0m canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+  [90m27 |[0m >>>>>>> origin/main
+  [90m28 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  [90m25 |[0m =======
+  [90m26 |[0m   [36mconst[0m canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+[31m[1m>[0m [90m27 |[0m >>>>>>> origin/main
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m28 |[0m
+  [90m29 |[0m   [90m// Single query for full module records — IDs are derived from these, avoiding[0m
+  [90m30 |[0m   [90m// the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useNotifications.ts:8:1
+Merge conflict marker encountered.
+  [90m 6 |[0m
+  [90m 7 |[0m [36mexport[0m [36mfunction[0m useNotifications() {
+[31m[1m>[0m [90m 8 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m 9 |[0m   [36mconst[0m { sessionToken, user, isLoading, isAuthenticated } = useAuth();
+  [90m10 |[0m   [36mconst[0m hasLiveTenantSession =
+  [90m11 |[0m     !!sessionToken && sessionToken !== [32m"dev_session_token"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  [90m22 |[0m     api.notifications.getNotifications,
+  [90m23 |[0m     canQueryNotifications ? { sessionToken, userId: [33mString[0m(user?._id), limit: [35m20[0m } : [32m"skip"[0m
+[31m[1m>[0m [90m24 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m25 |[0m   [36mconst[0m { sessionToken } = useAuth();
+  [90m26 |[0m
+  [90m27 |[0m   [36mconst[0m notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useTenant.ts:14:1
+Merge conflict marker encountered.
+  [90m12 |[0m     sessionToken,
+  [90m13 |[0m     tenantId: sessionTenantId,
+[31m[1m>[0m [90m14 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m15 |[0m     role,
+  [90m16 |[0m     isLoading,
+  [90m17 |[0m     isAuthenticated,
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  [90m21 |[0m   [36mconst[0m isPlatformSession = role === [32m"master_admin"[0m || role === [32m"super_admin"[0m;
+  [90m22 |[0m   [36mconst[0m canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+[31m[1m>[0m [90m23 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m24 |[0m     isLoading,
+  [90m25 |[0m     isAuthenticated,
+  [90m26 |[0m   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+⨯ ./frontend/src/hooks/useAuth.ts:20:1
+Merge conflict marker encountered.
+  [90m18 |[0m }
+  [90m19 |[0m
+[31m[1m>[0m [90m20 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m21 |[0m [36mtype[0m [33mAuthStoreState[0m = {
+  [90m22 |[0m   session: [33mSession[0m | [36mnull[0m;
+  [90m23 |[0m   isLoading: boolean;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:87:1
+Merge conflict marker encountered.
+  [90m85 |[0m }
+  [90m86 |[0m
+[31m[1m>[0m [90m87 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m88 |[0m >>>>>>> origin/main
+  [90m89 |[0m [36mexport[0m [36mfunction[0m useAuth() {
+  [90m90 |[0m   [36mconst[0m [session, setSession] = useState<[33mSession[0m | [36mnull[0m>(authState.session);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:88:1
+Merge conflict marker encountered.
+  [90m86 |[0m
+  [90m87 |[0m =======
+[31m[1m>[0m [90m88 |[0m >>>>>>> origin/main
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m89 |[0m [36mexport[0m [36mfunction[0m useAuth() {
+  [90m90 |[0m   [36mconst[0m [session, setSession] = useState<[33mSession[0m | [36mnull[0m>(authState.session);
+  [90m91 |[0m   [36mconst[0m [isLoading, setIsLoading] = useState(authState.isLoading);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:99:1
+Merge conflict marker encountered.
+  [90m 97 |[0m     };
+  [90m 98 |[0m
+[31m[1m>[0m [90m 99 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m100 |[0m     authListeners.add(listener);
+  [90m101 |[0m     listener(authState);
+  [90m102 |[0m     [36mvoid[0m loadAuthSession();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:103:1
+Merge conflict marker encountered.
+  [90m101 |[0m     listener(authState);
+  [90m102 |[0m     [36mvoid[0m loadAuthSession();
+[31m[1m>[0m [90m103 |[0m =======
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m104 |[0m     [36masync[0m [36mfunction[0m loadSession() {
+  [90m105 |[0m       [36mtry[0m {
+  [90m106 |[0m         [90m// Use server-side API endpoint to validate the httpOnly session cookie[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  [90m138 |[0m
+  [90m139 |[0m     loadSession();
+[31m[1m>[0m [90m140 |[0m >>>>>>> origin/main
+  [90m    |[0m [31m[1m^^^^^^^[0m
+  [90m141 |[0m
+  [90m142 |[0m     [36mreturn[0m () => {
+  [90m143 |[0m       authListeners.[36mdelete[0m(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useInstalledModules.ts:21:1
+Merge conflict marker encountered.
+  [90m19 |[0m [36mexport[0m [36mfunction[0m useInstalledModules() {
+  [90m20 |[0m   [36mconst[0m { sessionToken, isLoading, isAuthenticated } = useAuth();
+[31m[1m>[0m [90m21 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m22 |[0m   [36mconst[0m hasLiveTenantSession =
+  [90m23 |[0m     !!sessionToken && sessionToken !== [32m"dev_session_token"[0m;
+  [90m24 |[0m   [36mconst[0m canQueryModules = !isLoading && isAuthenticated && hasLiveTenantSession;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useInstalledModules.ts:25:1
+Merge conflict marker encountered.
+  [90m23 |[0m     !!sessionToken && sessionToken !== [32m"dev_session_token"[0m;
+  [90m24 |[0m   [36mconst[0m canQueryModules = !isLoading && isAuthenticated && hasLiveTenantSession;
+[31m[1m>[0m [90m25 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m26 |[0m   [36mconst[0m canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+  [90m27 |[0m >>>>>>> origin/main
+  [90m28 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  [90m25 |[0m =======
+  [90m26 |[0m   [36mconst[0m canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+[31m[1m>[0m [90m27 |[0m >>>>>>> origin/main
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m28 |[0m
+  [90m29 |[0m   [90m// Single query for full module records — IDs are derived from these, avoiding[0m
+  [90m30 |[0m   [90m// the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useNotifications.ts:8:1
+Merge conflict marker encountered.
+  [90m 6 |[0m
+  [90m 7 |[0m [36mexport[0m [36mfunction[0m useNotifications() {
+[31m[1m>[0m [90m 8 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m 9 |[0m   [36mconst[0m { sessionToken, user, isLoading, isAuthenticated } = useAuth();
+  [90m10 |[0m   [36mconst[0m hasLiveTenantSession =
+  [90m11 |[0m     !!sessionToken && sessionToken !== [32m"dev_session_token"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  [90m22 |[0m     api.notifications.getNotifications,
+  [90m23 |[0m     canQueryNotifications ? { sessionToken, userId: [33mString[0m(user?._id), limit: [35m20[0m } : [32m"skip"[0m
+[31m[1m>[0m [90m24 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m25 |[0m   [36mconst[0m { sessionToken } = useAuth();
+  [90m26 |[0m
+  [90m27 |[0m   [36mconst[0m notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useTenant.ts:14:1
+Merge conflict marker encountered.
+  [90m12 |[0m     sessionToken,
+  [90m13 |[0m     tenantId: sessionTenantId,
+[31m[1m>[0m [90m14 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m15 |[0m     role,
+  [90m16 |[0m     isLoading,
+  [90m17 |[0m     isAuthenticated,
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+
+./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  [90m21 |[0m   [36mconst[0m isPlatformSession = role === [32m"master_admin"[0m || role === [32m"super_admin"[0m;
+  [90m22 |[0m   [36mconst[0m canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+[31m[1m>[0m [90m23 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m24 |[0m     isLoading,
+  [90m25 |[0m     isAuthenticated,
+  [90m26 |[0m   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+[browser] Uncaught Error: ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+
+    at <unknown> (Error: ./frontend/src/hooks/useAuth.ts:140:1)
+    at <unknown> (Error: (./frontend/src/hooks/useAuth.ts:140:1)
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/modules/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/modules/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/modules/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/modules/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/app/admin/modules/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/modules/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/app/admin/modules/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/modules/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/app/admin/modules/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/modules/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/app/admin/modules/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/modules/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/admissions/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/admissions/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/admissions/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/admissions/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/tickets/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/tickets/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/tickets/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/tickets/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #2 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/hooks/useCurrency.ts [Client Component Browser]
+    ./frontend/src/app/admin/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/page.tsx [Server Component]
+
+  #3 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/hooks/useCurrency.ts [Client Component SSR]
+    ./frontend/src/app/admin/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/page.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/notifications/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/hooks/useAuth.ts:140:1
+Merge conflict marker encountered.
+  138 |
+  139 |     loadSession();
+> 140 | >>>>>>> origin/main
+      | ^^^^^^^
+  141 |
+  142 |     return () => {
+  143 |       authListeners.delete(listener);
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useAuth.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useAuth.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useInstalledModules.ts:27:1
+Merge conflict marker encountered.
+  25 | =======
+  26 |   const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+> 27 | >>>>>>> origin/main
+     | ^^^^^^^
+  28 |
+  29 |   // Single query for full module records — IDs are derived from these, avoiding
+  30 |   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component Browser]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useInstalledModules.ts [Client Component SSR]
+    ./frontend/src/components/shared/ModuleAccessGuard.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useNotifications.ts:24:1
+Merge conflict marker encountered.
+  22 |     api.notifications.getNotifications,
+  23 |     canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
+> 24 | =======
+     | ^^^^^^^
+  25 |   const { sessionToken } = useAuth();
+  26 |
+  27 |   const notifications = useQuery(
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/hooks/useNotifications.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/hooks/useNotifications.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/hooks/useTenant.ts:23:1
+Merge conflict marker encountered.
+  21 |   const isPlatformSession = role === "master_admin" || role === "super_admin";
+  22 |   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatf...
+> 23 | =======
+     | ^^^^^^^
+  24 |     isLoading,
+  25 |     isAuthenticated,
+  26 |   } = useAuth();
+
+Parsing ecmascript source code failed
+
+Import traces:
+  #1 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #2 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/marketplace/page.tsx [Server Component]
+
+  #3 [Client Component Browser]:
+    ./frontend/src/hooks/useTenant.ts [Client Component Browser]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Client Component Browser]
+    ./frontend/src/app/admin/layout.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./frontend/src/hooks/useTenant.ts [Client Component SSR]
+    ./frontend/src/components/layout/GlobalShell.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Client Component SSR]
+    ./frontend/src/app/admin/layout.tsx [Server Component] 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed 
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
+[browser] Uncaught Error: ./frontend/src/app/api/auth/session/route.ts:282:1
+Merge conflict marker encountered.
+  280 |           serverSecret,
+  281 |         });
+> 282 | >>>>>>> origin/main
+      | ^^^^^^^
+  283 |
+  284 |         if (session) {
+  285 |           const normalizedRole = isConfiguredMasterAdmin(session.email)
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (Error: ./frontend/src/app/api/auth/session/route.ts:282:1)
+    at <unknown> (Error: (./frontend/src/app/api/auth/session/route.ts:282:1)
