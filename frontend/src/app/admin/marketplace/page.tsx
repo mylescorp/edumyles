@@ -110,12 +110,12 @@ export default function MarketplacePage() {
     return result;
   }, [optionalModules, search, tab, installedModules]);
 
-  const isMarketplaceLoading =
-    authLoading || tenantLoading || (canQueryMarketplace && availableModules === undefined);
-
-  if (isMarketplaceLoading) {
+  if (authLoading && !isAuthenticated) {
     return <LoadingSkeleton variant="page" />;
   }
+
+  const isRefreshingMarketplaceData =
+    canQueryMarketplace && availableModules === undefined;
 
   const handleInstall = (moduleId: string) => {
     const mod = resolvedAvailableModules.find((m) => m.moduleId === moduleId);
@@ -332,7 +332,19 @@ export default function MarketplacePage() {
           ))}
         </div>
 
-        {filteredOptional.length === 0 && (
+        {isRefreshingMarketplaceData && filteredOptional.length === 0 && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Card key={`marketplace-skeleton-${index}`} className="overflow-hidden">
+                <CardContent className="p-5">
+                  <LoadingSkeleton variant="card" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {!isRefreshingMarketplaceData && filteredOptional.length === 0 && (
           <div className="py-12 text-center">
             <Package className="mx-auto h-10 w-10 text-muted-foreground/50" />
             <p className="mt-2 text-sm text-muted-foreground">

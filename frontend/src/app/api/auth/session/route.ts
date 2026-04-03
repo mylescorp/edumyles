@@ -226,8 +226,7 @@ export async function GET(req: NextRequest) {
       process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
       process.env.NODE_ENV !== "production" &&
       (!req.cookies.get("edumyles_session")?.value ||
-        req.cookies.get("edumyles_session")?.value === "dev_session_token" ||
-        req.cookies.get("edumyles_session")?.value === "dev-tenant-admin-session")
+        req.cookies.get("edumyles_session")?.value === "dev_session_token")
     ) {
       const convex = getConvexClient();
 

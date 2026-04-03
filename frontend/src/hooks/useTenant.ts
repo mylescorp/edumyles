@@ -33,13 +33,14 @@ export function useTenant() {
   );
 
   const resolvedModules = installedModuleIds ?? (isAuthenticated ? CORE_MODULE_IDS : []);
-  const resolvedTenantId = tenantContext?.tenantId ?? (isPlatformSession ? sessionTenantId : null) ?? null;
+  const resolvedTenantId =
+    tenantContext?.tenantId ??
+    sessionTenantId ??
+    null;
   const resolvedTier =
     tenantContext?.organization?.tier ?? tenantContext?.tenant?.plan ?? null;
-  const hasTenantContext = !!tenantContext?.tenant && !!resolvedTenantId;
-  const queryPending =
-    canQueryTenant &&
-    (tenantContext === undefined || installedModuleIds === undefined);
+  const hasTenantContext = !!resolvedTenantId;
+  const queryPending = canQueryTenant && !resolvedTenantId;
   const isUnauthenticated = !isLoading && !isAuthenticated;
   const tenantResolutionError =
     !isLoading &&
@@ -63,14 +64,14 @@ export function useTenant() {
     tenant: hasTenantContext
       ? {
           _id: resolvedTenantId!,
-          name: tenantContext.tenant.name,
-          plan: tenantContext.tenant.plan,
-          status: tenantContext.tenant.status,
-          subdomain: tenantContext.tenant.subdomain,
-          email: tenantContext.tenant.email ?? "",
-          phone: tenantContext.tenant.phone ?? "",
-          country: tenantContext.tenant.country,
-          county: tenantContext.tenant.county ?? "",
+          name: tenantContext?.tenant?.name ?? "My School",
+          plan: tenantContext?.tenant?.plan ?? resolvedTier ?? "starter",
+          status: tenantContext?.tenant?.status ?? "active",
+          subdomain: tenantContext?.tenant?.subdomain ?? "",
+          email: tenantContext?.tenant?.email ?? "",
+          phone: tenantContext?.tenant?.phone ?? "",
+          country: tenantContext?.tenant?.country ?? "KE",
+          county: tenantContext?.tenant?.county ?? "",
         }
       : null,
     organization: tenantContext?.organization && resolvedTier
