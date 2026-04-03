@@ -1,11 +1,12 @@
 import { v } from "convex/values";
 import { action } from "../../_generated/server";
-import { api } from "../../_generated/api";
 
 const { createEmailService, EmailService } = require("../../../shared/src/lib/email");
 
-async function getActiveSession(ctx: any, sessionToken: string) {
-  return await ctx.runQuery(api.sessions.getSession, { sessionToken });
+function assertTrustedWebhook(webhookSecret: string) {
+  if (!process.env.CONVEX_WEBHOOK_SECRET || webhookSecret !== process.env.CONVEX_WEBHOOK_SECRET) {
+    throw new Error("Invalid webhook secret");
+  }
 }
 
 export const sendEmail = action({
@@ -26,12 +27,8 @@ export const sendEmail = action({
     recipients?: string[];
     error?: string;
   }> => {
-    const session = await getActiveSession(ctx, args.tenantId);
-    if (!session) {
-      return { success: false, error: "Invalid session" };
-    }
-
     try {
+      assertTrustedWebhook(args.webhookSecret);
       const emailService = createEmailService();
       const { valid, invalid } = EmailService.validateEmails(args.to);
 
@@ -92,20 +89,7 @@ export const sendBulkEmail = action({
     totalFailed: number;
     errors: string[];
   }> => {
-    const session = await getActiveSession(ctx, args.tenantId);
-    if (!session) {
-      return { success: false, totalSent: 0, totalFailed: 0, errors: ["Invalid session"] };
-    }
-
-    const campaign = await ctx.runQuery(api.modules.communications.queries.listCampaigns, {
-      sessionToken: args.tenantId,
-      limit: 500,
-    });
-    const targetCampaign = campaign.find((item: any) => item._id === args.campaignId);
-
-    if (!targetCampaign) {
-      return { success: false, totalSent: 0, totalFailed: 0, errors: ["Campaign not found"] };
-    }
+    assertTrustedWebhook(args.webhookSecret);
 
     return {
       success: false,

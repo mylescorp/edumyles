@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const sessionToken =
       cookieStore.get("edumyles_session")?.value ?? cookieStore.get("edumyles-session")?.value;
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
     if (!sessionToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing invoiceId or phone" }, { status: 400 });
     }
 
-    const session = await convex.query(api.sessions.getSession, { sessionToken });
+    const session = await convex.query(api.sessions.getSession, { sessionToken, serverSecret });
     if (!session) {
       return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 });
     }
@@ -60,20 +61,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invoice not eligible for payment" }, { status: 400 });
     }
 
-    const consumerKey = process.env.CONVEX_MPESA_CONSUMER_KEY;
-    const consumerSecret = process.env.CONVEX_MPESA_CONSUMER_SECRET;
-    const passkey = process.env.CONVEX_MPESA_PASSKEY;
-    const shortcode = process.env.CONVEX_MPESA_SHORTCODE;
-    const callbackUrl = process.env.CONVEX_MPESA_CALLBACK_URL;
-    const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
-
+    const consumerKey = process.env.MPESA_CONSUMER_KEY ?? process.env.CONVEX_MPESA_CONSUMER_KEY;
+    const consumerSecret =
+      process.env.MPESA_CONSUMER_SECRET ?? process.env.CONVEX_MPESA_CONSUMER_SECRET;
+    const passkey = process.env.MPESA_PASSKEY ?? process.env.CONVEX_MPESA_PASSKEY;
+    const shortcode = process.env.MPESA_SHORTCODE ?? process.env.CONVEX_MPESA_SHORTCODE;
+    const callbackUrl = process.env.MPESA_CALLBACK_URL ?? process.env.CONVEX_MPESA_CALLBACK_URL;
     if (
       !consumerKey ||
       !consumerSecret ||
       !passkey ||
       !shortcode ||
       !callbackUrl ||
-      !webhookSecret
+      !serverSecret
     ) {
       return NextResponse.json(
         { error: "M-Pesa server configuration is incomplete" },
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
 
     // Use our new M-Pesa action instead of direct API calls
     const result = await convex.action(api.modules.finance.actions.initiateMpesaPayment, {
-      webhookSecret,
+      webhookSecret: serverSecret,
       tenantId: session.tenantId,
       invoiceId: String(invoiceId),
       phoneNumber: normalizedPhone,

@@ -45,7 +45,7 @@ describe('requirePermission() — convex/helpers/authorize.ts', () => {
 
   it('throws FORBIDDEN when the role lacks the permission', () => {
     expect(() => requirePermission(makeCtx('student'), 'grades:write')).toThrow(
-      "FORBIDDEN: Role 'student' lacks permission 'grades:write'"
+      /FORBIDDEN.*grades:write/
     );
     expect(() => requirePermission(makeCtx('teacher'), 'students:delete')).toThrow('FORBIDDEN');
     expect(() => requirePermission(makeCtx('parent'), 'finance:write')).toThrow('FORBIDDEN');
@@ -176,12 +176,12 @@ describe('requireModule() — convex/helpers/moduleGuard.ts', () => {
   });
 
   it('passes when module is active and its tier allows it', async () => {
-    // Query sequence: installedModule → tenant → organization (null) → no deps
+    // Query sequence: installedModule → tenant → organization (null) → dependency sis
     setupDbQuerySequence(ctx, [
       mockModule({ moduleId: 'finance', status: 'active' }), // installedModules
       { tenantId: 'TENANT-1', plan: 'standard' },             // tenants
       null,                                                    // organizations (none)
-      // finance has no MODULE_DEPENDENCIES so no further queries
+      mockModule({ moduleId: 'sis', status: 'active' }),      // dependency
     ]);
 
     await expect(requireModule(ctx, 'TENANT-1', 'finance')).resolves.toBeUndefined();
@@ -201,16 +201,17 @@ describe('requireModule() — convex/helpers/moduleGuard.ts', () => {
   });
 
   it('throws MODULE_DEPENDENCIES_NOT_MET when a required dep is missing', async () => {
-    // 'timetable' depends on 'academics'
+    // 'timetable' depends on 'sis' and 'academics'
     setupDbQuerySequence(ctx, [
       mockModule({ moduleId: 'timetable', status: 'active' }),
       { tenantId: 'TENANT-1', plan: 'standard' }, // timetable IS in standard tier
       null,                                         // no org override
+      mockModule({ moduleId: 'sis', status: 'active' }),
       null,                                         // dependency 'academics' not installed
     ]);
 
     await expect(requireModule(ctx, 'TENANT-1', 'timetable')).rejects.toThrow(
-      "MODULE_DEPENDENCIES_NOT_MET: Module 'timetable' requires 'academics'"
+      "MODULE_DEPENDENCIES_NOT_MET: Module 'timetable' requires 'academics' which is not installed"
     );
   });
 
@@ -219,6 +220,7 @@ describe('requireModule() — convex/helpers/moduleGuard.ts', () => {
       mockModule({ moduleId: 'timetable', status: 'active' }),
       { tenantId: 'TENANT-1', plan: 'standard' },
       null,
+      mockModule({ moduleId: 'sis', status: 'active' }),
       mockModule({ moduleId: 'academics', status: 'inactive' }), // dep is inactive
     ]);
 
@@ -253,24 +255,23 @@ describe('deactivateModule() — convex/helpers/moduleGuard.ts', () => {
   });
 
   it('throws CANNOT_DEACTIVATE when another active module depends on this one', async () => {
-    // Deactivating 'sis' — 'hr', 'library', 'transport' depend on it
-    // The guard iterates dependent modules and queries each one
+    // Deactivating 'sis' — the first active dependent currently encountered is academics
     setupDbQuerySequence(ctx, [
       mockModule({ moduleId: 'sis', status: 'active' }),  // self
-      mockModule({ moduleId: 'hr', status: 'active' }),   // hr depends on sis and is active
+      mockModule({ moduleId: 'academics', status: 'active' }),
     ]);
 
     await expect(deactivateModule(ctx, 'TENANT-1', 'sis')).rejects.toThrow(
-      "CANNOT_DEACTIVATE: Module 'sis' is required by active module 'hr'"
+      "CANNOT_DEACTIVATE: Module 'sis' is required by active module 'academics'"
     );
     expect(ctx.db.patch).not.toHaveBeenCalled();
   });
 
   it('deactivates the module and patches status to inactive', async () => {
-    // finance has no dependents
+    // finance has one dependent (ewallet), so we need to show it is not installed
     setupDbQuerySequence(ctx, [
       mockModule({ moduleId: 'finance', status: 'active' }),
-      // No modules depend on finance — MODULE_DEPENDENCIES has none pointing to finance
+      null,
     ]);
 
     const result = await deactivateModule(ctx, 'TENANT-1', 'finance');

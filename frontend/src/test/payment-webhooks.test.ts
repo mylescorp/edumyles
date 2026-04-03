@@ -19,9 +19,13 @@ import { NextRequest, NextResponse } from 'next/server';
 const mockConvexAction = vi.fn();
 
 vi.mock('convex/browser', () => ({
-  ConvexHttpClient: vi.fn().mockImplementation(() => ({
-    action: mockConvexAction,
-  })),
+  ConvexHttpClient: vi.fn().mockImplementation(
+    function MockConvexHttpClient() {
+      return {
+        action: mockConvexAction,
+      };
+    }
+  ),
 }));
 
 // ─── Import real handlers AFTER mock declarations ─────────────────────────────

@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     const sessionToken =
       cookieStore.get("edumyles_session")?.value ?? 
       cookieStore.get("edumyles-session")?.value;
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
     
     if (!sessionToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing invoiceId" }, { status: 400 });
     }
 
-    const session = await convex.query(api.sessions.getSession, { sessionToken });
+    const session = await convex.query(api.sessions.getSession, { sessionToken, serverSecret });
     if (!session) {
       return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 });
     }
@@ -59,8 +60,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invoice not eligible for payment" }, { status: 400 });
     }
 
-    const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
-    if (!webhookSecret) {
+    if (!serverSecret) {
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
 
     // Save payment callback for webhook processing
     await convex.action((api as any).modules.finance.actions.savePaymentCallbackFromServer, {
-      webhookSecret,
+      webhookSecret: serverSecret,
       tenantId: session.tenantId,
       gateway: "stripe",
       externalId: checkoutSession.id,

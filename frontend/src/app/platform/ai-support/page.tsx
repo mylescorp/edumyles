@@ -384,7 +384,7 @@ export default function AISupportPage() {
         responseType,
         tone: "professional",
         includeSuggestions: true,
-        requestedBy: "platform_admin",
+        requestedBy: "super_admin",
       });
       toast.success(response?.message ?? "AI response generated");
     } catch (error) {

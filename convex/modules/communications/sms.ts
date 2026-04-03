@@ -1,11 +1,12 @@
 import { v } from "convex/values";
 import { action } from "../../_generated/server";
-import { api } from "../../_generated/api";
 
 const { createSMSService, SMSService } = require("../../../shared/src/lib/sms");
 
-async function getActiveSession(ctx: any, sessionToken: string) {
-  return await ctx.runQuery(api.sessions.getSession, { sessionToken });
+function assertTrustedWebhook(webhookSecret: string) {
+  if (!process.env.CONVEX_WEBHOOK_SECRET || webhookSecret !== process.env.CONVEX_WEBHOOK_SECRET) {
+    throw new Error("Invalid webhook secret");
+  }
 }
 
 export const sendSMS = action({
@@ -24,12 +25,8 @@ export const sendSMS = action({
     recipientsFailed?: number;
     error?: string;
   }> => {
-    const session = await getActiveSession(ctx, args.tenantId);
-    if (!session) {
-      return { success: false, error: "Invalid session" };
-    }
-
     try {
+      assertTrustedWebhook(args.webhookSecret);
       const smsService = createSMSService();
       const { valid, invalid } = SMSService.validatePhoneNumbers(args.recipients);
 
@@ -85,10 +82,7 @@ export const sendBulkSMS = action({
     totalFailed: number;
     errors: string[];
   }> => {
-    const session = await getActiveSession(ctx, args.tenantId);
-    if (!session) {
-      return { success: false, totalSent: 0, totalFailed: 0, errors: ["Invalid session"] };
-    }
+    assertTrustedWebhook(args.webhookSecret);
 
     return {
       success: false,

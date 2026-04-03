@@ -248,8 +248,6 @@ export default function AutomationCenterPage() {
     }
   };
 
-  if (!workflowsData) return <LoadingSkeleton variant="page" />;
-
   const workflows: Workflow[] = (workflowsData || []).map((w: any) => ({
     _id: w._id,
     name: w.name,
@@ -334,6 +332,8 @@ export default function AutomationCenterPage() {
         .includes(search)
     );
   }, [templateSearch, workflowTemplates]);
+
+  if (!workflowsData) return <LoadingSkeleton variant="page" />;
 
   const handleRunWorkflow = async (workflowId: string) => {
     if (!sessionToken) return;

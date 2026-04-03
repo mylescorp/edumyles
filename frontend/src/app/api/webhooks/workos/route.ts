@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
       case "session.revoked": {
         const sessionToken: string = event?.data?.access_token ?? event?.data?.id ?? "";
         if (sessionToken) {
-          await convex.mutation(api.sessions.deleteSession, { sessionToken });
+          await convex.mutation(api.sessions.deleteSession, {
+            sessionToken,
+            serverSecret: process.env.CONVEX_WEBHOOK_SECRET ?? "",
+          });
         }
         break;
       }

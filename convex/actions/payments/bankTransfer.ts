@@ -78,9 +78,11 @@ export const initiateBankTransfer = action({
   }> => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("UNAUTHENTICATED");
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
 
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: identity.tokenIdentifier,
+      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Session not found");
 
@@ -139,14 +141,16 @@ export const verifyBankTransfer = action({
   }> => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("UNAUTHENTICATED");
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
 
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: identity.tokenIdentifier,
+      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Session not found");
 
     // Only bursar / school_admin / principal may verify
-    const allowedRoles = ["bursar", "school_admin", "principal", "master_admin", "platform_admin"];
+    const allowedRoles = ["bursar", "school_admin", "principal", "master_admin", "super_admin"];
     if (!allowedRoles.includes(session.role)) {
       throw new Error("FORBIDDEN: Only finance officers may verify bank transfers");
     }

@@ -8,31 +8,38 @@ import { useAuth } from "./useAuth";
 const CORE_MODULE_IDS = ["sis", "communications", "users"];
 
 export function useTenant() {
-  const { sessionToken, tenantId: sessionTenantId } = useAuth();
+  const {
+    sessionToken,
+    tenantId: sessionTenantId,
+    isLoading,
+    isAuthenticated,
+  } = useAuth();
+  const canQueryTenant = !isLoading && isAuthenticated && !!sessionToken;
 
   const tenantContext = useQuery(
     api.tenants.getTenantContext,
     { sessionToken: sessionToken ?? "" },
-    !!sessionToken
+    canQueryTenant
   );
 
   const installedModuleIds = useQuery(
     api.modules.marketplace.queries.getInstalledModuleIds,
     { sessionToken: sessionToken ?? "" },
-    !!sessionToken
+    canQueryTenant
   );
 
   // Always include core modules even if the query hasn't loaded yet
   const resolvedModules = installedModuleIds ?? CORE_MODULE_IDS;
-  const resolvedTenantId = tenantContext?.tenantId ?? sessionTenantId ?? "demo-tenant-001";
+  const resolvedTenantId = tenantContext?.tenantId ?? sessionTenantId ?? null;
   const resolvedTier =
-    tenantContext?.organization?.tier ?? tenantContext?.tenant?.plan ?? "free";
+    tenantContext?.organization?.tier ?? tenantContext?.tenant?.plan ?? null;
+  const hasTenantContext = !!tenantContext?.tenant && !!resolvedTenantId;
 
   return {
     tenantId: resolvedTenantId,
-    tenant: tenantContext?.tenant
+    tenant: hasTenantContext
       ? {
-          _id: resolvedTenantId,
+          _id: resolvedTenantId!,
           name: tenantContext.tenant.name,
           plan: tenantContext.tenant.plan,
           status: tenantContext.tenant.status,
@@ -42,28 +49,19 @@ export function useTenant() {
           country: tenantContext.tenant.country,
           county: tenantContext.tenant.county ?? "",
         }
-      : {
-          _id: resolvedTenantId,
-          name: "Demo School",
-          plan: "free",
-          status: "active",
-          subdomain: "demo",
-          email: "admin@demo.edumyles.com",
-          phone: "+254 700 000 000",
-          country: "Kenya",
-          county: "Nairobi",
-        },
-    organization: tenantContext?.organization
+      : null,
+    organization: tenantContext?.organization && resolvedTier
       ? {
           _id: tenantContext.organization.subdomain ?? "org",
           name: tenantContext.organization.name,
           tier: tenantContext.organization.tier,
         }
-      : { _id: "demo-org-001", name: "Demo School", tier: "free" },
+      : null,
     installedModules: resolvedModules,
     tier: resolvedTier,
+    hasResolvedTenant: !!resolvedTenantId,
     isLoading:
-      !!sessionToken &&
+      canQueryTenant &&
       (tenantContext === undefined || installedModuleIds === undefined),
   };
 }

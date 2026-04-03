@@ -225,13 +225,12 @@ describe('RBAC Permissions (lib/permissions.ts)', () => {
       }
     });
 
-    it('only bursar, hr_manager, and master_admin can approve payroll', () => {
+    it('only master_admin can approve payroll', () => {
       expect(hasPermission('master_admin', 'payroll:approve')).toBe(true);
-      expect(hasPermission('hr_manager', 'payroll:approve')).toBe(true);
 
       const cannotApprovePayroll: Role[] = [
         'super_admin', 'school_admin', 'principal', 'teacher', 'parent',
-        'student', 'bursar', 'librarian', 'transport_manager',
+        'student', 'bursar', 'hr_manager', 'librarian', 'transport_manager',
         'board_member', 'alumni', 'partner',
       ];
       for (const role of cannotApprovePayroll) {

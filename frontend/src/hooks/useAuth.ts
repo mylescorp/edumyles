@@ -12,6 +12,11 @@ type Session = {
   expiresAt: number;
 };
 
+function normalizeRole(role: string | null | undefined) {
+  if (role === "platform_admin") return "super_admin";
+  return role ?? null;
+}
+
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +42,13 @@ export function useAuth() {
         const data = await res.json();
 
         if (!cancelled) {
-          setSession(data.session as Session | null);
+          const nextSession = data.session
+            ? {
+                ...(data.session as Session),
+                role: normalizeRole((data.session as Session).role) ?? "",
+              }
+            : null;
+          setSession(nextSession);
           setIsLoading(false);
         }
       } catch {
@@ -59,14 +70,14 @@ export function useAuth() {
   const platformProfile = useQuery(
     api.platform.users.queries.getCurrentPlatformUser,
     { sessionToken: session?.sessionToken ?? "" },
-    !!session?.sessionToken && session.role === "master_admin"
+    !!session?.sessionToken && (session.role === "master_admin" || session.role === "super_admin")
   );
 
   // Get tenant user profile if session exists and not platform admin
   const tenantProfile = useQuery(
     api.users.getCurrentUser,
     { sessionToken: session?.sessionToken ?? "" },
-    !!session?.sessionToken && session.role !== "master_admin"
+    !!session?.sessionToken && session.role !== "master_admin" && session.role !== "super_admin"
   );
 
   // Get student profile if role is student

@@ -62,6 +62,7 @@ export const createUserSchema = z.object({
     "alumni",
     "partner",
     "board_member",
+    "super_admin",
     "platform_admin",
     "master_admin",
   ]),
@@ -99,6 +100,40 @@ export const createPaymentSchema = z.object({
 });
 
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
+
+export const notificationPreferencesSchema = z.object({
+  emailNotifications: z.boolean().default(true),
+  smsNotifications: z.boolean().default(false),
+  pushNotifications: z.boolean().default(false),
+  parentNotifications: z.boolean().default(true),
+});
+
+export const createInvoiceSchema = z.object({
+  tenantId: tenantIdSchema,
+  studentId: z.string().min(1),
+  amount: z.number().positive(),
+  currency: z.string().length(3),
+  dueDate: dateSchema.optional(),
+  description: z.string().min(1).max(200),
+});
+
+export const createStaffSchema = z.object({
+  tenantId: tenantIdSchema,
+  firstName: z.string().min(1).max(50),
+  lastName: z.string().min(1).max(50),
+  email: z.string().email(),
+  phone: phoneSchema.optional(),
+  role: z.enum([
+    "school_admin",
+    "principal",
+    "teacher",
+    "bursar",
+    "librarian",
+    "transport_manager",
+    "hr_manager",
+    "receptionist",
+  ]),
+});
 
 // ----------------------------------------------------------
 // Pagination
