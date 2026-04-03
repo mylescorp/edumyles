@@ -67,7 +67,9 @@ export default defineSchema({
     email: v.string(),
     phone: v.string(),
     plan: v.union(
+      v.literal("free"),
       v.literal("starter"),
+      v.literal("growth"),
       v.literal("standard"),
       v.literal("pro"),
       v.literal("enterprise")
