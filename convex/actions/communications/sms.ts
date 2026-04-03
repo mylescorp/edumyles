@@ -30,10 +30,10 @@ async function sendSmsViaAfricasTalking(args: {
   message: string;
   country?: string;
 }) {
-  const apiKey = process.env.AFRICAS_TALKING_API_KEY;
-  const username = process.env.AFRICAS_TALKING_USERNAME;
+  const apiKey = process.env.AT_API_KEY ?? process.env.AFRICAS_TALKING_API_KEY;
+  const username = process.env.AT_USERNAME ?? process.env.AFRICAS_TALKING_USERNAME;
   if (!apiKey || !username) {
-    throw new Error("Africa's Talking not configured. Set AFRICAS_TALKING_API_KEY and AFRICAS_TALKING_USERNAME.");
+    throw new Error("Africa's Talking not configured. Set AT_API_KEY and AT_USERNAME.");
   }
 
   const phoneNorm = normalisePhoneNumber(args.phone, args.country ?? "KE");
@@ -65,7 +65,7 @@ async function sendSmsViaAfricasTalking(args: {
 
 /**
  * Send a single SMS via Africa's Talking API.
- * Set AFRICAS_TALKING_API_KEY and AFRICAS_TALKING_USERNAME in Convex env.
+ * Set AT_API_KEY and AT_USERNAME in Convex env.
  */
 export const sendSms = action({
   args: {
@@ -112,8 +112,8 @@ export const sendBulkSms = action({
     const tenant = await requireActionTenantContext(ctx);
     requirePermission(tenant, "communications:write");
 
-    const apiKey = process.env.AFRICAS_TALKING_API_KEY;
-    const username = process.env.AFRICAS_TALKING_USERNAME;
+    const apiKey = process.env.AT_API_KEY ?? process.env.AFRICAS_TALKING_API_KEY;
+    const username = process.env.AT_USERNAME ?? process.env.AFRICAS_TALKING_USERNAME;
     if (!apiKey || !username) {
       throw new Error("Africa's Talking not configured.");
     }

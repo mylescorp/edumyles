@@ -5,31 +5,36 @@ import { useAuth } from "./useAuth";
 import { useQuery, useMutation } from "./useSSRSafeConvex";
 
 export function useNotifications() {
-  const { user } = useAuth();
-  const userId = user?._id ? String(user._id) : null;
+  const { sessionToken } = useAuth();
 
   const notifications = useQuery(
     api.notifications.getNotifications,
-    userId ? { userId, limit: 20 } : "skip"
+    sessionToken ? { sessionToken, limit: 20 } : "skip"
   );
 
   const unreadCount = useQuery(
     api.notifications.getUnreadCount,
-    userId ? { userId } : "skip"
+    sessionToken ? { sessionToken } : "skip"
   );
 
   const markAsRead = useMutation(api.notifications.markAsRead);
   const markAllAsRead = useMutation(api.notifications.markAllAsRead);
 
+  const normalizedNotifications = (notifications ?? []).map((notification: any) => ({
+    ...notification,
+    read: notification.isRead,
+  }));
+
   return {
-    notifications: notifications ?? [],
+    notifications: normalizedNotifications,
     unreadCount: unreadCount ?? 0,
     isLoading: notifications === undefined,
     markAsRead: (notificationId: string) => {
-      markAsRead({ notificationId: notificationId as any });
+      if (!sessionToken) return;
+      markAsRead({ sessionToken, notificationId: notificationId as any });
     },
     markAllAsRead: () => {
-      if (userId) markAllAsRead({ userId });
+      if (sessionToken) markAllAsRead({ sessionToken });
     },
   };
 }

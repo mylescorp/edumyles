@@ -19,10 +19,11 @@ function clearSessionCookies(response: NextResponse): void {
 
 async function invalidateSession(sessionToken: string): Promise<void> {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
   if (!convexUrl) return;
   try {
     const convex = new ConvexHttpClient(convexUrl);
-    await convex.mutation(api.sessions.deleteSession, { sessionToken });
+    await convex.mutation(api.sessions.deleteSession, { sessionToken, serverSecret });
   } catch (err) {
     // Log but don't block logout if Convex is unavailable
     console.error("[logout] Failed to invalidate server session:", err);

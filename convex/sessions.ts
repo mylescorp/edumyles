@@ -1,24 +1,60 @@
 import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 
+const SERVER_SECRET = process.env.CONVEX_WEBHOOK_SECRET ?? "";
+
+function assertTrustedServer(serverSecret?: string) {
+  if (!SERVER_SECRET || serverSecret !== SERVER_SECRET) {
+    throw new ConvexError({
+      code: "FORBIDDEN",
+      message: "Trusted server credentials required",
+    });
+  }
+}
+
+async function getActiveSessionByToken(ctx: any, sessionToken: string) {
+  const session = await ctx.db
+    .query("sessions")
+    .withIndex("by_token", (q: any) => q.eq("sessionToken", sessionToken))
+    .first();
+
+  if (!session) {
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session not found" });
+  }
+
+  if (session.expiresAt < Date.now()) {
+    throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session expired" });
+  }
+
+  return session;
+}
+
 export const createSession = mutation({
   args: {
+    serverSecret: v.string(),
     sessionToken: v.string(),
     tenantId: v.string(),
     userId: v.string(),
     email: v.string(),
     role: v.string(),
     expiresAt: v.number(),
+    deviceInfo: v.optional(v.string()),
+    permissions: v.optional(v.array(v.string())),
+    workosUserId: v.optional(v.string()),
+    impersonatedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Remove any existing session for this user
+    assertTrustedServer(args.serverSecret);
+
     const existing = await ctx.db
       .query("sessions")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .first();
+      .collect();
 
-    if (existing) {
-      await ctx.db.delete(existing._id);
+    for (const session of existing) {
+      if (session.sessionToken === args.sessionToken || session.expiresAt < Date.now()) {
+        await ctx.db.delete(session._id);
+      }
     }
 
     return await ctx.db.insert("sessions", {
@@ -29,28 +65,58 @@ export const createSession = mutation({
       role: args.role,
       expiresAt: args.expiresAt,
       createdAt: Date.now(),
+      deviceInfo: args.deviceInfo,
+      isActive: true,
+      permissions: args.permissions,
+      workosUserId: args.workosUserId,
+      impersonatedBy: args.impersonatedBy,
     });
   },
 });
 
 export const getSession = query({
-  args: { sessionToken: v.string() },
+  args: {
+    sessionToken: v.string(),
+    serverSecret: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
     const session = await ctx.db
       .query("sessions")
       .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
       .first();
 
-    if (!session) return null;
-    if (session.expiresAt < Date.now()) return null;
+    if (!session || session.expiresAt < Date.now()) {
+      return null;
+    }
 
-    return session;
+    return {
+      _id: session._id,
+      sessionToken: session.sessionToken,
+      tenantId: session.tenantId,
+      userId: session.userId,
+      email: session.email,
+      role: session.role,
+      expiresAt: session.expiresAt,
+      createdAt: session.createdAt,
+      deviceInfo: session.deviceInfo,
+      isActive: session.isActive ?? true,
+      permissions: session.permissions ?? [],
+      workosUserId: session.workosUserId,
+      impersonatedBy: session.impersonatedBy,
+    };
   },
 });
 
 export const deleteSession = mutation({
-  args: { sessionToken: v.string() },
+  args: {
+    sessionToken: v.string(),
+    serverSecret: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
     const session = await ctx.db
       .query("sessions")
       .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
@@ -65,29 +131,22 @@ export const deleteSession = mutation({
 export const listUserSessions = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    // Validate the requesting session first
-    const currentSession = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
+    const currentSession = await getActiveSessionByToken(ctx, args.sessionToken);
 
-    if (!currentSession || currentSession.expiresAt < Date.now()) return [];
-
-    // Get all sessions for this user
     const sessions = await ctx.db
       .query("sessions")
       .withIndex("by_userId", (q) => q.eq("userId", currentSession.userId))
       .collect();
 
     return sessions
-      .filter((s) => s.expiresAt > Date.now())
-      .map((s) => ({
-        _id: s._id,
-        sessionToken: s.sessionToken,
-        deviceInfo: s.deviceInfo ?? "Unknown device",
-        createdAt: s.createdAt,
-        expiresAt: s.expiresAt,
-        isCurrent: s.sessionToken === args.sessionToken,
+      .filter((session) => session.expiresAt > Date.now())
+      .map((session) => ({
+        _id: session._id,
+        sessionToken: session.sessionToken,
+        deviceInfo: session.deviceInfo ?? "Unknown device",
+        createdAt: session.createdAt,
+        expiresAt: session.expiresAt,
+        isCurrent: session.sessionToken === args.sessionToken,
       }));
   },
 });
@@ -95,51 +154,24 @@ export const listUserSessions = query({
 export const deleteSessionById = mutation({
   args: { sessionToken: v.string(), targetSessionId: v.id("sessions") },
   handler: async (ctx, args) => {
-    // Validate the requesting session
-    const currentSession = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (!currentSession || currentSession.expiresAt < Date.now()) {
-      throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session is invalid or expired" });
-    }
-
+    const currentSession = await getActiveSessionByToken(ctx, args.sessionToken);
     const targetSession = await ctx.db.get(args.targetSessionId);
+
     if (!targetSession || targetSession.userId !== currentSession.userId) {
-      throw new ConvexError({ code: "FORBIDDEN", message: "Cannot terminate another user's session" });
+      throw new ConvexError({
+        code: "FORBIDDEN",
+        message: "Cannot terminate another user's session",
+      });
     }
 
     await ctx.db.delete(args.targetSessionId);
   },
 });
 
-export const updateSessionRole = mutation({
-  args: { sessionToken: v.string(), role: v.string() },
-  handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) {
-      throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session is invalid or expired" });
-    }
-    await ctx.db.patch(session._id, { role: args.role });
-  },
-});
-
 export const deleteAllUserSessions = mutation({
   args: { sessionToken: v.string(), exceptCurrent: v.optional(v.boolean()) },
   handler: async (ctx, args) => {
-    const currentSession = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (!currentSession || currentSession.expiresAt < Date.now()) {
-      throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session is invalid or expired" });
-    }
-
+    const currentSession = await getActiveSessionByToken(ctx, args.sessionToken);
     const sessions = await ctx.db
       .query("sessions")
       .withIndex("by_userId", (q) => q.eq("userId", currentSession.userId))

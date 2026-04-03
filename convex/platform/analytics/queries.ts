@@ -265,7 +265,7 @@ export const generateReport = mutation({
         filters: args.filters,
       },
       status: "generating",
-      createdBy: "platform_admin",
+      createdBy: platformCtx.role ?? "super_admin",
       createdAt: now,
       exportFormat: args.format,
     });

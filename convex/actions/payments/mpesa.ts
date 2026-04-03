@@ -16,14 +16,14 @@ export async function initiateMpesaStkPushForAmount(args: {
   checkoutRequestId: string;
   customerMessage?: string;
 }> {
-  const consumerKey = process.env.CONVEX_MPESA_CONSUMER_KEY;
-  const consumerSecret = process.env.CONVEX_MPESA_CONSUMER_SECRET;
-  const passkey = process.env.CONVEX_MPESA_PASSKEY;
-  const shortcode = process.env.CONVEX_MPESA_SHORTCODE;
-  const callbackUrl = process.env.CONVEX_MPESA_CALLBACK_URL;
+  const consumerKey = process.env.MPESA_CONSUMER_KEY ?? process.env.CONVEX_MPESA_CONSUMER_KEY;
+  const consumerSecret = process.env.MPESA_CONSUMER_SECRET ?? process.env.CONVEX_MPESA_CONSUMER_SECRET;
+  const passkey = process.env.MPESA_PASSKEY ?? process.env.CONVEX_MPESA_PASSKEY;
+  const shortcode = process.env.MPESA_SHORTCODE ?? process.env.CONVEX_MPESA_SHORTCODE;
+  const callbackUrl = process.env.MPESA_CALLBACK_URL ?? process.env.CONVEX_MPESA_CALLBACK_URL;
 
   if (!consumerKey || !consumerSecret || !passkey || !shortcode || !callbackUrl) {
-    throw new Error("M-Pesa configuration missing. Set CONVEX_MPESA_* env vars.");
+    throw new Error("M-Pesa configuration missing. Set MPESA_* env vars.");
   }
 
   const authRes = await fetch(DARAJA_OAUTH, {
@@ -96,9 +96,11 @@ export const initiateStkPush = action({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("UNAUTHENTICATED");
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
 
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: identity.tokenIdentifier,
+      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Session not found");
 

@@ -14,6 +14,10 @@ function isMasterAdmin(email: string): boolean {
   return email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase();
 }
 
+function normalizeRole(role: string): string {
+  return role === "platform_admin" ? "super_admin" : role;
+}
+
 function decodeState(raw: string | null): Record<string, string> {
   if (!raw) return {};
   try {
@@ -100,7 +104,7 @@ export async function GET(req: NextRequest) {
             email: user.email,
           });
         } else if (existing?.role) {
-          role = existing.role;
+          role = normalizeRole(existing.role);
           if (existing.tenantId) tenantId = existing.tenantId;
         } else {
           const hasMasterAdmin = await convex.query(api.users.hasMasterAdmin, {});
@@ -127,6 +131,7 @@ export async function GET(req: NextRequest) {
       try {
         const convex = new ConvexHttpClient(convexUrl);
         await convex.mutation(api.sessions.createSession, {
+          serverSecret: process.env.CONVEX_WEBHOOK_SECRET ?? "",
           sessionToken,
           tenantId,
           userId: user.id,

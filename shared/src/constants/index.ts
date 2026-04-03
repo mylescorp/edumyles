@@ -7,8 +7,9 @@ import type { Module, UserRole, TenantTier } from "../types/index.js";
 // Roles — canonical names match convex/helpers/authorize.ts
 // ----------------------------------------------------------
 export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
-  platform_admin: { label: "Platform Admin", level: 100 },
   master_admin: { label: "Master Admin", level: 100 },
+  super_admin: { label: "Super Admin", level: 95 },
+  platform_admin: { label: "Platform Admin (Legacy)", level: 95 },
   school_admin: { label: "School Admin", level: 90 },
   principal: { label: "Principal", level: 80 },
   bursar: { label: "Finance Officer", level: 60 },

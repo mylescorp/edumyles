@@ -19,7 +19,10 @@ export async function GET(req: NextRequest) {
     try {
       const convex = getConvexClient();
       if (convex) {
-        await convex.mutation(api.sessions.deleteSession, { sessionToken });
+        await convex.mutation(api.sessions.deleteSession, {
+          sessionToken,
+          serverSecret: process.env.CONVEX_WEBHOOK_SECRET ?? "",
+        });
       }
     } catch (error) {
       console.error("[landing logout] Failed to invalidate session:", error);

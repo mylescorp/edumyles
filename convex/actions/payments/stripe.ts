@@ -81,9 +81,11 @@ export const createCheckoutSession = action({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("UNAUTHENTICATED");
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
 
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: identity.tokenIdentifier,
+      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Session not found");
 

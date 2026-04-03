@@ -35,6 +35,10 @@ export default defineConfig({
   },
   resolve: {
     alias: [
+      {
+        find: "@/convex/_generated/api",
+        replacement: resolve(__dirname, "./convex/_generated/api.js"),
+      },
       { find: '@', replacement: resolve(__dirname, './src') },
       // Redirect Convex generated-server imports to the frontend's copy.
       // This lets convex/helpers/*.ts (tenantGuard, authorize, moduleGuard)
@@ -42,6 +46,10 @@ export default defineConfig({
       {
         find: /\/_generated\/server$/,
         replacement: resolve(__dirname, './convex/_generated/server.js'),
+      },
+      {
+        find: /\/_generated\/api$/,
+        replacement: resolve(__dirname, "./convex/_generated/api.js"),
       },
     ],
   },

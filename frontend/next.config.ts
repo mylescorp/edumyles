@@ -142,7 +142,11 @@ const nextConfig = {
     
     return config;
   },
-} satisfies NextConfig;
+} as NextConfig & {
+  eslint?: {
+    ignoreDuringBuilds?: boolean;
+  };
+};
 
 export default withSentryConfig(nextConfig, {
   // Sentry organisation and project (from env vars — no secrets in code)

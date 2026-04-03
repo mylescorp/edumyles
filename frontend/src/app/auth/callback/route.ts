@@ -27,6 +27,10 @@ function isMasterAdmin(email: string): boolean {
   return MASTER_ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
+function normalizeRole(role: string): string {
+  return role === "platform_admin" ? "super_admin" : role;
+}
+
 function getRoleDashboard(role: string): string {
   switch (role) {
     case "master_admin":
@@ -130,6 +134,7 @@ export async function GET(req: NextRequest) {
 
       const sessionToken = crypto.randomBytes(32).toString("hex");
       await convex.mutation(api.sessions.createSession, {
+        serverSecret: serverSecret ?? "",
         sessionToken,
         tenantId,
         userId: user.id,
@@ -191,6 +196,7 @@ export async function GET(req: NextRequest) {
 
         const sessionToken = crypto.randomBytes(32).toString("hex");
         await convex.mutation(api.sessions.createSession, {
+          serverSecret: serverSecret ?? "",
           sessionToken,
           tenantId,
           userId: user.id,
@@ -209,11 +215,12 @@ export async function GET(req: NextRequest) {
 
     // ── 4. Existing active user — allow login ────────────────────────────────
     if (existing && existing.isActive) {
-      const role = existing.role;
+      const role = normalizeRole(existing.role);
       const tenantId = existing.tenantId;
 
       const sessionToken = crypto.randomBytes(32).toString("hex");
       await convex.mutation(api.sessions.createSession, {
+        serverSecret: serverSecret ?? "",
         sessionToken,
         tenantId,
         userId: user.id,

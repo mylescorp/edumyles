@@ -15,8 +15,10 @@ export const generateTwoFactorSecret = action({
     args: { sessionToken: string }
   ): Promise<{ secret: string; qrCode: string; backupCodes: string[] }> => {
     // Validate session
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: args.sessionToken,
+      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 
@@ -58,8 +60,10 @@ export const enableTwoFactor = action({
     token: v.string(),
   },
   handler: async (ctx, args) => {
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: args.sessionToken,
+      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 
@@ -97,8 +101,10 @@ export const disableTwoFactor = action({
     password: v.string(), // Require password for security
   },
   handler: async (ctx, args) => {
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: args.sessionToken,
+      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 
@@ -145,8 +151,10 @@ export const verifyTwoFactor = action({
     token: v.string(),
   },
   handler: async (ctx, args) => {
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
     const session = await ctx.runQuery(api.sessions.getSession, {
       sessionToken: args.sessionToken,
+      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 

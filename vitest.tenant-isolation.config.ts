@@ -5,6 +5,7 @@ export default defineConfig({
     environment: "node",
     include: [
       "frontend/src/test/tenant-isolation.test.ts",
+      "frontend/src/test/session-notification-security.test.ts",
       "frontend/src/test/platform-admin-utils.test.ts",
       "frontend/src/test/platform-settings-draft.test.ts",
     ],

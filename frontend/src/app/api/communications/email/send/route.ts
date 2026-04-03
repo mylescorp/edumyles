@@ -17,12 +17,13 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const sessionToken =
       cookieStore.get("edumyles_session")?.value ?? cookieStore.get("edumyles-session")?.value;
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
     
     if (!sessionToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const session = await convex.query(api.sessions.getSession, { sessionToken });
+    const session = await convex.query(api.sessions.getSession, { sessionToken, serverSecret });
     if (!session) {
       return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 });
     }
@@ -47,8 +48,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Maximum 100 recipients allowed per request" }, { status: 400 });
     }
 
-    const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
-    if (!webhookSecret) {
+    if (!serverSecret) {
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
 
     // Send email via Convex action
     const result = await convex.action(api.modules.communications.email.sendEmail, {
-      webhookSecret,
-      tenantId: sessionToken, // Using sessionToken as tenant identifier for this action
+      webhookSecret: serverSecret,
+      tenantId: session.tenantId,
       to,
       subject,
       html,

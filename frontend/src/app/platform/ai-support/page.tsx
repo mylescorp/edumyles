@@ -338,7 +338,7 @@ export default function AISupportPage() {
         priority: newPriority,
         tenantId: selectedTenantId,
         userId: selectedUserId,
-        submittedBy: "platform_admin",
+        submittedBy: "super_admin",
         contactInfo: newEmail ? { email: newEmail } : selectedUser?.email ? { email: selectedUser.email } : undefined,
         tags: newTags
           ? newTags
@@ -366,7 +366,7 @@ export default function AISupportPage() {
         ticketId: String(ticket._id),
         analysisType: "sentiment",
         context: `${ticket.title}\n${ticket.description}`,
-        requestedBy: "platform_admin",
+        requestedBy: "super_admin",
       });
       toast.success("AI analysis refreshed");
     } catch (error) {
@@ -384,7 +384,7 @@ export default function AISupportPage() {
         responseType,
         tone: "professional",
         includeSuggestions: true,
-        requestedBy: "platform_admin",
+        requestedBy: "super_admin",
       });
       toast.success(response?.message ?? "AI response generated");
     } catch (error) {
@@ -401,7 +401,7 @@ export default function AISupportPage() {
         ticketId: String(ticket._id),
         escalationReason: "Platform admin requested human follow-up after AI review.",
         urgency: ticket.priority === "urgent" ? "critical" : ticket.priority === "high" ? "high" : "medium",
-        escalatedBy: "platform_admin",
+        escalatedBy: "super_admin",
       });
       toast.success(response?.message ?? "Ticket escalated");
     } catch (error) {

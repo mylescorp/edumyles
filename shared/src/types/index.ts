@@ -33,8 +33,9 @@ export interface Tenant {
 // Users & Roles
 // ----------------------------------------------------------
 export type UserRole =
-  | "platform_admin" // Mylesoft staff — cross-tenant access
   | "master_admin" // Platform super-admin
+  | "super_admin" // Platform operations admin
+  | "platform_admin" // Deprecated alias; normalize to super_admin on read
   | "school_admin" // Full access within their tenant
   | "principal"
   | "teacher"
@@ -149,6 +150,81 @@ export interface Payment {
   paidAt?: number;
   createdAt: number;
   updatedAt: number;
+}
+
+export interface StaffRecord {
+  _id: string;
+  tenantId: TenantId;
+  userId?: string;
+  staffId: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole | string;
+  department?: string;
+  phone?: string;
+  email?: string;
+  isActive: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface SchoolClass {
+  _id: string;
+  tenantId: TenantId;
+  name: string;
+  gradeLevel?: string;
+  streamIds?: string[];
+  classTeacherId?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Stream {
+  _id: string;
+  tenantId: TenantId;
+  classId: string;
+  name: string;
+  capacity?: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Invoice {
+  _id: string;
+  tenantId: TenantId;
+  studentId: string;
+  invoiceNumber?: string;
+  amount: number;
+  currency: string;
+  status: "pending" | "partially_paid" | "paid" | "overdue" | "cancelled";
+  dueDate?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface LedgerEntry {
+  _id: string;
+  tenantId: TenantId;
+  studentId: string;
+  invoiceId?: string;
+  paymentId?: string;
+  type: "charge" | "payment" | "adjustment" | "refund";
+  amount: number;
+  currency: string;
+  description: string;
+  createdAt: number;
+}
+
+export interface AppNotification {
+  _id: string;
+  tenantId: TenantId;
+  userId: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  link?: string;
+  createdAt: number;
 }
 
 // ----------------------------------------------------------

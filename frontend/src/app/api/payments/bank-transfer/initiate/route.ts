@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const sessionToken =
       cookieStore.get("edumyles_session")?.value ?? cookieStore.get("edumyles-session")?.value;
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
 
     if (!sessionToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing invoiceId" }, { status: 400 });
     }
 
-    const session = await convex.query(api.sessions.getSession, { sessionToken });
+    const session = await convex.query(api.sessions.getSession, { sessionToken, serverSecret });
     if (!session) {
       return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 });
     }

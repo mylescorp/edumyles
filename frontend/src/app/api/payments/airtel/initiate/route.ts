@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     const sessionToken =
       cookieStore.get("edumyles_session")?.value ?? 
       cookieStore.get("edumyles-session")?.value;
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
     
     if (!sessionToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing invoiceId or phone" }, { status: 400 });
     }
 
-    const session = await convex.query(api.sessions.getSession, { sessionToken });
+    const session = await convex.query(api.sessions.getSession, { sessionToken, serverSecret });
     if (!session) {
       return NextResponse.json({ error: "Invalid or expired session" }, { status: 401 });
     }
@@ -69,15 +70,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invoice not eligible for payment" }, { status: 400 });
     }
 
-    const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
-    if (!webhookSecret) {
+    if (!serverSecret) {
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
     // Normalize phone number and detect country
     const normalizedPhone = normalizePhone(phone);
     const result = await convex.action(api.modules.finance.actions.initiateAirtelPayment, {
-      webhookSecret,
+      webhookSecret: serverSecret,
       tenantId: session.tenantId,
       invoiceId: String(invoiceId),
       phoneNumber: normalizedPhone,

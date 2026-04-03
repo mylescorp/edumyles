@@ -2,14 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "npm --workspace landing run build",
-  "outputDirectory": "landing/.next",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/tenant-handler"
-    }
-  ],
+  "buildCommand": "npm --workspace frontend run build",
+  "outputDirectory": "frontend/.next",
   "headers": [
     {
       "source": "/(.*)",
@@ -21,10 +15,5 @@
         { "key": "Permissions-Policy",        "value": "camera=(), microphone=(), geolocation=()" }
       ]
     }
-  ],
-  "functions": {
-    "app/api/tenant-handler/route.ts": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
