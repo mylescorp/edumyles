@@ -258,7 +258,7 @@ export const sendWalletTransfer = mutation({
       .filter((q) => q.eq(q.field("admissionNumber"), args.recipientAdmissionNumber))
       .first();
 
-    if (!recipient || !recipient.isActive) {
+    if (!recipient || recipient.status !== "active") {
       throw new Error("Recipient student was not found");
     }
 
