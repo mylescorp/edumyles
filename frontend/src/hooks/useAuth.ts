@@ -97,6 +97,7 @@ function buildFallbackSessionFromCookies(): Session | null {
       email?: string;
       role?: string;
       tenantId?: string;
+      sessionToken?: string;
     };
 
     if (!user.email) return null;
@@ -106,9 +107,10 @@ function buildFallbackSessionFromCookies(): Session | null {
 
     return {
       sessionToken:
-        storedSession?.email === user.email
+        user.sessionToken ||
+        (storedSession?.email === user.email
           ? storedSession.sessionToken
-          : "",
+          : ""),
       tenantId:
         storedSession?.email === user.email
           ? storedSession.tenantId || tenantId

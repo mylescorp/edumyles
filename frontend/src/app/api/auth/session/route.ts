@@ -193,6 +193,7 @@ function setSessionCookies(
       lastName: user.lastName ?? "",
       role,
       tenantId,
+      sessionToken,
     }),
     {
       httpOnly: false,
@@ -300,6 +301,31 @@ export async function GET(req: NextRequest) {
             },
           });
           const isProduction = process.env.NODE_ENV === "production";
+          const userCookie = req.cookies.get("edumyles_user")?.value;
+          if (userCookie) {
+            try {
+              const parsedUser = JSON.parse(userCookie);
+              response.cookies.set(
+                "edumyles_user",
+                JSON.stringify({
+                  ...parsedUser,
+                  email: session.email,
+                  role: normalizedRole,
+                  tenantId: normalizedTenantId,
+                  sessionToken: session.sessionToken,
+                }),
+                {
+                  httpOnly: false,
+                  secure: isProduction,
+                  sameSite: "lax",
+                  maxAge: 30 * 24 * 60 * 60,
+                  path: "/",
+                }
+              );
+            } catch {
+              // Ignore malformed companion cookie and continue with session response.
+            }
+          }
           response.cookies.set("edumyles_role", normalizedRole, {
             httpOnly: false,
             secure: isProduction,

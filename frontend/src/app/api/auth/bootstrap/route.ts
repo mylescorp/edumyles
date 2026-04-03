@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
       try {
         const userData = JSON.parse(decodeURIComponent(userCookie));
         userData.role = "master_admin";
+        userData.sessionToken = sessionToken;
         response.cookies.set("edumyles_user", JSON.stringify(userData), {
           httpOnly: false,
           secure: isProduction,

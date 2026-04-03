@@ -314,6 +314,7 @@ function setSessionCookies(
       lastName: user.lastName ?? "",
       role,
       tenantId,
+      sessionToken,
     }),
     {
       httpOnly: false,
