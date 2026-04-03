@@ -50,6 +50,8 @@ export default function TransportPage() {
   const { toast } = useToast();
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
   const [isDriverDialogOpen, setIsDriverDialogOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<VehicleRecord | null>(null);
+  const [editingDriver, setEditingDriver] = useState<DriverRecord | null>(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [selectedDriverId, setSelectedDriverId] = useState("");
   const [vehicleForm, setVehicleForm] = useState({
@@ -86,6 +88,9 @@ export default function TransportPage() {
   const createVehicle = useMutation(api.modules.transport.mutations.createVehicle);
   const createDriver = useMutation(api.modules.transport.mutations.createDriver);
   const assignDriverToVehicle = useMutation(api.modules.transport.mutations.assignDriverToVehicle);
+  const updateVehicle = useMutation(api.modules.transport.mutations.updateVehicle);
+  const updateDriver = useMutation(api.modules.transport.mutations.updateDriver);
+  const unassignDriverFromVehicle = useMutation(api.modules.transport.mutations.unassignDriverFromVehicle);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -153,6 +158,36 @@ export default function TransportPage() {
       header: "Status",
       cell: (row) => <Badge variant={row.status === "active" ? "default" : "secondary"}>{row.status}</Badge>,
     },
+    {
+      key: "actions",
+      header: "",
+      cell: (row) => (
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditingVehicle(row);
+              setVehicleForm({
+                plateNumber: row.plateNumber,
+                capacity: String(row.capacity),
+                routeId: row.routeId ?? "",
+                driverId: row.driverId ?? "",
+                status: row.status,
+              });
+              setIsVehicleDialogOpen(true);
+            }}
+          >
+            Manage
+          </Button>
+          {row.driverId && (
+            <Button size="sm" variant="ghost" onClick={() => handleUnassignDriver(row._id as Id<"vehicles">)}>
+              Unassign Driver
+            </Button>
+          )}
+        </div>
+      ),
+    },
   ];
 
   const driverColumns: Column<DriverRecord>[] = [
@@ -172,6 +207,28 @@ export default function TransportPage() {
       header: "Status",
       cell: (row) => <Badge variant={row.status === "active" ? "default" : "secondary"}>{row.status.replaceAll("_", " ")}</Badge>,
     },
+    {
+      key: "actions",
+      header: "",
+      cell: (row) => (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setEditingDriver(row);
+            setDriverForm({
+              firstName: row.firstName,
+              lastName: row.lastName,
+              phone: row.phone,
+              status: row.status,
+            });
+            setIsDriverDialogOpen(true);
+          }}
+        >
+          Manage
+        </Button>
+      ),
+    },
   ];
 
   const handleCreateVehicle = async () => {
@@ -187,16 +244,27 @@ export default function TransportPage() {
 
     setSavingVehicle(true);
     try {
-      await createVehicle({
-        plateNumber: vehicleForm.plateNumber.trim().toUpperCase(),
-        capacity,
-        routeId: vehicleForm.routeId || undefined,
-        driverId: vehicleForm.driverId || undefined,
-        status: vehicleForm.status,
-      });
+      if (editingVehicle) {
+        await updateVehicle({
+          vehicleId: editingVehicle._id as Id<"vehicles">,
+          plateNumber: vehicleForm.plateNumber.trim().toUpperCase(),
+          capacity,
+          routeId: vehicleForm.routeId || undefined,
+          driverId: vehicleForm.driverId || undefined,
+          status: vehicleForm.status,
+        });
+      } else {
+        await createVehicle({
+          plateNumber: vehicleForm.plateNumber.trim().toUpperCase(),
+          capacity,
+          routeId: vehicleForm.routeId || undefined,
+          driverId: vehicleForm.driverId || undefined,
+          status: vehicleForm.status,
+        });
+      }
       toast({
-        title: "Vehicle created",
-        description: `${vehicleForm.plateNumber.toUpperCase()} is now part of the fleet.`,
+        title: editingVehicle ? "Vehicle updated" : "Vehicle created",
+        description: `${vehicleForm.plateNumber.toUpperCase()} is now ${editingVehicle ? "updated in" : "part of"} the fleet.`,
       });
       setVehicleForm({
         plateNumber: "",
@@ -205,6 +273,7 @@ export default function TransportPage() {
         driverId: "",
         status: "active",
       });
+      setEditingVehicle(null);
       setIsVehicleDialogOpen(false);
     } catch (error) {
       toast({
@@ -229,14 +298,24 @@ export default function TransportPage() {
 
     setSavingDriver(true);
     try {
-      await createDriver({
-        firstName: driverForm.firstName.trim(),
-        lastName: driverForm.lastName.trim(),
-        phone: driverForm.phone.trim(),
-        status: driverForm.status,
-      });
+      if (editingDriver) {
+        await updateDriver({
+          driverId: editingDriver._id as Id<"drivers">,
+          firstName: driverForm.firstName.trim(),
+          lastName: driverForm.lastName.trim(),
+          phone: driverForm.phone.trim(),
+          status: driverForm.status,
+        });
+      } else {
+        await createDriver({
+          firstName: driverForm.firstName.trim(),
+          lastName: driverForm.lastName.trim(),
+          phone: driverForm.phone.trim(),
+          status: driverForm.status,
+        });
+      }
       toast({
-        title: "Driver created",
+        title: editingDriver ? "Driver updated" : "Driver created",
         description: `${driverForm.firstName} ${driverForm.lastName} is now available for assignment.`,
       });
       setDriverForm({
@@ -245,6 +324,7 @@ export default function TransportPage() {
         phone: "",
         status: "active",
       });
+      setEditingDriver(null);
       setIsDriverDialogOpen(false);
     } catch (error) {
       toast({
@@ -287,6 +367,22 @@ export default function TransportPage() {
       });
     } finally {
       setAssigningDriver(false);
+    }
+  };
+
+  const handleUnassignDriver = async (vehicleId: Id<"vehicles">) => {
+    try {
+      await unassignDriverFromVehicle({ vehicleId });
+      toast({
+        title: "Driver unassigned",
+        description: "The vehicle is now available for reassignment.",
+      });
+    } catch (error) {
+      toast({
+        title: "Unable to unassign driver",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -445,10 +541,22 @@ export default function TransportPage() {
         </TabsContent>
       </Tabs>
 
-      <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
+      <Dialog open={isVehicleDialogOpen} onOpenChange={(open) => {
+        setIsVehicleDialogOpen(open);
+        if (!open) {
+          setEditingVehicle(null);
+          setVehicleForm({
+            plateNumber: "",
+            capacity: "",
+            routeId: "",
+            driverId: "",
+            status: "active",
+          });
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Vehicle</DialogTitle>
+            <DialogTitle>{editingVehicle ? "Manage Vehicle" : "Add Vehicle"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -523,17 +631,28 @@ export default function TransportPage() {
                 Cancel
               </Button>
               <Button type="button" onClick={handleCreateVehicle} disabled={savingVehicle}>
-                {savingVehicle ? "Saving..." : "Create Vehicle"}
+                {savingVehicle ? "Saving..." : editingVehicle ? "Save Vehicle" : "Create Vehicle"}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isDriverDialogOpen} onOpenChange={setIsDriverDialogOpen}>
+      <Dialog open={isDriverDialogOpen} onOpenChange={(open) => {
+        setIsDriverDialogOpen(open);
+        if (!open) {
+          setEditingDriver(null);
+          setDriverForm({
+            firstName: "",
+            lastName: "",
+            phone: "",
+            status: "active",
+          });
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Driver</DialogTitle>
+            <DialogTitle>{editingDriver ? "Manage Driver" : "Add Driver"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -580,7 +699,7 @@ export default function TransportPage() {
                 Cancel
               </Button>
               <Button type="button" onClick={handleCreateDriver} disabled={savingDriver}>
-                {savingDriver ? "Saving..." : "Create Driver"}
+                {savingDriver ? "Saving..." : editingDriver ? "Save Driver" : "Create Driver"}
               </Button>
             </div>
           </div>

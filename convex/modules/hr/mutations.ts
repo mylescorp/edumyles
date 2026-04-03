@@ -1,12 +1,13 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { logAction } from "../../helpers/auditLog";
 
 export const createStaff = mutation({
     args: {
+        sessionToken: v.optional(v.string()),
         employeeId: v.string(),
         firstName: v.string(),
         lastName: v.string(),
@@ -19,13 +20,16 @@ export const createStaff = mutation({
         status: v.string(),
     },
     handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "hr");
         requirePermission(tenant, "staff:write");
 
+        const { sessionToken: _sessionToken, ...staffArgs } = args;
         const staffId = await ctx.db.insert("staff", {
             tenantId: tenant.tenantId,
-            ...args,
+            ...staffArgs,
             createdAt: Date.now(),
             updatedAt: Date.now(),
         });
@@ -37,7 +41,7 @@ export const createStaff = mutation({
             action: "staff.created",
             entityType: "staff",
             entityId: staffId,
-            after: args,
+            after: staffArgs,
         });
 
         return staffId;
@@ -211,6 +215,39 @@ export const approveLeaveRequest = mutation({
     },
 });
 
+export const cancelLeaveRequest = mutation({
+    args: { leaveId: v.id("staffLeave") },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "staff:write");
+
+        const leave = await ctx.db.get(args.leaveId);
+        if (!leave || leave.tenantId !== tenant.tenantId) throw new Error("Leave request not found");
+        if (["cancelled", "rejected"].includes(leave.status)) {
+            throw new Error("This leave request is already closed");
+        }
+
+        await ctx.db.patch(args.leaveId, {
+            status: "cancelled",
+            updatedAt: Date.now(),
+        });
+
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "leave.cancelled",
+            entityType: "staffLeave",
+            entityId: args.leaveId,
+            before: leave,
+            after: { ...leave, status: "cancelled" },
+        });
+
+        return args.leaveId;
+    },
+});
+
 export const createPayrollRun = mutation({
     args: {
         periodLabel: v.string(),
@@ -232,6 +269,98 @@ export const createPayrollRun = mutation({
             updatedAt: Date.now(),
         });
         return id;
+    },
+});
+
+export const generatePayrollPayslips = mutation({
+    args: { payrollRunId: v.id("payrollRuns") },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "payroll:write");
+
+        const payrollRun = await ctx.db.get(args.payrollRunId);
+        if (!payrollRun || payrollRun.tenantId !== tenant.tenantId) {
+            throw new Error("Payroll run not found");
+        }
+        if (["completed", "cancelled"].includes(payrollRun.status)) {
+            throw new Error("Payslips cannot be generated for a completed or cancelled payroll run");
+        }
+
+        const staffMembers = await ctx.db
+            .query("staff")
+            .withIndex("by_tenant_status", (q) => q.eq("tenantId", tenant.tenantId).eq("status", "active"))
+            .collect();
+
+        const contracts = await ctx.db
+            .query("staffContracts")
+            .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+            .collect();
+
+        const existingPayslips = await ctx.db
+            .query("payslips")
+            .withIndex("by_payroll", (q) => q.eq("payrollRunId", args.payrollRunId))
+            .collect();
+
+        const existingByStaff = new Set(existingPayslips.map((p) => p.staffId));
+        const activeContracts = new Map(
+            contracts
+                .filter((contract) => contract.status === "active")
+                .map((contract) => [contract.staffId, contract])
+        );
+
+        let created = 0;
+        let skipped = 0;
+        const now = Date.now();
+
+        for (const staff of staffMembers) {
+            if (existingByStaff.has(staff._id)) {
+                skipped += 1;
+                continue;
+            }
+
+            const contract = activeContracts.get(staff._id);
+            if (!contract) {
+                skipped += 1;
+                continue;
+            }
+
+            const basicCents = contract.salaryCents ?? 0;
+            await ctx.db.insert("payslips", {
+                tenantId: tenant.tenantId,
+                payrollRunId: args.payrollRunId,
+                staffId: staff._id,
+                basicCents,
+                allowancesCents: 0,
+                deductionsCents: 0,
+                netCents: basicCents,
+                currency: contract.currency || "KES",
+                status: "draft",
+                createdAt: now,
+                updatedAt: now,
+            });
+            created += 1;
+        }
+
+        await ctx.db.patch(args.payrollRunId, {
+            status: created > 0 && payrollRun.status === "draft" ? "pending" : payrollRun.status,
+            updatedAt: now,
+        });
+
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "payroll.processed",
+            entityType: "payrollRun",
+            entityId: args.payrollRunId.toString(),
+            after: {
+                createdPayslips: created,
+                skippedStaff: skipped,
+            },
+        });
+
+        return { created, skipped };
     },
 });
 

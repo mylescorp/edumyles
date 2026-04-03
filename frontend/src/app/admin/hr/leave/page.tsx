@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 import { Id } from "@/convex/_generated/dataModel";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 type LeaveRequest = {
     _id: Id<"staffLeave">;
@@ -32,10 +34,11 @@ const statusColors: Record<string, "default" | "secondary" | "destructive" | "ou
 export default function LeaveRequestsPage() {
     const { isLoading, sessionToken } = useAuth();
     const { toast } = useToast();
+    const [statusFilter, setStatusFilter] = useState("all");
 
     const leaveRequests = useQuery(
         api.modules.hr.queries.listLeave,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken, status: statusFilter === "all" ? undefined : statusFilter } : "skip"
     );
 
     const staff = useQuery(
@@ -44,6 +47,7 @@ export default function LeaveRequestsPage() {
     );
 
     const approveLeaveRequest = useMutation(api.modules.hr.mutations.approveLeaveRequest);
+    const cancelLeaveRequest = useMutation(api.modules.hr.mutations.cancelLeaveRequest);
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -59,6 +63,22 @@ export default function LeaveRequestsPage() {
         } catch (error) {
             toast({
                 title: "Unable to update leave request",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleCancel = async (leaveId: Id<"staffLeave">) => {
+        try {
+            await cancelLeaveRequest({ leaveId });
+            toast({
+                title: "Leave cancelled",
+                description: "The leave request has been cancelled and closed.",
+            });
+        } catch (error) {
+            toast({
+                title: "Unable to cancel leave request",
                 description: error instanceof Error ? error.message : "Please try again.",
                 variant: "destructive",
             });
@@ -100,18 +120,31 @@ export default function LeaveRequestsPage() {
         {
             key: "actions",
             header: "",
-            cell: (row: LeaveRequest) => row.status === "pending" ? (
-                <div className="flex gap-2">
-                    <Button size="sm" onClick={() => handleDecision(row._id, true)}>
-                        Approve
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleDecision(row._id, false)}>
-                        Reject
-                    </Button>
-                </div>
-            ) : (
-                <span className="text-sm text-muted-foreground">Reviewed</span>
-            ),
+            cell: (row: LeaveRequest) => {
+                if (row.status === "pending") {
+                    return (
+                        <div className="flex gap-2">
+                            <Button size="sm" onClick={() => handleDecision(row._id, true)}>
+                                Approve
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleDecision(row._id, false)}>
+                                Reject
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => handleCancel(row._id)}>
+                                Cancel
+                            </Button>
+                        </div>
+                    );
+                }
+                if (row.status === "approved") {
+                    return (
+                        <Button size="sm" variant="ghost" onClick={() => handleCancel(row._id)}>
+                            Cancel
+                        </Button>
+                    );
+                }
+                return <span className="text-sm text-muted-foreground">Reviewed</span>;
+            },
         },
     ];
 
@@ -122,11 +155,27 @@ export default function LeaveRequestsPage() {
                 description="Review and manage staff leave applications"
             />
 
+            <div className="max-w-xs">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Requests</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="approved">Approved</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
             <DataTable
                 data={(leaveRequests as LeaveRequest[]) ?? []}
                 columns={columns}
                 searchable
                 searchPlaceholder="Search by staff name or type..."
+                searchKey={(row) => `${staffMap.get(row.staffId as any) ?? ""} ${row.type} ${row.status}`}
                 emptyTitle="No leave requests found"
                 emptyDescription="Staff leave requests will appear here for review."
             />

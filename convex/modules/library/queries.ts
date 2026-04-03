@@ -177,6 +177,48 @@ export const getOverdueBorrows = query({
     },
 });
 
+/** Borrow history, optionally filtered by status. */
+export const listBorrowHistory = query({
+    args: {
+        status: v.optional(v.string()),
+        limit: v.optional(v.number()),
+        sessionToken: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        try {
+            const tenant = args.sessionToken
+                ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+                : await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "library");
+            requirePermission(tenant, "library:read");
+
+            const borrows = args.status
+                ? await ctx.db
+                    .query("bookBorrows")
+                    .withIndex("by_tenant_status", (q) =>
+                        q.eq("tenantId", tenant.tenantId).eq("status", args.status!)
+                    )
+                    .collect()
+                : await ctx.db
+                    .query("bookBorrows")
+                    .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                    .collect();
+
+            const sorted = [...borrows].sort((a, b) => {
+                const aTime = a.returnedAt ?? a.borrowedAt ?? a.createdAt ?? 0;
+                const bTime = b.returnedAt ?? b.borrowedAt ?? b.createdAt ?? 0;
+                return bTime - aTime;
+            });
+
+            const limited = args.limit ? sorted.slice(0, args.limit) : sorted;
+            return await enrichBorrowRecords(ctx, limited);
+        } catch (error) {
+            console.error("listBorrowHistory failed", error);
+            return [];
+        }
+    },
+});
+
 /** Low stock: books where availableQuantity <= threshold. */
 export const getLowStockBooks = query({
     args: { threshold: v.optional(v.number()), sessionToken: v.optional(v.string()) },

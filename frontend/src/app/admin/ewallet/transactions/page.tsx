@@ -151,6 +151,9 @@ export default function TransactionsPage() {
                         <SelectItem value="credit">Credits only</SelectItem>
                         <SelectItem value="debit">Debits only</SelectItem>
                         <SelectItem value="admin_top_up">Admin top-ups</SelectItem>
+                        <SelectItem value="admin_adjustment_credit">Admin adjustment credits</SelectItem>
+                        <SelectItem value="admin_adjustment_debit">Admin adjustment debits</SelectItem>
+                        <SelectItem value="order_refund">Order refunds</SelectItem>
                         <SelectItem value="transfer_in">Transfer in</SelectItem>
                         <SelectItem value="transfer_out">Transfer out</SelectItem>
                         <SelectItem value="withdrawal">Withdrawals</SelectItem>

@@ -333,6 +333,82 @@ export const adminTopUp = mutation({
   },
 });
 
+export const adminAdjustWallet = mutation({
+  args: {
+    sessionToken: v.string(),
+    targetOwnerId: v.string(),
+    targetOwnerType: v.string(),
+    amountCents: v.number(),
+    note: v.string(),
+    currency: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    await requireModule(ctx, tenant.tenantId, "ewallet");
+    requirePermission(tenant, "ewallet:write");
+
+    if (args.amountCents === 0) {
+      throw new Error("Adjustment amount cannot be zero");
+    }
+
+    const wallet = await getOrCreateWallet(
+      ctx,
+      tenant.tenantId,
+      args.targetOwnerId,
+      args.targetOwnerType,
+      args.currency
+    );
+
+    if (wallet.frozen) {
+      throw new Error("Wallet is frozen");
+    }
+
+    const nextBalance = wallet.balanceCents + args.amountCents;
+    if (nextBalance < 0) {
+      throw new Error("Adjustment would overdraw the wallet");
+    }
+
+    const now = Date.now();
+    const reference = `ADJ-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    const transactionType = args.amountCents > 0 ? "admin_adjustment_credit" : "admin_adjustment_debit";
+
+    await ctx.db.insert("walletTransactions", {
+      tenantId: tenant.tenantId,
+      walletId: wallet._id,
+      type: transactionType,
+      amountCents: args.amountCents,
+      reference,
+      note: args.note,
+      performedBy: tenant.userId,
+      createdAt: now,
+    });
+
+    await ctx.db.patch(wallet._id, {
+      balanceCents: nextBalance,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "payment.recorded",
+      entityType: "wallet",
+      entityId: wallet._id.toString(),
+      after: {
+        type: transactionType,
+        amountCents: args.amountCents,
+        targetOwnerId: args.targetOwnerId,
+        reference,
+        note: args.note,
+        newBalanceCents: nextBalance,
+      },
+    });
+
+    return { success: true, reference, newBalanceCents: nextBalance };
+  },
+});
+
 /**
  * Freeze a wallet — prevents all debits and credits.
  * Requires ewallet:write and school_admin/bursar role.

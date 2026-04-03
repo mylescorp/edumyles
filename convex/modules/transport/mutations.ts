@@ -111,6 +111,45 @@ export const createVehicle = mutation({
     },
 });
 
+export const updateVehicle = mutation({
+    args: {
+        vehicleId: v.id("vehicles"),
+        plateNumber: v.optional(v.string()),
+        capacity: v.optional(v.number()),
+        routeId: v.optional(v.string()),
+        driverId: v.optional(v.string()),
+        status: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "transport");
+        requirePermission(tenant, "transport:write");
+
+        const vehicle = await ctx.db.get(args.vehicleId);
+        if (!vehicle || vehicle.tenantId !== tenant.tenantId) throw new Error("Vehicle not found");
+
+        const updates: Record<string, unknown> = { updatedAt: Date.now() };
+        if (args.plateNumber !== undefined) updates.plateNumber = args.plateNumber;
+        if (args.capacity !== undefined) updates.capacity = args.capacity;
+        if (args.routeId !== undefined) updates.routeId = args.routeId;
+        if (args.driverId !== undefined) updates.driverId = args.driverId;
+        if (args.status !== undefined) updates.status = args.status;
+
+        await ctx.db.patch(args.vehicleId, updates);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.vehicle_updated",
+            entityType: "vehicle",
+            entityId: args.vehicleId.toString(),
+            before: vehicle,
+            after: { ...vehicle, ...updates },
+        });
+        return args.vehicleId;
+    },
+});
+
 export const assignDriverToVehicle = mutation({
     args: { vehicleId: v.id("vehicles"), driverId: v.string() },
     handler: async (ctx, args) => {
@@ -120,12 +159,38 @@ export const assignDriverToVehicle = mutation({
 
         const vehicle = await ctx.db.get(args.vehicleId);
         if (!vehicle || vehicle.tenantId !== tenant.tenantId) throw new Error("Vehicle not found");
+        const driver = await ctx.db.get(args.driverId as any);
+        if (!driver || driver.tenantId !== tenant.tenantId) throw new Error("Driver not found");
+
+        if (vehicle.driverId && vehicle.driverId !== args.driverId) {
+            const previousDriver = await ctx.db.get(vehicle.driverId as any);
+            if (previousDriver && previousDriver.tenantId === tenant.tenantId) {
+                await ctx.db.patch(previousDriver._id, {
+                    vehicleId: undefined,
+                    updatedAt: Date.now(),
+                });
+            }
+        }
+
+        if (driver.vehicleId && driver.vehicleId !== args.vehicleId) {
+            const previousVehicle = await ctx.db.get(driver.vehicleId as any);
+            if (previousVehicle && previousVehicle.tenantId === tenant.tenantId) {
+                await ctx.db.patch(previousVehicle._id, {
+                    driverId: undefined,
+                    updatedAt: Date.now(),
+                });
+            }
+        }
 
         const updates = {
             driverId: args.driverId,
             updatedAt: Date.now(),
         };
         await ctx.db.patch(args.vehicleId, updates);
+        await ctx.db.patch(driver._id, {
+            vehicleId: args.vehicleId,
+            updatedAt: Date.now(),
+        });
         await logAction(ctx, {
             tenantId: tenant.tenantId,
             actorId: tenant.userId,
@@ -137,6 +202,33 @@ export const assignDriverToVehicle = mutation({
             after: { ...vehicle, ...updates },
         });
         return args.vehicleId;
+    },
+});
+
+export const unassignDriverFromVehicle = mutation({
+    args: { vehicleId: v.id("vehicles") },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "transport");
+        requirePermission(tenant, "transport:write");
+
+        const vehicle = await ctx.db.get(args.vehicleId);
+        if (!vehicle || vehicle.tenantId !== tenant.tenantId) throw new Error("Vehicle not found");
+        if (!vehicle.driverId) throw new Error("This vehicle does not have a driver assigned");
+
+        const driver = await ctx.db.get(vehicle.driverId as any);
+        await ctx.db.patch(args.vehicleId, {
+            driverId: undefined,
+            updatedAt: Date.now(),
+        });
+        if (driver && driver.tenantId === tenant.tenantId) {
+            await ctx.db.patch(driver._id, {
+                vehicleId: undefined,
+                updatedAt: Date.now(),
+            });
+        }
+
+        return { success: true };
     },
 });
 
@@ -177,6 +269,43 @@ export const createDriver = mutation({
             },
         });
         return driverId;
+    },
+});
+
+export const updateDriver = mutation({
+    args: {
+        driverId: v.id("drivers"),
+        firstName: v.optional(v.string()),
+        lastName: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        status: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "transport");
+        requirePermission(tenant, "transport:write");
+
+        const driver = await ctx.db.get(args.driverId);
+        if (!driver || driver.tenantId !== tenant.tenantId) throw new Error("Driver not found");
+
+        const updates: Record<string, unknown> = { updatedAt: Date.now() };
+        if (args.firstName !== undefined) updates.firstName = args.firstName;
+        if (args.lastName !== undefined) updates.lastName = args.lastName;
+        if (args.phone !== undefined) updates.phone = args.phone;
+        if (args.status !== undefined) updates.status = args.status;
+
+        await ctx.db.patch(args.driverId, updates);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.driver_updated",
+            entityType: "driver",
+            entityId: args.driverId.toString(),
+            before: driver,
+            after: { ...driver, ...updates },
+        });
+        return args.driverId;
     },
 });
 
@@ -243,5 +372,29 @@ export const assignStudentToRoute = mutation({
             },
         });
         return assignmentId;
+    },
+});
+
+export const removeStudentAssignment = mutation({
+    args: { assignmentId: v.id("transportAssignments") },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "transport");
+        requirePermission(tenant, "transport:write");
+
+        const assignment = await ctx.db.get(args.assignmentId);
+        if (!assignment || assignment.tenantId !== tenant.tenantId) throw new Error("Assignment not found");
+
+        await ctx.db.delete(args.assignmentId);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "transport.assignment_removed",
+            entityType: "transportAssignment",
+            entityId: args.assignmentId.toString(),
+            before: assignment,
+        });
+        return { success: true };
     },
 });

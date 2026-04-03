@@ -66,6 +66,9 @@ export function requirePermission(
   ctx: TenantContext,
   permission: Permission
 ): void {
+  if (ctx.permissions.includes("*")) {
+    return;
+  }
   const normalizedRole = normalizeRole(ctx.role);
   const permissions = normalizedRole ? ROLE_PERMISSIONS[normalizedRole] ?? [] : [];
   if (!permissions.includes(permission)) {

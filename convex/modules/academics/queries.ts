@@ -34,9 +34,12 @@ export const getTeacherClasses = query({
 export const getClassStudents = query({
   args: {
     classId: v.string(),
+    sessionToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "sis");
     requirePermission(tenant, "students:read");
 
@@ -57,9 +60,12 @@ export const getGrades = query({
     classId: v.string(),
     subjectId: v.string(),
     term: v.string(),
+    sessionToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:read");
 
@@ -147,9 +153,12 @@ export const getAttendance = query({
   args: {
     classId: v.string(),
     date: v.string(),
+    sessionToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "attendance:read");
 
@@ -167,9 +176,13 @@ export const getAttendance = query({
  * Get academics dashboard statistics.
  */
 export const getAcademicsStats = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenant = await requireTenantContext(ctx);
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "students:read");
 
@@ -215,10 +228,13 @@ export const getAcademicsStats = query({
  */
 export const getRecentExams = query({
   args: {
+    sessionToken: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:read");
 
@@ -274,10 +290,13 @@ export const getRecentExams = query({
  */
 export const getUpcomingEvents = query({
   args: {
+    sessionToken: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "students:read");
 

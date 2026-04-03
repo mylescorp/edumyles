@@ -59,6 +59,10 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
     api.modules.academics.queries.getTeacherClasses,
     sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
   );
+  const teacherProfile = useQuery(
+    api.modules.hr.queries.getCurrentStaffProfile,
+    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+  );
   const teacherAssignmentsCount = useQuery(
     api.modules.academics.queries.getTeacherActiveAssignmentsCount,
     sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
@@ -88,6 +92,10 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
   const resolvedTeacherClasses = useCachedQueryValue<any[]>(
     'teacher.dashboard.classes',
     teacherClasses,
+  );
+  const resolvedTeacherProfile = useCachedQueryValue<any>(
+    'teacher.dashboard.profile',
+    teacherProfile,
   );
   const resolvedTeacherAssignmentsCount = useCachedQueryValue<number>(
     'teacher.dashboard.activeAssignments',
@@ -238,8 +246,16 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
         {isOffline && <Text style={styles.offlineNotice}>Showing the latest cached teacher data.</Text>}
         <View style={styles.hero}>
           <Text style={styles.eyebrow}>Teacher Portal</Text>
-          <Text style={styles.heroTitle}>{user?.email?.split('@')[0] ?? 'Teacher'}</Text>
-          <Text style={styles.heroSubtitle}>Your class and assignment snapshot for today</Text>
+          <Text style={styles.heroTitle}>
+            {resolvedTeacherProfile
+              ? [resolvedTeacherProfile.firstName, resolvedTeacherProfile.lastName].filter(Boolean).join(' ')
+              : user?.email?.split('@')[0] ?? 'Teacher'}
+          </Text>
+          <Text style={styles.heroSubtitle}>
+            {resolvedTeacherProfile?.department
+              ? `${resolvedTeacherProfile.department} department`
+              : 'Your class and assignment snapshot for today'}
+          </Text>
         </View>
 
         <View style={styles.grid}>
@@ -269,6 +285,9 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
               <Text style={styles.listMeta}>
                 Grade {cls.grade ?? '—'} • {cls.studentCount ?? 0} students
               </Text>
+              {resolvedTeacherProfile?.employeeId ? (
+                <Text style={styles.listMeta}>Staff ID: {resolvedTeacherProfile.employeeId}</Text>
+              ) : null}
             </View>
           ))}
         </View>

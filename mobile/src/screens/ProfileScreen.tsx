@@ -31,6 +31,10 @@ const ProfileScreen: React.FC = () => {
     api.modules.academics.queries.getTeacherClasses,
     sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
   );
+  const teacherProfile = useQuery(
+    api.modules.hr.queries.getCurrentStaffProfile,
+    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+  );
   const teacherNotifications = useQuery(
     api.modules.communications.queries.listMyNotifications,
     sessionToken && user?.role === 'teacher' ? { sessionToken, limit: 5 } : 'skip',
@@ -47,6 +51,7 @@ const ProfileScreen: React.FC = () => {
     parentAnnouncements,
   );
   const resolvedTeacherClasses = useCachedQueryValue<any[]>('teacher.profile.classes', teacherClasses);
+  const resolvedTeacherProfile = useCachedQueryValue<any>('teacher.profile.staffRecord', teacherProfile);
   const resolvedTeacherNotifications = useCachedQueryValue<any[]>(
     'teacher.profile.notifications',
     teacherNotifications,
@@ -107,9 +112,29 @@ const ProfileScreen: React.FC = () => {
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         {isOffline && <Text style={styles.banner}>Showing cached profile details.</Text>}
         <View style={styles.profileCard}>
-          <Text style={styles.name}>{user.email}</Text>
+          <Text style={styles.name}>
+            {resolvedTeacherProfile
+              ? [resolvedTeacherProfile.firstName, resolvedTeacherProfile.lastName].filter(Boolean).join(' ')
+              : user.email}
+          </Text>
+          <Text style={styles.meta}>{user.email}</Text>
           <Text style={styles.meta}>Role: teacher</Text>
           <Text style={styles.meta}>Classes assigned: {resolvedTeacherClasses.length}</Text>
+          <Text style={styles.meta}>
+            Staff ID: {resolvedTeacherProfile?.employeeId ?? 'Not set'}
+          </Text>
+          <Text style={styles.meta}>
+            Department: {resolvedTeacherProfile?.department ?? 'Not set'}
+          </Text>
+          <Text style={styles.meta}>
+            Qualification: {resolvedTeacherProfile?.qualification ?? 'Not set'}
+          </Text>
+          <Text style={styles.meta}>
+            Phone: {resolvedTeacherProfile?.phone ?? 'Not set'}
+          </Text>
+          <Text style={styles.meta}>
+            Status: {resolvedTeacherProfile?.status ?? 'active'}
+          </Text>
         </View>
 
         <Text style={styles.sectionTitle}>Recent notifications</Text>

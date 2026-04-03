@@ -9,6 +9,7 @@ const MASTER_ADMIN_EMAILS = [
 ]
   .filter((value): value is string => Boolean(value))
   .map((value) => value.toLowerCase());
+const DEV_BOOTSTRAP_VERSION = "full-access-v1";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -65,6 +66,7 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
     userId: "dev-platform-admin",
     email: platformAdminEmail,
     role: "master_admin",
+    permissions: ["*"],
     expiresAt,
   };
 
@@ -117,6 +119,16 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
   }
 
   try {
+    await convex.mutation((api.platform.billing.mutations as any).updateTenantTier, {
+      sessionToken: platformSessionToken,
+      tenantId: tenant.tenantId,
+      plan: "enterprise",
+    });
+  } catch (error) {
+    console.warn("[api/auth/session] Failed to upgrade demo tenant to enterprise:", error);
+  }
+
+  try {
     await convex.mutation((api.modules.marketplace.seed as any).ensureCoreModules, {});
   } catch (error) {
     console.warn("[api/auth/session] Failed to ensure core modules via seed helper:", error);
@@ -139,6 +151,7 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
     userId: tenantAdminUserId,
     email: tenantAdminEmail,
     role: "school_admin",
+    permissions: ["*"],
     expiresAt,
   };
 
@@ -153,6 +166,54 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
       throw error;
     }
     await convex.mutation(createSessionRef, tenantSessionBase);
+  }
+
+  try {
+    const registry = await convex.query((api.modules.marketplace.queries as any).getModuleRegistry, {
+      sessionToken: tenantSessionToken,
+    });
+
+    const moduleIds = Array.isArray(registry)
+      ? registry
+          .map((mod: any) => mod?.moduleId)
+          .filter((moduleId: unknown): moduleId is string => typeof moduleId === "string")
+      : [];
+
+    const optionalModuleIds = moduleIds.filter((moduleId) => !["sis", "communications", "users"].includes(moduleId));
+    const pending = new Set(optionalModuleIds);
+
+    for (let pass = 0; pass < 4 && pending.size > 0; pass += 1) {
+      let progress = false;
+
+      for (const moduleId of [...pending]) {
+        try {
+          await convex.mutation((api.modules.marketplace.mutations as any).installModule, {
+            sessionToken: tenantSessionToken,
+            tenantId: tenant.tenantId,
+            moduleId,
+          });
+          pending.delete(moduleId);
+          progress = true;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          if (
+            message.includes("MODULE_ALREADY_INSTALLED") ||
+            message.includes("already installed")
+          ) {
+            pending.delete(moduleId);
+            progress = true;
+          }
+        }
+      }
+
+      if (!progress) break;
+    }
+
+    if (pending.size > 0) {
+      console.warn("[api/auth/session] Some demo modules could not be installed:", [...pending]);
+    }
+  } catch (error) {
+    console.warn("[api/auth/session] Failed to install full demo module set:", error);
   }
 
   return {
@@ -224,12 +285,18 @@ function setSessionCookies(
  */
 export async function GET(req: NextRequest) {
   try {
+    const currentSessionCookie = req.cookies.get("edumyles_session")?.value;
+    const bootstrapVersion = req.cookies.get("edumyles_dev_bootstrap")?.value;
+
     // Development bypass - only when explicitly enabled AND not in production
     if (
       process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
       process.env.NODE_ENV !== "production" &&
-      (!req.cookies.get("edumyles_session")?.value ||
-        req.cookies.get("edumyles_session")?.value === "dev_session_token")
+      (
+        !currentSessionCookie ||
+        currentSessionCookie === "dev_session_token" ||
+        (currentSessionCookie === "dev-tenant-admin-session" && bootstrapVersion !== DEV_BOOTSTRAP_VERSION)
+      )
     ) {
       const convex = getConvexClient();
 
@@ -254,6 +321,13 @@ export async function GET(req: NextRequest) {
         seeded.role,
         seeded.tenantId
       );
+      response.cookies.set("edumyles_dev_bootstrap", DEV_BOOTSTRAP_VERSION, {
+        httpOnly: false,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60,
+        path: "/",
+      });
 
       return response;
     }

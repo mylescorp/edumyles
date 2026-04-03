@@ -17,6 +17,7 @@ import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 
 type PayrollRun = {
     _id: Id<"payrollRuns">;
@@ -53,6 +54,7 @@ export default function PayrollPage() {
     );
 
     const createPayrollRun = useMutation(api.modules.hr.mutations.createPayrollRun);
+    const generatePayrollPayslips = useMutation(api.modules.hr.mutations.generatePayrollPayslips);
     const approvePayrollRun = useMutation(api.modules.hr.mutations.approvePayrollRun);
     const completePayrollRun = useMutation(api.modules.hr.mutations.completePayrollRun);
     const cancelPayrollRun = useMutation(api.modules.hr.mutations.cancelPayrollRun);
@@ -93,6 +95,22 @@ export default function PayrollPage() {
         } catch (error) {
             toast({
                 title: "Unable to approve payroll run",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleGenerateDrafts = async (payrollRunId: Id<"payrollRuns">) => {
+        try {
+            const result = await generatePayrollPayslips({ payrollRunId });
+            toast({
+                title: "Draft payslips generated",
+                description: `${result.created} payslips created, ${result.skipped} staff skipped because they already had a draft or no active contract was found.`,
+            });
+        } catch (error) {
+            toast({
+                title: "Unable to generate payslips",
                 description: error instanceof Error ? error.message : "Please try again.",
                 variant: "destructive",
             });
@@ -166,6 +184,11 @@ export default function PayrollPage() {
             cell: (row) => (
                 <div className="flex gap-2">
                     {["draft", "pending"].includes(row.status) && (
+                        <Button size="sm" variant="outline" onClick={() => handleGenerateDrafts(row._id)}>
+                            Generate Payslips
+                        </Button>
+                    )}
+                    {["draft", "pending"].includes(row.status) && (
                         <Button size="sm" onClick={() => handleApprove(row._id)}>
                             Approve
                         </Button>
@@ -217,11 +240,18 @@ export default function PayrollPage() {
                 </Select>
             </div>
 
+            <Card>
+                <CardContent className="pt-6 text-sm text-muted-foreground">
+                    Draft payroll generation now uses active staff contracts to create payslips before approval. Runs move from <span className="font-medium text-foreground">draft</span> to <span className="font-medium text-foreground">pending</span> once draft payslips are generated.
+                </CardContent>
+            </Card>
+
             <DataTable
                 data={(payrollRuns as PayrollRun[]) ?? []}
                 columns={columns}
                 searchable
                 searchPlaceholder="Search periods..."
+                searchKey={(row) => `${row.periodLabel} ${row.status}`}
                 emptyTitle="No payroll runs found"
                 emptyDescription="Start your first payroll run to process staff salaries."
             />

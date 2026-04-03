@@ -346,8 +346,72 @@ export const updateOrderStatus = mutation({
 
         const order = await ctx.db.get(args.orderId);
         if (!order || order.tenantId !== tenant.tenantId) throw new Error("Order not found");
+        if (order.status === args.status) {
+            return args.orderId;
+        }
+        if (["cancelled", "refunded"].includes(order.status) && order.status !== args.status) {
+            throw new Error("Cancelled or refunded orders cannot be reopened");
+        }
 
-        const updates = { status: args.status, updatedAt: Date.now() };
+        const now = Date.now();
+        const restockStatuses = new Set(["cancelled", "refunded"]);
+        const shouldRestock = restockStatuses.has(args.status) && !restockStatuses.has(order.status);
+
+        if (shouldRestock) {
+            const items = await ctx.db
+                .query("orderItems")
+                .withIndex("by_order", (q) => q.eq("orderId", args.orderId))
+                .collect();
+
+            for (const item of items) {
+                const product = await ctx.db.get(item.productId as any);
+                if (!product || product.tenantId !== tenant.tenantId) continue;
+                await ctx.db.patch(product._id, {
+                    stock: product.stock + item.quantity,
+                    status: product.stock + item.quantity > 0 && product.status === "out_of_stock" ? "active" : product.status,
+                    updatedAt: now,
+                });
+            }
+        }
+
+        if (args.status === "refunded" && order.paymentMethod === "ewallet") {
+            const wallet = await ctx.db
+                .query("wallets")
+                .withIndex("by_owner", (q) =>
+                    q.eq("tenantId", tenant.tenantId).eq("ownerId", order.customerId)
+                )
+                .first();
+
+            if (wallet) {
+                const existingRefund = await ctx.db
+                    .query("walletTransactions")
+                    .withIndex("by_wallet", (q) => q.eq("walletId", wallet._id))
+                    .collect();
+                const alreadyRefunded = existingRefund.some(
+                    (transaction) => transaction.orderId === args.orderId && transaction.type === "order_refund"
+                );
+
+                if (!alreadyRefunded) {
+                    await ctx.db.insert("walletTransactions", {
+                        tenantId: tenant.tenantId,
+                        walletId: wallet._id,
+                        type: "order_refund",
+                        amountCents: order.totalCents,
+                        reference: `REF-${order.orderNumber}`,
+                        orderId: args.orderId,
+                        note: `Refund for ${order.orderNumber}`,
+                        performedBy: tenant.userId,
+                        createdAt: now,
+                    });
+                    await ctx.db.patch(wallet._id, {
+                        balanceCents: wallet.balanceCents + order.totalCents,
+                        updatedAt: now,
+                    });
+                }
+            }
+        }
+
+        const updates = { status: args.status, updatedAt: now };
         await ctx.db.patch(args.orderId, updates);
         await logAction(ctx, {
             tenantId: tenant.tenantId,

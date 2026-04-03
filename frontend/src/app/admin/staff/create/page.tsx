@@ -17,7 +17,7 @@ import Link from "next/link";
 import { createStaffSchema } from "@shared/validators";
 
 export default function CreateStaffPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const router = useRouter();
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -65,6 +65,7 @@ export default function CreateStaffPage() {
             }
 
             await createStaff({
+                sessionToken: sessionToken ?? undefined,
                 firstName: parsed.data.firstName,
                 lastName: parsed.data.lastName,
                 email: parsed.data.email,

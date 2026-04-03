@@ -1,6 +1,13 @@
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useQuery } from 'convex/react';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useMutation, useQuery } from 'convex/react';
 
 import { useAuth } from '../hooks/useAuth';
 import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
@@ -10,6 +17,10 @@ import { theme } from '../theme';
 const AttendanceScreen: React.FC = () => {
   const { sessionToken, user } = useAuth();
   const { isOffline } = useOfflineSync();
+  const [selectedClassId, setSelectedClassId] = React.useState<string | null>(null);
+  const [attendanceDraft, setAttendanceDraft] = React.useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const attendanceDate = React.useMemo(() => new Date().toISOString().split('T')[0] ?? '', []);
 
   const studentAttendance = useQuery(
     api.modules.portal.student.queries.getMyAttendance,
@@ -27,6 +38,19 @@ const AttendanceScreen: React.FC = () => {
     api.modules.academics.queries.getTeacherTodayClassesCount,
     sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
   );
+  const teacherClassStudents = useQuery(
+    api.modules.academics.queries.getClassStudents,
+    sessionToken && user?.role === 'teacher' && selectedClassId
+      ? { sessionToken, classId: selectedClassId }
+      : 'skip',
+  );
+  const teacherAttendance = useQuery(
+    api.modules.academics.queries.getAttendance,
+    sessionToken && user?.role === 'teacher' && selectedClassId
+      ? { sessionToken, classId: selectedClassId, date: attendanceDate }
+      : 'skip',
+  );
+  const markAttendance = useMutation(api.modules.academics.mutations.markAttendance);
 
   const resolvedStudentAttendance = useCachedQueryValue<any[]>(
     'student.attendance.list',
@@ -41,6 +65,60 @@ const AttendanceScreen: React.FC = () => {
     'teacher.attendance.todayCount',
     teacherTodayClasses,
   );
+  const resolvedTeacherClassStudents = useCachedQueryValue<any[]>(
+    selectedClassId ? `teacher.attendance.students.${selectedClassId}` : 'teacher.attendance.students.none',
+    teacherClassStudents,
+  );
+  const resolvedTeacherAttendance = useCachedQueryValue<any[]>(
+    selectedClassId ? `teacher.attendance.records.${selectedClassId}.${attendanceDate}` : 'teacher.attendance.records.none',
+    teacherAttendance,
+  );
+
+  React.useEffect(() => {
+    if (!selectedClassId && resolvedTeacherClasses && resolvedTeacherClasses.length > 0) {
+      setSelectedClassId(resolvedTeacherClasses[0]._id);
+    }
+  }, [resolvedTeacherClasses, selectedClassId]);
+
+  React.useEffect(() => {
+    if (!resolvedTeacherAttendance) {
+      return;
+    }
+    const nextDraft: Record<string, string> = {};
+    resolvedTeacherAttendance.forEach((entry: any) => {
+      nextDraft[entry.studentId] = entry.status;
+    });
+    setAttendanceDraft((prev) => ({ ...nextDraft, ...prev }));
+  }, [resolvedTeacherAttendance]);
+
+  const handleStatusChange = (studentId: string, status: string) => {
+    setAttendanceDraft((prev) => ({
+      ...prev,
+      [studentId]: status,
+    }));
+  };
+
+  const handleSubmitAttendance = async () => {
+    if (!sessionToken || !selectedClassId || !resolvedTeacherClassStudents || isOffline) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await markAttendance({
+        sessionToken,
+        records: resolvedTeacherClassStudents.map((student: any) => ({
+          classId: selectedClassId,
+          studentId: student._id,
+          date: attendanceDate,
+          status: attendanceDraft[student._id] ?? 'present',
+          recordedBy: user?.userId ?? '',
+        })),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (!sessionToken) {
     return <Text style={styles.stateText}>Sign in to view this section.</Text>;
@@ -91,15 +169,86 @@ const AttendanceScreen: React.FC = () => {
         {resolvedTeacherClasses.length === 0 ? (
           <Text style={styles.stateText}>No classes are assigned to you yet.</Text>
         ) : (
-          resolvedTeacherClasses.map((classItem: any) => (
-            <View key={classItem._id} style={styles.card}>
-              <Text style={styles.status}>{classItem.name}</Text>
-              <Text style={styles.meta}>
-                Grade {classItem.grade ?? '—'} • {classItem.studentCount ?? 0} students
-              </Text>
-              <Text style={styles.meta}>Use the web portal for detailed attendance entry.</Text>
+          <>
+            <Text style={styles.sectionLabel}>Choose class</Text>
+            <View style={styles.choiceWrap}>
+              {resolvedTeacherClasses.map((classItem: any) => (
+                <TouchableOpacity
+                  key={classItem._id}
+                  style={[
+                    styles.choiceChip,
+                    selectedClassId === classItem._id ? styles.choiceChipActive : undefined,
+                  ]}
+                  onPress={() => setSelectedClassId(classItem._id)}
+                >
+                  <Text
+                    style={[
+                      styles.choiceChipText,
+                      selectedClassId === classItem._id ? styles.choiceChipTextActive : undefined,
+                    ]}
+                  >
+                    {classItem.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
-          ))
+
+            {selectedClassId && resolvedTeacherClassStudents ? (
+              <View style={styles.card}>
+                <Text style={styles.status}>Attendance for {attendanceDate}</Text>
+                {resolvedTeacherClassStudents.length === 0 ? (
+                  <Text style={styles.meta}>No students are enrolled in this class yet.</Text>
+                ) : (
+                  resolvedTeacherClassStudents.map((student: any) => (
+                    <View key={student._id} style={styles.studentRow}>
+                      <View style={styles.studentCopy}>
+                        <Text style={styles.studentName}>
+                          {[student.firstName, student.lastName].filter(Boolean).join(' ')}
+                        </Text>
+                        <Text style={styles.meta}>
+                          {student.admissionNumber ?? 'No admission number'}
+                        </Text>
+                      </View>
+                      <View style={styles.choiceWrap}>
+                        {['present', 'absent', 'late', 'excused'].map((status) => (
+                          <TouchableOpacity
+                            key={status}
+                            style={[
+                              styles.smallChip,
+                              (attendanceDraft[student._id] ?? 'present') === status
+                                ? styles.choiceChipActive
+                                : undefined,
+                            ]}
+                            onPress={() => handleStatusChange(student._id, status)}
+                          >
+                            <Text
+                              style={[
+                                styles.smallChipText,
+                                (attendanceDraft[student._id] ?? 'present') === status
+                                  ? styles.choiceChipTextActive
+                                  : undefined,
+                              ]}
+                            >
+                              {status}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </View>
+                  ))
+                )}
+                <TouchableOpacity
+                  style={[styles.primaryButton, (isOffline || isSubmitting) && styles.disabledButton]}
+                  onPress={handleSubmitAttendance}
+                  disabled={isOffline || isSubmitting}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    {isOffline ? 'Reconnect to submit' : isSubmitting ? 'Saving...' : 'Save attendance'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </>
         )}
       </ScrollView>
     );
@@ -178,6 +327,80 @@ const styles = StyleSheet.create({
   },
   banner: {
     color: theme.colors.warning,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
+  },
+  sectionLabel: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
+  },
+  choiceWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
+  },
+  choiceChip: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.colors.background,
+  },
+  choiceChipActive: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  choiceChipText: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '600',
+  },
+  choiceChipTextActive: {
+    color: theme.colors.white,
+  },
+  studentRow: {
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    paddingTop: theme.spacing.md,
+    marginTop: theme.spacing.md,
+  },
+  studentCopy: {
+    marginBottom: theme.spacing.sm,
+  },
+  studentName: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.base,
+    fontWeight: '700',
+  },
+  smallChip: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.background,
+  },
+  smallChipText: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.xs,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  primaryButton: {
+    marginTop: theme.spacing.md,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.lg,
+    paddingVertical: theme.spacing.md,
+    alignItems: 'center',
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
+  primaryButtonText: {
+    color: theme.colors.white,
     fontSize: theme.fontSizes.sm,
     fontWeight: '700',
   },

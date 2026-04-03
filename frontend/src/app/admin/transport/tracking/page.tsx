@@ -17,6 +17,7 @@ import { Bus, MapPin, Navigation, Route, Users } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { assignStudentToRouteSchema } from "@shared/validators";
+import { Id } from "@/convex/_generated/dataModel";
 
 type TransportRoute = {
   _id: string;
@@ -89,6 +90,7 @@ export default function TransportTrackingPage() {
   ) as Assignment[] | undefined;
 
   const assignStudentToRoute = useMutation(api.modules.transport.mutations.assignStudentToRoute);
+  const removeStudentAssignment = useMutation(api.modules.transport.mutations.removeStudentAssignment);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -212,6 +214,19 @@ export default function TransportTrackingPage() {
       header: "Updated",
       cell: (row) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : "—",
     },
+    {
+      key: "actions",
+      header: "",
+      cell: (row) => (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => handleRemoveAssignment(row._id as Id<"transportAssignments">)}
+        >
+          Remove
+        </Button>
+      ),
+    },
   ];
 
   const handleAssignStudent = async (event: React.FormEvent) => {
@@ -238,6 +253,15 @@ export default function TransportTrackingPage() {
       toast.error(error instanceof Error ? error.message : "Failed to save transport assignment.");
     } finally {
       setIsAssigning(false);
+    }
+  };
+
+  const handleRemoveAssignment = async (assignmentId: Id<"transportAssignments">) => {
+    try {
+      await removeStudentAssignment({ assignmentId });
+      toast.success("Transport assignment removed.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to remove assignment.");
     }
   };
 

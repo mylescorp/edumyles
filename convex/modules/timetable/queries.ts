@@ -130,11 +130,14 @@ export const getRoomSchedule = query({
 /** Conflict detection: teacher double-booking and room clash for a given day. */
 export const getConflicts = query({
     args: {
+        sessionToken: v.optional(v.string()),
         dayOfWeek: v.number(),
         academicYear: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "timetable");
         requirePermission(tenant, "timetable:read");
 

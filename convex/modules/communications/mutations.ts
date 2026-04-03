@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { internal } from "../../_generated/api";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { logAction } from "../../helpers/auditLog";
@@ -655,9 +655,12 @@ export const createConversation = mutation({
     name: v.optional(v.string()),
     participants: v.array(v.string()),
     initialMessage: v.optional(v.string()),
+    sessionToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "communications");
     requirePermission(tenant, "communications:messaging");
 
@@ -718,6 +721,7 @@ export const sendMessage = mutation({
   args: {
     conversationId: v.id("conversations"),
     content: v.string(),
+    sessionToken: v.optional(v.string()),
     attachments: v.optional(
       v.array(
         v.object({
@@ -730,7 +734,9 @@ export const sendMessage = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "communications");
     requirePermission(tenant, "communications:messaging");
 
@@ -792,9 +798,11 @@ export const sendMessage = mutation({
 
 /** Mark messages as read in a conversation */
 export const markConversationRead = mutation({
-  args: { conversationId: v.id("conversations") },
+  args: { conversationId: v.id("conversations"), sessionToken: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "communications");
 
     const conversation = await ctx.db.get(args.conversationId);
