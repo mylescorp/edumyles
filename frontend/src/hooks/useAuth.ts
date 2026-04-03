@@ -147,6 +147,7 @@ async function loadAuthSession(force = false) {
       const timeout = setTimeout(() => controller.abort(), 8000);
       const res = await fetch("/api/auth/session", {
         credentials: "same-origin",
+        cache: "no-store",
         signal: controller.signal,
       });
       clearTimeout(timeout);

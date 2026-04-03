@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
+export const dynamic = "force-dynamic";
+
 const MASTER_ADMIN_EMAILS = [
   process.env.MASTER_ADMIN_EMAIL,
 ]
@@ -269,7 +271,7 @@ export async function GET(req: NextRequest) {
     // Fast path: reconstruct the client session directly from the signed-in
     // cookie set. Convex queries still validate the session token server-side,
     // so we can avoid blocking every page render on an extra Convex round-trip.
-    if (userCookie && roleCookie) {
+    if (userCookie) {
       try {
         const user = JSON.parse(userCookie);
         const effectiveRole = isConfiguredMasterAdmin(user.email)
@@ -375,12 +377,12 @@ export async function GET(req: NextRequest) {
     // reconstruct session from the companion cookies set at login time.
     // The httpOnly edumyles_session cookie (which cannot be set via JS) is the
     // security gate — if it exists, it was set server-side during auth callback.
-    if (convexLookupFailed && userCookie && roleCookie) {
+    if (convexLookupFailed && userCookie) {
       try {
         const user = JSON.parse(userCookie);
         const effectiveRole = isConfiguredMasterAdmin(user.email)
           ? "master_admin"
-          : normalizeRole(roleCookie);
+          : normalizeRole(user.role ?? roleCookie);
         const effectiveTenantId = effectiveRole === "master_admin" ? "PLATFORM" : user.tenantId || "PLATFORM";
         return NextResponse.json({
           session: {
