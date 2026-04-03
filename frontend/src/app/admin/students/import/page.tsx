@@ -13,6 +13,7 @@ import { ArrowLeft, Download, Upload, FileText, AlertCircle } from "lucide-react
 import Link from "next/link";
 import { useState, useRef } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { createStudentWithGuardianSchema } from "@shared/validators";
 
 // CSV template data
 const generateCSVTemplate = () => {
@@ -225,18 +226,24 @@ export default function BulkImportPage() {
                     const admissionNumber = row["Admission Number"] ||
                         `${new Date().getFullYear()}/ST/${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
 
-                    await createStudent({
+                    const parsed = createStudentWithGuardianSchema.safeParse({
                         firstName: row["First Name"]?.trim(),
                         lastName: row["Last Name"]?.trim(),
                         dateOfBirth: row["Date of Birth (YYYY-MM-DD)"],
                         gender: row["Gender (male/female/other)"]?.toLowerCase() || "other",
                         classId: row["Class ID"]?.trim() || undefined,
-                        admissionNumber,
+                        admissionNo: admissionNumber,
                         guardianName: row["Guardian Name"]?.trim() || undefined,
                         guardianEmail: row["Guardian Email"]?.trim() || undefined,
                         guardianPhone: row["Guardian Phone"]?.trim() || undefined,
                         guardianRelationship: row["Guardian Relationship (father/mother/guardian/other)"]?.toLowerCase() || "guardian",
                     });
+
+                    if (!parsed.success) {
+                        throw new Error(parsed.error.errors[0]?.message ?? "Row validation failed");
+                    }
+
+                    await createStudent(parsed.data);
 
                     successCount++;
                 } catch (err) {

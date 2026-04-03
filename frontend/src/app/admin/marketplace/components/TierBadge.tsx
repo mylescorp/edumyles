@@ -27,16 +27,17 @@ interface TierBadgeProps {
 }
 
 export function TierBadge({ tier, className }: TierBadgeProps) {
+  const normalizedTier = tier === "free" ? "starter" : tier;
   return (
     <Badge
       variant="outline"
       className={cn(
         "text-xs font-medium",
-        TIER_COLORS[tier] ?? TIER_COLORS["free"],
+        TIER_COLORS[normalizedTier] ?? TIER_COLORS["starter"],
         className
       )}
     >
-      {TIER_LABELS[tier] ?? tier}
+      {TIER_LABELS[normalizedTier] ?? normalizedTier}
     </Badge>
   );
 }

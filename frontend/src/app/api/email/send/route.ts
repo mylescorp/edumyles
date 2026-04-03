@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { emailService } from '@/lib/email';
+import { cookies } from "next/headers";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "@/convex/_generated/api";
 import { z } from 'zod';
 
 // Request schema for sending emails
@@ -29,6 +31,25 @@ const sendTemplatedEmailSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
+    if (!convexUrl || !serverSecret) {
+      return NextResponse.json({ error: 'Email delivery is not configured' }, { status: 500 });
+    }
+
+    const cookieStore = await cookies();
+    const sessionToken =
+      cookieStore.get("edumyles_session")?.value ?? cookieStore.get("edumyles-session")?.value;
+    if (!sessionToken) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const convex = new ConvexHttpClient(convexUrl);
+    const session = await convex.query(api.sessions.getSession, { sessionToken, serverSecret });
+    if (!session) {
+      return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 });
+    }
+
     const body = await request.json();
     
     // Check if this is a templated email or custom email
@@ -37,11 +58,12 @@ export async function POST(request: NextRequest) {
       const { to, template, data } = sendTemplatedEmailSchema.parse(body);
       
       // Send templated email
-      const result = await emailService.sendTemplatedEmail(
-        to,
+      const result = await convex.action((api as any).actions.communications.email.sendEmail, {
+        to: [to],
+        subject: template.replaceAll('_', ' '),
         template,
-        data as any
-      );
+        data,
+      });
       
       if (!result.success) {
         return NextResponse.json(
@@ -53,7 +75,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Email sent successfully',
-        data: result.data
+        data: result,
+        messageId: result.messageId ?? result.id,
+        recipients: result.recipients ?? [to],
       });
       
     } else {
@@ -61,13 +85,13 @@ export async function POST(request: NextRequest) {
       const emailData = sendEmailSchema.parse(body);
       
       // Send custom email
-      const result = await emailService.sendEmail({
-        to: emailData.to,
+      const recipients = Array.isArray(emailData.to) ? emailData.to : [emailData.to];
+      const result = await convex.action((api as any).actions.communications.email.sendEmail, {
+        to: recipients,
         subject: emailData.subject,
+        body: emailData.text ?? emailData.html,
         html: emailData.html,
         text: emailData.text,
-        from: emailData.from,
-        replyTo: emailData.replyTo,
       });
       
       if (!result.success) {
@@ -80,7 +104,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Email sent successfully',
-        data: result.data
+        data: result,
+        messageId: result.messageId ?? result.id,
+        recipients,
       });
     }
     

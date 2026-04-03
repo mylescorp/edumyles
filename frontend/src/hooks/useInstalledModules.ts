@@ -18,7 +18,9 @@ export interface InstalledModule {
 
 export function useInstalledModules() {
   const { sessionToken, isLoading, isAuthenticated } = useAuth();
-  const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
+  const hasLiveTenantSession =
+    !!sessionToken && sessionToken !== "dev_session_token";
+  const canQueryModules = !isLoading && isAuthenticated && hasLiveTenantSession;
 
   // Single query for full module records — IDs are derived from these, avoiding
   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).

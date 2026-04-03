@@ -83,13 +83,13 @@ function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
 
 export default function MarketplacePage() {
   return (
-    <MarketplaceErrorBoundary>
+    <MarketplaceErrorBoundary fallback={<MarketplaceContent forceFallback />}>
       <MarketplaceContent />
     </MarketplaceErrorBoundary>
   );
 }
 
-function MarketplaceContent() {
+function MarketplaceContent({ forceFallback = false }: { forceFallback?: boolean }) {
   const router = useRouter();
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState("discover");
@@ -101,7 +101,8 @@ function MarketplaceContent() {
   // Queries
   const marketplaceHome = usePlatformQuery(
     api.platform.marketplace.getMarketplaceHome,
-    { sessionToken: sessionToken || "" }
+    { sessionToken: sessionToken || "" },
+    !forceFallback
   ) as any;
 
   const browseResult = usePlatformQuery(
@@ -113,20 +114,22 @@ function MarketplaceContent() {
       pricingModel: selectedPricing !== "all" ? selectedPricing : undefined,
       sortBy: sortBy as any,
       limit: 24,
-    }
+    },
+    !forceFallback
   ) as any;
 
   const overview = usePlatformQuery(
     api.platform.marketplace.getMarketplaceOverview,
-    { sessionToken: sessionToken || "" }
+    { sessionToken: sessionToken || "" },
+    !forceFallback
   ) as any;
 
   const shouldUseFallbackCatalog = useMemo(() => {
     const totalModules = marketplaceHome?.stats?.totalModules || 0;
     const categoryCount = marketplaceHome?.categories?.length || 0;
     const browseTotal = browseResult?.total || 0;
-    return totalModules === 0 && categoryCount === 0 && browseTotal === 0;
-  }, [browseResult?.total, marketplaceHome?.categories?.length, marketplaceHome?.stats?.totalModules]);
+    return forceFallback || (totalModules === 0 && categoryCount === 0 && browseTotal === 0);
+  }, [browseResult?.total, forceFallback, marketplaceHome?.categories?.length, marketplaceHome?.stats?.totalModules]);
 
   const fallbackModules = useMemo(() => {
     let result = [...FALLBACK_MARKETPLACE_MODULES];

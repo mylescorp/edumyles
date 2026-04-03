@@ -196,7 +196,18 @@ export const getInstalledModuleIds = query({
 export const getAvailableForTier = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    const { tenantId } = await requireTenantSession(ctx, args);
+    if (!args.sessionToken || args.sessionToken.trim() === "") {
+      return buildFallbackModules([]);
+    }
+
+    let tenantId: string;
+    try {
+      const tenantContext = await requireTenantSession(ctx, args);
+      tenantId = tenantContext.tenantId;
+    } catch (sessionError) {
+      console.error("getAvailableForTier session validation failed:", sessionError);
+      return buildFallbackModules([]);
+    }
 
     // Platform admins see all modules as available
     if (tenantId === "PLATFORM") {

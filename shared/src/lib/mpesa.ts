@@ -214,13 +214,14 @@ export class MpesaService {
 
 // Factory function to create M-Pesa service
 export function createMpesaService(): MpesaService {
+  const resolved = resolveMpesaConfig();
   const config: MpesaConfig = {
-    consumerKey: process.env.MPESA_CONSUMER_KEY!,
-    consumerSecret: process.env.MPESA_CONSUMER_SECRET!,
-    shortcode: process.env.MPESA_SHORTCODE!,
-    passkey: process.env.MPESA_PASSKEY!,
-    environment: (process.env.MPESA_ENVIRONMENT as 'sandbox' | 'production') || 'sandbox',
-    callbackUrl: process.env.MPESA_CALLBACK_URL!,
+    consumerKey: resolved.consumerKey!,
+    consumerSecret: resolved.consumerSecret!,
+    shortcode: resolved.shortcode!,
+    passkey: resolved.passkey!,
+    environment: resolved.environment as 'sandbox' | 'production',
+    callbackUrl: resolved.callbackUrl!,
   };
 
   // Validate required environment variables
@@ -233,3 +234,4 @@ export function createMpesaService(): MpesaService {
 
   return new MpesaService(config);
 }
+import { resolveMpesaConfig } from "./env.js";

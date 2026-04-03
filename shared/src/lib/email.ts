@@ -325,10 +325,11 @@ export class EmailService {
 
 // Factory function to create email service
 export function createEmailService(): EmailService {
+  const resolved = resolveResendConfig();
   const config: EmailConfig = {
-    apiKey: process.env.RESEND_API_KEY!,
-    fromEmail: process.env.RESEND_FROM_EMAIL!,
-    fromName: process.env.RESEND_FROM_NAME || 'EduMyles',
+    apiKey: resolved.apiKey!,
+    fromEmail: resolved.fromEmail!,
+    fromName: resolved.fromName,
   };
 
   // Validate required environment variables
@@ -341,3 +342,4 @@ export function createEmailService(): EmailService {
 
   return new EmailService(config);
 }
+import { resolveResendConfig } from "./env.js";

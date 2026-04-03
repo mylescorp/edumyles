@@ -18,7 +18,6 @@ import { formatCurrency } from "@/lib/formatters";
 type Product = {
   _id: string;
   name: string;
-  sku: string;
   priceCents: number;
   stock: number;
   category?: string;
@@ -76,11 +75,6 @@ export default function EcommerceProductsPage() {
           )}
         </div>
       ),
-    },
-    {
-      key: "sku",
-      header: "SKU",
-      cell: (row) => <span className="font-mono text-xs">{row.sku}</span>,
     },
     {
       key: "category",
@@ -222,7 +216,9 @@ export default function EcommerceProductsPage() {
       <DataTable
         data={productList}
         columns={columns}
+        searchable
         searchPlaceholder="Search products…"
+        searchKey={(row) => `${row.name} ${row.category ?? ""} ${row.description ?? ""}`}
         emptyMessage="No products found. Add your first product to get started."
       />
     </div>

@@ -1,502 +1,257 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Calendar, 
-  Clock, 
-  Users, 
-  MapPin, 
-  AlertTriangle,
-  CheckCircle,
-  Plus,
-  Eye,
-  Settings,
-  BarChart3,
-  RefreshCw,
-  Download
-} from "lucide-react";
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { AlertTriangle, Calendar, Clock, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 type TimetableSlot = {
-    _id: string;
-    dayOfWeek: number;
-    startTime: string;
-    endTime: string;
-    subjectId: string;
-    subjectName?: string;
-    teacherId: string;
-    teacherName?: string;
-    room?: string;
-    classId: string;
-    className?: string;
-    status: "scheduled" | "conflict" | "cancelled" | "substitute";
-    conflictType?: "teacher" | "room" | "class" | "subject";
-    notes?: string;
+  _id: string;
+  classId: string;
+  subjectId: string;
+  teacherId: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  room?: string;
+  academicYear?: string;
 };
 
 type Conflict = {
-    _id: string;
-    type: "teacher" | "room" | "class" | "subject";
-    severity: "low" | "medium" | "high" | "critical";
-    description: string;
-    affectedSlots: string[];
-    suggestions: string[];
-    autoResolved: boolean;
+  type: string;
+  slotIds: string[];
+  message: string;
 };
 
 export default function TimetablePage() {
-    const { isLoading, sessionToken } = useAuth();
-    const [selectedClassId, setSelectedClassId] = useState<string>("");
-    const [selectedTerm, setSelectedTerm] = useState<string>("");
-    const [viewMode, setViewMode] = useState<"grid" | "list" | "conflicts">("grid");
-    const [checkConflictsDay, setCheckConflictsDay] = useState<number>(0);
+  const { isLoading, sessionToken } = useAuth();
+  const [selectedClassId, setSelectedClassId] = useState<string>("");
+  const [checkConflictsDay, setCheckConflictsDay] = useState<string>("1");
 
-    const classes = usePlatformQuery(
-        api.modules.sis.queries.listClasses,
-        sessionToken ? { sessionToken } : "skip",
-        !!sessionToken
-    );
+  const classes = useQuery(
+    api.modules.sis.queries.listClasses,
+    sessionToken ? { sessionToken } : "skip"
+  ) as Array<{ _id: string; name: string }> | undefined;
 
-    const schedule = usePlatformQuery(
-        api.modules.timetable.queries.getClassSchedule,
-        sessionToken && selectedClassId ? { classId: selectedClassId } : "skip",
-        !!(sessionToken && selectedClassId)
-    );
+  const schedule = useQuery(
+    api.modules.timetable.queries.getClassSchedule,
+    sessionToken && selectedClassId ? { classId: selectedClassId } : "skip"
+  ) as TimetableSlot[] | undefined;
 
-    const conflicts = usePlatformQuery(
-        api.modules.timetable.queries.getConflicts,
-        sessionToken && checkConflictsDay ? { dayOfWeek: checkConflictsDay } : "skip",
-        !!(sessionToken && checkConflictsDay)
-    );
+  const conflicts = useQuery(
+    api.modules.timetable.queries.getConflicts,
+    sessionToken ? { dayOfWeek: Number(checkConflictsDay) } : "skip"
+  ) as Conflict[] | undefined;
 
-    if (isLoading) return <LoadingSkeleton variant="page" />;
+  if (isLoading) return <LoadingSkeleton variant="page" />;
 
-    const currentSchedule = (schedule as TimetableSlot[]) || [];
-    const currentConflicts = (conflicts as any[]) || [];
+  const currentSchedule = schedule ?? [];
+  const currentConflicts = conflicts ?? [];
 
-    const stats = {
-        totalSlots: currentSchedule.length,
-        scheduledSlots: currentSchedule.filter(s => s.status === "scheduled").length,
-        conflictSlots: currentSchedule.filter(s => s.status === "conflict").length,
-        cancelledSlots: currentSchedule.filter(s => s.status === "cancelled").length,
-        totalConflicts: currentConflicts.length,
-        criticalConflicts: currentConflicts.filter(c => c.severity === "critical").length,
-        resolvedConflicts: currentConflicts.filter(c => c.autoResolved).length,
-        utilizationRate: Math.round((currentSchedule.filter(s => s.status === "scheduled").length / currentSchedule.length) * 100),
-    };
+  const stats = {
+    totalClasses: (classes ?? []).length,
+    selectedClassSlots: currentSchedule.length,
+    conflictCount: currentConflicts.length,
+    roomsUsed: new Set(currentSchedule.filter((slot) => slot.room).map((slot) => slot.room)).size,
+  };
 
-    const columns: Column<TimetableSlot>[] = [
-        {
-            key: "dayOfWeek",
-            header: "Day",
-            sortable: true,
-            cell: (row) => (
-                <div>
-                    <p className="font-medium">{DAYS[row.dayOfWeek - 1]}</p>
-                    <Badge variant={row.status === "conflict" ? "destructive" : "outline"} className="text-xs mt-1">
-                        {row.status}
-                    </Badge>
-                </div>
-            ),
-        },
-        {
-            key: "time",
-            header: "Time",
-            cell: (row) => (
-                <div>
-                    <p className="font-medium">{row.startTime} - {row.endTime}</p>
-                    <p className="text-sm text-muted-foreground">40 minutes</p>
-                </div>
-            ),
-        },
-        {
-            key: "subject",
-            header: "Subject",
-            cell: (row) => (
-                <div>
-                    <p className="font-medium">{row.subjectName || "—"}</p>
-                    <p className="text-sm text-muted-foreground">{row.subjectId || "—"}</p>
-                </div>
-            ),
-        },
-        {
-            key: "teacher",
-            header: "Teacher",
-            cell: (row) => (
-                <div>
-                    <p className="font-medium">{row.teacherName || "—"}</p>
-                    <p className="text-sm text-muted-foreground">{row.teacherId || "—"}</p>
-                </div>
-            ),
-        },
-        {
-            key: "room",
-            header: "Room",
-            cell: (row) => (
-                <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span>{row.room || "—"}</span>
-                </div>
-            ),
-        },
-        {
-            key: "actions",
-            header: "Actions",
-            cell: (row) => (
-                <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline">
-                        <Eye className="h-3 w-3 mr-1" />
-                        View
-                    </Button>
-                    {row.status === "conflict" && (
-                        <Button size="sm" variant="outline">
-                            Resolve
-                        </Button>
-                    )}
-                </div>
-            ),
-        },
-    ];
+  const scheduleColumns: Column<TimetableSlot>[] = [
+    {
+      key: "dayOfWeek",
+      header: "Day",
+      cell: (row) => DAYS[row.dayOfWeek - 1] ?? "—",
+      sortable: true,
+    },
+    {
+      key: "time",
+      header: "Time",
+      cell: (row) => `${row.startTime} - ${row.endTime}`,
+    },
+    {
+      key: "subjectId",
+      header: "Subject",
+      cell: (row) => row.subjectId,
+    },
+    {
+      key: "teacherId",
+      header: "Teacher",
+      cell: (row) => row.teacherId,
+    },
+    {
+      key: "room",
+      header: "Room",
+      cell: (row) => row.room ?? "—",
+    },
+  ];
 
-    const conflictColumns: Column<Conflict>[] = [
-        {
-            key: "type",
-            header: "Type",
-            cell: (row) => (
-                <Badge variant={
-                    row.type === "teacher" ? "default" :
-                    row.type === "room" ? "secondary" :
-                    "outline"
-                }>
-                    {row.type}
-                </Badge>
-            ),
-        },
-        {
-            key: "severity",
-            header: "Severity",
-            cell: (row) => (
-                <Badge variant={
-                    row.severity === "critical" ? "destructive" :
-                    row.severity === "high" ? "destructive" :
-                    row.severity === "medium" ? "secondary" :
-                    "outline"
-                }>
-                    {row.severity}
-                </Badge>
-            ),
-        },
-        {
-            key: "description",
-            header: "Description",
-            cell: (row) => (
-                <p className="text-sm">{row.description}</p>
-            ),
-        },
-        {
-            key: "affectedSlots",
-            header: "Affected Slots",
-            cell: (row) => (
-                <Badge variant="outline">
-                    {row.affectedSlots.length} slots
-                </Badge>
-            ),
-        },
-        {
-            key: "status",
-            header: "Status",
-            cell: (row) => (
-                <Badge variant={row.autoResolved ? "default" : "secondary"}>
-                    {row.autoResolved ? "Auto-resolved" : "Pending"}
-                </Badge>
-            ),
-        },
-        {
-            key: "actions",
-            header: "Actions",
-            cell: (row) => (
-                <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline">
-                        View Details
-                    </Button>
-                    {!row.autoResolved && (
-                        <Button size="sm" variant="outline">
-                            Resolve
-                        </Button>
-                    )}
-                </div>
-            ),
-        },
-    ];
+  const conflictColumns: Column<Conflict>[] = [
+    {
+      key: "type",
+      header: "Type",
+      cell: (row) => <Badge variant="destructive">{row.type.replaceAll("_", " ")}</Badge>,
+    },
+    {
+      key: "message",
+      header: "Issue",
+      cell: (row) => row.message,
+    },
+    {
+      key: "slotIds",
+      header: "Affected Slots",
+      cell: (row) => `${row.slotIds.length} slot(s)`,
+    },
+  ];
 
-    return (
-        <div className="space-y-6">
-            <PageHeader
-                title="Timetable Management"
-                description="Comprehensive scheduling system with conflict detection and resolution"
-                actions={
-                    <div className="flex gap-2">
-                        <Link href="/admin/timetable/schedule">
-                            <Button variant="outline" className="gap-2">
-                                <Calendar className="h-4 w-4" />
-                                Schedule Builder
-                            </Button>
-                        </Link>
-                        <Link href="/admin/timetable/assignments">
-                            <Button variant="outline" className="gap-2">
-                                <Users className="h-4 w-4" />
-                                Teacher Assignments
-                            </Button>
-                        </Link>
-                        <Button className="gap-2">
-                            <Download className="h-4 w-4" />
-                            Export Timetable
-                        </Button>
-                    </div>
-                }
-            />
+  const dailyPreview = useMemo(() => {
+    const grouped = new Map<number, number>();
+    for (const slot of currentSchedule) {
+      grouped.set(slot.dayOfWeek, (grouped.get(slot.dayOfWeek) ?? 0) + 1);
+    }
+    return grouped;
+  }, [currentSchedule]);
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <AdminStatsCard
-                    title="Scheduled Slots"
-                    value={stats.scheduledSlots}
-                    description="Successfully scheduled"
-                    icon={CheckCircle}
-                    variant="success"
-                />
-                <AdminStatsCard
-                    title="Conflicts"
-                    value={stats.conflictSlots}
-                    description="Need resolution"
-                    icon={AlertTriangle}
-                    variant="danger"
-                />
-                <AdminStatsCard
-                    title="Utilization Rate"
-                    value={`${stats.utilizationRate}%`}
-                    description="Time slot usage"
-                    icon={BarChart3}
-                    trend={{ value: 3, isPositive: true }}
-                />
-                <AdminStatsCard
-                    title="Critical Issues"
-                    value={stats.criticalConflicts}
-                    description="Require immediate attention"
-                    icon={AlertTriangle}
-                    variant="warning"
-                />
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Timetable Management"
+        description="Review class schedules, teacher assignments, and real conflict checks from the timetable module."
+        actions={(
+          <div className="flex gap-2">
+            <Link href="/admin/timetable/schedule">
+              <Button variant="outline">Create Slots</Button>
+            </Link>
+            <Link href="/admin/timetable/assignments">
+              <Button variant="outline">Teacher Assignments</Button>
+            </Link>
+            <Link href="/admin/timetable/events">
+              <Button variant="outline">School Events</Button>
+            </Link>
+          </div>
+        )}
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <AdminStatsCard title="Classes" value={stats.totalClasses} description="Classes available for scheduling" icon={Users} />
+        <AdminStatsCard title="Selected Class Slots" value={stats.selectedClassSlots} description={selectedClassId ? "Slots for the selected class" : "Choose a class to inspect"} icon={Calendar} />
+        <AdminStatsCard title="Conflict Checks" value={stats.conflictCount} description={`For ${DAYS[Number(checkConflictsDay) - 1]}`} icon={AlertTriangle} variant={stats.conflictCount > 0 ? "warning" : "success"} />
+        <AdminStatsCard title="Rooms Used" value={stats.roomsUsed} description="Rooms referenced by the selected class" icon={MapPin} />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[1fr,1.3fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Schedule Controls</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Class</label>
+              <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select class" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(classes ?? []).map((schoolClass) => (
+                    <SelectItem key={schoolClass._id} value={schoolClass._id}>
+                      {schoolClass.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Quick Actions */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <Link href="/admin/timetable/schedule">
-                            <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
-                                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-3">
-                                    <Calendar className="h-6 w-6 text-white" />
-                                </div>
-                                <h3 className="font-medium text-center">Build Schedule</h3>
-                                <p className="text-sm text-muted-foreground text-center mt-1">
-                                    Create new timetable
-                                </p>
-                            </div>
-                        </Link>
-                        <Link href="/admin/timetable/assignments">
-                            <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
-                                <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-3">
-                                    <Users className="h-6 w-6 text-white" />
-                                </div>
-                                <h3 className="font-medium text-center">Manage Teachers</h3>
-                                <p className="text-sm text-muted-foreground text-center mt-1">
-                                    Assign subjects
-                                </p>
-                            </div>
-                        </Link>
-                        <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
-                            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-3">
-                                <AlertTriangle className="h-6 w-6 text-white" />
-                            </div>
-                            <h3 className="font-medium text-center">Resolve Conflicts</h3>
-                            <p className="text-sm text-muted-foreground text-center mt-1">
-                                Fix scheduling issues
-                            </p>
-                        </div>
-                        <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
-                            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-3">
-                                <Settings className="h-6 w-6 text-white" />
-                            </div>
-                            <h3 className="font-medium text-center">Settings</h3>
-                            <p className="text-sm text-muted-foreground text-center mt-1">
-                                Configure timetable
-                            </p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Conflict Check Day</label>
+              <Select value={checkConflictsDay} onValueChange={setCheckConflictsDay}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DAYS.map((day, index) => (
+                    <SelectItem key={day} value={String(index + 1)}>
+                      {day}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            {/* Configuration */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Timetable Configuration</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <div>
-                            <label className="text-sm font-medium">Select Class</label>
-                            <Select value={selectedClassId} onValueChange={setSelectedClassId}>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue placeholder="Choose class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {(classes as any[])?.map((c) => (
-                                        <SelectItem key={c._id} value={c._id}>
-                                            {c.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium">Academic Term</label>
-                            <Select value={selectedTerm} onValueChange={setSelectedTerm}>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue placeholder="Select term" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="term1">Term 1 (Jan-Apr)</SelectItem>
-                                    <SelectItem value="term2">Term 2 (May-Aug)</SelectItem>
-                                    <SelectItem value="term3">Term 3 (Sep-Dec)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium">View Mode</label>
-                            <Select value={viewMode} onValueChange={(value) => setViewMode(value as any)}>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="grid">Grid View</SelectItem>
-                                    <SelectItem value="list">List View</SelectItem>
-                                    <SelectItem value="conflicts">Conflicts Only</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="rounded-lg border p-4 text-sm text-muted-foreground">
+              Slot creation, teacher workload review, and event scheduling are live in the linked pages above. Drag-and-drop auto-planning is not implemented yet, so this overview focuses on the real backend-backed schedule state.
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Main Content */}
-            {selectedClassId ? (
-                <div className="space-y-6">
-                    {viewMode === "grid" && (
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle>Weekly Schedule Grid</CardTitle>
-                                <div className="flex gap-2">
-                                    <Button size="sm" variant="outline">
-                                        <RefreshCw className="h-3 w-3 mr-1" />
-                                        Refresh
-                                    </Button>
-                                    <Button size="sm" variant="outline">
-                                        <Plus className="h-3 w-3 mr-1" />
-                                        Add Slot
-                                    </Button>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                {/* Weekly grid view would go here */}
-                                <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                    <p className="text-lg font-medium">Weekly Schedule Grid</p>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                        Interactive weekly timetable view with drag-and-drop functionality
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {viewMode === "list" && (
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle>Schedule List</CardTitle>
-                                <div className="text-sm text-muted-foreground">
-                                    {currentSchedule.length} total slots
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <DataTable
-                                    data={currentSchedule}
-                                    columns={columns}
-                                    searchable
-                                    searchPlaceholder="Search schedule..."
-                                    emptyTitle="No schedule found"
-                                    emptyDescription="This class doesn't have a schedule set up yet."
-                                />
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {viewMode === "conflicts" && (
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle className="flex items-center gap-2">
-                                    <AlertTriangle className="h-5 w-5" />
-                                    Conflict Detection
-                                </CardTitle>
-                                <Button size="sm" variant="outline">
-                                    Auto-Resolve All
-                                </Button>
-                            </CardHeader>
-                            <CardContent>
-                                <DataTable
-                                    data={currentConflicts}
-                                    columns={conflictColumns}
-                                    searchable
-                                    searchPlaceholder="Search conflicts..."
-                                    emptyTitle="No conflicts found"
-                                    emptyDescription="Great! No scheduling conflicts detected."
-                                />
-                            </CardContent>
-                        </Card>
-                    )}
+        <Card>
+          <CardHeader>
+            <CardTitle>Weekly Snapshot</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-2">
+            {DAYS.map((day, index) => (
+              <div key={day} className="rounded-lg border p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="font-medium">{day}</p>
+                  <Badge variant="outline">{dailyPreview.get(index + 1) ?? 0}</Badge>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  {dailyPreview.get(index + 1) ? `${dailyPreview.get(index + 1)} slot(s) scheduled.` : "No slots for this day in the selected class."}
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Selected Class Schedule</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {!selectedClassId ? (
+              <p className="text-sm text-muted-foreground">Select a class to view its timetable slots.</p>
             ) : (
-                <Card>
-                    <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                        <Calendar className="h-16 w-16 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium mb-2">Select a Class to View Timetable</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Choose a class from the dropdown above to view and manage its schedule
-                        </p>
-                        <Link href="/admin/timetable/schedule">
-                            <Button className="gap-2">
-                                <Plus className="h-4 w-4" />
-                                Create New Schedule
-                            </Button>
-                        </Link>
-                    </CardContent>
-                </Card>
+              <DataTable
+                data={currentSchedule}
+                columns={scheduleColumns}
+                searchKey={(row) => `${row.subjectId} ${row.teacherId} ${row.room ?? ""}`}
+                searchPlaceholder="Search class schedule..."
+                emptyTitle="No slots found"
+                emptyDescription="This class has no timetable slots yet."
+              />
             )}
-        </div>
-    );
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Conflict Detection</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              data={currentConflicts}
+              columns={conflictColumns}
+              searchKey={(row) => `${row.type} ${row.message}`}
+              searchPlaceholder="Search conflict messages..."
+              emptyTitle="No conflicts found"
+              emptyDescription="No teacher or room overlaps were detected for the selected day."
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }

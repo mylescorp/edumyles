@@ -4,6 +4,13 @@ import { requireTenantContext, requireTenantSession } from "../../helpers/tenant
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { logAction } from "../../helpers/auditLog";
+import {
+  buildLedgerDescription,
+  getCompletedPaymentAmount,
+  getInvoiceBalance,
+  getInvoiceStatusFromPayments,
+  resolveFinanceCurrency,
+} from "./paymentUtils";
 
 async function calculateInvoicePaymentSummary(ctx: any, invoiceId: any) {
   const payments = await ctx.db
@@ -11,9 +18,7 @@ async function calculateInvoicePaymentSummary(ctx: any, invoiceId: any) {
     .withIndex("by_invoice", (q: any) => q.eq("invoiceId", invoiceId))
     .collect();
 
-  const completedAmount = payments
-    .filter((payment: any) => payment.status === "completed")
-    .reduce((sum: number, payment: any) => sum + payment.amount, 0);
+  const completedAmount = getCompletedPaymentAmount(payments);
 
   return {
     payments,
@@ -23,12 +28,7 @@ async function calculateInvoicePaymentSummary(ctx: any, invoiceId: any) {
 
 async function reconcileInvoiceStatus(ctx: any, invoice: any, now: number) {
   const { completedAmount } = await calculateInvoicePaymentSummary(ctx, invoice._id);
-  const newStatus =
-    completedAmount >= invoice.amount
-      ? "paid"
-      : completedAmount > 0
-        ? "partially_paid"
-        : "pending";
+  const newStatus = getInvoiceStatusFromPayments(invoice.amount, completedAmount);
 
   await ctx.db.patch(invoice._id, {
     status: newStatus,
@@ -37,8 +37,80 @@ async function reconcileInvoiceStatus(ctx: any, invoice: any, now: number) {
 
   return {
     amountPaid: completedAmount,
-    balance: Math.max(invoice.amount - completedAmount, 0),
+    balance: getInvoiceBalance(invoice.amount, completedAmount),
     status: newStatus,
+  };
+}
+
+async function ensureLedgerEntryForPayment(ctx: any, args: {
+  tenantId: string;
+  invoice: any;
+  paymentId: string;
+  amount: number;
+  method: string;
+  reference: string;
+  processedAt: number;
+}) {
+  const existingEntry = await ctx.db
+    .query("ledgerEntries")
+    .withIndex("by_payment", (q: any) => q.eq("paymentId", args.paymentId))
+    .first();
+
+  if (existingEntry) {
+    return existingEntry._id;
+  }
+
+  return await ctx.db.insert("ledgerEntries", {
+    tenantId: args.tenantId,
+    studentId: args.invoice.studentId,
+    invoiceId: args.invoice._id,
+    paymentId: args.paymentId,
+    type: "payment",
+    amount: args.amount,
+    currency: resolveFinanceCurrency(args.invoice),
+    description: buildLedgerDescription({
+      method: args.method,
+      reference: args.reference,
+      invoiceId: String(args.invoice._id),
+    }),
+    createdAt: args.processedAt,
+  });
+}
+
+async function postConfirmedPayment(ctx: any, args: {
+  tenantId: string;
+  invoice: any;
+  amount: number;
+  method: string;
+  reference: string;
+  processedAt: number;
+}) {
+  const paymentId = await ctx.db.insert("payments", {
+    tenantId: args.tenantId,
+    invoiceId: args.invoice._id,
+    amount: args.amount,
+    method: args.method,
+    reference: args.reference,
+    status: "completed",
+    processedAt: args.processedAt,
+  });
+
+  const ledgerEntryId = await ensureLedgerEntryForPayment(ctx, {
+    tenantId: args.tenantId,
+    invoice: args.invoice,
+    paymentId,
+    amount: args.amount,
+    method: args.method,
+    reference: args.reference,
+    processedAt: args.processedAt,
+  });
+
+  const summary = await reconcileInvoiceStatus(ctx, args.invoice, args.processedAt);
+
+  return {
+    paymentId,
+    ledgerEntryId,
+    summary,
   };
 }
 
@@ -193,17 +265,14 @@ export const recordPayment = mutation({
       throw new Error("Cannot record payment for cancelled invoice");
 
     const now = Date.now();
-    const paymentId = await ctx.db.insert("payments", {
+    const { paymentId, ledgerEntryId, summary } = await postConfirmedPayment(ctx, {
       tenantId: tenant.tenantId,
-      invoiceId: args.invoiceId,
+      invoice,
       amount: args.amount,
       method: args.method,
       reference: args.reference,
-      status: "completed",
       processedAt: now,
     });
-
-    const summary = await reconcileInvoiceStatus(ctx, invoice, now);
 
     await logAction(ctx, {
       tenantId: tenant.tenantId,
@@ -217,6 +286,7 @@ export const recordPayment = mutation({
         amount: args.amount,
         invoiceStatus: summary.status,
         balance: summary.balance,
+        ledgerEntryId,
       },
     });
     return paymentId;
@@ -385,17 +455,14 @@ export const verifyBankTransfer = mutation({
     const amount = callback.amount ?? (invoice as any).amount;
     const reference = callback.reference ?? callback.externalId;
 
-    const paymentId = await ctx.db.insert("payments", {
+    const { paymentId, ledgerEntryId, summary } = await postConfirmedPayment(ctx, {
       tenantId: tenant.tenantId,
-      invoiceId: callback.invoiceId,
+      invoice,
       amount,
       method: "bank_transfer",
       reference,
-      status: "completed",
       processedAt: now,
     });
-
-    const summary = await reconcileInvoiceStatus(ctx, invoice, now);
 
     await ctx.db.patch(args.callbackId, {
       status: "completed",
@@ -407,6 +474,7 @@ export const verifyBankTransfer = mutation({
         verifiedAt: now,
         verifiedBy: tenant.userId,
         paymentId,
+        ledgerEntryId,
         amountPaid: summary.amountPaid,
         balance: summary.balance,
       },
@@ -517,17 +585,14 @@ export const recordPaymentFromGatewayInternal = internalMutation({
     const amount = existing.amount ?? (invoice as any).amount;
     const reference = args.reference ?? existing.externalId;
 
-    const paymentId = await ctx.db.insert("payments", {
+    const { paymentId, ledgerEntryId, summary } = await postConfirmedPayment(ctx, {
       tenantId: existing.tenantId,
-      invoiceId: invoiceId as any,
+      invoice,
       amount,
       method: args.gateway,
       reference,
-      status: "completed",
       processedAt: now,
     });
-
-    const summary = await reconcileInvoiceStatus(ctx, invoice, now);
 
     await ctx.db.patch(existing._id, {
       status: "completed",
@@ -537,6 +602,7 @@ export const recordPaymentFromGatewayInternal = internalMutation({
         ...(existing.payload ?? {}),
         resultCode: args.resultCode,
         paymentId,
+        ledgerEntryId,
         amountPaid: summary.amountPaid,
         balance: summary.balance,
       },

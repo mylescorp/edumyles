@@ -217,11 +217,19 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   ],
 };
 
+function normalizeRole(role: string): Role | null {
+  if (role === "platform_admin") {
+    return "super_admin";
+  }
+  return role in ROLE_PERMISSIONS ? (role as Role) : null;
+}
+
 /**
  * Check if a role has a specific permission.
  */
 export function hasPermission(role: string, permission: string): boolean {
-  const permissions = ROLE_PERMISSIONS[role as Role];
+  const normalizedRole = normalizeRole(role);
+  const permissions = normalizedRole ? ROLE_PERMISSIONS[normalizedRole] : undefined;
   if (!permissions) return false;
   return permissions.includes(permission as Permission);
 }
@@ -238,5 +246,6 @@ export function hasAnyPermission(role: string, permissions: string[]): boolean {
  * Returns an empty array for unknown roles.
  */
 export function getAllPermissions(role: string): Permission[] {
-  return ROLE_PERMISSIONS[role as Role] ?? [];
+  const normalizedRole = normalizeRole(role);
+  return normalizedRole ? ROLE_PERMISSIONS[normalizedRole] ?? [] : [];
 }

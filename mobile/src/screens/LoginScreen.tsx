@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -16,17 +17,86 @@ import { useAuth } from '../hooks/useAuth';
 import { theme } from '../theme';
 
 const LoginScreen: React.FC = () => {
-  const { signIn, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [sessionToken, setSessionToken] = useState('');
+  const { signIn, checkSignInStatus, clearPendingSignIn, pendingAuthRequest, isLoading } = useAuth();
+  const [email, setEmail] = useState("");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
+
+  const expiresInMinutes = useMemo(() => {
+    if (!pendingAuthRequest) {
+      return null;
+    }
+    const remainingMs = Math.max(0, pendingAuthRequest.expiresAt - Date.now());
+    return Math.ceil(remainingMs / 60000);
+  }, [pendingAuthRequest]);
 
   const handleLogin = async () => {
     try {
-      await signIn(email, sessionToken);
+      const request = await signIn(email);
+      setStatusMessage("Open the browser window, finish sign-in, then return here. We’ll keep checking for approval.");
+      await Linking.openURL(request.approvalUrl);
     } catch (error) {
-      Alert.alert('Sign-in failed', error instanceof Error ? error.message : 'Try again.');
+      Alert.alert("Sign-in failed", error instanceof Error ? error.message : "Try again.");
     }
   };
+
+  const handleStatusCheck = async () => {
+    if (!pendingAuthRequest) {
+      return;
+    }
+
+    try {
+      setIsPolling(true);
+      const status = await checkSignInStatus(pendingAuthRequest.requestId);
+
+      if (status.status === "pending") {
+        setStatusMessage("Approval is still pending. Finish sign-in in the browser, then check again.");
+        return;
+      }
+
+      if (status.status === "completed") {
+        setStatusMessage("This device is now signed in.");
+        return;
+      }
+
+      const message =
+        status.status === "expired"
+          ? "That mobile sign-in request expired. Start a new one to continue."
+          : "That mobile sign-in request is no longer active. Start a new one to continue.";
+      setStatusMessage(message);
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "We could not confirm the sign-in yet.");
+    } finally {
+      setIsPolling(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!pendingAuthRequest) {
+      return;
+    }
+
+    let cancelled = false;
+    const interval = setInterval(() => {
+      void (async () => {
+        try {
+          const status = await checkSignInStatus(pendingAuthRequest.requestId);
+          if (!cancelled && status.status === "pending") {
+            setStatusMessage("Waiting for browser approval...");
+          }
+        } catch {
+          if (!cancelled) {
+            setStatusMessage("Still waiting for approval. You can also tap Check Status.");
+          }
+        }
+      })();
+    }, pendingAuthRequest.pollIntervalMs);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [checkSignInStatus, pendingAuthRequest]);
 
   return (
     <KeyboardAvoidingView
@@ -40,8 +110,8 @@ const LoginScreen: React.FC = () => {
           </View>
           <Text style={styles.title}>EduMyles Mobile</Text>
           <Text style={styles.subtitle}>
-            Sign in with the same email you use on the web portal, then paste your current
-            session token to unlock student data on this device.
+            Sign in with the same email you use on the web portal. We’ll open a secure browser
+            window, let you finish approval there, and then connect this device automatically.
           </Text>
         </View>
 
@@ -58,17 +128,6 @@ const LoginScreen: React.FC = () => {
             onChangeText={setEmail}
           />
 
-          <Text style={styles.label}>Session Token</Text>
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            placeholder="Paste your active EduMyles session token"
-            placeholderTextColor={theme.colors.textLight}
-            style={[styles.input, styles.tokenInput]}
-            value={sessionToken}
-            onChangeText={setSessionToken}
-          />
-
           <TouchableOpacity
             disabled={isLoading}
             onPress={handleLogin}
@@ -77,9 +136,55 @@ const LoginScreen: React.FC = () => {
             {isLoading ? (
               <ActivityIndicator color={theme.colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Continue</Text>
+              <Text style={styles.buttonText}>Continue In Browser</Text>
             )}
           </TouchableOpacity>
+
+          {pendingAuthRequest ? (
+            <View style={styles.approvalCard}>
+              <Text style={styles.approvalTitle}>Finish sign-in in your browser</Text>
+              <Text style={styles.approvalText}>
+                Request ID: {pendingAuthRequest.requestId.slice(0, 10)}...
+              </Text>
+              <Text style={styles.approvalText}>
+                Expires in about {expiresInMinutes ?? 0} minute{expiresInMinutes === 1 ? "" : "s"}.
+              </Text>
+              {statusMessage ? <Text style={styles.statusMessage}>{statusMessage}</Text> : null}
+
+              <TouchableOpacity
+                disabled={isPolling}
+                onPress={() => Linking.openURL(pendingAuthRequest.approvalUrl)}
+                style={styles.secondaryButton}
+              >
+                <Text style={styles.secondaryButtonText}>Open Browser Again</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                disabled={isPolling}
+                onPress={handleStatusCheck}
+                style={[styles.secondaryButton, styles.checkButton]}
+              >
+                {isPolling ? (
+                  <ActivityIndicator color={theme.colors.primary} />
+                ) : (
+                  <Text style={[styles.secondaryButtonText, styles.checkButtonText]}>
+                    Check Status
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                disabled={isPolling}
+                onPress={() => {
+                  clearPendingSignIn();
+                  setStatusMessage(null);
+                }}
+                style={styles.tertiaryButton}
+              >
+                <Text style={styles.tertiaryButtonText}>Start Over</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -151,10 +256,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
   },
-  tokenInput: {
-    minHeight: 88,
-    textAlignVertical: 'top',
-  },
   button: {
     marginTop: theme.spacing.xl,
     backgroundColor: theme.colors.primary,
@@ -169,6 +270,60 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: theme.fontSizes.base,
     fontWeight: '700',
+  },
+  approvalCard: {
+    marginTop: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+    padding: theme.spacing.md,
+    gap: theme.spacing.sm,
+  },
+  approvalTitle: {
+    color: theme.colors.text,
+    fontSize: theme.fontSizes.base,
+    fontWeight: '700',
+  },
+  approvalText: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    lineHeight: 20,
+  },
+  statusMessage: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '600',
+    lineHeight: 20,
+  },
+  secondaryButton: {
+    marginTop: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: '#93c5fd',
+    paddingVertical: theme.spacing.md,
+    alignItems: 'center',
+    backgroundColor: theme.colors.white,
+  },
+  secondaryButtonText: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSizes.base,
+    fontWeight: '700',
+  },
+  checkButton: {
+    borderColor: theme.colors.primary,
+  },
+  checkButtonText: {
+    color: theme.colors.primary,
+  },
+  tertiaryButton: {
+    alignItems: 'center',
+    paddingTop: theme.spacing.xs,
+  },
+  tertiaryButtonText: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '600',
   },
 });
 

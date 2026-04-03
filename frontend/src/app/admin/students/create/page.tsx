@@ -15,38 +15,7 @@ import { useState, useRef } from "react";
 import { ArrowLeft, Upload, User, Mail, Phone, Calendar } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/components/ui/use-toast";
-
-// Form validation schema
-const validateStudentForm = (form: any) => {
-    const errors: string[] = [];
-
-    if (!form.firstName?.trim()) errors.push("First name is required");
-    if (!form.lastName?.trim()) errors.push("Last name is required");
-    if (!form.dateOfBirth) errors.push("Date of birth is required");
-    else {
-        const dob = new Date(form.dateOfBirth);
-        const today = new Date();
-        let age = today.getFullYear() - dob.getFullYear();
-        const monthDiff = today.getMonth() - dob.getMonth();
-
-        // Adjust age if birthday hasn't occurred yet this year
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-            age--;
-        }
-
-        if (age < 4 || age > 25) errors.push("Student age should be between 4 and 25 years");
-    }
-
-    if (form.guardianEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.guardianEmail)) {
-        errors.push("Invalid guardian email format");
-    }
-
-    if (form.guardianPhone && !/^(\+?254|0)[17]\d{8}$/.test(form.guardianPhone.replace(/\s/g, ""))) {
-        errors.push("Invalid phone number format. Use +254XXXXXXXX or 07XXXXXXXX");
-    }
-
-    return errors;
-};
+import { createStudentWithGuardianSchema } from "@shared/validators";
 
 // Generate admission number
 const generateAdmissionNumber = (classId?: string) => {
@@ -140,30 +109,28 @@ export default function CreateStudentPage() {
         setError(null);
 
         try {
-            // Validate form
-            const validationErrors = validateStudentForm(form);
-            if (validationErrors.length > 0) {
-                throw new Error(validationErrors.join(', '));
-            }
-
             // Generate admission number if not provided
             const admissionNumber = form.admissionNumber || generateAdmissionNumber(form.classId);
 
-            const studentData = {
+            const parsed = createStudentWithGuardianSchema.safeParse({
                 firstName: form.firstName.trim(),
                 lastName: form.lastName.trim(),
                 dateOfBirth: form.dateOfBirth,
                 gender: form.gender,
                 classId: form.classId || undefined,
-                admissionNumber,
+                admissionNo: admissionNumber,
                 guardianName: form.guardianName?.trim() || undefined,
                 guardianEmail: form.guardianEmail?.trim() || undefined,
                 guardianPhone: form.guardianPhone?.trim() || undefined,
                 guardianRelationship: form.guardianRelationship || undefined,
                 photoUrl: photoPreview || undefined,
-            };
+            });
 
-            await createStudent(studentData);
+            if (!parsed.success) {
+                throw new Error(parsed.error.errors[0]?.message ?? "Student details are invalid");
+            }
+
+            await createStudent(parsed.data);
 
             toast({
                 title: "Success",

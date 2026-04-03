@@ -1,4 +1,4 @@
-import { query } from "../../_generated/server";
+import { internalQuery, query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
@@ -74,5 +74,14 @@ export const getReportRunHistory = query({
       .take(args.limit ?? 50);
 
     return runs;
+  },
+});
+
+export const getScheduledReportInternal = internalQuery({
+  args: {
+    reportId: v.id("scheduledReports"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.reportId);
   },
 });

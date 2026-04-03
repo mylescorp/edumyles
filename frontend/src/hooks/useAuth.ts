@@ -17,52 +17,88 @@ function normalizeRole(role: string | null | undefined) {
   return role ?? null;
 }
 
+type AuthStoreState = {
+  session: Session | null;
+  isLoading: boolean;
+};
+
+const authListeners = new Set<(state: AuthStoreState) => void>();
+let authState: AuthStoreState = {
+  session: null,
+  isLoading: true,
+};
+let authLoadPromise: Promise<void> | null = null;
+
+function emitAuthState() {
+  for (const listener of authListeners) {
+    listener(authState);
+  }
+}
+
+function setAuthState(next: Partial<AuthStoreState>) {
+  authState = {
+    ...authState,
+    ...next,
+  };
+  emitAuthState();
+}
+
+async function loadAuthSession(force = false) {
+  if (authLoadPromise && !force) {
+    return authLoadPromise;
+  }
+
+  authLoadPromise = (async () => {
+    setAuthState({ isLoading: true });
+
+    try {
+      const res = await fetch("/api/auth/session", {
+        credentials: "same-origin",
+      });
+
+      if (!res.ok) {
+        setAuthState({ session: null, isLoading: false });
+        return;
+      }
+
+      const data = await res.json();
+      const nextSession = data.session
+        ? {
+            ...(data.session as Session),
+            role: normalizeRole((data.session as Session).role) ?? "",
+          }
+        : null;
+
+      setAuthState({
+        session: nextSession,
+        isLoading: false,
+      });
+    } catch {
+      setAuthState({ session: null, isLoading: false });
+    } finally {
+      authLoadPromise = null;
+    }
+  })();
+
+  return authLoadPromise;
+}
+
 export function useAuth() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(authState.session);
+  const [isLoading, setIsLoading] = useState(authState.isLoading);
 
   useEffect(() => {
-    let cancelled = false;
+    const listener = (state: AuthStoreState) => {
+      setSession(state.session);
+      setIsLoading(state.isLoading);
+    };
 
-    async function loadSession() {
-      try {
-        // Use server-side API endpoint to validate the httpOnly session cookie
-        const res = await fetch("/api/auth/session", {
-          credentials: "same-origin",
-        });
-
-        if (!res.ok) {
-          if (!cancelled) {
-            setSession(null);
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!cancelled) {
-          const nextSession = data.session
-            ? {
-                ...(data.session as Session),
-                role: normalizeRole((data.session as Session).role) ?? "",
-              }
-            : null;
-          setSession(nextSession);
-          setIsLoading(false);
-        }
-      } catch {
-        if (!cancelled) {
-          setSession(null);
-          setIsLoading(false);
-        }
-      }
-    }
-
-    loadSession();
+    authListeners.add(listener);
+    listener(authState);
+    void loadAuthSession();
 
     return () => {
-      cancelled = true;
+      authListeners.delete(listener);
     };
   }, []);
 
@@ -103,8 +139,7 @@ export function useAuth() {
 
   const logout = useCallback(async () => {
     // Clear client state immediately so UI reacts right away
-    setSession(null);
-    setIsLoading(false);
+    setAuthState({ session: null, isLoading: false });
     localStorage.clear();
     sessionStorage.clear();
 

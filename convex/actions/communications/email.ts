@@ -5,22 +5,27 @@ import { v } from "convex/values";
 import { internal } from "../../_generated/api";
 import { requireActionTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
+const { createEmailService, EmailService } = require("../../../shared/src/lib/email");
 
 async function sendEmailViaResend(args: {
-  to: string;
+  to: string[];
   subject: string;
-  body: string;
+  body?: string;
+  html?: string;
+  text?: string;
   template?: string;
   data?: unknown;
 }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error("Resend not configured. Set RESEND_API_KEY.");
+  const emailService = createEmailService();
+  const { valid, invalid } = EmailService.validateEmails(args.to);
+  if (invalid.length > 0) {
+    throw new Error(`Invalid email addresses: ${invalid.join(", ")}`);
+  }
+  if (valid.length === 0) {
+    throw new Error("No valid recipients");
   }
 
-  const from = process.env.RESEND_FROM_EMAIL ?? "EduMyles <noreply@edumyles.com>";
-  const subject = args.subject;
-  let body = args.body;
+  let body = args.body ?? args.text ?? "";
 
   if (args.template && args.data) {
     switch (args.template) {
@@ -41,26 +46,17 @@ async function sendEmailViaResend(args: {
     }
   }
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: [args.to],
-      subject,
-      html: body.replace(/\n/g, "<br/>"),
-    }),
+  const result = await emailService.sendEmail({
+    to: valid,
+    subject: args.subject,
+    html: args.html ?? body.replace(/\n/g, "<br/>"),
+    text: args.text ?? body,
   });
-
-  if (!res.ok) {
-    const err = (await res.json()) as { message?: string };
-    throw new Error(err.message ?? `Resend API error: ${res.status}`);
+  if (!result.success) {
+    throw new Error(result.error ?? "Resend API error");
   }
 
-  return (await res.json()) as { id?: string };
+  return { id: result.messageId, recipients: result.recipients };
 }
 
 /**
@@ -70,9 +66,11 @@ async function sendEmailViaResend(args: {
  */
 export const sendEmail = action({
   args: {
-    to: v.string(),
+    to: v.array(v.string()),
     subject: v.string(),
-    body: v.string(),
+    body: v.optional(v.string()),
+    html: v.optional(v.string()),
+    text: v.optional(v.string()),
     template: v.optional(v.string()),
     data: v.optional(v.any()),
   },
@@ -91,10 +89,15 @@ export const sendEmail = action({
       action: "communication.email_sent",
       entityType: "email",
       entityId: data.id ?? "unknown",
-      after: { to: args.to, subject: args.subject, template: args.template },
+      after: { to: args.to, subject: args.subject, template: args.template, recipients: data.recipients ?? [] },
     });
 
-    return { success: true, id: data.id };
+    return {
+      success: true,
+      id: data.id,
+      messageId: data.id,
+      recipients: data.recipients ?? [],
+    };
   },
 });
 
@@ -103,9 +106,11 @@ export const sendEmailInternal = internalAction({
     tenantId: v.string(),
     actorId: v.string(),
     actorEmail: v.string(),
-    to: v.string(),
+    to: v.array(v.string()),
     subject: v.string(),
-    body: v.string(),
+    body: v.optional(v.string()),
+    html: v.optional(v.string()),
+    text: v.optional(v.string()),
     template: v.optional(v.string()),
     data: v.optional(v.any()),
   },
@@ -119,9 +124,14 @@ export const sendEmailInternal = internalAction({
       action: "communication.email_sent",
       entityType: "email",
       entityId: data.id ?? "unknown",
-      after: { to: args.to, subject: args.subject, template: args.template },
+      after: { to: args.to, subject: args.subject, template: args.template, recipients: data.recipients ?? [] },
     });
 
-    return { success: true, id: data.id };
+    return {
+      success: true,
+      id: data.id,
+      messageId: data.id,
+      recipients: data.recipients ?? [],
+    };
   },
 });

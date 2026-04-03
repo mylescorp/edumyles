@@ -4,32 +4,28 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { useAuth } from "@/hooks/useAuth";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Plus, Navigation } from "lucide-react";
+import { MapPin, Plus, Navigation, Route as RouteIcon } from "lucide-react";
 import Link from "next/link";
 
 type Route = {
   _id: string;
   name: string;
   stops: string[];
-  status: string;
-  capacity: number;
-  activeStudents: number;
-  driver?: string;
-  vehicle?: string;
+  createdAt?: number;
+  updatedAt?: number;
 };
 
 export default function TransportRoutesPage() {
   const { isLoading, sessionToken } = useAuth();
 
-  const routes = usePlatformQuery(
+  const routes = useQuery(
     api.modules.transport.queries.listRoutes,
-    sessionToken ? { sessionToken } : "skip",
-    !!sessionToken
+    sessionToken ? { sessionToken } : "skip"
   );
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
@@ -69,47 +65,19 @@ export default function TransportRoutesPage() {
       ),
     },
     {
-      key: "capacity",
-      header: "Utilisation",
+      key: "stopCount",
+      header: "Stop Count",
       cell: (row) => (
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">
-            {row.activeStudents}/{row.capacity}
-          </span>
-          <div className="w-16 bg-muted rounded-full h-2 overflow-hidden">
-            <div
-              className="bg-primary h-2 rounded-full"
-              style={{
-                width:
-                  row.capacity > 0
-                    ? `${Math.min((row.activeStudents / row.capacity) * 100, 100)}%`
-                    : "0%",
-              }}
-            />
-          </div>
-        </div>
+        <span className="text-sm font-medium">{row.stops.length}</span>
       ),
     },
     {
-      key: "driver",
-      header: "Driver",
-      cell: (row) => row.driver || <span className="text-muted-foreground">—</span>,
-    },
-    {
-      key: "vehicle",
-      header: "Vehicle",
-      cell: (row) => row.vehicle || <span className="text-muted-foreground">—</span>,
-    },
-    {
-      key: "status",
-      header: "Status",
+      key: "updatedAt",
+      header: "Last Updated",
       cell: (row) => (
-        <Badge
-          variant={row.status === "active" ? "default" : "secondary"}
-          className="capitalize"
-        >
-          {row.status}
-        </Badge>
+        <span className="text-sm text-muted-foreground">
+          {row.updatedAt ? new Date(row.updatedAt).toLocaleDateString() : "—"}
+        </span>
       ),
     },
     {
@@ -117,9 +85,7 @@ export default function TransportRoutesPage() {
       header: "",
       cell: (row) => (
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline">
-            Edit
-          </Button>
+          <Badge variant="outline">Configured</Badge>
         </div>
       ),
     },
@@ -176,7 +142,7 @@ export default function TransportRoutesPage() {
           </CardHeader>
           <CardContent>
             <span className="text-2xl font-bold text-green-600">
-              {routeList.filter((r) => r.status === "active").length}
+              {routeList.filter((r) => r.stops.length > 0).length}
             </span>
           </CardContent>
         </Card>
@@ -188,7 +154,7 @@ export default function TransportRoutesPage() {
           </CardHeader>
           <CardContent>
             <span className="text-2xl font-bold">
-              {routeList.reduce((sum, r) => sum + (r.capacity || 0), 0)}
+              {routeList.reduce((sum, route) => sum + route.stops.length, 0)}
             </span>
           </CardContent>
         </Card>
@@ -205,6 +171,7 @@ export default function TransportRoutesPage() {
             columns={columns}
             searchable
             searchPlaceholder="Search routes..."
+            searchKey={(row) => `${row.name} ${row.stops.join(" ")}`}
             emptyTitle="No routes found"
             emptyDescription="Create your first transport route to get started."
           />

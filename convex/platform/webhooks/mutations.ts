@@ -1,25 +1,37 @@
-import { mutation } from "../../_generated/server";
+import { internalAction, internalMutation, mutation } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { Id } from "../../_generated/dataModel";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
-/**
- * Create a new webhook endpoint
- */
+async function buildSignature(secret: string, payload: string) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+  return Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export const createEndpoint = mutation({
   args: {
     sessionToken: v.string(),
     url: v.string(),
     events: v.array(v.string()),
     description: v.optional(v.string()),
+    secret: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
-    // Generate a webhook secret
-    const secret = `whsec_${Array.from({ length: 32 }, () => Math.random().toString(36)[2]).join("")}`;
-
+    const secret = args.secret || `whsec_${Array.from({ length: 32 }, () => Math.random().toString(36)[2]).join("")}`;
     const endpointId = await ctx.db.insert("webhookEndpoints", {
       tenantId,
       url: args.url,
@@ -47,9 +59,6 @@ export const createEndpoint = mutation({
   },
 });
 
-/**
- * Update a webhook endpoint
- */
 export const updateEndpoint = mutation({
   args: {
     sessionToken: v.string(),
@@ -90,9 +99,6 @@ export const updateEndpoint = mutation({
   },
 });
 
-/**
- * Delete a webhook endpoint
- */
 export const deleteEndpoint = mutation({
   args: {
     sessionToken: v.string(),
@@ -122,23 +128,20 @@ export const deleteEndpoint = mutation({
   },
 });
 
-/**
- * Send a test payload to a webhook endpoint
- */
 export const testEndpoint = mutation({
   args: {
     sessionToken: v.string(),
     endpointId: v.id("webhookEndpoints"),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const endpoint = await ctx.db.get(args.endpointId);
     if (!endpoint || endpoint.tenantId !== tenantId) {
       throw new Error("Webhook endpoint not found");
     }
 
-    const testPayload = JSON.stringify({
+    const payload = JSON.stringify({
       event: "test.ping",
       timestamp: Date.now(),
       data: {
@@ -147,39 +150,35 @@ export const testEndpoint = mutation({
       },
     });
 
-    // Create a delivery record for the test
     const deliveryId = await ctx.db.insert("webhookDeliveries", {
       tenantId,
       endpointId: args.endpointId,
       event: "test.ping",
-      payload: testPayload,
-      statusCode: 200,
-      response: JSON.stringify({ ok: true }),
-      status: "success",
+      payload,
+      statusCode: 0,
+      response: "",
+      status: "pending",
       attemptCount: 1,
       createdAt: Date.now(),
-      completedAt: Date.now(),
     });
 
-    await ctx.db.patch(args.endpointId, {
-      lastTriggeredAt: Date.now(),
-      updatedAt: Date.now(),
+    await ctx.scheduler.runAfter(0, internal.platform.webhooks.mutations.deliverWebhookInternal, {
+      deliveryId,
+      actorId: userId,
+      actorEmail: email,
     });
 
-    return { success: true, deliveryId, message: "Test webhook sent" };
+    return { success: true, deliveryId, message: "Test webhook queued" };
   },
 });
 
-/**
- * Retry a failed webhook delivery
- */
 export const retryDelivery = mutation({
   args: {
     sessionToken: v.string(),
     deliveryId: v.id("webhookDeliveries"),
   },
   handler: async (ctx, args) => {
-    const { tenantId } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
 
     const delivery = await ctx.db.get(args.deliveryId);
     if (!delivery || delivery.tenantId !== tenantId) {
@@ -190,25 +189,133 @@ export const retryDelivery = mutation({
       throw new Error("Only failed deliveries can be retried");
     }
 
-    // Simulate retry - mark as success
     await ctx.db.patch(args.deliveryId, {
-      status: "success",
-      statusCode: 200,
-      response: JSON.stringify({ ok: true, retried: true }),
+      status: "pending",
+      response: "",
+      statusCode: 0,
       attemptCount: delivery.attemptCount + 1,
-      completedAt: Date.now(),
+      completedAt: undefined,
     });
 
-    // Reset failure count on the endpoint
-    const endpoint = await ctx.db.get(delivery.endpointId);
-    if (endpoint) {
-      await ctx.db.patch(delivery.endpointId, {
-        failureCount: Math.max(0, endpoint.failureCount - 1),
-        lastTriggeredAt: Date.now(),
-        updatedAt: Date.now(),
-      });
+    await ctx.scheduler.runAfter(0, internal.platform.webhooks.mutations.deliverWebhookInternal, {
+      deliveryId: args.deliveryId,
+      actorId: userId,
+      actorEmail: email,
+    });
+
+    return { success: true, message: "Delivery retry queued" };
+  },
+});
+
+export const deliverWebhookInternal = internalAction({
+  args: {
+    deliveryId: v.id("webhookDeliveries"),
+    actorId: v.string(),
+    actorEmail: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const delivery = await ctx.runQuery(internal.platform.webhooks.queries.getDeliveryInternal, {
+      deliveryId: args.deliveryId,
+    });
+
+    if (!delivery) {
+      return;
     }
 
-    return { success: true, message: "Delivery retried successfully" };
+    const endpoint = await ctx.runQuery(internal.platform.webhooks.queries.getEndpointInternal, {
+      endpointId: delivery.endpointId,
+    });
+
+    if (!endpoint || !endpoint.isActive) {
+      await ctx.runMutation(internal.platform.webhooks.mutations.finalizeDeliveryInternal, {
+        deliveryId: args.deliveryId,
+        endpointId: delivery.endpointId,
+        status: "failed",
+        statusCode: 410,
+        response: "Endpoint inactive or deleted",
+        actorId: args.actorId,
+        actorEmail: args.actorEmail,
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(endpoint.url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-EduMyles-Event": delivery.event,
+          "X-EduMyles-Signature": await buildSignature(endpoint.secret, delivery.payload),
+          "X-EduMyles-Delivery": String(delivery._id),
+        },
+        body: delivery.payload,
+      });
+
+      const responseText = await response.text();
+      await ctx.runMutation(internal.platform.webhooks.mutations.finalizeDeliveryInternal, {
+        deliveryId: args.deliveryId,
+        endpointId: delivery.endpointId,
+        status: response.ok ? "success" : "failed",
+        statusCode: response.status,
+        response: responseText.slice(0, 2000),
+        actorId: args.actorId,
+        actorEmail: args.actorEmail,
+      });
+    } catch (error) {
+      await ctx.runMutation(internal.platform.webhooks.mutations.finalizeDeliveryInternal, {
+        deliveryId: args.deliveryId,
+        endpointId: delivery.endpointId,
+        status: "failed",
+        statusCode: 0,
+        response: error instanceof Error ? error.message : "Webhook delivery failed",
+        actorId: args.actorId,
+        actorEmail: args.actorEmail,
+      });
+    }
+  },
+});
+
+export const finalizeDeliveryInternal = internalMutation({
+  args: {
+    deliveryId: v.id("webhookDeliveries"),
+    endpointId: v.id("webhookEndpoints"),
+    status: v.union(v.literal("success"), v.literal("failed")),
+    statusCode: v.number(),
+    response: v.string(),
+    actorId: v.string(),
+    actorEmail: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const delivery = await ctx.db.get(args.deliveryId);
+    const endpoint = await ctx.db.get(args.endpointId);
+    if (!delivery || !endpoint) return;
+
+    const completedAt = Date.now();
+    await ctx.db.patch(args.deliveryId, {
+      status: args.status,
+      statusCode: args.statusCode,
+      response: args.response,
+      completedAt,
+    });
+
+    await ctx.db.patch(args.endpointId, {
+      lastTriggeredAt: completedAt,
+      failureCount: args.status === "failed" ? (endpoint.failureCount ?? 0) + 1 : 0,
+      updatedAt: completedAt,
+    });
+
+    await ctx.runMutation(internal.helpers.auditLog.internalLogAction, {
+      tenantId: endpoint.tenantId,
+      actorId: args.actorId,
+      actorEmail: args.actorEmail,
+      action: `webhook.delivery_${args.status}`,
+      entityType: "webhook_delivery",
+      entityId: String(args.deliveryId),
+      after: {
+        endpointId: args.endpointId,
+        statusCode: args.statusCode,
+        status: args.status,
+      },
+    });
   },
 });

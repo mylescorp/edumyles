@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -25,22 +25,26 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 /** Core module IDs — client-side constant matching the backend */
 const CORE_MODULE_IDS = ["sis", "communications", "users"];
 
 export default function MarketplacePage() {
-  const { isLoading: authLoading, sessionToken } = useAuth();
+  const { isLoading: authLoading, isAuthenticated, sessionToken } = useAuth();
   const { tenantId, installedModules, tier, isLoading: tenantLoading } = useTenant();
+  const router = useRouter();
+  const hasLiveTenantSession =
+    !!sessionToken && sessionToken !== "dev_session_token";
+  const canQueryMarketplace =
+    !authLoading && isAuthenticated && hasLiveTenantSession;
 
   const availableModules = useQuery(
     api.modules.marketplace.queries.getAvailableForTier,
     { sessionToken: sessionToken ?? "" },
-    !!sessionToken
+    canQueryMarketplace
   );
-
-  const installModule = useMutation(api.modules.marketplace.mutations.installModule);
-  const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
+  const resolvedAvailableModules = (availableModules as any[]) ?? [];
 
   const [dialogState, setDialogState] = useState<{
     open: boolean;
@@ -61,9 +65,11 @@ export default function MarketplacePage() {
 
   // Separate core and optional modules
   const { coreModules, optionalModules, installedCount, totalCount } = useMemo(() => {
-    if (!availableModules) return { coreModules: [], optionalModules: [], installedCount: 0, totalCount: 0 };
+    if (resolvedAvailableModules.length === 0) {
+      return { coreModules: [], optionalModules: [], installedCount: 0, totalCount: 0 };
+    }
 
-    const modules = availableModules as any[];
+    const modules = resolvedAvailableModules;
     const core = modules.filter((m) => CORE_MODULE_IDS.includes(m.moduleId) || m.isCore);
     const optional = modules.filter((m) => !CORE_MODULE_IDS.includes(m.moduleId) && !m.isCore);
 
@@ -75,7 +81,7 @@ export default function MarketplacePage() {
       installedCount: installed.length,
       totalCount: optional.length,
     };
-  }, [availableModules, installedModules]);
+  }, [resolvedAvailableModules, installedModules]);
 
   // Filter optional modules by search and tab
   const filteredOptional = useMemo(() => {
@@ -104,12 +110,15 @@ export default function MarketplacePage() {
     return result;
   }, [optionalModules, search, tab, installedModules]);
 
-  if (authLoading || tenantLoading || availableModules === undefined) {
+  if (authLoading && !isAuthenticated) {
     return <LoadingSkeleton variant="page" />;
   }
 
+  const isRefreshingMarketplaceData =
+    canQueryMarketplace && availableModules === undefined;
+
   const handleInstall = (moduleId: string) => {
-    const mod = (availableModules as any[])?.find((m) => m.moduleId === moduleId);
+    const mod = resolvedAvailableModules.find((m) => m.moduleId === moduleId);
     if (!mod) return;
     setDialogState({
       open: true,
@@ -122,7 +131,7 @@ export default function MarketplacePage() {
 
   const handleUninstall = (moduleId: string) => {
     if (CORE_MODULE_IDS.includes(moduleId)) return; // Safety check
-    const mod = (availableModules as any[])?.find((m) => m.moduleId === moduleId);
+    const mod = resolvedAvailableModules.find((m) => m.moduleId === moduleId);
     if (!mod) return;
     setDialogState({
       open: true,
@@ -134,25 +143,32 @@ export default function MarketplacePage() {
   };
 
   const handleConfirm = async () => {
-    if (!tenantId) return;
     setIsProcessing(true);
     try {
-      if (dialogState.action === "install") {
-        await installModule({
-          sessionToken: sessionToken ?? "",
-          tenantId,
+      const response = await fetch("/api/marketplace/modules", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: dialogState.action,
           moduleId: dialogState.moduleId,
-        });
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Module operation failed");
+      }
+
+      if (dialogState.action === "install") {
         toast.success("Module installed");
       } else {
-        await uninstallModule({
-          sessionToken: sessionToken ?? "",
-          tenantId,
-          moduleId: dialogState.moduleId,
-        });
         toast.success("Module uninstalled");
       }
       setDialogState((s) => ({ ...s, open: false }));
+      router.refresh();
     } catch (error) {
       console.error("Module operation failed:", error);
       toast.error(error instanceof Error ? error.message : "Module operation failed");
@@ -316,7 +332,19 @@ export default function MarketplacePage() {
           ))}
         </div>
 
-        {filteredOptional.length === 0 && (
+        {isRefreshingMarketplaceData && filteredOptional.length === 0 && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Card key={`marketplace-skeleton-${index}`} className="overflow-hidden">
+                <CardContent className="p-5">
+                  <LoadingSkeleton variant="card" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {!isRefreshingMarketplaceData && filteredOptional.length === 0 && (
           <div className="py-12 text-center">
             <Package className="mx-auto h-10 w-10 text-muted-foreground/50" />
             <p className="mt-2 text-sm text-muted-foreground">

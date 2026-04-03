@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { createStaffSchema } from "@shared/validators";
 
 export default function CreateStaffPage() {
     const { isLoading } = useAuth();
@@ -45,21 +46,35 @@ export default function CreateStaffPage() {
         setError(null);
 
         try {
-            if (!form.firstName || !form.lastName || !form.email) {
-                throw new Error("Please fill in all required fields.");
+            const parsed = createStaffSchema.safeParse({
+                tenantId: "tenant",
+                firstName: form.firstName.trim(),
+                lastName: form.lastName.trim(),
+                email: form.email.trim(),
+                phone: form.phone.trim() || undefined,
+                role: form.role,
+                employeeId: form.employeeId.trim(),
+                department: form.department.trim() || undefined,
+                qualification: form.qualification.trim() || undefined,
+                joinDate: form.joinDate,
+                status: form.status,
+            });
+
+            if (!parsed.success) {
+                throw new Error(parsed.error.errors[0]?.message ?? "Please fill in all required fields.");
             }
 
             await createStaff({
-                firstName: form.firstName,
-                lastName: form.lastName,
-                email: form.email,
-                phone: form.phone || undefined,
-                role: form.role,
-                department: form.department || undefined,
-                qualification: form.qualification || undefined,
-                employeeId: form.employeeId || "",
-                joinDate: form.joinDate || "",
-                status: form.status,
+                firstName: parsed.data.firstName,
+                lastName: parsed.data.lastName,
+                email: parsed.data.email,
+                phone: parsed.data.phone,
+                role: parsed.data.role,
+                department: parsed.data.department,
+                qualification: parsed.data.qualification,
+                employeeId: parsed.data.employeeId,
+                joinDate: parsed.data.joinDate,
+                status: parsed.data.status,
             });
 
             router.push("/admin/staff");

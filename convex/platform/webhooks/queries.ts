@@ -1,4 +1,4 @@
-import { query } from "../../_generated/server";
+import { internalQuery, query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
@@ -101,5 +101,23 @@ export const listDeliveries = query({
       .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .order("desc")
       .take(args.limit ?? 50);
+  },
+});
+
+export const getDeliveryInternal = internalQuery({
+  args: {
+    deliveryId: v.id("webhookDeliveries"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.deliveryId);
+  },
+});
+
+export const getEndpointInternal = internalQuery({
+  args: {
+    endpointId: v.id("webhookEndpoints"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.endpointId);
   },
 });

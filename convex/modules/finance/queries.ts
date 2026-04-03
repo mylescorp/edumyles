@@ -3,6 +3,7 @@ import { query } from "../../_generated/server";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
+import { getCompletedPaymentAmount, getInvoiceBalance } from "./paymentUtils";
 
 export const listFeeStructures = query({
     args: {
@@ -81,19 +82,15 @@ export const listInvoices = query({
                 .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
                 .collect();
 
-            const completedPayments = allPayments.filter(
-                (payment) => payment.status === "completed" || payment.status === "success"
-            );
-
             return invoices.map((invoice) => {
-                const amountPaid = completedPayments
-                    .filter((payment) => payment.invoiceId === invoice._id.toString())
-                    .reduce((sum, payment) => sum + payment.amount, 0);
+                const amountPaid = getCompletedPaymentAmount(
+                    allPayments.filter((payment) => payment.invoiceId === invoice._id.toString())
+                );
 
                 return {
                     ...invoice,
                     amountPaid,
-                    balance: Math.max(invoice.amount - amountPaid, 0),
+                    balance: getInvoiceBalance(invoice.amount, amountPaid),
                 };
             });
         } catch {
@@ -201,16 +198,14 @@ export const getPaymentStatusForInvoice = query({
                 .withIndex("by_invoice", (q) => q.eq("invoiceId", args.invoiceId))
                 .collect();
 
-            const paid = payments
-                .filter((payment) => payment.status === "completed")
-                .reduce((sum, payment) => sum + payment.amount, 0);
+            const paid = getCompletedPaymentAmount(payments);
 
             return {
                 invoiceId: invoice._id,
                 amount: invoice.amount,
                 status: invoice.status,
                 amountPaid: paid,
-                balance: Math.max(invoice.amount - paid, 0),
+                balance: getInvoiceBalance(invoice.amount, paid),
                 payments,
             };
         } catch {

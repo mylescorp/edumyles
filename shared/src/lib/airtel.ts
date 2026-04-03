@@ -214,12 +214,13 @@ export class AirtelService {
 
 // Factory function to create Airtel service
 export function createAirtelService(): AirtelService {
+  const resolved = resolveAirtelConfig();
   const config: AirtelConfig = {
-    clientId: process.env.AIRTEL_CLIENT_ID!,
-    clientSecret: process.env.AIRTEL_CLIENT_SECRET!,
-    partyId: process.env.AIRTEL_PARTY_ID!,
-    environment: (process.env.AIRTEL_ENVIRONMENT as 'staging' | 'production') || 'staging',
-    callbackUrl: process.env.AIRTEL_CALLBACK_URL!,
+    clientId: resolved.clientId!,
+    clientSecret: resolved.clientSecret!,
+    partyId: resolved.partyId!,
+    environment: resolved.environment as 'staging' | 'production',
+    callbackUrl: resolved.callbackUrl!,
   };
 
   // Validate required environment variables
@@ -232,3 +233,4 @@ export function createAirtelService(): AirtelService {
 
   return new AirtelService(config);
 }
+import { resolveAirtelConfig } from "./env.js";

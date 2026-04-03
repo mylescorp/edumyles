@@ -35,7 +35,6 @@ export interface Tenant {
 export type UserRole =
   | "master_admin" // Platform super-admin
   | "super_admin" // Platform operations admin
-  | "platform_admin" // Deprecated alias; normalize to super_admin on read
   | "school_admin" // Full access within their tenant
   | "principal"
   | "teacher"
@@ -49,6 +48,8 @@ export type UserRole =
   | "receptionist"
   | "alumni"
   | "partner";
+
+export type LegacyUserRoleAlias = "platform_admin";
 
 export interface User {
   _id: string;
@@ -202,6 +203,18 @@ export interface Invoice {
   updatedAt: number;
 }
 
+export interface FeeStructure {
+  _id: string;
+  tenantId: TenantId;
+  name: string;
+  amount: number;
+  academicYear: string;
+  grade: string;
+  frequency: "one_time" | "monthly" | "termly" | "yearly";
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface LedgerEntry {
   _id: string;
   tenantId: TenantId;
@@ -225,6 +238,97 @@ export interface AppNotification {
   isRead: boolean;
   link?: string;
   createdAt: number;
+}
+
+export interface SupportTicket {
+  _id: string;
+  tenantId: TenantId;
+  title: string;
+  description?: string;
+  category: string;
+  priority: "low" | "medium" | "high" | "urgent";
+  status: string;
+  requesterId?: string;
+  assigneeId?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface TransportRouteRecord {
+  _id: string;
+  tenantId: TenantId;
+  name: string;
+  vehicleId?: string;
+  driverId?: string;
+  stops: string[];
+  status: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface LibraryCirculationRecord {
+  _id: string;
+  tenantId: TenantId;
+  bookId: string;
+  borrowerId: string;
+  borrowerType: "student" | "staff";
+  issuedAt: number;
+  dueAt: number;
+  returnedAt?: number;
+  status: string;
+}
+
+export interface EWalletTransactionRecord {
+  _id: string;
+  tenantId: TenantId;
+  walletId: string;
+  userId: string;
+  amount: number;
+  currency: string;
+  type: "credit" | "debit" | "transfer" | "topup" | "withdrawal";
+  status: string;
+  reference?: string;
+  createdAt: number;
+}
+
+export interface CommunicationTemplateRecord {
+  _id: string;
+  tenantId: TenantId;
+  type: "sms" | "email";
+  category: string;
+  name: string;
+  subject?: string;
+  content: string;
+  variables: string[];
+  isActive: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface LibraryBookRecord {
+  _id: string;
+  tenantId: TenantId;
+  isbn?: string;
+  title: string;
+  author: string;
+  category: string;
+  quantity: number;
+  availableQuantity: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface EcommerceProductRecord {
+  _id: string;
+  tenantId: TenantId;
+  name: string;
+  description?: string;
+  category?: string;
+  priceCents: number;
+  stock: number;
+  status: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 // ----------------------------------------------------------

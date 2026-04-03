@@ -26,6 +26,192 @@ function normalizeRole(role?: string | null) {
   return role ?? "school_admin";
 }
 
+async function getSessionCompat(convex: ConvexHttpClient, sessionToken: string, serverSecret?: string) {
+  const getSessionRef = (api.sessions as any).getSession;
+
+  if (serverSecret) {
+    try {
+      return await convex.query(getSessionRef, {
+        sessionToken,
+        serverSecret,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.includes("extra field `serverSecret`")) {
+        throw error;
+      }
+    }
+  }
+
+  return await convex.query(getSessionRef, { sessionToken });
+}
+
+async function ensureDevTenantSession(convex: ConvexHttpClient) {
+  const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
+  const platformAdminEmail = process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local";
+  const tenantAdminEmail = "demo-admin@edumyles.local";
+  const platformSessionToken = "dev-platform-session";
+  const tenantSessionToken = "dev-tenant-admin-session";
+  const tenantSubdomain = "demo-school";
+  const tenantAdminUserId = "dev-tenant-admin";
+  const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+
+  const createSessionRef = (api.sessions as any).createSession;
+  const createSessionBase = {
+    sessionToken: platformSessionToken,
+    tenantId: "PLATFORM",
+    userId: "dev-platform-admin",
+    email: platformAdminEmail,
+    role: "master_admin",
+    expiresAt,
+  };
+
+  try {
+    await convex.mutation(createSessionRef, {
+      ...createSessionBase,
+      serverSecret,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.includes("extra field `serverSecret`")) {
+      throw error;
+    }
+    await convex.mutation(createSessionRef, createSessionBase);
+  }
+
+  const listTenantsRef = (api.platform.tenants.queries as any).listAllTenants;
+  const createTenantRef = (api.platform.tenants.mutations as any).createTenant;
+
+  const existingTenants = await convex.query(listTenantsRef, {
+    sessionToken: platformSessionToken,
+  });
+
+  let tenant = Array.isArray(existingTenants)
+    ? existingTenants.find((entry: any) => entry.subdomain === tenantSubdomain)
+    : null;
+
+  if (!tenant) {
+    await convex.mutation(createTenantRef, {
+      sessionToken: platformSessionToken,
+      name: "Demo School",
+      subdomain: tenantSubdomain,
+      email: tenantAdminEmail,
+      phone: "+254700000000",
+      plan: "starter",
+      county: "Nairobi",
+      country: "KE",
+    });
+
+    const refreshedTenants = await convex.query(listTenantsRef, {
+      sessionToken: platformSessionToken,
+    });
+    tenant = Array.isArray(refreshedTenants)
+      ? refreshedTenants.find((entry: any) => entry.subdomain === tenantSubdomain)
+      : null;
+  }
+
+  if (!tenant?.tenantId) {
+    throw new Error("Dev tenant bootstrap failed");
+  }
+
+  try {
+    await convex.mutation((api.modules.marketplace.seed as any).ensureCoreModules, {});
+  } catch (error) {
+    console.warn("[api/auth/session] Failed to ensure core modules via seed helper:", error);
+  }
+
+  try {
+    await convex.mutation((api.modules.marketplace.seed as any).seedModuleRegistry, {});
+  } catch (error) {
+    console.warn("[api/auth/session] Failed to seed module registry via seed helper:", error);
+    try {
+      await convex.mutation((api.modules.marketplace.mutations as any).runSeedModuleRegistry, {});
+    } catch (secondaryError) {
+      console.warn("[api/auth/session] Failed to seed module registry via fallback mutation:", secondaryError);
+    }
+  }
+
+  const tenantSessionBase = {
+    sessionToken: tenantSessionToken,
+    tenantId: tenant.tenantId,
+    userId: tenantAdminUserId,
+    email: tenantAdminEmail,
+    role: "school_admin",
+    expiresAt,
+  };
+
+  try {
+    await convex.mutation(createSessionRef, {
+      ...tenantSessionBase,
+      serverSecret,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.includes("extra field `serverSecret`")) {
+      throw error;
+    }
+    await convex.mutation(createSessionRef, tenantSessionBase);
+  }
+
+  return {
+    sessionToken: tenantSessionToken,
+    tenantId: tenant.tenantId,
+    userId: tenantAdminUserId,
+    email: tenantAdminEmail,
+    role: "school_admin",
+    expiresAt,
+    user: {
+      email: tenantAdminEmail,
+      firstName: "Demo",
+      lastName: "Admin",
+    },
+  };
+}
+
+function setSessionCookies(
+  response: NextResponse,
+  sessionToken: string,
+  user: { email: string; firstName?: string | null; lastName?: string | null },
+  role: string,
+  tenantId: string
+) {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  response.cookies.set("edumyles_session", sessionToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    maxAge: 30 * 24 * 60 * 60,
+    path: "/",
+  });
+
+  response.cookies.set(
+    "edumyles_user",
+    JSON.stringify({
+      email: user.email,
+      firstName: user.firstName ?? "",
+      lastName: user.lastName ?? "",
+      role,
+      tenantId,
+    }),
+    {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60,
+      path: "/",
+    }
+  );
+
+  response.cookies.set("edumyles_role", role, {
+    httpOnly: false,
+    secure: isProduction,
+    sameSite: "lax",
+    maxAge: 30 * 24 * 60 * 60,
+    path: "/",
+  });
+}
+
 /**
  * GET /api/auth/session
  *
@@ -39,19 +225,34 @@ export async function GET(req: NextRequest) {
     if (
       process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
       process.env.NODE_ENV !== "production" &&
-      !req.cookies.get("edumyles_session")?.value
+      (!req.cookies.get("edumyles_session")?.value ||
+        req.cookies.get("edumyles_session")?.value === "dev_session_token")
     ) {
-      console.log("[api/auth/session] Dev bypass: Creating mock session");
-      return NextResponse.json({
+      const convex = getConvexClient();
+
+      console.log("[api/auth/session] Dev bypass: Bootstrapping real tenant session");
+      const seeded = await ensureDevTenantSession(convex);
+
+      const response = NextResponse.json({
         session: {
-          sessionToken: "dev_session_token",
-          tenantId: "PLATFORM",
-          userId: "dev_user_id",
-          email: "admin@edumyles.local",
-          role: "master_admin",
-          expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
+          sessionToken: seeded.sessionToken,
+          tenantId: seeded.tenantId,
+          userId: seeded.userId,
+          email: seeded.email,
+          role: seeded.role,
+          expiresAt: seeded.expiresAt,
         },
       });
+
+      setSessionCookies(
+        response,
+        seeded.sessionToken,
+        seeded.user,
+        seeded.role,
+        seeded.tenantId
+      );
+
+      return response;
     }
 
     const sessionToken = req.cookies.get("edumyles_session")?.value;
@@ -68,10 +269,7 @@ export async function GET(req: NextRequest) {
     if (convexUrl) {
       try {
         const convex = getConvexClient();
-        const session = await convex.query(api.sessions.getSession, {
-          sessionToken,
-          serverSecret,
-        });
+        const session = await getSessionCompat(convex, sessionToken, serverSecret);
 
         if (session) {
           const normalizedRole = isConfiguredMasterAdmin(session.email)

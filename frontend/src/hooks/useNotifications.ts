@@ -5,16 +5,26 @@ import { useAuth } from "./useAuth";
 import { useQuery, useMutation } from "./useSSRSafeConvex";
 
 export function useNotifications() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, user, isLoading, isAuthenticated } = useAuth();
+  const hasLiveTenantSession =
+    !!sessionToken && sessionToken !== "dev_session_token";
+  const isLocalBootstrapSession =
+    !!sessionToken && sessionToken.startsWith("dev-");
+  const canQueryNotifications =
+    !isLoading &&
+    isAuthenticated &&
+    hasLiveTenantSession &&
+    !isLocalBootstrapSession &&
+    !!user?._id;
 
   const notifications = useQuery(
     api.notifications.getNotifications,
-    sessionToken ? { sessionToken, limit: 20 } : "skip"
+    canQueryNotifications ? { sessionToken, userId: String(user?._id), limit: 20 } : "skip"
   );
 
   const unreadCount = useQuery(
     api.notifications.getUnreadCount,
-    sessionToken ? { sessionToken } : "skip"
+    canQueryNotifications ? { sessionToken } : "skip"
   );
 
   const markAsRead = useMutation(api.notifications.markAsRead);
@@ -28,13 +38,13 @@ export function useNotifications() {
   return {
     notifications: normalizedNotifications,
     unreadCount: unreadCount ?? 0,
-    isLoading: notifications === undefined,
+    isLoading: canQueryNotifications && notifications === undefined,
     markAsRead: (notificationId: string) => {
-      if (!sessionToken) return;
+      if (!canQueryNotifications) return;
       markAsRead({ sessionToken, notificationId: notificationId as any });
     },
     markAllAsRead: () => {
-      if (sessionToken) markAllAsRead({ sessionToken });
+      if (canQueryNotifications) markAllAsRead({ sessionToken });
     },
   };
 }

@@ -596,7 +596,7 @@ The complete role-permission mapping is as follows:
 
 | Role | Permission Level | Key Permissions |
 |------|-----------------|----------------|
-| `platform_admin` | 100 | All 22 permissions |
+| `super_admin` | 95 | Platform support and administration permissions |
 | `school_admin` | 90 | `users:manage`, `settings:write`, `students:read/write`, `staff:read/write`, `finance:read`, `reports:read` |
 | `principal` | 80 | `students:read/write`, `staff:read`, `grades:read`, `attendance:read`, `finance:read`, `reports:read` |
 | `finance_officer` | 60 | `finance:read/write/approve`, `students:read`, `reports:read` |

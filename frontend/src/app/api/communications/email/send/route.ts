@@ -18,7 +18,11 @@ export async function POST(req: NextRequest) {
     const sessionToken =
       cookieStore.get("edumyles_session")?.value ?? cookieStore.get("edumyles-session")?.value;
     const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
-    
+
+    if (!serverSecret) {
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+
     if (!sessionToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -29,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { to, subject, html, text, templateId, templateVariables, category } = body;
+    const { to, subject, html, text, templateId, templateVariables } = body;
 
     // Validate required fields
     if (!to || !Array.isArray(to) || to.length === 0) {
@@ -48,10 +52,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Maximum 100 recipients allowed per request" }, { status: 400 });
     }
 
-    if (!serverSecret) {
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
-    }
-
     // Check user permissions for email sending
     const userPermissions = await convex.query(api.modules.communications.queries.getUserPermissions, {
       sessionToken,
@@ -62,16 +62,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Send email via Convex action
-    const result = await convex.action(api.modules.communications.email.sendEmail, {
-      webhookSecret: serverSecret,
-      tenantId: session.tenantId,
+    const result = await convex.action((api as any).actions.communications.email.sendEmail, {
       to,
       subject,
+      body: text ?? html,
       html,
       text,
-      templateId,
-      templateVariables,
-      category,
+      template: templateId,
+      data: templateVariables,
     });
 
     if (!result.success) {
@@ -84,7 +82,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       messageId: result.messageId,
-      recipients: result.recipients,
+      recipients: result.recipients ?? to,
       message: "Email sent successfully",
     });
   } catch (e) {

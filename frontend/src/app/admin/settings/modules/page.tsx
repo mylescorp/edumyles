@@ -49,17 +49,23 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
 };
 
 export default function ModuleSettingsPage() {
-  const { isLoading: authLoading, sessionToken } = useAuth();
+  const { isLoading: authLoading, isAuthenticated, sessionToken } = useAuth();
   const { tenantId, tier, isLoading: tenantLoading } = useTenant();
+  const hasLiveTenantSession =
+    !!sessionToken && sessionToken !== "dev_session_token";
+  const canQueryModules =
+    !authLoading && isAuthenticated && hasLiveTenantSession;
 
   const installedModules = useQuery(
     api.modules.marketplace.queries.getInstalledModules,
-    sessionToken ? { sessionToken } : "skip"
+    canQueryModules ? { sessionToken } : "skip"
   );
   const availableModules = useQuery(
     api.modules.marketplace.queries.getAvailableForTier,
-    sessionToken ? { sessionToken } : "skip"
+    canQueryModules ? { sessionToken } : "skip"
   );
+  const resolvedInstalledModules = (installedModules as any[]) ?? [];
+  const resolvedAvailableModules = (availableModules as any[]) ?? [];
 
   const toggleStatus = useMutation(api.modules.marketplace.mutations.toggleModuleStatus);
   const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
@@ -87,8 +93,8 @@ export default function ModuleSettingsPage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const modules = useMemo(() => {
-    const installed = (installedModules as any[]) ?? [];
-    const catalogue = (availableModules as any[]) ?? [];
+    const installed = resolvedInstalledModules;
+    const catalogue = resolvedAvailableModules;
     const installedMap = new Map(installed.map((mod) => [mod.moduleId, mod]));
 
     return catalogue
@@ -109,14 +115,15 @@ export default function ModuleSettingsPage() {
         };
       })
       .sort((a, b) => Number(b.isCore) - Number(a.isCore) || a.name.localeCompare(b.name));
-  }, [availableModules, installedModules]);
+  }, [resolvedAvailableModules, resolvedInstalledModules]);
 
-  if (
+  const isModulesLoading =
     authLoading ||
     tenantLoading ||
-    installedModules === undefined ||
-    availableModules === undefined
-  ) {
+    (canQueryModules &&
+      (installedModules === undefined || availableModules === undefined));
+
+  if (isModulesLoading) {
     return <LoadingSkeleton variant="page" />;
   }
 
