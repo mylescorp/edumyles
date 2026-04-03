@@ -159,11 +159,11 @@ export const assignDriverToVehicle = mutation({
 
         const vehicle = await ctx.db.get(args.vehicleId);
         if (!vehicle || vehicle.tenantId !== tenant.tenantId) throw new Error("Vehicle not found");
-        const driver = await ctx.db.get(args.driverId as any);
+        const driver = await ctx.db.get(args.driverId as any) as any;
         if (!driver || driver.tenantId !== tenant.tenantId) throw new Error("Driver not found");
 
         if (vehicle.driverId && vehicle.driverId !== args.driverId) {
-            const previousDriver = await ctx.db.get(vehicle.driverId as any);
+            const previousDriver = await ctx.db.get(vehicle.driverId as any) as any;
             if (previousDriver && previousDriver.tenantId === tenant.tenantId) {
                 await ctx.db.patch(previousDriver._id, {
                     vehicleId: undefined,
@@ -173,7 +173,7 @@ export const assignDriverToVehicle = mutation({
         }
 
         if (driver.vehicleId && driver.vehicleId !== args.vehicleId) {
-            const previousVehicle = await ctx.db.get(driver.vehicleId as any);
+            const previousVehicle = await ctx.db.get(driver.vehicleId as any) as any;
             if (previousVehicle && previousVehicle.tenantId === tenant.tenantId) {
                 await ctx.db.patch(previousVehicle._id, {
                     driverId: undefined,
@@ -216,7 +216,7 @@ export const unassignDriverFromVehicle = mutation({
         if (!vehicle || vehicle.tenantId !== tenant.tenantId) throw new Error("Vehicle not found");
         if (!vehicle.driverId) throw new Error("This vehicle does not have a driver assigned");
 
-        const driver = await ctx.db.get(vehicle.driverId as any);
+        const driver = await ctx.db.get(vehicle.driverId as any) as any;
         await ctx.db.patch(args.vehicleId, {
             driverId: undefined,
             updatedAt: Date.now(),

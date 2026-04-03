@@ -9,7 +9,7 @@ const MASTER_ADMIN_EMAILS = [
 ]
   .filter((value): value is string => Boolean(value))
   .map((value) => value.toLowerCase());
-const DEV_BOOTSTRAP_VERSION = "full-access-v1";
+const DEV_BOOTSTRAP_VERSION = "full-access-v2";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;

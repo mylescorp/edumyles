@@ -105,14 +105,14 @@ export default function UsersPage() {
         }
     };
 
-    if (isLoading) return <LoadingSkeleton variant="page" />;
-
     const userList = (users as UserRecord[]) ?? [];
     const summary = useMemo(() => ({
         total: userList.length,
         active: userList.filter((entry) => entry.isActive).length,
         inactive: userList.filter((entry) => !entry.isActive).length,
     }), [userList]);
+
+    if (isLoading) return <LoadingSkeleton variant="page" />;
 
     const columns: Column<UserRecord>[] = [
         {

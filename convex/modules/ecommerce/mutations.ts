@@ -364,7 +364,7 @@ export const updateOrderStatus = mutation({
                 .collect();
 
             for (const item of items) {
-                const product = await ctx.db.get(item.productId as any);
+                const product = await ctx.db.get(item.productId as any) as any;
                 if (!product || product.tenantId !== tenant.tenantId) continue;
                 await ctx.db.patch(product._id, {
                     stock: product.stock + item.quantity,
