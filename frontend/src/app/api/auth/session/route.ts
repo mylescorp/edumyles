@@ -263,6 +263,36 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ session: null }, { status: 200 });
     }
 
+    const userCookie = req.cookies.get("edumyles_user")?.value;
+    const roleCookie = req.cookies.get("edumyles_role")?.value;
+
+    // Fast path: reconstruct the client session directly from the signed-in
+    // cookie set. Convex queries still validate the session token server-side,
+    // so we can avoid blocking every page render on an extra Convex round-trip.
+    if (userCookie && roleCookie) {
+      try {
+        const user = JSON.parse(userCookie);
+        const effectiveRole = isConfiguredMasterAdmin(user.email)
+          ? "master_admin"
+          : normalizeRole(user.role ?? roleCookie);
+        const effectiveTenantId =
+          effectiveRole === "master_admin" ? "PLATFORM" : user.tenantId || "PLATFORM";
+
+        return NextResponse.json({
+          session: {
+            sessionToken,
+            tenantId: effectiveTenantId,
+            userId: user.userId || user.email,
+            email: user.email,
+            role: effectiveRole,
+            expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000),
+          },
+        });
+      } catch (parseError) {
+        console.error("[api/auth/session] Failed to parse fast-path user cookie:", parseError);
+      }
+    }
+
     let convexLookupFailed = false;
 
     // Try Convex first
@@ -345,9 +375,6 @@ export async function GET(req: NextRequest) {
     // reconstruct session from the companion cookies set at login time.
     // The httpOnly edumyles_session cookie (which cannot be set via JS) is the
     // security gate — if it exists, it was set server-side during auth callback.
-    const userCookie = req.cookies.get("edumyles_user")?.value;
-    const roleCookie = req.cookies.get("edumyles_role")?.value;
-
     if (convexLookupFailed && userCookie && roleCookie) {
       try {
         const user = JSON.parse(userCookie);
