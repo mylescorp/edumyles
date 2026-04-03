@@ -21,6 +21,30 @@ export default defineSchema({
     .index("by_token", ["sessionToken"]) // primary index — look up by sessionToken
     .index("by_userId", ["userId"]),
 
+  mobileAuthRequests: defineTable({
+    requestId: v.string(),
+    email: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("completed"),
+      v.literal("consumed"),
+      v.literal("expired"),
+      v.literal("cancelled")
+    ),
+    sessionToken: v.optional(v.string()),
+    tenantId: v.optional(v.string()),
+    userId: v.optional(v.string()),
+    role: v.optional(v.string()),
+    completedByEmail: v.optional(v.string()),
+    createdAt: v.number(),
+    expiresAt: v.number(),
+    completedAt: v.optional(v.number()),
+    consumedAt: v.optional(v.number()),
+    deviceInfo: v.optional(v.string()),
+  })
+    .index("by_requestId", ["requestId"])
+    .index("by_status", ["status", "createdAt"]),
+
   auditLogs: defineTable({
     tenantId: v.string(),
     actorId: v.string(),

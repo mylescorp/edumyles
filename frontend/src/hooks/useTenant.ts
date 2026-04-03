@@ -14,7 +14,9 @@ export function useTenant() {
     isLoading,
     isAuthenticated,
   } = useAuth();
-  const canQueryTenant = !isLoading && isAuthenticated && !!sessionToken;
+  const hasLiveTenantSession =
+    !!sessionToken && sessionToken !== "dev_session_token";
+  const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession;
 
   const tenantContext = useQuery(
     api.tenants.getTenantContext,

@@ -185,3 +185,156 @@ export const deleteAllUserSessions = mutation({
     }
   },
 });
+
+export const createMobileAuthRequest = mutation({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.string(),
+    email: v.string(),
+    expiresAt: v.number(),
+    deviceInfo: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
+    const existing = await ctx.db
+      .query("mobileAuthRequests")
+      .withIndex("by_requestId", (q) => q.eq("requestId", args.requestId))
+      .first();
+
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+
+    await ctx.db.insert("mobileAuthRequests", {
+      requestId: args.requestId,
+      email: args.email.toLowerCase(),
+      status: "pending",
+      createdAt: Date.now(),
+      expiresAt: args.expiresAt,
+      deviceInfo: args.deviceInfo,
+    });
+  },
+});
+
+export const getMobileAuthRequest = query({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
+    const request = await ctx.db
+      .query("mobileAuthRequests")
+      .withIndex("by_requestId", (q) => q.eq("requestId", args.requestId))
+      .first();
+
+    if (!request) {
+      return null;
+    }
+
+    if (request.expiresAt < Date.now() && request.status === "pending") {
+      return {
+        ...request,
+        status: "expired" as const,
+      };
+    }
+
+    return request;
+  },
+});
+
+export const completeMobileAuthRequest = mutation({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.string(),
+    sessionToken: v.string(),
+    email: v.string(),
+    tenantId: v.string(),
+    userId: v.string(),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
+    const request = await ctx.db
+      .query("mobileAuthRequests")
+      .withIndex("by_requestId", (q) => q.eq("requestId", args.requestId))
+      .first();
+
+    if (!request) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "Mobile auth request not found" });
+    }
+
+    if (request.expiresAt < Date.now()) {
+      await ctx.db.patch(request._id, { status: "expired" });
+      throw new ConvexError({ code: "EXPIRED", message: "Mobile auth request expired" });
+    }
+
+    if (request.email !== args.email.toLowerCase()) {
+      throw new ConvexError({
+        code: "FORBIDDEN",
+        message: "Authenticated user does not match mobile auth request",
+      });
+    }
+
+    await ctx.db.patch(request._id, {
+      status: "completed",
+      sessionToken: args.sessionToken,
+      tenantId: args.tenantId,
+      userId: args.userId,
+      role: args.role,
+      completedByEmail: args.email.toLowerCase(),
+      completedAt: Date.now(),
+    });
+  },
+});
+
+export const consumeMobileAuthRequest = mutation({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
+    const request = await ctx.db
+      .query("mobileAuthRequests")
+      .withIndex("by_requestId", (q) => q.eq("requestId", args.requestId))
+      .first();
+
+    if (!request) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "Mobile auth request not found" });
+    }
+
+    await ctx.db.patch(request._id, {
+      status: "consumed",
+      consumedAt: Date.now(),
+    });
+  },
+});
+
+export const cancelMobileAuthRequest = mutation({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
+    const request = await ctx.db
+      .query("mobileAuthRequests")
+      .withIndex("by_requestId", (q) => q.eq("requestId", args.requestId))
+      .first();
+
+    if (!request) {
+      return;
+    }
+
+    await ctx.db.patch(request._id, {
+      status: request.status === "completed" ? "consumed" : "cancelled",
+      consumedAt: Date.now(),
+    });
+  },
+});
