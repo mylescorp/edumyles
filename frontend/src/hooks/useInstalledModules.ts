@@ -17,18 +17,19 @@ export interface InstalledModule {
 }
 
 export function useInstalledModules() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, isLoading, isAuthenticated } = useAuth();
+  const canQueryModules = !isLoading && isAuthenticated && !!sessionToken;
 
   // Single query for full module records — IDs are derived from these, avoiding
   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
   const installedModuleDetails = useQuery(
     api.modules.marketplace.queries.getInstalledModules,
-    sessionToken ? { sessionToken } : "skip"
+    canQueryModules ? { sessionToken } : "skip"
   );
 
   const availableModules = useQuery(
     api.modules.marketplace.queries.getAvailableForTier,
-    sessionToken ? { sessionToken } : "skip"
+    canQueryModules ? { sessionToken } : "skip"
   );
 
   // Derive IDs from details; always include core modules
@@ -41,7 +42,7 @@ export function useInstalledModules() {
     installedModules: installedModuleDetails ?? [],
     availableModules: availableModules ?? [],
     isLoading:
-      !!sessionToken &&
+      canQueryModules &&
       (installedModuleDetails === undefined || availableModules === undefined),
     isModuleInstalled: (moduleId: string) =>
       CORE_MODULE_IDS.includes(moduleId) ||
