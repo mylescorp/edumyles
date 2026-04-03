@@ -4,7 +4,6 @@ import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "./useAuth";
 
-/** Core module IDs — always considered installed regardless of DB state */
 const CORE_MODULE_IDS = ["sis", "communications", "users"];
 
 export function deriveTenantResolutionState(args: {
