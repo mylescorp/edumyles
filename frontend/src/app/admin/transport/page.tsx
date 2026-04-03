@@ -1,18 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bus, MapPin, Navigation, Users } from "lucide-react";
 import Link from "next/link";
+import { Id } from "@/convex/_generated/dataModel";
 
 type RouteRecord = {
   _id: string;
@@ -40,6 +47,27 @@ type DriverRecord = {
 
 export default function TransportPage() {
   const { isLoading, sessionToken } = useAuth();
+  const { toast } = useToast();
+  const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
+  const [isDriverDialogOpen, setIsDriverDialogOpen] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
+  const [selectedDriverId, setSelectedDriverId] = useState("");
+  const [vehicleForm, setVehicleForm] = useState({
+    plateNumber: "",
+    capacity: "",
+    routeId: "",
+    driverId: "",
+    status: "active",
+  });
+  const [driverForm, setDriverForm] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    status: "active",
+  });
+  const [savingVehicle, setSavingVehicle] = useState(false);
+  const [savingDriver, setSavingDriver] = useState(false);
+  const [assigningDriver, setAssigningDriver] = useState(false);
 
   const routes = useQuery(
     api.modules.transport.queries.listRoutes,
@@ -55,6 +83,9 @@ export default function TransportPage() {
     api.modules.transport.queries.listDrivers,
     sessionToken ? { sessionToken } : "skip"
   ) as DriverRecord[] | undefined;
+  const createVehicle = useMutation(api.modules.transport.mutations.createVehicle);
+  const createDriver = useMutation(api.modules.transport.mutations.createDriver);
+  const assignDriverToVehicle = useMutation(api.modules.transport.mutations.assignDriverToVehicle);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -143,6 +174,122 @@ export default function TransportPage() {
     },
   ];
 
+  const handleCreateVehicle = async () => {
+    const capacity = Number(vehicleForm.capacity);
+    if (!vehicleForm.plateNumber.trim() || !Number.isFinite(capacity) || capacity <= 0) {
+      toast({
+        title: "Vehicle details required",
+        description: "Provide a plate number and valid seating capacity.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingVehicle(true);
+    try {
+      await createVehicle({
+        plateNumber: vehicleForm.plateNumber.trim().toUpperCase(),
+        capacity,
+        routeId: vehicleForm.routeId || undefined,
+        driverId: vehicleForm.driverId || undefined,
+        status: vehicleForm.status,
+      });
+      toast({
+        title: "Vehicle created",
+        description: `${vehicleForm.plateNumber.toUpperCase()} is now part of the fleet.`,
+      });
+      setVehicleForm({
+        plateNumber: "",
+        capacity: "",
+        routeId: "",
+        driverId: "",
+        status: "active",
+      });
+      setIsVehicleDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Unable to create vehicle",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingVehicle(false);
+    }
+  };
+
+  const handleCreateDriver = async () => {
+    if (!driverForm.firstName.trim() || !driverForm.lastName.trim() || !driverForm.phone.trim()) {
+      toast({
+        title: "Driver details required",
+        description: "Provide the driver's full name and phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingDriver(true);
+    try {
+      await createDriver({
+        firstName: driverForm.firstName.trim(),
+        lastName: driverForm.lastName.trim(),
+        phone: driverForm.phone.trim(),
+        status: driverForm.status,
+      });
+      toast({
+        title: "Driver created",
+        description: `${driverForm.firstName} ${driverForm.lastName} is now available for assignment.`,
+      });
+      setDriverForm({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        status: "active",
+      });
+      setIsDriverDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Unable to create driver",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingDriver(false);
+    }
+  };
+
+  const handleAssignDriver = async () => {
+    if (!selectedVehicleId || !selectedDriverId) {
+      toast({
+        title: "Assignment incomplete",
+        description: "Select both a vehicle and a driver.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAssigningDriver(true);
+    try {
+      await assignDriverToVehicle({
+        vehicleId: selectedVehicleId as Id<"vehicles">,
+        driverId: selectedDriverId,
+      });
+      toast({
+        title: "Driver assigned",
+        description: "The selected driver is now linked to the vehicle.",
+      });
+      setSelectedVehicleId("");
+      setSelectedDriverId("");
+    } catch (error) {
+      toast({
+        title: "Unable to assign driver",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAssigningDriver(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -162,6 +309,14 @@ export default function TransportPage() {
                 Manage Assignments
               </Button>
             </Link>
+            <Button variant="outline" className="gap-2" onClick={() => setIsDriverDialogOpen(true)}>
+              <Users className="h-4 w-4" />
+              Add Driver
+            </Button>
+            <Button className="gap-2" onClick={() => setIsVehicleDialogOpen(true)}>
+              <Bus className="h-4 w-4" />
+              Add Vehicle
+            </Button>
           </div>
         )}
       />
@@ -190,9 +345,40 @@ export default function TransportPage() {
             <p className="font-medium">Assign Students</p>
             <p className="text-sm text-muted-foreground">Map students to routes and pickup stops.</p>
           </Link>
-          <div className="rounded-lg border p-4">
-            <p className="font-medium">Live GPS Tracking</p>
-            <p className="text-sm text-muted-foreground">Still pending backend/device telemetry support.</p>
+          <div className="rounded-lg border p-4 space-y-3">
+            <div>
+              <p className="font-medium">Driver Allocation</p>
+              <p className="text-sm text-muted-foreground">Link drivers to the active fleet without leaving this screen.</p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Select value={selectedVehicleId} onValueChange={setSelectedVehicleId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select vehicle" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allVehicles.map((vehicle) => (
+                    <SelectItem key={vehicle._id} value={vehicle._id}>
+                      {vehicle.plateNumber}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedDriverId} onValueChange={setSelectedDriverId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select driver" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allDrivers.map((driver) => (
+                    <SelectItem key={driver._id} value={driver._id}>
+                      {driver.firstName} {driver.lastName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button type="button" variant="outline" className="w-full" onClick={handleAssignDriver} disabled={assigningDriver}>
+              {assigningDriver ? "Saving Assignment..." : "Assign Driver to Vehicle"}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -258,6 +444,148 @@ export default function TransportPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Vehicle</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="plateNumber">Plate Number</Label>
+              <Input
+                id="plateNumber"
+                value={vehicleForm.plateNumber}
+                onChange={(event) => setVehicleForm((prev) => ({ ...prev, plateNumber: event.target.value }))}
+                placeholder="KDA 123A"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="capacity">Capacity</Label>
+              <Input
+                id="capacity"
+                type="number"
+                min="1"
+                value={vehicleForm.capacity}
+                onChange={(event) => setVehicleForm((prev) => ({ ...prev, capacity: event.target.value }))}
+                placeholder="33"
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Route</Label>
+                <Select value={vehicleForm.routeId} onValueChange={(value) => setVehicleForm((prev) => ({ ...prev, routeId: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Optional route" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Unassigned</SelectItem>
+                    {allRoutes.map((route) => (
+                      <SelectItem key={route._id} value={route._id}>
+                        {route.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Driver</Label>
+                <Select value={vehicleForm.driverId} onValueChange={(value) => setVehicleForm((prev) => ({ ...prev, driverId: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Optional driver" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Unassigned</SelectItem>
+                    {allDrivers.map((driver) => (
+                      <SelectItem key={driver._id} value={driver._id}>
+                        {driver.firstName} {driver.lastName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={vehicleForm.status} onValueChange={(value) => setVehicleForm((prev) => ({ ...prev, status: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsVehicleDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={handleCreateVehicle} disabled={savingVehicle}>
+                {savingVehicle ? "Saving..." : "Create Vehicle"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDriverDialogOpen} onOpenChange={setIsDriverDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Driver</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="driverFirstName">First Name</Label>
+                <Input
+                  id="driverFirstName"
+                  value={driverForm.firstName}
+                  onChange={(event) => setDriverForm((prev) => ({ ...prev, firstName: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="driverLastName">Last Name</Label>
+                <Input
+                  id="driverLastName"
+                  value={driverForm.lastName}
+                  onChange={(event) => setDriverForm((prev) => ({ ...prev, lastName: event.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="driverPhone">Phone</Label>
+              <Input
+                id="driverPhone"
+                value={driverForm.phone}
+                onChange={(event) => setDriverForm((prev) => ({ ...prev, phone: event.target.value }))}
+                placeholder="+2547..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={driverForm.status} onValueChange={(value) => setDriverForm((prev) => ({ ...prev, status: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsDriverDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={handleCreateDriver} disabled={savingDriver}>
+                {savingDriver ? "Saving..." : "Create Driver"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

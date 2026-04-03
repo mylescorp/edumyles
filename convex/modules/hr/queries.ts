@@ -115,9 +115,11 @@ function getActivityStatus(action: string): string {
 }
 
 export const getStaffMember = query({
-  args: { staffId: v.id("staff") },
+  args: { staffId: v.id("staff"), sessionToken: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "hr");
     requirePermission(tenant, "staff:read");
 

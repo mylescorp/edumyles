@@ -9,23 +9,42 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useParams } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { ArrowLeft, Users, UserCircle, BookOpen } from "lucide-react";
 import Link from "next/link";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function ClassDetailPage() {
     const { classId } = useParams<{ classId: string }>();
     const { isLoading, sessionToken } = useAuth();
+    const router = useRouter();
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const classes = useQuery(
         api.modules.sis.queries.listClasses,
         sessionToken ? { sessionToken } : "skip"
+    );
+    const teachers = useQuery(
+        api.modules.hr.queries.listStaff,
+        sessionToken ? { sessionToken, role: "teacher" } : "skip"
     );
 
     const students = useQuery(
         api.modules.sis.queries.listStudents,
         sessionToken && classId ? { sessionToken, classId } : "skip"
     );
+    const updateClass = useMutation(api.modules.sis.mutations.updateClass);
+    const deleteClass = useMutation(api.modules.sis.mutations.deleteClass);
 
     if (isLoading || classes === undefined) return <LoadingSkeleton variant="page" />;
 
@@ -79,6 +98,36 @@ export default function ClassDetailPage() {
         },
     ];
 
+    const handleEditSubmit = async (formData: FormData) => {
+        setSubmitting(true);
+        try {
+            const teacherId = String(formData.get("teacherId") ?? "").trim();
+            await updateClass({
+                id: classId as Id<"classes">,
+                name: String(formData.get("name") ?? "").trim(),
+                level: String(formData.get("level") ?? "").trim() || undefined,
+                stream: String(formData.get("stream") ?? "").trim() || undefined,
+                teacherId: teacherId && teacherId !== "__none__" ? teacherId : undefined,
+                capacity: formData.get("capacity") ? Number(formData.get("capacity")) : undefined,
+                academicYear: String(formData.get("academicYear") ?? "").trim() || undefined,
+            });
+            setShowEditDialog(false);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleDeleteClass = async () => {
+        setDeleting(true);
+        try {
+            await deleteClass({ classId: classId as Id<"classes"> });
+            setShowDeleteConfirm(false);
+            router.push("/admin/classes");
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     return (
         <div>
             <div className="mb-4">
@@ -90,6 +139,14 @@ export default function ClassDetailPage() {
             <PageHeader
                 title={classInfo.name}
                 description={[classInfo.level, classInfo.stream, classInfo.academicYear].filter(Boolean).join(" • ") || "Class details"}
+                actions={
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setShowEditDialog(true)}>Edit Class</Button>
+                        <Button variant="destructive" onClick={() => setShowDeleteConfirm(true)} disabled={classInfo.studentCount > 0}>
+                            Delete Class
+                        </Button>
+                    </div>
+                }
             />
 
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -136,6 +193,77 @@ export default function ClassDetailPage() {
                     emptyDescription="Assign students to this class from the student management page."
                 />
             </div>
+
+            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Class</DialogTitle>
+                    </DialogHeader>
+                    <form action={handleEditSubmit} className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Class Name</Label>
+                                <Input id="name" name="name" defaultValue={classInfo.name} required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="level">Level</Label>
+                                <Input id="level" name="level" defaultValue={classInfo.level ?? ""} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="stream">Stream</Label>
+                                <Input id="stream" name="stream" defaultValue={classInfo.stream ?? ""} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="capacity">Capacity</Label>
+                                <Input id="capacity" name="capacity" type="number" min="1" defaultValue={classInfo.capacity ?? ""} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="academicYear">Academic Year</Label>
+                                <Input id="academicYear" name="academicYear" defaultValue={classInfo.academicYear ?? ""} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="teacherId">Class Teacher</Label>
+                                <Select name="teacherId" defaultValue={classInfo.teacherId ?? "__none__"}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select teacher" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__none__">Unassigned</SelectItem>
+                                        {((teachers as any[]) ?? []).map((teacher) => (
+                                            <SelectItem key={teacher._id} value={teacher._id}>
+                                                {teacher.firstName} {teacher.lastName}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setShowEditDialog(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={submitting}>
+                                {submitting ? "Saving..." : "Save Changes"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <ConfirmDialog
+                open={showDeleteConfirm}
+                onOpenChange={setShowDeleteConfirm}
+                title="Delete Class"
+                description={
+                    classInfo.studentCount > 0
+                        ? "This class still has enrolled students and cannot be deleted until it is empty."
+                        : `Are you sure you want to delete ${classInfo.name}? This cannot be undone.`
+                }
+                onConfirm={handleDeleteClass}
+                confirmLabel="Delete"
+                variant="destructive"
+                isLoading={deleting}
+            />
         </div>
     );
 }

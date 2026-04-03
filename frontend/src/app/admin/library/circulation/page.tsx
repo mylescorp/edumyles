@@ -31,6 +31,9 @@ type Borrow = {
     fineCents?: number;
     createdAt: number;
     updatedAt: number;
+    bookTitle?: string;
+    borrowerName?: string;
+    borrowerReference?: string;
 };
 
 type Book = {
@@ -70,15 +73,19 @@ function BorrowsTable({
             header: "Book Title",
             sortable: true,
             cell: (row) => {
-                const book = bookMap.get(row.bookId);
-                return book ? book.title : row.bookId;
+                return row.bookTitle ?? bookMap.get(row.bookId)?.title ?? row.bookId;
             },
         },
         {
-            key: "borrowerId",
-            header: "Borrower ID",
+            key: "borrower",
+            header: "Borrower",
             sortable: true,
-            cell: (row) => row.borrowerId,
+            cell: (row) => (
+                <div>
+                    <p className="font-medium">{row.borrowerName ?? row.borrowerId}</p>
+                    <p className="text-xs text-muted-foreground">{row.borrowerReference ?? row.borrowerId}</p>
+                </div>
+            ),
         },
         {
             key: "borrowerType",
@@ -116,6 +123,13 @@ function BorrowsTable({
             },
         },
         {
+            key: "fine",
+            header: "Fine",
+            cell: (row) => (
+                <span>{row.fineCents ? `KES ${(row.fineCents / 100).toFixed(2)}` : "—"}</span>
+            ),
+        },
+        {
             key: "actions",
             header: "Actions",
             cell: (row) => (
@@ -138,8 +152,8 @@ function BorrowsTable({
             data={borrows}
             columns={columns}
             searchable
-            searchPlaceholder="Search by borrower ID…"
-            searchKey={(row) => row.borrowerId}
+            searchPlaceholder="Search by borrower or book…"
+            searchKey={(row) => `${row.borrowerName ?? ""} ${row.borrowerReference ?? row.borrowerId} ${row.bookTitle ?? ""}`}
             emptyTitle={emptyTitle}
             emptyDescription={emptyDescription}
         />

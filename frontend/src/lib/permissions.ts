@@ -214,6 +214,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "finance:read",
     "reports:read",
     "communications:read",
+    "communications:messaging",
   ],
 };
 

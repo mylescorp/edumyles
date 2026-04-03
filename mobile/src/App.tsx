@@ -30,6 +30,7 @@ import {
 import { theme } from './theme';
 
 type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' | 'profile';
+type RoleTab = { key: ScreenKey; label: string };
 
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL ?? '';
 const ConvexProviderRoot = ConvexProvider as React.ComponentType<{
@@ -106,12 +107,47 @@ const AppShell: React.FC = () => {
     return <LoginScreen />;
   }
 
+  const roleTabs: Record<string, RoleTab[]> = {
+    parent: [
+      { key: 'dashboard', label: 'Dashboard' },
+      { key: 'grades', label: 'Children' },
+      { key: 'assignments', label: 'Messages' },
+      { key: 'attendance', label: 'Updates' },
+      { key: 'fees', label: 'Payments' },
+      { key: 'profile', label: 'Profile' },
+    ],
+    teacher: [
+      { key: 'dashboard', label: 'Dashboard' },
+      { key: 'grades', label: 'Classes' },
+      { key: 'assignments', label: 'Assignments' },
+      { key: 'attendance', label: 'Attendance' },
+      { key: 'fees', label: 'Timetable' },
+      { key: 'profile', label: 'Profile' },
+    ],
+    student: [
+      { key: 'dashboard', label: 'Dashboard' },
+      { key: 'grades', label: 'Grades' },
+      { key: 'assignments', label: 'Assignments' },
+      { key: 'attendance', label: 'Attendance' },
+      { key: 'fees', label: 'Fees' },
+      { key: 'profile', label: 'Profile' },
+    ],
+  };
+
+  const activeTabs = roleTabs[user?.role ?? 'student'] ?? roleTabs.student;
+  const mobileTitle =
+    user?.role === 'parent'
+      ? 'EduMyles Parent'
+      : user?.role === 'teacher'
+        ? 'EduMyles Teacher'
+        : 'EduMyles Mobile';
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>EduMyles Mobile</Text>
+          <Text style={styles.headerTitle}>{mobileTitle}</Text>
           <Text style={styles.headerSubtitle}>{user?.email ?? 'Signed in'}</Text>
         </View>
         <TouchableOpacity onPress={signOut} style={styles.signOutButton}>
@@ -136,17 +172,10 @@ const AppShell: React.FC = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.tabBar}
       >
-        {[
-          ['dashboard', 'Dashboard'],
-          ['grades', 'Grades'],
-          ['assignments', 'Assignments'],
-          ['attendance', 'Attendance'],
-          ['fees', 'Fees'],
-          ['profile', 'Profile'],
-        ].map(([key, label]) => (
+        {activeTabs.map(({ key, label }) => (
           <TouchableOpacity
             key={key}
-            onPress={() => setScreen(key as ScreenKey)}
+            onPress={() => setScreen(key)}
             style={[styles.tab, screen === key && styles.activeTab]}
           >
             <Text style={[styles.tabText, screen === key && styles.activeTabText]}>{label}</Text>

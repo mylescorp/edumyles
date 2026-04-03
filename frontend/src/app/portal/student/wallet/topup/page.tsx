@@ -4,33 +4,46 @@ import { useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, CreditCard, Smartphone, ArrowLeft, CheckCircle } from "lucide-react";
+import { Wallet, CreditCard, Smartphone, ArrowLeft, CheckCircle, Building } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import { requestWalletTopUpSchema } from "@shared/validators";
 
 const QUICK_AMOUNTS = [500, 1000, 2000, 5000];
 
 const PAYMENT_METHODS = [
   { id: "mpesa", label: "M-Pesa", icon: Smartphone, description: "Pay via M-Pesa mobile money" },
   { id: "card", label: "Debit / Credit Card", icon: CreditCard, description: "Visa, Mastercard" },
+  { id: "bank_transfer", label: "Bank Transfer", icon: Building, description: "Request manual bank-transfer funding" },
 ];
 
 export default function WalletTopupPage() {
   const { isLoading, sessionToken } = useAuth();
+  const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("mpesa");
+  const [phone, setPhone] = useState("");
+  const [note, setNote] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [latestReference, setLatestReference] = useState("");
 
   const myWallet = useQuery(
     api.modules.ewallet.queries.getMyWalletBalance,
     sessionToken ? { sessionToken } : "skip"
   );
+  const myRequests = useQuery(
+    api.modules.ewallet.queries.getMyTopUpRequests,
+    sessionToken ? { sessionToken, limit: 10 } : "skip"
+  );
+  const requestTopUp = useMutation(api.modules.ewallet.mutations.requestTopUp);
 
   if (isLoading || myWallet === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -39,11 +52,49 @@ export default function WalletTopupPage() {
   const amountNum = parseFloat(amount);
   const isValid = !isNaN(amountNum) && amountNum >= 10;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValid) return;
-    // In production, this would trigger the payment gateway (M-Pesa STK Push / Stripe).
-    setSubmitted(true);
+    if (!sessionToken) return;
+
+    const parsed = requestWalletTopUpSchema.safeParse({
+      amount: amountNum,
+      method,
+      phone,
+      note,
+    });
+    if (!parsed.success) {
+      toast({
+        title: "Request details incomplete",
+        description: parsed.error.issues[0]?.message ?? "Please complete the form.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const result = await requestTopUp({
+        sessionToken,
+        amountCents: Math.round(amountNum * 100),
+        method: parsed.data.method,
+        phone: parsed.data.phone || undefined,
+        note: parsed.data.note || undefined,
+        currency: myWallet.currency,
+      });
+      setLatestReference(result.reference);
+      setSubmitted(true);
+      setAmount("");
+      setPhone("");
+      setNote("");
+    } catch (error) {
+      toast({
+        title: "Unable to submit top-up request",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -55,13 +106,19 @@ export default function WalletTopupPage() {
             <CheckCircle className="h-14 w-14 text-green-500 mb-4" />
             <h3 className="text-xl font-bold mb-2">Request Submitted!</h3>
             <p className="text-muted-foreground mb-1">
-              KES {amountNum.toFixed(2)} top-up via{" "}
+              Your {PAYMENT_METHODS.find((m) => m.id === method)?.label} wallet top-up request has been sent for review.
+            </p>
+            <p className="text-sm text-muted-foreground mb-1">
+              KES {amountNum.toFixed(2)} requested via{" "}
               {PAYMENT_METHODS.find((m) => m.id === method)?.label}.
             </p>
+            {latestReference && (
+              <p className="text-sm text-muted-foreground mb-2">
+                Reference: <span className="font-medium text-foreground">{latestReference}</span>
+              </p>
+            )}
             <p className="text-sm text-muted-foreground mb-6">
-              {method === "mpesa"
-                ? "Check your phone for an M-Pesa prompt to complete the payment."
-                : "You will be redirected to the payment gateway shortly."}
+              Finance will approve and credit your wallet once they verify the request.
             </p>
             <div className="flex gap-3">
               <Button asChild variant="outline">
@@ -116,8 +173,28 @@ export default function WalletTopupPage() {
                   </Button>
                 ))}
               </div>
+              {method === "mpesa" && (
+                <div className="space-y-1">
+                  <Label htmlFor="phone">M-Pesa Phone</Label>
+                  <Input
+                    id="phone"
+                    placeholder="+254712345678"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+              )}
               <div className="space-y-1">
-                <Label htmlFor="amount">Custom Amount (KES)</Label>
+                <Label htmlFor="note">Note</Label>
+                <Input
+                  id="note"
+                  placeholder="Optional note for finance"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="amount">Custom Amount ({myWallet.currency})</Label>
                 <Input
                   id="amount"
                   type="number"
@@ -177,12 +254,43 @@ export default function WalletTopupPage() {
             <Button asChild variant="outline" className="flex-1">
               <Link href="/portal/student/wallet">Cancel</Link>
             </Button>
-            <Button type="submit" className="flex-1" disabled={!isValid}>
-              Add KES {isValid ? amountNum.toLocaleString() : "…"} via{" "}
+            <Button type="submit" className="flex-1" disabled={!isValid || submitting}>
+              {submitting ? "Submitting..." : `Request ${isValid ? `${myWallet.currency} ${amountNum.toLocaleString()}` : "…"} via `}
               {PAYMENT_METHODS.find((m) => m.id === method)?.label}
             </Button>
           </div>
         </form>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Top-up Requests</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {((myRequests as any[]) ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Your recent top-up requests will appear here once submitted.
+              </p>
+            ) : (
+              ((myRequests as any[]) ?? []).map((request) => (
+                <div key={request._id} className="rounded-lg border p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-medium">
+                        {myWallet.currency} {(request.amountCents / 100).toFixed(2)} via {String(request.method).replaceAll("_", " ")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {request.reference ?? "No reference"} • {new Date(request.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <Badge variant={request.status === "approved" ? "default" : request.status === "rejected" ? "destructive" : "secondary"}>
+                      {request.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

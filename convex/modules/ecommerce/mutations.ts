@@ -87,6 +87,44 @@ export const updateProduct = mutation({
     },
 });
 
+export const deleteProduct = mutation({
+    args: {
+        productId: v.id("products"),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "ecommerce");
+        requirePermission(tenant, "ecommerce:write");
+
+        const product = await ctx.db.get(args.productId);
+        if (!product || product.tenantId !== tenant.tenantId) {
+            throw new Error("Product not found");
+        }
+
+        const orderItems = await ctx.db
+            .query("orderItems")
+            .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+            .filter((q) => q.eq(q.field("productId"), args.productId))
+            .collect();
+
+        if (orderItems.length > 0) {
+            throw new Error("This product is already referenced by existing orders and cannot be deleted");
+        }
+
+        await ctx.db.delete(args.productId);
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "ecommerce.product_deleted",
+            entityType: "product",
+            entityId: args.productId.toString(),
+            before: product,
+        });
+        return { success: true };
+    },
+});
+
 export const addToCart = mutation({
     args: {
         customerId: v.string(),

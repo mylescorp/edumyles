@@ -146,6 +146,83 @@ export const createClass = mutation({
     },
 });
 
+export const updateClass = mutation({
+    args: {
+        id: v.id("classes"),
+        name: v.optional(v.string()),
+        level: v.optional(v.string()),
+        stream: v.optional(v.string()),
+        teacherId: v.optional(v.string()),
+        capacity: v.optional(v.number()),
+        academicYear: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "sis");
+        requirePermission(tenant, "settings:write");
+
+        const { id, ...updates } = args;
+        const existing = await ctx.db.get(id);
+        if (!existing || existing.tenantId !== tenant.tenantId) {
+            throw new Error("Class not found or access denied");
+        }
+
+        await ctx.db.patch(id, updates);
+
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "class.updated" as any,
+            entityType: "class",
+            entityId: id,
+            before: existing,
+            after: updates,
+        });
+
+        return id;
+    },
+});
+
+export const deleteClass = mutation({
+    args: { classId: v.id("classes") },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "sis");
+        requirePermission(tenant, "settings:write");
+
+        const existing = await ctx.db.get(args.classId);
+        if (!existing || existing.tenantId !== tenant.tenantId) {
+            throw new Error("Class not found or access denied");
+        }
+
+        const students = await ctx.db
+            .query("students")
+            .withIndex("by_tenant_class", (q) =>
+                q.eq("tenantId", tenant.tenantId).eq("classId", args.classId)
+            )
+            .collect();
+
+        if (students.length > 0) {
+            throw new Error("Cannot delete a class that still has enrolled students");
+        }
+
+        await ctx.db.delete(args.classId);
+
+        await logAction(ctx, {
+            tenantId: tenant.tenantId,
+            actorId: tenant.userId,
+            actorEmail: tenant.email,
+            action: "class.deleted" as any,
+            entityType: "class",
+            entityId: args.classId,
+            before: existing,
+        });
+
+        return { success: true };
+    },
+});
+
 export const createGuardian = mutation({
     args: {
         firstName: v.string(),

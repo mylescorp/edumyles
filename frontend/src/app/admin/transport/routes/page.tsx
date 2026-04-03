@@ -1,16 +1,22 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 import { MapPin, Plus, Navigation, Route as RouteIcon } from "lucide-react";
 import Link from "next/link";
+import { Id } from "@/convex/_generated/dataModel";
 
 type Route = {
   _id: string;
@@ -22,15 +28,71 @@ type Route = {
 
 export default function TransportRoutesPage() {
   const { isLoading, sessionToken } = useAuth();
+  const { toast } = useToast();
+  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+  const [routeName, setRouteName] = useState("");
+  const [routeStops, setRouteStops] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const routes = useQuery(
     api.modules.transport.queries.listRoutes,
     sessionToken ? { sessionToken } : "skip"
   );
+  const updateRoute = useMutation(api.modules.transport.mutations.updateRoute);
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
   const routeList: Route[] = (routes as any[]) || [];
+  const routeSummary = useMemo(() => ({
+    totalStops: routeList.reduce((sum, route) => sum + route.stops.length, 0),
+    active: routeList.filter((r) => r.stops.length > 0).length,
+  }), [routeList]);
+
+  const openEditDialog = (route: Route) => {
+    setSelectedRoute(route);
+    setRouteName(route.name);
+    setRouteStops(route.stops.join(", "));
+  };
+
+  const handleSaveRoute = async () => {
+    if (!selectedRoute) return;
+    const normalizedName = routeName.trim();
+    const normalizedStops = routeStops
+      .split(",")
+      .map((stop) => stop.trim())
+      .filter(Boolean);
+
+    if (!normalizedName || normalizedStops.length === 0) {
+      toast({
+        title: "Route details required",
+        description: "Provide a route name and at least one stop.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await updateRoute({
+        routeId: selectedRoute._id as Id<"transportRoutes">,
+        name: normalizedName,
+        stops: normalizedStops,
+      });
+      toast({
+        title: "Route updated",
+        description: `${normalizedName} now has ${normalizedStops.length} configured stop${normalizedStops.length === 1 ? "" : "s"}.`,
+      });
+      setSelectedRoute(null);
+    } catch (error) {
+      toast({
+        title: "Unable to update route",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const columns: Column<Route>[] = [
     {
@@ -86,6 +148,9 @@ export default function TransportRoutesPage() {
       cell: (row) => (
         <div className="flex items-center gap-2">
           <Badge variant="outline">Configured</Badge>
+          <Button size="sm" variant="ghost" onClick={() => openEditDialog(row)}>
+            Edit
+          </Button>
         </div>
       ),
     },
@@ -142,7 +207,7 @@ export default function TransportRoutesPage() {
           </CardHeader>
           <CardContent>
             <span className="text-2xl font-bold text-green-600">
-              {routeList.filter((r) => r.stops.length > 0).length}
+              {routeSummary.active}
             </span>
           </CardContent>
         </Card>
@@ -154,7 +219,7 @@ export default function TransportRoutesPage() {
           </CardHeader>
           <CardContent>
             <span className="text-2xl font-bold">
-              {routeList.reduce((sum, route) => sum + route.stops.length, 0)}
+              {routeSummary.totalStops}
             </span>
           </CardContent>
         </Card>
@@ -177,6 +242,45 @@ export default function TransportRoutesPage() {
           />
         </CardContent>
       </Card>
+
+      <Dialog open={!!selectedRoute} onOpenChange={(open) => !open && setSelectedRoute(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Transport Route</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="route-name">Route name</Label>
+              <Input
+                id="route-name"
+                value={routeName}
+                onChange={(event) => setRouteName(event.target.value)}
+                placeholder="Eastern Bypass Route"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="route-stops">Stops</Label>
+              <Input
+                id="route-stops"
+                value={routeStops}
+                onChange={(event) => setRouteStops(event.target.value)}
+                placeholder="Gate A, Kasarani Stage, Mwiki"
+              />
+              <p className="text-xs text-muted-foreground">
+                Separate stops with commas in the order the vehicle should follow.
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setSelectedRoute(null)}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={handleSaveRoute} disabled={saving}>
+                {saving ? "Saving..." : "Save route"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

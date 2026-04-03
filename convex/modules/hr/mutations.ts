@@ -286,3 +286,45 @@ export const approvePayrollRun = mutation({
         return args.payrollRunId;
     },
 });
+
+export const completePayrollRun = mutation({
+    args: { payrollRunId: v.id("payrollRuns") },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "payroll:approve");
+
+        const run = await ctx.db.get(args.payrollRunId);
+        if (!run || run.tenantId !== tenant.tenantId) throw new Error("Payroll run not found");
+        if (run.status !== "approved") {
+            throw new Error("Only approved payroll runs can be completed");
+        }
+
+        await ctx.db.patch(args.payrollRunId, {
+            status: "completed",
+            updatedAt: Date.now(),
+        });
+        return args.payrollRunId;
+    },
+});
+
+export const cancelPayrollRun = mutation({
+    args: { payrollRunId: v.id("payrollRuns") },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "hr");
+        requirePermission(tenant, "payroll:approve");
+
+        const run = await ctx.db.get(args.payrollRunId);
+        if (!run || run.tenantId !== tenant.tenantId) throw new Error("Payroll run not found");
+        if (!["draft", "pending", "approved"].includes(run.status)) {
+            throw new Error("This payroll run can no longer be cancelled");
+        }
+
+        await ctx.db.patch(args.payrollRunId, {
+            status: "cancelled",
+            updatedAt: Date.now(),
+        });
+        return args.payrollRunId;
+    },
+});

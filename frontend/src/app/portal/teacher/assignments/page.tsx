@@ -13,20 +13,25 @@ import { Plus, FileText, ChevronRight } from "lucide-react";
 type Assignment = {
   _id: string;
   title: string;
-  className: string;
-  dueDate: number;
+  className?: string;
+  dueDate: string;
   type: string;
-  maxScore: number;
+  maxPoints?: number;
+  status?: string;
+  submissionCount?: number;
 };
 
 export default function AssignmentsPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, sessionToken } = useAuth();
 
-  const classes = useQuery(api.modules.academics.queries.getTeacherClasses, {});
+  const classes = useQuery(
+    api.modules.academics.queries.getTeacherClasses,
+    sessionToken ? { sessionToken } : "skip"
+  );
 
   const assignments = useQuery(
-    api.modules.academics.queries.getAssignments,
-    classes?.[0]?._id ? { tenantId: user?.tenantId || "", classId: classes[0]._id } : "skip"
+    api.modules.academics.queries.listAssignments,
+    user?._id ? { teacherId: user._id, limit: 100 } : "skip"
   );
 
   if (authLoading || classes === undefined || assignments === undefined) {
@@ -42,7 +47,7 @@ export default function AssignmentsPage() {
     {
       key: "className",
       header: "Class",
-      cell: (row) => row.className,
+      cell: (row) => row.className ?? "Unassigned",
     },
     {
       key: "dueDate",
@@ -57,7 +62,12 @@ export default function AssignmentsPage() {
     {
       key: "maxScore",
       header: "Max Score",
-      cell: (row) => row.maxScore.toString(),
+      cell: (row) => String(row.maxPoints ?? 100),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (row) => row.status ?? "draft",
     },
     {
       key: "actions",
@@ -85,7 +95,7 @@ export default function AssignmentsPage() {
         <div>
           <h3 className="text-lg font-semibold">Your Assignments</h3>
           <p className="text-sm text-muted-foreground">
-            {assignments.length} assignment{assignments.length !== 1 ? "s" : ""} total
+            {assignments.length} assignment{assignments.length !== 1 ? "s" : ""} total across {classes?.length ?? 0} class{(classes?.length ?? 0) !== 1 ? "es" : ""}
           </p>
         </div>
         <Button asChild>
@@ -109,7 +119,13 @@ export default function AssignmentsPage() {
           </Button>
         </div>
       ) : (
-        <DataTable data={assignments} columns={columns} searchKey={(row) => row.title} />
+        <DataTable
+          data={assignments}
+          columns={columns}
+          searchable
+          searchPlaceholder="Search assignments..."
+          searchKey={(row) => `${row.title} ${row.className ?? ""} ${row.type}`}
+        />
       )}
     </div>
   );

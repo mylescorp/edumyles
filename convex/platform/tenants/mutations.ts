@@ -186,7 +186,8 @@ export const updateTenant = mutation({
     status: v.optional(v.union(
       v.literal("active"),
       v.literal("suspended"),
-      v.literal("trial")
+      v.literal("trial"),
+      v.literal("archived")
     )),
     county: v.optional(v.string()),
     country: v.optional(v.string()),
@@ -232,6 +233,124 @@ export const updateTenant = mutation({
       before,
       after: patch,
     });
+  },
+});
+
+export const archiveTenant = mutation({
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+    confirmationName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenantCtx = await requirePlatformSession(ctx, args);
+
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+
+    if (!tenant) throw new Error("NOT_FOUND: Tenant not found");
+    if (tenant.status !== "suspended") {
+      throw new Error("CONFLICT: Tenant must be suspended before it can be archived");
+    }
+    if (tenant.name.trim().toLowerCase() !== args.confirmationName.trim().toLowerCase()) {
+      throw new Error("CONFIRMATION_FAILED: Tenant name confirmation does not match");
+    }
+
+    const now = Date.now();
+    await ctx.db.patch(tenant._id, {
+      status: "archived",
+      updatedAt: now,
+    });
+
+    const organization = await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+    if (organization) {
+      await ctx.db.patch(organization._id, {
+        isActive: false,
+      });
+    }
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "tenant.archived",
+      entityType: "tenant",
+      entityId: args.tenantId,
+      before: { status: tenant.status },
+      after: { status: "archived" },
+    });
+
+    return { success: true };
+  },
+});
+
+export const deleteTenant = mutation({
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+    confirmationName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenantCtx = await requirePlatformSession(ctx, args);
+
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+
+    if (!tenant) throw new Error("NOT_FOUND: Tenant not found");
+    if (tenant.status !== "archived") {
+      throw new Error("CONFLICT: Tenant must be archived before it can be deleted");
+    }
+    if (tenant.name.trim().toLowerCase() !== args.confirmationName.trim().toLowerCase()) {
+      throw new Error("CONFIRMATION_FAILED: Tenant name confirmation does not match");
+    }
+
+    const [users, students, invoices, payments] = await Promise.all([
+      ctx.db.query("users").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("students").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("invoices").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("payments").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+    ]);
+
+    if (users.length || students.length || invoices.length || payments.length) {
+      throw new Error("CONFLICT: Tenant still has dependent users, students, invoices, or payments and cannot be deleted");
+    }
+
+    const modules = await ctx.db
+      .query("installedModules")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
+    for (const module of modules) {
+      await ctx.db.delete(module._id);
+    }
+
+    const organization = await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+    if (organization) {
+      await ctx.db.delete(organization._id);
+    }
+
+    await ctx.db.delete(tenant._id);
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "tenant.deleted",
+      entityType: "tenant",
+      entityId: args.tenantId,
+      before: tenant,
+    });
+
+    return { success: true };
   },
 });
 

@@ -2,16 +2,20 @@ import { v } from "convex/values";
 import { query } from "../../_generated/server";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { listAssignments, getMyAssignments } from "./assignments";
 
 /**
  * Get all classes assigned to the currently authenticated teacher.
  */
 export const getTeacherClasses = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenant = await requireTenantContext(ctx);
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "students:read");
 
@@ -78,9 +82,12 @@ export const getGrades = query({
 export const getAssignments = query({
   args: {
     classId: v.string(),
+    sessionToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
 
     return await ctx.db
@@ -303,9 +310,13 @@ export const getUpcomingEvents = query({
  * "Active" means status === "active" or dueDate >= today.
  */
 export const getTeacherActiveAssignmentsCount = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenant = await requireTenantContext(ctx);
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
 
     const today = new Date().toISOString().split("T")[0] ?? "";
@@ -328,9 +339,13 @@ export const getTeacherActiveAssignmentsCount = query({
  * Get the count of timetable slots for the current teacher for today's day of week.
  */
 export const getTeacherTodayClassesCount = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenant = await requireTenantContext(ctx);
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "timetable");
 
     // JS Date.getDay(): 0=Sunday,1=Monday,...,6=Saturday

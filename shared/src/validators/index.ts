@@ -241,6 +241,23 @@ export const updateOrderStatusSchema = z.object({
 
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
 
+export const requestWalletTopUpSchema = z.object({
+  amount: z.number().positive("Amount must be positive").min(10, "Minimum top-up is 10"),
+  method: z.enum(["mpesa", "card", "bank_transfer"]),
+  phone: phoneSchema.optional().or(z.literal("")),
+  note: z.string().max(200).optional(),
+}).superRefine((value, ctx) => {
+  if (value.method === "mpesa" && !value.phone) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["phone"],
+      message: "Phone number is required for M-Pesa top-up requests",
+    });
+  }
+});
+
+export type RequestWalletTopUpInput = z.infer<typeof requestWalletTopUpSchema>;
+
 export const createTimetableSlotSchema = z.object({
   classId: z.string().min(1, "Class is required"),
   subjectId: z.string().min(1, "Subject is required"),

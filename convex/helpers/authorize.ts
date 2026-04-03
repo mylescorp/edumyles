@@ -52,7 +52,7 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   transport_manager: ["transport:read", "transport:write", "transport:delete", "students:read", "communications:read", "communications:messaging"],
   board_member: ["reports:read", "finance:read", "students:read", "communications:read"],
   alumni: ["grades:read", "reports:read", "attendance:read", "communications:read"],
-  partner: ["students:read", "finance:read", "reports:read", "communications:read"],
+  partner: ["students:read", "finance:read", "reports:read", "communications:read", "communications:messaging"],
 };
 
 function normalizeRole(role: string): Role | null {

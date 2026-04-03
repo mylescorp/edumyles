@@ -78,9 +78,12 @@ export const listAssignments = query({
     dueDateTo: v.optional(v.string()),
     limit: v.optional(v.number()),
     offset: v.optional(v.number()),
+    sessionToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:read");
 

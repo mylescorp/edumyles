@@ -40,6 +40,7 @@ export default function WalletsPage() {
 
     const adminTopUp = useMutation(api.modules.ewallet.mutations.adminTopUp);
     const freezeWallet = useMutation(api.modules.ewallet.mutations.freezeWallet);
+    const unfreezeWallet = useMutation(api.modules.ewallet.mutations.unfreezeWallet);
 
     const handleTopUp = async () => {
         if (!sessionToken || !selectedWallet) return;
@@ -102,6 +103,26 @@ export default function WalletsPage() {
         }
     };
 
+    const handleUnfreeze = async (wallet: WalletSummary) => {
+        if (!sessionToken) return;
+        try {
+            await unfreezeWallet({
+                sessionToken,
+                ownerId: wallet.ownerId,
+            });
+            toast({
+                title: "Wallet reopened",
+                description: `${wallet.ownerId} can transact again.`,
+            });
+        } catch (error) {
+            toast({
+                title: "Unable to reopen wallet",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
+
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
     const walletList = wallets ?? [];
@@ -152,9 +173,15 @@ export default function WalletsPage() {
                     <Button size="sm" variant="outline" onClick={() => setSelectedWallet(row)}>
                         Top Up
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleFreeze(row)} disabled={!!row.frozen}>
-                        Freeze
-                    </Button>
+                    {row.frozen ? (
+                        <Button size="sm" variant="ghost" onClick={() => handleUnfreeze(row)}>
+                            Unfreeze
+                        </Button>
+                    ) : (
+                        <Button size="sm" variant="ghost" onClick={() => handleFreeze(row)}>
+                            Freeze
+                        </Button>
+                    )}
                 </div>
             ),
         },

@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import Link from "next/link";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { useToast } from "@/components/ui/use-toast";
 
 type Transaction = {
     _id: string;
@@ -41,29 +43,80 @@ type Transaction = {
     };
 };
 
+type WalletSummary = {
+    _id: string;
+    balanceCents: number;
+    frozen?: boolean;
+};
+
+type TopUpRequest = {
+    _id: string;
+    requesterId: string;
+    amountCents: number;
+    method: string;
+    status: "pending" | "approved" | "rejected";
+    reference?: string;
+    createdAt: number;
+};
+
 export default function EWalletPage() {
     const { isLoading, sessionToken } = useAuth();
+    const { toast } = useToast();
 
     const transactions = usePlatformQuery(
         api.modules.ewallet.queries.listWalletTransactions,
         sessionToken ? { sessionToken } : "skip",
         !!sessionToken
     );
+    const wallets = usePlatformQuery(
+        api.modules.ewallet.queries.listAllWallets,
+        sessionToken ? { sessionToken, limit: 250 } : "skip",
+        !!sessionToken
+    );
+    const topUpRequests = usePlatformQuery(
+        api.modules.ewallet.queries.listTopUpRequests,
+        sessionToken ? { sessionToken, limit: 50 } : "skip",
+        !!sessionToken
+    );
+    const reviewTopUpRequest = useMutation(api.modules.ewallet.mutations.reviewTopUpRequest);
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
     const currentTransactions = (transactions as Transaction[]) || [];
+    const currentWallets = (wallets as WalletSummary[]) || [];
+    const currentTopUpRequests = (topUpRequests as TopUpRequest[]) || [];
 
     const stats = {
-        totalWallets: 0, // Will be calculated from wallets query
-        activeWallets: 0, // Will be calculated from wallets query
-        totalBalance: 0, // Will be calculated from wallets query
+        totalWallets: currentWallets.length,
+        activeWallets: currentWallets.filter((wallet) => !wallet.frozen).length,
+        totalBalance: currentWallets.reduce((sum, wallet) => sum + wallet.balanceCents, 0),
         todayTransactions: currentTransactions.filter(t => 
             new Date(t.createdAt).toDateString() === new Date().toDateString()
         ).length,
-        pendingTransactions: currentTransactions.filter(t => t.status === "pending").length,
+        pendingTransactions: currentTopUpRequests.filter((request) => request.status === "pending").length,
         failedTransactions: currentTransactions.filter(t => t.status === "failed").length,
         dailyVolume: currentTransactions.reduce((sum, t) => sum + t.amountCents, 0),
+    };
+
+    const handleReviewRequest = async (requestId: string, approved: boolean) => {
+        if (!sessionToken) return;
+        try {
+            await reviewTopUpRequest({
+                sessionToken,
+                requestId: requestId as any,
+                approved,
+            });
+            toast({
+                title: approved ? "Top-up request approved" : "Top-up request rejected",
+                description: approved ? "The wallet has been credited." : "The requester will need to submit a new funding request.",
+            });
+        } catch (error) {
+            toast({
+                title: "Unable to review request",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
     };
 
     const transactionColumns: Column<Transaction>[] = [
@@ -252,9 +305,9 @@ export default function EWalletPage() {
                         <History className="h-4 w-4" />
                         Recent Transactions
                     </TabsTrigger>
-                    <TabsTrigger value="pending" className="gap-2">
+                <TabsTrigger value="pending" className="gap-2">
                         <Activity className="h-4 w-4" />
-                        Pending ({stats.pendingTransactions})
+                        Funding Requests ({stats.pendingTransactions})
                     </TabsTrigger>
                     <TabsTrigger value="overview" className="gap-2">
                         <TrendingUp className="h-4 w-4" />
@@ -288,16 +341,36 @@ export default function EWalletPage() {
                 <TabsContent value="pending">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Pending Transactions</CardTitle>
+                            <CardTitle>Pending Wallet Funding Requests</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <DataTable
-                                data={currentTransactions.filter(t => t.status === "pending")}
-                                columns={transactionColumns}
-                                searchable={false}
-                                emptyTitle="No pending transactions"
-                                emptyDescription="All transactions have been processed."
-                            />
+                        <CardContent className="space-y-3">
+                            {currentTopUpRequests.filter((request) => request.status === "pending").length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No pending wallet funding requests.</p>
+                            ) : (
+                                currentTopUpRequests
+                                    .filter((request) => request.status === "pending")
+                                    .map((request) => (
+                                        <div key={request._id} className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
+                                            <div>
+                                                <p className="font-medium">{request.requesterId}</p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {formatCurrency(request.amountCents)} via {request.method.replaceAll("_", " ")}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {request.reference ?? "No reference"} • {formatDateTime(request.createdAt)}
+                                                </p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Button size="sm" variant="outline" onClick={() => handleReviewRequest(request._id, false)}>
+                                                    Reject
+                                                </Button>
+                                                <Button size="sm" onClick={() => handleReviewRequest(request._id, true)}>
+                                                    Approve
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))
+                            )}
                         </CardContent>
                     </Card>
                 </TabsContent>

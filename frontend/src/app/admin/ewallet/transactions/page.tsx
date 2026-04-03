@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMemo, useState } from "react";
 
 type WalletTransaction = {
     _id: string;
@@ -19,6 +21,13 @@ type WalletTransaction = {
     createdAt: number;
 };
 
+type WalletSummary = {
+    _id: string;
+    ownerId: string;
+    ownerType: string;
+    frozen?: boolean;
+};
+
 const typeColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
     top_up: "default",
     spend: "destructive",
@@ -28,15 +37,51 @@ const typeColors: Record<string, "default" | "secondary" | "destructive" | "outl
 
 export default function TransactionsPage() {
     const { isLoading, sessionToken } = useAuth();
+    const [typeFilter, setTypeFilter] = useState("all");
 
     const transactions = useQuery(
         api.modules.ewallet.queries.listWalletTransactions,
         sessionToken ? { sessionToken } : "skip"
     );
+    const wallets = useQuery(
+        api.modules.ewallet.queries.listAllWallets,
+        sessionToken ? { sessionToken, limit: 250 } : "skip"
+    );
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
+    const walletMap = new Map(((wallets as WalletSummary[]) ?? []).map((wallet) => [wallet._id, wallet]));
+    const filteredTransactions = useMemo(() => {
+        const allTransactions = (transactions as WalletTransaction[]) ?? [];
+        if (typeFilter === "all") return allTransactions;
+        if (typeFilter === "credit") {
+            return allTransactions.filter((tx) => tx.amountCents > 0);
+        }
+        if (typeFilter === "debit") {
+            return allTransactions.filter((tx) => tx.amountCents < 0);
+        }
+        return allTransactions.filter((tx) => tx.type === typeFilter);
+    }, [transactions, typeFilter]);
+
     const columns: Column<WalletTransaction>[] = [
+        {
+            key: "owner",
+            header: "Owner",
+            cell: (row) => {
+                const wallet = walletMap.get(row.walletId);
+                return wallet ? (
+                    <div>
+                        <p className="font-medium">{wallet.ownerId}</p>
+                        <p className="text-xs capitalize text-muted-foreground">
+                            {wallet.ownerType}
+                            {wallet.frozen ? " • frozen" : ""}
+                        </p>
+                    </div>
+                ) : (
+                    <span className="text-muted-foreground">Unknown wallet owner</span>
+                );
+            },
+        },
         {
             key: "walletId",
             header: "Wallet ID",
@@ -96,12 +141,33 @@ export default function TransactionsPage() {
                 description="Track credits, debits, transfers, and payment activity"
             />
 
+            <div className="mb-4">
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-[220px]">
+                        <SelectValue placeholder="Filter by transaction type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All transactions</SelectItem>
+                        <SelectItem value="credit">Credits only</SelectItem>
+                        <SelectItem value="debit">Debits only</SelectItem>
+                        <SelectItem value="admin_top_up">Admin top-ups</SelectItem>
+                        <SelectItem value="transfer_in">Transfer in</SelectItem>
+                        <SelectItem value="transfer_out">Transfer out</SelectItem>
+                        <SelectItem value="withdrawal">Withdrawals</SelectItem>
+                        <SelectItem value="spend">Spend</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
             <DataTable
-                data={(transactions as WalletTransaction[]) ?? []}
+                data={filteredTransactions}
                 columns={columns}
                 searchable
-                searchPlaceholder="Search by wallet ID or reference..."
-                searchKey={(row) => `${row.walletId} ${row.reference ?? ""} ${row.orderId ?? ""}`}
+                searchPlaceholder="Search by owner, wallet ID, or reference..."
+                searchKey={(row) => {
+                    const wallet = walletMap.get(row.walletId);
+                    return `${wallet?.ownerId ?? ""} ${wallet?.ownerType ?? ""} ${row.walletId} ${row.reference ?? ""} ${row.orderId ?? ""}`;
+                }}
                 emptyTitle="No transactions found"
                 emptyDescription="Wallet transactions will appear here once activity begins."
             />
