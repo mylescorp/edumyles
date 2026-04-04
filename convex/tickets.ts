@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query, action } from "./_generated/server";
-import { requireTenantSession } from "./helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "./helpers/tenantGuard";
 
 // SLA Rules based on specification
 const SLA_RULES = {
@@ -88,10 +88,15 @@ export const getTickets = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
     const tickets = await ctx.db.query("tickets").collect();
+    const scopedTickets =
+      tenant.tenantId === "PLATFORM"
+        ? tickets
+        : tickets.filter((ticket) => ticket.tenantId === tenant.tenantId);
     
     // Filter tickets based on arguments
-    let filteredTickets = tickets;
+    let filteredTickets = scopedTickets;
     
     if (args.status) {
       filteredTickets = filteredTickets.filter(t => t.status === args.status);
@@ -132,8 +137,12 @@ export const getTickets = query({
 export const getTicket = query({
   args: { ticketId: v.id("tickets") },
   handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
     const ticket = await ctx.db.get(args.ticketId);
     if (!ticket) throw new Error("Ticket not found");
+    if (tenant.tenantId !== "PLATFORM" && ticket.tenantId !== tenant.tenantId) {
+      throw new Error("Ticket not found");
+    }
 
     // Get comments for this ticket
     const comments = await ctx.db
@@ -143,14 +152,14 @@ export const getTicket = query({
       .collect();
 
     // Get tenant info
-    const tenant = await ctx.db
+    const ticketTenant = await ctx.db
       .query("tenants")
       .withIndex("by_tenantId", (q) => q.eq("tenantId", ticket.tenantId))
       .first();
 
     return {
       ...ticket,
-      tenantName: tenant?.name || "Unknown Tenant",
+      tenantName: ticketTenant?.name || "Unknown Tenant",
       comments,
     };
   },
@@ -252,15 +261,20 @@ export const addComment = mutation({
 export const getSLAStats = query({
   args: {},
   handler: async (ctx) => {
+    const tenant = await requireTenantContext(ctx);
     const now = Date.now();
     const allTickets = await ctx.db.query("tickets").collect();
+    const scopedTickets =
+      tenant.tenantId === "PLATFORM"
+        ? allTickets
+        : allTickets.filter((ticket) => ticket.tenantId === tenant.tenantId);
 
     const stats = {
-      total: allTickets.length,
-      open: allTickets.filter(t => t.status === "open").length,
-      inProgress: allTickets.filter(t => t.status === "in_progress").length,
-      breached: allTickets.filter(t => t.slaBreached).length,
-      atRisk: allTickets.filter(t => {
+      total: scopedTickets.length,
+      open: scopedTickets.filter(t => t.status === "open").length,
+      inProgress: scopedTickets.filter(t => t.status === "in_progress").length,
+      breached: scopedTickets.filter(t => t.slaBreached).length,
+      atRisk: scopedTickets.filter(t => {
         if (t.status === "resolved" || t.status === "closed") return false;
         if (t.slaClockPaused) return false;
         const timeToResolution = t.slaResolutionDL - now;
@@ -270,7 +284,7 @@ export const getSLAStats = query({
     };
 
     // Calculate SLA compliance
-    const resolvedTickets = allTickets.filter(t => t.status === "resolved" || t.status === "closed");
+    const resolvedTickets = scopedTickets.filter(t => t.status === "resolved" || t.status === "closed");
     const compliantTickets = resolvedTickets.filter(t => !t.slaBreached);
     stats.compliance = resolvedTickets.length > 0 
       ? Math.round((compliantTickets.length / resolvedTickets.length) * 100)

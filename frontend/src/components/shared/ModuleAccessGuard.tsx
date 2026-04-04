@@ -6,6 +6,7 @@ import { Package } from "lucide-react";
 import { LoadingSkeleton } from "./LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
 
 type RouteModuleRule = {
@@ -63,8 +64,16 @@ export function ModuleAccessGuard({
   fallbackHref = "/admin/marketplace",
 }: ModuleAccessGuardProps) {
   const pathname = usePathname();
+  const { sessionToken } = useAuth();
   const { isLoading, availableModules, isModuleInstalled } = useInstalledModules();
   const requiredModule = getRequiredModule(pathname);
+  const isLocalDemoAdmin =
+    process.env.NODE_ENV !== "production" &&
+    sessionToken === "dev-tenant-admin-session";
+
+  if (isLocalDemoAdmin) {
+    return <>{children}</>;
+  }
 
   if (isLoading) {
     return <LoadingSkeleton variant="page" />;
