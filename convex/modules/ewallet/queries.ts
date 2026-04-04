@@ -1,4 +1,5 @@
-import { v, paginationOptsValidator } from "convex/values";
+import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import { query } from "../../_generated/server";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requireModule } from "../../helpers/moduleGuard";
