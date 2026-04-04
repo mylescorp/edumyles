@@ -126,11 +126,11 @@ function IconTikTok() {
 }
 
 const SOCIAL_LINKS = [
-  { label: "LinkedIn",    Icon: IconLinkedIn,   href: "https://www.linkedin.com/company/edumyles/",  color: "#0077B5" },
-  { label: "Facebook",    Icon: IconFacebook,   href: "https://www.facebook.com/EduMyleserp",        color: "#1877F2" },
-  { label: "Instagram",   Icon: IconInstagram,  href: "https://www.instagram.com/edumyles_/",        color: "#E1306C" },
-  { label: "Twitter / X", Icon: IconTwitterX,   href: "https://x.com/edumyles_",                     color: "#ffffff" },
-  { label: "YouTube",     Icon: IconYouTube,    href: "https://www.youtube.com/@edumyles",            color: "#FF0000" },
+  { label: "LinkedIn",    Icon: IconLinkedIn,   href: "https://www.linkedin.com/company/mylescorptech/",  color: "#0077B5" },
+  { label: "Facebook",    Icon: IconFacebook,   href: "https://www.facebook.com/mylescorptech",        color: "#1877F2" },
+  { label: "Instagram",   Icon: IconInstagram,  href: "https://www.instagram.com/mylescorptech/",        color: "#E1306C" },
+  { label: "Twitter / X", Icon: IconTwitterX,   href: "https://x.com/mylescorptech",                     color: "#ffffff" },
+  { label: "YouTube",     Icon: IconYouTube,    href: "https://www.youtube.com/@mylescorptech",            color: "#FF0000" },
   { label: "TikTok",      Icon: IconTikTok,     href: "https://www.tiktok.com/@edumyles_",            color: "#ffffff" },
 ];
 
