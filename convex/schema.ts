@@ -3663,6 +3663,8 @@ export default defineSchema({
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
     phone: v.optional(v.string()),
+    country: v.optional(v.string()),
+    county: v.optional(v.string()),
     // Application fields
     schoolName: v.optional(v.string()), // school/org they want to join
     requestedRole: v.optional(v.string()), // role they are requesting

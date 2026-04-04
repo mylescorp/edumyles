@@ -11,6 +11,8 @@ export async function POST(request: NextRequest) {
       lastName?: string;
       email?: string;
       phone?: string;
+      country?: string;
+      county?: string;
       schoolName?: string;
       requestedRole?: string;
       message?: string;
@@ -20,6 +22,8 @@ export async function POST(request: NextRequest) {
     const lastName = body.lastName?.trim() ?? "";
     const email = body.email?.trim().toLowerCase() ?? "";
     const phone = body.phone?.trim() || undefined;
+    const country = body.country?.trim() || undefined;
+    const county = body.county?.trim() || undefined;
     const schoolName = body.schoolName?.trim() ?? "";
     const requestedRole = body.requestedRole?.trim() || "school_admin";
     const message = body.message?.trim() || undefined;
@@ -52,6 +56,8 @@ export async function POST(request: NextRequest) {
       firstName,
       lastName,
       phone,
+      country,
+      county,
       schoolName,
       requestedRole,
       message,

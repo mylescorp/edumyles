@@ -68,6 +68,8 @@ interface WaitlistApplication {
   firstName?: string;
   lastName?: string;
   phone?: string;
+  country?: string;
+  county?: string;
   schoolName?: string;
   requestedRole?: string;
   message?: string;
@@ -343,6 +345,11 @@ export default function WaitlistPage() {
                 {selectedApp.phone && (
                   <p className="text-muted-foreground">Phone: {selectedApp.phone}</p>
                 )}
+                {(selectedApp.country || selectedApp.county) && (
+                  <p className="text-muted-foreground">
+                    Location: {[selectedApp.county, selectedApp.country].filter(Boolean).join(", ")}
+                  </p>
+                )}
                 {selectedApp.schoolName && (
                   <p className="text-muted-foreground">
                     School: {selectedApp.schoolName}
@@ -554,6 +561,11 @@ function ApplicationRow({
           )}
           {app.phone && (
             <p className="text-xs text-muted-foreground">{app.phone}</p>
+          )}
+          {(app.country || app.county) && (
+            <p className="text-xs text-muted-foreground">
+              {[app.county, app.country].filter(Boolean).join(", ")}
+            </p>
           )}
           <p className="text-xs text-muted-foreground">
             Applied {formatDistanceToNow(app.requestedAt, { addSuffix: true })}
