@@ -1,8 +1,8 @@
 import { v } from "convex/values";
-import { mutation } from "../../../_generated/server";
-import { requireTenantContext } from "../../../helpers/tenantGuard";
+import { action, mutation } from "../../../_generated/server";
+import { api, internal } from "../../../_generated/api";
+import { requireActionTenantContext, requireTenantContext } from "../../../helpers/tenantGuard";
 import { requirePermission } from "../../../helpers/authorize";
-import { requireModule } from "../../../helpers/moduleGuard";
 import { logAction } from "../../../helpers/auditLog";
 import { getChildren as _unused } from "./queries"; // for type linkage only
 
@@ -27,9 +27,7 @@ async function resolveParentChildren(ctx: any, tenant: any) {
     .collect();
 
   const children = allStudents.filter(
-    (s: any) =>
-      s.guardianUserId === tenant.userId ||
-      guardianStudentIds.has(s._id.toString())
+    (s: any) => s.guardianUserId === tenant.userId || guardianStudentIds.has(s._id.toString())
   );
 
   return children;
@@ -70,7 +68,7 @@ export const updateParentProfile = mutation({
     if (args.workPhone !== undefined) updates.workPhone = args.workPhone;
 
     await ctx.db.patch(guardian._id, updates);
-    
+
     await logAction(ctx, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
@@ -85,36 +83,105 @@ export const updateParentProfile = mutation({
   },
 });
 
-export const initiatePayment = mutation({
+export const initiatePayment = action({
   args: {
     invoiceId: v.string(),
-    method: v.string(), // mpesa | card | bank_transfer | cash | etc.
+    method: v.union(
+      v.literal("mpesa"),
+      v.literal("airtel"),
+      v.literal("card"),
+      v.literal("bank_transfer")
+    ),
+    phoneNumber: v.optional(v.string()),
+    successUrl: v.optional(v.string()),
+    cancelUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
-    await requireModule(ctx, tenant.tenantId, "finance");
+    const tenant = await requireActionTenantContext(ctx);
     requirePermission(tenant, "finance:read");
 
-    const invoice = await ctx.db.get(args.invoiceId as any);
+    const invoice = await ctx.runQuery(api.modules.finance.queries.getInvoice, {
+      invoiceId: args.invoiceId as any,
+    });
     if (!invoice || (invoice as any).tenantId !== tenant.tenantId) {
       throw new Error("Invoice not found");
     }
 
     // Ensure this invoice belongs to one of the parent's children
-    const children = await resolveParentChildren(ctx, tenant);
-    const allowedIds = new Set(
-      children.map((c: any) => c._id.toString())
-    );
+    const children = (await ctx.runQuery(
+      api.modules.portal.parent.queries.getChildren,
+      {}
+    )) as any[];
+    const allowedIds = new Set(children.map((c: any) => c._id.toString()));
 
     if (!allowedIds.has((invoice as any).studentId)) {
       throw new Error("FORBIDDEN: Invoice not linked to your child");
     }
 
-    // For now we simply log the intent; actual payment actions (M-Pesa, Stripe)
-    // will be wired in Phase 11.
-    // M-Pesa: use action api.actions.payments.mpesa.initiateStkPush from the client.
-    // Other methods (card, cash, etc.): log only for now or wire Stripe/other gateways.
-    await logAction(ctx, {
+    const now = Date.now();
+    let result: Record<string, unknown>;
+
+    switch (args.method) {
+      case "mpesa": {
+        if (!args.phoneNumber?.trim()) {
+          throw new Error("Phone number is required for M-Pesa payments");
+        }
+
+        result = await ctx.runAction((api as any)["actions/payments/mpesa"].initiateStkPush, {
+          invoiceId: args.invoiceId as any,
+          phone: args.phoneNumber.trim(),
+        });
+        break;
+      }
+      case "airtel": {
+        if (!args.phoneNumber?.trim()) {
+          throw new Error("Phone number is required for Airtel Money payments");
+        }
+
+        const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
+        if (!serverSecret) {
+          throw new Error("Payment server configuration is incomplete");
+        }
+
+        result = await ctx.runAction(
+          (api as any)["actions/payments/airtel"].initiateAirtelPayment,
+          {
+            webhookSecret: serverSecret,
+            tenantId: tenant.tenantId,
+            invoiceId: args.invoiceId,
+            phoneNumber: args.phoneNumber.trim(),
+            amount: (invoice as any).amount,
+          }
+        );
+        break;
+      }
+      case "card": {
+        if (!args.successUrl || !args.cancelUrl) {
+          throw new Error("successUrl and cancelUrl are required for card payments");
+        }
+
+        result = await ctx.runAction(
+          (api as any)["actions/payments/stripe"].createCheckoutSession,
+          {
+            invoiceId: args.invoiceId as any,
+            successUrl: args.successUrl,
+            cancelUrl: args.cancelUrl,
+          }
+        );
+        break;
+      }
+      case "bank_transfer": {
+        result = await ctx.runAction(
+          (api as any)["actions/payments/bankTransfer"].initiateBankTransfer,
+          {
+            invoiceId: args.invoiceId as any,
+          }
+        );
+        break;
+      }
+    }
+
+    await ctx.runMutation(internal.helpers.auditLog.internalLogAction, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
       actorEmail: tenant.email,
@@ -123,6 +190,7 @@ export const initiatePayment = mutation({
       entityId: args.invoiceId as any,
       after: {
         method: args.method,
+        initiatedAt: now,
       },
     });
 
@@ -130,6 +198,7 @@ export const initiatePayment = mutation({
       success: true,
       invoiceId: args.invoiceId,
       method: args.method,
+      result,
     };
   },
 });
@@ -195,5 +264,3 @@ export const sendMessage = mutation({
     };
   },
 });
-
-

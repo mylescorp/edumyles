@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Clock3, Mail, MessageSquareText, PhoneCall, ShieldCheck } from "lucide-react";
 
 export default function SignUpSuccessPage() {
@@ -14,19 +14,10 @@ export default function SignUpSuccessPage() {
 }
 
 function SignUpSuccessContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const school = searchParams.get("school");
   const duplicate = searchParams.get("duplicate") === "1";
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      router.push("/");
-    }, 12000);
-
-    return () => window.clearTimeout(timer);
-  }, [router]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#F3FBF6] px-4 py-10">
@@ -42,7 +33,7 @@ function SignUpSuccessContent() {
             {duplicate ? "Your application is already in review." : "Your application is now under review."}
           </h1>
           <p className="mt-5 font-jakarta text-[16px] leading-8 text-[#5b6b63]">
-            {school ? `${school} has been added to the EduMyles onboarding queue.` : "Your organisation has been added to the EduMyles onboarding queue."} Our master admin team reviews every request personally before activation so that onboarding stays secure, intentional, and well supported.
+            {school ? `${school} has been added to the EduMyles onboarding queue.` : "Your organisation has been added to the EduMyles onboarding queue."} Our team is now reviewing your application and will follow up with the next steps for approval and onboarding.
           </p>
 
           <div className="mt-8 grid gap-4 text-left sm:grid-cols-2">
@@ -114,7 +105,7 @@ function SignUpSuccessContent() {
           </div>
 
           <p className="mt-5 font-jakarta text-[13px] text-[#6B9E83]">
-            Redirecting you back to the EduMyles home page shortly.
+            Take your time to read through the next steps, then return to the EduMyles landing page whenever you're ready.
           </p>
         </div>
       </div>

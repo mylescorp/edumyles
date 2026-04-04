@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    const convexUrl =
+      process.env.CONVEX_URL ||
+      process.env.NEXT_PUBLIC_CONVEX_URL ||
+      "https://insightful-alpaca-351.convex.cloud";
     if (!convexUrl) {
       return NextResponse.json(
         { error: "The application service is not configured right now." },

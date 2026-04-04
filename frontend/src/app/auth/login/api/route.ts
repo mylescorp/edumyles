@@ -4,6 +4,26 @@ import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
+function resolveRedirectUri(req: NextRequest): string {
+  const currentOrigin = req.nextUrl.origin;
+  const currentHost = req.nextUrl.host;
+  const canonicalAppUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+  const configuredRedirectUri =
+    process.env.WORKOS_REDIRECT_URI || process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI;
+
+  const approvedHosts = new Set(["edumyles-frontend.vercel.app", "edumyles.vercel.app"]);
+  const isPreviewHost =
+    currentHost.endsWith(".vercel.app") && !approvedHosts.has(currentHost);
+
+  if (isPreviewHost) {
+    if (configuredRedirectUri) return configuredRedirectUri;
+    if (canonicalAppUrl) return `${canonicalAppUrl}/auth/callback`;
+    return "https://edumyles-frontend.vercel.app/auth/callback";
+  }
+
+  return `${currentOrigin}/auth/callback`;
+}
+
 export async function GET(req: NextRequest) {
   // Dev bypass — only permitted outside production to prevent redirect loops
   if (
@@ -15,8 +35,7 @@ export async function GET(req: NextRequest) {
 
   const apiKey = process.env.WORKOS_API_KEY;
   const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
-  const redirectUri =
-    process.env.WORKOS_REDIRECT_URI || `${req.nextUrl.origin}/auth/callback`;
+  const redirectUri = resolveRedirectUri(req);
 
   if (!apiKey || !clientId) {
     console.error("[auth/login/api] Missing WORKOS_API_KEY or client ID");
