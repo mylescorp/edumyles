@@ -6,7 +6,7 @@ import { ModuleAccessGuard } from "@/components/shared/ModuleAccessGuard";
 import { RoleGuard } from "@/components/shared/RoleGuard";
 import { parentNavItems } from "@/lib/routes";
 
-const PARENT_ROLES = ["parent", "master_admin", "super_admin", "school_admin", "principal"];
+const PARENT_ROLES = ["parent"];
 
 export default function ParentLayout({ children }: { children: React.ReactNode }) {
   return (

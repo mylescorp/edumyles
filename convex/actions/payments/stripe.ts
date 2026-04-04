@@ -130,6 +130,10 @@ export const createCheckoutSession = action({
         externalId: data.sessionId,
         invoiceId: String(args.invoiceId),
         amount: invoice.amount,
+        payload: {
+          checkoutSessionId: data.sessionId,
+          clientReferenceId: String(args.invoiceId),
+        },
         status: "pending",
       });
     }

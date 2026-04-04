@@ -14,6 +14,7 @@ import {
   Database, Zap, BarChart3, UserPlus, UserCheck, UserX, RefreshCw,
 } from "lucide-react";
 import { formatDate } from "@/lib/formatters";
+import { formatTenantHostname } from "@/lib/domains";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
@@ -171,7 +172,7 @@ export function TenantDetailTabs({ tenant, isLoading = false, className = "" }: 
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Subdomain</label>
-                      <p className="font-semibold">{tenant.subdomain}.edumyles.co.ke</p>
+                      <p className="font-semibold">{formatTenantHostname(tenant.subdomain)}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Email</label>

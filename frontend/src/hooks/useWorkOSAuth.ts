@@ -254,23 +254,27 @@ export function useWorkOSUser() {
   const [user, setUser] = useState<WorkOSUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch('/api/auth/me');
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      } finally {
-        setIsLoading(false);
+  const fetchUser = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        setUser(null);
       }
-    };
-
-    fetchUser();
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { user, isLoading, refetch: () => fetchUser() };
+  useEffect(() => {
+    void fetchUser();
+  }, [fetchUser]);
+
+  return { user, isLoading, refetch: fetchUser };
 }

@@ -14,16 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertTriangle,
-  CalendarDays,
   Clock,
   Download,
   Eye,
-  Grid3X3,
   MessageSquare,
   Plus,
   RefreshCw,
   Search,
-  Table,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -65,7 +62,6 @@ export default function TicketsPage() {
   const router = useRouter();
   const { sessionToken } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewType, setViewType] = useState<"table" | "kanban" | "calendar">("table");
   const [statusFilter, setStatusFilter] = useState<TicketStatus>("all");
   const [priorityFilter, setPriorityFilter] = useState<TicketPriority>("all");
   const [categoryFilter, setCategoryFilter] = useState<TicketCategory>("all");
@@ -252,36 +248,6 @@ export default function TicketsPage() {
               <Badge variant="secondary">{filteredTickets.length}</Badge>
             </CardTitle>
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant={viewType === "table" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewType("table")}
-              >
-                <Table className="mr-1 h-4 w-4" />
-                Table
-              </Button>
-              <Button
-                variant={viewType === "kanban" ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  setViewType("kanban");
-                  toast.info("Kanban layout is not implemented yet. Staying on the live table view.");
-                }}
-              >
-                <Grid3X3 className="mr-1 h-4 w-4" />
-                Kanban
-              </Button>
-              <Button
-                variant={viewType === "calendar" ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  setViewType("calendar");
-                  toast.info("Calendar layout is not implemented yet. Staying on the live table view.");
-                }}
-              >
-                <CalendarDays className="mr-1 h-4 w-4" />
-                Calendar
-              </Button>
               <Button onClick={() => router.push("/platform/tickets/create")}>
                 <Plus className="mr-1 h-4 w-4" />
                 New Ticket

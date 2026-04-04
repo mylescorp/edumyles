@@ -515,6 +515,8 @@ export const savePaymentCallback = internalMutation({
     externalId: v.string(),
     invoiceId: v.string(),
     amount: v.number(),
+    reference: v.optional(v.string()),
+    payload: v.optional(v.any()),
     status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed"), v.literal("refunded")),
   },
   handler: async (ctx, args) => {
@@ -525,6 +527,8 @@ export const savePaymentCallback = internalMutation({
       externalId: args.externalId,
       invoiceId: args.invoiceId,
       amount: args.amount,
+      reference: args.reference,
+      payload: args.payload,
       status: args.status,
       createdAt: now,
       updatedAt: now,
@@ -623,10 +627,19 @@ export const updatePaymentCallbackExternalId = internalMutation({
   args: {
     callbackId: v.id("paymentCallbacks"),
     externalId: v.string(),
+    reference: v.optional(v.string()),
+    payload: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.callbackId, {
       externalId: args.externalId,
+      ...(args.reference !== undefined ? { reference: args.reference } : {}),
+      ...(args.payload !== undefined
+        ? {
+            payload: args.payload,
+            updatedAt: Date.now(),
+          }
+        : {}),
     });
     return args.callbackId;
   },
