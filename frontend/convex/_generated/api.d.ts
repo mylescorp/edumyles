@@ -102,6 +102,7 @@ import type * as modules_portal_student_queries from "../modules/portal/student/
 import type * as modules_portal_student_testQuery from "../modules/portal/student/testQuery.js";
 import type * as modules_sis_mutations from "../modules/sis/mutations.js";
 import type * as modules_sis_queries from "../modules/sis/queries.js";
+import type * as modules_sis_studentQueries from "../modules/sis/studentQueries.js";
 import type * as modules_tasks_mutations from "../modules/tasks/mutations.js";
 import type * as modules_tasks_queries from "../modules/tasks/queries.js";
 import type * as modules_timetable_index from "../modules/timetable/index.js";
@@ -320,6 +321,7 @@ declare const fullApi: ApiFromModules<{
   "modules/portal/student/testQuery": typeof modules_portal_student_testQuery;
   "modules/sis/mutations": typeof modules_sis_mutations;
   "modules/sis/queries": typeof modules_sis_queries;
+  "modules/sis/studentQueries": typeof modules_sis_studentQueries;
   "modules/tasks/mutations": typeof modules_tasks_mutations;
   "modules/tasks/queries": typeof modules_tasks_queries;
   "modules/timetable/index": typeof modules_timetable_index;
@@ -464,42 +466,4 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {
-  workOSAuthKit: {
-    lib: {
-      enqueueWebhookEvent: FunctionReference<
-        "mutation",
-        "internal",
-        {
-          apiKey: string;
-          event: string;
-          eventId: string;
-          eventTypes?: Array<string>;
-          logLevel?: "DEBUG";
-          onEventHandle?: string;
-          updatedAt?: string;
-        },
-        any
-      >;
-      getAuthUser: FunctionReference<
-        "query",
-        "internal",
-        { id: string },
-        {
-          createdAt: string;
-          email: string;
-          emailVerified: boolean;
-          externalId?: null | string;
-          firstName?: null | string;
-          id: string;
-          lastName?: null | string;
-          lastSignInAt?: null | string;
-          locale?: null | string;
-          metadata: Record<string, any>;
-          profilePictureUrl?: null | string;
-          updatedAt: string;
-        } | null
-      >;
-    };
-  };
-};
+export declare const components: {};
