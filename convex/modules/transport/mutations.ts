@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { logAction } from "../../helpers/auditLog";
@@ -395,6 +395,40 @@ export const removeStudentAssignment = mutation({
             entityId: args.assignmentId.toString(),
             before: assignment,
         });
+        return { success: true };
+    },
+});
+
+export const updateVehicleLocation = mutation({
+    args: {
+        sessionToken: v.optional(v.string()),
+        vehicleId: v.id("vehicles"),
+        latitude: v.number(),
+        longitude: v.number(),
+        speed: v.optional(v.number()),
+        heading: v.optional(v.number()),
+        accuracy: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "transport");
+        requirePermission(tenant, "transport:write");
+
+        const vehicle = await ctx.db.get(args.vehicleId);
+        if (!vehicle || vehicle.tenantId !== tenant.tenantId) throw new Error("Vehicle not found");
+
+        const now = Date.now();
+        await ctx.db.patch(args.vehicleId, {
+            lastLatitude: args.latitude,
+            lastLongitude: args.longitude,
+            lastSpeed: args.speed,
+            lastHeading: args.heading,
+            lastLocationAt: now,
+            updatedAt: now,
+        });
+
         return { success: true };
     },
 });

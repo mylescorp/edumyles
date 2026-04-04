@@ -89,6 +89,11 @@ export default function TransportTrackingPage() {
     sessionToken && selectedRouteId ? { sessionToken, routeId: selectedRouteId } : "skip"
   ) as Assignment[] | undefined;
 
+  const vehicleLocations = useQuery(
+    api.modules.transport.queries.getVehicleLocations,
+    sessionToken ? { sessionToken } : "skip"
+  ) as Array<{ _id: string; plateNumber?: string; status?: string; routeId?: string; lastLatitude: number; lastLongitude: number; lastSpeed?: number; lastHeading?: number; lastLocationAt?: number }> | undefined;
+
   const assignStudentToRoute = useMutation(api.modules.transport.mutations.assignStudentToRoute);
   const removeStudentAssignment = useMutation(api.modules.transport.mutations.removeStudentAssignment);
 
@@ -385,6 +390,90 @@ export default function TransportTrackingPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Live Vehicle Locations */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Navigation className="h-5 w-5 text-primary" />
+            <CardTitle>Live Vehicle Locations</CardTitle>
+          </div>
+          <Badge variant={vehicleLocations && vehicleLocations.length > 0 ? "default" : "secondary"}>
+            {vehicleLocations?.length ?? 0} reporting
+          </Badge>
+        </CardHeader>
+        <CardContent>
+          {!vehicleLocations || vehicleLocations.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-8 text-center">
+              <Navigation className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
+              <p className="font-medium text-muted-foreground">No live locations yet</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Vehicle locations appear here when drivers update their position via the mobile app or GPS integration.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Location table */}
+              <div className="rounded-lg border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="text-left p-3 font-medium">Vehicle</th>
+                      <th className="text-left p-3 font-medium">Route</th>
+                      <th className="text-right p-3 font-medium">Latitude</th>
+                      <th className="text-right p-3 font-medium">Longitude</th>
+                      <th className="text-right p-3 font-medium">Speed</th>
+                      <th className="text-right p-3 font-medium">Last Updated</th>
+                      <th className="text-right p-3 font-medium"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vehicleLocations.map((v) => (
+                      <tr key={v._id} className="border-t">
+                        <td className="p-3 font-medium">{v.plateNumber ?? "Unknown"}</td>
+                        <td className="p-3 text-muted-foreground">{allRoutes.find((r) => r._id === v.routeId)?.name ?? "—"}</td>
+                        <td className="p-3 text-right font-mono text-xs">{v.lastLatitude.toFixed(5)}</td>
+                        <td className="p-3 text-right font-mono text-xs">{v.lastLongitude.toFixed(5)}</td>
+                        <td className="p-3 text-right">{v.lastSpeed != null ? `${v.lastSpeed} km/h` : "—"}</td>
+                        <td className="p-3 text-right text-muted-foreground text-xs">
+                          {v.lastLocationAt ? new Date(v.lastLocationAt).toLocaleTimeString() : "—"}
+                        </td>
+                        <td className="p-3 text-right">
+                          <a
+                            href={`https://www.google.com/maps?q=${v.lastLatitude},${v.lastLongitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary underline underline-offset-2"
+                          >
+                            Map ↗
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* OSM static map tiles for first vehicle */}
+              {vehicleLocations[0] && (
+                <div className="rounded-lg overflow-hidden border">
+                  <iframe
+                    title="Vehicle location map"
+                    width="100%"
+                    height="280"
+                    loading="lazy"
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${vehicleLocations[0].lastLongitude - 0.02},${vehicleLocations[0].lastLatitude - 0.02},${vehicleLocations[0].lastLongitude + 0.02},${vehicleLocations[0].lastLatitude + 0.02}&layer=mapnik&marker=${vehicleLocations[0].lastLatitude},${vehicleLocations[0].lastLongitude}`}
+                    className="w-full border-0"
+                  />
+                  <p className="text-xs text-muted-foreground px-3 py-2 bg-muted/30">
+                    Showing most recent vehicle · {vehicleLocations[0].plateNumber} · Powered by OpenStreetMap
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Card>

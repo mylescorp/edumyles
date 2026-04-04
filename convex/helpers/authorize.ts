@@ -15,7 +15,8 @@ export type Role =
   | "transport_manager"
   | "board_member"
   | "alumni"
-  | "partner";
+  | "partner"
+  | "receptionist";
 
 export type Permission =
   | "students:read" | "students:write" | "students:delete"
@@ -53,6 +54,7 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   board_member: ["reports:read", "finance:read", "students:read", "communications:read"],
   alumni: ["grades:read", "reports:read", "attendance:read", "communications:read"],
   partner: ["students:read", "finance:read", "reports:read", "communications:read", "communications:messaging"],
+  receptionist: ["students:read", "communications:read", "communications:messaging"],
 };
 
 function normalizeRole(role: string): Role | null {

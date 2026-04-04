@@ -124,3 +124,64 @@ export const enrollFromApplication = mutation({
         return studentId;
     },
 });
+
+export const generateDocumentUploadUrl = mutation({
+    args: {},
+    handler: async (ctx) => {
+        // Requires authenticated tenant context; no module gate for storage URL
+        await requireTenantContext(ctx);
+        return ctx.storage.generateUploadUrl();
+    },
+});
+
+export const attachDocumentToApplication = mutation({
+    args: {
+        applicationId: v.id("admissionApplications"),
+        storageId: v.id("_storage"),
+        fileName: v.string(),
+        fileType: v.string(),
+        fileSize: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "admissions");
+        requirePermission(tenant, "students:write");
+
+        const application = await ctx.db.get(args.applicationId);
+        if (!application || application.tenantId !== tenant.tenantId) throw new Error("Application not found");
+
+        const existingDocs: any[] = (application as any).documents ?? [];
+        const newDoc = {
+            storageId: args.storageId,
+            fileName: args.fileName,
+            fileType: args.fileType,
+            fileSize: args.fileSize,
+            uploadedAt: Date.now(),
+            uploadedBy: tenant.userId,
+        };
+
+        await ctx.db.patch(args.applicationId, { documents: [...existingDocs, newDoc] });
+        return { success: true };
+    },
+});
+
+export const removeApplicationDocument = mutation({
+    args: {
+        applicationId: v.id("admissionApplications"),
+        storageId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const tenant = await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "admissions");
+        requirePermission(tenant, "students:write");
+
+        const application = await ctx.db.get(args.applicationId);
+        if (!application || application.tenantId !== tenant.tenantId) throw new Error("Application not found");
+
+        const existingDocs: any[] = (application as any).documents ?? [];
+        await ctx.db.patch(args.applicationId, {
+            documents: existingDocs.filter((d: any) => d.storageId !== args.storageId),
+        });
+        return { success: true };
+    },
+});

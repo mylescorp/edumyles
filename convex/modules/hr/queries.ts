@@ -297,3 +297,32 @@ export const listPayslips = query({
       .collect();
   },
 });
+
+export const listPerformanceReviews = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    period: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const tenant = args.sessionToken
+        ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+        : await requireTenantContext(ctx);
+      await requireModule(ctx, tenant.tenantId, "hr");
+      requirePermission(tenant, "staff:read");
+
+      const reviews = await ctx.db
+        .query("staffPerformanceReviews" as any)
+        .withIndex("by_tenant" as any, (q: any) => q.eq("tenantId", tenant.tenantId))
+        .collect()
+        .catch(() => [] as any[]);
+
+      if (args.period) {
+        return reviews.filter((r: any) => r.period === args.period);
+      }
+      return reviews;
+    } catch {
+      return [];
+    }
+  },
+});

@@ -392,3 +392,107 @@ export const paginationSchema = z.object({
 });
 
 export type PaginationInput = z.infer<typeof paginationSchema>;
+
+// ----------------------------------------------------------
+// Admissions
+// ----------------------------------------------------------
+export const createAdmissionApplicationSchema = z.object({
+  tenantId: tenantIdSchema,
+  firstName: z.string().min(1).max(50),
+  lastName: z.string().min(1).max(50),
+  dateOfBirth: dateSchema,
+  gender: z.enum(["male", "female", "other"]),
+  applyingForGrade: z.string().min(1).max(50),
+  academicYear: z.string().min(4).max(20),
+  guardianName: z.string().min(1).max(100),
+  guardianEmail: z.string().email(),
+  guardianPhone: phoneSchema,
+  guardianRelationship: z.enum(["father", "mother", "guardian", "other"]),
+  previousSchool: z.string().max(160).optional(),
+  notes: z.string().max(1000).optional(),
+});
+
+export type CreateAdmissionApplicationInput = z.infer<typeof createAdmissionApplicationSchema>;
+
+export const updateAdmissionStatusSchema = z.object({
+  applicationId: z.string().min(1),
+  status: z.enum(["submitted", "under_review", "accepted", "rejected", "waitlisted", "withdrawn"]),
+  reviewNotes: z.string().max(1000).optional(),
+  admissionNumber: z.string().max(30).optional(),
+});
+
+export type UpdateAdmissionStatusInput = z.infer<typeof updateAdmissionStatusSchema>;
+
+// ----------------------------------------------------------
+// Payroll
+// ----------------------------------------------------------
+export const createPayrollRunSchema = z.object({
+  tenantId: tenantIdSchema,
+  period: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Period must be in YYYY-MM format"),
+  paymentDate: dateSchema,
+  notes: z.string().max(500).optional(),
+});
+
+export type CreatePayrollRunInput = z.infer<typeof createPayrollRunSchema>;
+
+export const createPayrollEntrySchema = z.object({
+  payrollRunId: z.string().min(1),
+  staffId: z.string().min(1),
+  basicSalary: z.number().nonnegative(),
+  allowances: z.number().nonnegative().default(0),
+  deductions: z.number().nonnegative().default(0),
+  netPay: z.number().nonnegative(),
+  currency: z.string().length(3),
+  notes: z.string().max(300).optional(),
+});
+
+export type CreatePayrollEntryInput = z.infer<typeof createPayrollEntrySchema>;
+
+// ----------------------------------------------------------
+// Staff Contracts
+// ----------------------------------------------------------
+export const createStaffContractSchema = z.object({
+  tenantId: tenantIdSchema,
+  staffId: z.string().min(1),
+  contractType: z.enum(["permanent", "contract", "part_time", "intern", "volunteer"]),
+  startDate: dateSchema,
+  endDate: dateSchema.optional(),
+  basicSalary: z.number().nonnegative(),
+  currency: z.string().length(3),
+  allowances: z.record(z.string(), z.number().nonnegative()).optional(),
+  terms: z.string().max(2000).optional(),
+  signedByStaff: z.boolean().default(false),
+  signedByAdmin: z.boolean().default(false),
+}).refine((value) => !value.endDate || value.endDate > value.startDate, {
+  message: "Contract end date must be after start date",
+  path: ["endDate"],
+});
+
+export type CreateStaffContractInput = z.infer<typeof createStaffContractSchema>;
+
+// ----------------------------------------------------------
+// Library Borrows
+// ----------------------------------------------------------
+export const createLibraryBorrowSchema = z.object({
+  tenantId: tenantIdSchema,
+  bookId: z.string().min(1),
+  borrowerId: z.string().min(1),
+  borrowerType: z.enum(["student", "staff"]),
+  borrowedAt: dateSchema,
+  dueDate: dateSchema,
+}).refine((value) => value.dueDate > value.borrowedAt, {
+  message: "Due date must be after borrow date",
+  path: ["dueDate"],
+});
+
+export type CreateLibraryBorrowInput = z.infer<typeof createLibraryBorrowSchema>;
+
+export const returnLibraryBookSchema = z.object({
+  borrowId: z.string().min(1),
+  returnedAt: dateSchema,
+  condition: z.enum(["good", "damaged", "lost"]).default("good"),
+  fineAmount: z.number().nonnegative().default(0),
+  fineReason: z.string().max(200).optional(),
+});
+
+export type ReturnLibraryBookInput = z.infer<typeof returnLibraryBookSchema>;

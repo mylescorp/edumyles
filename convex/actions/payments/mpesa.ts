@@ -4,8 +4,11 @@ import { action } from "../../_generated/server";
 import { v } from "convex/values";
 import { api, internal } from "../../_generated/api";
 
-const DARAJA_OAUTH = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
-const DARAJA_STK_PUSH = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+const DARAJA_BASE = process.env.MPESA_ENVIRONMENT === "production"
+  ? "https://api.safaricom.co.ke"
+  : "https://sandbox.safaricom.co.ke";
+const DARAJA_OAUTH = `${DARAJA_BASE}/oauth/v1/generate?grant_type=client_credentials`;
+const DARAJA_STK_PUSH = `${DARAJA_BASE}/mpesa/stkpush/v1/processrequest`;
 
 export async function initiateMpesaStkPushForAmount(args: {
   phone: string;

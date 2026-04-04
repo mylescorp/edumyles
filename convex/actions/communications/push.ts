@@ -1,8 +1,10 @@
 "use node";
 
 import { internal } from "../../_generated/api";
-import { internalAction } from "../../_generated/server";
+import { action, internalAction } from "../../_generated/server";
 import { v } from "convex/values";
+import { requireTenantSession } from "../../helpers/tenantGuard";
+import { requirePermission } from "../../helpers/authorize";
 
 type ExpoPushMessage = {
   to: string;
@@ -51,6 +53,49 @@ async function sendExpoBatch(messages: ExpoPushMessage[]) {
 
   return payload.data ?? [];
 }
+
+/**
+ * Public action: send push notifications to specified users (or all users in tenant).
+ * Requires communications:broadcast permission.
+ */
+export const sendPush = action({
+  args: {
+    sessionToken: v.string(),
+    userIds: v.optional(v.array(v.string())),
+    title: v.string(),
+    body: v.string(),
+    link: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    requirePermission(tenant, "communications:broadcast");
+
+    // Fetch push tokens — scope to specific users or entire tenant
+    const allTokens = await ctx.runQuery(
+      internal.modules.communications.queries.listPushTokensInternal,
+      { tenantId: tenant.tenantId }
+    );
+
+    const recipients = (allTokens as Array<{ userId: string; pushToken: string; platform?: string; deviceName?: string }>)
+      .filter((t) => !args.userIds || args.userIds.includes(t.userId));
+
+    if (recipients.length === 0) {
+      return { success: true, sent: 0, failed: 0, message: "No registered devices found" };
+    }
+
+    return ctx.runAction(internal.actions.communications.push.sendPushInternal, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      recipients,
+      title: args.title,
+      body: args.body,
+      link: args.link,
+      metadata: args.metadata,
+    });
+  },
+});
 
 export const sendPushInternal = internalAction({
   args: {

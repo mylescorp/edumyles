@@ -1,6 +1,7 @@
 // ============================================================
 // EduMyles — Airtel Money API Integration Library
 // ============================================================
+import { resolveAirtelConfig } from "./env.js";
 
 export interface AirtelConfig {
   clientId: string;
@@ -233,4 +234,3 @@ export function createAirtelService(): AirtelService {
 
   return new AirtelService(config);
 }
-import { resolveAirtelConfig } from "./env.js";
