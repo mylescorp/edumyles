@@ -15,8 +15,7 @@ export async function GET(req: NextRequest) {
 
   const apiKey = process.env.WORKOS_API_KEY;
   const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
-  const redirectUri =
-    process.env.WORKOS_REDIRECT_URI || `${req.nextUrl.origin}/auth/callback`;
+  const redirectUri = `${req.nextUrl.origin}/auth/callback`;
 
   if (!apiKey || !clientId) {
     console.error("[auth/login/api] Missing WORKOS_API_KEY or client ID");

@@ -7,10 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const apiKey = process.env.WORKOS_API_KEY;
   const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
-  // Redirect URI must be the landing callback (or the frontend callback if separately deployed)
-  const redirectUri =
-    process.env.WORKOS_REDIRECT_URI ||
-    `${req.nextUrl.origin}/auth/callback`;
+  const redirectUri = `${req.nextUrl.origin}/auth/callback`;
 
   if (!apiKey || !clientId) {
     console.error("[landing/auth/login/api] Missing WorkOS env vars");
