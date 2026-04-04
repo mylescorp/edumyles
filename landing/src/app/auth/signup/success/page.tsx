@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Clock3, Mail, MessageSquareText, PhoneCall, ShieldCheck } from "lucide-react";
 
 export default function SignUpSuccessPage() {
+  return (
+    <Suspense fallback={<SignUpSuccessFallback />}>
+      <SignUpSuccessContent />
+    </Suspense>
+  );
+}
+
+function SignUpSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
@@ -109,6 +117,27 @@ export default function SignUpSuccessPage() {
             Redirecting you back to the EduMyles home page shortly.
           </p>
         </div>
+      </div>
+    </main>
+  );
+}
+
+function SignUpSuccessFallback() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-[#F3FBF6] px-4 py-10">
+      <div className="w-full max-w-2xl rounded-[32px] border border-[#dcebe3] bg-white p-8 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)] sm:p-10">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#0F4C2A] text-white">
+          <ShieldCheck className="h-8 w-8" />
+        </div>
+        <p className="mt-6 font-jakarta text-[12px] font-semibold uppercase tracking-[0.2em] text-[#1A7A4A]">
+          Finalizing
+        </p>
+        <h1 className="mt-3 font-playfair text-[2rem] font-bold leading-[1.1] text-[#061A12]">
+          Preparing your confirmation...
+        </h1>
+        <p className="mt-5 font-jakarta text-[16px] leading-8 text-[#5b6b63]">
+          We’re getting your application confirmation ready.
+        </p>
       </div>
     </main>
   );

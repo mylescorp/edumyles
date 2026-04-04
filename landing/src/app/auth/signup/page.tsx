@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -29,6 +29,14 @@ const inputClass =
   "w-full rounded-xl border border-[#dbe9e0] bg-white px-4 py-3.5 font-jakarta text-[15px] text-[#061A12] outline-none transition-colors duration-200 focus:border-[#0F4C2A]";
 
 export default function SignUpPage() {
+  return (
+    <Suspense fallback={<SignUpPageFallback />}>
+      <SignUpPageContent />
+    </Suspense>
+  );
+}
+
+function SignUpPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formState, setFormState] = useState<FormState>("idle");
@@ -333,6 +341,24 @@ export default function SignUpPage() {
             </p>
           </form>
         </section>
+      </div>
+    </main>
+  );
+}
+
+function SignUpPageFallback() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-[#F3FBF6] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="w-full max-w-xl rounded-[28px] bg-white px-8 py-12 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)]">
+        <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
+          Preparing application
+        </p>
+        <h1 className="mt-3 font-playfair text-[2rem] font-bold text-[#061A12]">
+          Loading your signup form...
+        </h1>
+        <p className="mt-4 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
+          Please hold for a moment while we prepare your onboarding application.
+        </p>
       </div>
     </main>
   );
