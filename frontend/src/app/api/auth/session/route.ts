@@ -358,9 +358,15 @@ export async function GET(req: NextRequest) {
     const currentSessionCookie = req.cookies.get("edumyles_session")?.value;
     const userCookie = req.cookies.get("edumyles_user")?.value;
     const roleCookie = req.cookies.get("edumyles_role")?.value;
+    const bootstrapVersion = req.cookies.get("edumyles_dev_bootstrap")?.value;
     const isDevBypassEnabled =
       process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
-      process.env.NODE_ENV !== "production";
+      process.env.NODE_ENV !== "production" &&
+      (
+        !currentSessionCookie ||
+        currentSessionCookie === "dev_session_token" ||
+        (currentSessionCookie === DEV_TENANT_SESSION_TOKEN && bootstrapVersion !== DEV_BOOTSTRAP_VERSION)
+      );
 
     if (isDevBypassEnabled) {
       const devSession = buildDevSessionFromCookies(
@@ -406,6 +412,7 @@ export async function GET(req: NextRequest) {
     if (!sessionToken) {
       return NextResponse.json({ session: null }, { status: 200 });
     }
+
     // Fast path: reconstruct the client session directly from the signed-in
     // cookie set. Convex queries still validate the session token server-side,
     // so we can avoid blocking every page render on an extra Convex round-trip.
