@@ -18,6 +18,14 @@ import { v } from "convex/values";
 import { requirePlatformSession } from "./helpers/platformGuard";
 import { logAction } from "./helpers/auditLog";
 
+function isProvisionableWorkosUserId(workosUserId: string): boolean {
+  return !workosUserId.startsWith("landing:");
+}
+
+function buildLandingWaitlistUserId(email: string): string {
+  return `landing:${email.trim().toLowerCase()}`;
+}
+
 // ── Public mutations (called from auth callback, no session required) ──────
 
 /**
@@ -27,36 +35,77 @@ import { logAction } from "./helpers/auditLog";
  */
 export const submitWaitlistApplication = mutation({
   args: {
-    workosUserId: v.string(),
+    workosUserId: v.optional(v.string()),
     email: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
+    phone: v.optional(v.string()),
     schoolName: v.optional(v.string()),
     requestedRole: v.optional(v.string()),
     message: v.optional(v.string()),
+    source: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Idempotency — return existing application if one exists
-    const existing = await ctx.db
-      .query("waitlistApplications")
-      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
-      .first();
+    const normalizedEmail = args.email.trim().toLowerCase();
+    const waitlistWorkosUserId =
+      args.workosUserId?.trim() || buildLandingWaitlistUserId(normalizedEmail);
+
+    const existing = args.workosUserId?.trim()
+      ? await ctx.db
+          .query("waitlistApplications")
+          .withIndex("by_workos_user", (q) => q.eq("workosUserId", waitlistWorkosUserId))
+          .first()
+      : await ctx.db
+          .query("waitlistApplications")
+          .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
+          .first();
 
     if (existing) {
       return { id: existing._id, status: existing.status, isNew: false };
     }
 
     const id = await ctx.db.insert("waitlistApplications", {
-      workosUserId: args.workosUserId,
-      email: args.email,
+      workosUserId: waitlistWorkosUserId,
+      email: normalizedEmail,
       firstName: args.firstName,
       lastName: args.lastName,
+      phone: args.phone,
       schoolName: args.schoolName,
-      requestedRole: args.requestedRole,
+      requestedRole: args.requestedRole ?? "school_admin",
       message: args.message,
+      source: args.source ?? (args.workosUserId ? "workos_auth_signup" : "landing_public_signup"),
       status: "pending",
       requestedAt: Date.now(),
     });
+
+    const platformAdmins = await ctx.db
+      .query("users")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", "PLATFORM"))
+      .collect();
+
+    const recipients = platformAdmins.filter(
+      (user) =>
+        user.isActive &&
+        ["master_admin", "super_admin"].includes(user.role) &&
+        Boolean(user.workosUserId)
+    );
+
+    const applicantName =
+      [args.firstName?.trim(), args.lastName?.trim()].filter(Boolean).join(" ") ||
+      normalizedEmail;
+
+    for (const admin of recipients) {
+      await ctx.db.insert("notifications", {
+        tenantId: "PLATFORM",
+        userId: admin.workosUserId,
+        title: "New client application received",
+        message: `${applicantName} submitted a signup application${args.schoolName ? ` for ${args.schoolName}` : ""}. Review it from the platform waitlist.`,
+        type: "waitlist_application",
+        isRead: false,
+        link: "/platform/waitlist",
+        createdAt: Date.now(),
+      });
+    }
 
     return { id, status: "pending", isNew: true };
   },
@@ -157,11 +206,11 @@ export const approveWaitlistApplication = mutation({
   args: {
     sessionToken: v.string(),
     applicationId: v.id("waitlistApplications"),
-    assignedTenantId: v.string(),
-    assignedRole: v.string(),
+    assignedTenantId: v.optional(v.string()),
+    assignedRole: v.optional(v.string()),
     reviewNotes: v.optional(v.string()),
     // Convex org _id for the assigned tenant (passed from API route)
-    organizationId: v.id("organizations"),
+    organizationId: v.optional(v.id("organizations")),
   },
   handler: async (ctx, args) => {
     const adminCtx = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
@@ -171,6 +220,14 @@ export const approveWaitlistApplication = mutation({
     if (application.status !== "pending") throw new Error("APPLICATION_ALREADY_REVIEWED");
 
     const now = Date.now();
+    const shouldProvision = isProvisionableWorkosUserId(application.workosUserId);
+
+    if (
+      shouldProvision &&
+      (!args.assignedTenantId || !args.assignedRole || !args.organizationId)
+    ) {
+      throw new Error("MISSING_ASSIGNMENT_DETAILS");
+    }
 
     // Mark application as approved
     await ctx.db.patch(args.applicationId, {
@@ -183,38 +240,40 @@ export const approveWaitlistApplication = mutation({
       assignedOrgId: args.organizationId,
     });
 
-    // Check if user record already exists (re-approval scenario)
-    const existingUser = await ctx.db
-      .query("users")
-      .withIndex("by_workos_user", (q) =>
-        q.eq("workosUserId", application.workosUserId)
-      )
-      .first();
+    if (shouldProvision) {
+      // Check if user record already exists (re-approval scenario)
+      const existingUser = await ctx.db
+        .query("users")
+        .withIndex("by_workos_user", (q) =>
+          q.eq("workosUserId", application.workosUserId)
+        )
+        .first();
 
-    if (existingUser) {
-      // Update existing record to ensure correct tenant/role
-      await ctx.db.patch(existingUser._id, {
-        tenantId: args.assignedTenantId,
-        role: args.assignedRole,
-        organizationId: args.organizationId,
-        isActive: true,
-      });
-    } else {
-      // Create new user record
-      const eduMylesUserId = `USR-${args.assignedTenantId}-${application.workosUserId.slice(-8).toUpperCase()}`;
-      await ctx.db.insert("users", {
-        tenantId: args.assignedTenantId,
-        eduMylesUserId,
-        workosUserId: application.workosUserId,
-        email: application.email,
-        firstName: application.firstName,
-        lastName: application.lastName,
-        role: args.assignedRole,
-        permissions: [],
-        organizationId: args.organizationId,
-        isActive: true,
-        createdAt: now,
-      });
+      if (existingUser) {
+        // Update existing record to ensure correct tenant/role
+        await ctx.db.patch(existingUser._id, {
+          tenantId: args.assignedTenantId!,
+          role: args.assignedRole!,
+          organizationId: args.organizationId!,
+          isActive: true,
+        });
+      } else {
+        // Create new user record
+        const eduMylesUserId = `USR-${args.assignedTenantId}-${application.workosUserId.slice(-8).toUpperCase()}`;
+        await ctx.db.insert("users", {
+          tenantId: args.assignedTenantId!,
+          eduMylesUserId,
+          workosUserId: application.workosUserId,
+          email: application.email,
+          firstName: application.firstName,
+          lastName: application.lastName,
+          role: args.assignedRole!,
+          permissions: [],
+          organizationId: args.organizationId!,
+          isActive: true,
+          createdAt: now,
+        });
+      }
     }
 
     await logAction(ctx, {
@@ -228,10 +287,12 @@ export const approveWaitlistApplication = mutation({
         email: application.email,
         assignedTenantId: args.assignedTenantId,
         assignedRole: args.assignedRole,
+        source: application.source ?? "workos_auth_signup",
+        provisioned: shouldProvision,
       },
     });
 
-    return { success: true };
+    return { success: true, provisioned: shouldProvision };
   },
 });
 

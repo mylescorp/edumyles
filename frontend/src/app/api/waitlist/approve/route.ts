@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
       };
 
     if (!sessionToken || !applicationId || !assignedTenantId || !assignedRole) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      if (!sessionToken || !applicationId) {
+        return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      }
     }
 
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -53,31 +55,7 @@ export async function POST(req: NextRequest) {
 
     const convex = new ConvexHttpClient(convexUrl);
 
-    // ── 1. Fetch the tenant and organization ─────────────────────────────────
-    const tenant = await convex.query(api.tenants.getTenantByTenantId, {
-      tenantId: assignedTenantId,
-    });
-
-    if (!tenant) {
-      return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
-    }
-
-    // Get org for this tenant to get WorkOS org ID and Convex org _id
-    const tenantOrg = await convex.query(api.organizations.getOrgBySubdomain, {
-      sessionToken,
-      subdomain: tenant.subdomain,
-    });
-
-    if (!tenantOrg) {
-      return NextResponse.json(
-        { error: "Organization not found for tenant. Create the tenant's WorkOS org first." },
-        { status: 404 }
-      );
-    }
-
-    // ── 2. Add user to WorkOS Organization (if WorkOS is configured + has real org) ─
-    // We need the workosUserId from the application. Since we need to call the
-    // mutation anyway, let's get it from the application list.
+    // ── 1. Get application record to determine approval mode ─────────────────
     const allApplications = await convex.query(api.waitlist.listApplications, {
       sessionToken,
     });
@@ -90,43 +68,78 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Application not found" }, { status: 404 });
     }
 
-    if (workosApiKey && tenantOrg.workosOrgId && !tenantOrg.workosOrgId.startsWith("edumyles-")) {
-      // Only add to WorkOS org if the org has a real WorkOS-issued ID (not our local fallback)
-      try {
-        const workos = new WorkOS(workosApiKey);
-        await workos.userManagement.createOrganizationMembership({
-          organizationId: tenantOrg.workosOrgId,
-          userId: appRecord.workosUserId,
-          roleSlug: mapRoleToWorkOSRole(assignedRole),
-        });
-        console.log(
-          `[waitlist/approve] ✅ Added ${appRecord.email} to WorkOS org ${tenantOrg.workosOrgId}`
+    const provisionable =
+      typeof appRecord.workosUserId === "string" &&
+      !appRecord.workosUserId.startsWith("landing:");
+
+    let tenantOrg: any = null;
+
+    if (provisionable) {
+      if (!assignedTenantId || !assignedRole) {
+        return NextResponse.json(
+          { error: "Tenant and role are required for provisioned approvals." },
+          { status: 400 }
         );
-      } catch (workosErr: any) {
-        // Log but don't block — WorkOS membership is best-effort here;
-        // the Convex user record is the source of truth for auth.
-        console.warn(
-          "[waitlist/approve] WorkOS org membership failed (non-fatal):",
-          workosErr?.message
+      }
+
+      const tenant = await convex.query(api.tenants.getTenantByTenantId, {
+        tenantId: assignedTenantId,
+      });
+
+      if (!tenant) {
+        return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
+      }
+
+      tenantOrg = await convex.query(api.organizations.getOrgBySubdomain, {
+        sessionToken,
+        subdomain: tenant.subdomain,
+      });
+
+      if (!tenantOrg) {
+        return NextResponse.json(
+          { error: "Organization not found for tenant. Create the tenant's WorkOS org first." },
+          { status: 404 }
         );
+      }
+
+      if (workosApiKey && tenantOrg.workosOrgId && !tenantOrg.workosOrgId.startsWith("edumyles-")) {
+        try {
+          const workos = new WorkOS(workosApiKey);
+          await workos.userManagement.createOrganizationMembership({
+            organizationId: tenantOrg.workosOrgId,
+            userId: appRecord.workosUserId,
+            roleSlug: mapRoleToWorkOSRole(assignedRole),
+          });
+          console.log(
+            `[waitlist/approve] ✅ Added ${appRecord.email} to WorkOS org ${tenantOrg.workosOrgId}`
+          );
+        } catch (workosErr: any) {
+          console.warn(
+            "[waitlist/approve] WorkOS org membership failed (non-fatal):",
+            workosErr?.message
+          );
+        }
       }
     }
 
-    // ── 3. Call Convex mutation to create user record and mark approved ───────
-    await convex.mutation(api.waitlist.approveWaitlistApplication, {
+    const result = await convex.mutation(api.waitlist.approveWaitlistApplication, {
       sessionToken,
       applicationId: applicationId as Id<"waitlistApplications">,
-      assignedTenantId,
-      assignedRole,
+      assignedTenantId: provisionable ? assignedTenantId : undefined,
+      assignedRole: provisionable ? assignedRole : undefined,
       reviewNotes,
-      organizationId: tenantOrg._id as Id<"organizations">,
+      organizationId: provisionable
+        ? (tenantOrg._id as Id<"organizations">)
+        : undefined,
     });
 
     console.log(
-      `[waitlist/approve] ✅ Provisioned ${appRecord.email} → ${assignedTenantId} as ${assignedRole}`
+      provisionable
+        ? `[waitlist/approve] ✅ Provisioned ${appRecord.email} → ${assignedTenantId} as ${assignedRole}`
+        : `[waitlist/approve] ✅ Approved landing application for ${appRecord.email}`
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, provisioned: result.provisioned });
   } catch (err: any) {
     console.error("[waitlist/approve] Error:", err);
     const message = err?.message ?? "Internal server error";
