@@ -153,9 +153,9 @@ function SignUpPageContent() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F3FBF6] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1480px] gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(540px,620px)]">
-        <section className="flex h-full flex-col rounded-[32px] bg-[linear-gradient(180deg,#061A12_0%,#082317_55%,#0B2C1C_100%)] px-6 py-8 text-white shadow-[0_24px_64px_rgba(6,26,18,0.18)] sm:px-10 sm:py-10 xl:px-12">
+    <main className="min-h-screen bg-[#EEF6F1]">
+      <div className="grid min-h-screen xl:grid-cols-[minmax(0,1.7fr)_minmax(540px,0.95fr)]">
+        <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-white sm:px-12 lg:px-16 xl:px-16 xl:py-14">
           <div className="mb-10 flex items-center justify-between gap-4">
             <Logo size="md" />
             <Link
@@ -166,7 +166,7 @@ function SignUpPageContent() {
             </Link>
           </div>
 
-          <div className="max-w-xl">
+          <div className="max-w-3xl pt-8 xl:pt-20">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#E8A020] bg-[rgba(232,160,32,0.12)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#E8A020]">
               <Sparkles className="h-4 w-4" />
               Client Application
@@ -178,12 +178,12 @@ function SignUpPageContent() {
               <br />
               with confidence.
             </h1>
-            <p className="mt-6 max-w-2xl font-jakarta text-[17px] leading-8 text-[#A8E6C3]">
+            <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
               Share your institution details once, and we will route your application into a guided approval workflow. Our onboarding team reviews every request, confirms the right rollout path, and reaches out with tailored next steps.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="mt-12 grid max-w-5xl gap-4 lg:grid-cols-3">
             {[
               {
                 icon: ShieldCheck,
@@ -203,7 +203,7 @@ function SignUpPageContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[22px] border border-[rgba(168,230,195,0.16)] bg-[rgba(255,255,255,0.04)] p-6"
+                className="rounded-[24px] border border-[rgba(168,230,195,0.16)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
               >
                 <item.icon className="h-6 w-6 text-[#E8A020]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-white">{item.title}</h2>
@@ -212,8 +212,8 @@ function SignUpPageContent() {
             ))}
           </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[24px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6">
+          <div className="mt-12 grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
               <h2 className="font-playfair text-[28px] font-bold text-white">
                 What to expect after you apply
               </h2>
@@ -248,7 +248,7 @@ function SignUpPageContent() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-[rgba(232,160,32,0.22)] bg-[rgba(232,160,32,0.08)] p-6">
+            <div className="rounded-[28px] border border-[rgba(232,160,32,0.22)] bg-[rgba(232,160,32,0.08)] p-6 xl:p-8">
               <h2 className="font-jakarta text-[15px] font-bold text-[#E8A020]">
                 Need to speak with us before approval?
               </h2>
@@ -281,7 +281,7 @@ function SignUpPageContent() {
             </div>
           </div>
 
-          <div className="mt-auto pt-8">
+          <div className="mt-auto pt-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(168,230,195,0.15)] bg-[rgba(255,255,255,0.04)] px-4 py-2 font-jakarta text-[12px] font-semibold tracking-[0.08em] text-[#A8E6C3]">
               <ArrowRight className="h-4 w-4 text-[#E8A020]" />
               Trusted onboarding for schools across East Africa
@@ -289,8 +289,9 @@ function SignUpPageContent() {
           </div>
         </section>
 
-        <section className="w-full rounded-[32px] bg-white px-6 py-8 shadow-[0_24px_64px_rgba(6,26,18,0.08)] sm:px-8 sm:py-10 xl:px-10">
-          <div className="mb-8 border-b border-[#e5efe9] pb-6">
+        <section className="flex w-full items-start bg-[#F7FBF8] px-6 py-10 sm:px-10 lg:px-12 xl:px-14 xl:py-14">
+          <div className="mx-auto w-full max-w-[620px]">
+          <div className="mb-8 pb-6">
             <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
               Apply for access
             </p>
@@ -458,24 +459,24 @@ function SignUpPageContent() {
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                <label htmlFor="requestedRole" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
-                  You’re applying as
-                </label>
-                <select
-                  id="requestedRole"
-                  name="requestedRole"
-                  value={fields.requestedRole}
-                  onChange={handleChange}
-                  className={inputClass}
-                >
-                  {ROLE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
+                  <label htmlFor="requestedRole" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    You’re applying as
+                  </label>
+                  <select
+                    id="requestedRole"
+                    name="requestedRole"
+                    value={fields.requestedRole}
+                    onChange={handleChange}
+                    className={inputClass}
+                  >
+                    {ROLE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
                     ))}
                   </select>
                 </div>
-                <div className="rounded-[18px] border border-[#e5efe9] bg-[#F9FCFA] px-4 py-3">
+                <div className="rounded-[18px] border border-[#e5efe9] bg-white px-4 py-3">
                   <p className="font-jakarta text-[11px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
                     Application quality tip
                   </p>
@@ -518,12 +519,13 @@ function SignUpPageContent() {
               {formState === "loading" ? "Submitting your application..." : "Submit application"}
             </button>
 
-            <div className="rounded-[20px] border border-[#e3ece6] bg-[#F9FCFA] px-5 py-4">
+            <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
               <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
                 By applying, you’re asking our onboarding team to review your school for activation. We’ll contact you with next steps, onboarding guidance, and any clarification we may need before approval.
               </p>
             </div>
           </form>
+          </div>
         </section>
       </div>
     </main>
@@ -532,7 +534,7 @@ function SignUpPageContent() {
 
 function SignUpPageFallback() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#F3FBF6] px-4 py-8 sm:px-6 lg:px-8">
+    <main className="flex min-h-screen items-center justify-center bg-[#EEF6F1] px-4 py-8 sm:px-6 lg:px-8">
       <div className="w-full max-w-xl rounded-[28px] bg-white px-8 py-12 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)]">
         <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
           Preparing application
