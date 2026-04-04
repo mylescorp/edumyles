@@ -42,18 +42,53 @@ const COUNTRY_OPTIONS = [
 
 const COUNTY_OPTIONS: Record<string, string[]> = {
   Kenya: [
-    "Nairobi",
-    "Kiambu",
     "Mombasa",
-    "Nakuru",
-    "Kisumu",
-    "Uasin Gishu",
-    "Machakos",
-    "Kajiado",
-    "Murang'a",
-    "Nyeri",
+    "Kwale",
+    "Kilifi",
+    "Tana River",
+    "Lamu",
+    "Taita-Taveta",
+    "Garissa",
+    "Wajir",
+    "Mandera",
+    "Marsabit",
+    "Isiolo",
     "Meru",
+    "Tharaka-Nithi",
+    "Embu",
+    "Kitui",
+    "Machakos",
+    "Makueni",
+    "Nyandarua",
+    "Nyeri",
+    "Kirinyaga",
+    "Murang'a",
+    "Kiambu",
+    "Turkana",
+    "West Pokot",
+    "Samburu",
+    "Trans Nzoia",
+    "Uasin Gishu",
+    "Elgeyo-Marakwet",
+    "Nandi",
+    "Baringo",
+    "Laikipia",
+    "Nakuru",
+    "Narok",
+    "Kajiado",
+    "Kericho",
+    "Bomet",
     "Kakamega",
+    "Vihiga",
+    "Bungoma",
+    "Busia",
+    "Siaya",
+    "Kisumu",
+    "Homa Bay",
+    "Migori",
+    "Kisii",
+    "Nyamira",
+    "Nairobi",
   ],
   Uganda: ["Kampala", "Wakiso", "Mukono", "Gulu", "Mbarara", "Jinja", "Mbale", "Other"],
   Tanzania: ["Dar es Salaam", "Arusha", "Mwanza", "Dodoma", "Mbeya", "Morogoro", "Other"],
@@ -187,8 +222,8 @@ function SignUpPageContent() {
             {[
               {
                 icon: ShieldCheck,
-                title: "Reviewed by platform leadership",
-                body: "Every application is checked by the EduMyles master admin team before access is activated.",
+                title: "Reviewed with care",
+                body: "Every application is assessed carefully before access is activated so onboarding stays structured and secure.",
               },
               {
                 icon: Building2,
@@ -220,7 +255,7 @@ function SignUpPageContent() {
               <div className="mt-6 space-y-4">
                 {[
                   "Your application is added to the EduMyles approval queue instantly.",
-                  "Our master admin reviews your institution profile and contact details.",
+                  "Our onboarding team reviews your institution profile and contact details.",
                   "We reach out to confirm rollout needs, modules, and onboarding timeline.",
                   "Once approved, we guide you through activation and setup."
                 ].map((step, index) => (
@@ -521,7 +556,7 @@ function SignUpPageContent() {
 
             <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
               <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
-                By applying, you’re asking our onboarding team to review your school for activation. We’ll contact you with next steps, onboarding guidance, and any clarification we may need before approval.
+                By applying, you’re requesting onboarding review for your institution. We’ll contact you with next steps, onboarding guidance, and any clarification we may need before activation.
               </p>
             </div>
           </form>

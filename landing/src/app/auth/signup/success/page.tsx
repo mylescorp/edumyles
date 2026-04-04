@@ -42,7 +42,7 @@ function SignUpSuccessContent() {
             {duplicate ? "Your application is already in review." : "Your application is now under review."}
           </h1>
           <p className="mt-5 font-jakarta text-[16px] leading-8 text-[#5b6b63]">
-            {school ? `${school} has been added to the EduMyles onboarding queue.` : "Your organisation has been added to the EduMyles onboarding queue."} Our master admin team reviews every request personally before activation so that onboarding stays secure, intentional, and well supported.
+            {school ? `${school} has been added to the EduMyles onboarding queue.` : "Your organisation has been added to the EduMyles onboarding queue."} Our team is now reviewing your application and will follow up with the next steps for approval and onboarding.
           </p>
 
           <div className="mt-8 grid gap-4 text-left sm:grid-cols-2">
