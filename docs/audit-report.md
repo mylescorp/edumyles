@@ -307,6 +307,7 @@ Supporting findings:
 | Infra / Tenancy | All | Wildcard tenant hosting | No clear wildcard Vercel routing for tenant subdomains at root. | Add explicit wildcard domain/routing configuration and align domains. |
 
 ### HIGH
+<<<<<<< HEAD
 | Module | Panel | Feature | Status | Notes |
 |---|---|---|---|---|
 | Platform | Platform Admin | Tickets alternate views | Open | Kanban/calendar views surfaced but not built; hide or implement. |
@@ -323,6 +324,24 @@ Supporting findings:
 | HR / Library / Transport / E-commerce | School Admin | CRUD completion | Open | Most pages have real scaffolds; confirm no remaining placeholder states. |
 | Notifications | All portals | Notifications pages | ✅ RESOLVED | All 5 portal notification pages (teacher/student/parent/alumni/partner) verified wired to real Convex queries with mark-read. |
 | Platform Marketplace | Platform Admin | Top-level marketplace management | Open | Moderation and settings flows remain incomplete. |
+=======
+| Module | Panel | Feature | What's Missing | Suggested Fix |
+|---|---|---|---|---|
+| Platform | Platform Admin | Tickets alternate views | Kanban and calendar views are surfaced but explicitly not implemented. | Hide unfinished views or build them fully. |
+| Timetable | School Admin | Auto-planning builder | Admin timetable page says drag/drop auto-planning is not implemented. | Complete scheduler UX or remove promise from UI. |
+| Communications | Parent | Announcements feed | Parent announcements currently use notifications as a proxy. | Add a dedicated announcements query/model. |
+| Platform | Platform Admin | Health export | Export action is still not wired. | Connect export UI to backend/report generation. |
+| Platform | Platform Admin | Automation workflows | Builder and execution drill-down remain partial. | Finish workflow persistence and execution visibility. |
+| Docs | Engineering | Implementation accuracy | Several docs still describe backend/mobile as placeholders even though code exists. | Update docs to match the current implementation. |
+
+### MEDIUM
+| Module | Panel | Feature | What's Missing | Suggested Fix |
+|---|---|---|---|---|
+| E-wallet | Student / Admin | Wallet transfer/topup UX | Core page exists, but transaction subflows remain partial. | Finish mutations, validation, and confirmations on wallet child routes. |
+| HR / Library / Transport / E-commerce | School Admin | CRUD completion | Many pages have live scaffolds but still include placeholder states or incomplete CRUD. | Close route-by-route gaps with validation, empty states, delete confirms, and pagination. |
+| Notifications | All portals | Notifications pages | Several notification pages are static shells despite backend notification support existing. | Wire each page to real notification queries and mark-read mutations. |
+| Platform Marketplace | Platform Admin | Top-level marketplace management | Page structure exists but remains placeholder-heavy. | Finish create/update moderation flows and persist settings. |
+>>>>>>> origin/main
 
 ### LOW
 | Module | Panel | Feature | What's Missing | Suggested Fix |
@@ -355,6 +374,7 @@ Notes:
 
 ## 8. Mobile App Status
 
+<<<<<<< HEAD
 **[UPDATED 2026-04-04]** — All screens are real and role-aware, not placeholders.
 
 - Implemented screens (all role-aware):
@@ -395,6 +415,45 @@ Remaining frontend concerns:
 - Tenant routing inconsistency:
   - [`frontend/src/app/api/tenant-handler/route.ts`](/c:/Users/Admin/Projects/edumyles/frontend/src/app/api/tenant-handler/route.ts) assumes `*.edumyles.com`.
   - Multiple tenant UI components display `*.edumyles.co.ke`.
+=======
+- Implemented screens:
+  - `LoginScreen`
+  - `DashboardScreen`
+  - `AssignmentsScreen`
+  - `AttendanceScreen`
+  - `FeesScreen`
+  - `GradesScreen`
+  - `ProfileScreen`
+- Mobile backend connectivity:
+  - Convex is wired through [`mobile/src/lib/convexApi.ts`](/c:/Users/Admin/Projects/edumyles/mobile/src/lib/convexApi.ts).
+  - Offline/poor-connectivity handling exists through [`mobile/src/hooks/useOfflineSync.ts`](/c:/Users/Admin/Projects/edumyles/mobile/src/hooks/useOfflineSync.ts).
+  - Mobile auth exists through a browser-assisted login flow in [`mobile/src/screens/LoginScreen.tsx`](/c:/Users/Admin/Projects/edumyles/mobile/src/screens/LoginScreen.tsx).
+- Coverage by panel:
+  - Student: partial coverage
+  - Parent: partial coverage
+  - Teacher: partial coverage
+  - School Admin / Platform Admin / Alumni / Partner: effectively web-only
+- Audit note:
+  - The current codebase is materially ahead of the docs; docs still describe mobile as a placeholder, but the app now has real screens and real backend integration.
+
+## 9. Auth & Tenant Isolation Issues
+
+- Critical tenant-guard gaps found in exported Convex files:
+  - [`convex/modules/communications/email.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/communications/email.ts)
+  - [`convex/modules/communications/platform.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/communications/platform.ts)
+  - [`convex/modules/communications/sms.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/communications/sms.ts)
+  - [`convex/modules/marketplace/platform.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/marketplace/platform.ts)
+  - [`convex/modules/marketplace/seed.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/marketplace/seed.ts)
+  - [`convex/modules/pm/deploys.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/pm/deploys.ts)
+  - [`convex/modules/pm/epics.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/pm/epics.ts)
+  - [`convex/modules/pm/github.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/pm/github.ts)
+  - [`convex/modules/pm/projects.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/pm/projects.ts)
+  - [`convex/modules/pm/tasks.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/pm/tasks.ts)
+  - [`convex/modules/pm/timeLogs.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/pm/timeLogs.ts)
+  - [`convex/modules/pm/workspaces.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/pm/workspaces.ts)
+  - [`convex/modules/portal/student/testQuery.ts`](/c:/Users/Admin/Projects/edumyles/convex/modules/portal/student/testQuery.ts)
+- Possible intentional exceptions exist for auth/platform/system helpers, but tenant-scoped files should be treated as security review items until explicitly exempted.
+>>>>>>> origin/main
 - Frontend access control concerns:
   - [`frontend/src/components/auth/AuthGuard.tsx`](/c:/Users/Admin/Projects/edumyles/frontend/src/components/auth/AuthGuard.tsx) and [`frontend/src/components/shared/RoleGuard.tsx`](/c:/Users/Admin/Projects/edumyles/frontend/src/components/shared/RoleGuard.tsx) are client-side guards.
   - Several portal layouts allow elevated roles into end-user portals, which increases accidental overexposure risk.
@@ -404,6 +463,7 @@ Remaining frontend concerns:
 
 ## 10. Shared Layer Gaps
 
+<<<<<<< HEAD
 **[PARTIALLY RESOLVED 2026-04-04]**
 - Types — Added to `shared/src/types/index.ts`:
   - `TimetableSlot`, `SchoolEvent`, `Subject` (timetable domain)
@@ -418,6 +478,15 @@ Remaining frontend concerns:
   - `markAttendanceSchema`
 - Remaining gap: compatibility alias `platform_admin` → `super_admin` in `createUserSchema` transform is a migration smell. Safe to remove once confirmed no external clients pass `platform_admin`.
 - Constants: [`shared/src/constants/index.ts`](/c:/Users/Admin/Projects/edumyles/shared/src/constants/index.ts) is complete.
+=======
+- Types:
+  - [`shared/src/types/index.ts`](/c:/Users/Admin/Projects/edumyles/shared/src/types/index.ts) covers many major entities, but it does not mirror the full breadth of the Convex schema surface.
+- Validators:
+  - [`shared/src/validators/index.ts`](/c:/Users/Admin/Projects/edumyles/shared/src/validators/index.ts) contains strong shared schemas, but not every domain form in the frontend is clearly reusing them.
+- Constants:
+  - [`shared/src/constants/index.ts`](/c:/Users/Admin/Projects/edumyles/shared/src/constants/index.ts) is fairly complete and includes East African countries/currencies and curriculum codes.
+  - There is still a compatibility alias where `platform_admin` is transformed to `super_admin`, which is a migration smell worth cleaning up.
+>>>>>>> origin/main
 
 ## 11. Infra & CI/CD Gaps
 
