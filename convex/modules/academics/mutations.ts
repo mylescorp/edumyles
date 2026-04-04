@@ -232,10 +232,18 @@ export const generateReportCard = mutation({
       })
     );
 
+    // Resolve tenant curriculum for GPA calculation
+    const tenantDoc = await ctx.db
+      .query("tenants")
+      .withIndex("by_id", (q: any) => q.eq("_id", tenant.tenantId as any))
+      .first()
+      .catch(() => null);
+    const curriculumCode: string = (tenantDoc as any)?.curriculumCode ?? "KE_CBC";
+
     // Calculate GPA and class ranking
     const totalScore = grades.reduce((sum, grade) => sum + grade.score, 0);
     const averageScore = grades.length > 0 ? totalScore / grades.length : 0;
-    const gpa = calculateGPA(averageScore);
+    const gpa = calculateGPA(averageScore, curriculumCode);
     
     // Get class ranking
     const classGrades = (await ctx.db
@@ -343,19 +351,71 @@ export const generateReportCard = mutation({
   },
 });
 
-// Helper function to calculate GPA based on Kenyan education system
-function calculateGPA(averageScore: number): number {
-  if (averageScore >= 80) return 4.0; // A
-  if (averageScore >= 75) return 3.7; // A-
-  if (averageScore >= 70) return 3.3; // B+
-  if (averageScore >= 65) return 3.0; // B
-  if (averageScore >= 60) return 2.7; // B-
-  if (averageScore >= 55) return 2.3; // C+
-  if (averageScore >= 50) return 2.0; // C
-  if (averageScore >= 45) return 1.7; // C-
-  if (averageScore >= 40) return 1.3; // D+
-  if (averageScore >= 35) return 1.0; // D
-  return 0.0; // E/F
+// Helper function to calculate GPA based on curriculum
+function calculateGPA(averageScore: number, curriculumCode: string = "KE_CBC"): number {
+  switch (curriculumCode) {
+    // Uganda UNEB — 6-point descending scale mapped to 4.0
+    case "UG_UNEB":
+      if (averageScore >= 80) return 4.0; // D1
+      if (averageScore >= 70) return 3.3; // D2
+      if (averageScore >= 60) return 2.7; // C3
+      if (averageScore >= 50) return 2.0; // C4/C5
+      if (averageScore >= 40) return 1.3; // P6
+      if (averageScore >= 30) return 0.7; // P7/P8
+      return 0.0; // F9
+
+    // Tanzania NECTA — 5-point scale
+    case "TZ_NECTA":
+      if (averageScore >= 75) return 4.0; // A
+      if (averageScore >= 65) return 3.0; // B
+      if (averageScore >= 50) return 2.0; // C
+      if (averageScore >= 30) return 1.0; // D
+      return 0.0; // F
+
+    // Rwanda REB — letter grades
+    case "RW_REB":
+      if (averageScore >= 80) return 4.0; // A
+      if (averageScore >= 70) return 3.0; // B
+      if (averageScore >= 60) return 2.0; // C
+      if (averageScore >= 50) return 1.0; // D
+      return 0.0; // E
+
+    // Ethiopia MOE — higher thresholds
+    case "ET_MOE":
+      if (averageScore >= 90) return 4.0; // A
+      if (averageScore >= 80) return 3.0; // B
+      if (averageScore >= 70) return 2.0; // C
+      if (averageScore >= 60) return 1.0; // D
+      return 0.0; // F
+
+    // Ghana WAEC — 9-point scale mapped to 4.0
+    case "GH_WAEC":
+      if (averageScore >= 75) return 4.0; // A1
+      if (averageScore >= 70) return 3.7; // B2
+      if (averageScore >= 65) return 3.3; // B3
+      if (averageScore >= 60) return 3.0; // C4
+      if (averageScore >= 55) return 2.7; // C5
+      if (averageScore >= 50) return 2.3; // C6
+      if (averageScore >= 45) return 1.3; // D7
+      if (averageScore >= 40) return 1.0; // E8
+      return 0.0; // F9
+
+    // Kenya CBC and Kenya 8-4-4 (default)
+    case "KE_CBC":
+    case "KE_8_4_4":
+    default:
+      if (averageScore >= 80) return 4.0; // A
+      if (averageScore >= 75) return 3.7; // A-
+      if (averageScore >= 70) return 3.3; // B+
+      if (averageScore >= 65) return 3.0; // B
+      if (averageScore >= 60) return 2.7; // B-
+      if (averageScore >= 55) return 2.3; // C+
+      if (averageScore >= 50) return 2.0; // C
+      if (averageScore >= 45) return 1.7; // C-
+      if (averageScore >= 40) return 1.3; // D+
+      if (averageScore >= 35) return 1.0; // D
+      return 0.0; // E/F
+  }
 }
 
 async function resolveTermDateRange(

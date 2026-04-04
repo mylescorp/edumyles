@@ -84,6 +84,42 @@ async function verifyWorkOSSignature(
   return secureCompareHex(expected, signature);
 }
 
+// Safaricom production callback IP ranges (published by Safaricom)
+const SAFARICOM_PRODUCTION_IPS = [
+  "196.201.214.200",
+  "196.201.214.206",
+  "196.201.214.207",
+  "196.201.214.208",
+  "196.201.214.209",
+  "196.201.214.210",
+  "196.201.214.211",
+  "196.201.214.212",
+  "196.201.214.213",
+  "196.201.214.214",
+  "196.201.214.215",
+  "196.201.214.216",
+];
+
+function isMpesaAllowedIp(req: Request): boolean {
+  // Skip IP check in sandbox mode
+  if (process.env.MPESA_ENVIRONMENT !== "production") {
+    return true;
+  }
+
+  const allowedIps = process.env.MPESA_ALLOWED_IPS
+    ? process.env.MPESA_ALLOWED_IPS.split(",").map((ip) => ip.trim()).filter(Boolean)
+    : SAFARICOM_PRODUCTION_IPS;
+
+  // Check standard forwarded headers (Convex / edge proxies)
+  const forwarded =
+    req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-real-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "";
+
+  return allowedIps.includes(forwarded);
+}
+
 async function verifyStripeSignature(rawBody: string, signatureHeader: string | null) {
   const signingSecret =
     process.env.STRIPE_WEBHOOK_SECRET ?? process.env.STRIPE_WEBHOOK_SIGNING_SECRET;
@@ -194,6 +230,10 @@ http.route({
   path: "/payments/mpesa/callback",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
+    if (!isMpesaAllowedIp(req)) {
+      return new Response("Forbidden", { status: 403 });
+    }
+
     const payload = (await req.json()) as MpesaCallback;
     const parsed = MpesaService.parseCallback(payload);
 

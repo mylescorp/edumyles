@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -20,6 +20,14 @@ type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' 
 const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = ({ onNavigate }) => {
   const { sessionToken, user } = useAuth();
   const { isOffline } = useOfflineSync();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    // Convex queries are live-subscribed and re-evaluate automatically.
+    // A short delay gives visual feedback before dismissing the spinner.
+    setTimeout(() => setRefreshing(false), 800);
+  }, []);
 
   const studentProfile = useQuery(
     api.modules.portal.student.queries.getMyProfile,
@@ -136,7 +144,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={false} onRefresh={() => undefined} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
         {isOffline && <Text style={styles.offlineNotice}>Showing the latest cached parent data.</Text>}
         <View style={styles.hero}>
@@ -241,7 +249,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={false} onRefresh={() => undefined} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
         {isOffline && <Text style={styles.offlineNotice}>Showing the latest cached teacher data.</Text>}
         <View style={styles.hero}>
@@ -300,7 +308,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
           <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('assignments')}>
             <Text style={styles.actionButtonText}>Assignments</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('fees')}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('attendance')}>
             <Text style={styles.actionButtonText}>Timetable</Text>
           </TouchableOpacity>
         </View>
@@ -340,7 +348,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={false} onRefresh={() => undefined} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
     >
       {isOffline && <Text style={styles.offlineNotice}>Showing the latest cached student data.</Text>}
       <View style={styles.hero}>
