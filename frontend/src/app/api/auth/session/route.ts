@@ -132,17 +132,17 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
   }
 
   try {
-    await convex.mutation((api.modules.marketplace.seed as any).ensureCoreModules, {});
+    await convex.mutation((api.modules.marketplace.seed as any).ensureCoreModules, { sessionToken: platformSessionToken });
   } catch (error) {
     console.warn("[api/auth/session] Failed to ensure core modules via seed helper:", error);
   }
 
   try {
-    await convex.mutation((api.modules.marketplace.seed as any).seedModuleRegistry, {});
+    await convex.mutation((api.modules.marketplace.seed as any).seedModuleRegistry, { sessionToken: platformSessionToken });
   } catch (error) {
     console.warn("[api/auth/session] Failed to seed module registry via seed helper:", error);
     try {
-      await convex.mutation((api.modules.marketplace.mutations as any).runSeedModuleRegistry, {});
+      await convex.mutation((api.modules.marketplace.mutations as any).runSeedModuleRegistry, { sessionToken: platformSessionToken });
     } catch (secondaryError) {
       console.warn("[api/auth/session] Failed to seed module registry via fallback mutation:", secondaryError);
     }
