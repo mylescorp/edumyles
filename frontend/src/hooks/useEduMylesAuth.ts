@@ -4,8 +4,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useConvex } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 import { getSessionFromCookie } from '@/lib/auth';
 import { toast } from '@/components/ui/use-toast';
 
@@ -48,8 +46,6 @@ export function useEduMylesAuth(options: UseEduMylesAuthOptions = {}) {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const convex = useConvex();
-
   /**
    * Check authentication status with Convex
    */
@@ -68,13 +64,12 @@ export function useEduMylesAuth(options: UseEduMylesAuthOptions = {}) {
         return null;
       }
 
-      // Validate session with Convex
-      const session = await convex.query(api.sessions.getSessionByToken, {
-        sessionToken,
-        serverSecret: process.env.NEXT_PUBLIC_CONVEX_WEBHOOK_SECRET || '',
+      const response = await fetch('/api/auth/me', {
+        credentials: 'same-origin',
+        cache: 'no-store',
       });
 
-      if (!session) {
+      if (!response.ok) {
         setState(prev => ({
           ...prev,
           isLoading: false,
@@ -85,21 +80,17 @@ export function useEduMylesAuth(options: UseEduMylesAuthOptions = {}) {
         return null;
       }
 
-      // Get user details
-      const user = await convex.query(api.users.getUserByWorkosId, {
-        workosUserId: session.userId,
-        tenantId: session.tenantId,
-      });
+      const user = await response.json();
 
       const userData: EduMylesUser = {
-        id: user?.workosUserId || session.userId,
-        email: user?.email || session.email || '',
+        id: user?.id || '',
+        email: user?.email || '',
         firstName: user?.firstName,
         lastName: user?.lastName,
-        role: session.role,
-        tenantId: session.tenantId,
+        role: user?.role || '',
+        tenantId: user?.tenantId || '',
         isAuthenticated: true,
-        profilePictureUrl: user?.avatarUrl,
+        profilePictureUrl: user?.profilePictureUrl,
       };
 
       setState(prev => ({
@@ -107,7 +98,11 @@ export function useEduMylesAuth(options: UseEduMylesAuthOptions = {}) {
         isLoading: false,
         isAuthenticated: true,
         user: userData,
-        session,
+        session: {
+          sessionToken,
+          role: userData.role,
+          tenantId: userData.tenantId,
+        },
       }));
 
       options.onSuccess?.(userData);
@@ -125,7 +120,7 @@ export function useEduMylesAuth(options: UseEduMylesAuthOptions = {}) {
       options.onError?.(err);
       return null;
     }
-  }, [convex, options]);
+  }, [options]);
 
   /**
    * Initiate WorkOS authentication

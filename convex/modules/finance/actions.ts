@@ -15,16 +15,30 @@ function requireWebhookSecret(provided: string) {
   }
 }
 
+const paymentGatewayValidator = v.union(
+  v.literal("mpesa"),
+  v.literal("airtel"),
+  v.literal("stripe"),
+  v.literal("bank_transfer")
+);
+
+const paymentStatusValidator = v.union(
+  v.literal("pending"),
+  v.literal("completed"),
+  v.literal("failed"),
+  v.literal("refunded")
+);
+
 // Used by Next.js server routes to store pending callbacks before gateway confirmation.
 export const savePaymentCallbackFromServer: any = action({
   args: {
     webhookSecret: v.string(),
     tenantId: v.string(),
-    gateway: v.string(),
+    gateway: paymentGatewayValidator,
     externalId: v.string(),
     invoiceId: v.string(),
     amount: v.number(),
-    status: v.string(),
+    status: paymentStatusValidator,
   },
   handler: async (ctx, args): Promise<void> => {
     requireWebhookSecret(args.webhookSecret);
@@ -188,7 +202,7 @@ export const initiateAirtelPayment: any = action({
 export const recordPaymentFromGateway: any = action({
   args: {
     webhookSecret: v.string(),
-    gateway: v.string(),
+    gateway: paymentGatewayValidator,
     externalId: v.string(),
     resultCode: v.number(), // 0 = success for M-Pesa
     reference: v.optional(v.string()),
