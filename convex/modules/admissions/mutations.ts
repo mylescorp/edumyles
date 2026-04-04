@@ -8,13 +8,24 @@ import { logAction } from "../../helpers/auditLog";
 export const updateApplicationStatus = mutation({
     args: {
         applicationId: v.id("admissionApplications"),
-        status: v.string(),
+        status: v.union(
+            v.literal("pending"),
+            v.literal("review"),
+            v.literal("accepted"),
+            v.literal("rejected"),
+            v.literal("waitlisted"),
+            v.literal("enrolled")
+        ),
         notes: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const tenant = await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "admissions");
         requirePermission(tenant, "students:write");
+
+        if (args.notes && args.notes.length > 2000) {
+            throw new Error("Notes must be 2000 characters or fewer");
+        }
 
         const application = await ctx.db.get(args.applicationId);
         if (!application || application.tenantId !== tenant.tenantId) {

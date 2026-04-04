@@ -511,11 +511,11 @@ export const verifyBankTransfer = mutation({
 export const savePaymentCallback = internalMutation({
   args: {
     tenantId: v.string(),
-    gateway: v.string(),
+    gateway: v.union(v.literal("mpesa"), v.literal("airtel"), v.literal("stripe"), v.literal("bank_transfer")),
     externalId: v.string(),
     invoiceId: v.string(),
     amount: v.number(),
-    status: v.string(),
+    status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed"), v.literal("refunded")),
   },
   handler: async (ctx, args) => {
     const now = Date.now();

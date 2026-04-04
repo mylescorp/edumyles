@@ -15,14 +15,19 @@
     "build": "node ../node_modules/typescript/bin/tsc --build",
     "type-check": "node ../node_modules/typescript/bin/tsc --noEmit",
     "lint": "eslint src --ext .ts",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
     "eslint": "^9.0.0",
-    "typescript": "*"
+    "typescript": "*",
+    "vitest": "^2.0.0"
   },
   "dependencies": {
     "zod": "^3.22.4"

@@ -74,3 +74,6 @@ e2e/.auth/*.json
 docs/**/*.pdf
 .vercel
 .env*.local
+
+# opensrc - source code for packages
+opensrc/

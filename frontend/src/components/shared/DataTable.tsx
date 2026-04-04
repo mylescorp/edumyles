@@ -23,6 +23,18 @@ export interface Column<T> {
   className?: string;
 }
 
+/** When provided, enables server-side load-more pagination (Convex usePaginatedQuery style). */
+interface ServerPagination {
+  /** Whether the server has more pages to load. */
+  isDone: boolean;
+  /** Call to fetch the next page (pass desired items per page). */
+  loadMore: (numItems: number) => void;
+  /** Optional total count shown in the footer. */
+  totalCount?: number;
+  /** Show a loading spinner on the load-more button. */
+  isLoading?: boolean;
+}
+
 interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
@@ -34,6 +46,8 @@ interface DataTableProps<T> {
   emptyDescription?: string;
   emptyMessage?: string;
   className?: string;
+  /** When provided, replaces client-side pagination with a server-side load-more control. */
+  serverPagination?: ServerPagination;
 }
 
 export function DataTable<T>({
@@ -47,6 +61,7 @@ export function DataTable<T>({
   emptyDescription = "No records found.",
   emptyMessage,
   className,
+  serverPagination,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -71,8 +86,9 @@ export function DataTable<T>({
     });
   }, [filtered, sortKey, sortDir, columns]);
 
-  const totalPages = Math.ceil(sorted.length / pageSize);
-  const paginated = sorted.slice((page - 1) * pageSize, page * pageSize);
+  // When server pagination is active, skip client-side slicing — data grows via loadMore.
+  const totalPages = serverPagination ? 1 : Math.ceil(sorted.length / pageSize);
+  const paginated = serverPagination ? sorted : sorted.slice((page - 1) * pageSize, page * pageSize);
 
   function handleSort(key: string) {
     if (sortKey === key) {
@@ -139,8 +155,30 @@ export function DataTable<T>({
           </Table>
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
+          {/* Server-side load-more pagination */}
+          {serverPagination && (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
+              <span>
+                {serverPagination.totalCount !== undefined
+                  ? `Showing ${sorted.length} of ${serverPagination.totalCount}`
+                  : `Showing ${sorted.length} records`}
+              </span>
+              {!serverPagination.isDone && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => serverPagination.loadMore(pageSize)}
+                  disabled={serverPagination.isLoading}
+                >
+                  {serverPagination.isLoading ? "Loading..." : "Load more"}
+                  {!serverPagination.isLoading && <ChevronRight className="ml-1 h-4 w-4" />}
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Client-side pagination */}
+          {!serverPagination && totalPages > 1 && (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-sm text-muted-foreground">
               <span>
                 Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, sorted.length)} of{" "}

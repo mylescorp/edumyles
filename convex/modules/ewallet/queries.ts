@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { v, paginationOptsValidator } from "convex/values";
 import { query } from "../../_generated/server";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requireModule } from "../../helpers/moduleGuard";
@@ -177,7 +177,7 @@ export const getWalletByOwnerId = query({
   },
 });
 
-/** Admin: list all wallets in the tenant */
+/** Admin: list all wallets in the tenant (legacy — prefer listAllWalletsPaginated) */
 export const listAllWallets = query({
   args: {
     sessionToken: v.optional(v.string()),
@@ -200,6 +200,27 @@ export const listAllWallets = query({
       console.error("listAllWallets failed", error);
       return [];
     }
+  },
+});
+
+/** Admin: cursor-paginated wallet list — use with usePaginatedQuery on the frontend. */
+export const listAllWalletsPaginated = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "ewallet");
+    requirePermission(tenant, "ewallet:read");
+
+    return await ctx.db
+      .query("wallets")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .order("desc")
+      .paginate(args.paginationOpts);
   },
 });
 
