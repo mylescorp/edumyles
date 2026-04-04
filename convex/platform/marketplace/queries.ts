@@ -89,6 +89,108 @@ function buildBuiltinInstallationSummary(
   };
 }
 
+function normalizeMarketplaceModuleRecord(mod: any) {
+  const builtin = ALL_MODULES.find((entry) => entry.moduleId === mod.moduleId);
+  const builtinSummary = builtin ? buildBuiltinMarketplaceSummary(builtin) : null;
+
+  return {
+    ...(builtinSummary || {}),
+    ...mod,
+    name: mod.name || builtinSummary?.name || "Untitled module",
+    shortDescription:
+      mod.shortDescription ||
+      mod.description ||
+      builtinSummary?.shortDescription ||
+      "No module summary available yet.",
+    fullDescription:
+      mod.fullDescription ||
+      mod.description ||
+      builtinSummary?.fullDescription ||
+      "No detailed module description is available yet.",
+    category:
+      mod.category ||
+      builtinSummary?.category ||
+      "administration",
+    publisherName:
+      mod.publisherName ||
+      builtinSummary?.publisherName ||
+      "EduMyles",
+    pricingModel:
+      mod.pricingModel ||
+      builtinSummary?.pricingModel ||
+      "free",
+    priceCents:
+      typeof mod.priceCents === "number"
+        ? mod.priceCents
+        : (builtinSummary?.priceCents || 0),
+    currency: mod.currency || builtinSummary?.currency || "KES",
+    totalInstalls:
+      typeof mod.totalInstalls === "number"
+        ? mod.totalInstalls
+        : (builtinSummary?.totalInstalls || 0),
+    activeInstalls:
+      typeof mod.activeInstalls === "number"
+        ? mod.activeInstalls
+        : (builtinSummary?.activeInstalls || 0),
+    averageRating:
+      typeof mod.averageRating === "number"
+        ? mod.averageRating
+        : (builtinSummary?.averageRating || 0),
+    totalReviews:
+      typeof mod.totalReviews === "number"
+        ? mod.totalReviews
+        : (builtinSummary?.totalReviews || 0),
+    isFeatured:
+      typeof mod.isFeatured === "boolean"
+        ? mod.isFeatured
+        : Boolean(builtinSummary?.isFeatured),
+    isVerified:
+      typeof mod.isVerified === "boolean"
+        ? mod.isVerified
+        : Boolean(builtinSummary?.isVerified),
+    isSecurityReviewed:
+      typeof mod.isSecurityReviewed === "boolean"
+        ? mod.isSecurityReviewed
+        : Boolean(builtinSummary?.isSecurityReviewed),
+    isGdprCompliant:
+      typeof mod.isGdprCompliant === "boolean"
+        ? mod.isGdprCompliant
+        : Boolean(builtinSummary?.isGdprCompliant),
+    compatiblePlans: Array.isArray(mod.compatiblePlans)
+      ? mod.compatiblePlans
+      : (builtinSummary?.compatiblePlans || []),
+    tags: Array.isArray(mod.tags) ? mod.tags : (builtinSummary?.tags || []),
+    featureHighlights: Array.isArray(mod.featureHighlights)
+      ? mod.featureHighlights
+      : (builtinSummary?.featureHighlights || builtinSummary?.features || []),
+    screenshots: Array.isArray(mod.screenshots) ? mod.screenshots : [],
+    dataResidency: Array.isArray(mod.dataResidency) ? mod.dataResidency : [],
+    permissions: Array.isArray(mod.permissions) ? mod.permissions : [],
+    publishedAt:
+      typeof mod.publishedAt === "number"
+        ? mod.publishedAt
+        : (builtinSummary?.publishedAt || 0),
+    createdAt:
+      typeof mod.createdAt === "number"
+        ? mod.createdAt
+        : (builtinSummary?.createdAt || 0),
+    updatedAt:
+      typeof mod.updatedAt === "number"
+        ? mod.updatedAt
+        : (builtinSummary?.updatedAt || 0),
+  };
+}
+
+function normalizeMarketplaceActivity(activity: any) {
+  return {
+    ...activity,
+    type: typeof activity?.type === "string" ? activity.type : "update",
+    moduleName: activity?.moduleName || "Marketplace update",
+    tenantName: activity?.tenantName || "",
+    createdAt: typeof activity?.createdAt === "number" ? activity.createdAt : 0,
+  };
+}
+
 
 function mergeWithBuiltinModules(modules: any[]) {
   const merged = new Map<string, any>();
@@ -98,7 +200,7 @@ function mergeWithBuiltinModules(modules: any[]) {
   }
 
   for (const mod of modules) {
-    merged.set(mod.moduleId, mod);
+    merged.set(mod.moduleId, normalizeMarketplaceModuleRecord(mod));
   }
 
   return Array.from(merged.values());
@@ -305,7 +407,7 @@ export const getMarketplaceHome = query({
               ])
             ).values(),
           ],
-      recentActivity,
+      recentActivity: recentActivity.map(normalizeMarketplaceActivity),
     };
   },
 });
@@ -470,7 +572,7 @@ export const getModuleDetail = query({
     const activeInstallations = installations.filter((i) => i.status === "active");
 
     return {
-      module: mod,
+      module: normalizeMarketplaceModuleRecord(mod),
       publisher: publisher ? {
         _id: publisher._id,
         legalName: publisher.legalName,
@@ -484,7 +586,7 @@ export const getModuleDetail = query({
       } : null,
       versions,
       reviews: reviews.sort((a, b) => b.createdAt - a.createdAt),
-      otherModulesByPublisher: otherPublished,
+      otherModulesByPublisher: otherPublished.map(normalizeMarketplaceModuleRecord),
       installStats: {
         total: mod.totalInstalls,
         active: activeInstallations.length,
@@ -895,7 +997,7 @@ export const getMarketplaceOverview = query({
       },
       categories: categoriesWithCounts.sort((a: any, b: any) => a.sortOrder - b.sortOrder),
       topModules,
-      recentActivity,
+      recentActivity: recentActivity.map(normalizeMarketplaceActivity),
     };
   },
 });
