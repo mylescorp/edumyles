@@ -1,13 +1,18 @@
+import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
+import { requirePlatformSession } from "../../helpers/platformGuard";
+import { requireTenantSession } from "../../helpers/tenantGuard";
 import { ALL_MODULES, CORE_MODULE_IDS } from "./moduleDefinitions";
 
 /**
  * Seed the moduleRegistry with all module definitions.
- * Idempotent — skips modules that already exist.
+ * Platform admin only — idempotent.
  */
 export const seedModuleRegistry = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
     let created = 0;
     let updated = 0;
 
@@ -18,7 +23,6 @@ export const seedModuleRegistry = mutation({
         .first();
 
       if (existing) {
-        // Update existing module with latest definition
         await ctx.db.patch(existing._id, {
           name: mod.name,
           description: mod.description,
@@ -61,14 +65,14 @@ export const seedModuleRegistry = mutation({
 });
 
 /**
- * Ensure core modules are installed for a specific tenant.
- * Called when a tenant is created or on first login.
- * Idempotent — won't duplicate existing installations.
+ * Ensure core modules are installed for ALL tenants.
+ * Platform admin only — idempotent backfill.
  */
 export const ensureCoreModules = mutation({
-  args: {},
-  handler: async (ctx) => {
-    // Get all tenants
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
     const tenants = await ctx.db.query("tenants").collect();
     let totalInstalled = 0;
 
@@ -103,25 +107,14 @@ export const ensureCoreModules = mutation({
 });
 
 /**
- * Ensure core modules are installed for a single tenant.
- * Call this when a new tenant is created.
+ * Ensure core modules are installed for the calling user's tenant.
+ * Called on first login / tenant setup. Requires a valid tenant session.
  */
 export const ensureCoreModulesForTenant = mutation({
-  args: {},
-  handler: async (ctx) => {
-    // This uses the session context to get the tenant
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return { installed: 0 };
-
-    // Try to find the tenant from the session
-    const sessions = await ctx.db.query("sessions").collect();
-    const session = sessions.find(
-      (s: any) => s.userId === identity.subject && s.status === "active"
-    );
-    if (!session) return { installed: 0 };
-
-    const tenantId = (session as any).tenantId;
-    if (!tenantId) return { installed: 0 };
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    const session = await requireTenantSession(ctx, args);
+    const tenantId = session.tenantId;
 
     let installed = 0;
     for (const coreModuleId of CORE_MODULE_IDS) {
