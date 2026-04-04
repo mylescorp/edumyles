@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -195,8 +196,60 @@ const AppShell: React.FC = () => {
   );
 };
 
+// ── Deep link handler ─────────────────────────────────────────────────────────
+// Parses incoming URLs matching the `edumyles://` scheme and dispatches to the
+// appropriate handler. Currently used for auth callbacks from the browser-based
+// WorkOS approval flow — the approval redirect URL should be set to
+// `edumyles://auth/callback?requestId=<id>&status=approved`.
+
+function parseDeepLink(url: string): { path: string; params: Record<string, string> } | null {
+  if (!url.startsWith('edumyles://') && !url.startsWith('https://app.edumyles.com')) {
+    return null;
+  }
+  try {
+    // Handle edumyles://auth/callback?requestId=xxx
+    const withoutScheme = url.replace(/^edumyles:\/\//, '').replace(/^https:\/\/app\.edumyles\.com\//, '');
+    const [path, query] = withoutScheme.split('?');
+    const params: Record<string, string> = {};
+    if (query) {
+      query.split('&').forEach((pair) => {
+        const [k, v] = pair.split('=');
+        if (k) params[k] = decodeURIComponent(v ?? '');
+      });
+    }
+    return { path: path ?? '', params };
+  } catch {
+    return null;
+  }
+}
+
 const App: React.FC = () => {
   const convex = useMemo(() => new ConvexReactClient(convexUrl), []);
+
+  // Listen for deep links (handles both cold-start and foreground scenarios)
+  useEffect(() => {
+    // Handle URL that opened the app from a closed state
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        const parsed = parseDeepLink(url);
+        if (parsed) {
+          // Auth callback deep links are handled by the LoginScreen's polling
+          // loop; emitting here allows future integration with an event bus.
+          if (__DEV__) console.log('[DeepLink] initial URL:', parsed);
+        }
+      }
+    });
+
+    // Handle URLs that arrive while the app is foregrounded
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      const parsed = parseDeepLink(url);
+      if (parsed && __DEV__) {
+        console.log('[DeepLink] foreground URL:', parsed);
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   return (
     <ConvexProviderRoot client={convex}>

@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "EduMyles",
+    "slug": "edumyles",
+    "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#056C40"
+    },
+    "scheme": "edumyles",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.mylesoft.edumyles",
+      "infoPlist": {
+        "NSCameraUsageDescription": "EduMyles uses the camera for profile photo uploads.",
+        "NSPhotoLibraryUsageDescription": "EduMyles accesses your photo library for profile photo uploads."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#056C40"
+      },
+      "package": "com.mylesoft.edumyles",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "edumyles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.edumyles.com",
+              "pathPrefix": "/auth/callback"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#056C40",
+          "icon": "./assets/notification-icon.png",
+          "sounds": []
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "edumyles-mobile"
+      }
+    },
+    "owner": "mylesoft"
+  }
+}
