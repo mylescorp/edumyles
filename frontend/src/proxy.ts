@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
-const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform", "/student"];
+const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform", "/student", "/support"];
 const PUBLIC_ROUTES = ["/auth/callback", "/auth/error", "/auth/pending"];
+const AUTH_PAGES = ["/auth/login", "/auth/signup"];
 
 // Master admin emails — these always get master_admin role regardless of the
 // stored cookie value (handles legacy sessions where role was set before DB sync).
@@ -165,6 +166,14 @@ export async function proxy(request: NextRequest) {
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
 
+  // Normalize legacy student routes to the canonical portal path.
+  if (pathname === "/student" || pathname.startsWith("/student/")) {
+    const canonicalPath = pathname.replace(/^\/student/, "/portal/student");
+    const redirectUrl = new URL(canonicalPath, request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl);
+  }
+
   // 0b. Maintenance mode
   const maintenanceMode = request.cookies.get("edumyles_maintenance")?.value === "true";
   if (
@@ -184,6 +193,14 @@ export async function proxy(request: NextRequest) {
     const loginUrl = new URL("/auth/login/api", request.nextUrl.origin);
     loginUrl.searchParams.set("returnTo", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // 1b. Auth pages should not remain accessible once a session exists.
+  if (
+    session &&
+    AUTH_PAGES.some((route) => pathname === route || pathname.startsWith(`${route}/`))
+  ) {
+    return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
   }
 
   // 2. Root redirect
@@ -251,6 +268,7 @@ export const config = {
     "/dashboard/:path*",
     "/portal/:path*",
     "/platform/:path*",
+    "/support/:path*",
     "/auth/:path*",
     "/student/:path*",
     "/api/auth/:path*",

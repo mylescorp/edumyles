@@ -5,11 +5,16 @@ import { ALL_MODULES, CORE_MODULE_IDS } from "../../modules/marketplace/moduleDe
 import { TIER_MODULES } from "../../modules/marketplace/tierModules";
 
 const categoryValidator = v.union(
-  v.literal("academic_tools"), v.literal("communication"),
-  v.literal("finance_fees"), v.literal("analytics_bi"),
-  v.literal("content_packs"), v.literal("integrations"),
-  v.literal("ai_automation"), v.literal("accessibility"),
-  v.literal("administration"), v.literal("security_compliance")
+  v.literal("academic_tools"),
+  v.literal("communication"),
+  v.literal("finance_fees"),
+  v.literal("analytics_bi"),
+  v.literal("content_packs"),
+  v.literal("integrations"),
+  v.literal("ai_automation"),
+  v.literal("accessibility"),
+  v.literal("administration"),
+  v.literal("security_compliance")
 );
 
 function mapDefinitionCategory(category: string) {
@@ -47,6 +52,7 @@ function buildBuiltinMarketplaceSummary(mod: (typeof ALL_MODULES)[number]) {
     iconName: mod.iconName,
     version: mod.version,
     features: mod.features,
+    featureHighlights: mod.features,
     pricingModel: mod.pricing.monthly > 0 ? "monthly" : "free",
     priceCents: mod.pricing.monthly > 0 ? mod.pricing.monthly * 100 : 0,
     currency: mod.pricing.currency || "USD",
@@ -107,47 +113,30 @@ function normalizeMarketplaceModuleRecord(mod: any) {
       mod.description ||
       builtinSummary?.fullDescription ||
       "No detailed module description is available yet.",
-    category:
-      mod.category ||
-      builtinSummary?.category ||
-      "administration",
-    publisherName:
-      mod.publisherName ||
-      builtinSummary?.publisherName ||
-      "EduMyles",
-    pricingModel:
-      mod.pricingModel ||
-      builtinSummary?.pricingModel ||
-      "free",
+    category: mod.category || builtinSummary?.category || "administration",
+    publisherName: mod.publisherName || builtinSummary?.publisherName || "EduMyles",
+    pricingModel: mod.pricingModel || builtinSummary?.pricingModel || "free",
     priceCents:
-      typeof mod.priceCents === "number"
-        ? mod.priceCents
-        : (builtinSummary?.priceCents || 0),
+      typeof mod.priceCents === "number" ? mod.priceCents : builtinSummary?.priceCents || 0,
     currency: mod.currency || builtinSummary?.currency || "KES",
     totalInstalls:
       typeof mod.totalInstalls === "number"
         ? mod.totalInstalls
-        : (builtinSummary?.totalInstalls || 0),
+        : builtinSummary?.totalInstalls || 0,
     activeInstalls:
       typeof mod.activeInstalls === "number"
         ? mod.activeInstalls
-        : (builtinSummary?.activeInstalls || 0),
+        : builtinSummary?.activeInstalls || 0,
     averageRating:
       typeof mod.averageRating === "number"
         ? mod.averageRating
-        : (builtinSummary?.averageRating || 0),
+        : builtinSummary?.averageRating || 0,
     totalReviews:
-      typeof mod.totalReviews === "number"
-        ? mod.totalReviews
-        : (builtinSummary?.totalReviews || 0),
+      typeof mod.totalReviews === "number" ? mod.totalReviews : builtinSummary?.totalReviews || 0,
     isFeatured:
-      typeof mod.isFeatured === "boolean"
-        ? mod.isFeatured
-        : Boolean(builtinSummary?.isFeatured),
+      typeof mod.isFeatured === "boolean" ? mod.isFeatured : Boolean(builtinSummary?.isFeatured),
     isVerified:
-      typeof mod.isVerified === "boolean"
-        ? mod.isVerified
-        : Boolean(builtinSummary?.isVerified),
+      typeof mod.isVerified === "boolean" ? mod.isVerified : Boolean(builtinSummary?.isVerified),
     isSecurityReviewed:
       typeof mod.isSecurityReviewed === "boolean"
         ? mod.isSecurityReviewed
@@ -158,26 +147,18 @@ function normalizeMarketplaceModuleRecord(mod: any) {
         : Boolean(builtinSummary?.isGdprCompliant),
     compatiblePlans: Array.isArray(mod.compatiblePlans)
       ? mod.compatiblePlans
-      : (builtinSummary?.compatiblePlans || []),
-    tags: Array.isArray(mod.tags) ? mod.tags : (builtinSummary?.tags || []),
+      : builtinSummary?.compatiblePlans || [],
+    tags: Array.isArray(mod.tags) ? mod.tags : builtinSummary?.tags || [],
     featureHighlights: Array.isArray(mod.featureHighlights)
       ? mod.featureHighlights
-      : (builtinSummary?.featureHighlights || builtinSummary?.features || []),
+      : builtinSummary?.featureHighlights || builtinSummary?.features || [],
     screenshots: Array.isArray(mod.screenshots) ? mod.screenshots : [],
     dataResidency: Array.isArray(mod.dataResidency) ? mod.dataResidency : [],
     permissions: Array.isArray(mod.permissions) ? mod.permissions : [],
     publishedAt:
-      typeof mod.publishedAt === "number"
-        ? mod.publishedAt
-        : (builtinSummary?.publishedAt || 0),
-    createdAt:
-      typeof mod.createdAt === "number"
-        ? mod.createdAt
-        : (builtinSummary?.createdAt || 0),
-    updatedAt:
-      typeof mod.updatedAt === "number"
-        ? mod.updatedAt
-        : (builtinSummary?.updatedAt || 0),
+      typeof mod.publishedAt === "number" ? mod.publishedAt : builtinSummary?.publishedAt || 0,
+    createdAt: typeof mod.createdAt === "number" ? mod.createdAt : builtinSummary?.createdAt || 0,
+    updatedAt: typeof mod.updatedAt === "number" ? mod.updatedAt : builtinSummary?.updatedAt || 0,
   };
 }
 
@@ -190,7 +171,6 @@ function normalizeMarketplaceActivity(activity: any) {
     createdAt: typeof activity?.createdAt === "number" ? activity.createdAt : 0,
   };
 }
-
 
 function mergeWithBuiltinModules(modules: any[]) {
   const merged = new Map<string, any>();
@@ -293,28 +273,32 @@ export const getMarketplaceHome = query({
 
     // Get published modules
     const allModules = await safeQuery(
-      () => ctx.db.query("marketplaceModules")
-        .withIndex("by_status", (q) => q.eq("status", "published"))
-        .collect(),
+      () =>
+        ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_status", (q) => q.eq("status", "published"))
+          .collect(),
       []
     );
 
     // Featured banners
     const featuredPlacements = await safeQuery(
-      () => ctx.db.query("marketplaceFeatured")
-        .withIndex("by_type", (q) => q.eq("type", "banner").eq("isActive", true))
-        .collect(),
+      () =>
+        ctx.db
+          .query("marketplaceFeatured")
+          .withIndex("by_type", (q) => q.eq("type", "banner").eq("isActive", true))
+          .collect(),
       []
     );
-    const activeBanners = featuredPlacements.filter(
-      (f) => f.startDate <= now && f.endDate >= now
-    );
+    const activeBanners = featuredPlacements.filter((f) => f.startDate <= now && f.endDate >= now);
 
     // Staff picks
     const staffPicks = await safeQuery(
-      () => ctx.db.query("marketplaceFeatured")
-        .withIndex("by_type", (q) => q.eq("type", "staff_pick").eq("isActive", true))
-        .collect(),
+      () =>
+        ctx.db
+          .query("marketplaceFeatured")
+          .withIndex("by_type", (q) => q.eq("type", "staff_pick").eq("isActive", true))
+          .collect(),
       []
     );
 
@@ -332,15 +316,15 @@ export const getMarketplaceHome = query({
       .slice(0, 8);
 
     // Trending (highest install count)
-    const trending = [...allModules]
-      .sort((a, b) => b.totalInstalls - a.totalInstalls)
-      .slice(0, 8);
+    const trending = [...allModules].sort((a, b) => b.totalInstalls - a.totalInstalls).slice(0, 8);
 
     // Categories with counts
     const categories = await safeQuery(
-      () => ctx.db.query("marketplaceCategories")
-        .withIndex("by_active", (q) => q.eq("isActive", true))
-        .collect(),
+      () =>
+        ctx.db
+          .query("marketplaceCategories")
+          .withIndex("by_active", (q) => q.eq("isActive", true))
+          .collect(),
       []
     );
 
@@ -357,25 +341,25 @@ export const getMarketplaceHome = query({
     // Stats
     const totalInstalls = mergedModules.reduce((sum, m) => sum + (m.totalInstalls || 0), 0);
     const ratedModules = mergedModules.filter((m) => (m.totalReviews || 0) > 0);
-    const avgRating = mergedModules.length > 0
-      ? ratedModules.reduce((sum, m) => sum + (m.averageRating || 0), 0) /
-        Math.max(1, ratedModules.length)
-      : 0;
+    const avgRating =
+      mergedModules.length > 0
+        ? ratedModules.reduce((sum, m) => sum + (m.averageRating || 0), 0) /
+          Math.max(1, ratedModules.length)
+        : 0;
 
     // Recent activity
     const recentActivity = await safeQuery(
-      () => ctx.db.query("marketplaceActivity")
-        .withIndex("by_created")
-        .order("desc")
-        .take(10),
+      () => ctx.db.query("marketplaceActivity").withIndex("by_created").order("desc").take(10),
       []
     );
 
     // Publishers count
     const publishers = await safeQuery(
-      () => ctx.db.query("marketplacePublishers")
-        .withIndex("by_active", (q) => q.eq("isActive", true))
-        .collect(),
+      () =>
+        ctx.db
+          .query("marketplacePublishers")
+          .withIndex("by_active", (q) => q.eq("isActive", true))
+          .collect(),
       []
     );
 
@@ -388,25 +372,28 @@ export const getMarketplaceHome = query({
       },
       featuredBanners: activeBanners,
       staffPicks,
-      newAndNoteworthy: newModules.length > 0
-        ? newModules
-        : mergedModules.filter((m) => m.isFeatured).slice(0, 8),
+      newAndNoteworthy:
+        newModules.length > 0 ? newModules : mergedModules.filter((m) => m.isFeatured).slice(0, 8),
       topRated,
       trending: trending.length > 0 ? trending : mergedModules.slice(0, 8),
-      categories: categoryWithCounts.length > 0
-        ? categoryWithCounts
-        : [
-            ...new Map(
-              mergedModules.map((m) => [
-                m.category,
-                {
-                  slug: m.category,
-                  name: m.category.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
-                  moduleCount: mergedModules.filter((entry) => entry.category === m.category).length,
-                },
-              ])
-            ).values(),
-          ],
+      categories:
+        categoryWithCounts.length > 0
+          ? categoryWithCounts
+          : [
+              ...new Map(
+                mergedModules.map((m) => [
+                  m.category,
+                  {
+                    slug: m.category,
+                    name: m.category
+                      .replace(/_/g, " ")
+                      .replace(/\b\w/g, (c: string) => c.toUpperCase()),
+                    moduleCount: mergedModules.filter((entry) => entry.category === m.category)
+                      .length,
+                  },
+                ])
+              ).values(),
+            ],
       recentActivity: recentActivity.map(normalizeMarketplaceActivity),
     };
   },
@@ -420,12 +407,17 @@ export const browseModules = query({
     pricingModel: v.optional(v.string()),
     minRating: v.optional(v.number()),
     compatiblePlan: v.optional(v.string()),
-    sortBy: v.optional(v.union(
-      v.literal("relevance"), v.literal("most_installed"),
-      v.literal("highest_rated"), v.literal("newest"),
-      v.literal("alphabetical"), v.literal("price_low"),
-      v.literal("price_high")
-    )),
+    sortBy: v.optional(
+      v.union(
+        v.literal("relevance"),
+        v.literal("most_installed"),
+        v.literal("highest_rated"),
+        v.literal("newest"),
+        v.literal("alphabetical"),
+        v.literal("price_low"),
+        v.literal("price_high")
+      )
+    ),
     limit: v.optional(v.number()),
     offset: v.optional(v.number()),
   },
@@ -437,7 +429,9 @@ export const browseModules = query({
       if (args.category) {
         modules = await ctx.db
           .query("marketplaceModules")
-          .withIndex("by_category", (q) => q.eq("category", args.category!).eq("status", "published"))
+          .withIndex("by_category", (q) =>
+            q.eq("category", args.category!).eq("status", "published")
+          )
           .collect();
       } else {
         modules = await ctx.db
@@ -458,11 +452,12 @@ export const browseModules = query({
 
     if (args.search) {
       const searchLower = args.search.toLowerCase();
-      modules = modules.filter((m) =>
-        m.name.toLowerCase().includes(searchLower) ||
-        m.shortDescription.toLowerCase().includes(searchLower) ||
-        m.tags.some((t: string) => t.toLowerCase().includes(searchLower)) ||
-        m.publisherName.toLowerCase().includes(searchLower)
+      modules = modules.filter(
+        (m) =>
+          m.name.toLowerCase().includes(searchLower) ||
+          m.shortDescription.toLowerCase().includes(searchLower) ||
+          m.tags.some((t: string) => t.toLowerCase().includes(searchLower)) ||
+          m.publisherName.toLowerCase().includes(searchLower)
       );
     }
 
@@ -573,17 +568,19 @@ export const getModuleDetail = query({
 
     return {
       module: normalizeMarketplaceModuleRecord(mod),
-      publisher: publisher ? {
-        _id: publisher._id,
-        legalName: publisher.legalName,
-        verificationLevel: publisher.verificationLevel,
-        totalModules: publisher.totalModules,
-        averageRating: publisher.averageRating,
-        contactEmail: publisher.contactEmail,
-        website: publisher.website,
-        logoUrl: publisher.logoUrl,
-        bio: publisher.bio,
-      } : null,
+      publisher: publisher
+        ? {
+            _id: publisher._id,
+            legalName: publisher.legalName,
+            verificationLevel: publisher.verificationLevel,
+            totalModules: publisher.totalModules,
+            averageRating: publisher.averageRating,
+            contactEmail: publisher.contactEmail,
+            website: publisher.website,
+            logoUrl: publisher.logoUrl,
+            bio: publisher.bio,
+          }
+        : null,
       versions,
       reviews: reviews.sort((a, b) => b.createdAt - a.createdAt),
       otherModulesByPublisher: otherPublished.map(normalizeMarketplaceModuleRecord),
@@ -610,7 +607,9 @@ export const getTenantInstallations = query({
     if (args.status) {
       installations = await ctx.db
         .query("marketplaceInstallations")
-        .withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", args.status as any))
+        .withIndex("by_tenant_status", (q) =>
+          q.eq("tenantId", args.tenantId).eq("status", args.status as any)
+        )
         .collect();
     } else {
       installations = await ctx.db
@@ -696,9 +695,7 @@ export const getAllInstallations = query({
         .withIndex("by_module", (q) => q.eq("moduleId", args.moduleId!))
         .collect();
     } else {
-      installations = await ctx.db
-        .query("marketplaceInstallations")
-        .collect();
+      installations = await ctx.db.query("marketplaceInstallations").collect();
     }
 
     if (args.status) {
@@ -823,7 +820,9 @@ export const getPendingReviews = query({
 export const getPublishers = query({
   args: {
     sessionToken: v.string(),
-    verificationLevel: v.optional(v.union(v.literal("basic"), v.literal("verified"), v.literal("featured_partner"))),
+    verificationLevel: v.optional(
+      v.union(v.literal("basic"), v.literal("verified"), v.literal("featured_partner"))
+    ),
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -901,14 +900,20 @@ export const getPublisherDetail = query({
 export const getMarketplaceOverview = query({
   args: {
     sessionToken: v.string(),
-    timeRange: v.optional(v.union(v.literal("7d"), v.literal("30d"), v.literal("90d"), v.literal("365d"))),
+    timeRange: v.optional(
+      v.union(v.literal("7d"), v.literal("30d"), v.literal("90d"), v.literal("365d"))
+    ),
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
     // Helper to safely query tables
     async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
-      try { return await fn(); } catch { return fallback; }
+      try {
+        return await fn();
+      } catch {
+        return fallback;
+      }
     }
 
     const allModules = await safeQuery(() => ctx.db.query("marketplaceModules").collect(), []);
@@ -918,34 +923,55 @@ export const getMarketplaceOverview = query({
     const publishers = await safeQuery(() => ctx.db.query("marketplacePublishers").collect(), []);
     const activePublishers = publishers.filter((p: any) => p.isActive);
 
-    const installations = await safeQuery(() => ctx.db.query("marketplaceInstallations").collect(), []);
-    const builtinInstallations = await safeQuery(() => ctx.db.query("installedModules").collect(), []);
+    const installations = await safeQuery(
+      () => ctx.db.query("marketplaceInstallations").collect(),
+      []
+    );
+    const builtinInstallations = await safeQuery(
+      () => ctx.db.query("installedModules").collect(),
+      []
+    );
     const activeInstalls = installations.filter((i: any) => i.status === "active");
     const activeBuiltinInstalls = builtinInstallations.filter((i: any) => i.status === "active");
 
     const pendingReviews = await safeQuery(
-      () => ctx.db.query("marketplaceReviews")
-        .withIndex("by_status", (q) => q.eq("status", "pending"))
-        .collect(),
+      () =>
+        ctx.db
+          .query("marketplaceReviews")
+          .withIndex("by_status", (q) => q.eq("status", "pending"))
+          .collect(),
       []
     );
 
     const openDisputes = await safeQuery(
-      () => ctx.db.query("marketplaceDisputes")
-        .withIndex("by_status", (q) => q.eq("status", "open"))
-        .collect(),
+      () =>
+        ctx.db
+          .query("marketplaceDisputes")
+          .withIndex("by_status", (q) => q.eq("status", "open"))
+          .collect(),
       []
     );
 
-    const transactions = await safeQuery(() => ctx.db.query("marketplaceTransactions").collect(), []);
+    const transactions = await safeQuery(
+      () => ctx.db.query("marketplaceTransactions").collect(),
+      []
+    );
     const completedTx = transactions.filter((t: any) => t.status === "completed");
-    const totalRevenueCents = completedTx.reduce((sum: number, t: any) => sum + t.grossAmountCents, 0);
-    const totalCommissionCents = completedTx.reduce((sum: number, t: any) => sum + t.commissionCents, 0);
+    const totalRevenueCents = completedTx.reduce(
+      (sum: number, t: any) => sum + t.grossAmountCents,
+      0
+    );
+    const totalCommissionCents = completedTx.reduce(
+      (sum: number, t: any) => sum + t.commissionCents,
+      0
+    );
 
     const categories = await safeQuery(
-      () => ctx.db.query("marketplaceCategories")
-        .withIndex("by_active", (q) => q.eq("isActive", true))
-        .collect(),
+      () =>
+        ctx.db
+          .query("marketplaceCategories")
+          .withIndex("by_active", (q) => q.eq("isActive", true))
+          .collect(),
       []
     );
 
@@ -960,18 +986,18 @@ export const getMarketplaceOverview = query({
 
     // Recent activity
     const recentActivity = await safeQuery(
-      () => ctx.db.query("marketplaceActivity")
-        .withIndex("by_created")
-        .order("desc")
-        .take(20),
+      () => ctx.db.query("marketplaceActivity").withIndex("by_created").order("desc").take(20),
       []
     );
 
     // Top modules by installs
-    const builtinInstallCounts = builtinInstallations.reduce((acc: Record<string, number>, inst: any) => {
-      acc[inst.moduleId] = (acc[inst.moduleId] || 0) + 1;
-      return acc;
-    }, {});
+    const builtinInstallCounts = builtinInstallations.reduce(
+      (acc: Record<string, number>, inst: any) => {
+        acc[inst.moduleId] = (acc[inst.moduleId] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
 
     const topModules = mergedModules
       .map((mod: any) => ({
@@ -1046,7 +1072,14 @@ export const getCategories = query({
 export const getDisputes = query({
   args: {
     sessionToken: v.string(),
-    status: v.optional(v.union(v.literal("open"), v.literal("under_review"), v.literal("resolved"), v.literal("dismissed"))),
+    status: v.optional(
+      v.union(
+        v.literal("open"),
+        v.literal("under_review"),
+        v.literal("resolved"),
+        v.literal("dismissed")
+      )
+    ),
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
@@ -1100,9 +1133,7 @@ export const getTransactions = query({
         .order("desc")
         .collect();
     } else {
-      transactions = await ctx.db
-        .query("marketplaceTransactions")
-        .collect();
+      transactions = await ctx.db.query("marketplaceTransactions").collect();
     }
 
     if (args.status) {

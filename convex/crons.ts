@@ -10,4 +10,32 @@ crons.interval(
   {}
 );
 
+crons.interval(
+  "cleanup expired sessions",
+  { hours: 6 },
+  (internal as any).system.maintenance.cleanupExpiredSessions,
+  {}
+);
+
+crons.interval(
+  "send overdue invoice alerts",
+  { hours: 24 },
+  (internal as any).system.maintenance.sendOverdueInvoiceAlerts,
+  {}
+);
+
+crons.interval(
+  "detect sla breaches",
+  { hours: 1 },
+  (internal as any).system.maintenance.detectSlaBreaches,
+  {}
+);
+
+crons.interval(
+  "reconcile pending payments",
+  { hours: 2 },
+  (internal as any).system.maintenance.reconcilePendingPayments,
+  { staleAfterHours: 24 }
+);
+
 export default crons;

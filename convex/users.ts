@@ -3,14 +3,14 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requirePlatformSession } from "./helpers/platformGuard";
 import { requireTenantContext, requireTenantSession } from "./helpers/tenantGuard";
-import { requirePermission } from "./helpers/authorize";
+import { getPermissions, requirePermission } from "./helpers/authorize";
 import { logAction } from "./helpers/auditLog";
 
 function isTrustedServerCall(serverSecret?: string) {
   return Boolean(
     serverSecret &&
-      process.env.CONVEX_WEBHOOK_SECRET &&
-      serverSecret === process.env.CONVEX_WEBHOOK_SECRET
+    process.env.CONVEX_WEBHOOK_SECRET &&
+    serverSecret === process.env.CONVEX_WEBHOOK_SECRET
   );
 }
 
@@ -254,14 +254,12 @@ export const bootstrapMasterAdmin = mutation({
     serverSecret: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    let session:
-      | {
-          tenantId: string;
-          userId: string;
-          role: string;
-          email: string;
-        }
-      | null = null;
+    let session: {
+      tenantId: string;
+      userId: string;
+      role: string;
+      email: string;
+    } | null = null;
 
     if (isTrustedServerCall(args.serverSecret)) {
       if (!args.sessionToken) {
@@ -398,6 +396,36 @@ export const getCurrentUser = query({
   },
 });
 
+export const getRoleDefinitions = query({
+  args: { sessionToken: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    requirePermission(tenant, "settings:read");
+
+    const roleDefinitions = [
+      "school_admin",
+      "principal",
+      "bursar",
+      "hr_manager",
+      "librarian",
+      "transport_manager",
+      "teacher",
+      "parent",
+      "student",
+      "alumni",
+      "partner",
+    ] as const;
+
+    return roleDefinitions.map((role, index) => ({
+      role,
+      level: Math.max(10, 100 - index * 10),
+      permissions: getPermissions(role as any),
+    }));
+  },
+});
+
 // List users within a tenant
 export const listTenantUsers = query({
   args: {
@@ -417,7 +445,9 @@ export const listTenantUsers = query({
     if (args.role) {
       const users = await ctx.db
         .query("users")
-        .withIndex("by_tenant_role", (q) => q.eq("tenantId", tenant.tenantId).eq("role", args.role!))
+        .withIndex("by_tenant_role", (q) =>
+          q.eq("tenantId", tenant.tenantId).eq("role", args.role!)
+        )
         .collect();
       return users.filter((user) => {
         if (args.isActive !== undefined && user.isActive !== args.isActive) {

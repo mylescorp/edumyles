@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "../../_generated/server";
+import { internalMutation, mutation } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
@@ -17,12 +17,14 @@ const DEFAULT_CONVERSATION_CONTACT_ROLES = [
   "receptionist",
 ];
 
-async function resolveConversationParticipants(ctx: any, tenant: any, requestedParticipants: string[]) {
+async function resolveConversationParticipants(
+  ctx: any,
+  tenant: any,
+  requestedParticipants: string[]
+) {
   const explicitParticipants = Array.from(
     new Set(
-      requestedParticipants.filter(
-        (participant) => participant && participant !== tenant.userId
-      )
+      requestedParticipants.filter((participant) => participant && participant !== tenant.userId)
     )
   );
 
@@ -64,9 +66,7 @@ async function getPushRecipientsForUsers(ctx: any, tenantId: string, userIds: st
   return tokens
     .filter(
       (token: any) =>
-        token.notificationsEnabled &&
-        token.provider === "expo" &&
-        userIds.includes(token.userId)
+        token.notificationsEnabled && token.provider === "expo" && userIds.includes(token.userId)
     )
     .map((token: any) => ({
       userId: token.userId,
@@ -321,6 +321,92 @@ export const createCampaign = mutation({
     });
 
     return { success: true, campaignId };
+  },
+});
+
+export const finalizeCampaignChannelDispatch = internalMutation({
+  args: {
+    tenantId: v.string(),
+    campaignId: v.id("campaigns"),
+    channel: v.union(v.literal("email"), v.literal("sms")),
+    records: v.array(
+      v.object({
+        recipientId: v.string(),
+        recipientEmail: v.optional(v.string()),
+        recipientPhone: v.optional(v.string()),
+        subject: v.optional(v.string()),
+        status: v.string(),
+        externalId: v.optional(v.string()),
+        errorMessage: v.optional(v.string()),
+        sentAt: v.optional(v.number()),
+        deliveredAt: v.optional(v.number()),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const campaign = await ctx.db.get(args.campaignId);
+    if (!campaign || campaign.tenantId !== args.tenantId) {
+      throw new Error("Campaign not found");
+    }
+
+    const now = Date.now();
+    for (const record of args.records) {
+      await ctx.db.insert("messageRecords", {
+        tenantId: args.tenantId,
+        campaignId: args.campaignId,
+        channel: args.channel,
+        recipientId: record.recipientId,
+        recipientEmail: record.recipientEmail,
+        recipientPhone: record.recipientPhone,
+        subject: record.subject,
+        content: campaign.message,
+        status: record.status,
+        externalId: record.externalId,
+        errorMessage: record.errorMessage,
+        sentAt: record.sentAt,
+        deliveredAt: record.deliveredAt,
+        createdAt: now,
+      });
+    }
+
+    const records = await ctx.db
+      .query("messageRecords")
+      .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
+      .collect();
+
+    const sentCount = records.filter((record) =>
+      ["sent", "delivered", "opened", "clicked"].includes(record.status)
+    ).length;
+    const deliveredCount = records.filter((record) =>
+      ["delivered", "opened", "clicked"].includes(record.status)
+    ).length;
+    const failedCount = records.filter((record) =>
+      ["failed", "bounced"].includes(record.status)
+    ).length;
+
+    await ctx.db.patch(args.campaignId, {
+      status: "completed",
+      startedAt: campaign.startedAt ?? now,
+      completedAt: now,
+      updatedAt: now,
+      stats: {
+        totalRecipients: records.length,
+        sent: sentCount,
+        delivered: deliveredCount,
+        opened: records.filter((record) => record.status === "opened").length,
+        clicked: records.filter((record) => record.status === "clicked").length,
+        failed: failedCount,
+        bounced: records.filter((record) => record.status === "bounced").length,
+      },
+    });
+
+    return {
+      success: true,
+      totalRecipients: records.length,
+      sent: sentCount,
+      delivered: deliveredCount,
+      failed: failedCount,
+    };
   },
 });
 
@@ -1260,4 +1346,3 @@ export const updateEmailTemplate = mutation({
     return args.templateId;
   },
 });
-

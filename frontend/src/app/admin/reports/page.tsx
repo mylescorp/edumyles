@@ -1,6 +1,10 @@
 "use client";
 
 import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +72,43 @@ const REPORT_CATEGORIES = [
 ];
 
 export default function ReportsPage() {
+  const { isLoading, sessionToken } = useAuth();
+  const applications = useQuery(
+    api.modules.admissions.queries.listApplications,
+    sessionToken ? { sessionToken } : "skip"
+  );
+  const students = useQuery(
+    api.modules.sis.queries.listStudents,
+    sessionToken ? { sessionToken } : "skip"
+  );
+  const financialReport = useQuery(
+    api.modules.finance.queries.getFinancialReport,
+    sessionToken ? { sessionToken } : "skip"
+  );
+  const campaigns = useQuery(
+    api.modules.communications.queries.listCampaigns,
+    sessionToken ? { sessionToken } : "skip"
+  );
+
+  if (isLoading || !applications || !students || !financialReport || !campaigns) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  const quickStats = [
+    {
+      label: "Reports Generated",
+      value: String(applications.length + campaigns.length),
+      icon: FileText,
+    },
+    { label: "This Month", value: String(applications.length), icon: Calendar },
+    {
+      label: "Scheduled",
+      value: String(campaigns.filter((campaign: any) => campaign.status === "scheduled").length),
+      icon: BarChart3,
+    },
+    { label: "Downloads", value: String(students.length), icon: Download },
+  ];
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -83,12 +124,7 @@ export default function ReportsPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {[
-          { label: "Reports Generated", value: "—", icon: FileText },
-          { label: "This Month", value: "—", icon: Calendar },
-          { label: "Scheduled", value: "—", icon: BarChart3 },
-          { label: "Downloads", value: "—", icon: Download },
-        ].map((stat) => {
+        {quickStats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Card key={stat.label}>
@@ -122,16 +158,18 @@ export default function ReportsPage() {
                     <p className="text-sm font-normal text-muted-foreground">
                       {category.description}
                     </p>
+                    {category.title === "Financial Reports" && (
+                      <p className="mt-1 text-xs font-normal text-muted-foreground">
+                        Outstanding balance: {financialReport.outstanding.toLocaleString()}
+                      </p>
+                    )}
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {category.reports.map((report) => (
                   <Link key={report.name} href={report.href}>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between h-auto py-2 px-3"
-                    >
+                    <Button variant="outline" className="w-full justify-between h-auto py-2 px-3">
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{report.name}</span>
