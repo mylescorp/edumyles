@@ -17,7 +17,12 @@ export const createStaff = mutation({
         phone: v.optional(v.string()),
         qualification: v.optional(v.string()),
         joinDate: v.string(),
-        status: v.string(),
+        status: v.union(
+            v.literal("active"),
+            v.literal("inactive"),
+            v.literal("terminated"),
+            v.literal("on_leave")
+        ),
     },
     handler: async (ctx, args) => {
         const tenant = args.sessionToken
@@ -25,6 +30,11 @@ export const createStaff = mutation({
             : await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "hr");
         requirePermission(tenant, "staff:write");
+
+        if (args.firstName.length > 100) throw new Error("First name must be 100 characters or fewer");
+        if (args.lastName.length > 100) throw new Error("Last name must be 100 characters or fewer");
+        if (args.email.length > 254) throw new Error("Email must be 254 characters or fewer");
+        if (args.employeeId.length > 50) throw new Error("Employee ID must be 50 characters or fewer");
 
         const { sessionToken: _sessionToken, ...staffArgs } = args;
         const staffId = await ctx.db.insert("staff", {
@@ -58,7 +68,12 @@ export const updateStaff = mutation({
         department: v.optional(v.string()),
         phone: v.optional(v.string()),
         qualification: v.optional(v.string()),
-        status: v.optional(v.string()),
+        status: v.optional(v.union(
+            v.literal("active"),
+            v.literal("inactive"),
+            v.literal("terminated"),
+            v.literal("on_leave")
+        )),
     },
     handler: async (ctx, args) => {
         const tenant = await requireTenantContext(ctx);

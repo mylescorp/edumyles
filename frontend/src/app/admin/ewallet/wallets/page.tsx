@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,10 +37,11 @@ export default function WalletsPage() {
     const [adjustmentNote, setAdjustmentNote] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const wallets = useQuery(
-        api.modules.ewallet.queries.listAllWallets,
-        sessionToken ? { sessionToken, limit: 250 } : "skip"
-    ) as WalletSummary[] | undefined;
+    const { results: wallets, status: walletsStatus, loadMore } = usePaginatedQuery(
+        api.modules.ewallet.queries.listAllWalletsPaginated,
+        sessionToken ? { sessionToken } : "skip",
+        { initialNumItems: 50 }
+    );
 
     const adminTopUp = useMutation(api.modules.ewallet.mutations.adminTopUp);
     const adminAdjustWallet = useMutation(api.modules.ewallet.mutations.adminAdjustWallet);
@@ -174,9 +176,9 @@ export default function WalletsPage() {
         }
     };
 
-    if (isLoading) return <LoadingSkeleton variant="page" />;
+    if (isLoading || walletsStatus === "LoadingFirstPage") return <LoadingSkeleton variant="page" />;
 
-    const walletList = wallets ?? [];
+    const walletList = (wallets ?? []) as WalletSummary[];
     const summary = useMemo(() => ({
         active: walletList.filter((wallet) => !wallet.frozen).length,
         frozen: walletList.filter((wallet) => wallet.frozen).length,
@@ -256,6 +258,11 @@ export default function WalletsPage() {
                 searchKey={(row) => `${row.ownerId} ${row.ownerType}`}
                 emptyTitle="No wallets found"
                 emptyDescription="Wallet accounts will appear here once users transact."
+                serverPagination={{
+                    isDone: walletsStatus === "Exhausted",
+                    loadMore,
+                    isLoading: walletsStatus === "LoadingMore",
+                }}
             />
 
             <Dialog open={!!selectedWallet} onOpenChange={(open) => !open && setSelectedWallet(null)}>
