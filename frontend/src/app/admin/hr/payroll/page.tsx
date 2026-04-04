@@ -148,7 +148,6 @@ export default function PayrollPage() {
             });
         }
     };
-
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
     const columns: Column<PayrollRun>[] = [

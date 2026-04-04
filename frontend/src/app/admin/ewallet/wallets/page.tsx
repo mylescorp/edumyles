@@ -133,7 +133,6 @@ export default function WalletsPage() {
             setIsSubmitting(false);
         }
     };
-
     const handleFreeze = async (wallet: WalletSummary) => {
         if (!sessionToken) return;
         try {
