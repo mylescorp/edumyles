@@ -115,9 +115,11 @@ function getActivityStatus(action: string): string {
 }
 
 export const getStaffMember = query({
-  args: { staffId: v.id("staff") },
+  args: { staffId: v.id("staff"), sessionToken: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "hr");
     requirePermission(tenant, "staff:read");
 
@@ -127,6 +129,28 @@ export const getStaffMember = query({
     }
 
     return member;
+  },
+});
+
+export const getCurrentStaffProfile = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    await requireModule(ctx, tenant.tenantId, "hr");
+    requirePermission(tenant, "staff:read");
+
+    const staff = await ctx.db
+      .query("staff")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+
+    const exactUserMatch = staff.find((member) => member.userId === tenant.userId);
+    if (exactUserMatch) {
+      return exactUserMatch;
+    }
+
+    const normalizedEmail = tenant.email.toLowerCase();
+    return staff.find((member) => member.email.toLowerCase() === normalizedEmail) ?? null;
   },
 });
 
@@ -183,9 +207,15 @@ export const listContracts = query({
 });
 
 export const listLeave = query({
-  args: { staffId: v.optional(v.string()), status: v.optional(v.string()) },
+  args: {
+    staffId: v.optional(v.string()),
+    status: v.optional(v.string()),
+    sessionToken: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "hr");
     requirePermission(tenant, "staff:read");
 
@@ -209,9 +239,14 @@ export const listLeave = query({
 });
 
 export const listPayrollRuns = query({
-  args: { status: v.optional(v.string()) },
+  args: {
+    status: v.optional(v.string()),
+    sessionToken: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "hr");
     requirePermission(tenant, "payroll:read");
 
@@ -230,9 +265,15 @@ export const listPayrollRuns = query({
 });
 
 export const listPayslips = query({
-  args: { payrollRunId: v.optional(v.string()), staffId: v.optional(v.string()) },
+  args: {
+    payrollRunId: v.optional(v.string()),
+    staffId: v.optional(v.string()),
+    sessionToken: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "hr");
     requirePermission(tenant, "payroll:read");
 

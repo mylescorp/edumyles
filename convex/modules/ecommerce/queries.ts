@@ -118,7 +118,21 @@ export const getOrder = query({
                 .query("orderItems")
                 .withIndex("by_order", (q) => q.eq("orderId", args.orderId))
                 .collect();
-            return { ...order, items };
+            const products = await Promise.all(
+                items.map((item) => ctx.db.get(item.productId as any))
+            );
+            const productMap = new Map(
+                products.filter(Boolean).map((product: any) => [product._id.toString(), product])
+            );
+
+            return {
+                ...order,
+                items: items.map((item) => ({
+                    ...item,
+                    productName: productMap.get(item.productId)?.name ?? item.productId,
+                    productCategory: productMap.get(item.productId)?.category ?? null,
+                })),
+            };
         } catch (error) {
             console.error("getOrder failed", error);
             return null;

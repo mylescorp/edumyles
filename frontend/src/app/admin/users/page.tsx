@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { useTenant } from "@/hooks/useTenant";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,7 @@ const ROLE_OPTIONS = [
 
 export default function UsersPage() {
     const { isLoading, sessionToken, user } = useAuth();
+    const { tenantId } = useTenant();
     const { toast } = useToast();
     const [roleFilter, setRoleFilter] = useState<string>("all");
     const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -53,9 +55,10 @@ export default function UsersPage() {
 
     const users = useQuery(
         api.users.listTenantUsers,
-        sessionToken
+        sessionToken && tenantId
             ? {
                 sessionToken,
+                tenantId,
                 role: roleFilter === "all" ? undefined : roleFilter,
                 isActive: statusFilter === "all" ? undefined : statusFilter === "active",
             }

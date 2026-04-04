@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query } from "../../../_generated/server";
-import { requireTenantContext } from "../../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../../helpers/tenantGuard";
 import { requirePermission } from "../../../helpers/authorize";
 import { requireModule } from "../../../helpers/moduleGuard";
 
@@ -76,10 +76,14 @@ async function assertClassOwnership(
 }
 
 export const getParentProfile = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
     try {
-      const tenant = await requireTenantContext(ctx);
+      const tenant = args.sessionToken
+        ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+        : await requireTenantContext(ctx);
       await requireModule(ctx, tenant.tenantId, "sis");
 
       const guardian = await ctx.db
@@ -102,9 +106,13 @@ export const getParentProfile = query({
 });
 
 export const getChildren = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenant = await requireTenantContext(ctx);
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "sis");
     requirePermission(tenant, "students:read");
 
@@ -209,9 +217,13 @@ export const getFeeBalance = query({
 });
 
 export const getPaymentHistory = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenant = await requireTenantContext(ctx);
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "finance");
     requirePermission(tenant, "finance:read");
     const children = await resolveParentChildren(ctx, tenant);
@@ -284,9 +296,13 @@ export const getChildAssignments = query({
 });
 
 export const getAnnouncements = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenant = await requireTenantContext(ctx);
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     // Using notifications table as announcements proxy for now
     requirePermission(tenant, "students:read");
 
@@ -299,9 +315,13 @@ export const getAnnouncements = query({
 });
 
 export const getChildrenFeeOverview = query({
-  args: {},
-  handler: async (ctx) => {
-    const tenant = await requireTenantContext(ctx);
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "finance");
     requirePermission(tenant, "finance:read");
 

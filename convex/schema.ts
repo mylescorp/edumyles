@@ -67,7 +67,9 @@ export default defineSchema({
     email: v.string(),
     phone: v.string(),
     plan: v.union(
+      v.literal("free"),
       v.literal("starter"),
+      v.literal("growth"),
       v.literal("standard"),
       v.literal("pro"),
       v.literal("enterprise")
@@ -148,7 +150,9 @@ export default defineSchema({
     name: v.string(),
     subdomain: v.string(),
     tier: v.union(
+      v.literal("free"),
       v.literal("starter"),
+      v.literal("growth"),
       v.literal("standard"),
       v.literal("pro"),
       v.literal("enterprise")
@@ -894,6 +898,26 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_wallet", ["walletId", "createdAt"]),
+
+  walletTopUpRequests: defineTable({
+    tenantId: v.string(),
+    requesterId: v.string(),
+    amountCents: v.number(),
+    currency: v.string(),
+    method: v.string(),
+    phone: v.optional(v.string()),
+    note: v.optional(v.string()),
+    status: v.string(), // pending | approved | rejected
+    reviewedBy: v.optional(v.string()),
+    reviewedAt: v.optional(v.number()),
+    reviewNote: v.optional(v.string()),
+    reference: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_requester", ["requesterId", "createdAt"])
+    .index("by_tenant_status", ["tenantId", "status"]),
 
   products: defineTable({
     tenantId: v.string(),

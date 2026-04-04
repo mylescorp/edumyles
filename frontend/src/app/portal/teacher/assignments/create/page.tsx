@@ -11,17 +11,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
 export default function CreateAssignmentPage() {
-    const { user, isLoading: authLoading } = useAuth();
+    const { isLoading: authLoading, sessionToken } = useAuth();
+    const { toast } = useToast();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [selectedClassId, setSelectedClassId] = useState("");
+    const [selectedType, setSelectedType] = useState("homework");
 
     const classes = useQuery(
         api.modules.academics.queries.getTeacherClasses,
-        {}
+        sessionToken ? { sessionToken } : "skip"
     );
 
     const createAssignmentMutation = useMutation(api.modules.academics.mutations.createAssignment);
@@ -34,14 +37,13 @@ export default function CreateAssignmentPage() {
 
         const formData = new FormData(e.currentTarget);
         const data = {
-            tenantId: user?.tenantId || "",
-            teacherId: user?._id || "",
             title: formData.get("title") as string,
             description: formData.get("description") as string,
-            classId: formData.get("classId") as string,
+            classId: selectedClassId,
             dueDate: formData.get("dueDate") as string,
             maxScore: parseInt(formData.get("maxScore") as string),
-            type: formData.get("type") as string,
+            type: selectedType,
+            status: "active",
         };
 
         try {
@@ -105,7 +107,7 @@ export default function CreateAssignmentPage() {
                             <label htmlFor="classId" className="block text-sm font-medium mb-2">
                                 Class
                             </label>
-                            <Select name="classId" required>
+                            <Select value={selectedClassId} onValueChange={setSelectedClassId} required>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a class" />
                                 </SelectTrigger>
@@ -148,7 +150,7 @@ export default function CreateAssignmentPage() {
                             <label htmlFor="type" className="block text-sm font-medium mb-2">
                                 Assignment Type
                             </label>
-                            <Select name="type" required>
+                            <Select value={selectedType} onValueChange={setSelectedType} required>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select assignment type" />
                                 </SelectTrigger>

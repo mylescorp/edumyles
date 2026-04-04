@@ -70,6 +70,7 @@ const STATUS_OPTIONS = [
   { value: "active", label: "Active" },
   { value: "trial", label: "Trial" },
   { value: "suspended", label: "Suspended" },
+  { value: "archived", label: "Archived" },
 ];
 
 const PLAN_OPTIONS = [
@@ -599,13 +600,16 @@ function StatusBadge({ status }: { status: string }) {
     ? "bg-em-success-bg/10 text-em-success border-em-success/20"
     : status === "trial"
       ? "bg-em-info-bg/10 text-em-info border-em-info/20"
-      : "bg-em-danger-bg/10 text-em-danger border-em-danger/20";
+      : status === "archived"
+        ? "bg-slate-500/10 text-slate-700 border-slate-200"
+        : "bg-em-danger-bg/10 text-em-danger border-em-danger/20";
 
   return (
     <Badge variant="outline" className={colorClass}>
       {status === "active" && <CheckCircle2 className="h-3 w-3 mr-1" />}
       {status === "trial" && <FlaskConical className="h-3 w-3 mr-1" />}
       {status === "suspended" && <PauseCircle className="h-3 w-3 mr-1" />}
+      {status === "archived" && <Ban className="h-3 w-3 mr-1" />}
       {status}
     </Badge>
   );

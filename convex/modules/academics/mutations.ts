@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { mutation, type MutationCtx } from "../../_generated/server";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { logAction } from "../../helpers/auditLog";
 
 /**
@@ -10,6 +10,7 @@ import { logAction } from "../../helpers/auditLog";
  */
 export const enterGrades = mutation({
   args: {
+    sessionToken: v.optional(v.string()),
     grades: v.array(
       v.object({
         studentId: v.string(),
@@ -25,7 +26,9 @@ export const enterGrades = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:write");
 
@@ -65,6 +68,7 @@ export const enterGrades = mutation({
  */
 export const createAssignment = mutation({
   args: {
+    sessionToken: v.optional(v.string()),
     classId: v.string(),
     subjectId: v.optional(v.string()),
     title: v.string(),
@@ -78,7 +82,9 @@ export const createAssignment = mutation({
     teacherId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "grades:write");
 
@@ -138,6 +144,7 @@ export const gradeSubmission = mutation({
  */
 export const markAttendance = mutation({
   args: {
+    sessionToken: v.optional(v.string()),
     records: v.array(
       v.object({
         classId: v.string(),
@@ -150,7 +157,9 @@ export const markAttendance = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     await requireModule(ctx, tenant.tenantId, "academics");
     requirePermission(tenant, "attendance:write");
 

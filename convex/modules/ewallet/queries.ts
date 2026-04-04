@@ -202,3 +202,60 @@ export const listAllWallets = query({
     }
   },
 });
+
+export const listTopUpRequests = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    status: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const tenant = args.sessionToken
+        ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+        : await requireTenantContext(ctx);
+      await requireModule(ctx, tenant.tenantId, "ewallet");
+
+      const requests = args.status
+        ? await ctx.db
+            .query("walletTopUpRequests")
+            .withIndex("by_tenant_status", (q) =>
+              q.eq("tenantId", tenant.tenantId).eq("status", args.status!)
+            )
+            .order("desc")
+            .take(args.limit ?? 50)
+        : await ctx.db
+            .query("walletTopUpRequests")
+            .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+            .order("desc")
+            .take(args.limit ?? 50);
+
+      return requests;
+    } catch (error) {
+      console.error("listTopUpRequests failed", error);
+      return [];
+    }
+  },
+});
+
+export const getMyTopUpRequests = query({
+  args: {
+    sessionToken: v.string(),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+      await requireModule(ctx, tenant.tenantId, "ewallet");
+
+      return await ctx.db
+        .query("walletTopUpRequests")
+        .withIndex("by_requester", (q) => q.eq("requesterId", tenant.userId))
+        .order("desc")
+        .take(args.limit ?? 20);
+    } catch (error) {
+      console.error("getMyTopUpRequests failed", error);
+      return [];
+    }
+  },
+});

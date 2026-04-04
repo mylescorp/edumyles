@@ -8,7 +8,8 @@ export const listAllTenants = query({
     status: v.optional(v.union(
       v.literal("active"),
       v.literal("suspended"),
-      v.literal("trial")
+      v.literal("trial"),
+      v.literal("archived")
     )),
   },
   handler: async (ctx, args) => {
@@ -36,6 +37,57 @@ export const getTenantById = query({
       .query("tenants")
       .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
       .first();
+  },
+});
+
+export const getTenantDependencySummary = query({
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+
+    if (!tenant) {
+      throw new Error("NOT_FOUND: Tenant not found");
+    }
+
+    const [users, students, invoices, payments, modules, organizations] = await Promise.all([
+      ctx.db.query("users").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("students").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("invoices").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("payments").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("installedModules").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("organizations").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+    ]);
+
+    const activeUsers = users.filter((user) => user.isActive).length;
+    const openInvoices = invoices.filter((invoice) => invoice.status !== "paid" && invoice.status !== "cancelled").length;
+
+    return {
+      tenantId: args.tenantId,
+      tenantStatus: tenant.status,
+      users: users.length,
+      activeUsers,
+      students: students.length,
+      invoices: invoices.length,
+      openInvoices,
+      payments: payments.length,
+      modules: modules.length,
+      organizations: organizations.length,
+      canArchive: tenant.status === "suspended",
+      canDelete:
+        tenant.status === "archived" &&
+        users.length === 0 &&
+        students.length === 0 &&
+        invoices.length === 0 &&
+        payments.length === 0,
+    };
   },
 });
 

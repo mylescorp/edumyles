@@ -16,6 +16,8 @@ import { formatDate } from "@/lib/formatters";
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { useToast } from "@/components/ui/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 
 type PayrollRun = {
     _id: Id<"payrollRuns">;
@@ -39,6 +41,7 @@ export default function PayrollPage() {
     const { toast } = useToast();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [statusFilter, setStatusFilter] = useState("all");
     const [form, setForm] = useState({
         periodLabel: "",
         startDate: "",
@@ -47,11 +50,14 @@ export default function PayrollPage() {
 
     const payrollRuns = useQuery(
         api.modules.hr.queries.listPayrollRuns,
-        sessionToken ? { sessionToken } : "skip"
+        sessionToken ? { sessionToken, status: statusFilter === "all" ? undefined : statusFilter } : "skip"
     );
 
     const createPayrollRun = useMutation(api.modules.hr.mutations.createPayrollRun);
+    const generatePayrollPayslips = useMutation(api.modules.hr.mutations.generatePayrollPayslips);
     const approvePayrollRun = useMutation(api.modules.hr.mutations.approvePayrollRun);
+    const completePayrollRun = useMutation(api.modules.hr.mutations.completePayrollRun);
+    const cancelPayrollRun = useMutation(api.modules.hr.mutations.cancelPayrollRun);
 
     const handleCreate = async () => {
         if (!form.periodLabel || !form.startDate || !form.endDate) return;
@@ -95,6 +101,53 @@ export default function PayrollPage() {
         }
     };
 
+    const handleGenerateDrafts = async (payrollRunId: Id<"payrollRuns">) => {
+        try {
+            const result = await generatePayrollPayslips({ payrollRunId });
+            toast({
+                title: "Draft payslips generated",
+                description: `${result.created} payslips created, ${result.skipped} staff skipped because they already had a draft or no active contract was found.`,
+            });
+        } catch (error) {
+            toast({
+                title: "Unable to generate payslips",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleComplete = async (payrollRunId: Id<"payrollRuns">) => {
+        try {
+            await completePayrollRun({ payrollRunId });
+            toast({
+                title: "Payroll run completed",
+                description: "The payroll run has been marked as completed.",
+            });
+        } catch (error) {
+            toast({
+                title: "Unable to complete payroll run",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleCancel = async (payrollRunId: Id<"payrollRuns">) => {
+        try {
+            await cancelPayrollRun({ payrollRunId });
+            toast({
+                title: "Payroll run cancelled",
+                description: "The payroll run will no longer progress through payroll processing.",
+            });
+        } catch (error) {
+            toast({
+                title: "Unable to cancel payroll run",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
     const columns: Column<PayrollRun>[] = [
@@ -127,12 +180,32 @@ export default function PayrollPage() {
         {
             key: "actions",
             header: "",
-            cell: (row) => ["draft", "pending"].includes(row.status) ? (
-                <Button size="sm" onClick={() => handleApprove(row._id)}>
-                    Approve
-                </Button>
-            ) : (
-                <span className="text-sm text-muted-foreground">Locked</span>
+            cell: (row) => (
+                <div className="flex gap-2">
+                    {["draft", "pending"].includes(row.status) && (
+                        <Button size="sm" variant="outline" onClick={() => handleGenerateDrafts(row._id)}>
+                            Generate Payslips
+                        </Button>
+                    )}
+                    {["draft", "pending"].includes(row.status) && (
+                        <Button size="sm" onClick={() => handleApprove(row._id)}>
+                            Approve
+                        </Button>
+                    )}
+                    {row.status === "approved" && (
+                        <Button size="sm" variant="outline" onClick={() => handleComplete(row._id)}>
+                            Complete
+                        </Button>
+                    )}
+                    {["draft", "pending", "approved"].includes(row.status) && (
+                        <Button size="sm" variant="ghost" onClick={() => handleCancel(row._id)}>
+                            Cancel
+                        </Button>
+                    )}
+                    {["completed", "cancelled"].includes(row.status) && (
+                        <span className="text-sm text-muted-foreground">Locked</span>
+                    )}
+                </div>
             ),
         },
     ];
@@ -150,11 +223,34 @@ export default function PayrollPage() {
                 }
             />
 
+            <div className="max-w-xs">
+                <Label htmlFor="payroll-status-filter" className="sr-only">Filter payroll runs</Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger id="payroll-status-filter">
+                        <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Payroll Runs</SelectItem>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="approved">Approved</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <Card>
+                <CardContent className="pt-6 text-sm text-muted-foreground">
+                    Draft payroll generation now uses active staff contracts to create payslips before approval. Runs move from <span className="font-medium text-foreground">draft</span> to <span className="font-medium text-foreground">pending</span> once draft payslips are generated.
+                </CardContent>
+            </Card>
+
             <DataTable
                 data={(payrollRuns as PayrollRun[]) ?? []}
                 columns={columns}
                 searchable
                 searchPlaceholder="Search periods..."
+                searchKey={(row) => `${row.periodLabel} ${row.status}`}
                 emptyTitle="No payroll runs found"
                 emptyDescription="Start your first payroll run to process staff salaries."
             />

@@ -35,6 +35,8 @@ type OrderDetail = Order & {
   items: Array<{
     _id: Id<"orderItems">;
     productId: string;
+    productName?: string;
+    productCategory?: string | null;
     quantity: number;
     unitPriceCents: number;
   }>;
@@ -259,8 +261,11 @@ export default function OrdersPage() {
                     {selectedOrder.items.map((item) => (
                       <div key={item._id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
                         <div>
-                          <p className="font-medium">{item.productId}</p>
-                          <p className="text-muted-foreground">Quantity: {item.quantity}</p>
+                          <p className="font-medium">{item.productName ?? item.productId}</p>
+                          <p className="text-muted-foreground">
+                            Quantity: {item.quantity}
+                            {item.productCategory ? ` • ${item.productCategory}` : ""}
+                          </p>
                         </div>
                         <span>{formatMoney(item.unitPriceCents * item.quantity)}</span>
                       </div>
@@ -289,7 +294,7 @@ export default function OrdersPage() {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Stock reduction happens when the order is created. This screen is for lifecycle and fulfillment tracking.
+                  Cancelling or refunding an order now restocks the items. Refunding an eWallet order also credits the customer wallet if it has not already been refunded.
                 </p>
               </div>
             </div>

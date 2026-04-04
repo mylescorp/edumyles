@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -38,6 +38,7 @@ export default function MarketplacePage() {
     !!sessionToken && sessionToken !== "dev_session_token";
   const canQueryMarketplace =
     !authLoading && isAuthenticated && hasLiveTenantSession;
+  const [marketplaceTimedOut, setMarketplaceTimedOut] = useState(false);
 
   const availableModules = useQuery(
     api.modules.marketplace.queries.getAvailableForTier,
@@ -45,6 +46,24 @@ export default function MarketplacePage() {
     canQueryMarketplace
   );
   const resolvedAvailableModules = (availableModules as any[]) ?? [];
+
+  useEffect(() => {
+    if (!canQueryMarketplace) {
+      setMarketplaceTimedOut(false);
+      return;
+    }
+
+    if (availableModules !== undefined) {
+      setMarketplaceTimedOut(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setMarketplaceTimedOut(true);
+    }, 6000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [availableModules, canQueryMarketplace]);
 
   const [dialogState, setDialogState] = useState<{
     open: boolean;
@@ -110,12 +129,12 @@ export default function MarketplacePage() {
     return result;
   }, [optionalModules, search, tab, installedModules]);
 
-  if (authLoading && !isAuthenticated) {
+  if ((authLoading && !isAuthenticated) || (tenantLoading && !tenantId)) {
     return <LoadingSkeleton variant="page" />;
   }
 
   const isRefreshingMarketplaceData =
-    canQueryMarketplace && availableModules === undefined;
+    !marketplaceTimedOut && canQueryMarketplace && availableModules === undefined;
 
   const handleInstall = (moduleId: string) => {
     const mod = resolvedAvailableModules.find((m) => m.moduleId === moduleId);
@@ -354,7 +373,9 @@ export default function MarketplacePage() {
                   ? "No optional modules installed yet. Browse available modules to get started."
                   : tab === "upgrade"
                     ? "All modules available for your plan are shown. Upgrade to access more."
-                    : "No modules available."}
+                    : marketplaceTimedOut
+                      ? "Marketplace data is taking too long to load. Showing the page without blocking the rest of your workspace."
+                      : "No modules available."}
             </p>
           </div>
         )}

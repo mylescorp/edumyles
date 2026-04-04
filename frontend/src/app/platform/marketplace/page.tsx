@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,10 +20,6 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
-import {
-  FALLBACK_MARKETPLACE_CATEGORIES,
-  FALLBACK_MARKETPLACE_MODULES,
-} from "@/lib/platformMarketplaceFallback";
 import { MarketplaceErrorBoundary } from "./MarketplaceErrorBoundary";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -83,13 +79,13 @@ function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
 
 export default function MarketplacePage() {
   return (
-    <MarketplaceErrorBoundary fallback={<MarketplaceContent forceFallback />}>
+    <MarketplaceErrorBoundary>
       <MarketplaceContent />
     </MarketplaceErrorBoundary>
   );
 }
 
-function MarketplaceContent({ forceFallback = false }: { forceFallback?: boolean }) {
+function MarketplaceContent() {
   const router = useRouter();
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState("discover");
@@ -102,7 +98,7 @@ function MarketplaceContent({ forceFallback = false }: { forceFallback?: boolean
   const marketplaceHome = usePlatformQuery(
     api.platform.marketplace.getMarketplaceHome,
     { sessionToken: sessionToken || "" },
-    !forceFallback
+    !!sessionToken
   ) as any;
 
   const browseResult = usePlatformQuery(
@@ -115,124 +111,24 @@ function MarketplaceContent({ forceFallback = false }: { forceFallback?: boolean
       sortBy: sortBy as any,
       limit: 24,
     },
-    !forceFallback
+    !!sessionToken
   ) as any;
 
   const overview = usePlatformQuery(
     api.platform.marketplace.getMarketplaceOverview,
     { sessionToken: sessionToken || "" },
-    !forceFallback
+    !!sessionToken
   ) as any;
 
-  const shouldUseFallbackCatalog = useMemo(() => {
-    const totalModules = marketplaceHome?.stats?.totalModules || 0;
-    const categoryCount = marketplaceHome?.categories?.length || 0;
-    const browseTotal = browseResult?.total || 0;
-    return forceFallback || (totalModules === 0 && categoryCount === 0 && browseTotal === 0);
-  }, [browseResult?.total, forceFallback, marketplaceHome?.categories?.length, marketplaceHome?.stats?.totalModules]);
-
-  const fallbackModules = useMemo(() => {
-    let result = [...FALLBACK_MARKETPLACE_MODULES];
-
-    if (selectedCategory !== "all") {
-      result = result.filter((mod) => mod.category === selectedCategory);
-    }
-
-    if (searchQuery) {
-      const searchLower = searchQuery.toLowerCase();
-      result = result.filter((mod) =>
-        mod.name.toLowerCase().includes(searchLower) ||
-        mod.shortDescription.toLowerCase().includes(searchLower) ||
-        mod.tags.some((tag) => tag.toLowerCase().includes(searchLower)) ||
-        mod.publisherName.toLowerCase().includes(searchLower)
-      );
-    }
-
-    if (selectedPricing !== "all") {
-      result = result.filter((mod) => mod.pricingModel === selectedPricing);
-    }
-
-    switch (sortBy) {
-      case "alphabetical":
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "price_low":
-        result.sort((a, b) => a.priceCents - b.priceCents);
-        break;
-      case "price_high":
-        result.sort((a, b) => b.priceCents - a.priceCents);
-        break;
-      case "newest":
-        result.sort((a, b) => b.publishedAt - a.publishedAt);
-        break;
-      default:
-        result.sort((a, b) => {
-          if (a.isFeatured && !b.isFeatured) return -1;
-          if (!a.isFeatured && b.isFeatured) return 1;
-          return a.name.localeCompare(b.name);
-        });
-        break;
-    }
-
-    return result;
-  }, [searchQuery, selectedCategory, selectedPricing, sortBy]);
-
-  const fallbackCategories = useMemo(
-    () =>
-      FALLBACK_MARKETPLACE_CATEGORIES.map((category) => ({
-        ...category,
-        moduleCount: FALLBACK_MARKETPLACE_MODULES.filter((mod) => mod.category === category.slug).length,
-      })),
-    []
-  );
-
-  const fallbackStats = useMemo(
-    () => ({
-      totalModules: FALLBACK_MARKETPLACE_MODULES.length,
-      totalInstalls: 0,
-      averageRating: 0,
-      totalPublishers: 1,
-    }),
-    []
-  );
-
-  const adminOverview = shouldUseFallbackCatalog
-    ? {
-        overview: {
-          totalModules: FALLBACK_MARKETPLACE_MODULES.length,
-          publishedModules: FALLBACK_MARKETPLACE_MODULES.length,
-          pendingReview: 0,
-          totalPublishers: 1,
-          activePublishers: 1,
-          totalInstallations: 0,
-          activeInstallations: 0,
-          pendingReviews: 0,
-          openDisputes: 0,
-          totalRevenueCents: 0,
-          totalCommissionCents: 0,
-        },
-        categories: fallbackCategories.map((category) => ({
-          ...category,
-          installCount: 0,
-        })),
-        topModules: FALLBACK_MARKETPLACE_MODULES.slice(0, 5),
-      }
-    : overview;
-
   // Modules to display
-  const modules = shouldUseFallbackCatalog ? fallbackModules : (browseResult?.modules || []);
-  const stats = shouldUseFallbackCatalog
-    ? fallbackStats
-    : (marketplaceHome?.stats || { totalModules: 0, totalInstalls: 0, averageRating: 0, totalPublishers: 0 });
-  const categories = shouldUseFallbackCatalog ? fallbackCategories : (marketplaceHome?.categories || []);
-  const newModules = shouldUseFallbackCatalog
-    ? FALLBACK_MARKETPLACE_MODULES.filter((mod) => mod.isFeatured).slice(0, 4)
-    : (marketplaceHome?.newAndNoteworthy || []);
-  const topRated = shouldUseFallbackCatalog ? [] : (marketplaceHome?.topRated || []);
-  const trending = shouldUseFallbackCatalog
-    ? FALLBACK_MARKETPLACE_MODULES.slice(0, 5)
-    : (marketplaceHome?.trending || []);
-  const recentActivity = shouldUseFallbackCatalog ? [] : (marketplaceHome?.recentActivity || []);
+  const modules = browseResult?.modules || [];
+  const stats = marketplaceHome?.stats || { totalModules: 0, totalInstalls: 0, averageRating: 0, totalPublishers: 0 };
+  const categories = marketplaceHome?.categories || [];
+  const newModules = marketplaceHome?.newAndNoteworthy || [];
+  const topRated = marketplaceHome?.topRated || [];
+  const trending = marketplaceHome?.trending || [];
+  const recentActivity = marketplaceHome?.recentActivity || [];
+  const adminOverview = overview;
 
   // ── Module Card ──────────────────────────────────────────────────────
   const ModuleCard = ({ mod }: { mod: any }) => (
@@ -596,8 +492,8 @@ function MarketplaceContent({ forceFallback = false }: { forceFallback?: boolean
       {/* Results count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {(shouldUseFallbackCatalog ? fallbackModules.length : (browseResult?.total || 0))} module
-          {(shouldUseFallbackCatalog ? fallbackModules.length : (browseResult?.total || 0)) !== 1 ? "s" : ""} found
+          {(browseResult?.total || 0)} module
+          {(browseResult?.total || 0) !== 1 ? "s" : ""} found
         </p>
         {selectedCategory !== "all" && (
           <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("all")}>
@@ -621,7 +517,7 @@ function MarketplaceContent({ forceFallback = false }: { forceFallback?: boolean
             <p className="text-sm text-muted-foreground max-w-sm">
               {searchQuery
                 ? `No modules match "${searchQuery}". Try a different search term or clear filters.`
-                : "No modules are available in this category yet."}
+                : "No modules are available in this category yet. Publish or enable modules from the marketplace admin tools to populate this catalog."}
             </p>
           </CardContent>
         </Card>

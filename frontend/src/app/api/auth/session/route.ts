@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
+export const dynamic = "force-dynamic";
+
 const MASTER_ADMIN_EMAILS = [
   process.env.MASTER_ADMIN_EMAIL,
 ]
   .filter((value): value is string => Boolean(value))
   .map((value) => value.toLowerCase());
+const DEV_BOOTSTRAP_VERSION = "full-access-v2";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -63,6 +66,7 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
     userId: "dev-platform-admin",
     email: platformAdminEmail,
     role: "master_admin",
+    permissions: ["*"],
     expiresAt,
   };
 
@@ -115,6 +119,16 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
   }
 
   try {
+    await convex.mutation((api.platform.billing.mutations as any).updateTenantTier, {
+      sessionToken: platformSessionToken,
+      tenantId: tenant.tenantId,
+      plan: "enterprise",
+    });
+  } catch (error) {
+    console.warn("[api/auth/session] Failed to upgrade demo tenant to enterprise:", error);
+  }
+
+  try {
     await convex.mutation((api.modules.marketplace.seed as any).ensureCoreModules, {});
   } catch (error) {
     console.warn("[api/auth/session] Failed to ensure core modules via seed helper:", error);
@@ -137,6 +151,7 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
     userId: tenantAdminUserId,
     email: tenantAdminEmail,
     role: "school_admin",
+    permissions: ["*"],
     expiresAt,
   };
 
@@ -151,6 +166,54 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
       throw error;
     }
     await convex.mutation(createSessionRef, tenantSessionBase);
+  }
+
+  try {
+    const registry = await convex.query((api.modules.marketplace.queries as any).getModuleRegistry, {
+      sessionToken: tenantSessionToken,
+    });
+
+    const moduleIds = Array.isArray(registry)
+      ? registry
+          .map((mod: any) => mod?.moduleId)
+          .filter((moduleId: unknown): moduleId is string => typeof moduleId === "string")
+      : [];
+
+    const optionalModuleIds = moduleIds.filter((moduleId) => !["sis", "communications", "users"].includes(moduleId));
+    const pending = new Set(optionalModuleIds);
+
+    for (let pass = 0; pass < 4 && pending.size > 0; pass += 1) {
+      let progress = false;
+
+      for (const moduleId of [...pending]) {
+        try {
+          await convex.mutation((api.modules.marketplace.mutations as any).installModule, {
+            sessionToken: tenantSessionToken,
+            tenantId: tenant.tenantId,
+            moduleId,
+          });
+          pending.delete(moduleId);
+          progress = true;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          if (
+            message.includes("MODULE_ALREADY_INSTALLED") ||
+            message.includes("already installed")
+          ) {
+            pending.delete(moduleId);
+            progress = true;
+          }
+        }
+      }
+
+      if (!progress) break;
+    }
+
+    if (pending.size > 0) {
+      console.warn("[api/auth/session] Some demo modules could not be installed:", [...pending]);
+    }
+  } catch (error) {
+    console.warn("[api/auth/session] Failed to install full demo module set:", error);
   }
 
   return {
@@ -193,6 +256,7 @@ function setSessionCookies(
       lastName: user.lastName ?? "",
       role,
       tenantId,
+      sessionToken,
     }),
     {
       httpOnly: false,
@@ -221,12 +285,18 @@ function setSessionCookies(
  */
 export async function GET(req: NextRequest) {
   try {
+    const currentSessionCookie = req.cookies.get("edumyles_session")?.value;
+    const bootstrapVersion = req.cookies.get("edumyles_dev_bootstrap")?.value;
+
     // Development bypass - only when explicitly enabled AND not in production
     if (
       process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
       process.env.NODE_ENV !== "production" &&
-      (!req.cookies.get("edumyles_session")?.value ||
-        req.cookies.get("edumyles_session")?.value === "dev_session_token")
+      (
+        !currentSessionCookie ||
+        currentSessionCookie === "dev_session_token" ||
+        (currentSessionCookie === "dev-tenant-admin-session" && bootstrapVersion !== DEV_BOOTSTRAP_VERSION)
+      )
     ) {
       const convex = getConvexClient();
 
@@ -251,6 +321,13 @@ export async function GET(req: NextRequest) {
         seeded.role,
         seeded.tenantId
       );
+      response.cookies.set("edumyles_dev_bootstrap", DEV_BOOTSTRAP_VERSION, {
+        httpOnly: false,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60,
+        path: "/",
+      });
 
       return response;
     }
@@ -260,6 +337,36 @@ export async function GET(req: NextRequest) {
 
     if (!sessionToken) {
       return NextResponse.json({ session: null }, { status: 200 });
+    }
+
+    const userCookie = req.cookies.get("edumyles_user")?.value;
+    const roleCookie = req.cookies.get("edumyles_role")?.value;
+
+    // Fast path: reconstruct the client session directly from the signed-in
+    // cookie set. Convex queries still validate the session token server-side,
+    // so we can avoid blocking every page render on an extra Convex round-trip.
+    if (userCookie) {
+      try {
+        const user = JSON.parse(userCookie);
+        const effectiveRole = isConfiguredMasterAdmin(user.email)
+          ? "master_admin"
+          : normalizeRole(user.role ?? roleCookie);
+        const effectiveTenantId =
+          effectiveRole === "master_admin" ? "PLATFORM" : user.tenantId || "PLATFORM";
+
+        return NextResponse.json({
+          session: {
+            sessionToken,
+            tenantId: effectiveTenantId,
+            userId: user.userId || user.email,
+            email: user.email,
+            role: effectiveRole,
+            expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000),
+          },
+        });
+      } catch (parseError) {
+        console.error("[api/auth/session] Failed to parse fast-path user cookie:", parseError);
+      }
     }
 
     let convexLookupFailed = false;
@@ -300,6 +407,31 @@ export async function GET(req: NextRequest) {
             },
           });
           const isProduction = process.env.NODE_ENV === "production";
+          const userCookie = req.cookies.get("edumyles_user")?.value;
+          if (userCookie) {
+            try {
+              const parsedUser = JSON.parse(userCookie);
+              response.cookies.set(
+                "edumyles_user",
+                JSON.stringify({
+                  ...parsedUser,
+                  email: session.email,
+                  role: normalizedRole,
+                  tenantId: normalizedTenantId,
+                  sessionToken: session.sessionToken,
+                }),
+                {
+                  httpOnly: false,
+                  secure: isProduction,
+                  sameSite: "lax",
+                  maxAge: 30 * 24 * 60 * 60,
+                  path: "/",
+                }
+              );
+            } catch {
+              // Ignore malformed companion cookie and continue with session response.
+            }
+          }
           response.cookies.set("edumyles_role", normalizedRole, {
             httpOnly: false,
             secure: isProduction,
@@ -319,15 +451,12 @@ export async function GET(req: NextRequest) {
     // reconstruct session from the companion cookies set at login time.
     // The httpOnly edumyles_session cookie (which cannot be set via JS) is the
     // security gate — if it exists, it was set server-side during auth callback.
-    const userCookie = req.cookies.get("edumyles_user")?.value;
-    const roleCookie = req.cookies.get("edumyles_role")?.value;
-
-    if (convexLookupFailed && userCookie && roleCookie) {
+    if (convexLookupFailed && userCookie) {
       try {
         const user = JSON.parse(userCookie);
         const effectiveRole = isConfiguredMasterAdmin(user.email)
           ? "master_admin"
-          : normalizeRole(roleCookie);
+          : normalizeRole(user.role ?? roleCookie);
         const effectiveTenantId = effectiveRole === "master_admin" ? "PLATFORM" : user.tenantId || "PLATFORM";
         return NextResponse.json({
           session: {

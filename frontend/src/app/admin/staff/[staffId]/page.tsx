@@ -3,12 +3,17 @@
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { ArrowLeft, Mail, Phone, UserCircle, Calendar, Briefcase } from "lucide-react";
 import Link from "next/link";
@@ -16,11 +21,14 @@ import Link from "next/link";
 export default function StaffProfilePage() {
     const { staffId } = useParams<{ staffId: string }>();
     const { isLoading, sessionToken } = useAuth();
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     const staff = useQuery(
         api.modules.hr.queries.getStaffMember,
-        sessionToken && staffId ? { staffId: staffId as Id<"staff"> } : "skip"
+        sessionToken && staffId ? { staffId: staffId as Id<"staff">, sessionToken } : "skip"
     );
+    const updateStaff = useMutation(api.modules.hr.mutations.updateStaff);
 
     if (isLoading || staff === undefined) return <LoadingSkeleton variant="page" />;
 
@@ -42,6 +50,26 @@ export default function StaffProfilePage() {
         terminated: "destructive",
     };
 
+    const handleEditSubmit = async (formData: FormData) => {
+        setSubmitting(true);
+        try {
+            await updateStaff({
+                id: staffId as Id<"staff">,
+                firstName: String(formData.get("firstName") ?? "").trim(),
+                lastName: String(formData.get("lastName") ?? "").trim(),
+                email: String(formData.get("email") ?? "").trim(),
+                phone: String(formData.get("phone") ?? "").trim() || undefined,
+                role: String(formData.get("role") ?? "").trim(),
+                department: String(formData.get("department") ?? "").trim() || undefined,
+                qualification: String(formData.get("qualification") ?? "").trim() || undefined,
+                status: String(formData.get("status") ?? "").trim(),
+            });
+            setShowEditDialog(false);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div>
             <div className="mb-4">
@@ -54,7 +82,7 @@ export default function StaffProfilePage() {
                 title={`${staff.firstName} ${staff.lastName}`}
                 description={`Employee ID: ${staff.employeeId}`}
                 actions={
-                    <Button variant="outline">Edit Profile</Button>
+                    <Button variant="outline" onClick={() => setShowEditDialog(true)}>Edit Profile</Button>
                 }
             />
 
@@ -89,6 +117,81 @@ export default function StaffProfilePage() {
                     </CardContent>
                 </Card>
             </div>
+
+            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Staff Profile</DialogTitle>
+                    </DialogHeader>
+                    <form action={handleEditSubmit} className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="firstName">First Name</Label>
+                                <Input id="firstName" name="firstName" defaultValue={staff.firstName} required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="lastName">Last Name</Label>
+                                <Input id="lastName" name="lastName" defaultValue={staff.lastName} required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" name="email" type="email" defaultValue={staff.email} required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone</Label>
+                                <Input id="phone" name="phone" defaultValue={staff.phone ?? ""} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="role">Role</Label>
+                                <Select name="role" defaultValue={staff.role}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select role" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="teacher">Teacher</SelectItem>
+                                        <SelectItem value="principal">Principal</SelectItem>
+                                        <SelectItem value="bursar">Bursar</SelectItem>
+                                        <SelectItem value="hr_manager">HR Manager</SelectItem>
+                                        <SelectItem value="librarian">Librarian</SelectItem>
+                                        <SelectItem value="transport_manager">Transport Manager</SelectItem>
+                                        <SelectItem value="receptionist">Receptionist</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="department">Department</Label>
+                                <Input id="department" name="department" defaultValue={staff.department ?? ""} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="qualification">Qualification</Label>
+                                <Input id="qualification" name="qualification" defaultValue={staff.qualification ?? ""} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="status">Status</Label>
+                                <Select name="status" defaultValue={staff.status}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="inactive">Inactive</SelectItem>
+                                        <SelectItem value="on_leave">On Leave</SelectItem>
+                                        <SelectItem value="terminated">Terminated</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setShowEditDialog(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={submitting}>
+                                {submitting ? "Saving..." : "Save Changes"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

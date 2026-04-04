@@ -35,7 +35,7 @@ import {
 // ═════════════════════════════════════════════════════════════════════════════
 
 describe('requirePermission() — convex/helpers/authorize.ts', () => {
-  const makeCtx = (role: string) => ({ tenantId: 'TENANT-1', userId: 'u1', role, email: '' });
+  const makeCtx = (role: string) => ({ tenantId: 'TENANT-1', userId: 'u1', role, email: '', permissions: [] as string[] });
 
   it('does not throw when the role has the permission', () => {
     expect(() => requirePermission(makeCtx('teacher'), 'grades:write')).not.toThrow();
@@ -63,7 +63,7 @@ describe('requirePermission() — convex/helpers/authorize.ts', () => {
 });
 
 describe('requireRole() — convex/helpers/authorize.ts', () => {
-  const makeCtx = (role: string) => ({ tenantId: 'TENANT-1', userId: 'u1', role, email: '' });
+  const makeCtx = (role: string) => ({ tenantId: 'TENANT-1', userId: 'u1', role, email: '', permissions: [] as string[] });
 
   it('does not throw when ctx.role matches the required role', () => {
     expect(() => requireRole(makeCtx('teacher'), 'teacher')).not.toThrow();

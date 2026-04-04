@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 
@@ -75,9 +75,12 @@ export const getTeacherSchedule = query({
     args: {
         teacherId: v.string(),
         dayOfWeek: v.optional(v.number()),
+        sessionToken: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "timetable");
         requirePermission(tenant, "timetable:read");
 
@@ -127,11 +130,14 @@ export const getRoomSchedule = query({
 /** Conflict detection: teacher double-booking and room clash for a given day. */
 export const getConflicts = query({
     args: {
+        sessionToken: v.optional(v.string()),
         dayOfWeek: v.number(),
         academicYear: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const tenant = await requireTenantContext(ctx);
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
         await requireModule(ctx, tenant.tenantId, "timetable");
         requirePermission(tenant, "timetable:read");
 

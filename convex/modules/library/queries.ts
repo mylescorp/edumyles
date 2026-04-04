@@ -4,6 +4,55 @@ import { requireTenantContext, requireTenantSession } from "../../helpers/tenant
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 
+async function enrichBorrowRecords(ctx: any, borrows: any[]) {
+    const bookIds = Array.from(new Set(borrows.map((borrow) => borrow.bookId)));
+    const studentIds = Array.from(
+        new Set(borrows.filter((borrow) => borrow.borrowerType === "student").map((borrow) => borrow.borrowerId))
+    );
+    const staffIds = Array.from(
+        new Set(borrows.filter((borrow) => borrow.borrowerType === "staff").map((borrow) => borrow.borrowerId))
+    );
+
+    const [books, students, staff] = await Promise.all([
+        Promise.all(bookIds.map((bookId) => ctx.db.get(bookId as any))),
+        Promise.all(studentIds.map((studentId) => ctx.db.get(studentId as any))),
+        Promise.all(staffIds.map((staffId) => ctx.db.get(staffId as any))),
+    ]);
+
+    const bookMap = new Map(
+        books.filter(Boolean).map((book: any) => [book._id.toString(), book])
+    );
+    const studentMap = new Map(
+        students.filter(Boolean).map((student: any) => [student._id.toString(), student])
+    );
+    const staffMap = new Map(
+        staff.filter(Boolean).map((member: any) => [member._id.toString(), member])
+    );
+
+    return borrows.map((borrow) => {
+        const book = bookMap.get(borrow.bookId);
+        const borrower =
+            borrow.borrowerType === "student"
+                ? studentMap.get(borrow.borrowerId)
+                : staffMap.get(borrow.borrowerId);
+
+        const borrowerName = borrower
+            ? [borrower.firstName, borrower.lastName].filter(Boolean).join(" ").trim()
+            : borrow.borrowerId;
+
+        return {
+            ...borrow,
+            bookTitle: book?.title ?? borrow.bookId,
+            bookAuthor: book?.author ?? null,
+            borrowerName,
+            borrowerReference:
+                borrow.borrowerType === "student"
+                    ? borrower?.admissionNumber ?? borrow.borrowerId
+                    : borrower?.employeeId ?? borrow.borrowerId,
+        };
+    });
+}
+
 export const listBooks = query({
     args: {
         category: v.optional(v.string()),
@@ -86,9 +135,12 @@ export const listActiveBorrows = query({
                     q.eq("tenantId", tenant.tenantId).eq("status", "borrowed")
                 );
             const list = await q.collect();
-            if (args.borrowerId) return list.filter((b) => b.borrowerId === args.borrowerId);
-            if (args.bookId) return list.filter((b) => b.bookId === args.bookId);
-            return list;
+            const filtered = args.borrowerId
+                ? list.filter((b) => b.borrowerId === args.borrowerId)
+                : args.bookId
+                    ? list.filter((b) => b.bookId === args.bookId)
+                    : list;
+            return await enrichBorrowRecords(ctx, filtered);
         } catch (error) {
             console.error("listActiveBorrows failed", error);
             return [];
@@ -114,9 +166,54 @@ export const getOverdueBorrows = query({
                     q.eq("tenantId", tenant.tenantId).eq("status", "borrowed")
                 )
                 .collect();
-            return borrowed.filter((b) => b.dueDate < now);
+            return await enrichBorrowRecords(
+                ctx,
+                borrowed.filter((b) => b.dueDate < now)
+            );
         } catch (error) {
             console.error("getOverdueBorrows failed", error);
+            return [];
+        }
+    },
+});
+
+/** Borrow history, optionally filtered by status. */
+export const listBorrowHistory = query({
+    args: {
+        status: v.optional(v.string()),
+        limit: v.optional(v.number()),
+        sessionToken: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        try {
+            const tenant = args.sessionToken
+                ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+                : await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "library");
+            requirePermission(tenant, "library:read");
+
+            const borrows = args.status
+                ? await ctx.db
+                    .query("bookBorrows")
+                    .withIndex("by_tenant_status", (q) =>
+                        q.eq("tenantId", tenant.tenantId).eq("status", args.status!)
+                    )
+                    .collect()
+                : await ctx.db
+                    .query("bookBorrows")
+                    .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                    .collect();
+
+            const sorted = [...borrows].sort((a, b) => {
+                const aTime = a.returnedAt ?? a.borrowedAt ?? a.createdAt ?? 0;
+                const bTime = b.returnedAt ?? b.borrowedAt ?? b.createdAt ?? 0;
+                return bTime - aTime;
+            });
+
+            const limited = args.limit ? sorted.slice(0, args.limit) : sorted;
+            return await enrichBorrowRecords(ctx, limited);
+        } catch (error) {
+            console.error("listBorrowHistory failed", error);
             return [];
         }
     },

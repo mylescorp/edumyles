@@ -333,6 +333,82 @@ export const adminTopUp = mutation({
   },
 });
 
+export const adminAdjustWallet = mutation({
+  args: {
+    sessionToken: v.string(),
+    targetOwnerId: v.string(),
+    targetOwnerType: v.string(),
+    amountCents: v.number(),
+    note: v.string(),
+    currency: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    await requireModule(ctx, tenant.tenantId, "ewallet");
+    requirePermission(tenant, "ewallet:write");
+
+    if (args.amountCents === 0) {
+      throw new Error("Adjustment amount cannot be zero");
+    }
+
+    const wallet = await getOrCreateWallet(
+      ctx,
+      tenant.tenantId,
+      args.targetOwnerId,
+      args.targetOwnerType,
+      args.currency
+    );
+
+    if (wallet.frozen) {
+      throw new Error("Wallet is frozen");
+    }
+
+    const nextBalance = wallet.balanceCents + args.amountCents;
+    if (nextBalance < 0) {
+      throw new Error("Adjustment would overdraw the wallet");
+    }
+
+    const now = Date.now();
+    const reference = `ADJ-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    const transactionType = args.amountCents > 0 ? "admin_adjustment_credit" : "admin_adjustment_debit";
+
+    await ctx.db.insert("walletTransactions", {
+      tenantId: tenant.tenantId,
+      walletId: wallet._id,
+      type: transactionType,
+      amountCents: args.amountCents,
+      reference,
+      note: args.note,
+      performedBy: tenant.userId,
+      createdAt: now,
+    });
+
+    await ctx.db.patch(wallet._id, {
+      balanceCents: nextBalance,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "payment.recorded",
+      entityType: "wallet",
+      entityId: wallet._id.toString(),
+      after: {
+        type: transactionType,
+        amountCents: args.amountCents,
+        targetOwnerId: args.targetOwnerId,
+        reference,
+        note: args.note,
+        newBalanceCents: nextBalance,
+      },
+    });
+
+    return { success: true, reference, newBalanceCents: nextBalance };
+  },
+});
+
 /**
  * Freeze a wallet — prevents all debits and credits.
  * Requires ewallet:write and school_admin/bursar role.
@@ -419,5 +495,123 @@ export const unfreezeWallet = mutation({
     });
 
     return { success: true };
+  },
+});
+
+export const requestTopUp = mutation({
+  args: {
+    sessionToken: v.string(),
+    amountCents: v.number(),
+    method: v.union(v.literal("mpesa"), v.literal("card"), v.literal("bank_transfer")),
+    phone: v.optional(v.string()),
+    note: v.optional(v.string()),
+    currency: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    await requireModule(ctx, tenant.tenantId, "ewallet");
+
+    if (args.amountCents <= 0) throw new Error("Amount must be positive");
+    if (args.method === "mpesa" && !args.phone) {
+      throw new Error("Phone number is required for M-Pesa top-up requests");
+    }
+
+    const now = Date.now();
+    const reference = `WTR-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    const requestId = await ctx.db.insert("walletTopUpRequests", {
+      tenantId: tenant.tenantId,
+      requesterId: tenant.userId,
+      amountCents: args.amountCents,
+      currency: args.currency ?? "KES",
+      method: args.method,
+      phone: args.phone,
+      note: args.note,
+      status: "pending",
+      reference,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "payment.initiated",
+      entityType: "walletTopUpRequest",
+      entityId: requestId.toString(),
+      after: {
+        amountCents: args.amountCents,
+        method: args.method,
+        reference,
+      },
+    });
+
+    return { requestId, reference, status: "pending" };
+  },
+});
+
+export const reviewTopUpRequest = mutation({
+  args: {
+    sessionToken: v.string(),
+    requestId: v.id("walletTopUpRequests"),
+    approved: v.boolean(),
+    reviewNote: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    await requireModule(ctx, tenant.tenantId, "ewallet");
+    requirePermission(tenant, "ewallet:write");
+
+    const request = await ctx.db.get(args.requestId);
+    if (!request || request.tenantId !== tenant.tenantId) {
+      throw new Error("Top-up request not found");
+    }
+    if (request.status !== "pending") {
+      throw new Error("This top-up request has already been reviewed");
+    }
+
+    const now = Date.now();
+    const nextStatus = args.approved ? "approved" : "rejected";
+    await ctx.db.patch(args.requestId, {
+      status: nextStatus,
+      reviewedBy: tenant.userId,
+      reviewedAt: now,
+      reviewNote: args.reviewNote,
+      updatedAt: now,
+    });
+
+    if (args.approved) {
+      const wallet = await getOrCreateWallet(ctx, tenant.tenantId, request.requesterId, "student", request.currency);
+      await ctx.db.insert("walletTransactions", {
+        tenantId: tenant.tenantId,
+        walletId: wallet._id,
+        type: "top_up_request_approved",
+        amountCents: request.amountCents,
+        reference: request.reference,
+        note: args.reviewNote ?? request.note ?? "Student wallet top-up request approved",
+        performedBy: tenant.userId,
+        createdAt: now,
+      });
+      await ctx.db.patch(wallet._id, {
+        balanceCents: wallet.balanceCents + request.amountCents,
+        updatedAt: now,
+      });
+    }
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: args.approved ? "payment.recorded" : "payment.failed",
+      entityType: "walletTopUpRequest",
+      entityId: args.requestId.toString(),
+      before: request,
+      after: {
+        status: nextStatus,
+        reviewNote: args.reviewNote,
+      },
+    });
+
+    return { success: true, status: nextStatus };
   },
 });

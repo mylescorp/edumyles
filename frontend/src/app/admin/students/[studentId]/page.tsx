@@ -8,9 +8,13 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { ArrowLeft, GraduationCap, UserCircle, Mail, Phone, Calendar } from "lucide-react";
@@ -19,17 +23,23 @@ import Link from "next/link";
 export default function StudentProfilePage() {
     const { studentId } = useParams<{ studentId: string }>();
     const { isLoading, sessionToken } = useAuth();
-    const router = useRouter();
     const [showGraduateConfirm, setShowGraduateConfirm] = useState(false);
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     const student = useQuery(
         api.modules.sis.queries.getStudent,
         sessionToken && studentId
-            ? { studentId: studentId as Id<"students"> }
+            ? { studentId: studentId as Id<"students">, sessionToken }
             : "skip"
+    );
+    const classes = useQuery(
+        api.modules.sis.queries.listClasses,
+        sessionToken ? { sessionToken } : "skip"
     );
 
     const graduateStudent = useMutation(api.modules.sis.mutations.graduateStudent);
+    const updateStudent = useMutation(api.modules.sis.mutations.updateStudent);
 
     if (isLoading || student === undefined) return <LoadingSkeleton variant="page" />;
     if (!student) {
@@ -46,6 +56,25 @@ export default function StudentProfilePage() {
     const handleGraduate = async () => {
         await graduateStudent({ studentId: studentId as Id<"students"> });
         setShowGraduateConfirm(false);
+    };
+
+    const handleEditSubmit = async (formData: FormData) => {
+        setSubmitting(true);
+        try {
+            const selectedClassId = String(formData.get("classId") ?? "").trim();
+            await updateStudent({
+                id: studentId as Id<"students">,
+                firstName: String(formData.get("firstName") ?? "").trim(),
+                lastName: String(formData.get("lastName") ?? "").trim(),
+                dateOfBirth: String(formData.get("dateOfBirth") ?? "").trim(),
+                gender: String(formData.get("gender") ?? "").trim(),
+                classId: selectedClassId && selectedClassId !== "__none__" ? selectedClassId : undefined,
+                status: String(formData.get("status") ?? "").trim(),
+            });
+            setShowEditDialog(false);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
@@ -67,9 +96,9 @@ export default function StudentProfilePage() {
                 description={`Admission No: ${student.admissionNumber}`}
                 actions={
                     <div className="flex gap-2">
-                        <Link href={`/admin/students/${studentId}/edit`}>
-                            <Button variant="outline">Edit Profile</Button>
-                        </Link>
+                        <Button variant="outline" onClick={() => setShowEditDialog(true)}>
+                            Edit Profile
+                        </Button>
                         {student.status === "active" && (
                             <Button variant="destructive" onClick={() => setShowGraduateConfirm(true)}>
                                 <GraduationCap className="mr-2 h-4 w-4" />
@@ -170,6 +199,80 @@ export default function StudentProfilePage() {
                 confirmLabel="Graduate"
                 variant="destructive"
             />
+
+            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Student Profile</DialogTitle>
+                    </DialogHeader>
+                    <form action={handleEditSubmit} className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="firstName">First Name</Label>
+                                <Input id="firstName" name="firstName" defaultValue={student.firstName} required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="lastName">Last Name</Label>
+                                <Input id="lastName" name="lastName" defaultValue={student.lastName} required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                                <Input id="dateOfBirth" name="dateOfBirth" type="date" defaultValue={student.dateOfBirth} required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="gender">Gender</Label>
+                                <Select name="gender" defaultValue={student.gender}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select gender" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="male">Male</SelectItem>
+                                        <SelectItem value="female">Female</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="classId">Class</Label>
+                                <Select name="classId" defaultValue={student.classId ?? "__none__"}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select class" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__none__">Unassigned</SelectItem>
+                                        {((classes as any[]) ?? []).map((classRow) => (
+                                            <SelectItem key={classRow._id} value={classRow._id}>
+                                                {classRow.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="status">Status</Label>
+                                <Select name="status" defaultValue={student.status}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="suspended">Suspended</SelectItem>
+                                        <SelectItem value="transferred">Transferred</SelectItem>
+                                        <SelectItem value="graduated">Graduated</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setShowEditDialog(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={submitting}>
+                                {submitting ? "Saving..." : "Save Changes"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

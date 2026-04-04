@@ -22,6 +22,8 @@ type AuthStoreState = {
   isLoading: boolean;
 };
 
+const AUTH_CACHE_KEY = "edumyles_auth_session";
+
 const authListeners = new Set<(state: AuthStoreState) => void>();
 let authState: AuthStoreState = {
   session: null,
@@ -51,17 +53,51 @@ function readCookie(name: string): string | null {
   return value ? decodeURIComponent(value) : null;
 }
 
+function readStoredSession(): Session | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(AUTH_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Session;
+    if (!parsed?.email || !parsed?.role) return null;
+    if (parsed.expiresAt && parsed.expiresAt < Date.now()) {
+      window.localStorage.removeItem(AUTH_CACHE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredSession(session: Session | null) {
+  if (typeof window === "undefined") return;
+
+  try {
+    if (!session) {
+      window.localStorage.removeItem(AUTH_CACHE_KEY);
+      return;
+    }
+    window.localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(session));
+  } catch {
+    // Ignore localStorage quota / availability issues.
+  }
+}
+
 function buildFallbackSessionFromCookies(): Session | null {
   const userCookie = readCookie("edumyles_user");
   const roleCookie = normalizeRole(readCookie("edumyles_role"));
+  const storedSession = readStoredSession();
 
-  if (!userCookie) return null;
+  if (!userCookie) return storedSession;
 
   try {
     const user = JSON.parse(userCookie) as {
       email?: string;
       role?: string;
       tenantId?: string;
+      sessionToken?: string;
     };
 
     if (!user.email) return null;
@@ -70,15 +106,25 @@ function buildFallbackSessionFromCookies(): Session | null {
     const tenantId = role === "master_admin" ? "PLATFORM" : (user.tenantId ?? "PLATFORM");
 
     return {
-      sessionToken: "",
-      tenantId,
+      sessionToken:
+        user.sessionToken ||
+        (storedSession?.email === user.email
+          ? storedSession.sessionToken
+          : ""),
+      tenantId:
+        storedSession?.email === user.email
+          ? storedSession.tenantId || tenantId
+          : tenantId,
       userId: user.email,
       email: user.email,
       role,
-      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      expiresAt:
+        storedSession?.email === user.email
+          ? storedSession.expiresAt
+          : Date.now() + 30 * 24 * 60 * 60 * 1000,
     };
   } catch {
-    return null;
+    return storedSession;
   }
 }
 
@@ -88,13 +134,25 @@ async function loadAuthSession(force = false) {
   }
 
   authLoadPromise = (async () => {
-    setAuthState({ isLoading: true });
+    const cachedSession = readStoredSession();
+
+    if (cachedSession && !force) {
+      setAuthState({ session: cachedSession, isLoading: false });
+    } else if (!authState.session || force) {
+      setAuthState({ isLoading: true });
+    } else {
+      // Keep the existing authenticated shell rendered while we refresh
+      // the session in the background. Flipping back to `isLoading: true`
+      // here causes RoleGuard to unmount the page and creates a blink loop.
+      setAuthState({ isLoading: false });
+    }
 
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
       const res = await fetch("/api/auth/session", {
         credentials: "same-origin",
+        cache: "no-store",
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -114,14 +172,19 @@ async function loadAuthSession(force = false) {
             role: normalizeRole((data.session as Session).role) ?? "",
           }
         : null;
+      const resolvedSession = nextSession ?? buildFallbackSessionFromCookies();
+
+      writeStoredSession(resolvedSession);
 
       setAuthState({
-        session: nextSession ?? buildFallbackSessionFromCookies(),
+        session: resolvedSession,
         isLoading: false,
       });
     } catch {
+      const fallbackSession = buildFallbackSessionFromCookies();
+      writeStoredSession(fallbackSession);
       setAuthState({
-        session: buildFallbackSessionFromCookies(),
+        session: fallbackSession,
         isLoading: false,
       });
     } finally {
@@ -143,7 +206,12 @@ export function useAuth() {
     };
 
     authListeners.add(listener);
-    listener(authState);
+    const cachedSession = readStoredSession();
+    if (cachedSession && !authState.session) {
+      setAuthState({ session: cachedSession, isLoading: false });
+    } else {
+      listener(authState);
+    }
     void loadAuthSession();
 
     return () => {
@@ -182,6 +250,7 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
+    writeStoredSession(null);
     setAuthState({ session: null, isLoading: false });
     localStorage.clear();
     sessionStorage.clear();

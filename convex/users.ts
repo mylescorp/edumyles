@@ -401,13 +401,16 @@ export const getCurrentUser = query({
 // List users within a tenant
 export const listTenantUsers = query({
   args: {
-    sessionToken: v.string(),
+    sessionToken: v.optional(v.string()),
+    tenantId: v.optional(v.string()),
     role: v.optional(v.string()),
     search: v.optional(v.string()),
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     requirePermission(tenant, "users:manage");
 
     const normalizedSearch = args.search?.trim().toLowerCase();
