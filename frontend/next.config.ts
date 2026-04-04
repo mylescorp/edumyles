@@ -16,9 +16,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
@@ -142,11 +139,7 @@ const nextConfig = {
     
     return config;
   },
-} as NextConfig & {
-  eslint?: {
-    ignoreDuringBuilds?: boolean;
-  };
-};
+} as NextConfig;
 
 export default withSentryConfig(nextConfig, {
   // Sentry organisation and project (from env vars — no secrets in code)

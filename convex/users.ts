@@ -597,13 +597,13 @@ export const saveUserAvatar = mutation({
     storageId: v.id("_storage"),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
     const url = await ctx.storage.getUrl(args.storageId);
     if (!url) throw new ConvexError("Failed to retrieve upload URL");
 
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("eduMylesUserId"), tenant.userId))
+      .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", tenant.userId))
       .first();
 
     if (!user) throw new ConvexError("User not found");
@@ -623,7 +623,7 @@ export const syncFromWorkOS = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
+      .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", args.eduMylesUserId))
       .first();
     if (!user) return null;
     await ctx.db.patch(user._id, {
@@ -641,7 +641,7 @@ export const deactivateByWorkOSId = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("eduMylesUserId"), args.eduMylesUserId))
+      .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", args.eduMylesUserId))
       .first();
     if (!user) return null;
     await ctx.db.patch(user._id, { isActive: false });

@@ -10,6 +10,9 @@ const MASTER_ADMIN_EMAILS = [
   .filter((value): value is string => Boolean(value))
   .map((value) => value.toLowerCase());
 const DEV_BOOTSTRAP_VERSION = "full-access-v2";
+const DEV_PLATFORM_SESSION_TOKEN = "dev-platform-session";
+const DEV_TENANT_SESSION_TOKEN = "dev-tenant-admin-session";
+const DEV_TENANT_ADMIN_EMAIL = "demo-admin@edumyles.local";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -52,9 +55,9 @@ async function getSessionCompat(convex: ConvexHttpClient, sessionToken: string, 
 async function ensureDevTenantSession(convex: ConvexHttpClient) {
   const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
   const platformAdminEmail = process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local";
-  const tenantAdminEmail = "demo-admin@edumyles.local";
-  const platformSessionToken = "dev-platform-session";
-  const tenantSessionToken = "dev-tenant-admin-session";
+  const tenantAdminEmail = DEV_TENANT_ADMIN_EMAIL;
+  const platformSessionToken = DEV_PLATFORM_SESSION_TOKEN;
+  const tenantSessionToken = DEV_TENANT_SESSION_TOKEN;
   const tenantSubdomain = "demo-school";
   const tenantAdminUserId = "dev-tenant-admin";
   const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
@@ -231,6 +234,73 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
   };
 }
 
+function buildDevSessionFromCookies(
+  sessionToken: string,
+  userCookie?: string,
+  roleCookie?: string
+) {
+  if (userCookie) {
+    try {
+      const user = JSON.parse(userCookie) as {
+        email?: string;
+        firstName?: string;
+        lastName?: string;
+        role?: string;
+        tenantId?: string;
+      };
+
+      if (user.email) {
+        const role = normalizeRole(user.role ?? roleCookie) ?? "school_admin";
+        return {
+          sessionToken,
+          tenantId: role === "master_admin" ? "PLATFORM" : (user.tenantId ?? "TENANT-733447"),
+          userId: user.email,
+          email: user.email,
+          role,
+          expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+          user: {
+            email: user.email,
+            firstName: user.firstName ?? "Demo",
+            lastName: user.lastName ?? "Admin",
+          },
+        };
+      }
+    } catch {
+      // Fall through to the deterministic demo session below.
+    }
+  }
+
+  if (sessionToken === DEV_PLATFORM_SESSION_TOKEN) {
+    return {
+      sessionToken,
+      tenantId: "PLATFORM",
+      userId: "dev-platform-admin",
+      email: process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local",
+      role: "master_admin",
+      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      user: {
+        email: process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local",
+        firstName: "Platform",
+        lastName: "Admin",
+      },
+    };
+  }
+
+  return {
+    sessionToken,
+    tenantId: "TENANT-733447",
+    userId: DEV_TENANT_ADMIN_EMAIL,
+    email: DEV_TENANT_ADMIN_EMAIL,
+    role: "school_admin",
+    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+    user: {
+      email: DEV_TENANT_ADMIN_EMAIL,
+      firstName: "Demo",
+      lastName: "Admin",
+    },
+  };
+}
+
 function setSessionCookies(
   response: NextResponse,
   sessionToken: string,
@@ -286,40 +356,44 @@ function setSessionCookies(
 export async function GET(req: NextRequest) {
   try {
     const currentSessionCookie = req.cookies.get("edumyles_session")?.value;
+    const userCookie = req.cookies.get("edumyles_user")?.value;
+    const roleCookie = req.cookies.get("edumyles_role")?.value;
     const bootstrapVersion = req.cookies.get("edumyles_dev_bootstrap")?.value;
-
-    // Development bypass - only when explicitly enabled AND not in production
-    if (
+    const isDevBypassEnabled =
       process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
       process.env.NODE_ENV !== "production" &&
       (
         !currentSessionCookie ||
         currentSessionCookie === "dev_session_token" ||
-        (currentSessionCookie === "dev-tenant-admin-session" && bootstrapVersion !== DEV_BOOTSTRAP_VERSION)
-      )
-    ) {
-      const convex = getConvexClient();
+        (currentSessionCookie === DEV_TENANT_SESSION_TOKEN && bootstrapVersion !== DEV_BOOTSTRAP_VERSION)
+      );
 
-      console.log("[api/auth/session] Dev bypass: Bootstrapping real tenant session");
-      const seeded = await ensureDevTenantSession(convex);
+    if (isDevBypassEnabled) {
+      const devSession = buildDevSessionFromCookies(
+        currentSessionCookie === DEV_PLATFORM_SESSION_TOKEN
+          ? DEV_PLATFORM_SESSION_TOKEN
+          : DEV_TENANT_SESSION_TOKEN,
+        userCookie,
+        roleCookie
+      );
 
       const response = NextResponse.json({
         session: {
-          sessionToken: seeded.sessionToken,
-          tenantId: seeded.tenantId,
-          userId: seeded.userId,
-          email: seeded.email,
-          role: seeded.role,
-          expiresAt: seeded.expiresAt,
+          sessionToken: devSession.sessionToken,
+          tenantId: devSession.tenantId,
+          userId: devSession.userId,
+          email: devSession.email,
+          role: devSession.role,
+          expiresAt: devSession.expiresAt,
         },
       });
 
       setSessionCookies(
         response,
-        seeded.sessionToken,
-        seeded.user,
-        seeded.role,
-        seeded.tenantId
+        devSession.sessionToken,
+        devSession.user,
+        devSession.role,
+        devSession.tenantId
       );
       response.cookies.set("edumyles_dev_bootstrap", DEV_BOOTSTRAP_VERSION, {
         httpOnly: false,
@@ -338,9 +412,6 @@ export async function GET(req: NextRequest) {
     if (!sessionToken) {
       return NextResponse.json({ session: null }, { status: 200 });
     }
-
-    const userCookie = req.cookies.get("edumyles_user")?.value;
-    const roleCookie = req.cookies.get("edumyles_role")?.value;
 
     // Fast path: reconstruct the client session directly from the signed-in
     // cookie set. Convex queries still validate the session token server-side,

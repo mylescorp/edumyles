@@ -124,6 +124,8 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
+    .index("by_user_id", ["eduMylesUserId"])
+    .index("by_email", ["email"])
     .index("by_workos_user", ["workosUserId"])
     .index("by_tenant_email", ["tenantId", "email"])
     .index("by_tenant_role", ["tenantId", "role"]),

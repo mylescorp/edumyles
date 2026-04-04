@@ -100,7 +100,8 @@ export class GradingSystem {
     const totalWeightedScore = grades.reduce((sum, grade) => sum + (grade.score * grade.weight), 0);
     const totalWeight = grades.reduce((sum, grade) => sum + grade.weight, 0);
 
-    return totalWeight / totalWeight;
+    if (totalWeight === 0) return 0;
+    return totalWeightedScore / totalWeight;
   }
 
   /**

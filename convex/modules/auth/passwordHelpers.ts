@@ -13,9 +13,10 @@ export const getUserByUserId = query({
 
     if (!session || session.expiresAt < Date.now()) return null;
 
-    // Find user by eduMylesUserId
-    const users = await ctx.db.query("users").collect();
-    const user = users.find((u) => u.eduMylesUserId === args.userId);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", args.userId))
+      .first();
     if (!user) return null;
 
     return {
@@ -44,8 +45,10 @@ export const updatePasswordHash = mutation({
       throw new Error("UNAUTHENTICATED");
     }
 
-    const users = await ctx.db.query("users").collect();
-    const user = users.find((u) => u.eduMylesUserId === args.userId);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", args.userId))
+      .first();
     if (!user) throw new Error("User not found");
 
     await ctx.db.patch(user._id, {
@@ -73,8 +76,10 @@ export const createResetToken = mutation({
   },
   handler: async (ctx, args) => {
     // Find user by email
-    const users = await ctx.db.query("users").collect();
-    const user = users.find((u) => u.email === args.email);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
 
     // Always succeed to prevent email enumeration
     if (!user) return;
@@ -130,8 +135,10 @@ export const resetPasswordWithToken = mutation({
     }
 
     // Update user password
-    const users = await ctx.db.query("users").collect();
-    const user = users.find((u) => u.eduMylesUserId === args.userId);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", args.userId))
+      .first();
     if (!user) throw new Error("User not found");
 
     await ctx.db.patch(user._id, {
