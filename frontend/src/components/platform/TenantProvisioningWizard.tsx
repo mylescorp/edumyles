@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { getRootDomain } from "@/lib/domains";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -556,7 +557,7 @@ export function TenantProvisioningWizard({ className = "" }: TenantProvisioningW
                       onChange={(e) => updateFormData("subdomain", e.target.value.toLowerCase())}
                       className="flex-1"
                     />
-                    <span className="text-muted-foreground">.edumyles.co.ke</span>
+                    <span className="text-muted-foreground">.{getRootDomain()}</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     This will be your school's unique URL
@@ -755,7 +756,7 @@ export function TenantProvisioningWizard({ className = "" }: TenantProvisioningW
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subdomain:</span>
-                    <span className="font-medium">{formData.subdomain}.edumyles.co.ke</span>
+                    <span className="font-medium">{formData.subdomain}.{getRootDomain()}</span>
                   </div>
                   {formData.customDomain && (
                     <div className="flex justify-between">

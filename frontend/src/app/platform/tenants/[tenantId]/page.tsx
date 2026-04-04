@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useToast } from "@/components/ui/use-toast";
+import { formatTenantHostname } from "@/lib/domains";
 import Link from "next/link";
 
 export default function TenantDetailPage() {
@@ -145,7 +146,7 @@ export default function TenantDetailPage() {
         </div>
         <div className="flex items-center space-x-3">
           <Button variant="outline" asChild>
-            <Link href={`https://${tenantData.subdomain}.edumyles.co.ke`} target="_blank">
+            <Link href={`https://${formatTenantHostname(tenantData.subdomain)}`} target="_blank">
               <Eye className="h-4 w-4 mr-2" />
               Visit Site
             </Link>

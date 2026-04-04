@@ -1,21 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { getRootDomain } from "@/lib/domains";
 
 // Extract subdomain from request hostname
 function extractSubdomain(req: NextRequest): string | null {
   const hostname = req.headers.get("host") || "";
-  const parts = hostname.split(".");
+  const normalizedHost = hostname.split(":")[0] || "";
+  const parts = normalizedHost.split(".");
+  const rootDomain = getRootDomain();
+  const rootParts = rootDomain.split(".");
   
   // Handle localhost development
-  if (hostname.includes("localhost")) {
+  if (normalizedHost.includes("localhost")) {
     const subdomain = req.nextUrl.searchParams.get("subdomain");
     return subdomain || null;
   }
   
-  // Handle production domains (subdomain.edumyles.com)
-  if (parts.length >= 3 && parts[parts.length - 2] === "edumyles" && parts[parts.length - 1] === "com") {
-    return parts[0] ?? null;
+  // Handle production domains ({subdomain}.{rootDomain})
+  if (parts.length > rootParts.length && parts.slice(-rootParts.length).join(".") === rootDomain) {
+    return parts.slice(0, parts.length - rootParts.length).join(".") || null;
   }
   
   return null;
@@ -33,7 +37,7 @@ export async function GET(req: NextRequest) {
   
   if (!subdomain) {
     // No subdomain - redirect to landing page
-    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || "https://edumyles.com";
+    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || `https://${getRootDomain()}`;
     return NextResponse.redirect(landingUrl);
   }
 
@@ -44,7 +48,7 @@ export async function GET(req: NextRequest) {
 
   const tenant = await convex.query(api.tenants.getTenantBySubdomain, { subdomain });
   if (!tenant || tenant.status !== "active") {
-    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || "https://edumyles.com";
+    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || `https://${getRootDomain()}`;
     const redirect = new URL(landingUrl);
     redirect.searchParams.set("tenant", subdomain);
     redirect.searchParams.set("error", tenant ? "tenant_inactive" : "tenant_not_found");
@@ -52,7 +56,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Redirect to the main app with validated tenant context
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.edumyles.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://app.${getRootDomain()}`;
   const redirect = new URL(appUrl);
   redirect.searchParams.set("tenant", tenant.subdomain);
   redirect.searchParams.set("tenantId", tenant.tenantId);

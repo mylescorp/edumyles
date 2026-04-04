@@ -1,7 +1,6 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { api, internal } from "./_generated/api";
-import { authKit } from "./auth";
 import { MpesaService, type MpesaCallback } from "../shared/src/lib/mpesa";
 import { AirtelService, type AirtelCallback } from "../shared/src/lib/airtel";
 
@@ -15,10 +14,74 @@ function getWebhookSecret() {
   return secret;
 }
 
+function getWorkOSWebhookSecret() {
+  const secret = process.env.WORKOS_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error("WORKOS_WEBHOOK_SECRET is not configured");
+  }
+  return secret;
+}
+
 function hexFromBuffer(buffer: ArrayBuffer) {
   return Array.from(new Uint8Array(buffer))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+async function computeHmacHex(secret: string, payload: string) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const digest = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return hexFromBuffer(digest);
+}
+
+async function secureCompareHex(a: string, b: string) {
+  const encoder = new TextEncoder();
+  const left = encoder.encode(a);
+  const right = encoder.encode(b);
+
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  let mismatch = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    mismatch |= left[index]! ^ right[index]!;
+  }
+
+  return mismatch === 0;
+}
+
+async function verifyWorkOSSignature(
+  rawBody: string,
+  signatureHeader: string | null,
+  secret: string,
+  toleranceMs = 180_000
+) {
+  if (!signatureHeader) {
+    return false;
+  }
+
+  const [timestampPart, signaturePart] = signatureHeader.split(",");
+  const timestamp = timestampPart?.split("=")[1];
+  const signature = signaturePart?.split("=")[1];
+
+  if (!timestamp || !signature) {
+    return false;
+  }
+
+  const timestampNumber = Number.parseInt(timestamp, 10);
+  if (!Number.isFinite(timestampNumber) || timestampNumber < Date.now() - toleranceMs) {
+    return false;
+  }
+
+  const expected = await computeHmacHex(secret, `${timestamp}.${rawBody}`);
+  return secureCompareHex(expected, signature);
 }
 
 async function verifyStripeSignature(rawBody: string, signatureHeader: string | null) {
@@ -65,9 +128,40 @@ async function verifyStripeSignature(rawBody: string, signatureHeader: string | 
   return signatures.includes(expected);
 }
 
-// Register WorkOS webhook routes:
-//  POST /workos/webhook  — receives user.created / user.updated / user.deleted events
-authKit.registerRoutes(http);
+http.route({
+  path: "/workos/webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const rawBody = await req.text();
+    const isValid = await verifyWorkOSSignature(
+      rawBody,
+      req.headers.get("workos-signature"),
+      getWorkOSWebhookSecret()
+    );
+
+    if (!isValid) {
+      return new Response("Invalid WorkOS signature", { status: 400 });
+    }
+
+    const payload = JSON.parse(rawBody) as {
+      event?: string;
+      id?: string;
+      updated_at?: string;
+      data?: Record<string, unknown>;
+    };
+
+    if (!payload.event || !payload.id) {
+      return new Response("Invalid WorkOS payload", { status: 400 });
+    }
+
+    await ctx.runMutation(internal.auth.authKitEvent, {
+      event: payload.event,
+      data: payload.data ?? {},
+    });
+
+    return new Response("OK", { status: 200 });
+  }),
+});
 
 /**
  * GET /security/blocked-ips

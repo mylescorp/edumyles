@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/formatters";
 import { buildCsv } from "@/lib/csv";
+import { formatTenantHostname } from "@/lib/domains";
 import Link from "next/link";
 import { TenantDialog } from "@/app/platform/tenants/TenantDialog";
 import { SuspendDialog } from "@/app/platform/tenants/SuspendDialog";
@@ -490,7 +491,7 @@ export function TenantList({ tenants, isLoading = false, className = "", session
                         </div>
                         <div className="flex items-center space-x-2">
                           <Building2 className="h-4 w-4" />
-                          <span>{tenant.subdomain}.edumyles.co.ke</span>
+                          <span>{formatTenantHostname(tenant.subdomain)}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <MapPin className="h-4 w-4" />

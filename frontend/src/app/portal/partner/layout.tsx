@@ -6,7 +6,7 @@ import { ModuleAccessGuard } from "@/components/shared/ModuleAccessGuard";
 import { RoleGuard } from "@/components/shared/RoleGuard";
 import { partnerNavItems } from "@/lib/routes";
 
-const PARTNER_ROLES = ["partner", "master_admin", "super_admin", "school_admin"];
+const PARTNER_ROLES = ["partner"];
 
 export default function PartnerLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Building2, Loader2 } from "lucide-react";
+import { getRootDomain } from "@/lib/domains";
 
 interface Tenant {
   _id: string;
@@ -230,7 +231,7 @@ export function TenantDialog({
                   onChange={(e) => handleField("subdomain", e.target.value.toLowerCase())}
                   className={errors.subdomain ? "border-destructive" : ""}
                 />
-                <span className="text-sm text-muted-foreground whitespace-nowrap">.edumyles.co.ke</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">.{getRootDomain()}</span>
               </div>
               {errors.subdomain && <p className="text-xs text-destructive">{errors.subdomain}</p>}
             </div>
