@@ -168,7 +168,8 @@ npm run clean        # Remove build artifacts
 
 ## Deployment
 
-- **Frontend + Landing**: Deployed to Vercel with subdomain routing
+- **Landing / marketing**: Root [vercel.json](C:/Users/Admin/Projects/edumyles/vercel.json) deploys the `landing/` app for `edumyles.vercel.app`
+- **Frontend / app**: [frontend/vercel.json](C:/Users/Admin/Projects/edumyles/frontend/vercel.json) deploys the authenticated multi-tenant app as a separate Vercel project
 - **Backend**: `npx convex deploy` pushes functions to Convex cloud
 - **Environment**: Production secrets managed via Vercel and Convex dashboards
 

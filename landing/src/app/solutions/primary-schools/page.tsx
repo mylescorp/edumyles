@@ -265,7 +265,7 @@ export default function PrimarySchoolsPage() {
           {/* CTAs */}
           <div className="flex flex-wrap justify-center gap-4 mb-10">
             <a
-              href="/auth/signup/api"
+              href="/auth/signup"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "#E8A020", color: "#061A12" }}
             >
@@ -589,7 +589,7 @@ export default function PrimarySchoolsPage() {
               </ul>
               <div className="mt-8 pt-6" style={{ borderTop: "1px solid #e8f4ec" }}>
                 <a
-                  href="/auth/signup/api"
+                  href="/auth/signup"
                   className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
                   style={{ background: "#1A7A4A", color: "#ffffff" }}
                 >
@@ -900,7 +900,7 @@ export default function PrimarySchoolsPage() {
                   ))}
                 </ul>
                 <a
-                  href="/auth/signup/api"
+                  href="/auth/signup"
                   className="block text-center font-jakarta font-bold text-[15px] px-6 py-3 rounded-[50px] no-underline"
                   style={{
                     background: tier.highlight ? "#E8A020" : "#061A12",
@@ -946,7 +946,7 @@ export default function PrimarySchoolsPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <a
-              href="/auth/signup/api"
+              href="/auth/signup"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "#E8A020", color: "#061A12" }}
             >
@@ -969,3 +969,4 @@ export default function PrimarySchoolsPage() {
     </div>
   );
 }
+

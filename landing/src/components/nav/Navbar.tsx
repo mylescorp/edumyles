@@ -7,10 +7,7 @@ import Logo from "@/components/shared/Logo";
 import { School, GraduationCap, Globe, Building2, Briefcase } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-// Point auth actions at the frontend app (different domain in production)
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
-const LOGIN_URL = `${APP_URL}/auth/login/api`;
-const SIGNUP_URL = `${APP_URL}/auth/signup/api`;
+const SIGNUP_URL = "/auth/signup";
 
 const navLinks = [
   { label: "Features", href: "/features" },
@@ -197,29 +194,6 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-2.5 flex-shrink-0">
-            {/* Log In — ghost outline */}
-            <a
-              href={LOGIN_URL}
-              className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
-              style={{
-                color: "#1A7A4A",
-                border: "1.5px solid #1A7A4A",
-                background: "transparent",
-                lineHeight: "1",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#1A7A4A";
-                e.currentTarget.style.color = "#ffffff";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#1A7A4A";
-              }}
-            >
-              Log In
-            </a>
-
-            {/* Get Started — emerald solid */}
             <a
               href={SIGNUP_URL}
               className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
@@ -239,28 +213,6 @@ export default function Navbar() {
               }}
             >
               Get Started
-            </a>
-
-            {/* Book a Demo — gold primary */}
-            <a
-              href="/book-demo"
-              className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
-              style={{
-                background: "#E8A020",
-                color: "#061A12",
-                border: "1.5px solid #E8A020",
-                lineHeight: "1",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#F5C453";
-                e.currentTarget.style.borderColor = "#F5C453";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#E8A020";
-                e.currentTarget.style.borderColor = "#E8A020";
-              }}
-            >
-              Book a Demo
             </a>
           </div>
 
@@ -353,16 +305,6 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col gap-3 mt-6">
-            {/* Book a Demo — gold primary (most important, first on mobile) */}
-            <a
-              href="/book-demo"
-              onClick={() => setMobileOpen(false)}
-              className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
-              style={{ background: "#E8A020", color: "#061A12", border: "1.5px solid #E8A020" }}
-            >
-              Book a Demo
-            </a>
-            {/* Get Started — emerald solid */}
             <a
               href={SIGNUP_URL}
               onClick={() => setMobileOpen(false)}
@@ -370,15 +312,6 @@ export default function Navbar() {
               style={{ background: "#0F4C2A", color: "#ffffff", border: "1.5px solid #0F4C2A" }}
             >
               Get Started
-            </a>
-            {/* Log In — ghost outline */}
-            <a
-              href={LOGIN_URL}
-              onClick={() => setMobileOpen(false)}
-              className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
-              style={{ background: "transparent", color: "#1A7A4A", border: "1.5px solid #1A7A4A" }}
-            >
-              Log In
             </a>
           </div>
 

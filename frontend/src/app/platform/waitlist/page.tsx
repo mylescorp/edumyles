@@ -67,9 +67,11 @@ interface WaitlistApplication {
   email: string;
   firstName?: string;
   lastName?: string;
+  phone?: string;
   schoolName?: string;
   requestedRole?: string;
   message?: string;
+  source?: string;
   status: "pending" | "approved" | "rejected";
   requestedAt: number;
   reviewedBy?: string;
@@ -138,6 +140,9 @@ export default function WaitlistPage() {
 
   const [processing, setProcessing] = useState(false);
 
+  const isProvisionableApplication = (app: WaitlistApplication | null) =>
+    Boolean(app?.workosUserId) && !app!.workosUserId.startsWith("landing:");
+
   if (isLoading || !applications) {
     return <LoadingSkeleton variant="page" />;
   }
@@ -174,8 +179,9 @@ export default function WaitlistPage() {
   }
 
   async function handleApprove() {
-    if (!selectedApp || !assignedTenantId || !assignedRole || !sessionToken)
-      return;
+    if (!selectedApp || !sessionToken) return;
+    const needsProvisioning = isProvisionableApplication(selectedApp);
+    if (needsProvisioning && (!assignedTenantId || !assignedRole)) return;
     setProcessing(true);
     try {
       const res = await fetch("/api/waitlist/approve", {
@@ -184,14 +190,18 @@ export default function WaitlistPage() {
         body: JSON.stringify({
           sessionToken,
           applicationId: selectedApp._id,
-          assignedTenantId,
-          assignedRole,
+          assignedTenantId: needsProvisioning ? assignedTenantId : undefined,
+          assignedRole: needsProvisioning ? assignedRole : undefined,
           reviewNotes: approveNotes || undefined,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Approval failed");
-      toast.success(`${selectedApp.email} approved and provisioned`);
+      toast.success(
+        data.provisioned
+          ? `${selectedApp.email} approved and provisioned`
+          : `${selectedApp.email} approved and queued for follow-up`
+      );
       setApproveDialogOpen(false);
     } catch (err: any) {
       toast.error(err.message ?? "Failed to approve");
@@ -330,46 +340,60 @@ export default function WaitlistPage() {
                   {selectedApp.firstName} {selectedApp.lastName}
                 </p>
                 <p className="text-muted-foreground">{selectedApp.email}</p>
+                {selectedApp.phone && (
+                  <p className="text-muted-foreground">Phone: {selectedApp.phone}</p>
+                )}
                 {selectedApp.schoolName && (
                   <p className="text-muted-foreground">
                     School: {selectedApp.schoolName}
                   </p>
                 )}
+                {selectedApp.source === "landing_public_signup" && (
+                  <p className="text-muted-foreground">
+                    Source: Landing page application
+                  </p>
+                )}
               </div>
 
-              {/* Tenant assignment */}
-              <div className="space-y-2">
-                <Label>Assign to tenant *</Label>
-                <Select value={assignedTenantId} onValueChange={setAssignedTenantId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a school / tenant…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(tenants ?? []).map((t) => (
-                      <SelectItem key={t.tenantId} value={t.tenantId}>
-                        {t.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {isProvisionableApplication(selectedApp) ? (
+                <>
+                  <div className="space-y-2">
+                    <Label>Assign to tenant *</Label>
+                    <Select value={assignedTenantId} onValueChange={setAssignedTenantId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a school / tenant…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(tenants ?? []).map((t) => (
+                          <SelectItem key={t.tenantId} value={t.tenantId}>
+                            {t.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              {/* Role assignment */}
-              <div className="space-y-2">
-                <Label>Assign role *</Label>
-                <Select value={assignedRole} onValueChange={setAssignedRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLE_OPTIONS.map((r) => (
-                      <SelectItem key={r.value} value={r.value}>
-                        {r.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                  <div className="space-y-2">
+                    <Label>Assign role *</Label>
+                    <Select value={assignedRole} onValueChange={setAssignedRole}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROLE_OPTIONS.map((r) => (
+                          <SelectItem key={r.value} value={r.value}>
+                            {r.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-lg border bg-blue-50 p-4 text-sm text-blue-900 dark:bg-blue-950/20 dark:text-blue-100">
+                  This application came from the public landing page. Approving it will mark it as reviewed so your team can follow up directly with the applicant.
+                </div>
+              )}
 
               {/* Notes */}
               <div className="space-y-2">
@@ -394,14 +418,20 @@ export default function WaitlistPage() {
             </Button>
             <Button
               onClick={handleApprove}
-              disabled={processing || !assignedTenantId || !assignedRole}
+              disabled={
+                processing ||
+                (isProvisionableApplication(selectedApp) &&
+                  (!assignedTenantId || !assignedRole))
+              }
             >
               {processing ? (
                 <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <CheckCircle className="h-4 w-4 mr-2" />
               )}
-              Approve & provision
+              {isProvisionableApplication(selectedApp)
+                ? "Approve & provision"
+                : "Approve application"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -522,9 +552,17 @@ function ApplicationRow({
               {app.schoolName}
             </p>
           )}
+          {app.phone && (
+            <p className="text-xs text-muted-foreground">{app.phone}</p>
+          )}
           <p className="text-xs text-muted-foreground">
             Applied {formatDistanceToNow(app.requestedAt, { addSuffix: true })}
           </p>
+          {app.source === "landing_public_signup" && (
+            <p className="text-xs font-medium text-blue-600">
+              Landing application
+            </p>
+          )}
           {app.message && (
             <p className="text-xs text-muted-foreground italic max-w-xs truncate">
               "{app.message}"

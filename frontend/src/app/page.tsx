@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { getMarketingSiteUrl } from "@/lib/marketingSite";
 
 function getRoleDashboard(role: string): string {
   switch (role) {
@@ -30,5 +31,5 @@ export default async function RootPage() {
     redirect(getRoleDashboard(role ?? "school_admin"));
   }
 
-  redirect("/auth/login/api");
+  redirect(getMarketingSiteUrl());
 }

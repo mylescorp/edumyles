@@ -3662,10 +3662,12 @@ export default defineSchema({
     email: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
+    phone: v.optional(v.string()),
     // Application fields
     schoolName: v.optional(v.string()), // school/org they want to join
     requestedRole: v.optional(v.string()), // role they are requesting
     message: v.optional(v.string()), // optional message from applicant
+    source: v.optional(v.string()), // landing_public_signup | workos_auth_signup
     // Review outcome
     status: v.string(), // "pending" | "approved" | "rejected"
     requestedAt: v.number(),
