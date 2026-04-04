@@ -2,14 +2,16 @@
 
 This checklist reflects the current deployment architecture:
 
-- `frontend/` is the primary multi-tenant app deployment.
-- `landing/` is deployed as a separate Vercel project/service.
+- Root `vercel.json` targets the `landing/` marketing app for the `edumyles` Vercel project.
+- `frontend/vercel.json` targets the authenticated multi-tenant app for the separate `edumyles-frontend` Vercel project.
 - `/api/tenant-handler` is only for validated tenant bootstrap redirects, not a universal rewrite target.
 
 ## Required Vercel Project Setup
 
 ### Frontend project
+- Vercel project: `edumyles-frontend`
 - Root directory: `frontend`
+- Config file: `frontend/vercel.json`
 - Primary app URL: `NEXT_PUBLIC_APP_URL`
 - Handles:
   - `/platform`
@@ -18,7 +20,9 @@ This checklist reflects the current deployment architecture:
   - tenant-aware authenticated flows
 
 ### Landing project
-- Root directory: `landing`
+- Vercel project: `edumyles`
+- Root directory: repository root
+- Config file: `vercel.json`
 - Primary marketing URL: `NEXT_PUBLIC_LANDING_URL`
 - Handles:
   - public marketing pages
@@ -55,5 +59,5 @@ This checklist reflects the current deployment architecture:
 
 - Do not rewrite all traffic to `/api/tenant-handler`.
 - Keep `tenant-handler` available only for validated tenant bootstrap redirects.
-- Keep root `vercel.json` targeted at the `frontend` deployment.
-- Keep `landing/vercel.json` scoped to the landing project only.
+- Keep root `vercel.json` targeted at the `landing` deployment for `edumyles.vercel.app`.
+- Keep `frontend/vercel.json` targeted at the authenticated frontend deployment.
