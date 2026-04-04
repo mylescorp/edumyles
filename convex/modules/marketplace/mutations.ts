@@ -526,12 +526,9 @@ export const toggleModuleStatus = mutation({
  * Requires platform admin session so only platform staff can trigger it.
  */
 export const runSeedModuleRegistry = mutation({
-  args: { sessionToken: v.optional(v.string()) },
+  args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    // Require platform session when a token is provided; allow internal calls
-    if (args.sessionToken) {
-      await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
-    }
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
     let created = 0;
     let updated = 0;
 
