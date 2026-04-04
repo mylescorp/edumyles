@@ -126,3 +126,37 @@ export const listRouteAssignments = query({
         }
     },
 });
+
+export const getVehicleLocations = query({
+    args: { sessionToken: v.optional(v.string()) },
+    handler: async (ctx, args) => {
+        try {
+            const tenant = args.sessionToken
+                ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+                : await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "transport");
+            requirePermission(tenant, "transport:read");
+
+            const vehicles = await ctx.db
+                .query("vehicles")
+                .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+                .collect();
+
+            return vehicles
+                .filter((v: any) => v.lastLatitude !== undefined && v.lastLongitude !== undefined)
+                .map((v: any) => ({
+                    _id: v._id,
+                    plateNumber: v.plateNumber,
+                    status: v.status,
+                    routeId: v.routeId,
+                    lastLatitude: v.lastLatitude,
+                    lastLongitude: v.lastLongitude,
+                    lastSpeed: v.lastSpeed,
+                    lastHeading: v.lastHeading,
+                    lastLocationAt: v.lastLocationAt,
+                }));
+        } catch {
+            return [];
+        }
+    },
+});

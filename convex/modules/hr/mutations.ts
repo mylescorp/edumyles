@@ -472,3 +472,75 @@ export const cancelPayrollRun = mutation({
         return args.payrollRunId;
     },
 });
+
+// ---------------------------------------------------------------------------
+// School-level staff performance reviews
+// ---------------------------------------------------------------------------
+export const savePerformanceReview = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    staffId: v.string(),
+    period: v.string(),
+    scores: v.object({
+      attendance: v.number(),
+      punctuality: v.number(),
+      teaching: v.number(),
+      teamwork: v.number(),
+      professionalism: v.number(),
+    }),
+    comments: v.optional(v.string()),
+    goals: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "hr");
+    requirePermission(tenant, "staff:write");
+
+    const staff = await ctx.db.get(args.staffId as any);
+    if (!staff || (staff as any).tenantId !== tenant.tenantId) throw new Error("Staff member not found");
+
+    const s = args.scores;
+    const overallScore = Math.round((s.attendance + s.punctuality + s.teaching + s.teamwork + s.professionalism) / 5);
+
+    const now = Date.now();
+    // Check for existing review this period
+    const existing = await ctx.db
+      .query("staffPerformanceReviews" as any)
+      .withIndex("by_staff_period" as any, (q: any) => q.eq("staffId", args.staffId).eq("period", args.period))
+      .first()
+      .catch(() => null);
+
+    let reviewId: any;
+    if (existing) {
+      await ctx.db.patch((existing as any)._id, { scores: args.scores, overallScore, comments: args.comments, goals: args.goals, updatedAt: now });
+      reviewId = (existing as any)._id;
+    } else {
+      reviewId = await ctx.db.insert("staffPerformanceReviews" as any, {
+        tenantId: tenant.tenantId,
+        staffId: args.staffId,
+        reviewerId: tenant.userId,
+        period: args.period,
+        scores: args.scores,
+        overallScore,
+        comments: args.comments,
+        goals: args.goals,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "hr.performance_review_saved" as any,
+      entityType: "staffPerformanceReview",
+      entityId: reviewId,
+      after: { staffId: args.staffId, period: args.period, overallScore },
+    });
+
+    return { success: true, reviewId, overallScore };
+  },
+});

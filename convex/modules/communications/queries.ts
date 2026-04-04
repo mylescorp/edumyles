@@ -425,3 +425,20 @@ export const resolveCampaignDispatch = internalQuery({
     };
   },
 });
+
+
+export const listPushTokensInternal = internalQuery({
+  args: { tenantId: v.string() },
+  handler: async (ctx, args) => {
+    const tokens = await ctx.db
+      .query("mobileDeviceTokens")
+      .withIndex("by_tenant", (q: any) => q.eq("tenantId", args.tenantId))
+      .collect();
+    return tokens.map((t: any) => ({
+      userId: t.userId,
+      pushToken: t.pushToken,
+      platform: t.platform,
+      deviceName: t.deviceName,
+    }));
+  },
+});

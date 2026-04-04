@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useCallback } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -12,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { ArrowLeft, UserCircle, Mail, Phone, Calendar, GraduationCap } from "lucide-react";
+import { ArrowLeft, UserCircle, Mail, Phone, Calendar, GraduationCap, Upload, FileText, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "@/components/ui/use-toast";
 
 const statusColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
     draft: "outline",
@@ -57,8 +59,39 @@ export default function ApplicationDetailPage() {
         sessionToken && appId ? { applicationId: appId as Id<"admissionApplications"> } : "skip"
     );
 
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const updateStatus = useMutation(api.modules.admissions.mutations.updateApplicationStatus);
     const enrollFromApplication = useMutation(api.modules.admissions.mutations.enrollFromApplication);
+    const generateUploadUrl = useMutation(api.modules.admissions.mutations.generateDocumentUploadUrl);
+    const attachDocument = useMutation(api.modules.admissions.mutations.attachDocumentToApplication);
+    const removeDocument = useMutation(api.modules.admissions.mutations.removeApplicationDocument);
+
+    const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !appId) return;
+        setUploading(true);
+        try {
+            const uploadUrl: string = await generateUploadUrl({});
+            const res = await fetch(uploadUrl, { method: "POST", headers: { "Content-Type": file.type }, body: file });
+            if (!res.ok) throw new Error("Upload failed");
+            const { storageId } = await res.json();
+            await attachDocument({
+                applicationId: appId as Id<"admissionApplications">,
+                storageId,
+                fileName: file.name,
+                fileType: file.type,
+                fileSize: file.size,
+            });
+            toast({ title: "Document uploaded", description: file.name });
+        } catch (err) {
+            toast({ title: "Upload failed", description: err instanceof Error ? err.message : "Please try again.", variant: "destructive" });
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    }, [appId, generateUploadUrl, attachDocument]);
 
     if (isLoading || application === undefined) return <LoadingSkeleton variant="page" />;
 
@@ -163,6 +196,60 @@ export default function ApplicationDetailPage() {
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Documents */}
+                <Card className="md:col-span-2">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="text-base">Supporting Documents</CardTitle>
+                        <div>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                className="hidden"
+                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                onChange={handleFileUpload}
+                            />
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={uploading}
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <Upload className="mr-2 h-4 w-4" />
+                                {uploading ? "Uploading..." : "Upload Document"}
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {!(application as any).documents?.length ? (
+                            <p className="text-sm text-muted-foreground">No documents uploaded yet. Upload birth certificates, academic records, or other supporting materials.</p>
+                        ) : (
+                            <div className="space-y-2">
+                                {((application as any).documents ?? []).map((doc: any, i: number) => (
+                                    <div key={i} className="flex items-center justify-between rounded-lg border p-3">
+                                        <div className="flex items-center gap-3">
+                                            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                                            <div>
+                                                <p className="text-sm font-medium">{doc.fileName}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {(doc.fileSize / 1024).toFixed(0)} KB · {new Date(doc.uploadedAt).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="text-destructive hover:text-destructive"
+                                            onClick={() => removeDocument({ applicationId: appId as Id<"admissionApplications">, storageId: doc.storageId })}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
                 <Card className="md:col-span-2">
                     <CardHeader>

@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type Invoice = {
     _id: string;
@@ -144,6 +145,15 @@ export default function InvoicesPage() {
                 <Badge variant={statusColors[row.status] ?? "outline"}>
                     {row.status.replace("_", " ")}
                 </Badge>
+            ),
+        },
+        {
+            key: "actions",
+            header: "",
+            cell: (row: Invoice) => (
+                <Button asChild size="sm" variant="ghost">
+                    <Link href={`/admin/finance/invoices/${row._id}`}>View</Link>
+                </Button>
             ),
         },
     ];

@@ -1,18 +1,45 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, FileText, TrendingUp, Users } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { BookOpen, FileText, TrendingUp, Users, Printer, ClipboardList } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { toast } from "@/components/ui/use-toast";
+
+type ReportCardResult = {
+  reportCardId: string;
+  student: { firstName?: string; lastName?: string; admissionNumber?: string } | null;
+  grades: Array<{ subjectName: string; subjectCode: string; score: number; grade: string; term: string }>;
+  gpa: number;
+  rank: number;
+  averageScore: number;
+  totalStudentsInClass: number;
+  attendanceSummary: { present: number; absent: number; late: number; total: number; attendanceRate: number } | null;
+};
+
+const TERMS = ["Term 1", "Term 2", "Term 3", "Semester 1", "Semester 2"];
+const CURRENT_YEAR = new Date().getFullYear();
+const ACADEMIC_YEARS = [`${CURRENT_YEAR - 1}/${CURRENT_YEAR}`, `${CURRENT_YEAR}/${CURRENT_YEAR + 1}`];
 
 export default function AdminAcademicReportsPage() {
   const { isLoading, sessionToken } = useAuth();
+  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [selectedTerm, setSelectedTerm] = useState("");
+  const [selectedYear, setSelectedYear] = useState(ACADEMIC_YEARS[0]);
+  const [includeAttendance, setIncludeAttendance] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [reportCard, setReportCard] = useState<ReportCardResult | null>(null);
+
   const stats = usePlatformQuery(
     api.modules.academics.queries.getAcademicsStats,
     sessionToken ? { sessionToken } : "skip",
@@ -20,52 +47,246 @@ export default function AdminAcademicReportsPage() {
   );
   const recentExams = usePlatformQuery(
     api.modules.academics.queries.getRecentExams,
-    sessionToken ? { sessionToken, limit: 10 } : "skip",
+    sessionToken ? { sessionToken, limit: 5 } : "skip",
     !!sessionToken
   ) as any[] | null;
 
-  if (isLoading || !stats || !recentExams) {
-    return <LoadingSkeleton variant="page" />;
-  }
+  const students = useQuery(
+    api.modules.sis.queries.listStudents,
+    sessionToken ? { sessionToken, status: "active" } : "skip"
+  ) as any[] | undefined;
+
+  const generateReportCard = useMutation(api.modules.academics.mutations.generateReportCard);
+
+  if (isLoading || !stats) return <LoadingSkeleton variant="page" />;
+
+  const handleGenerate = async () => {
+    if (!selectedStudentId || !selectedTerm || !selectedYear) {
+      toast({ title: "Missing fields", description: "Please select a student, term, and academic year.", variant: "destructive" });
+      return;
+    }
+    setGenerating(true);
+    try {
+      const result = await generateReportCard({
+        studentId: selectedStudentId,
+        term: selectedTerm,
+        academicYear: selectedYear,
+        includeAttendance,
+      });
+      setReportCard(result as ReportCardResult);
+    } catch (err) {
+      toast({ title: "Failed to generate", description: err instanceof Error ? err.message : "Please try again.", variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Academic Reports" description="Snapshot of current academic performance and activity" />
+      <PageHeader title="Academic Reports" description="Snapshot of academic performance and individual report card generation" />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Stats */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 print:hidden">
         <AdminStatsCard title="Classes" value={stats.totalClasses} description="Tracked classes" icon={BookOpen} />
         <AdminStatsCard title="Subjects" value={stats.totalSubjects} description="Configured subjects" icon={FileText} />
         <AdminStatsCard title="Teachers" value={stats.activeTeachers} description="Teaching staff" icon={Users} />
         <AdminStatsCard title="Avg Performance" value={`${stats.avgPerformance}%`} description="Current average" icon={TrendingUp} />
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Recent Examination Activity</CardTitle>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/admin/academics/exams">Open Exams</Link>
-          </Button>
+      {/* Report Card Generator */}
+      <Card className="print:hidden">
+        <CardHeader className="flex flex-row items-center gap-2">
+          <ClipboardList className="h-5 w-5 text-muted-foreground" />
+          <CardTitle>Generate Report Card</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {recentExams.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No recent examinations found.</p>
-          ) : (
-            recentExams.map((exam) => (
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Student</label>
+              <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select student..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {(students ?? []).map((s: any) => (
+                    <SelectItem key={s._id} value={s._id}>
+                      {s.firstName} {s.lastName}
+                      {s.admissionNumber ? ` — ${s.admissionNumber}` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Term</label>
+              <Select value={selectedTerm} onValueChange={setSelectedTerm}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select term..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {TERMS.map((t) => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Academic Year</label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select year..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {ACADEMIC_YEARS.map((y) => (
+                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-end gap-2">
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer pb-2">
+                <input
+                  type="checkbox"
+                  checked={includeAttendance}
+                  onChange={(e) => setIncludeAttendance(e.target.checked)}
+                  className="rounded"
+                />
+                Include Attendance
+              </label>
+            </div>
+          </div>
+
+          <Button onClick={handleGenerate} disabled={generating || !selectedStudentId || !selectedTerm}>
+            {generating ? "Generating..." : "Generate Report Card"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Report Card Result */}
+      {reportCard && (
+        <Card id="report-card-print">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>
+                Report Card — {reportCard.student?.firstName} {reportCard.student?.lastName}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {selectedTerm} · {selectedYear}
+                {reportCard.student?.admissionNumber && ` · Adm: ${reportCard.student.admissionNumber}`}
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handlePrint} className="print:hidden">
+              <Printer className="mr-2 h-4 w-4" />
+              Print
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Summary Row */}
+            <div className="grid grid-cols-3 gap-4 rounded-lg border p-4 bg-muted/30">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary">{reportCard.averageScore.toFixed(1)}%</p>
+                <p className="text-xs text-muted-foreground">Average Score</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary">{reportCard.gpa.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">GPA</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary">
+                  {reportCard.rank}/{reportCard.totalStudentsInClass}
+                </p>
+                <p className="text-xs text-muted-foreground">Class Rank</p>
+              </div>
+            </div>
+
+            {/* Grades Table */}
+            <div>
+              <h3 className="font-semibold mb-3">Subject Grades</h3>
+              {reportCard.grades.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No grades recorded for this term.</p>
+              ) : (
+                <div className="rounded-lg border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 font-medium">Subject</th>
+                        <th className="text-right p-3 font-medium">Score</th>
+                        <th className="text-right p-3 font-medium">Grade</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reportCard.grades.map((grade, i) => (
+                        <tr key={i} className="border-t">
+                          <td className="p-3">
+                            {grade.subjectName}
+                            {grade.subjectCode && <span className="text-muted-foreground ml-1">({grade.subjectCode})</span>}
+                          </td>
+                          <td className="p-3 text-right font-mono">{grade.score}%</td>
+                          <td className="p-3 text-right">
+                            <Badge variant={grade.score >= 50 ? "default" : "destructive"}>{grade.grade}</Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Attendance */}
+            {reportCard.attendanceSummary && (
+              <div>
+                <h3 className="font-semibold mb-3">Attendance</h3>
+                <div className="grid grid-cols-4 gap-3">
+                  {[
+                    { label: "Present", value: reportCard.attendanceSummary.present },
+                    { label: "Absent", value: reportCard.attendanceSummary.absent },
+                    { label: "Late", value: reportCard.attendanceSummary.late },
+                    { label: "Rate", value: `${reportCard.attendanceSummary.attendanceRate.toFixed(0)}%` },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-lg border p-3 text-center">
+                      <p className="text-lg font-bold">{item.value}</p>
+                      <p className="text-xs text-muted-foreground">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recent Exams */}
+      {recentExams && recentExams.length > 0 && (
+        <Card className="print:hidden">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Examination Activity</CardTitle>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/academics/exams">Open Exams</Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {recentExams.map((exam) => (
               <div key={exam._id} className="flex items-center justify-between rounded-lg border p-3">
                 <div>
                   <p className="font-medium">{exam.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {exam.className} • {exam.date}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{exam.className} · {exam.date}</p>
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {exam.submissions}/{exam.total} submissions
                 </div>
               </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
