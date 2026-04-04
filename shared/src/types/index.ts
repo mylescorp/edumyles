@@ -332,6 +332,144 @@ export interface EcommerceProductRecord {
 }
 
 // ----------------------------------------------------------
+// Timetable
+// ----------------------------------------------------------
+export interface TimetableSlot {
+  _id: string;
+  tenantId: TenantId;
+  classId: string;
+  subjectId: string;
+  teacherId: string;
+  substituteTeacherId?: string;
+  dayOfWeek: number; // 1=Monday … 7=Sunday
+  startTime: string; // "HH:MM"
+  endTime: string;   // "HH:MM"
+  room?: string;
+  academicYear?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface SchoolEvent {
+  _id: string;
+  tenantId: TenantId;
+  title: string;
+  description?: string;
+  eventType: "academic" | "sports" | "cultural" | "holiday" | "meeting" | "other";
+  startDate: string;  // ISO date
+  endDate?: string;
+  startTime?: string; // "HH:MM"
+  endTime?: string;
+  location?: string;
+  audience?: string;
+  createdBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** Database record for a school subject (distinct from the timetable scheduling Subject type). */
+export interface SubjectRecord {
+  _id: string;
+  tenantId: TenantId;
+  name: string;
+  code?: string;
+  department?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+// ----------------------------------------------------------
+// Announcements
+// ----------------------------------------------------------
+export type AnnouncementAudience =
+  | "all"
+  | "students"
+  | "parents"
+  | "guardians"
+  | "teachers"
+  | "staff";
+
+export type AnnouncementPriority = "low" | "medium" | "high" | "urgent";
+
+export interface Announcement {
+  _id: string;
+  tenantId: TenantId;
+  title: string;
+  body: string;
+  audience: AnnouncementAudience | string;
+  priority: AnnouncementPriority | string;
+  status: "draft" | "published" | "archived";
+  publishedAt?: number;
+  createdBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+// ----------------------------------------------------------
+// Guardians / Parents
+// ----------------------------------------------------------
+export interface Guardian {
+  _id: string;
+  tenantId: TenantId;
+  userId?: string;
+  firstName: string;
+  lastName: string;
+  relationship: "father" | "mother" | "guardian" | "other";
+  phone?: string;
+  email?: string;
+  studentIds: string[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+// ----------------------------------------------------------
+// Academics
+// ----------------------------------------------------------
+export interface AttendanceRecord {
+  _id: string;
+  tenantId: TenantId;
+  classId: string;
+  studentId: string;
+  date: string;         // ISO date "YYYY-MM-DD"
+  status: "present" | "absent" | "late" | "excused";
+  note?: string;
+  recordedBy: string;
+  createdAt: number;
+}
+
+export interface GradeEntry {
+  _id: string;
+  tenantId: TenantId;
+  studentId: string;
+  classId: string;
+  subjectId: string;
+  term: string;
+  academicYear: string;
+  score: number;
+  maxScore: number;
+  grade?: string;
+  comment?: string;
+  gradedBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Assignment {
+  _id: string;
+  tenantId: TenantId;
+  classId: string;
+  subjectId?: string;
+  teacherId: string;
+  title: string;
+  description?: string;
+  dueDate: string;
+  maxScore?: number;
+  status: "draft" | "published" | "closed";
+  createdAt: number;
+  updatedAt: number;
+}
+
+// ----------------------------------------------------------
 // Utility Types
 // ----------------------------------------------------------
 export type PaginatedResult<T> = {
