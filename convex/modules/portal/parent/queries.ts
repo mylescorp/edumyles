@@ -298,19 +298,40 @@ export const getChildAssignments = query({
 export const getAnnouncements = query({
   args: {
     sessionToken: v.optional(v.string()),
+    limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const tenant = args.sessionToken
       ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
       : await requireTenantContext(ctx);
-    // Using notifications table as announcements proxy for now
     requirePermission(tenant, "students:read");
 
-    return await ctx.db
-      .query("notifications")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+    const limit = args.limit ?? 20;
+
+    // Fetch published announcements from the dedicated announcements table,
+    // scoped to audiences visible to parents: "all", "parents", or "guardians".
+    const announcements = await ctx.db
+      .query("announcements")
+      .withIndex("by_tenant_status", (q) =>
+        q.eq("tenantId", tenant.tenantId).eq("status", "published")
+      )
       .order("desc")
       .collect();
+
+    const parentAudiences = new Set(["all", "parents", "guardians"]);
+    const filtered = announcements
+      .filter((a) => parentAudiences.has(a.audience))
+      .slice(0, limit);
+
+    return filtered.map((a) => ({
+      _id: a._id,
+      title: a.title,
+      message: a.body,
+      audience: a.audience,
+      priority: a.priority,
+      publishedAt: a.publishedAt ?? a.createdAt,
+      createdAt: a.createdAt,
+    }));
   },
 });
 

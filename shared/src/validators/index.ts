@@ -304,6 +304,83 @@ export const updateNotificationPreferencesSchema = z.object({
 });
 
 // ----------------------------------------------------------
+// Announcements
+// ----------------------------------------------------------
+export const createAnnouncementSchema = z.object({
+  title: z.string().min(2, "Title must be at least 2 characters").max(160),
+  body: z.string().min(1, "Body is required").max(5000),
+  audience: z.enum(["all", "students", "parents", "guardians", "teachers", "staff"]),
+  priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
+  publishNow: z.boolean().default(true),
+});
+
+export type CreateAnnouncementInput = z.infer<typeof createAnnouncementSchema>;
+
+export const updateAnnouncementSchema = createAnnouncementSchema.partial().extend({
+  status: z.enum(["draft", "published", "archived"]).optional(),
+});
+
+export type UpdateAnnouncementInput = z.infer<typeof updateAnnouncementSchema>;
+
+// ----------------------------------------------------------
+// Student updates
+// ----------------------------------------------------------
+export const updateStudentSchema = z.object({
+  firstName: z.string().min(1).max(50).optional(),
+  lastName: z.string().min(1).max(50).optional(),
+  dateOfBirth: dateSchema.optional(),
+  gender: z.enum(["male", "female", "other"]).optional(),
+  classId: z.string().optional(),
+  status: z.enum(["active", "graduated", "transferred", "suspended", "expelled"]).optional(),
+  phone: phoneSchema.optional().or(z.literal("")),
+  address: z.string().max(300).optional(),
+});
+
+export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;
+
+// ----------------------------------------------------------
+// Staff updates
+// ----------------------------------------------------------
+export const updateStaffSchema = z.object({
+  firstName: z.string().min(1).max(50).optional(),
+  lastName: z.string().min(1).max(50).optional(),
+  email: z.string().email().optional(),
+  phone: phoneSchema.optional().or(z.literal("")),
+  role: z.string().optional(),
+  department: z.string().max(100).optional(),
+  status: z.enum(["active", "inactive", "on_leave", "terminated"]).optional(),
+  joinDate: dateSchema.optional(),
+});
+
+export type UpdateStaffInput = z.infer<typeof updateStaffSchema>;
+
+// ----------------------------------------------------------
+// Subjects
+// ----------------------------------------------------------
+export const createSubjectSchema = z.object({
+  name: z.string().min(2, "Subject name is required").max(120),
+  code: z.string().max(20).optional(),
+  department: z.string().max(80).optional(),
+});
+
+export type CreateSubjectInput = z.infer<typeof createSubjectSchema>;
+
+// ----------------------------------------------------------
+// Attendance
+// ----------------------------------------------------------
+export const markAttendanceSchema = z.object({
+  classId: z.string().min(1, "Class is required"),
+  date: dateSchema,
+  records: z.array(z.object({
+    studentId: z.string().min(1),
+    status: z.enum(["present", "absent", "late", "excused"]),
+    note: z.string().max(300).optional(),
+  })).min(1, "At least one attendance record is required"),
+});
+
+export type MarkAttendanceInput = z.infer<typeof markAttendanceSchema>;
+
+// ----------------------------------------------------------
 // Pagination
 // ----------------------------------------------------------
 export const paginationSchema = z.object({

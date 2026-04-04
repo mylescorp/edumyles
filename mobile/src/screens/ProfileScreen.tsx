@@ -1,6 +1,13 @@
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useQuery } from 'convex/react';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useMutation, useQuery } from 'convex/react';
 
 import { useAuth } from '../hooks/useAuth';
 import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
@@ -40,6 +47,18 @@ const ProfileScreen: React.FC = () => {
     sessionToken && user?.role === 'teacher' ? { sessionToken, limit: 5 } : 'skip',
   );
 
+  // Shared notifications with mark-as-read support (all roles)
+  const allNotifications = useQuery(
+    api.notifications.getNotifications,
+    sessionToken ? { sessionToken, limit: 5 } : 'skip',
+  );
+  const unreadCount = useQuery(
+    api.notifications.getUnreadCount,
+    sessionToken ? { sessionToken } : 'skip',
+  );
+  const markAsRead = useMutation(api.notifications.markAsRead);
+  const markAllAsRead = useMutation(api.notifications.markAllAsRead);
+
   const resolvedStudentProfile = useCachedQueryValue<any>('student.profile.summary', studentProfile);
   const resolvedStudentNotifications = useCachedQueryValue<any[]>(
     'student.profile.notifications',
@@ -57,9 +76,50 @@ const ProfileScreen: React.FC = () => {
     teacherNotifications,
   );
 
+  const resolvedAllNotifications = useCachedQueryValue<any[]>(
+    'profile.notifications.shared',
+    allNotifications,
+  );
+
   if (!sessionToken) {
     return <Text style={styles.stateText}>Sign in to view your profile.</Text>;
   }
+
+  const handleMarkAsRead = (notificationId: string) => {
+    if (!sessionToken || isOffline) return;
+    markAsRead({ sessionToken, notificationId: notificationId as any }).catch(() => {});
+  };
+
+  const handleMarkAllAsRead = () => {
+    if (!sessionToken || isOffline) return;
+    markAllAsRead({ sessionToken }).catch(() => {});
+  };
+
+  const renderNotifications = (notifications: any[], fallback: string) => {
+    if (!notifications || notifications.length === 0) {
+      return <Text style={styles.stateText}>{fallback}</Text>;
+    }
+    return notifications.map((n: any) => (
+      <TouchableOpacity
+        key={n._id}
+        style={[styles.notificationCard, n.isRead === false && styles.notificationCardUnread]}
+        activeOpacity={0.75}
+        onPress={() => {
+          if (!n.isRead) handleMarkAsRead(String(n._id));
+        }}
+      >
+        <View style={styles.notificationRow}>
+          <Text style={[styles.notificationTitle, n.isRead === false && styles.notificationTitleUnread]}>
+            {n.title}
+          </Text>
+          {n.isRead === false && <View style={styles.unreadDot} />}
+        </View>
+        {n.message && (
+          <Text style={styles.notificationBody}>{n.message}</Text>
+        )}
+      </TouchableOpacity>
+    ));
+  };
 
   if (user?.role === 'parent') {
     if (!resolvedParentAnnouncements) {
@@ -84,16 +144,34 @@ const ProfileScreen: React.FC = () => {
           </Text>
         </View>
 
-        <Text style={styles.sectionTitle}>Recent school updates</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>School announcements</Text>
+        </View>
         {resolvedParentAnnouncements.length === 0 ? (
           <Text style={styles.stateText}>No announcements yet.</Text>
         ) : (
-          resolvedParentAnnouncements.slice(0, 5).map((notification: any) => (
-            <View key={notification._id} style={styles.notificationCard}>
-              <Text style={styles.notificationTitle}>{notification.title}</Text>
-              <Text style={styles.notificationBody}>{notification.message}</Text>
+          resolvedParentAnnouncements.slice(0, 5).map((a: any) => (
+            <View key={a._id} style={styles.notificationCard}>
+              <Text style={styles.notificationTitle}>{a.title}</Text>
+              <Text style={styles.notificationBody}>{a.message}</Text>
             </View>
           ))
+        )}
+
+        {resolvedAllNotifications && resolvedAllNotifications.length > 0 && (
+          <>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
+                Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ''}
+              </Text>
+              {(unreadCount ?? 0) > 0 && !isOffline && (
+                <TouchableOpacity onPress={handleMarkAllAsRead}>
+                  <Text style={styles.markAllText}>Mark all read</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            {renderNotifications(resolvedAllNotifications, 'No notifications.')}
+          </>
         )}
       </ScrollView>
     );
@@ -137,16 +215,19 @@ const ProfileScreen: React.FC = () => {
           </Text>
         </View>
 
-        <Text style={styles.sectionTitle}>Recent notifications</Text>
-        {resolvedTeacherNotifications.length === 0 ? (
-          <Text style={styles.stateText}>No notifications yet.</Text>
-        ) : (
-          resolvedTeacherNotifications.map((notification: any) => (
-            <View key={notification._id} style={styles.notificationCard}>
-              <Text style={styles.notificationTitle}>{notification.title}</Text>
-              <Text style={styles.notificationBody}>{notification.message}</Text>
-            </View>
-          ))
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>
+            Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ''}
+          </Text>
+          {(unreadCount ?? 0) > 0 && !isOffline && (
+            <TouchableOpacity onPress={handleMarkAllAsRead}>
+              <Text style={styles.markAllText}>Mark all read</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        {renderNotifications(
+          resolvedAllNotifications ?? resolvedTeacherNotifications,
+          'No notifications yet.',
         )}
       </ScrollView>
     );
@@ -172,16 +253,19 @@ const ProfileScreen: React.FC = () => {
         <Text style={styles.meta}>Admission No: {resolvedStudentProfile.admissionNumber ?? 'Not set'}</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Recent notifications</Text>
-      {resolvedStudentNotifications.length === 0 ? (
-        <Text style={styles.stateText}>No notifications yet.</Text>
-      ) : (
-        resolvedStudentNotifications.map((notification: any) => (
-          <View key={notification._id} style={styles.notificationCard}>
-            <Text style={styles.notificationTitle}>{notification.title}</Text>
-            <Text style={styles.notificationBody}>{notification.message}</Text>
-          </View>
-        ))
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>
+          Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ''}
+        </Text>
+        {(unreadCount ?? 0) > 0 && !isOffline && (
+          <TouchableOpacity onPress={handleMarkAllAsRead}>
+            <Text style={styles.markAllText}>Mark all read</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      {renderNotifications(
+        resolvedAllNotifications ?? resolvedStudentNotifications,
+        'No notifications yet.',
       )}
     </ScrollView>
   );
@@ -223,10 +307,20 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.sm,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   sectionTitle: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.lg,
     fontWeight: '700',
+  },
+  markAllText: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '600',
   },
   banner: {
     color: theme.colors.warning,
@@ -240,16 +334,38 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#fed7aa',
   },
+  notificationCardUnread: {
+    backgroundColor: '#eff6ff',
+    borderColor: '#bfdbfe',
+  },
+  notificationRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+  },
   notificationTitle: {
+    flex: 1,
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
+    fontWeight: '600',
+  },
+  notificationTitleUnread: {
     fontWeight: '700',
-    marginBottom: theme.spacing.xs,
   },
   notificationBody: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     lineHeight: 20,
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#3b82f6',
+    marginTop: 6,
+    flexShrink: 0,
   },
 });
 
