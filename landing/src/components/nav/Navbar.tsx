@@ -195,6 +195,26 @@ export default function Navbar() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-2.5 flex-shrink-0">
             <a
+              href="/book-demo"
+              className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
+              style={{
+                background: "#E8A020",
+                color: "#061A12",
+                border: "1.5px solid #E8A020",
+                lineHeight: "1",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#F5C453";
+                e.currentTarget.style.borderColor = "#F5C453";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#E8A020";
+                e.currentTarget.style.borderColor = "#E8A020";
+              }}
+            >
+              Book a Demo
+            </a>
+            <a
               href={SIGNUP_URL}
               className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
@@ -305,6 +325,14 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col gap-3 mt-6">
+            <a
+              href="/book-demo"
+              onClick={() => setMobileOpen(false)}
+              className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
+              style={{ background: "#E8A020", color: "#061A12", border: "1.5px solid #E8A020" }}
+            >
+              Book a Demo
+            </a>
             <a
               href={SIGNUP_URL}
               onClick={() => setMobileOpen(false)}
