@@ -1,8 +1,9 @@
 "use node";
 
-import { api, internal } from "../../_generated/api";
+import { internal } from "../../_generated/api";
 import { action, internalAction } from "../../_generated/server";
 import { v } from "convex/values";
+import { requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 
 type ExpoPushMessage = {
@@ -66,28 +67,17 @@ export const sendPush = action({
     link: v.optional(v.string()),
     metadata: v.optional(v.any()),
   },
-  handler: async (ctx, args): Promise<{ success: boolean; sent: number; failed: number; message?: string; tickets?: unknown[] }> => {
-    // Actions can't access db directly — use the same session lookup pattern as other actions
-    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
-    const session = await ctx.runQuery(api.sessions.getSession, {
-      sessionToken: args.sessionToken,
-      serverSecret,
-    }) as { tenantId: string; userId: string; email: string; role: string; permissions: string[] } | null;
-
-    if (!session) {
-      throw new Error("UNAUTHENTICATED: Invalid or expired session");
-    }
-
-    requirePermission(session as any, "communications:broadcast");
-    const tenant = session;
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+    requirePermission(tenant, "communications:broadcast");
 
     // Fetch push tokens — scope to specific users or entire tenant
     const allTokens = await ctx.runQuery(
       internal.modules.communications.queries.listPushTokensInternal,
       { tenantId: tenant.tenantId }
-    ) as Array<{ userId: string; pushToken: string; platform?: string; deviceName?: string }>;
+    );
 
-    const recipients = allTokens
+    const recipients = (allTokens as Array<{ userId: string; pushToken: string; platform?: string; deviceName?: string }>)
       .filter((t) => !args.userIds || args.userIds.includes(t.userId));
 
     if (recipients.length === 0) {

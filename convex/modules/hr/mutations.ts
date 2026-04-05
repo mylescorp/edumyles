@@ -514,7 +514,7 @@ export const savePerformanceReview = mutation({
 
     let reviewId: any;
     if (existing) {
-      await (ctx.db as any).patch((existing as any)._id, { scores: args.scores, overallScore, comments: args.comments, goals: args.goals, updatedAt: now });
+await ctx.db.patch((existing as any)._id, { scores: args.scores, overallScore, comments: args.comments, goals: args.goals, updatedAt: now });
       reviewId = (existing as any)._id;
     } else {
       reviewId = await ctx.db.insert("staffPerformanceReviews" as any, {
