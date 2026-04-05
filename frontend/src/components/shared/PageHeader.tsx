@@ -36,7 +36,7 @@ export function PageHeader({ title, description, actions, breadcrumbs, className
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
           {/* Accent bar */}
-          <div className="mt-1.5 hidden sm:block w-1 h-6 rounded-full bg-[#E8A020] flex-shrink-0" />
+          <div className="mt-1.5 hidden sm:block w-1 h-6 rounded-full bg-[var(--em-gold)] flex-shrink-0" />
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl font-bold tracking-tight text-foreground leading-tight">{title}</h1>

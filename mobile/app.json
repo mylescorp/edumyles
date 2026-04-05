@@ -58,11 +58,14 @@
         }
       ]
     ],
+    "updates": {
+      "url": "https://u.expo.dev/4784a4ca-41e9-476c-afc4-edf2f69a4ee6"
+    },
     "extra": {
       "eas": {
-        "projectId": "edumyles-mobile"
+        "projectId": "4784a4ca-41e9-476c-afc4-edf2f69a4ee6"
       }
     },
-    "owner": "mylesoft"
+    "owner": "mylescorp-technologies"
   }
 }

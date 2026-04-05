@@ -1,0 +1,39 @@
+name: Build & Submit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+      - 'shared/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+
+jobs:
+  # ── Preview build on PR (APK only, internal distribution) ──────────────────
+  preview:
+    name: Preview build
+    type: build
+    if: ${{ github.event_name == 'pull_request' }}
+    params:
+      platform: android
+      profile: preview
+
+  # ── Production build + submit on merge to main ─────────────────────────────
+  production-android:
+    name: Production Android build
+    type: build
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    params:
+      platform: android
+      profile: production
+
+  production-ios:
+    name: Production iOS build
+    type: build
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    params:
+      platform: ios
+      profile: production

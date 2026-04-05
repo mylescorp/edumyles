@@ -159,17 +159,30 @@ export default function CommunicationsPage() {
     }
   };
 
-  if (
+  const isLoading =
     allMessages === undefined ||
     deliveryAnalytics === undefined ||
     templates === undefined ||
     recipientLists === undefined ||
-    campaigns === undefined
-  ) {
+    campaigns === undefined;
+
+  const messages: PlatformMessage[] = allMessages ?? [];
+  const recentTemplates = templates ?? [];
+
+  const templateSummary = useMemo(() => {
+    const countsByChannel = recentTemplates.reduce((acc: Record<string, number>, template: any) => {
+      (template.channels ?? []).forEach((channel: string) => {
+        acc[channel] = (acc[channel] ?? 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>);
+    return countsByChannel;
+  }, [recentTemplates]);
+
+  if (isLoading) {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const messages: PlatformMessage[] = allMessages ?? [];
   const filteredMessages =
     messageFilter === "all" ? messages : messages.filter((message) => message.status === messageFilter);
 
@@ -182,19 +195,8 @@ export default function CommunicationsPage() {
 
   const analyticsOverview = deliveryAnalytics?.overview;
   const channelBreakdown = deliveryAnalytics?.byChannel ?? [];
-  const recentTemplates = templates ?? [];
   const recentRecipientLists = recipientLists ?? [];
   const recentCampaigns = campaigns ?? [];
-
-  const templateSummary = useMemo(() => {
-    const countsByChannel = recentTemplates.reduce((acc: Record<string, number>, template: any) => {
-      (template.channels ?? []).forEach((channel: string) => {
-        acc[channel] = (acc[channel] ?? 0) + 1;
-      });
-      return acc;
-    }, {} as Record<string, number>);
-    return countsByChannel;
-  }, [recentTemplates]);
 
   return (
     <div className="space-y-6">

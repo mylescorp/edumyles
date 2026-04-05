@@ -242,20 +242,20 @@ function NavGroupDropdown({
           className={cn(
             "relative flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap outline-none",
             isGroupActive
-              ? "text-white bg-[rgba(232,160,32,0.18)]"
+              ? "text-white bg-[var(--topnav-active-bg)]"
               : "text-white/70 hover:text-white hover:bg-white/8"
           )}
         >
           {group.label}
           <ChevronDown className="h-3.5 w-3.5 opacity-60" />
           {isGroupActive && (
-            <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[#E8A020]" />
+            <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[var(--em-gold)]" />
           )}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="w-52 border-[rgba(232,160,32,0.2)] bg-[#0C3020] text-white shadow-xl"
+        className="w-52 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
       >
         {group.items?.map((item) => {
           const isActive =
@@ -267,12 +267,12 @@ function NavGroupDropdown({
                 className={cn(
                   "flex items-center gap-2 cursor-pointer rounded-md text-sm py-2 px-3",
                   isActive
-                    ? "text-[#E8A020] font-semibold bg-[rgba(232,160,32,0.1)]"
+                    ? "text-[var(--em-gold)] font-semibold bg-[var(--sidebar-accent)]"
                     : "text-white/80 hover:text-white hover:bg-white/8"
                 )}
               >
                 {isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#E8A020] flex-shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--em-gold)] flex-shrink-0" />
                 )}
                 {item.label}
               </Link>
@@ -312,13 +312,13 @@ function MobileDrawer({
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0 flex flex-col border-r border-[rgba(232,160,32,0.15)] bg-[#0C3020]">
+      <SheetContent side="left" className="w-72 p-0 flex flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]">
         {/* Drawer header */}
-        <div className="flex items-center gap-3 p-4 border-b border-[rgba(232,160,32,0.15)]">
+        <div className="flex items-center gap-3 p-4 border-b border-[var(--sidebar-border)]">
           <Image src="/logo-icon.svg" alt="EduMyles" width={32} height={32} className="flex-shrink-0" priority />
           <div>
-            <p className="text-sm font-bold" style={{ color: "#D4AF37" }}>EduMyles</p>
-            <p className="text-xs text-[#E8A020]/80">{tenant?.name ?? "School Management"}</p>
+            <p className="text-sm font-bold" style={{ color: "var(--em-gold)" }}>EduMyles</p>
+            <p className="text-xs" style={{ color: "var(--sidebar-text)" }}>{tenant?.name ?? "School Management"}</p>
           </div>
           <Button
             variant="ghost"
@@ -346,7 +346,7 @@ function MobileDrawer({
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                       isActive
-                        ? "bg-[rgba(232,160,32,0.15)] text-[#E8A020] border-l-2 border-[#E8A020]"
+                        ? "bg-[var(--sidebar-accent-hover)] text-[var(--em-gold)] border-l-2 border-[var(--em-gold)]"
                         : "text-white/70 hover:text-white hover:bg-white/8"
                     )}
                   >
@@ -363,7 +363,7 @@ function MobileDrawer({
                   <p
                     className={cn(
                       "px-3 py-1.5 text-xs font-bold uppercase tracking-widest",
-                      isGroupActive ? "text-[#E8A020]" : "text-white/35"
+                      isGroupActive ? "text-[var(--em-gold)]" : "text-white/35"
                     )}
                   >
                     {group.label}
@@ -380,7 +380,7 @@ function MobileDrawer({
                         className={cn(
                           "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-150 ml-1",
                           isActive
-                            ? "bg-[rgba(232,160,32,0.12)] text-[#E8A020] font-semibold border-l-2 border-[#E8A020]"
+                            ? "bg-[var(--sidebar-accent)] text-[var(--em-gold)] font-semibold border-l-2 border-[var(--em-gold)]"
                             : "text-white/65 hover:text-white hover:bg-white/8"
                         )}
                       >
@@ -395,11 +395,11 @@ function MobileDrawer({
         </ScrollArea>
 
         {/* User footer */}
-        <div className="border-t border-[rgba(232,160,32,0.15)] p-4">
+        <div className="border-t border-[var(--sidebar-border)] p-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9">
               <AvatarImage src={user?.avatarUrl} />
-              <AvatarFallback className="text-xs bg-[rgba(232,160,32,0.2)] text-[#E8A020] font-bold border border-[rgba(232,160,32,0.3)]">
+              <AvatarFallback className="text-xs bg-[var(--sidebar-accent)] text-[var(--em-gold)] font-bold border border-[var(--topnav-active-border)]">
                 {getInitials(user?.firstName, user?.lastName)}
               </AvatarFallback>
             </Avatar>
@@ -407,7 +407,7 @@ function MobileDrawer({
               <p className="text-sm font-semibold text-white truncate">
                 {formatName(user?.firstName, user?.lastName) || user?.email}
               </p>
-              <p className="text-xs text-[#6B9E83]">
+              <p className="text-xs text-[var(--em-sage-muted)]">
                 {getRoleLabel(user?.role ?? "")}
               </p>
             </div>
@@ -451,8 +451,8 @@ function GlobalSearch() {
   return (
     <div className="relative">
       {open ? (
-        <div className="flex items-center gap-1.5 rounded-md bg-white/12 border border-[rgba(232,160,32,0.3)] pl-2.5 pr-1 h-8 focus-within:border-[#E8A020] transition-colors">
-          <Search className="h-3.5 w-3.5 text-[#E8A020] shrink-0" />
+        <div className="flex items-center gap-1.5 rounded-md bg-white/12 border border-[var(--topnav-active-border)] pl-2.5 pr-1 h-8 focus-within:border-[var(--em-gold)] transition-colors">
+          <Search className="h-3.5 w-3.5 text-[var(--em-gold)] shrink-0" />
           <Input
             ref={inputRef}
             autoFocus
@@ -473,7 +473,7 @@ function GlobalSearch() {
             setOpen(true);
             setTimeout(() => inputRef.current?.focus(), 50);
           }}
-          className="flex items-center gap-2 rounded-md bg-white/8 border border-white/12 px-2.5 h-8 text-white/60 hover:text-white hover:bg-white/12 hover:border-[rgba(232,160,32,0.3)] transition-all duration-150 text-sm"
+          className="flex items-center gap-2 rounded-md bg-white/8 border border-white/12 px-2.5 h-8 text-white/60 hover:text-white hover:bg-white/12 hover:border-[var(--topnav-active-border)] transition-all duration-150 text-sm"
         >
           <Search className="h-3.5 w-3.5" />
           <span className="hidden sm:block text-xs">Search</span>
@@ -500,13 +500,13 @@ function TopNavIconBtn({
   badge?: number;
 }) {
   const cls =
-    "relative h-8 w-8 flex items-center justify-center rounded-md text-white/60 hover:text-white hover:bg-white/10 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8A020] focus-visible:ring-offset-1 focus-visible:ring-offset-[#061A12]";
+    "relative h-8 w-8 flex items-center justify-center rounded-md text-white/60 hover:text-white hover:bg-white/10 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--em-gold)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--topnav-bg)]";
 
   const inner = (
     <>
       {children}
       {badge != null && badge > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border border-[#061A12]">
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border border-[var(--topnav-bg)]">
           {badge > 9 ? "9+" : badge}
         </span>
       )}
@@ -554,8 +554,8 @@ function LeftSidebar({
         className="hidden md:flex flex-col flex-shrink-0 border-r transition-all duration-200 overflow-hidden"
         style={{
           width: collapsed ? 52 : 220,
-          background: "#0C3020",
-          borderColor: "rgba(232,160,32,0.15)",
+          background: "var(--sidebar-bg)",
+          borderColor: "var(--sidebar-border)",
         }}
       >
         {/* Scrollable nav items */}
@@ -575,14 +575,14 @@ function LeftSidebar({
                     "flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium transition-all duration-150 min-w-0",
                     collapsed ? "justify-center" : "",
                     isActive
-                      ? "bg-[rgba(232,160,32,0.15)] text-white border-l-2 border-[#E8A020]"
+                      ? "bg-[var(--sidebar-accent-hover)] text-white border-l-2 border-[var(--em-gold)]"
                       : "text-white/65 hover:text-white hover:bg-white/8 border-l-2 border-transparent"
                   )}
                 >
                   <Icon
                     className={cn(
                       "h-[18px] w-[18px] flex-shrink-0",
-                      isActive ? "text-[#E8A020]" : "text-white/50 group-hover:text-[#E8A020]"
+                      isActive ? "text-[var(--em-gold)]" : "text-white/50 group-hover:text-[var(--em-gold)]"
                     )}
                   />
                   {!collapsed && (
@@ -597,7 +597,7 @@ function LeftSidebar({
                     <TooltipTrigger asChild>{navBtn}</TooltipTrigger>
                     <TooltipContent
                       side="right"
-                      className="bg-[#0C3020] border border-[rgba(232,160,32,0.2)] text-white text-xs"
+                      className="bg-[var(--sidebar-bg)] border border-[var(--sidebar-border)] text-white text-xs"
                     >
                       {item.label}
                     </TooltipContent>
@@ -612,12 +612,12 @@ function LeftSidebar({
         {/* Collapse toggle */}
         <div
           className="border-t p-1.5"
-          style={{ borderColor: "rgba(232,160,32,0.15)" }}
+          style={{ borderColor: "var(--sidebar-border)" }}
         >
           <button
             onClick={onToggle}
             className={cn(
-              "flex items-center gap-2 w-full rounded-md px-2 py-2 text-xs text-white/40 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150",
+              "flex items-center gap-2 w-full rounded-md px-2 py-2 text-xs text-white/40 hover:text-[var(--em-gold)] hover:bg-white/8 transition-all duration-150",
               collapsed ? "justify-center" : ""
             )}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -647,6 +647,9 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const { isModuleInstalled } = useInstalledModules();
   const { unreadCount } = useNotifications();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [footerPanel, setFooterPanel] = useState<"chats" | "channels" | "contacts" | null>(null);
+  const toggleFooterPanel = (panel: "chats" | "channels" | "contacts") =>
+    setFooterPanel((prev) => (prev === panel ? null : panel));
   const coreModuleIds = ["sis", "communications", "users"];
 
   const visibleNavItems = navItems.filter((item) => {
@@ -679,12 +682,12 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     : "/admin/settings";
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#F3FBF6]">
+    <div className="flex h-screen flex-col overflow-hidden" style={{ background: "var(--em-off-white)" }}>
 
       {/* ══ Top navigation bar — Zoho-style, EduMyles 2026 brand ══════════ */}
       <header
         className="flex-shrink-0 z-[2000]"
-        style={{ background: "#061A12", borderBottom: "1px solid rgba(232,160,32,0.13)" }}
+        style={{ background: "var(--topnav-bg)", borderBottom: "1px solid var(--topnav-border)" }}
       >
         <div className="flex h-[52px] items-center gap-1.5 px-3 md:px-4">
 
@@ -711,7 +714,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
             className="flex items-center gap-2 shrink-0 mr-1"
           >
             <Image src="/logo-icon.svg" alt="EduMyles" width={28} height={28} className="flex-shrink-0" priority />
-            <span className="hidden sm:block text-sm font-bold tracking-tight" style={{ color: "#D4AF37" }}>
+            <span className="hidden sm:block text-sm font-bold tracking-tight" style={{ color: "var(--em-gold)" }}>
               EduMyles
             </span>
           </Link>
@@ -719,22 +722,22 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
           {/* ── Workspace / school selector pill (like Zoho "Personal ▾") ── */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="hidden md:flex items-center gap-1 rounded-md border border-white/12 bg-white/6 px-2.5 h-[28px] text-xs font-medium text-white/75 hover:text-white hover:bg-white/10 hover:border-[rgba(232,160,32,0.3)] transition-all duration-150 mr-1 max-w-[160px]">
+              <button className="hidden md:flex items-center gap-1 rounded-md border border-white/12 bg-white/6 px-2.5 h-[28px] text-xs font-medium text-white/75 hover:text-white hover:bg-white/10 hover:border-[var(--topnav-active-border)] transition-all duration-150 mr-1 max-w-[160px]">
                 <span className="truncate">{workspaceLabel}</span>
                 <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="w-56 border-[rgba(232,160,32,0.2)] bg-[#0C3020] text-white shadow-xl"
+              className="w-56 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
             >
-              <DropdownMenuLabel className="text-[#6B9E83] text-xs font-bold uppercase tracking-wider">
+              <DropdownMenuLabel className="text-[var(--em-sage-muted)] text-xs font-bold uppercase tracking-wider">
                 Workspace
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-[rgba(232,160,32,0.12)]" />
+              <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
               <DropdownMenuItem className="text-white/80 hover:text-white hover:bg-white/8 cursor-pointer">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#E8A020]" />
+                  <div className="w-2 h-2 rounded-full bg-[var(--em-gold)]" />
                   <span className="font-medium">{workspaceLabel}</span>
                 </div>
               </DropdownMenuItem>
@@ -759,13 +762,13 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     className={cn(
                       "relative px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap",
                       isActive
-                        ? "text-white bg-[rgba(232,160,32,0.18)]"
+                        ? "text-white bg-[var(--topnav-active-bg)]"
                         : "text-white/70 hover:text-white hover:bg-white/8"
                     )}
                   >
                     {group.label}
                     {isActive && (
-                      <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[#E8A020]" />
+                      <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[var(--em-gold)]" />
                     )}
                   </Link>
                 );
@@ -810,13 +813,13 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
             {/* ── User dropdown ── */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-lg pl-1.5 pr-2 py-1 text-white hover:bg-white/8 transition-all duration-150 ml-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8A020]">
+                <button className="flex items-center gap-2 rounded-lg pl-1.5 pr-2 py-1 text-white hover:bg-white/8 transition-all duration-150 ml-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--em-gold)]">
                   <Avatar className="h-7 w-7">
                     <AvatarImage
                       src={anyUser?.avatarUrl ?? undefined}
                       alt={displayName}
                     />
-                    <AvatarFallback className="text-[10px] bg-[rgba(232,160,32,0.2)] text-[#E8A020] font-bold border border-[rgba(232,160,32,0.35)]">
+                    <AvatarFallback className="text-[10px] bg-[var(--sidebar-accent)] text-[var(--em-gold)] font-bold border border-[var(--em-gold-35)]">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -824,7 +827,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     <span className="text-xs font-semibold text-white">
                       {displayName || anyUser?.email}
                     </span>
-                    <span className="text-[10px] text-[#6B9E83]">
+                    <span className="text-[10px] text-[var(--em-sage-muted)]">
                       {getRoleLabel(role ?? "")}
                     </span>
                   </div>
@@ -834,31 +837,31 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
 
               <DropdownMenuContent
                 align="end"
-                className="w-60 border-[rgba(232,160,32,0.2)] bg-[#0C3020] text-white shadow-xl"
+                className="w-60 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
               >
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm font-semibold text-white">
                       {displayName || anyUser?.email}
                     </span>
-                    <span className="text-xs text-[#6B9E83]">
+                    <span className="text-xs text-[var(--em-sage-muted)]">
                       {user?.email}
                     </span>
                     <Badge
                       variant="secondary"
-                      className="mt-0.5 w-fit text-[10px] bg-[rgba(232,160,32,0.15)] text-[#E8A020] border border-[rgba(232,160,32,0.3)] font-semibold"
+                      className="mt-0.5 w-fit text-[10px] bg-[var(--sidebar-accent-hover)] text-[var(--em-gold)] border border-[var(--topnav-active-border)] font-semibold"
                     >
                       {getRoleLabel(role ?? "")}
                     </Badge>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-[rgba(232,160,32,0.12)]" />
+                <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
                 <DropdownMenuItem asChild>
                   <Link
                     href={profileHref}
                     className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
                   >
-                    <User className="h-4 w-4 text-[#6B9E83]" />
+                    <User className="h-4 w-4 text-[var(--em-sage-muted)]" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
@@ -867,7 +870,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     href={settingsHref}
                     className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
                   >
-                    <Settings className="h-4 w-4 text-[#6B9E83]" />
+                    <Settings className="h-4 w-4 text-[var(--em-sage-muted)]" />
                     Settings
                   </Link>
                 </DropdownMenuItem>
@@ -876,7 +879,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     href={notificationsHref}
                     className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
                   >
-                    <Zap className="h-4 w-4 text-[#6B9E83]" />
+                    <Zap className="h-4 w-4 text-[var(--em-sage-muted)]" />
                     Notifications
                     {unreadCount > 0 && (
                       <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-white border-0 text-[10px] font-bold">
@@ -885,7 +888,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     )}
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[rgba(232,160,32,0.12)]" />
+                <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
                 <DropdownMenuItem
                   onClick={logout}
                   className="flex items-center gap-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer py-2"
@@ -912,50 +915,157 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
         />
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto" style={{ background: "#F0F7F4" }}>
+        <main className="flex-1 overflow-y-auto" style={{ background: "var(--em-bg-subtle)" }}>
           {children}
         </main>
       </div>
+
+      {/* ══ Footer popups (Zoho-style card panels) ════════════════════ */}
+      {footerPanel && (
+        <div
+          className="fixed bottom-[44px] left-0 z-[3000] flex gap-2 px-3 pb-1 pointer-events-none"
+          style={{ width: "auto" }}
+        >
+          {footerPanel === "chats" && (
+            <div
+              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+              style={{ background: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)", maxHeight: 420 }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
+                <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>Chats</span>
+                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                  <MessageCircle className="h-8 w-8 text-white/20" />
+                  <p className="text-xs text-white/40">No active chats</p>
+                  <Link
+                    href={sectionHref("communications")}
+                    onClick={() => setFooterPanel(null)}
+                    className="text-xs px-3 py-1.5 rounded-md transition-all"
+                    style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
+                  >
+                    Open Communications
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {footerPanel === "channels" && (
+            <div
+              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+              style={{ background: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)", maxHeight: 420 }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
+                <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>Channels</span>
+                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                  <Hash className="h-8 w-8 text-white/20" />
+                  <p className="text-xs text-white/40">No channels yet</p>
+                  <Link
+                    href={sectionHref("communications")}
+                    onClick={() => setFooterPanel(null)}
+                    className="text-xs px-3 py-1.5 rounded-md transition-all"
+                    style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
+                  >
+                    Open Channels
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {footerPanel === "contacts" && (
+            <div
+              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+              style={{ background: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)", maxHeight: 420 }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
+                <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>Contacts</span>
+                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                  <Users2 className="h-8 w-8 text-white/20" />
+                  <p className="text-xs text-white/40">No contacts found</p>
+                  <Link
+                    href={sectionHref("communications")}
+                    onClick={() => setFooterPanel(null)}
+                    className="text-xs px-3 py-1.5 rounded-md transition-all"
+                    style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
+                  >
+                    Manage Contacts
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ══ Bottom bar — full Zoho-style ══════════════════════════════ */}
       <footer
         className="flex-shrink-0 flex items-center justify-between px-3 h-[44px] text-xs border-t gap-2"
         style={{
-          background: "#061A12",
-          borderColor: "rgba(232,160,32,0.13)",
+          background: "var(--topnav-bg)",
+          borderColor: "var(--topnav-border)",
         }}
       >
         {/* ── Left: Chats / Channels / Contacts ── */}
         <div className="flex items-center gap-0.5 shrink-0">
-          <Link
-            href={sectionHref("communications")}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          <button
+            onClick={() => toggleFooterPanel("chats")}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+              footerPanel === "chats"
+                ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
+                : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
+            )}
           >
             <MessageCircle className="h-3.5 w-3.5" />
             <span className="hidden sm:block">Chats</span>
-          </Link>
-          <Link
-            href={sectionHref("communications")}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          </button>
+          <button
+            onClick={() => toggleFooterPanel("channels")}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+              footerPanel === "channels"
+                ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
+                : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
+            )}
           >
             <Hash className="h-3.5 w-3.5" />
             <span className="hidden sm:block">Channels</span>
-          </Link>
-          <Link
-            href={sectionHref("communications")}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          </button>
+          <button
+            onClick={() => toggleFooterPanel("contacts")}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+              footerPanel === "contacts"
+                ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
+                : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
+            )}
           >
             <Users2 className="h-3.5 w-3.5" />
             <span className="hidden sm:block">Contacts</span>
-          </Link>
+          </button>
         </div>
 
         {/* ── Center: Smart Chat input ── */}
         <button
-          className="flex-1 max-w-[360px] flex items-center gap-2 h-7 rounded-md bg-white/8 border border-white/12 px-3 text-white/40 hover:text-white/70 hover:bg-white/10 hover:border-[rgba(232,160,32,0.25)] transition-all duration-150 mx-2"
+          className="flex-1 max-w-[360px] flex items-center gap-2 h-7 rounded-md bg-white/8 border border-white/12 px-3 text-white/40 hover:text-white/70 hover:bg-white/10 hover:border-[var(--sidebar-border)] transition-all duration-150 mx-2"
           title="Smart Chat (Ctrl+Space)"
         >
-          <Zap className="h-3.5 w-3.5 text-[#E8A020] shrink-0" />
+          <Zap className="h-3.5 w-3.5 text-[var(--em-gold)] shrink-0" />
           <span className="text-[11px] truncate text-left">
             Here is your Smart Chat
           </span>
@@ -969,12 +1079,12 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
           {/* Notifications */}
           <Link
             href={notificationsHref}
-            className="relative h-7 w-7 flex items-center justify-center rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+            className="relative h-7 w-7 flex items-center justify-center rounded-md text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8 transition-all duration-150"
             title="Notifications"
           >
             <Bell className="h-3.5 w-3.5" />
             {unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white border border-[#061A12]">
+              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white border border-[var(--topnav-bg)]">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -985,21 +1095,21 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
           {/* Need Support */}
           <Link
             href={sectionHref("tickets")}
-            className="flex items-center gap-1 px-2 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8 transition-all duration-150"
           >
             <HelpCircle className="h-3.5 w-3.5" />
             <span className="hidden sm:block">Need Support?</span>
           </Link>
 
           {/* Version badge */}
-          <span className="hidden md:flex items-center h-5 px-1.5 rounded text-[9px] font-mono font-semibold bg-[rgba(232,160,32,0.12)] text-[#E8A020] border border-[rgba(232,160,32,0.2)]">
+          <span className="hidden md:flex items-center h-5 px-1.5 rounded text-[9px] font-mono font-semibold bg-[var(--sidebar-accent)] text-[var(--em-gold)] border border-[var(--sidebar-border)]">
             EduMyles 2026
           </span>
 
           {/* Settings / lock */}
           <Link
             href={settingsHref}
-            className="h-7 w-7 flex items-center justify-center rounded-md text-white/30 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+            className="h-7 w-7 flex items-center justify-center rounded-md text-white/30 hover:text-[var(--em-gold)] hover:bg-white/8 transition-all duration-150"
             title="Settings"
           >
             <Lock className="h-3.5 w-3.5" />

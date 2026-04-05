@@ -25,8 +25,8 @@ const variantConfig = {
   },
   warning: {
     iconBg: "bg-[rgba(232,160,32,0.12)]",
-    iconColor: "text-[#E8A020]",
-    borderAccent: "border-l-[#E8A020]",
+    iconColor: "text-[var(--em-gold)]",
+    borderAccent: "border-l-[var(--em-gold)]",
   },
   danger: {
     iconBg: "bg-[rgba(220,38,38,0.1)]",

@@ -131,7 +131,7 @@ function MarketplaceContent() {
   const adminOverview = overview;
 
   // ── Module Card ──────────────────────────────────────────────────────
-  const ModuleCard = ({ mod }: { mod: any }) => (
+  const renderModuleCard = (mod: any) => (
     <Card
       className="hover:shadow-lg transition-all cursor-pointer group border-border/60 hover:border-primary/30"
       onClick={() => router.push(`/platform/marketplace/${mod.moduleId}`)}
@@ -212,7 +212,7 @@ function MarketplaceContent() {
   );
 
   // ── Module Row (for lists) ───────────────────────────────────────────
-  const ModuleRow = ({ mod }: { mod: any }) => (
+  const renderModuleRow = (mod: any) => (
     <div
       className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 cursor-pointer transition-colors"
       onClick={() => router.push(`/platform/marketplace/${mod.moduleId}`)}
@@ -243,7 +243,7 @@ function MarketplaceContent() {
   );
 
   // ── Discover Tab ─────────────────────────────────────────────────────
-  const DiscoverTab = () => (
+  const discoverTab = (
     <div className="space-y-8">
       {/* Hero Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -326,9 +326,7 @@ function MarketplaceContent() {
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {newModules.slice(0, 4).map((mod: any) => (
-              <ModuleCard key={mod.moduleId} mod={mod} />
-            ))}
+            {newModules.slice(0, 4).map((mod: any, i: number) => <div key={mod.moduleId ?? i}>{renderModuleCard(mod)}</div>)}
           </div>
         </div>
       )}
@@ -345,9 +343,7 @@ function MarketplaceContent() {
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {topRated.slice(0, 4).map((mod: any) => (
-              <ModuleCard key={mod.moduleId} mod={mod} />
-            ))}
+            {topRated.slice(0, 4).map((mod: any, i: number) => <div key={mod.moduleId ?? i}>{renderModuleCard(mod)}</div>)}
           </div>
         </div>
       )}
@@ -364,9 +360,7 @@ function MarketplaceContent() {
             </Button>
           </div>
           <div className="space-y-2">
-            {trending.slice(0, 5).map((mod: any) => (
-              <ModuleRow key={mod.moduleId} mod={mod} />
-            ))}
+            {trending.slice(0, 5).map((mod: any, i: number) => <div key={mod.moduleId ?? i}>{renderModuleRow(mod)}</div>)}
           </div>
         </div>
       )}
@@ -434,7 +428,7 @@ function MarketplaceContent() {
   );
 
   // ── Browse Tab ───────────────────────────────────────────────────────
-  const BrowseTab = () => (
+  const browseTab = (
     <div className="space-y-6">
       {/* Search & Filters */}
       <div className="flex flex-wrap items-center gap-3">
@@ -505,9 +499,7 @@ function MarketplaceContent() {
       {/* Module Grid */}
       {modules.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {modules.map((mod: any) => (
-            <ModuleCard key={mod.moduleId} mod={mod} />
-          ))}
+          {modules.map((mod: any, i: number) => <div key={mod.moduleId ?? i}>{renderModuleCard(mod)}</div>)}
         </div>
       ) : (
         <Card className="border-dashed">
@@ -526,7 +518,7 @@ function MarketplaceContent() {
   );
 
   // ── Admin Overview Tab ───────────────────────────────────────────────
-  const AdminTab = () => {
+  const adminTabContent = (() => {
     const ov = adminOverview?.overview || {};
     return (
       <div className="space-y-6">
@@ -648,7 +640,7 @@ function MarketplaceContent() {
         </div>
       </div>
     );
-  };
+  })();
 
   return (
     <div className="space-y-6">
@@ -669,13 +661,13 @@ function MarketplaceContent() {
         </TabsList>
 
         <TabsContent value="discover" className="mt-4">
-          <DiscoverTab />
+          {discoverTab}
         </TabsContent>
         <TabsContent value="browse" className="mt-4">
-          <BrowseTab />
+          {browseTab}
         </TabsContent>
         <TabsContent value="admin" className="mt-4">
-          <AdminTab />
+          {adminTabContent}
         </TabsContent>
       </Tabs>
     </div>
