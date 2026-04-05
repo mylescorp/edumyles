@@ -1,22 +1,19 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    /* Language & Environment */
     "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "moduleDetection": "force",
-
-    /* Modules */
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "allowImportingTsExtensions": false,
-
-    /* Output */
     "noEmit": true,
     "incremental": true,
-
-    /* Strict Mode — all enabled */
     "strict": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
@@ -25,22 +22,24 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": false,
     "forceConsistentCasingInFileNames": true,
-
-    /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["./shared/src/*"],
-      "@shared/types": ["./shared/src/types/index.ts"],
-      "@shared/constants": ["./shared/src/constants/index.ts"],
-      "@shared/validators": ["./shared/src/validators/index.ts"]
+      "@shared/*": [
+        "./shared/src/*"
+      ],
+      "@shared/types": [
+        "./shared/src/types/index.ts"
+      ],
+      "@shared/constants": [
+        "./shared/src/constants/index.ts"
+      ],
+      "@shared/validators": [
+        "./shared/src/validators/index.ts"
+      ]
     },
-
-    /* Interop */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
-
-    /* Misc */
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
@@ -53,6 +52,8 @@
     "**/build",
     "**/.next",
     "**/out",
-    "**/.turbo"
-  ]
+    "**/.turbo",
+    "opensrc"
+  ],
+  "extends": "expo/tsconfig.base"
 }

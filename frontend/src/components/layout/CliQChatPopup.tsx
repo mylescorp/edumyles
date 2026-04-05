@@ -73,7 +73,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
       >
         {/* Avatar */}
         <div className="relative shrink-0">
-          <div className="h-6 w-6 rounded-full bg-[#0F4C2A] flex items-center justify-center text-[9px] font-bold text-[#E8A020]">
+          <div className="h-6 w-6 rounded-full bg-[var(--em-forest)] flex items-center justify-center text-[9px] font-bold text-[var(--em-gold)]">
             {chat.initials}
           </div>
           {chat.online && (
@@ -139,7 +139,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
                   className={cn(
                     "max-w-[90%] rounded-xl px-3 py-2 text-[11px] leading-relaxed whitespace-pre-wrap",
                     msg.fromMe
-                      ? "bg-[#E8A020] text-[#061A12] rounded-br-sm"
+                      ? "bg-[var(--em-gold)] text-[var(--topnav-bg)] rounded-br-sm"
                       : "bg-gray-100 text-gray-800 rounded-bl-sm"
                   )}
                 >

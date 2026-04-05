@@ -52,6 +52,16 @@
   --em-accent-light:    #F5C453;
   --em-accent-dark:     #9A5D00;
 
+  /* ── Gold opacity variants (for Tailwind arbitrary bg/border/text) ── */
+  --em-gold-10:         rgba(232,160,32,0.10);
+  --em-gold-12:         rgba(232,160,32,0.12);
+  --em-gold-15:         rgba(232,160,32,0.15);
+  --em-gold-18:         rgba(232,160,32,0.18);
+  --em-gold-20:         rgba(232,160,32,0.20);
+  --em-gold-25:         rgba(232,160,32,0.25);
+  --em-gold-30:         rgba(232,160,32,0.30);
+  --em-gold-35:         rgba(232,160,32,0.35);
+
   /* ── Semantic States ── */
   --em-info:            #1565C0;
   --em-info-bg:         #E3F2FD;
@@ -4638,4 +4648,13 @@ html.dark .auth-loading { background: var(--dark-surface, #1a1f2e); }
   button, input, select, textarea {
     display: none !important;
   }
+}
+
+/* ── Scrollbar utilities ─────────────────────────────────────────────────── */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
