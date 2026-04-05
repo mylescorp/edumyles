@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Plus, Settings } from "lucide-react";
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { platformNavItems } from "@/lib/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 
@@ -45,17 +43,17 @@ export default function WorkspacePage() {
 
   if (authLoading || (sessionToken && workspace === undefined)) {
     return (
-      <DashboardLayout navItems={platformNavItems}>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   if (!sessionToken) {
     return (
-      <DashboardLayout navItems={platformNavItems}>
+      <>
         <Card className="max-w-xl mx-auto mt-8">
           <CardHeader>
             <CardTitle>Authentication Required</CardTitle>
@@ -66,13 +64,13 @@ export default function WorkspacePage() {
             </p>
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </>
     );
   }
 
   if (!workspace) {
     return (
-      <DashboardLayout navItems={platformNavItems}>
+      <>
         <Card className="max-w-xl mx-auto mt-8">
           <CardHeader>
             <CardTitle>Workspace Unavailable</CardTitle>
@@ -83,12 +81,12 @@ export default function WorkspacePage() {
             </p>
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout navItems={platformNavItems}>
+    <>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -228,6 +226,6 @@ export default function WorkspacePage() {
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

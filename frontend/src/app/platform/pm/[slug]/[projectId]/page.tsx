@@ -5,8 +5,6 @@ import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { platformNavItems } from "@/lib/routes";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
@@ -26,33 +24,33 @@ export default function ProjectPage() {
 
   if (authLoading || (sessionToken && project === undefined)) {
     return (
-      <DashboardLayout navItems={platformNavItems}>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   if (!sessionToken) {
     return (
-      <DashboardLayout navItems={platformNavItems}>
+      <>
         <StateCard
           title="Authentication Required"
           description="Sign in with your platform session to view project data."
         />
-      </DashboardLayout>
+      </>
     );
   }
 
   if (!project) {
     return (
-      <DashboardLayout navItems={platformNavItems}>
+      <>
         <StateCard
           title="Project Unavailable"
           description="The requested project could not be loaded."
         />
-      </DashboardLayout>
+      </>
     );
   }
 
@@ -66,7 +64,7 @@ export default function ProjectPage() {
   );
 
   return (
-    <DashboardLayout navItems={platformNavItems}>
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -146,7 +144,7 @@ export default function ProjectPage() {
           })}
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }
 

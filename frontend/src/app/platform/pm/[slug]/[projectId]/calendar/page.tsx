@@ -5,8 +5,6 @@ import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { platformNavItems } from "@/lib/routes";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
@@ -24,17 +22,17 @@ export default function CalendarPage() {
 
   if (authLoading || (sessionToken && project === undefined)) {
     return (
-      <DashboardLayout navItems={platformNavItems}>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   if (!sessionToken || !project) {
     return (
-      <DashboardLayout navItems={platformNavItems}>
+      <>
         <Card className="max-w-xl mx-auto mt-8">
           <CardHeader>
             <CardTitle>Project Data Unavailable</CardTitle>
@@ -45,7 +43,7 @@ export default function CalendarPage() {
             </p>
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </>
     );
   }
 
@@ -54,7 +52,7 @@ export default function CalendarPage() {
     .sort((a: any, b: any) => (a.dueDate ?? 0) - (b.dueDate ?? 0));
 
   return (
-    <DashboardLayout navItems={platformNavItems}>
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -113,6 +111,6 @@ export default function CalendarPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </>
   );
 }
