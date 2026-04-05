@@ -839,6 +839,11 @@ export default defineSchema({
     routeId: v.optional(v.string()),
     driverId: v.optional(v.string()),
     status: v.string(),
+    lastLatitude: v.optional(v.number()),
+    lastLongitude: v.optional(v.number()),
+    lastSpeed: v.optional(v.number()),
+    lastHeading: v.optional(v.number()),
+    lastLocationAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
