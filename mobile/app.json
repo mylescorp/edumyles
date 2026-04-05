@@ -58,11 +58,14 @@
         }
       ]
     ],
+    "updates": {
+      "url": "https://u.expo.dev/edumyles-mobile"
+    },
     "extra": {
       "eas": {
         "projectId": "edumyles-mobile"
       }
     },
-    "owner": "mylesoft"
+    "owner": "mylescorp-technologies"
   }
 }
