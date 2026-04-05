@@ -12,7 +12,10 @@ function getConvexClient() {
 
 export async function GET(req: NextRequest) {
   try {
-    const sessionToken = req.nextUrl.searchParams.get("sessionToken");
+    // Accept token from Authorization header (preferred) or legacy query param
+    const authHeader = req.headers.get("authorization") ?? "";
+    const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
+    const sessionToken = bearerToken || req.nextUrl.searchParams.get("sessionToken");
     const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
 
     if (!sessionToken) {

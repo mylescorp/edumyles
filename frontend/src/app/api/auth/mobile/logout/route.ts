@@ -17,8 +17,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Mobile auth is not configured" }, { status: 500 });
     }
 
-    const body = await req.json().catch(() => ({}));
-    const sessionToken = String((body as { sessionToken?: string }).sessionToken ?? "").trim();
+    // Accept token from Authorization header (preferred) or legacy body field
+    const authHeader = req.headers.get("authorization") ?? "";
+    const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
+    const body = bearerToken ? {} : await req.json().catch(() => ({}));
+    const sessionToken = bearerToken || String((body as { sessionToken?: string }).sessionToken ?? "").trim();
 
     if (!sessionToken) {
       return NextResponse.json({ error: "sessionToken is required" }, { status: 400 });

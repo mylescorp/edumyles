@@ -28,6 +28,7 @@ import {
   registerMobileDeviceTokenMutation,
   syncPushTokenWithBackend,
 } from './services/pushNotifications';
+import { api } from './lib/convexApi';
 import { theme } from './theme';
 
 type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' | 'profile';
@@ -43,6 +44,12 @@ const AppShell: React.FC = () => {
   const convex = useConvex();
   const { isAuthenticated, isLoading, sessionToken, user, signOut } = useAuth();
   const [screen, setScreen] = useState<ScreenKey>('dashboard');
+
+  // Register navigation dispatcher for deep link handling
+  useEffect(() => {
+    deepLinkNavigateRef.current = setScreen;
+    return () => { deepLinkNavigateRef.current = null; };
+  }, []);
   const {
     isOffline,
     isSyncing,
@@ -52,6 +59,12 @@ const AppShell: React.FC = () => {
     mutationHandlers: {
       'mobileDeviceToken.register': async (payload) => {
         await convex.mutation(registerMobileDeviceTokenMutation, payload as any);
+      },
+      'attendance.markAttendance': async (payload) => {
+        await convex.mutation(api.modules.academics.mutations.markAttendance, payload as any);
+      },
+      'communications.sendMessage': async (payload) => {
+        await convex.mutation(api.modules.communications.mutations.sendMessage, payload as any);
       },
     },
   });
@@ -223,6 +236,28 @@ function parseDeepLink(url: string): { path: string; params: Record<string, stri
   }
 }
 
+/** Module-level ref so App can dispatch navigation to AppShell without prop drilling. */
+export const deepLinkNavigateRef = React.createRef<((screen: ScreenKey) => void) | null>() as React.MutableRefObject<((screen: ScreenKey) => void) | null>;
+
+function dispatchDeepLink(parsed: ReturnType<typeof parseDeepLink>) {
+  if (!parsed) return;
+  if (__DEV__) console.log('[DeepLink] dispatching:', parsed);
+  // Auth callbacks are handled by LoginScreen polling — no navigation needed
+  // Future paths: map parsed.path to a ScreenKey and call deepLinkNavigateRef.current
+  const screenMap: Record<string, ScreenKey> = {
+    'dashboard': 'dashboard',
+    'grades': 'grades',
+    'assignments': 'assignments',
+    'attendance': 'attendance',
+    'fees': 'fees',
+    'profile': 'profile',
+  };
+  const targetScreen = screenMap[parsed.path];
+  if (targetScreen && deepLinkNavigateRef.current) {
+    deepLinkNavigateRef.current(targetScreen);
+  }
+}
+
 const App: React.FC = () => {
   const convex = useMemo(() => new ConvexReactClient(convexUrl), []);
 
@@ -231,21 +266,13 @@ const App: React.FC = () => {
     // Handle URL that opened the app from a closed state
     Linking.getInitialURL().then((url) => {
       if (url) {
-        const parsed = parseDeepLink(url);
-        if (parsed) {
-          // Auth callback deep links are handled by the LoginScreen's polling
-          // loop; emitting here allows future integration with an event bus.
-          if (__DEV__) console.log('[DeepLink] initial URL:', parsed);
-        }
+        dispatchDeepLink(parseDeepLink(url));
       }
     });
 
     // Handle URLs that arrive while the app is foregrounded
     const subscription = Linking.addEventListener('url', ({ url }) => {
-      const parsed = parseDeepLink(url);
-      if (parsed && __DEV__) {
-        console.log('[DeepLink] foreground URL:', parsed);
-      }
+      dispatchDeepLink(parseDeepLink(url));
     });
 
     return () => subscription.remove();

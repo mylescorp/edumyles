@@ -8,7 +8,22 @@
     "NEXT_PUBLIC_ROOT_DOMAIN",
     "NEXT_PUBLIC_WORKOS_CLIENT_ID",
     "WORKOS_REDIRECT_URI",
-    "NEXT_PUBLIC_APP_URL"
+    "NEXT_PUBLIC_APP_URL",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "RESEND_API_KEY",
+    "SENTRY_DSN",
+    "NEXT_PUBLIC_SENTRY_DSN",
+    "SENTRY_ORG",
+    "SENTRY_PROJECT",
+    "MPESA_CONSUMER_KEY",
+    "MPESA_CONSUMER_SECRET",
+    "AIRTEL_CLIENT_ID",
+    "AIRTEL_CLIENT_SECRET",
+    "AIRTEL_WEBHOOK_SECRET",
+    "CONVEX_WEBHOOK_SECRET",
+    "PLATFORM_ADMIN_SECRET",
+    "MASTER_ADMIN_WORKOS_USER_ID"
   ],
   "tasks": {
     "build": {
@@ -22,12 +37,10 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"],
       "outputs": [],
       "cache": true
     },
     "lint:fix": {
-      "dependsOn": ["^build"],
       "outputs": [],
       "cache": false
     },

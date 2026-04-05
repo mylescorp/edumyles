@@ -5,6 +5,7 @@ import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,11 +37,16 @@ export default function StudentsPage() {
     const { isLoading, sessionToken } = useAuth();
     const [statusFilter, setStatusFilter] = useState<string>("all");
 
-    const students = useQuery(
-        api.modules.sis.queries.listStudents,
+    const {
+        results: students,
+        status: studentsStatus,
+        loadMore,
+    } = usePaginatedQuery(
+        api.modules.sis.queries.listStudentsPaginated,
         sessionToken
             ? { sessionToken, status: statusFilter === "all" ? undefined : statusFilter }
-            : "skip"
+            : "skip",
+        { initialNumItems: 50 }
     );
 
     const classes = useQuery(
@@ -137,6 +143,11 @@ export default function StudentsPage() {
                 searchKey={(row) => `${row.firstName} ${row.lastName} ${row.admissionNumber}`}
                 emptyTitle="No students found"
                 emptyDescription="Enroll your first student to get started."
+                serverPagination={{
+                    isDone: studentsStatus === "Exhausted",
+                    loadMore: (n) => loadMore(n),
+                    isLoading: studentsStatus === "LoadingMore",
+                }}
             />
         </div>
     );

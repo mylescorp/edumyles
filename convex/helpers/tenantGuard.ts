@@ -72,6 +72,9 @@ export async function requireTenantContext(ctx: QueryCtx | MutationCtx): Promise
   const devBypassEnabled =
     process.env.NODE_ENV !== "production" &&
     process.env.ENABLE_DEV_AUTH_BYPASS === "true";
+  if (devBypassEnabled) {
+    console.warn("[SECURITY] Dev auth bypass is active — NEVER enable this in production");
+  }
   const tokenIdentifier = identity?.tokenIdentifier ?? (devBypassEnabled ? "dev-tenant-admin-session" : undefined);
   if (!tokenIdentifier) {
     throw new ConvexError({ code: "UNAUTHENTICATED", message: "No active session" });

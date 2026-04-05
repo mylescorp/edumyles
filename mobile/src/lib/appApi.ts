@@ -95,15 +95,22 @@ export async function getMobileAuthStatus(requestId: string) {
   );
 }
 
+/** Fetch the session from a sessionToken. Token passed via Authorization header (not URL). */
 export async function getMobileSession(sessionToken: string) {
-  return fetchJson<MobileSessionResponse>(
-    `/api/auth/mobile/session?sessionToken=${encodeURIComponent(sessionToken)}`
-  );
+  return fetchJson<MobileSessionResponse>("/api/auth/mobile/session", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+    },
+  });
 }
 
+/** Revoke a mobile session. Token passed via Authorization header (not body). */
 export async function revokeMobileSession(sessionToken: string) {
   return fetchJson<{ success: boolean }>("/api/auth/mobile/logout", {
     method: "POST",
-    body: JSON.stringify({ sessionToken }),
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+    },
   });
 }

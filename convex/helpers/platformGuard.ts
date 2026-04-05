@@ -2,6 +2,10 @@ import { QueryCtx, MutationCtx } from "../_generated/server";
 import { v } from "convex/values";
 
 export const platformSessionArg = { sessionToken: v.string() };
+
+// Primary: match by immutable WorkOS user ID (set MASTER_ADMIN_WORKOS_USER_ID env var)
+const MASTER_ADMIN_WORKOS_USER_ID = process.env.MASTER_ADMIN_WORKOS_USER_ID?.trim();
+// Fallback: match by email (deprecated — prefer MASTER_ADMIN_WORKOS_USER_ID)
 const MASTER_ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL?.toLowerCase();
 const FALLBACK_MASTER_ADMIN_EMAILS = MASTER_ADMIN_EMAIL ? [MASTER_ADMIN_EMAIL] : [];
 
@@ -10,11 +14,16 @@ export interface PlatformContext {
   userId: string;
   role: string;
   email: string;
+  workosUserId?: string;
 }
 
 /**
  * Validates a platform session token and ensures the caller has
  * master_admin or super_admin role.
+ *
+ * Master admin is determined by (in priority order):
+ * 1. session.workosUserId matches MASTER_ADMIN_WORKOS_USER_ID env var (immutable ID — preferred)
+ * 2. session.email matches MASTER_ADMIN_EMAIL env var (deprecated fallback)
  *
  * Unlike requireTenantContext, this does NOT use ctx.auth (Convex JWT auth).
  * It validates the sessionToken arg directly against the sessions table,
@@ -31,8 +40,28 @@ export async function requirePlatformSession(
 
   if (!session) throw new Error("UNAUTHENTICATED: Session not found");
   if (session.expiresAt < Date.now()) throw new Error("UNAUTHENTICATED: Session expired");
+
+  // Resolve master admin status — prefer workosUserId comparison (immutable) over email
+  const userRow = await ctx.db
+    .query("users")
+    .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", session.userId))
+    .first();
+
+  const isMasterAdminByWorkosId =
+    MASTER_ADMIN_WORKOS_USER_ID !== undefined &&
+    userRow?.workosUserId === MASTER_ADMIN_WORKOS_USER_ID;
+
   const normalizedEmail = session.email?.toLowerCase() || "";
-  const isConfiguredMasterAdmin = FALLBACK_MASTER_ADMIN_EMAILS.includes(normalizedEmail);
+  const isMasterAdminByEmail =
+    !isMasterAdminByWorkosId && FALLBACK_MASTER_ADMIN_EMAILS.includes(normalizedEmail);
+
+  if (isMasterAdminByEmail) {
+    console.warn(
+      "[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution"
+    );
+  }
+
+  const isConfiguredMasterAdmin = isMasterAdminByWorkosId || isMasterAdminByEmail;
   const normalizedRole = session.role === "platform_admin" ? "super_admin" : session.role;
   const effectiveRole = isConfiguredMasterAdmin ? "master_admin" : normalizedRole;
   const effectiveTenantId = effectiveRole === "master_admin" ? "PLATFORM" : session.tenantId;
@@ -46,5 +75,6 @@ export async function requirePlatformSession(
     userId: session.userId,
     role: effectiveRole,
     email: session.email || "",
+    workosUserId: userRow?.workosUserId,
   };
 }
