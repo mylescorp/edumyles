@@ -647,6 +647,9 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const { isModuleInstalled } = useInstalledModules();
   const { unreadCount } = useNotifications();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [footerPanel, setFooterPanel] = useState<"chats" | "channels" | "contacts" | null>(null);
+  const toggleFooterPanel = (panel: "chats" | "channels" | "contacts") =>
+    setFooterPanel((prev) => (prev === panel ? null : panel));
   const coreModuleIds = ["sis", "communications", "users"];
 
   const visibleNavItems = navItems.filter((item) => {
@@ -917,6 +920,98 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
         </main>
       </div>
 
+      {/* ══ Footer popups (Zoho-style card panels) ════════════════════ */}
+      {footerPanel && (
+        <div
+          className="fixed bottom-[44px] left-0 z-[3000] flex gap-2 px-3 pb-1 pointer-events-none"
+          style={{ width: "auto" }}
+        >
+          {footerPanel === "chats" && (
+            <div
+              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+              style={{ background: "#0C3020", borderColor: "rgba(232,160,32,0.2)", maxHeight: 420 }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "rgba(232,160,32,0.15)" }}>
+                <span className="text-sm font-semibold" style={{ color: "#D4AF37" }}>Chats</span>
+                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                  <MessageCircle className="h-8 w-8 text-white/20" />
+                  <p className="text-xs text-white/40">No active chats</p>
+                  <Link
+                    href={sectionHref("communications")}
+                    onClick={() => setFooterPanel(null)}
+                    className="text-xs px-3 py-1.5 rounded-md transition-all"
+                    style={{ background: "rgba(232,160,32,0.15)", color: "#E8A020" }}
+                  >
+                    Open Communications
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {footerPanel === "channels" && (
+            <div
+              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+              style={{ background: "#0C3020", borderColor: "rgba(232,160,32,0.2)", maxHeight: 420 }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "rgba(232,160,32,0.15)" }}>
+                <span className="text-sm font-semibold" style={{ color: "#D4AF37" }}>Channels</span>
+                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                  <Hash className="h-8 w-8 text-white/20" />
+                  <p className="text-xs text-white/40">No channels yet</p>
+                  <Link
+                    href={sectionHref("communications")}
+                    onClick={() => setFooterPanel(null)}
+                    className="text-xs px-3 py-1.5 rounded-md transition-all"
+                    style={{ background: "rgba(232,160,32,0.15)", color: "#E8A020" }}
+                  >
+                    Open Channels
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {footerPanel === "contacts" && (
+            <div
+              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+              style={{ background: "#0C3020", borderColor: "rgba(232,160,32,0.2)", maxHeight: 420 }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "rgba(232,160,32,0.15)" }}>
+                <span className="text-sm font-semibold" style={{ color: "#D4AF37" }}>Contacts</span>
+                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                  <Users2 className="h-8 w-8 text-white/20" />
+                  <p className="text-xs text-white/40">No contacts found</p>
+                  <Link
+                    href={sectionHref("communications")}
+                    onClick={() => setFooterPanel(null)}
+                    className="text-xs px-3 py-1.5 rounded-md transition-all"
+                    style={{ background: "rgba(232,160,32,0.15)", color: "#E8A020" }}
+                  >
+                    Manage Contacts
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ══ Bottom bar — full Zoho-style ══════════════════════════════ */}
       <footer
         className="flex-shrink-0 flex items-center justify-between px-3 h-[44px] text-xs border-t gap-2"
@@ -927,27 +1022,42 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
       >
         {/* ── Left: Chats / Channels / Contacts ── */}
         <div className="flex items-center gap-0.5 shrink-0">
-          <Link
-            href={sectionHref("communications")}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          <button
+            onClick={() => toggleFooterPanel("chats")}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+              footerPanel === "chats"
+                ? "text-[#E8A020] bg-[rgba(232,160,32,0.15)]"
+                : "text-white/55 hover:text-[#E8A020] hover:bg-white/8"
+            )}
           >
             <MessageCircle className="h-3.5 w-3.5" />
             <span className="hidden sm:block">Chats</span>
-          </Link>
-          <Link
-            href={sectionHref("communications")}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          </button>
+          <button
+            onClick={() => toggleFooterPanel("channels")}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+              footerPanel === "channels"
+                ? "text-[#E8A020] bg-[rgba(232,160,32,0.15)]"
+                : "text-white/55 hover:text-[#E8A020] hover:bg-white/8"
+            )}
           >
             <Hash className="h-3.5 w-3.5" />
             <span className="hidden sm:block">Channels</span>
-          </Link>
-          <Link
-            href={sectionHref("communications")}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white/55 hover:text-[#E8A020] hover:bg-white/8 transition-all duration-150"
+          </button>
+          <button
+            onClick={() => toggleFooterPanel("contacts")}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+              footerPanel === "contacts"
+                ? "text-[#E8A020] bg-[rgba(232,160,32,0.15)]"
+                : "text-white/55 hover:text-[#E8A020] hover:bg-white/8"
+            )}
           >
             <Users2 className="h-3.5 w-3.5" />
             <span className="hidden sm:block">Contacts</span>
-          </Link>
+          </button>
         </div>
 
         {/* ── Center: Smart Chat input ── */}
