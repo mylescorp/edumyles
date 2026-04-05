@@ -19,7 +19,7 @@
         "./src/*"
       ],
       "@/convex/*": [
-        "./convex/*"
+        "../convex/*"
       ],
       "@shared/*": [
         "../shared/src/*"
