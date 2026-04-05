@@ -6,7 +6,7 @@ import { ModuleAccessGuard } from "@/components/shared/ModuleAccessGuard";
 import { RoleGuard } from "@/components/shared/RoleGuard";
 import { alumniNavItems } from "@/lib/routes";
 
-const ALUMNI_ROLES = ["alumni"];
+const ALUMNI_ROLES = ["alumni", "master_admin", "super_admin"];
 
 export default function AlumniLayout({ children }: { children: React.ReactNode }) {
   return (

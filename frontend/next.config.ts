@@ -13,9 +13,6 @@ const nextConfig = {
     },
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,

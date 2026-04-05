@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQuery } from 'convex/react';
+import AttendanceRow, { type AttendanceRowProps } from '../components/AttendanceRow';
 
 import { useAuth } from '../hooks/useAuth';
 import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
@@ -139,7 +141,7 @@ const AttendanceScreen: React.FC = () => {
         {resolvedParentAnnouncements.length === 0 ? (
           <Text style={styles.stateText}>No school updates are available yet.</Text>
         ) : (
-          resolvedParentAnnouncements.map((announcement: any) => (
+          (resolvedParentAnnouncements as Array<{ _id: string; title?: string; message?: string }>).map((announcement) => (
             <View key={announcement._id} style={styles.card}>
               <Text style={styles.status}>{announcement.title}</Text>
               <Text style={styles.meta}>{announcement.message}</Text>
@@ -267,16 +269,16 @@ const AttendanceScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.container}>
       {isOffline && <Text style={styles.banner}>Showing cached attendance.</Text>}
-      {resolvedStudentAttendance.map((entry: any) => (
-        <View key={entry._id} style={styles.card}>
-          <Text style={styles.status}>{String(entry.status).toUpperCase()}</Text>
-          <Text style={styles.meta}>{entry.date}</Text>
-          {entry.remarks ? <Text style={styles.meta}>{entry.remarks}</Text> : null}
-        </View>
-      ))}
-    </ScrollView>
+      <FlashList
+        data={resolvedStudentAttendance as AttendanceRowProps[]}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => <AttendanceRow {...item} />}
+        estimatedItemSize={64}
+        contentContainerStyle={styles.content}
+      />
+    </View>
   );
 };
 

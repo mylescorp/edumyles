@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQuery } from 'convex/react';
 
 import { useAuth } from '../hooks/useAuth';
@@ -227,15 +228,21 @@ const AssignmentsScreen: React.FC = () => {
             {(resolvedParentMessages ?? []).length === 0 ? (
               <Text style={styles.meta}>No messages in this thread yet.</Text>
             ) : (
-              (resolvedParentMessages ?? []).slice().reverse().map((message: any) => (
-                <View key={message._id} style={styles.messageBubble}>
-                  <Text style={styles.messageRole}>{message.senderRole ?? 'user'}</Text>
-                  <Text style={styles.messageBody}>{message.content}</Text>
-                  <Text style={styles.messageMeta}>
-                    {message.createdAt ? new Date(message.createdAt).toLocaleString() : 'Just now'}
-                  </Text>
-                </View>
-              ))
+              <FlashList
+                data={(resolvedParentMessages ?? []) as Array<{ _id: string; senderRole?: string; content?: string; createdAt?: number }>}
+                keyExtractor={(item) => item._id}
+                renderItem={({ item: message }) => (
+                  <View style={styles.messageBubble}>
+                    <Text style={styles.messageRole}>{message.senderRole ?? 'user'}</Text>
+                    <Text style={styles.messageBody}>{message.content}</Text>
+                    <Text style={styles.messageMeta}>
+                      {message.createdAt ? new Date(message.createdAt).toLocaleString() : 'Just now'}
+                    </Text>
+                  </View>
+                )}
+                estimatedItemSize={72}
+                inverted
+              />
             )}
             <TextInput
               style={styles.input}

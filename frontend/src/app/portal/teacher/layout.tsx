@@ -6,7 +6,7 @@ import { ModuleAccessGuard } from "@/components/shared/ModuleAccessGuard";
 import { RoleGuard } from "@/components/shared/RoleGuard";
 import { teacherNavItems } from "@/lib/routes";
 
-const TEACHER_ROLES = ["teacher"];
+const TEACHER_ROLES = ["teacher", "master_admin", "super_admin"];
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   return (

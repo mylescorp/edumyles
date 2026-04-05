@@ -109,7 +109,7 @@ export default defineSchema({
     lastName: v.optional(v.string()),
     role: v.string(),
     permissions: v.array(v.string()),
-    organizationId: v.id("organizations"),
+    organizationId: v.optional(v.id("organizations")),
     isActive: v.boolean(),
     avatarUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
@@ -1021,7 +1021,14 @@ export default defineSchema({
       v.literal("event_based"),
       v.literal("webhook")
     ),
-    triggerConfig: v.optional(v.record(v.string(), v.any())),
+    triggerConfig: v.optional(
+      v.object({
+        schedule: v.optional(v.string()),
+        eventType: v.optional(v.string()),
+        webhookPath: v.optional(v.string()),
+        conditions: v.optional(v.array(v.string())),
+      })
+    ),
     steps: v.array(
       v.object({
         id: v.string(),
@@ -1035,7 +1042,10 @@ export default defineSchema({
           v.literal("integration"),
           v.literal("data_operation")
         ),
-        config: v.record(v.string(), v.any()),
+        config: v.object({
+          type: v.optional(v.string()),
+          params: v.optional(v.record(v.string(), v.union(v.string(), v.number(), v.boolean()))),
+        }),
         position: v.number(),
       })
     ),
@@ -1065,7 +1075,11 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
     duration: v.number(),
     triggeredBy: v.string(),
-    triggerData: v.record(v.string(), v.any()),
+    triggerData: v.object({
+      source: v.optional(v.string()),
+      timestamp: v.optional(v.number()),
+      payload: v.optional(v.record(v.string(), v.union(v.string(), v.number(), v.boolean()))),
+    }),
     steps: v.array(
       v.object({
         id: v.string(),
@@ -1189,7 +1203,15 @@ export default defineSchema({
         v.literal("30d"),
         v.literal("90d")
       ),
-      filters: v.optional(v.record(v.string(), v.any())),
+      filters: v.optional(
+        v.array(
+          v.object({
+            field: v.string(),
+            op: v.string(),
+            value: v.union(v.string(), v.number(), v.boolean()),
+          })
+        )
+      ),
       metrics: v.array(v.string()),
       groupBy: v.optional(v.string()),
       chartType: v.union(v.literal("line"), v.literal("bar"), v.literal("pie"), v.literal("table")),

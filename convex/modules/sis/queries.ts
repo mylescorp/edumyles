@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import { query } from "../../_generated/server";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
@@ -149,6 +150,80 @@ export const listClasses = query({
             if (isAuthOrTenantError(error)) throw error;
             console.error("listClasses failed", error);
             return [];
+        }
+    },
+});
+
+/** Cursor-paginated student list — use with usePaginatedQuery on the frontend. */
+export const listStudentsPaginated = query({
+    args: {
+        sessionToken: v.optional(v.string()),
+        status: v.optional(v.string()),
+        classId: v.optional(v.string()),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        try {
+            const tenant = args.sessionToken
+                ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+                : await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "sis");
+            requirePermission(tenant, "students:read");
+
+            if (args.status) {
+                return await ctx.db
+                    .query("students")
+                    .withIndex("by_tenant_status", (q) =>
+                        q.eq("tenantId", tenant.tenantId).eq("status", args.status!)
+                    )
+                    .order("desc")
+                    .paginate(args.paginationOpts);
+            }
+            if (args.classId) {
+                return await ctx.db
+                    .query("students")
+                    .withIndex("by_tenant_class", (q) =>
+                        q.eq("tenantId", tenant.tenantId).eq("classId", args.classId)
+                    )
+                    .order("desc")
+                    .paginate(args.paginationOpts);
+            }
+            return await ctx.db
+                .query("students")
+                .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                .order("desc")
+                .paginate(args.paginationOpts);
+        } catch (error) {
+            if (isAuthOrTenantError(error)) throw error;
+            console.error("listStudentsPaginated failed", error);
+            throw error;
+        }
+    },
+});
+
+/** Cursor-paginated class list — use with usePaginatedQuery on the frontend. */
+export const listClassesPaginated = query({
+    args: {
+        sessionToken: v.optional(v.string()),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        try {
+            const tenant = args.sessionToken
+                ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+                : await requireTenantContext(ctx);
+            await requireModule(ctx, tenant.tenantId, "sis");
+            requirePermission(tenant, "students:read");
+
+            return await ctx.db
+                .query("classes")
+                .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                .order("desc")
+                .paginate(args.paginationOpts);
+        } catch (error) {
+            if (isAuthOrTenantError(error)) throw error;
+            console.error("listClassesPaginated failed", error);
+            throw error;
         }
     },
 });

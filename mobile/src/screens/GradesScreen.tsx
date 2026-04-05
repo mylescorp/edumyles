@@ -8,7 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQuery } from 'convex/react';
+import GradeRow, { type GradeRowProps } from '../components/GradeRow';
+import StudentCard, { type StudentCardProps } from '../components/StudentCard';
 
 import { useAuth } from '../hooks/useAuth';
 import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
@@ -115,15 +118,8 @@ const GradesScreen: React.FC = () => {
         {resolvedParentChildren.length === 0 ? (
           <Text style={styles.stateText}>No children are linked to this account yet.</Text>
         ) : (
-          resolvedParentChildren.map((child: any) => (
-            <View key={child._id} style={styles.card}>
-              <Text style={styles.subject}>
-                {[child.firstName, child.lastName].filter(Boolean).join(' ')}
-              </Text>
-              <Text style={styles.meta}>Admission: {child.admissionNumber ?? 'Not assigned'}</Text>
-              <Text style={styles.meta}>Class: {child.classId ?? 'Pending class assignment'}</Text>
-              <Text style={styles.meta}>Status: {child.status ?? 'active'}</Text>
-            </View>
+          (resolvedParentChildren as StudentCardProps[]).map((child) => (
+            <StudentCard key={child._id} {...child} />
           ))
         )}
       </ScrollView>
@@ -244,19 +240,16 @@ const GradesScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.container}>
       {isOffline && <Text style={styles.banner}>Showing cached grades.</Text>}
-      {resolvedStudentGrades.map((grade: any) => (
-        <View key={grade._id} style={styles.card}>
-          <Text style={styles.subject}>{grade.subjectName ?? 'Subject'}</Text>
-          <Text style={styles.score}>{grade.score}%</Text>
-          <Text style={styles.meta}>
-            {grade.term} • {grade.academicYear}
-          </Text>
-          <Text style={styles.meta}>Grade: {grade.grade}</Text>
-        </View>
-      ))}
-    </ScrollView>
+      <FlashList
+        data={resolvedStudentGrades as GradeRowProps[]}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => <GradeRow {...item} />}
+        estimatedItemSize={80}
+        contentContainerStyle={styles.content}
+      />
+    </View>
   );
 };
 

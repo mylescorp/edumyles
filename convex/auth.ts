@@ -31,7 +31,7 @@ export const authKitEvent = internalMutation({
             lastName: (event.data.lastName as string | undefined) ?? undefined,
             role: "school_admin",
             permissions: [],
-            organizationId: undefined as any,
+            organizationId: undefined,
             isActive: true,
             avatarUrl: (event.data.profilePictureUrl as string | undefined) ?? undefined,
             createdAt: Date.now(),

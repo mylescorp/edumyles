@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import { query } from "../../_generated/server";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
@@ -96,6 +97,65 @@ export const listInvoices = query({
         } catch {
             return [];
         }
+    },
+});
+
+/**
+ * Cursor-paginated invoice list — use with usePaginatedQuery on the frontend.
+ * Enriches each page item with payment totals without fetching all payments.
+ */
+export const listInvoicesPaginated = query({
+    args: {
+        sessionToken: v.optional(v.string()),
+        studentId: v.optional(v.string()),
+        status: v.optional(v.string()),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "finance");
+        requirePermission(tenant, "finance:read");
+
+        let baseQuery = ctx.db
+            .query("invoices")
+            .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId));
+
+        if (args.studentId) {
+            baseQuery = ctx.db
+                .query("invoices")
+                .withIndex("by_tenant_student", (q) =>
+                    q.eq("tenantId", tenant.tenantId).eq("studentId", args.studentId!)
+                );
+        } else if (args.status) {
+            baseQuery = ctx.db
+                .query("invoices")
+                .withIndex("by_tenant_status", (q) =>
+                    q.eq("tenantId", tenant.tenantId).eq("status", args.status!)
+                );
+        }
+
+        const paginated = await baseQuery.order("desc").paginate(args.paginationOpts);
+
+        // Enrich only the page items with payment data (avoids fetching all payments)
+        const enrichedPage = await Promise.all(
+            paginated.page.map(async (invoice) => {
+                const invoicePayments = await ctx.db
+                    .query("payments")
+                    .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+                    .filter((q) => q.eq(q.field("invoiceId"), invoice._id.toString()))
+                    .collect();
+                const amountPaid = getCompletedPaymentAmount(invoicePayments);
+                return {
+                    ...invoice,
+                    amountPaid,
+                    balance: getInvoiceBalance(invoice.amount, amountPaid),
+                };
+            })
+        );
+
+        return { ...paginated, page: enrichedPage };
     },
 });
 

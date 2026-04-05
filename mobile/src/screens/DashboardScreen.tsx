@@ -22,11 +22,11 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
   const { isOffline } = useOfflineSync();
   const [refreshing, setRefreshing] = useState(false);
 
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    // Convex queries are live-subscribed and re-evaluate automatically.
-    // A short delay gives visual feedback before dismissing the spinner.
-    setTimeout(() => setRefreshing(false), 800);
+    // Convex queries are live-subscribed; a minimal debounce gives visual feedback.
+    await new Promise((res) => setTimeout(res, 300));
+    setRefreshing(false);
   }, []);
 
   const studentProfile = useQuery(

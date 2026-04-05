@@ -5,6 +5,7 @@ import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -41,12 +42,16 @@ export default function InvoicesPage() {
     const [verifyingTransferId, setVerifyingTransferId] = useState<string | null>(null);
     const router = useRouter();
 
-    const invoices = usePlatformQuery(
-        api.modules.finance.queries.listInvoices,
+    const {
+        results: invoices,
+        status: invoicesStatus,
+        loadMore: loadMoreInvoices,
+    } = usePaginatedQuery(
+        api.modules.finance.queries.listInvoicesPaginated,
         sessionToken
             ? (statusFilter === "all" ? { sessionToken } : { sessionToken, status: statusFilter as any })
             : "skip",
-        !!sessionToken
+        { initialNumItems: 50 }
     );
 
     const students = usePlatformQuery(api.modules.sis.queries.listStudents, sessionToken ? { sessionToken } : "skip", !!sessionToken);
@@ -231,6 +236,11 @@ export default function InvoicesPage() {
                 }
                 emptyTitle="No invoices found"
                 emptyDescription="Generate invoices for students to see them here."
+                serverPagination={{
+                    isDone: invoicesStatus === "Exhausted",
+                    loadMore: (n) => loadMoreInvoices(n),
+                    isLoading: invoicesStatus === "LoadingMore",
+                }}
             />
         </div>
     );

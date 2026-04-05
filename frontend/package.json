@@ -14,6 +14,7 @@
     "test": "node ../node_modules/vitest/vitest.mjs",
     "test:ui": "node ../node_modules/vitest/vitest.mjs --ui",
     "test:run": "node ../node_modules/vitest/vitest.mjs run",
+    "test:coverage": "node ../node_modules/vitest/vitest.mjs run --coverage",
     "bundle:analyze": "npm run build && npx @next/bundle-analyzer",
     "perf:audit": "npm run build && npx lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html"
   },
@@ -51,7 +52,6 @@
     "posthog-js": "^1.364.1",
     "posthog-node": "^5.28.8",
     "react": "^19.0.0",
-    "react-beautiful-dnd": "^13.1.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.0.0",
     "react-is": "^19.2.4",

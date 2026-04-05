@@ -256,6 +256,18 @@ http.route({
   path: "/payments/airtel/callback",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
+    // Validate shared secret if configured (Airtel does not publish IP ranges)
+    const airtelSecret = process.env.AIRTEL_WEBHOOK_SECRET;
+    if (airtelSecret) {
+      const provided =
+        req.headers.get("x-airtel-signature") ?? req.headers.get("x-webhook-secret");
+      if (provided !== airtelSecret) {
+        return new Response("Unauthorized", { status: 401 });
+      }
+    } else {
+      console.warn("[payments/airtel] AIRTEL_WEBHOOK_SECRET is not set — callback accepted without validation");
+    }
+
     const payload = (await req.json()) as AirtelCallback;
     const parsed = AirtelService.parseCallback(payload);
 
