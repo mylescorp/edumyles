@@ -41,7 +41,6 @@ ios/
 # ------ Convex ------
 .convex/
 .convex-temp/
-convex/_generated/
 
 # ------ Vercel ------
 .vercel/
