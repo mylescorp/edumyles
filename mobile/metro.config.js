@@ -8,7 +8,7 @@ const monorepoRoot = path.resolve(projectRoot, '..');
 const config = getDefaultConfig(projectRoot);
 
 // Watch the monorepo root so Metro sees changes in shared/
-config.watchFolders = [monorepoRoot];
+config.watchFolders = [monorepoRoot, projectRoot];
 
 // Tell Metro where to look for modules — project-local first, then monorepo root
 config.resolver.nodeModulesPaths = [
