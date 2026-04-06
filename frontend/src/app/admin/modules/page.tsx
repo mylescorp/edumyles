@@ -4,13 +4,13 @@ import { ModuleInstallationPanel } from "@/components/admin/ModuleInstallationPa
 import { ModuleDependencyVisualizer } from "@/components/admin/ModuleDependencyVisualizer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Settings, Download, Star, Zap, GitBranch } from "lucide-react";
+import { Package, Settings, Download, Star, GitBranch } from "lucide-react";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 type AvailableModule = {
   moduleId: string;
@@ -46,61 +46,27 @@ export default function ModuleManagementPage() {
     try {
       switch (action) {
         case 'install':
-          await installModule({
-            sessionToken,
-            tenantId,
-            moduleId,
-          });
-          toast({
-            title: "Module Installed",
-            description: "The module has been successfully installed.",
-          });
+          await installModule({ sessionToken, tenantId, moduleId });
+          toast.success("Module installed successfully.");
           break;
-          
+
         case 'uninstall':
-          await uninstallModule({
-            sessionToken,
-            tenantId,
-            moduleId,
-          });
-          toast({
-            title: "Module Uninstalled",
-            description: "The module has been removed from your system.",
-          });
+          await uninstallModule({ sessionToken, tenantId, moduleId });
+          toast.success("Module removed from your system.");
           break;
-          
+
         case 'activate':
-          await toggleModuleStatus({
-            sessionToken,
-            tenantId,
-            moduleId,
-            status: "active",
-          });
-          toast({
-            title: "Module Activated",
-            description: "The module has been enabled.",
-          });
+          await toggleModuleStatus({ sessionToken, tenantId, moduleId, status: "active" });
+          toast.success("Module activated.");
           break;
-          
+
         case 'deactivate':
-          await toggleModuleStatus({
-            sessionToken,
-            tenantId,
-            moduleId,
-            status: "inactive",
-          });
-          toast({
-            title: "Module Deactivated",
-            description: "The module has been disabled.",
-          });
+          await toggleModuleStatus({ sessionToken, tenantId, moduleId, status: "inactive" });
+          toast.success("Module deactivated.");
           break;
       }
     } catch (error: any) {
-      toast({
-        title: "Action Failed",
-        description: error.message || "Failed to perform module action.",
-        variant: "destructive",
-      });
+      toast.error(error?.message ?? "Failed to perform module action.");
     }
   };
 
