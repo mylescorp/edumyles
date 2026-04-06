@@ -19,6 +19,7 @@ import { formatDateTime } from "@/lib/formatters";
 import {
   Clock3,
   Shield,
+  Users,
   UserPlus,
 } from "lucide-react";
 
@@ -64,6 +65,24 @@ export default function PlatformUsersPage() {
     sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   ) as Array<any> | undefined;
+  const tenantUsers = usePlatformQuery(
+    api.platform.users.queries.listAllUsers,
+    sessionToken
+      ? {
+          sessionToken,
+          ...(roleFilter !== "all" ? { role: roleFilter } : {}),
+          ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+          ...(search.trim() ? { search: search.trim() } : {}),
+        }
+      : "skip",
+    !!sessionToken
+  ) as Array<any> | undefined;
+  const tenantOptions = usePlatformQuery(
+    api.platform.users.queries.listTenantFilterOptions,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as Array<any> | undefined;
+  const [tenantFilter, setTenantFilter] = useState("all");
 
   const filteredInvites = (invites ?? []).filter((invite) => {
     const matchesSearch =
@@ -81,17 +100,25 @@ export default function PlatformUsersPage() {
       activeUsers: (users ?? []).filter((user) => user.status === "active").length,
       suspendedUsers: (users ?? []).filter((user) => user.status === "suspended").length,
       pendingInvites: (invites ?? []).filter((invite) => invite.status === "pending").length,
+      totalTenantUsers: (tenantUsers ?? []).filter((user) => user.tenantId !== "PLATFORM").length,
     }),
-    [invites, users]
+    [invites, users, tenantUsers]
   );
 
   const roleOptions = Array.from(
     new Set([...(users ?? []).map((user) => user.role), ...(invites ?? []).map((invite) => invite.role)])
   ).sort();
 
-  if (isLoading || users === undefined || invites === undefined) {
+  if (isLoading || users === undefined || invites === undefined || tenantUsers === undefined || tenantOptions === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
+
+  const filteredTenantUsers = (tenantUsers ?? []).filter((user) => {
+    if (tenantFilter !== "all" && user.tenantId !== tenantFilter) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -175,7 +202,8 @@ export default function PlatformUsersPage() {
 
       <Tabs defaultValue="staff" className="space-y-4">
         <TabsList className="h-auto w-full justify-start rounded-xl border bg-muted/30 p-1">
-          <TabsTrigger value="staff">Staff</TabsTrigger>
+          <TabsTrigger value="staff">Platform Staff</TabsTrigger>
+          <TabsTrigger value="tenant-users">Tenant Users</TabsTrigger>
           <TabsTrigger value="invites">Invites</TabsTrigger>
         </TabsList>
 
@@ -230,6 +258,74 @@ export default function PlatformUsersPage() {
                         </TableCell>
                         <TableCell>{user.accessExpiresAt ? formatDateTime(user.accessExpiresAt) : "No expiry"}</TableCell>
                         <TableCell>{formatDateTime(user.updatedAt)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="tenant-users">
+          <Card>
+            <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <CardTitle>Tenant Users</CardTitle>
+              </div>
+              <Select value={tenantFilter} onValueChange={setTenantFilter}>
+                <SelectTrigger className="w-[260px]">
+                  <SelectValue placeholder="Filter by tenant" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All tenants</SelectItem>
+                  {tenantOptions.map((tenant) => (
+                    <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                      {tenant.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardHeader>
+            <CardContent>
+              {filteredTenantUsers.length === 0 ? (
+                <EmptyState
+                  icon={Users}
+                  title="No tenant users match these filters"
+                  description="Tenant user records across all schools will appear here."
+                />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Tenant</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTenantUsers.map((user) => (
+                      <TableRow key={String(user._id)}>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <p className="font-medium">
+                              {user.firstName || user.lastName
+                                ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+                                : user.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>{user.tenantId}</TableCell>
+                        <TableCell>{formatRoleLabel(user.role)}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={badgeClass(user.isActive ? "active" : "suspended")}>
+                            {user.isActive ? "active" : "inactive"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{formatDateTime(user.createdAt)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

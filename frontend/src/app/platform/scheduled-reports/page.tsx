@@ -30,6 +30,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { OperationsSuiteRail } from "@/components/platform/OperationsSuiteRail";
 
 type ScheduledReportFormat = "csv" | "excel" | "pdf";
 type ScheduledReportFrequency = "daily" | "weekly" | "monthly";
@@ -221,6 +222,8 @@ export default function ScheduledReportsPage() {
           </Button>
         }
       />
+
+      <OperationsSuiteRail currentHref="/platform/scheduled-reports" />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>

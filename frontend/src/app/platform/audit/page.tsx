@@ -15,6 +15,7 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { buildCsv } from "@/lib/csv";
 import { formatDateTime } from "@/lib/formatters";
 import { AlertTriangle, Download, SearchX, ShieldCheck } from "lucide-react";
+import { SecurityAdminRail } from "@/components/platform/SecurityAdminRail";
 
 type AuditLog = {
   _id: string;
@@ -162,6 +163,8 @@ export default function AuditLogPage() {
           </Button>
         }
       />
+
+      <SecurityAdminRail currentHref="/platform/audit" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Visible Logs" value={String(stats.total)} icon={ShieldCheck} />

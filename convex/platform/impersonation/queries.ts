@@ -73,3 +73,130 @@ export const listImpersonationSessions = query({
         }
     },
 });
+
+export const searchImpersonationCandidates = query({
+    args: {
+        sessionToken: v.string(),
+        search: v.optional(v.string()),
+        tenantId: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const actor = await requirePlatformSession(ctx, args);
+        if (actor.role !== "master_admin" && actor.role !== "super_admin") {
+            throw new Error("FORBIDDEN: Impersonation is restricted to master_admin and super_admin");
+        }
+
+        const normalizedSearch = args.search?.trim().toLowerCase() ?? "";
+
+        const [tenants, users] = await Promise.all([
+            ctx.db.query("tenants").collect(),
+            ctx.db.query("users").collect(),
+        ]);
+
+        const tenantMap = new Map(tenants.map((tenant) => [tenant.tenantId, tenant]));
+
+        if (args.tenantId) {
+            const tenant = tenantMap.get(args.tenantId);
+            if (!tenant) {
+                return { tenants: [], users: [] };
+            }
+
+            const tenantUsers = users
+                .filter((user) => user.tenantId === args.tenantId)
+                .filter((user) => user.role !== "master_admin" && user.role !== "super_admin")
+                .filter((user) => {
+                    if (!normalizedSearch) return true;
+                    const haystack = [
+                        user.email,
+                        user.firstName ?? "",
+                        user.lastName ?? "",
+                        user.role,
+                    ]
+                        .join(" ")
+                        .toLowerCase();
+                    return haystack.includes(normalizedSearch);
+                })
+                .sort((left, right) => {
+                    const leftRecommended = left.role === "school_admin" ? 1 : 0;
+                    const rightRecommended = right.role === "school_admin" ? 1 : 0;
+                    if (leftRecommended !== rightRecommended) {
+                        return rightRecommended - leftRecommended;
+                    }
+                    return `${left.firstName ?? ""} ${left.lastName ?? ""}`.localeCompare(
+                        `${right.firstName ?? ""} ${right.lastName ?? ""}`
+                    );
+                })
+                .slice(0, 25)
+                .map((user) => ({
+                    id: user.eduMylesUserId,
+                    name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email,
+                    email: user.email,
+                    role: user.role,
+                    isActive: user.isActive,
+                    recommended: user.role === "school_admin",
+                    tenantId: user.tenantId,
+                    tenantName: tenant.name,
+                }));
+
+            return {
+                tenants: [
+                    {
+                        tenantId: tenant.tenantId,
+                        name: tenant.name,
+                        plan: tenant.plan,
+                        status: tenant.status,
+                        email: tenant.email,
+                        studentCount: 0,
+                    },
+                ],
+                users: tenantUsers,
+            };
+        }
+
+        const studentCounts = await ctx.db.query("tenant_usage_stats").collect();
+        const latestUsageByTenant = new Map<string, any>();
+        for (const usage of studentCounts) {
+            const existing = latestUsageByTenant.get(usage.tenantId);
+            if (!existing || usage.recordedAt > existing.recordedAt) {
+                latestUsageByTenant.set(usage.tenantId, usage);
+            }
+        }
+
+        const matchingTenantIds = new Set<string>();
+
+        for (const tenant of tenants) {
+            const haystack = [tenant.name, tenant.email, tenant.subdomain, tenant.tenantId, tenant.country, tenant.county]
+                .join(" ")
+                .toLowerCase();
+            if (!normalizedSearch || haystack.includes(normalizedSearch)) {
+                matchingTenantIds.add(tenant.tenantId);
+            }
+        }
+
+        for (const user of users) {
+            const haystack = [user.email, user.firstName ?? "", user.lastName ?? ""].join(" ").toLowerCase();
+            if (!normalizedSearch || haystack.includes(normalizedSearch)) {
+                matchingTenantIds.add(user.tenantId);
+            }
+        }
+
+        const tenantResults = Array.from(matchingTenantIds)
+            .map((tenantId) => tenantMap.get(tenantId))
+            .filter(Boolean)
+            .slice(0, 12)
+            .map((tenant) => ({
+                tenantId: tenant!.tenantId,
+                name: tenant!.name,
+                plan: tenant!.plan,
+                status: tenant!.status,
+                email: tenant!.email,
+                studentCount: latestUsageByTenant.get(tenant!.tenantId)?.studentCount ?? 0,
+            }))
+            .sort((left, right) => left.name.localeCompare(right.name));
+
+        return {
+            tenants: tenantResults,
+            users: [],
+        };
+    },
+});

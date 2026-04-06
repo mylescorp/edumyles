@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,18 +10,15 @@ import { useTenant } from "@/hooks/useTenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/use-toast";
 import {
   Package,
   Star,
   Download,
-  Settings,
   CheckCircle,
   XCircle,
   Clock,
-  AlertTriangle,
   Zap,
   DollarSign,
   BookOpen,
@@ -33,7 +31,6 @@ import {
   ShoppingCart,
   UserCog,
   ClipboardList,
-  BarChart3,
   GraduationCap,
   Users
 } from "lucide-react";
@@ -76,6 +73,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function ModuleInstallationPanel() {
+  const router = useRouter();
   const { sessionToken, isLoading, isAuthenticated } = useAuth();
   const { tenantId } = useTenant();
   const { isModuleInstalled, isModuleActive, installedModuleIds } = useInstalledModules();
@@ -86,6 +84,7 @@ export function ModuleInstallationPanel() {
   
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [isInstalling, setIsInstalling] = useState<string | null>(null);
+  const [accessCheckModuleId, setAccessCheckModuleId] = useState<string | null>(null);
 
   // Mutations
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
@@ -97,9 +96,26 @@ export function ModuleInstallationPanel() {
     api.modules.marketplace.queries.getAvailableForTier,
     canQueryModules ? { sessionToken } : "skip"
   );
+  const accessStatus = useQuery(
+    api.modules.marketplace.queries.getModuleAccessStatus,
+    accessCheckModuleId && sessionToken
+      ? { sessionToken, moduleId: accessCheckModuleId }
+      : "skip"
+  ) as
+    | {
+        status:
+          | "allowed"
+          | "plan_upgrade_required"
+          | "rbac_escalation_required"
+          | "payment_required"
+          | "waitlist_only";
+        reason: string;
+        platformPriceKes?: number;
+      }
+    | undefined;
   const resolvedAvailableModules = (availableModules as any[]) ?? [];
 
-  const handleInstall = async (moduleId: string) => {
+  const handleInstall = useCallback(async (moduleId: string) => {
     if (!sessionToken || !tenantId) return;
     
     setIsInstalling(moduleId);
@@ -123,6 +139,56 @@ export function ModuleInstallationPanel() {
     } finally {
       setIsInstalling(null);
     }
+  }, [installModule, sessionToken, tenantId]);
+
+  useEffect(() => {
+    if (!accessCheckModuleId || !accessStatus) return;
+
+    const moduleId = accessCheckModuleId;
+    setAccessCheckModuleId(null);
+
+    if (accessStatus.status === "allowed") {
+      void handleInstall(moduleId);
+      return;
+    }
+
+    if (accessStatus.status === "plan_upgrade_required") {
+      toast({
+        title: "Plan upgrade required",
+        description: accessStatus.reason,
+      });
+      router.push("/admin/settings/billing");
+      return;
+    }
+
+    if (accessStatus.status === "rbac_escalation_required") {
+      toast({
+        title: "Role assignment required",
+        description: accessStatus.reason,
+      });
+      router.push("/admin/users");
+      return;
+    }
+
+    if (accessStatus.status === "payment_required") {
+      toast({
+        title: "Payment required",
+        description: "Complete payment from the marketplace module detail page to continue.",
+      });
+      router.push(`/admin/marketplace/${moduleId}`);
+      return;
+    }
+
+    toast({
+      title: "Module unavailable",
+      description: accessStatus.reason,
+      variant: "destructive",
+    });
+    router.push("/admin/marketplace/requests");
+  }, [accessCheckModuleId, accessStatus, handleInstall, router]);
+
+  const handleInstallRequest = (moduleId: string) => {
+    setAccessCheckModuleId(moduleId);
   };
 
   const handleUninstall = async (moduleId: string) => {
@@ -253,10 +319,12 @@ export function ModuleInstallationPanel() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Pricing:</span>
               <span className="font-medium">
-                ${module.pricing?.monthly ?? 0}/mo
-                {module.pricing?.annual && (
+                {module.platformPriceKes
+                  ? `KES ${Number(module.platformPriceKes).toLocaleString()}`
+                  : "Included in plan"}
+                {module.pricing?.annual && module.platformPriceKes && (
                   <span className="text-xs text-muted-foreground ml-1">
-                    (${module.pricing.annual}/yr)
+                    ({module.pricing.annual}/yr)
                   </span>
                 )}
               </span>
@@ -309,9 +377,9 @@ export function ModuleInstallationPanel() {
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleInstall(module.moduleId);
+                  handleInstallRequest(module.moduleId);
                 }}
-                disabled={!module.availableForTier || isInstallingThis}
+                disabled={!module.availableForTier || isInstallingThis || accessCheckModuleId === module.moduleId}
               >
                 {isInstallingThis ? (
                   <>
@@ -321,7 +389,11 @@ export function ModuleInstallationPanel() {
                 ) : (
                   <>
                     <Download className="h-4 w-4 mr-1" />
-                    {module.availableForTier ? "Install" : "Upgrade Required"}
+                    {isInstallingThis || accessCheckModuleId === module.moduleId
+                      ? "Checking..."
+                      : module.availableForTier
+                        ? "Install"
+                        : "Upgrade Required"}
                   </>
                 )}
               </Button>

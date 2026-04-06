@@ -78,8 +78,8 @@ export default function CreateInvoicePage() {
 
   const currencyRates = usePlatformQuery(
     api.modules.platform.currency.getCurrencyRates,
-    {},
-    true
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
   ) as CurrencyRate[] | undefined;
 
   const createInvoice = useMutation(api.modules.platform.subscriptions.recordSubscriptionInvoice);

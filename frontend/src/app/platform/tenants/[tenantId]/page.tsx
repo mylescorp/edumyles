@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
@@ -84,6 +85,43 @@ function InfoGrid({
   );
 }
 
+function UsageMetricCard({
+  label,
+  value,
+  helper,
+  progress,
+}: {
+  label: string;
+  value: string;
+  helper: string;
+  progress?: number | null;
+}) {
+  const toneClass =
+    typeof progress !== "number"
+      ? "border-slate-500/20 bg-slate-500/10 text-slate-700"
+      : progress >= 90
+        ? statusBadgeClass("suspended")
+        : progress >= 70
+          ? statusBadgeClass("trialing")
+          : statusBadgeClass("active");
+
+  return (
+    <div className="rounded-lg border bg-muted/20 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        {typeof progress === "number" ? (
+          <Badge variant="outline" className={toneClass}>
+            {progress}%
+          </Badge>
+        ) : null}
+      </div>
+      <p className="mt-2 text-2xl font-semibold">{value}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{helper}</p>
+      {typeof progress === "number" ? <Progress className="mt-3 h-2" value={progress} /> : null}
+    </div>
+  );
+}
+
 export default function TenantDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -140,8 +178,11 @@ export default function TenantDetailPage() {
     organization,
     subscription,
     usage,
+    schoolProfile,
+    health,
     overview,
     users,
+    primaryAdmin,
     pendingInvites,
     modules,
     pilotGrants,
@@ -348,10 +389,18 @@ export default function TenantDetailPage() {
                 items={[
                   { label: "School Name", value: tenant.name },
                   { label: "Hostname", value: formatTenantHostname(tenant.subdomain) },
-                  { label: "Admin Email", value: tenant.email },
-                  { label: "Admin Phone", value: tenant.phone ? formatPhone(tenant.phone) : "—" },
+                  { label: "School Type", value: schoolProfile.schoolType ?? "—" },
+                  { label: "Admin Email", value: primaryAdmin?.email ?? tenant.email },
+                  {
+                    label: "Admin Phone",
+                    value: primaryAdmin?.phone ? formatPhone(primaryAdmin.phone) : tenant.phone ? formatPhone(tenant.phone) : "—",
+                  },
+                  { label: "Admin Title", value: primaryAdmin?.bio ?? "School administrator" },
                   { label: "County / Region", value: tenant.county },
                   { label: "Country", value: tenant.country },
+                  { label: "Address", value: schoolProfile.address ?? "—" },
+                  { label: "Website", value: schoolProfile.websiteUrl ?? "—" },
+                  { label: "Custom Domain", value: schoolProfile.customDomain ?? "—" },
                   { label: "Created", value: formatDateTime(tenant.createdAt) },
                   { label: "Updated", value: formatDateTime(tenant.updatedAt) },
                   { label: "Organization", value: organization?.name ?? "Pending WorkOS org sync" },
@@ -365,15 +414,43 @@ export default function TenantDetailPage() {
               <CardHeader>
                 <CardTitle>Current Usage</CardTitle>
               </CardHeader>
-              <CardContent>
-                <InfoGrid
-                  items={[
-                    { label: "Students", value: usage?.studentCount ?? 0 },
-                    { label: "Staff", value: usage?.staffCount ?? 0 },
-                    { label: "Storage", value: `${usage?.storageUsedGb ?? 0} GB` },
-                    { label: "Recorded At", value: usage?.recordedAt ? formatDateTime(usage.recordedAt) : "No usage snapshot yet" },
-                  ]}
+              <CardContent className="grid gap-4">
+                <UsageMetricCard
+                  label="Students"
+                  value={`${health.studentCount}`}
+                  helper={
+                    health.studentLimit
+                      ? `${health.studentCount} of ${health.studentLimit} student seats in use`
+                      : "No student cap configured for this plan"
+                  }
+                  progress={health.studentUsagePct}
                 />
+                <UsageMetricCard
+                  label="Staff"
+                  value={`${health.staffCount}`}
+                  helper={
+                    health.staffLimit
+                      ? `${health.staffCount} of ${health.staffLimit} staff seats in use`
+                      : "No staff cap configured for this plan"
+                  }
+                  progress={health.staffUsagePct}
+                />
+                <UsageMetricCard
+                  label="Storage"
+                  value={`${health.storageUsedGb} GB`}
+                  helper={
+                    health.storageLimitGb
+                      ? `${health.storageUsedGb} GB of ${health.storageLimitGb} GB allocated`
+                      : "No storage ceiling configured for this plan"
+                  }
+                  progress={health.storageUsagePct}
+                />
+                <div className="rounded-lg border bg-muted/20 p-4">
+                  <p className="text-sm text-muted-foreground">Latest snapshot</p>
+                  <p className="mt-2 font-medium">
+                    {usage?.recordedAt ? formatDateTime(usage.recordedAt) : "No usage snapshot yet"}
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
@@ -388,6 +465,10 @@ export default function TenantDetailPage() {
                     { label: "Audit Events", value: overview.auditEventCount },
                     { label: "Pending Invites", value: overview.pendingInviteCount },
                     { label: "Active Modules", value: overview.activeModuleCount },
+                    { label: "Display Currency", value: schoolProfile.displayCurrency ?? "KES" },
+                    { label: "Timezone", value: schoolProfile.timezone ?? "Africa/Nairobi" },
+                    { label: "Term Structure", value: schoolProfile.termStructure ?? "—" },
+                    { label: "Outstanding Balance", value: formatKes(health.outstandingInvoiceAmountKes) },
                   ]}
                 />
               </CardContent>
@@ -406,6 +487,7 @@ export default function TenantDetailPage() {
                   items={[
                     { label: "Plan", value: subscription.plan?.name ?? subscription.planId },
                     { label: "Status", value: subscription.status },
+                    { label: "Billing Cycle", value: subscription.billingCycleLabel },
                     { label: "Current Period Start", value: formatDate(subscription.currentPeriodStart) },
                     { label: "Current Period End", value: formatDate(subscription.currentPeriodEnd) },
                     { label: "Trial Ends", value: subscription.trialEndsAt ? formatDate(subscription.trialEndsAt) : "—" },
@@ -413,6 +495,9 @@ export default function TenantDetailPage() {
                     { label: "Monthly Price", value: formatKes(subscription.customPriceMonthlyKes ?? subscription.plan?.priceMonthlyKes ?? 0) },
                     { label: "Annual Price", value: formatKes(subscription.customPriceAnnualKes ?? subscription.plan?.priceAnnualKes ?? 0) },
                     { label: "Student Limit", value: subscription.plan?.studentLimit ?? "Unlimited" },
+                    { label: "Support Tier", value: subscription.plan?.supportTier ?? "—" },
+                    { label: "API Access", value: subscription.plan?.apiAccess ?? "—" },
+                    { label: "White Label", value: subscription.plan?.whiteLabel ?? "—" },
                   ]}
                 />
               ) : (
@@ -664,6 +749,7 @@ export default function TenantDetailPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-semibold">{finance.totals.outstandingInvoiceCount}</p>
+                <p className="text-sm text-muted-foreground">{formatKes(finance.totals.outstandingInvoiceAmountKes)}</p>
               </CardContent>
             </Card>
           </div>

@@ -2,6 +2,7 @@ import { internal } from "../../_generated/api";
 import { mutation, query } from "../../_generated/server";
 import { ConvexError, v } from "convex/values";
 import { logAction } from "../../helpers/auditLog";
+import { requireRole } from "../../helpers/authorize";
 import { generateTenantId } from "../../helpers/idGenerator";
 import { requirePlatformRole } from "../../helpers/platformGuard";
 import { requireTenantContext } from "../../helpers/tenantGuard";
@@ -162,6 +163,91 @@ export const createLead = mutation({
     });
 
     return { success: true, leadId };
+  },
+});
+
+export const requestEnterpriseConsultation = mutation({
+  args: {
+    notes: v.string(),
+    phone: v.optional(v.string()),
+    timeline: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    requireRole(tenant, "school_admin");
+
+    const tenantRecord = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .first();
+
+    if (!tenantRecord) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "Tenant record not found" });
+    }
+
+    const now = Date.now();
+    const existingLead = await ctx.db
+      .query("crm_leads")
+      .withIndex("by_email", (q: any) => q.eq("email", tenant.email))
+      .first();
+
+    if (existingLead && existingLead.tenantId === tenant.tenantId) {
+      await ctx.db.patch(existingLead._id, {
+        phone: args.phone ?? existingLead.phone,
+        timeline: args.timeline ?? existingLead.timeline,
+        notes: [existingLead.notes, args.notes].filter(Boolean).join("\n\n"),
+        stage: "qualified",
+        status: "open",
+        updatedAt: now,
+      });
+
+      await logAction(ctx, {
+        tenantId: tenant.tenantId,
+        actorId: tenant.userId,
+        actorEmail: tenant.email,
+        action: "crm.lead_updated",
+        entityType: "crm_lead",
+        entityId: String(existingLead._id),
+        after: { source: "enterprise_billing_request", timeline: args.timeline },
+      });
+
+      return { success: true, leadId: String(existingLead._id), created: false };
+    }
+
+    const leadId = await ctx.db.insert("crm_leads", {
+      schoolName: tenantRecord.name,
+      contactName: tenant.email,
+      email: tenant.email,
+      phone: args.phone ?? tenantRecord.phone,
+      country: tenantRecord.country ?? "KE",
+      studentCount: undefined,
+      budgetConfirmed: undefined,
+      timeline: args.timeline,
+      decisionMaker: "school_admin",
+      source: "enterprise_billing_request",
+      qualificationScore: 70,
+      stage: "qualified",
+      assignedTo: undefined,
+      dealValueKes: undefined,
+      expectedClose: undefined,
+      tenantId: tenant.tenantId,
+      notes: args.notes,
+      status: "open",
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "crm.lead_created",
+      entityType: "crm_lead",
+      entityId: String(leadId),
+      after: { source: "enterprise_billing_request", schoolName: tenantRecord.name },
+    });
+
+    return { success: true, leadId: String(leadId), created: true };
   },
 });
 

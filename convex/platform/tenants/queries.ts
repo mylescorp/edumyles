@@ -3,8 +3,43 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
+function parseSubscriptionNotes(notes?: string) {
+  if (!notes) {
+    return {};
+  }
+
+  return notes.split(" | ").reduce<Record<string, string>>((accumulator, entry) => {
+    const separatorIndex = entry.indexOf(":");
+    if (separatorIndex === -1) {
+      return accumulator;
+    }
+
+    const key = entry.slice(0, separatorIndex).trim().toLowerCase();
+    const value = entry.slice(separatorIndex + 1).trim();
+
+    if (key && value) {
+      accumulator[key] = value;
+    }
+
+    return accumulator;
+  }, {});
+}
+
+function formatBillingCycleLabel(value?: string) {
+  switch (value) {
+    case "monthly":
+      return "Monthly";
+    case "quarterly":
+      return "Termly";
+    case "annual":
+      return "Annual";
+    default:
+      return value ?? "Not set";
+  }
+}
+
 async function enrichTenant(ctx: any, tenant: any) {
-  const [users, installedModules] = await Promise.all([
+  const [users, installedModules, usageStats, subscription] = await Promise.all([
     ctx.db
       .query("users")
       .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
@@ -13,11 +48,53 @@ async function enrichTenant(ctx: any, tenant: any) {
       .query("installedModules")
       .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
       .collect(),
+    ctx.db
+      .query("tenant_usage_stats")
+      .withIndex("by_tenant_recordedAt", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .collect(),
+    ctx.db
+      .query("tenant_subscriptions")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .first(),
   ]);
+
+  const latestUsage =
+    usageStats.slice().sort((a: any, b: any) => b.recordedAt - a.recordedAt)[0] ?? null;
+
+  const activeUsers = users.filter((user: any) => user.isActive);
+  const studentCount = latestUsage?.studentCount ?? 0;
+  const staffCount = latestUsage?.staffCount ?? activeUsers.length;
+
+  let mrrKes = 0;
+  if (subscription) {
+    const plan = await ctx.db
+      .query("subscription_plans")
+      .withIndex("by_name", (q: any) => q.eq("name", subscription.planId))
+      .first();
+
+    if (subscription.customPriceMonthlyKes !== undefined) {
+      mrrKes = subscription.customPriceMonthlyKes;
+    } else if (subscription.customPriceAnnualKes !== undefined) {
+      mrrKes = Math.round(subscription.customPriceAnnualKes / 12);
+    } else if (plan) {
+      mrrKes = plan.priceMonthlyKes;
+    }
+  }
+
+  const lastActiveAt = Math.max(
+    tenant.updatedAt ?? tenant.createdAt ?? 0,
+    latestUsage?.recordedAt ?? 0,
+    subscription?.updatedAt ?? 0
+  );
 
   return {
     ...tenant,
-    userCount: users.filter((user: any) => user.isActive).length,
+    userCount: activeUsers.length,
+    studentCount,
+    staffCount,
+    mrrKes,
+    lastActiveAt,
+    subscriptionStatus: subscription?.status ?? null,
     modules: installedModules
       .filter((module: any) => module.status === "active")
       .map((module: any) => module.moduleId),
@@ -158,11 +235,40 @@ export const getPlatformStats = query({
     const users = await safeCollect(() => ctx.db.query("users").collect());
     const activeUsers = users.filter((u: any) => u.isActive);
     const students = await safeCollect(() => ctx.db.query("students").collect());
+    const usageStats = await safeCollect(() => ctx.db.query("tenant_usage_stats").collect());
+    const subscriptions = await safeCollect(() => ctx.db.query("tenant_subscriptions").collect());
+    const plans = await safeCollect(() => ctx.db.query("subscription_plans").collect());
+
+    const planMap = new Map(plans.map((plan: any) => [plan.name, plan]));
+    const latestUsageByTenant = new Map<string, any>();
+    for (const stat of usageStats) {
+      const existing = latestUsageByTenant.get((stat as any).tenantId);
+      if (!existing || (stat as any).recordedAt > existing.recordedAt) {
+        latestUsageByTenant.set((stat as any).tenantId, stat);
+      }
+    }
 
     // Count tenants per plan tier
     const planCounts: Record<string, number> = {};
+    const countryCounts: Record<string, number> = {};
+    let totalStudentCapacity = 0;
+    let totalMonthlyRecurringKes = 0;
     for (const t of tenants) {
       planCounts[(t as any).plan] = (planCounts[(t as any).plan] || 0) + 1;
+      countryCounts[(t as any).country] = (countryCounts[(t as any).country] || 0) + 1;
+
+      const latestUsage = latestUsageByTenant.get((t as any).tenantId);
+      totalStudentCapacity += latestUsage?.studentCount ?? 0;
+
+      const subscription = subscriptions.find((item: any) => item.tenantId === (t as any).tenantId);
+      const plan = subscription ? planMap.get(subscription.planId) : null;
+      if (subscription?.customPriceMonthlyKes !== undefined) {
+        totalMonthlyRecurringKes += subscription.customPriceMonthlyKes;
+      } else if (subscription?.customPriceAnnualKes !== undefined) {
+        totalMonthlyRecurringKes += Math.round(subscription.customPriceAnnualKes / 12);
+      } else if (plan) {
+        totalMonthlyRecurringKes += plan.priceMonthlyKes;
+      }
     }
 
     return {
@@ -173,7 +279,40 @@ export const getPlatformStats = query({
       totalUsers: users.length,
       activeUsers: activeUsers.length,
       totalStudents: students.length,
+      totalStudentCapacity,
+      totalMonthlyRecurringKes,
       planCounts,
+      countryCounts,
+    };
+  },
+});
+
+export const checkSubdomainAvailability = query({
+  args: {
+    sessionToken: v.string(),
+    subdomain: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const normalized = args.subdomain.trim().toLowerCase();
+    if (!normalized) {
+      return {
+        subdomain: normalized,
+        available: false,
+        reason: "Enter a subdomain to check availability.",
+      };
+    }
+
+    const existing = await ctx.db
+      .query("tenants")
+      .withIndex("by_subdomain", (q) => q.eq("subdomain", normalized))
+      .first();
+
+    return {
+      subdomain: normalized,
+      available: !existing,
+      reason: existing ? "This subdomain is already in use." : "Available",
     };
   },
 });
@@ -313,6 +452,7 @@ export const getTenantDetailBundle = query({
           .withIndex("by_name", (q) => q.eq("name", subscription.planId as any))
           .first()
       : null;
+    const subscriptionMetadata = parseSubscriptionNotes(subscription?.customPricingNotes);
 
     const moduleRegistryEntries = await ctx.db.query("moduleRegistry").collect();
     const marketplaceEntries = await ctx.db.query("modules").collect();
@@ -357,6 +497,7 @@ export const getTenantDetailBundle = query({
 
     const activeUsers = users.filter((user: any) => user.isActive);
     const pendingUsers = users.filter((user: any) => user.workosUserId?.startsWith("pending-"));
+    const schoolAdmin = users.find((user: any) => user.role === "school_admin") ?? users[0] ?? null;
     const openTickets = supportTickets.filter((ticket: any) =>
       ["open", "in_progress"].includes(ticket.status)
     );
@@ -400,6 +541,23 @@ export const getTenantDetailBundle = query({
       .slice()
       .sort((a: any, b: any) => b.createdAt - a.createdAt)
       .slice(0, 10);
+    const totalSubscriptionInvoiceAmountKes = subscriptionInvoices.reduce(
+      (sum: number, invoice: any) => sum + invoice.totalAmountKes,
+      0
+    );
+    const totalCollectedKes = recentPayments
+      .filter((payment: any) => ["completed", "success"].includes(payment.status))
+      .reduce((sum: number, payment: any) => sum + payment.amount, 0);
+    const outstandingInvoices = recentInvoices.filter((invoice: any) =>
+      !["paid", "cancelled"].includes(invoice.status)
+    );
+    const outstandingInvoiceAmountKes = outstandingInvoices.reduce(
+      (sum: number, invoice: any) => sum + (invoice.amount ?? 0),
+      0
+    );
+    const studentLimit = plan?.studentLimit ?? null;
+    const staffLimit = plan?.staffLimit ?? null;
+    const storageLimitGb = plan?.storageGb ?? null;
 
     return {
       tenant,
@@ -408,9 +566,41 @@ export const getTenantDetailBundle = query({
         ? {
             ...subscription,
             plan,
+            metadata: subscriptionMetadata,
+            billingCycleLabel: formatBillingCycleLabel(subscriptionMetadata["billing cycle"]),
           }
         : null,
       usage: latestUsage,
+      schoolProfile: {
+        schoolType: subscriptionMetadata["school type"] ?? null,
+        address: subscriptionMetadata["address"] ?? null,
+        websiteUrl: subscriptionMetadata["website"] ?? null,
+        customDomain: subscriptionMetadata["custom domain"] ?? null,
+        timezone: subscriptionMetadata["timezone"] ?? null,
+        displayCurrency: subscriptionMetadata["display currency"] ?? null,
+        academicYearStartMonth: subscriptionMetadata["academic year start month"] ?? null,
+        termStructure: subscriptionMetadata["term structure"] ?? null,
+        billingCycle: formatBillingCycleLabel(subscriptionMetadata["billing cycle"]),
+        paymentCollectionMode: subscriptionMetadata["payment collection"] ?? null,
+      },
+      health: {
+        studentCount: latestUsage?.studentCount ?? 0,
+        studentLimit,
+        studentUsagePct: studentLimit && studentLimit > 0
+          ? Math.min(100, Math.round(((latestUsage?.studentCount ?? 0) / studentLimit) * 100))
+          : null,
+        staffCount: latestUsage?.staffCount ?? activeUsers.length,
+        staffLimit,
+        staffUsagePct: staffLimit && staffLimit > 0
+          ? Math.min(100, Math.round((((latestUsage?.staffCount ?? activeUsers.length) / staffLimit) * 100)))
+          : null,
+        storageUsedGb: latestUsage?.storageUsedGb ?? 0,
+        storageLimitGb,
+        storageUsagePct: storageLimitGb && storageLimitGb > 0
+          ? Math.min(100, Math.round((((latestUsage?.storageUsedGb ?? 0) / storageLimitGb) * 100)))
+          : null,
+        outstandingInvoiceAmountKes,
+      },
       overview: {
         userCount: users.length,
         activeUserCount: activeUsers.length,
@@ -424,6 +614,7 @@ export const getTenantDetailBundle = query({
       users: activeUsers
         .slice()
         .sort((a: any, b: any) => b.createdAt - a.createdAt),
+      primaryAdmin: schoolAdmin,
       pendingInvites: pendingUsers
         .slice()
         .sort((a: any, b: any) => b.createdAt - a.createdAt),
@@ -436,16 +627,10 @@ export const getTenantDetailBundle = query({
         invoices: recentInvoices,
         payments: recentPayments,
         totals: {
-          totalInvoiceAmountKes: subscriptionInvoices.reduce(
-            (sum: number, invoice: any) => sum + invoice.totalAmountKes,
-            0
-          ),
-          totalCollectedKes: recentPayments
-            .filter((payment: any) => ["completed", "success"].includes(payment.status))
-            .reduce((sum: number, payment: any) => sum + payment.amount, 0),
-          outstandingInvoiceCount: recentInvoices.filter((invoice: any) =>
-            !["paid", "cancelled"].includes(invoice.status)
-          ).length,
+          totalInvoiceAmountKes: totalSubscriptionInvoiceAmountKes,
+          totalCollectedKes,
+          outstandingInvoiceCount: outstandingInvoices.length,
+          outstandingInvoiceAmountKes,
         },
       },
       communications: {

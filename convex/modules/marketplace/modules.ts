@@ -784,7 +784,18 @@ export const checkModuleAccess = internalMutation({
       }
     }
 
-    if (module.platformPriceKes && module.platformPriceKes > 0) {
+    const successfulPayments = await ctx.db
+      .query("module_payments")
+      .withIndex("by_tenant_status", (q) =>
+        q.eq("tenantId", args.tenantId).eq("status", "success")
+      )
+      .filter((q) => q.eq(q.field("moduleId"), args.moduleId))
+      .collect();
+    const hasSuccessfulPayment = successfulPayments.some(
+      (payment) => payment.status === "success"
+    );
+
+    if (module.platformPriceKes && module.platformPriceKes > 0 && !hasSuccessfulPayment) {
       return { status: "payment_required" as const, reason: "Module requires payment" };
     }
 

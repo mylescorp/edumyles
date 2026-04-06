@@ -52,4 +52,46 @@ crons.interval(
   {}
 );
 
+crons.daily(
+  "process pilot grant expiry",
+  { hourUTC: 21, minuteUTC: 0 },
+  (internal as any).modules.platform.pilotGrants.processExpiredGrants,
+  {}
+);
+
+crons.daily(
+  "check stalled onboardings",
+  { hourUTC: 21, minuteUTC: 30 },
+  (internal as any).modules.platform.onboarding.checkStalledOnboardings,
+  {}
+);
+
+crons.daily(
+  "send trial interventions",
+  { hourUTC: 22, minuteUTC: 0 },
+  (internal as any).modules.platform.onboarding.sendTrialInterventions,
+  {}
+);
+
+crons.daily(
+  "refresh currency rates daily",
+  { hourUTC: 6, minuteUTC: 0 },
+  (internal as any).modules.platform.currency.updateCurrencyRates,
+  {}
+);
+
+crons.daily(
+  "expire platform invites",
+  { hourUTC: 22, minuteUTC: 30 },
+  (internal as any).modules.platform.users.expireOldInvites,
+  {}
+);
+
+crons.daily(
+  "check sla breaches",
+  { hourUTC: 8, minuteUTC: 0 },
+  internal.system.maintenance.detectSlaBreaches,
+  {}
+);
+
 export default crons;

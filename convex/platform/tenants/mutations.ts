@@ -145,7 +145,7 @@ export const provisionTenant = mutation({
     adminJobTitle: v.optional(v.string()),
     sendMagicLink: v.boolean(),
     planId: v.string(),
-    billingCycle: v.union(v.literal("monthly"), v.literal("annual")),
+    billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
     customPriceMonthlyKes: v.optional(v.number()),
     customPriceAnnualKes: v.optional(v.number()),
     trialDays: v.number(),
@@ -186,9 +186,13 @@ export const provisionTenant = mutation({
     const normalizedPlan = normalizePlan(args.planId as any);
     const selectedModuleIds = Array.from(new Set(args.selectedModuleIds));
     const trialEndsAt = args.trialDays > 0 ? now + args.trialDays * 24 * 60 * 60 * 1000 : undefined;
-    const currentPeriodEnd =
-      trialEndsAt ??
-      now + (args.billingCycle === "annual" ? 365 : 30) * 24 * 60 * 60 * 1000;
+    const billingCycleDays =
+      args.billingCycle === "annual"
+        ? 365
+        : args.billingCycle === "quarterly"
+          ? 90
+          : 30;
+    const currentPeriodEnd = trialEndsAt ?? now + billingCycleDays * 24 * 60 * 60 * 1000;
 
     const tenantDocId = await ctx.db.insert("tenants", {
       tenantId,
@@ -231,6 +235,7 @@ export const provisionTenant = mutation({
         args.address ? `Address: ${args.address}` : null,
         args.websiteUrl ? `Website: ${args.websiteUrl}` : null,
         args.customDomain ? `Custom domain: ${args.customDomain}` : null,
+        `Billing cycle: ${args.billingCycle}`,
         `Timezone: ${args.timezone}`,
         `Display currency: ${args.displayCurrency}`,
         `Academic year start month: ${args.academicYearStartMonth}`,

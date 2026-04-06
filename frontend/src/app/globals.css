@@ -120,24 +120,24 @@
   --section-padding-mobile: 3rem 1.5rem;
   --max-width:              1200px;
 
-  /* ── Sidebar (Forest Dark Theme) ── */
-  --sidebar-bg:           #0C3020;
-  --sidebar-active:       #0F4C2A;
-  --sidebar-accent:       rgba(232,160,32,0.12);
-  --sidebar-accent-hover: rgba(232,160,32,0.18);
-  --sidebar-text:         rgba(255,255,255,0.70);
+  /* ── Sidebar (Readable Sage Surface) ── */
+  --sidebar-bg:           #123726;
+  --sidebar-active:       #1A4A33;
+  --sidebar-accent:       rgba(232,160,32,0.14);
+  --sidebar-accent-hover: rgba(232,160,32,0.22);
+  --sidebar-text:         rgba(255,255,255,0.84);
   --sidebar-text-active:  #FFFFFF;
-  --sidebar-text-hover:   rgba(255,255,255,0.90);
-  --sidebar-border:       rgba(232,160,32,0.15);
-  --sidebar-icon:         rgba(255,255,255,0.60);
+  --sidebar-text-hover:   rgba(255,255,255,0.98);
+  --sidebar-border:       rgba(255,255,255,0.12);
+  --sidebar-icon:         rgba(255,255,255,0.72);
   --sidebar-icon-hover:   #E8A020;
 
-  /* ── Topnav (Forest Deep Theme) ── */
-  --topnav-bg:            #061A12;
-  --topnav-border:        rgba(232,160,32,0.15);
-  --topnav-text:          rgba(255,255,255,0.75);
+  /* ── Topnav (Balanced Dark Theme) ── */
+  --topnav-bg:            #0B2419;
+  --topnav-border:        rgba(255,255,255,0.10);
+  --topnav-text:          rgba(255,255,255,0.82);
   --topnav-text-active:   #FFFFFF;
-  --topnav-active-bg:     rgba(232,160,32,0.18);
+  --topnav-active-bg:     rgba(232,160,32,0.20);
   --topnav-active-border: #E8A020;
   --topnav-hover-bg:      rgba(255,255,255,0.08);
 

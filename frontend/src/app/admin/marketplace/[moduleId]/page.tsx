@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
@@ -80,6 +80,7 @@ export default function ModuleDetailPage() {
 
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
   const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
+  const recordModulePayment = useMutation(api.modules.marketplace.modules.recordModulePayment);
 
   const [dialog, setDialog] = useState<
     | { kind: "confirm_install" }
@@ -92,17 +93,26 @@ export default function ModuleDetailPage() {
   const [paymentProvider, setPaymentProvider] = useState("mpesa");
   const [paymentReference, setPaymentReference] = useState("");
 
-  // Resolve access check → open appropriate dialog
-  if (checkingAccess && accessStatus !== undefined) {
+  useEffect(() => {
+    if (!checkingAccess || accessStatus === undefined) return;
     setCheckingAccess(false);
+
     if (accessStatus.status === "allowed") {
       setDialog({ kind: "confirm_install" });
-    } else if (accessStatus.status === "payment_required") {
-      setDialog({ kind: "payment", platformPriceKes: accessStatus.platformPriceKes ?? 0 });
-    } else {
-      setDialog({ kind: "access_blocked", status: accessStatus.status, reason: accessStatus.reason });
+      return;
     }
-  }
+
+    if (accessStatus.status === "payment_required") {
+      setDialog({ kind: "payment", platformPriceKes: accessStatus.platformPriceKes ?? 0 });
+      return;
+    }
+
+    setDialog({
+      kind: "access_blocked",
+      status: accessStatus.status,
+      reason: accessStatus.reason,
+    });
+  }, [checkingAccess, accessStatus]);
 
   if (authLoading || tenantLoading || moduleDetails === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -134,6 +144,32 @@ export default function ModuleDetailPage() {
       setDialog(null);
     } catch (error: any) {
       toast.error(error?.message ?? "Failed to install module");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleConfirmPaymentInstall = async (platformPriceKes: number) => {
+    if (!tenantId || !paymentReference.trim()) return;
+    setIsProcessing(true);
+    try {
+      await recordModulePayment({
+        tenantId,
+        moduleId,
+        amountKes: platformPriceKes,
+        currency: "KES",
+        displayAmount: platformPriceKes,
+        exchangeRate: 1,
+        provider: paymentProvider,
+        status: "success",
+      });
+
+      await installModule({ sessionToken: sessionToken!, tenantId, moduleId });
+      toast.success("Payment confirmed and module installed successfully");
+      setDialog(null);
+      setPaymentReference("");
+    } catch (error: any) {
+      toast.error(error?.message ?? "Failed to confirm payment and install module");
     } finally {
       setIsProcessing(false);
     }
@@ -442,7 +478,7 @@ export default function ModuleDetailPage() {
               <Button
                 className="bg-[#0F4C2A] hover:bg-[#1A7A4A] text-white"
                 disabled={isProcessing || !paymentReference.trim()}
-                onClick={handleConfirmInstall}
+                onClick={() => handleConfirmPaymentInstall(dialog.platformPriceKes)}
               >
                 {isProcessing ? "Processing…" : "Confirm Payment & Install"}
               </Button>

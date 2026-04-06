@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { USER_ROLES } from "@shared/constants";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -13,7 +14,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -40,39 +40,78 @@ const MODULE_CONFIG_TEMPLATES: Record<string, Record<string, any>> = {
 export default function ModuleConfigPage() {
   const params = useParams();
   const moduleId = params.moduleId as string;
-  const { isLoading: authLoading, sessionToken } = useAuth();
+  const { isLoading: authLoading, isAuthenticated, sessionToken } = useAuth();
   const { tenantId, isLoading: tenantLoading } = useTenant();
+  const hasLiveTenantSession =
+    !!sessionToken && sessionToken !== "dev_session_token";
+  const canQueryModule =
+    !authLoading && isAuthenticated && hasLiveTenantSession;
 
   const moduleDetails = useQuery(
     api.modules.marketplace.queries.getModuleDetails,
-    sessionToken ? { sessionToken, moduleId } : "skip"
+    canQueryModule ? { sessionToken, moduleId } : "skip"
   );
+  const moduleConfig = useQuery(
+    api.modules.marketplace.modules.getModuleConfig,
+    canQueryModule ? { moduleId } : "skip",
+    canQueryModule
+  ) as
+    | {
+        rolePermissions?: Record<string, string[]>;
+        featureFlags?: Record<string, boolean>;
+      }
+    | undefined;
   const toggleStatus = useMutation(api.modules.marketplace.mutations.toggleModuleStatus);
-  const updateModuleConfig = useMutation(api.modules.marketplace.mutations.updateModuleConfig);
+  const updateModuleConfig = useMutation(api.modules.marketplace.modules.updateModuleConfig);
   const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
-  const [configText, setConfigText] = useState("{}");
+  const [rolePermissions, setRolePermissions] = useState<Record<string, boolean>>({});
+  const [featureFlags, setFeatureFlags] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
   const [confirmUninstall, setConfirmUninstall] = useState(false);
 
+  const roleOptions = useMemo(() => {
+    const platformRoles = new Set(["master_admin", "super_admin"]);
+    const moduleSupportedRoles = moduleDetails?.supportedRoles as string[] | undefined;
+    const fallbackRoles = Object.keys(USER_ROLES).filter((role) => !platformRoles.has(role));
+    return (moduleSupportedRoles?.length ? moduleSupportedRoles : fallbackRoles).map((role) => ({
+      value: role,
+      label: USER_ROLES[role as keyof typeof USER_ROLES]?.label ?? role,
+    }));
+  }, [moduleDetails?.supportedRoles]);
+
   useEffect(() => {
     if (!moduleDetails) return;
-    const config =
-      Object.keys(moduleDetails.installed?.config ?? {}).length > 0
-        ? moduleDetails.installed?.config
-        : MODULE_CONFIG_TEMPLATES[moduleId] ?? {};
-    setConfigText(JSON.stringify(config, null, 2));
-  }, [moduleDetails, moduleId]);
 
-  const parsedConfig = useMemo(() => {
-    try {
-      return JSON.parse(configText);
-    } catch {
-      return null;
-    }
-  }, [configText]);
+    const configuredPermissions = moduleConfig?.rolePermissions ?? {};
+    const nextRolePermissions = roleOptions.reduce<Record<string, boolean>>((acc, role) => {
+      acc[role.value] = (configuredPermissions[role.value]?.length ?? 0) > 0;
+      return acc;
+    }, {});
 
-  if (authLoading || tenantLoading || moduleDetails === undefined) {
+    const configuredFeatureFlags = moduleConfig?.featureFlags ?? {};
+    const templateFlags = Object.entries(MODULE_CONFIG_TEMPLATES[moduleId] ?? {}).reduce<Record<string, boolean>>(
+      (acc, [key, value]) => {
+        if (typeof value === "boolean") {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {}
+    );
+
+    setRolePermissions(nextRolePermissions);
+    setFeatureFlags({
+      ...templateFlags,
+      ...configuredFeatureFlags,
+    });
+  }, [moduleConfig, moduleDetails, moduleId, roleOptions]);
+
+  if (
+    authLoading ||
+    tenantLoading ||
+    (canQueryModule && (moduleDetails === undefined || moduleConfig === undefined))
+  ) {
     return <LoadingSkeleton variant="page" />;
   }
 
@@ -108,14 +147,23 @@ export default function ModuleConfigPage() {
   };
 
   const handleSaveConfig = async () => {
-    if (!tenantId || !sessionToken || parsedConfig === null) return;
+    if (!tenantId || !sessionToken) return;
     setIsSaving(true);
     try {
+      const normalizedRolePermissions = Object.entries(rolePermissions).reduce<Record<string, string[]>>(
+        (acc, [role, enabled]) => {
+          if (enabled) {
+            acc[role] = ["access"];
+          }
+          return acc;
+        },
+        {}
+      );
+
       await updateModuleConfig({
-        sessionToken,
-        tenantId,
         moduleId,
-        config: parsedConfig,
+        rolePermissions: normalizedRolePermissions,
+        featureFlags,
       });
       toast.success("Module settings saved");
     } catch (error) {
@@ -246,7 +294,7 @@ export default function ModuleConfigPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Configuration</CardTitle>
+            <CardTitle>Permissions & Feature Controls</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border p-3">
@@ -265,25 +313,80 @@ export default function ModuleConfigPage() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="module-config">Configuration JSON</Label>
-              <Textarea
-                id="module-config"
-                value={configText}
-                onChange={(e) => setConfigText(e.target.value)}
-                rows={16}
-                className="font-mono text-xs"
-              />
-              <p className="mt-2 text-xs text-muted-foreground">
-                Save structured module settings here. Core modules can store configuration even when they do not have a separate install record yet.
-              </p>
-              {parsedConfig === null && (
-                <p className="mt-2 text-xs text-destructive">Configuration must be valid JSON before saving.</p>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium">Role Permissions</Label>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Choose which school roles should be allowed to access this module.
+                </p>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                {roleOptions.map((role) => (
+                  <div
+                    key={role.value}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{role.label}</p>
+                      <p className="text-xs text-muted-foreground">{role.value}</p>
+                    </div>
+                    <Switch
+                      checked={rolePermissions[role.value] ?? false}
+                      onCheckedChange={(checked) =>
+                        setRolePermissions((current) => ({
+                          ...current,
+                          [role.value]: checked,
+                        }))
+                      }
+                      disabled={isSaving}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium">Feature Flags</Label>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Enable or disable optional module behaviors for your school.
+                </p>
+              </div>
+              {Object.keys(featureFlags).length === 0 ? (
+                <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                  No feature toggles defined for this module yet.
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {Object.entries(featureFlags).map(([flag, enabled]) => (
+                    <div
+                      key={flag}
+                      className="flex items-center justify-between rounded-lg border p-3"
+                    >
+                      <div>
+                        <p className="font-medium">{flag}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Toggle module-specific behavior for this tenant.
+                        </p>
+                      </div>
+                      <Switch
+                        checked={enabled}
+                        onCheckedChange={(checked) =>
+                          setFeatureFlags((current) => ({
+                            ...current,
+                            [flag]: checked,
+                          }))
+                        }
+                        disabled={isSaving}
+                      />
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={handleSaveConfig} disabled={isSaving || parsedConfig === null}>
+              <Button onClick={handleSaveConfig} disabled={isSaving}>
                 <Save className="mr-2 h-4 w-4" />
                 Save Settings
               </Button>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
+import { BillingAdminRail } from "@/components/platform/BillingAdminRail";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -235,6 +236,8 @@ export default function BillingPlansPage() {
           </div>
         }
       />
+
+      <BillingAdminRail currentHref="/platform/billing/plans" />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>

@@ -29,6 +29,7 @@ import { api } from "@/convex/_generated/api";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ComposeDialog } from "./ComposeDialog";
 import { toast } from "sonner";
+import { OperationsAdminRail } from "@/components/platform/OperationsAdminRail";
 
 type MessageStatus = "draft" | "scheduled" | "sent";
 
@@ -233,6 +234,8 @@ export default function CommunicationsPage() {
           </Button>
         }
       />
+
+      <OperationsAdminRail currentHref="/platform/communications" />
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Card>
