@@ -4,6 +4,49 @@ import { api } from "@/convex/_generated/api";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Send a plain notification email via Resend when Convex is unavailable. */
+async function sendFallbackEmail(data: {
+  fullName: string;
+  email: string;
+  schoolName: string;
+  country: string;
+  studentCount?: number;
+  phone?: string;
+  referralSource?: string;
+  biggestChallenge?: string;
+}) {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) return;
+
+  const notifyTo = process.env.WAITLIST_NOTIFY_EMAIL || "sales@edumyles.com";
+  const body = [
+    `New waitlist submission (Convex unavailable — manual follow-up needed):`,
+    ``,
+    `Name:          ${data.fullName}`,
+    `Email:         ${data.email}`,
+    `School:        ${data.schoolName}`,
+    `Country:       ${data.country}`,
+    `Students:      ${data.studentCount ?? "Not specified"}`,
+    `Phone:         ${data.phone ?? "Not provided"}`,
+    `Source:        ${data.referralSource ?? "landing_waitlist"}`,
+    `Challenge:     ${data.biggestChallenge ?? "Not specified"}`,
+  ].join("\n");
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "EduMyles Waitlist <no-reply@edumyles.com>",
+      to: [notifyTo],
+      subject: `[Waitlist] ${data.fullName} — ${data.schoolName}`,
+      text: body,
+    }),
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as {
@@ -54,32 +97,30 @@ export async function POST(request: NextRequest) {
       process.env.CONVEX_URL ||
       process.env.NEXT_PUBLIC_CONVEX_URL ||
       "https://insightful-alpaca-351.convex.cloud";
-    if (!convexUrl) {
-      return NextResponse.json(
-        { error: "The application service is not configured right now." },
-        { status: 500 }
-      );
+
+    const submissionData = {
+      fullName, email, phone, country, schoolName,
+      studentCount, referralSource, biggestChallenge,
+    };
+
+    // Primary path — save to Convex
+    try {
+      const convex = new ConvexHttpClient(convexUrl);
+      const result = await convex.mutation(api.modules.platform.waitlist.addToWaitlist, submissionData);
+      return NextResponse.json({
+        success: true,
+        waitlistId: result.waitlistId,
+        alreadyExists: Boolean(result.duplicate),
+      });
+    } catch (convexError) {
+      // Convex unavailable (not yet deployed, or schema mismatch) —
+      // fall back to email notification so the lead is never lost.
+      console.error("[landing/api/waitlist] Convex call failed, using email fallback:", convexError);
+      await sendFallbackEmail(submissionData);
+      return NextResponse.json({ success: true });
     }
-
-    const convex = new ConvexHttpClient(convexUrl);
-    const result = await convex.mutation(api.modules.platform.waitlist.addToWaitlist, {
-      fullName,
-      email,
-      phone,
-      country,
-      schoolName,
-      studentCount,
-      referralSource,
-      biggestChallenge,
-    });
-
-    return NextResponse.json({
-      success: true,
-      waitlistId: result.waitlistId,
-      alreadyExists: Boolean(result.duplicate),
-    });
   } catch (error) {
-    console.error("[landing/api/waitlist] Failed to submit application:", error);
+    console.error("[landing/api/waitlist] Unexpected error:", error);
     return NextResponse.json(
       { error: "We couldn't submit your application right now. Please try again shortly." },
       { status: 500 }

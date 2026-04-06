@@ -39,50 +39,63 @@ export const addToWaitlist = mutation({
       updatedAt: now,
     });
 
-    const existingLead = await ctx.db
-      .query("crm_leads")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
-      .first();
+    // Auto-create CRM lead — non-critical, wrap in try/catch so a schema
+    // mismatch or missing table never prevents the waitlist insert from succeeding.
+    try {
+      const existingLead = await ctx.db
+        .query("crm_leads")
+        .withIndex("by_email", (q) => q.eq("email", args.email))
+        .first();
 
-    if (!existingLead) {
-      const qualificationScore = (args.studentCount ?? 0) > 500 ? 2 : 0;
-      const leadId = await ctx.db.insert("crm_leads", {
-        schoolName: args.schoolName,
-        contactName: args.fullName,
-        email: args.email,
-        phone: args.phone,
-        country: args.country,
-        studentCount: args.studentCount,
-        budgetConfirmed: undefined,
-        timeline: undefined,
-        decisionMaker: args.fullName,
-        source: args.referralSource ?? "waitlist",
-        qualificationScore,
-        stage: qualificationScore >= 2 ? "new_lead" : "new_lead",
-        assignedTo: undefined,
-        dealValueKes: undefined,
-        expectedClose: undefined,
-        tenantId: undefined,
-        notes: args.biggestChallenge,
-        status: qualificationScore >= 2 ? "high_value_waitlist" : "open",
-        createdAt: now,
-        updatedAt: now,
-      });
+      if (!existingLead) {
+        const qualificationScore = (args.studentCount ?? 0) > 500 ? 2 : 0;
+        const leadId = await ctx.db.insert("crm_leads", {
+          schoolName: args.schoolName,
+          contactName: args.fullName,
+          email: args.email,
+          phone: args.phone,
+          country: args.country,
+          studentCount: args.studentCount,
+          budgetConfirmed: undefined,
+          timeline: undefined,
+          decisionMaker: args.fullName,
+          source: args.referralSource ?? "waitlist",
+          qualificationScore,
+          stage: "new_lead",
+          assignedTo: undefined,
+          dealValueKes: undefined,
+          expectedClose: undefined,
+          tenantId: undefined,
+          notes: args.biggestChallenge,
+          status: "open",
+          createdAt: now,
+          updatedAt: now,
+        });
 
-      await ctx.db.patch(waitlistId, {
-        crmLeadId: String(leadId),
-        updatedAt: now,
-      });
+        await ctx.db.patch(waitlistId, {
+          crmLeadId: String(leadId),
+          updatedAt: now,
+        });
+      }
+    } catch {
+      // CRM lead creation is best-effort — log and continue
+      console.warn("[addToWaitlist] CRM lead creation skipped:", args.email);
     }
 
-    await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
-      tenantId: "PLATFORM",
-      actorId: "system",
-      actorEmail: "no-reply@edumyles.com",
-      to: [args.email],
-      subject: "You are on the EduMyles waitlist",
-      text: `Hi ${args.fullName}, you have been added to the EduMyles waitlist for ${args.schoolName}.`,
-    });
+    // Schedule confirmation email — non-critical, wrap so email failures
+    // never roll back the waitlist insert.
+    try {
+      await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
+        tenantId: "PLATFORM",
+        actorId: "system",
+        actorEmail: "no-reply@edumyles.com",
+        to: [args.email],
+        subject: "You're on the EduMyles waitlist!",
+        text: `Hi ${args.fullName},\n\nThank you for joining the EduMyles waitlist for ${args.schoolName}. Our team will be in touch soon with next steps.\n\nThe EduMyles Team`,
+      });
+    } catch {
+      console.warn("[addToWaitlist] Email scheduling skipped:", args.email);
+    }
 
     return { success: true, waitlistId };
   },
