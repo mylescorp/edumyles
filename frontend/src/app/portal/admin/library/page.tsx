@@ -27,7 +27,7 @@ export default function LibraryIndexPage() {
   );
 
   const circulations = useQuery(
-    api.modules.library.queries.listCirculations,
+    api.modules.library.queries.listBorrowHistory,
     sessionToken ? { sessionToken } : "skip"
   );
 

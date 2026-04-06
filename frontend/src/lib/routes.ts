@@ -44,43 +44,49 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   module?: string;
+  section?: string;
   children?: NavItem[];
 }
 
 export const platformNavItems: NavItem[] = [
-  { label: "Dashboard", href: "/platform", icon: LayoutDashboard },
-  { label: "Tenants", href: "/platform/tenants", icon: Building2 },
-  { label: "Waitlist & Approvals", href: "/platform/waitlist", icon: ClipboardCheck },
-  { label: "CRM Pipeline", href: "/platform/crm", icon: TrendingUp },
-  { label: "Proposals", href: "/platform/crm/proposals", icon: FileText },
-  { label: "Users", href: "/platform/users", icon: Users },
-  { label: "Staff Performance", href: "/platform/staff-performance", icon: BarChart3 },
-  { label: "Tickets", href: "/platform/tickets", icon: Headphones },
-  { label: "Communications", href: "/platform/communications", icon: MessageSquare },
-  { label: "System Health", href: "/platform/health", icon: Activity },
-  { label: "Security Operations", href: "/platform/security", icon: Shield },
-  { label: "Automation Center", href: "/platform/automation", icon: Zap },
-  { label: "Tenant Success", href: "/platform/tenant-success", icon: TrendingUp },
-  { label: "Analytics", href: "/platform/analytics", icon: BarChart3 },
-  { label: "Marketplace", href: "/platform/marketplace", icon: ShoppingCart },
-  { label: "Project Management", href: "/platform/pm", icon: Kanban },
-  { label: "Billing", href: "/platform/billing", icon: DollarSign },
-  { label: "Feature Flags", href: "/platform/feature-flags", icon: Flag },
-  { label: "Impersonation", href: "/platform/impersonation", icon: Eye },
-  { label: "Knowledge Base", href: "/platform/knowledge-base", icon: BookOpen },
-  { label: "Data Export", href: "/platform/data-export", icon: Download },
-  { label: "SLA Management", href: "/platform/sla", icon: Timer },
-  { label: "Webhooks", href: "/platform/webhooks", icon: Webhook },
-  { label: "API Keys", href: "/platform/api-keys", icon: Key },
-  { label: "White-Label", href: "/platform/white-label", icon: Palette },
-  { label: "Onboarding", href: "/platform/onboarding", icon: Rocket },
-  { label: "Role Builder", href: "/platform/role-builder", icon: Lock },
-  { label: "Scheduled Reports", href: "/platform/scheduled-reports", icon: Clock },
-  { label: "Changelog", href: "/platform/changelog", icon: History },
-  { label: "AI Support", href: "/platform/ai-support", icon: Headphones },
-  { label: "Operations Center", href: "/platform/operations", icon: Activity },
-  { label: "Audit Log", href: "/platform/audit", icon: FileText },
-  { label: "Settings", href: "/platform/settings", icon: Settings },
+  { label: "Dashboard", href: "/platform", icon: LayoutDashboard, section: "Overview" },
+  { label: "Analytics", href: "/platform/analytics", icon: BarChart3, section: "Overview" },
+  { label: "Tenant Success", href: "/platform/tenant-success", icon: TrendingUp, section: "Overview" },
+
+  { label: "Tenants", href: "/platform/tenants", icon: Building2, section: "Growth & Onboarding" },
+  { label: "Waitlist", href: "/platform/waitlist", icon: ClipboardCheck, section: "Growth & Onboarding" },
+  { label: "Onboarding", href: "/platform/onboarding", icon: Rocket, section: "Growth & Onboarding" },
+  { label: "CRM Pipeline", href: "/platform/crm", icon: TrendingUp, section: "Growth & Onboarding" },
+  { label: "Proposals", href: "/platform/crm/proposals", icon: FileText, section: "Growth & Onboarding" },
+
+  { label: "Users", href: "/platform/users", icon: Users, section: "Operations" },
+  { label: "Project Management", href: "/platform/pm", icon: Kanban, section: "Operations" },
+  { label: "Communications", href: "/platform/communications", icon: MessageSquare, section: "Operations" },
+  { label: "Tickets", href: "/platform/tickets", icon: Headphones, section: "Operations" },
+  { label: "Knowledge Base", href: "/platform/knowledge-base", icon: BookOpen, section: "Operations" },
+  { label: "Staff Performance", href: "/platform/staff-performance", icon: BarChart3, section: "Operations" },
+
+  { label: "Marketplace", href: "/platform/marketplace", icon: ShoppingCart, section: "Commerce" },
+  { label: "Billing", href: "/platform/billing", icon: DollarSign, section: "Commerce" },
+
+  { label: "System Health", href: "/platform/health", icon: Activity, section: "Security & Reliability" },
+  { label: "Security Operations", href: "/platform/security", icon: Shield, section: "Security & Reliability" },
+  { label: "Operations Center", href: "/platform/operations", icon: Activity, section: "Security & Reliability" },
+  { label: "Audit Log", href: "/platform/audit", icon: FileText, section: "Security & Reliability" },
+  { label: "Impersonation", href: "/platform/impersonation", icon: Eye, section: "Security & Reliability" },
+  { label: "SLA Management", href: "/platform/sla", icon: Timer, section: "Security & Reliability" },
+  { label: "Feature Flags", href: "/platform/feature-flags", icon: Flag, section: "Security & Reliability" },
+  { label: "Webhooks", href: "/platform/webhooks", icon: Webhook, section: "Security & Reliability" },
+  { label: "API Keys", href: "/platform/api-keys", icon: Key, section: "Security & Reliability" },
+  { label: "Data Export", href: "/platform/data-export", icon: Download, section: "Security & Reliability" },
+
+  { label: "Settings", href: "/platform/settings", icon: Settings, section: "Configuration" },
+  { label: "White-Label", href: "/platform/white-label", icon: Palette, section: "Configuration" },
+  { label: "Automation Center", href: "/platform/automation", icon: Zap, section: "Configuration" },
+  { label: "Scheduled Reports", href: "/platform/scheduled-reports", icon: Clock, section: "Configuration" },
+  { label: "Role Builder", href: "/platform/role-builder", icon: Lock, section: "Configuration" },
+  { label: "Changelog", href: "/platform/changelog", icon: History, section: "Configuration" },
+  { label: "AI Support", href: "/platform/ai-support", icon: Headphones, section: "Configuration" },
 ];
 
 export const adminNavItems: NavItem[] = [

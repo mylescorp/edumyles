@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Clock, Users, AlertTriangle, CheckCircle, Plus, Edit, Trash2 } from "lucide-react";
-import { format, addDays, startOfWeek } from "date-fns";
+import { Calendar, Clock, AlertTriangle, Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 type TimetableSlot = {
@@ -71,18 +69,17 @@ export function TimetableScheduler() {
   });
 
   // Fetch timetable slots
-  const timetableSlots = useQuery(api.modules.timetable.listSlots, {}) || [];
+  const timetableSlots = useQuery(api.modules.timetable.queries.listSlots, {}) || [];
   
   // Fetch classes, subjects, and teachers for dropdowns
-  const classes = useQuery(api.modules.sis.listClasses, {}) || [];
-  const subjects = useQuery(api.modules.academics.getSubjects, {}) || [];
-  const teachers = useQuery(api.modules.hr.listStaff, {}) || [];
+  const classes = useQuery(api.modules.sis.queries.listClasses, {}) || [];
+  const subjects = useQuery(api.modules.academics.queries.getSubjects, {}) || [];
+  const teachers = useQuery(api.modules.hr.queries.listStaff, {}) || [];
 
   // Mutations
-  const createSlot = useMutation(api.modules.timetable.createSlot);
-  const updateSlot = useMutation(api.modules.timetable.updateSlot);
-  const deleteSlot = useMutation(api.modules.timetable.deleteSlot);
-  const generateTimetable = useMutation(api.modules.timetable.generateTimetable);
+  const createSlot = useMutation(api.modules.timetable.mutations.createSlot);
+  const updateSlot = useMutation(api.modules.timetable.mutations.updateSlot);
+  const deleteSlot = useMutation(api.modules.timetable.mutations.deleteSlot);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,21 +133,6 @@ export function TimetableScheduler() {
         toast.success("Timetable slot deleted successfully");
       } catch (error) {
         toast.error("Failed to delete timetable slot");
-      }
-    }
-  };
-
-  const handleGenerateTimetable = async (classId: string) => {
-    if (confirm("This will replace the existing timetable for this class. Continue?")) {
-      try {
-        await generateTimetable({
-          classId,
-          academicYear: "2025", // Should be dynamic
-          subjects: [], // Would need to be populated
-        });
-        toast.success("Timetable generated successfully");
-      } catch (error) {
-        toast.error("Failed to generate timetable");
       }
     }
   };
@@ -492,10 +474,13 @@ export function TimetableScheduler() {
                     </p>
                   </div>
                   <Button
-                    onClick={() => handleGenerateTimetable(cls._id)}
-                    disabled={false}
+                    variant="outline"
+                    onClick={() => {
+                      setFormData((prev) => ({ ...prev, classId: cls._id }));
+                      setIsCreateDialogOpen(true);
+                    }}
                   >
-                    Generate
+                    Add Slot
                   </Button>
                 </div>
               ))}

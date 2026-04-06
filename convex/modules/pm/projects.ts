@@ -1,6 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../_generated/server";
 import { requirePmRole } from "./roles";
+import { logAction } from "../../helpers/auditLog";
+
+// SECURITY: PM functions use requirePmRole(), which internally validates the
+// tenant session before applying PM-specific authorization.
 
 // Queries
 export const getProjects = query({
@@ -92,6 +96,7 @@ export const createProject = mutation({
   handler: async (ctx, args) => {
     const tenantCtx = await requirePmRole(ctx, args, "member", args.workspaceId);
 
+    const now = Date.now();
     const projectId = await ctx.db.insert("pmProjects", {
       workspaceId: args.workspaceId,
       name: args.name,
@@ -103,8 +108,26 @@ export const createProject = mutation({
       memberIds: args.memberIds || [tenantCtx.userId],
       githubRepo: args.githubRepo,
       customFields: args.customFields || {},
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.project.created",
+      entityType: "pmProject",
+      entityId: String(projectId),
+      after: {
+        workspaceId: String(args.workspaceId),
+        name: args.name,
+        description: args.description,
+        startDate: args.startDate,
+        dueDate: args.dueDate,
+        memberIds: args.memberIds || [tenantCtx.userId],
+        githubRepo: args.githubRepo,
+      },
     });
 
     return projectId;
@@ -130,7 +153,7 @@ export const updateProject = mutation({
       throw new Error("PROJECT_NOT_FOUND");
     }
 
-    await requirePmRole(ctx, args, "member", project.workspaceId);
+    const tenantCtx = await requirePmRole(ctx, args, "member", project.workspaceId);
 
     const updateData: any = {
       updatedAt: Date.now(),
@@ -146,6 +169,26 @@ export const updateProject = mutation({
     if (args.customFields !== undefined) updateData.customFields = args.customFields;
 
     await ctx.db.patch(args.projectId, updateData);
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.project.updated",
+      entityType: "pmProject",
+      entityId: String(args.projectId),
+      before: {
+        name: project.name,
+        description: project.description,
+        status: project.status,
+        startDate: project.startDate,
+        dueDate: project.dueDate,
+        memberIds: project.memberIds,
+        githubRepo: project.githubRepo,
+        customFields: project.customFields,
+      },
+      after: updateData,
+    });
     return true;
   },
 });
@@ -154,6 +197,7 @@ export const deleteProject = mutation({
   args: {
     sessionToken: v.string(),
     projectId: v.id("pmProjects"),
+    reason: v.string(),
   },
   handler: async (ctx, args) => {
     const project = await ctx.db.get(args.projectId);
@@ -161,7 +205,7 @@ export const deleteProject = mutation({
       throw new Error("PROJECT_NOT_FOUND");
     }
 
-    await requirePmRole(ctx, args, "admin", project.workspaceId);
+    const tenantCtx = await requirePmRole(ctx, args, "admin", project.workspaceId);
 
     // Check if project has tasks
     const tasks = await ctx.db
@@ -184,6 +228,28 @@ export const deleteProject = mutation({
     }
 
     await ctx.db.delete(args.projectId);
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.project.deleted",
+      entityType: "pmProject",
+      entityId: String(args.projectId),
+      before: {
+        workspaceId: String(project.workspaceId),
+        name: project.name,
+        description: project.description,
+        status: project.status,
+        startDate: project.startDate,
+        dueDate: project.dueDate,
+        memberIds: project.memberIds,
+        githubRepo: project.githubRepo,
+      },
+      after: {
+        reason: args.reason,
+      },
+    });
     return true;
   },
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -67,16 +67,16 @@ export function AssignmentManager() {
   });
 
   // Fetch assignments
-  const assignments = useQuery(api.modules.academics.listAssignments, {}) || [];
+  const assignments = useQuery(api.modules.academics.assignments.listAssignments, {}) || [];
   
   // Fetch classes and subjects for dropdowns
-  const classes = useQuery(api.modules.sis.listClasses, {}) || [];
-  const subjects = useQuery(api.modules.academics.getSubjects, {}) || [];
+  const classes = useQuery(api.modules.sis.queries.listClasses, {}) || [];
+  const subjects = useQuery(api.modules.academics.queries.getSubjects, {}) || [];
 
   // Mutations
-  const createAssignment = useMutation(api.modules.academics.createAssignment);
-  const updateAssignment = useMutation(api.modules.academics.updateAssignment);
-  const deleteAssignment = useMutation(api.modules.academics.deleteAssignment);
+  const createAssignment = useMutation(api.modules.academics.mutations.createAssignment);
+  const updateAssignment = useMutation(api.modules.academics.mutations.updateAssignment);
+  const deleteAssignment = useMutation(api.modules.academics.mutations.deleteAssignment);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

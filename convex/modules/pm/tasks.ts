@@ -1,6 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../_generated/server";
 import { requirePmRole } from "./roles";
+import { logAction } from "../../helpers/auditLog";
+
+// SECURITY: PM functions use requirePmRole(), which internally validates the
+// tenant session before applying PM-specific authorization.
 
 // Queries
 export const getTasks = query({
@@ -169,6 +173,28 @@ export const createTask = mutation({
       updatedAt: Date.now(),
     });
 
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.task.created",
+      entityType: "pmTask",
+      entityId: String(taskId),
+      after: {
+        projectId: String(args.projectId),
+        epicId: args.epicId ? String(args.epicId) : undefined,
+        parentTaskId: args.parentTaskId ? String(args.parentTaskId) : undefined,
+        title: args.title,
+        description: args.description,
+        status: args.status,
+        priority: args.priority,
+        assigneeId: args.assigneeId,
+        dueDate: args.dueDate,
+        estimateMinutes: args.estimateMinutes,
+        labels: args.labels || [],
+      },
+    });
+
     return taskId;
   },
 });
@@ -199,7 +225,7 @@ export const updateTask = mutation({
       throw new Error("PROJECT_NOT_FOUND");
     }
 
-    await requirePmRole(ctx, args, "member", project.workspaceId);
+    const tenantCtx = await requirePmRole(ctx, args, "member", project.workspaceId);
 
     const updateData: any = {
       updatedAt: Date.now(),
@@ -217,6 +243,28 @@ export const updateTask = mutation({
     if (args.position !== undefined) updateData.position = args.position;
 
     await ctx.db.patch(args.taskId, updateData);
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.task.updated",
+      entityType: "pmTask",
+      entityId: String(args.taskId),
+      before: {
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        assigneeId: task.assigneeId,
+        dueDate: task.dueDate,
+        estimateMinutes: task.estimateMinutes,
+        labels: task.labels,
+        customFields: task.customFields,
+        position: task.position,
+      },
+      after: updateData,
+    });
     return true;
   },
 });
@@ -225,6 +273,7 @@ export const deleteTask = mutation({
   args: {
     sessionToken: v.string(),
     taskId: v.id("pmTasks"),
+    reason: v.string(),
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
@@ -237,7 +286,7 @@ export const deleteTask = mutation({
       throw new Error("PROJECT_NOT_FOUND");
     }
 
-    await requirePmRole(ctx, args, "member", project.workspaceId);
+    const tenantCtx = await requirePmRole(ctx, args, "member", project.workspaceId);
 
     // Check if task has subtasks
     const subtasks = await ctx.db
@@ -260,6 +309,31 @@ export const deleteTask = mutation({
     }
 
     await ctx.db.delete(args.taskId);
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.task.deleted",
+      entityType: "pmTask",
+      entityId: String(args.taskId),
+      before: {
+        projectId: String(task.projectId),
+        epicId: task.epicId ? String(task.epicId) : undefined,
+        parentTaskId: task.parentTaskId ? String(task.parentTaskId) : undefined,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        assigneeId: task.assigneeId,
+        dueDate: task.dueDate,
+        estimateMinutes: task.estimateMinutes,
+        labels: task.labels,
+      },
+      after: {
+        reason: args.reason,
+      },
+    });
     return true;
   },
 });

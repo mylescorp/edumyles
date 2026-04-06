@@ -197,8 +197,10 @@ export const getAIInsights = query({
     for (const t of tickets) {
       if (t.assignedTo) {
         if (!agentMap[t.assignedTo]) agentMap[t.assignedTo] = { tickets: 0, resolved: 0 };
-        agentMap[t.assignedTo].tickets++;
-        if (t.status === "resolved" || t.status === "closed") agentMap[t.assignedTo].resolved++;
+        const agentStats = agentMap[t.assignedTo];
+        if (!agentStats) continue;
+        agentStats.tickets++;
+        if (t.status === "resolved" || t.status === "closed") agentStats.resolved++;
       }
     }
     return {
@@ -292,7 +294,10 @@ export const getAIAgentMetrics = query({
     for (const t of agentTickets) {
       if (t.assignedTo) {
         if (!agentMap[t.assignedTo]) agentMap[t.assignedTo] = [];
-        agentMap[t.assignedTo].push(t);
+        const assignedTickets = agentMap[t.assignedTo];
+        if (assignedTickets) {
+          assignedTickets.push(t);
+        }
       }
     }
 
@@ -333,7 +338,7 @@ export const getAISystemPerformance = query({
       "7d": 7 * 24 * 60 * 60 * 1000,
       "30d": 30 * 24 * 60 * 60 * 1000,
     };
-    const since = Date.now() - msMap[args.timeRange ?? "30d"];
+    const since = Date.now() - (msMap[args.timeRange ?? "30d"] ?? msMap["30d"] ?? 0);
 
     const tickets = await ctx.db
       .query("aiSupportTickets")

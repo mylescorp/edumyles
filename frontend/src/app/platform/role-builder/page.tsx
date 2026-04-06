@@ -1,29 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useMutation } from "convex/react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
 import {
-  Lock,
   Plus,
   Edit,
   Trash2,
   Copy,
   Shield,
-  Users,
   Loader2,
-  CheckSquare,
+  RefreshCw,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const PERMISSION_MODULES = {
   "Dashboard": ["dashboard:view"],
@@ -40,12 +42,17 @@ const PERMISSION_MODULES = {
 };
 
 export default function RoleBuilderPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<any>(null);
   const [roleName, setRoleName] = useState("");
   const [roleDescription, setRoleDescription] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [roleToDelete, setRoleToDelete] = useState<any>(null);
+  const [isRefreshing, startRefreshing] = useTransition();
+  const [isSaving, setIsSaving] = useState(false);
+  const [pendingActionId, setPendingActionId] = useState<string | null>(null);
 
   const roles = usePlatformQuery(
     api.platform.roleBuilder.queries.listCustomRoles,
@@ -60,6 +67,7 @@ export default function RoleBuilderPage() {
 
   const handleSave = async () => {
     if (!sessionToken || !roleName) return;
+    setIsSaving(true);
     try {
       if (editingRole) {
         await updateRole({
@@ -69,6 +77,7 @@ export default function RoleBuilderPage() {
           description: roleDescription,
           permissions: selectedPermissions,
         });
+        toast.success("Role updated.");
       } else {
         await createRole({
           sessionToken,
@@ -77,14 +86,19 @@ export default function RoleBuilderPage() {
           description: roleDescription,
           permissions: selectedPermissions,
         });
+        toast.success("Role created.");
       }
       setIsCreateOpen(false);
       setEditingRole(null);
       setRoleName("");
       setRoleDescription("");
       setSelectedPermissions([]);
+      router.refresh();
     } catch (error) {
       console.error("Failed to save role:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to save role.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -112,7 +126,40 @@ export default function RoleBuilderPage() {
     }
   };
 
-  if (!roles) return <div className="p-6"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  const handleDuplicate = async (roleId: string) => {
+    if (!sessionToken) return;
+    setPendingActionId(roleId);
+    try {
+      await duplicateRole({ sessionToken, roleId: roleId as never });
+      toast.success("Role cloned.");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to clone role:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to clone role.");
+    } finally {
+      setPendingActionId(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!sessionToken || !roleToDelete?._id) return;
+    setPendingActionId(String(roleToDelete._id));
+    try {
+      await deleteRole({ sessionToken, roleId: roleToDelete._id });
+      toast.success("Role deleted.");
+      setRoleToDelete(null);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to delete role:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to delete role.");
+    } finally {
+      setPendingActionId(null);
+    }
+  };
+
+  if (roles === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -120,18 +167,28 @@ export default function RoleBuilderPage() {
         title="Role Builder"
         description="Create and manage custom roles with granular permissions"
         actions={
-          <Button onClick={() => { setIsCreateOpen(true); setEditingRole(null); setRoleName(""); setRoleDescription(""); setSelectedPermissions([]); }}>
-            <Plus className="h-4 w-4 mr-2" /> Create Role
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button onClick={() => { setIsCreateOpen(true); setEditingRole(null); setRoleName(""); setRoleDescription(""); setSelectedPermissions([]); }}>
+              <Plus className="h-4 w-4 mr-2" /> Create Role
+            </Button>
+          </div>
         }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {roles.length === 0 ? (
           <Card className="col-span-full">
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <Shield className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>No custom roles yet. Create your first role.</p>
+            <CardContent>
+              <EmptyState
+                icon={Shield}
+                title="No custom roles yet"
+                description="Create the first platform role to start defining custom permission bundles."
+                className="py-12"
+              />
             </CardContent>
           </Card>
         ) : (
@@ -169,22 +226,27 @@ export default function RoleBuilderPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={async () => {
-                          if (!sessionToken) return;
-                          await duplicateRole({ sessionToken, roleId: role._id });
-                        }}
+                        onClick={() => void handleDuplicate(role._id)}
+                        disabled={pendingActionId === String(role._id)}
                       >
-                        <Copy className="h-3 w-3 mr-1" /> Clone
+                        {pendingActionId === String(role._id) ? (
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        ) : (
+                          <Copy className="h-3 w-3 mr-1" />
+                        )}{" "}
+                        Clone
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={async () => {
-                          if (!sessionToken) return;
-                          await deleteRole({ sessionToken, roleId: role._id });
-                        }}
+                        onClick={() => setRoleToDelete(role)}
+                        disabled={pendingActionId === String(role._id)}
                       >
-                        <Trash2 className="h-3 w-3 text-red-500" />
+                        {pendingActionId === String(role._id) ? (
+                          <Loader2 className="h-3 w-3 animate-spin text-red-500" />
+                        ) : (
+                          <Trash2 className="h-3 w-3 text-red-500" />
+                        )}
                       </Button>
                     </>
                   )}
@@ -246,10 +308,28 @@ export default function RoleBuilderPage() {
                 );
               })}
             </div>
-            <Button className="w-full" onClick={handleSave} disabled={!roleName}>
+            <Button className="w-full" onClick={handleSave} disabled={!roleName || isSaving}>
+              {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
               {editingRole ? "Update Role" : "Create Role"}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!roleToDelete} onOpenChange={(open) => !open && setRoleToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete role?</DialogTitle>
+            <DialogDescription>
+              This permanently removes <span className="font-medium">{roleToDelete?.name}</span> and its custom permission bundle.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRoleToDelete(null)}>Cancel</Button>
+            <Button onClick={() => void handleDelete()} variant="destructive">
+              Delete role
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

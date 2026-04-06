@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -10,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
@@ -24,7 +27,9 @@ import {
   Loader2,
   Trash2,
   Tag,
+  RefreshCw,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const TYPE_CONFIG: Record<string, { icon: any; color: string; label: string }> = {
   feature: { icon: Sparkles, color: "bg-blue-100 text-blue-800", label: "Feature" },
@@ -36,6 +41,7 @@ const TYPE_CONFIG: Record<string, { icon: any; color: string; label: string }> =
 const defaultTypeConfig = TYPE_CONFIG.improvement!;
 
 export default function ChangelogPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [filterType, setFilterType] = useState<string>("all");
@@ -44,6 +50,9 @@ export default function ChangelogPage() {
   const [description, setDescription] = useState("");
   const [type, setType] = useState<string>("");
   const [tags, setTags] = useState("");
+  const [isRefreshing, startRefreshing] = useTransition();
+  const [isSaving, setIsSaving] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const entries = usePlatformQuery(
     api.platform.changelog.queries.listChangelogs,
@@ -56,6 +65,7 @@ export default function ChangelogPage() {
 
   const handleCreate = async () => {
     if (!sessionToken || !version || !title || !type) return;
+    setIsSaving(true);
     try {
       await createEntry({
         sessionToken,
@@ -71,10 +81,32 @@ export default function ChangelogPage() {
       setDescription("");
       setType("");
       setTags("");
+      toast.success("Changelog entry published.");
     } catch (error) {
       console.error("Failed to create entry:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to publish changelog entry.");
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  const handleDelete = async (entryId: string) => {
+    if (!sessionToken) return;
+    setPendingDeleteId(entryId);
+    try {
+      await deleteEntry({ sessionToken, entryId: entryId as never });
+      toast.success("Changelog entry deleted.");
+    } catch (error) {
+      console.error("Failed to delete entry:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to delete changelog entry.");
+    } finally {
+      setPendingDeleteId(null);
+    }
+  };
+
+  if (entries === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -82,9 +114,15 @@ export default function ChangelogPage() {
         title="Changelog"
         description="Platform release notes and version history"
         actions={
-          <Button onClick={() => setIsCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" /> New Entry
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" /> New Entry
+            </Button>
+          </div>
         }
       />
 
@@ -101,15 +139,15 @@ export default function ChangelogPage() {
         ))}
       </div>
 
-      {!entries ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin" />
-        </div>
-      ) : entries.length === 0 ? (
+      {entries.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>No changelog entries yet.</p>
+          <CardContent>
+            <EmptyState
+              icon={History}
+              title="No changelog entries yet"
+              description="Publish the first release note to start building the platform release timeline."
+              className="py-12"
+            />
           </CardContent>
         </Card>
       ) : (
@@ -153,12 +191,14 @@ export default function ChangelogPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={async () => {
-                            if (!sessionToken) return;
-                            await deleteEntry({ sessionToken, entryId: entry._id });
-                          }}
+                          onClick={() => void handleDelete(String(entry._id))}
+                          disabled={pendingDeleteId === String(entry._id)}
                         >
-                          <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          {pendingDeleteId === String(entry._id) ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          )}
                         </Button>
                       </div>
                     </CardContent>
@@ -206,7 +246,8 @@ export default function ChangelogPage() {
               <Label>Tags (comma-separated)</Label>
               <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="auth, api, ui" />
             </div>
-            <Button className="w-full" onClick={handleCreate} disabled={!version || !title || !type}>
+            <Button className="w-full" onClick={handleCreate} disabled={!version || !title || !type || isSaving}>
+              {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
               Publish Entry
             </Button>
           </div>

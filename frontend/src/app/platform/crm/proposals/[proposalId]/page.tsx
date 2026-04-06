@@ -1,591 +1,291 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { api } from "@/convex/_generated/api";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  FileText, 
-  Download,
-  Send,
-  Signature,
-  Eye,
-  Edit,
-  Mail,
-  Phone,
-  Calendar,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Building,
-  User,
-  MapPin,
-  DollarSign,
-  Settings,
-  RefreshCw,
-  Share2,
-  Printer
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { formatDate, formatDateTime } from "@/lib/formatters";
+import { CheckCircle, FileText, RefreshCw, Send } from "lucide-react";
+import { toast } from "sonner";
 
-interface Proposal {
+type ProposalDetail = {
   _id: string;
-  templateId: string;
   dealId: string;
-  schoolName: string;
-  status: "draft" | "sent" | "viewed" | "signed" | "rejected";
-  variables: Record<string, any>;
-  content: string;
+  tenantId?: string;
+  planId?: string;
+  customItems?: Array<{
+    description: string;
+    amountKes: number;
+    quantity?: number;
+  }>;
+  totalKes: number;
+  status: "draft" | "sent" | "accepted" | "rejected";
   sentAt?: number;
-  viewedAt?: number;
-  signedAt?: number;
-  signatureUrl?: string;
+  acceptedAt?: number;
+  validUntil?: number;
   createdAt: number;
   updatedAt: number;
-  createdBy: string;
-  template: {
-    name: string;
-    description: string;
-    category: string;
+  deal: {
+    _id: string;
+    valueKes: number;
+    stage: string;
+    status: "open" | "won" | "lost";
+    tenantId?: string;
   };
-  school: {
-    contactPerson: string;
+  lead: {
+    _id: string;
+    schoolName: string;
+    contactName: string;
     email: string;
-    phone: string;
-    address: string;
+    phone?: string;
+    country: string;
+    studentCount?: number;
   };
-  pricing: {
-    setupFee: number;
-    monthlyFee: number;
-    totalValue: number;
-    currency: string;
-  };
+  plan?: {
+    name: string;
+    priceMonthlyKes: number;
+    priceAnnualKes: number;
+    supportTier: string;
+  } | null;
+};
+
+function formatKes(amount: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
-function normalizeProposal(input: Partial<Proposal>): Proposal {
-  return {
-    _id: input._id ?? "",
-    templateId: input.templateId ?? "",
-    dealId: input.dealId ?? "",
-    schoolName: input.schoolName ?? "",
-    status: input.status ?? "draft",
-    variables: input.variables ?? {},
-    content: input.content ?? "",
-    sentAt: input.sentAt,
-    viewedAt: input.viewedAt,
-    signedAt: input.signedAt,
-    signatureUrl: input.signatureUrl,
-    createdAt: input.createdAt ?? Date.now(),
-    updatedAt: input.updatedAt ?? Date.now(),
-    createdBy: input.createdBy ?? "",
-    template: {
-      name: input.template?.name ?? "",
-      description: input.template?.description ?? "",
-      category: input.template?.category ?? "",
-    },
-    school: {
-      contactPerson: input.school?.contactPerson ?? "",
-      email: input.school?.email ?? "",
-      phone: input.school?.phone ?? "",
-      address: input.school?.address ?? "",
-    },
-    pricing: {
-      setupFee: input.pricing?.setupFee ?? 0,
-      monthlyFee: input.pricing?.monthlyFee ?? 0,
-      totalValue: input.pricing?.totalValue ?? 0,
-      currency: input.pricing?.currency ?? "KES",
-    },
-  };
+function statusTone(status: ProposalDetail["status"]) {
+  switch (status) {
+    case "sent":
+      return "bg-sky-100 text-sky-700";
+    case "accepted":
+      return "bg-emerald-100 text-emerald-700";
+    case "rejected":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-slate-100 text-slate-700";
+  }
 }
 
 export default function ProposalDetailPage() {
+  const router = useRouter();
   const params = useParams();
-  const proposalId = params.proposalId as string;
+  const proposalId = String(params.proposalId);
   const { sessionToken } = useAuth();
-
-  const proposalData = usePlatformQuery(
-    api.platform.crm.proposalQueries.getProposalById,
-    { sessionToken: sessionToken || "", proposalId },
-    !!sessionToken
-  );
-
-  const [proposal, setProposal] = useState<Proposal | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const [isSignatureDialogOpen, setIsSignatureDialogOpen] = useState(false);
-  const [signatureData, setSignatureData] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isRefreshing, startRefreshing] = useTransition();
 
-  useEffect(() => {
-    if (!proposalData) return;
-    setProposal(normalizeProposal(proposalData as Partial<Proposal>));
-  }, [proposalData]);
+  const proposal = usePlatformQuery(
+    api.modules.platform.crm.getProposal,
+    sessionToken ? { sessionToken, proposalId: proposalId as never } : "skip",
+    !!sessionToken
+  ) as ProposalDetail | null | undefined;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "draft": return "bg-gray-100 text-gray-800";
-      case "sent": return "bg-blue-100 text-blue-800";
-      case "viewed": return "bg-yellow-100 text-yellow-800";
-      case "signed": return "bg-green-100 text-green-800";
-      case "rejected": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
+  const sendProposal = useMutation(api.modules.platform.crm.sendProposal);
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "draft": return <FileText className="h-4 w-4" />;
-      case "sent": return <Send className="h-4 w-4" />;
-      case "viewed": return <Eye className="h-4 w-4" />;
-      case "signed": return <Signature className="h-4 w-4" />;
-      case "rejected": return <AlertCircle className="h-4 w-4" />;
-      default: return <FileText className="h-4 w-4" />;
-    }
-  };
-
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString('en-KE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  const handleSendProposal = async () => {
-    if (!proposal) return;
+  const handleSend = async () => {
+    if (!sessionToken || !proposal) return;
     setIsSending(true);
-    // Simulate sending
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setProposal({
-      ...proposal,
-      status: "sent",
-      sentAt: Date.now(),
-      updatedAt: Date.now()
-    });
-    setIsSending(false);
-  };
-
-  const handleSignProposal = () => {
-    if (signatureData && proposal) {
-      setProposal({
-        ...proposal,
-        status: "signed",
-        signedAt: Date.now(),
-        signatureUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-        updatedAt: Date.now()
-      });
-      setIsSignatureDialogOpen(false);
+    try {
+      await sendProposal({ sessionToken, proposalId: proposal._id as never });
+      toast.success("Proposal sent.");
+      startRefreshing(() => router.refresh());
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to send proposal.");
+    } finally {
+      setIsSending(false);
     }
   };
 
-  const handleDownloadPDF = () => {
-    if (!proposal) return;
-    // Simulate PDF download
-    const link = document.createElement('a');
-    link.href = '#';
-    link.download = `proposal_${proposal.schoolName.replace(/\s+/g, '_')}.pdf`;
-    link.click();
-  };
+  if (!sessionToken || proposal === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  if (!proposal) return <div className="p-6 text-center text-muted-foreground">Loading proposal...</div>;
+  if (!proposal) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Proposal not found"
+          breadcrumbs={[
+            { label: "Platform", href: "/platform" },
+            { label: "CRM", href: "/platform/crm" },
+            { label: "Proposals", href: "/platform/crm/proposals" },
+          ]}
+        />
+        <Card>
+          <CardContent className="pt-6">
+            <EmptyState
+              icon={FileText}
+              title="This proposal does not exist"
+              description="Return to the proposals list and choose a different record."
+              action={
+                <Button asChild>
+                  <Link href="/platform/crm/proposals">Back to proposals</Link>
+                </Button>
+              }
+            />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Proposal: ${proposal.schoolName}`} 
-        description="Manage proposal details and track e-signature status"
+        title={`Proposal for ${proposal.lead.schoolName}`}
+        description="Review the real CRM proposal, its linked deal, and live acceptance state."
         breadcrumbs={[
+          { label: "Platform", href: "/platform" },
           { label: "CRM", href: "/platform/crm" },
           { label: "Proposals", href: "/platform/crm/proposals" },
-          { label: proposal.schoolName, href: `/platform/crm/proposals/${proposalId}` }
+          { label: proposal.lead.schoolName },
         ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => startRefreshing(() => router.refresh())}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            {proposal.status === "draft" ? (
+              <Button onClick={handleSend} disabled={isSending}>
+                <Send className="mr-2 h-4 w-4" />
+                {isSending ? "Sending..." : "Send proposal"}
+              </Button>
+            ) : null}
+          </div>
+        }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Proposal Header */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-xl">{proposal.schoolName}</CardTitle>
-                  <p className="text-muted-foreground mt-1">{proposal.template.description}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(proposal.status)}`}>
-                    {getStatusIcon(proposal.status)}
-                    <span>{proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}</span>
-                  </div>
-                  <Badge variant="outline">{proposal.template.category}</Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Template</Label>
-                  <div className="font-medium">{proposal.template.name}</div>
-                </div>
-                <div>
-                  <Label>Created By</Label>
-                  <div className="font-medium">{proposal.createdBy.split("@")[0]}</div>
-                </div>
-                <div>
-                  <Label>Created Date</Label>
-                  <div className="font-medium">{formatDate(proposal.createdAt)}</div>
-                </div>
-                <div>
-                  <Label>Last Updated</Label>
-                  <div className="font-medium">{formatDate(proposal.updatedAt)}</div>
-                </div>
-              </div>
-              
-              {proposal.sentAt && (
-                <div>
-                  <Label>Sent Date</Label>
-                  <div className="font-medium">{formatDate(proposal.sentAt)}</div>
-                </div>
-              )}
-              
-              {proposal.signedAt && (
-                <div>
-                  <Label>Signed Date</Label>
-                  <div className="font-medium">{formatDate(proposal.signedAt)}</div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Proposal summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className={statusTone(proposal.status)}>{proposal.status}</Badge>
+              {proposal.planId ? <Badge variant="outline">{proposal.planId}</Badge> : null}
+              <Badge variant="outline">{proposal.deal.stage}</Badge>
+            </div>
 
-          {/* Proposal Content */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Proposal Content</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handlePrint}>
-                    <Printer className="h-4 w-4 mr-1" />
-                    Print
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
-                    <Download className="h-4 w-4 mr-1" />
-                    PDF
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)}>
-                    <Edit className="h-4 w-4 mr-1" />
-                    {isEditing ? "Save" : "Edit"}
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {isEditing ? (
-                <Textarea
-                  value={proposal.content}
-                  onChange={(e) => setProposal({...proposal, content: e.target.value})}
-                  className="min-h-96"
-                />
-              ) : (
-                <div className="prose max-w-none">
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {proposal.content}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Detail label="School" value={proposal.lead.schoolName} />
+              <Detail label="Contact" value={proposal.lead.contactName} />
+              <Detail label="Email" value={proposal.lead.email} />
+              <Detail label="Phone" value={proposal.lead.phone ?? "Not provided"} />
+              <Detail label="Created" value={formatDateTime(proposal.createdAt)} />
+              <Detail label="Updated" value={formatDateTime(proposal.updatedAt)} />
+              <Detail label="Sent at" value={proposal.sentAt ? formatDateTime(proposal.sentAt) : "Not sent"} />
+              <Detail
+                label="Accepted at"
+                value={proposal.acceptedAt ? formatDateTime(proposal.acceptedAt) : "Not accepted"}
+              />
+              <Detail
+                label="Valid until"
+                value={proposal.validUntil ? formatDate(proposal.validUntil) : "No expiry set"}
+              />
+              <Detail label="Total" value={formatKes(proposal.totalKes)} />
+            </div>
 
-          {/* School Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>School Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-xl border p-4">
+              <p className="text-sm text-muted-foreground">Linked deal</p>
+              <div className="mt-2 flex items-center justify-between gap-3">
                 <div>
-                  <Label>Contact Person</Label>
-                  <div className="font-medium flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    {proposal.school.contactPerson}
-                  </div>
+                  <p className="font-medium">{proposal.lead.schoolName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {proposal.deal.stage} · {proposal.deal.status}
+                  </p>
                 </div>
-                <div>
-                  <Label>Email</Label>
-                  <div className="font-medium flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    {proposal.school.email}
-                  </div>
-                </div>
-                <div>
-                  <Label>Phone</Label>
-                  <div className="font-medium flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    {proposal.school.phone}
-                  </div>
-                </div>
-                <div>
-                  <Label>Address</Label>
-                  <div className="font-medium flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    {proposal.school.address}
-                  </div>
-                </div>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/platform/crm/${proposal.deal._id}`}>Open deal</Link>
+                </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Pricing Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pricing Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label>Setup Fee</Label>
-                  <div className="font-medium text-lg">
-                    {formatCurrency(proposal.pricing.setupFee, proposal.pricing.currency)}
-                  </div>
-                </div>
-                <div>
-                  <Label>Monthly Fee</Label>
-                  <div className="font-medium text-lg">
-                    {formatCurrency(proposal.pricing.monthlyFee, proposal.pricing.currency)}
-                  </div>
-                </div>
-                <div>
-                  <Label>First Year Total</Label>
-                  <div className="font-medium text-lg text-green-600">
-                    {formatCurrency(proposal.pricing.totalValue, proposal.pricing.currency)}
-                  </div>
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="space-y-2">
-                <h4 className="font-medium">Cost Breakdown:</h4>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span>Setup Fee (One-time)</span>
-                    <span>{formatCurrency(proposal.pricing.setupFee, proposal.pricing.currency)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Monthly Subscription (12 months)</span>
-                    <span>{formatCurrency(proposal.pricing.monthlyFee * 12, proposal.pricing.currency)}</span>
-                  </div>
-                  <div className="flex justify-between font-medium text-lg">
-                    <span>Total First Year</span>
-                    <span className="text-green-600">{formatCurrency(proposal.pricing.totalValue, proposal.pricing.currency)}</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Signature Section */}
-          {proposal.signatureUrl && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Signature className="h-5 w-5" />
-                  E-Signature
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                    <img 
-                      src={proposal.signatureUrl} 
-                      alt="Signature" 
-                      className="max-h-32 mx-auto"
-                    />
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Signed on {formatDate(proposal.signedAt!)}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {proposal.status === "draft" && (
-                <Button 
-                  className="w-full" 
-                  onClick={handleSendProposal}
-                  disabled={isSending}
-                >
-                  <Send className="h-4 w-4 mr-1" />
-                  {isSending ? "Sending..." : "Send Proposal"}
-                </Button>
-              )}
-              
-              {proposal.status === "sent" && (
-                <Button className="w-full" onClick={() => setIsSignatureDialogOpen(true)}>
-                  <Signature className="h-4 w-4 mr-1" />
-                  Request Signature
-                </Button>
-              )}
-              
-              <Button variant="outline" className="w-full" onClick={handleDownloadPDF}>
-                <Download className="h-4 w-4 mr-1" />
-                Download PDF
-              </Button>
-              
-              <Button variant="outline" className="w-full" onClick={handlePrint}>
-                <Printer className="h-4 w-4 mr-1" />
-                Print
-              </Button>
-              
-              <Button variant="outline" className="w-full">
-                <Share2 className="h-4 w-4 mr-1" />
-                Share Link
-              </Button>
-              
-              <Button variant="outline" className="w-full">
-                <RefreshCw className="h-4 w-4 mr-1" />
-                Duplicate
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Template Variables */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Template Variables</CardTitle>
+              <CardTitle>Pricing</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {Object.entries(proposal.variables).map(([key, value]) => (
-                <div key={key} className="space-y-1">
-                  <Label className="text-sm">{key}</Label>
-                  <div className="text-sm font-medium bg-muted p-2 rounded">
-                    {value}
-                  </div>
-                </div>
-              ))}
+              {proposal.plan ? (
+                <>
+                  <Detail label="Plan" value={proposal.plan.name} />
+                  <Detail label="Monthly" value={formatKes(proposal.plan.priceMonthlyKes)} />
+                  <Detail label="Annual" value={formatKes(proposal.plan.priceAnnualKes)} />
+                  <Detail label="Support tier" value={proposal.plan.supportTier} />
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">No plan is attached to this proposal.</p>
+              )}
+              <div className="rounded-lg border bg-muted/20 p-3">
+                <p className="text-sm text-muted-foreground">Proposal total</p>
+                <p className="text-xl font-semibold">{formatKes(proposal.totalKes)}</p>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Activity Timeline */}
           <Card>
             <CardHeader>
-              <CardTitle>Activity Timeline</CardTitle>
+              <CardTitle>Custom items</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                <div>
-                  <div className="font-medium text-sm">Proposal Created</div>
-                  <div className="text-xs text-muted-foreground">{formatDate(proposal.createdAt)}</div>
+            <CardContent>
+              {proposal.customItems && proposal.customItems.length > 0 ? (
+                <div className="space-y-3">
+                  {proposal.customItems.map((item, index) => (
+                    <div key={`${item.description}-${index}`} className="rounded-lg border p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{item.description}</p>
+                          <p className="text-sm text-muted-foreground">Qty {item.quantity ?? 1}</p>
+                        </div>
+                        <p className="font-semibold">{formatKes(item.amountKes)}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-              
-              {proposal.sentAt && (
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <div>
-                    <div className="font-medium text-sm">Proposal Sent</div>
-                    <div className="text-xs text-muted-foreground">{formatDate(proposal.sentAt)}</div>
-                  </div>
-                </div>
-              )}
-              
-              {proposal.viewedAt && (
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                  <div>
-                    <div className="font-medium text-sm">Proposal Viewed</div>
-                    <div className="text-xs text-muted-foreground">{formatDate(proposal.viewedAt)}</div>
-                  </div>
-                </div>
-              )}
-              
-              {proposal.signedAt && (
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
-                  <div>
-                    <div className="font-medium text-sm">Proposal Signed</div>
-                    <div className="text-xs text-muted-foreground">{formatDate(proposal.signedAt)}</div>
-                  </div>
-                </div>
+              ) : (
+                <EmptyState
+                  icon={CheckCircle}
+                  title="No custom items"
+                  description="This proposal currently relies only on the selected plan and total amount."
+                  className="py-6"
+                />
               )}
             </CardContent>
           </Card>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Signature Dialog */}
-      <Dialog open={isSignatureDialogOpen} onOpenChange={setIsSignatureDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Request E-Signature</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label>Send signature request to:</Label>
-              <div className="mt-2 p-3 bg-muted rounded">
-                <div className="font-medium">{proposal.school.contactPerson}</div>
-                <div className="text-sm text-muted-foreground">{proposal.school.email}</div>
-              </div>
-            </div>
-            
-            <div>
-              <Label>Personal Message (Optional)</Label>
-              <Textarea 
-                placeholder="Add a personal message for the signature request..."
-                rows={3}
-              />
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="terms" className="rounded" />
-              <Label htmlFor="terms" className="text-sm">
-                Send reminder in 3 days if not signed
-              </Label>
-            </div>
-            
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsSignatureDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSignProposal}>
-                <Send className="h-4 w-4 mr-1" />
-                Send Signature Request
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="font-medium">{value}</p>
     </div>
   );
 }

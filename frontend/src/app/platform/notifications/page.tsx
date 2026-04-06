@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { Bell, AlertTriangle, CheckCircle, ExternalLink, Info, Loader2, Trash2 } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,11 +38,13 @@ function getNotificationIcon(type: string) {
 }
 
 export default function PlatformNotificationsPage() {
+  const router = useRouter();
   const { isLoading: authLoading, sessionToken } = useAuth();
   const [view, setView] = useState<"all" | "unread">("all");
   const [typeFilter, setTypeFilter] = useState<NotificationType>("all");
   const [pendingNotificationId, setPendingNotificationId] = useState<string | null>(null);
   const [pendingBulkAction, setPendingBulkAction] = useState<"read-all" | null>(null);
+  const [isRefreshing, startRefreshing] = useTransition();
 
   const notifications = usePlatformQuery(
     api.platform.notifications.queries.listNotifications,
@@ -137,12 +141,23 @@ export default function PlatformNotificationsPage() {
           { label: "Notifications", href: "/platform/notifications" },
         ]}
         actions={
-          unreadCount > 0 ? (
-            <Button variant="outline" size="sm" onClick={handleMarkAllAsRead} disabled={pendingBulkAction === "read-all"}>
-              {pendingBulkAction === "read-all" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Mark all as read
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => startRefreshing(() => router.refresh())}
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Refresh
             </Button>
-          ) : undefined
+            {unreadCount > 0 ? (
+              <Button variant="outline" size="sm" onClick={handleMarkAllAsRead} disabled={pendingBulkAction === "read-all"}>
+                {pendingBulkAction === "read-all" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Mark all as read
+              </Button>
+            ) : null}
+          </div>
         }
       />
 
@@ -178,14 +193,17 @@ export default function PlatformNotificationsPage() {
 
       {filteredNotifications.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <Bell className="mb-3 h-10 w-10 text-muted-foreground/40" />
-            <h3 className="mb-1 font-medium text-foreground">No notifications</h3>
-            <p className="text-sm text-muted-foreground">
-              {view === "unread"
-                ? "You have no unread platform notifications for this filter."
-                : "You&apos;re all caught up. New platform notifications will appear here."}
-            </p>
+          <CardContent>
+            <EmptyState
+              icon={Bell}
+              title="No notifications"
+              description={
+                view === "unread"
+                  ? "You have no unread platform notifications for this filter."
+                  : "You're all caught up. New platform notifications will appear here."
+              }
+              className="py-16"
+            />
           </CardContent>
         </Card>
       ) : (

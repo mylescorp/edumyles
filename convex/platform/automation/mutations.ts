@@ -695,8 +695,7 @@ export const scheduleWorkflow = mutation({
     await ctx.db.patch(args.workflowId as any, {
       trigger: "scheduled",
       triggerConfig: {
-        schedule: args.schedule,
-        parameters: args.parameters ?? {},
+        schedule: JSON.stringify(args.schedule),
       },
       updatedAt: Date.now(),
     });

@@ -52,17 +52,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Maximum 100 recipients allowed per request" }, { status: 400 });
     }
 
-    // Check user permissions for email sending
-    const userPermissions = await convex.query(api.modules.communications.queries.getUserPermissions, {
-      sessionToken,
-    });
+    const canSendEmail =
+      session.role === "school_admin" ||
+      session.role === "principal" ||
+      session.permissions?.includes("communications:write") ||
+      session.permissions?.includes("communications:broadcast") ||
+      session.permissions?.includes("*");
 
-    if (!userPermissions?.canSendEmail) {
+    if (!canSendEmail) {
       return NextResponse.json({ error: "Insufficient permissions to send emails" }, { status: 403 });
     }
 
     // Send email via Convex action
-    const result = await convex.action((api as any).actions.communications.email.sendEmail, {
+    const result = await convex.action((api as any)["modules/communications/email"].sendEmail, {
       to,
       subject,
       body: text ?? html,

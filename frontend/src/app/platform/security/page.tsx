@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,12 +17,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatRelativeTime } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { 
   Shield, 
   AlertTriangle, 
   Activity, 
   Eye, 
-  Server,
   FileText,
   Clock,
   CheckCircle,
@@ -98,44 +101,19 @@ interface Threat {
   falsePositive?: boolean;
 }
 
-interface SecurityMetrics {
-  overall: {
-    score: number;
-    level: "excellent" | "good" | "fair" | "poor" | "critical";
-    trend: "improving" | "stable" | "degrading";
-  };
-  threats: {
-    active: number;
-    mitigated: number;
-    falsePositives: number;
-    trend: "increasing" | "decreasing" | "stable";
-  };
-  incidents: {
-    open: number;
-    investigating: number;
-    resolved: number;
-    averageResolutionTime: number;
-  };
-  compliance: {
-    score: number;
-    violations: number;
-    lastAudit: number;
-  };
-  access: {
-    totalAttempts: number;
-    failedAttempts: number;
-    suspiciousIPs: number;
-    blockedAttempts: number;
-  };
-}
-
 export default function SecurityDashboardPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedTimeRange, setSelectedTimeRange] = useState<"1h" | "24h" | "7d" | "30d">("24h");
   const [selectedCategory, setSelectedCategory] = useState<Threat["type"] | "all">("all");
   const [pendingThreatId, setPendingThreatId] = useState<string | null>(null);
   const [pendingBlockedIp, setPendingBlockedIp] = useState<string | null>(null);
+  const [pendingUnblockId, setPendingUnblockId] = useState<string | null>(null);
+  const [selectedIncident, setSelectedIncident] = useState<SecurityIncident | null>(null);
+  const [incidentStatusDraft, setIncidentStatusDraft] = useState<SecurityIncident["status"]>("open");
+  const [incidentAssigneeDraft, setIncidentAssigneeDraft] = useState("");
+  const [pendingIncidentId, setPendingIncidentId] = useState<string | null>(null);
 
   // Get security overview
   const securityOverview = usePlatformQuery(
@@ -190,10 +168,17 @@ export default function SecurityDashboardPage() {
     !!sessionToken
   );
 
+  const incidentRows = useMemo(() => incidents ?? [], [incidents]);
+  const threatRows = useMemo(() => threats ?? [], [threats]);
+  const accessLogRows = useMemo(() => accessLogs ?? [], [accessLogs]);
+  const blockedIpRows = useMemo(() => blockedIPs ?? [], [blockedIPs]);
+
   // Mutations
   const acknowledgeThreatMutation = useMutation(api.platform.security.mutations.acknowledgeThreat);
   const mitigateThreatMutation = useMutation(api.platform.security.mutations.mitigateThreat);
   const blockIPMutation = useMutation(api.platform.security.mutations.blockIP);
+  const unblockIPMutation = useMutation(api.platform.security.mutations.unblockIP);
+  const updateSecurityIncidentMutation = useMutation(api.platform.security.mutations.updateSecurityIncident);
 
   // Get severity color
   const getSeverityColor = (severity: string) => {
@@ -288,6 +273,110 @@ export default function SecurityDashboardPage() {
     }
   };
 
+  const handleUnblockIP = async (blockedIPId: string) => {
+    setPendingUnblockId(blockedIPId);
+    try {
+      await unblockIPMutation({
+        sessionToken,
+        blockedIPId,
+      });
+      toast.success("IP block removed.");
+    } catch (error: any) {
+      console.error("Failed to unblock IP:", error);
+      toast.error(error?.message || "Failed to unblock IP.");
+    } finally {
+      setPendingUnblockId(null);
+    }
+  };
+
+  const threatTypeCounts = useMemo(() => {
+    const counts = {
+      malware: 0,
+      phishing: 0,
+      brute_force: 0,
+      ddos: 0,
+    };
+
+    for (const threat of threatRows) {
+      if (threat.type in counts) {
+        counts[threat.type as keyof typeof counts] += 1;
+      }
+    }
+
+    return counts;
+  }, [threatRows]);
+
+  const accessDerivedMetrics = useMemo(() => {
+    const totalAttempts = securityOverview?.access?.totalAttempts ?? accessLogRows.length;
+    const failedAttempts = securityOverview?.access?.failedAttempts ?? accessLogRows.filter((log: any) => !log.success).length;
+    const blockedAttempts = securityOverview?.access?.blockedAttempts ?? blockedIpRows.length;
+    const suspiciousIPs = securityOverview?.access?.suspiciousIPs ?? blockedIpRows.length;
+
+    return {
+      totalAttempts,
+      failedAttempts,
+      blockedAttempts,
+      suspiciousIPs,
+      failedRate: totalAttempts > 0 ? Math.min(100, Math.round((failedAttempts / totalAttempts) * 100)) : 0,
+      blockedRate: totalAttempts > 0 ? Math.min(100, Math.round((blockedAttempts / totalAttempts) * 100)) : 0,
+      suspiciousRate: Math.max(
+        blockedIpRows.length,
+        totalAttempts > 0 ? Math.min(100, Math.round((suspiciousIPs / totalAttempts) * 100)) : 0
+      ),
+    };
+  }, [accessLogRows, blockedIpRows, securityOverview]);
+
+  const exportSecurityReport = () => {
+    const report = {
+      generatedAt: new Date().toISOString(),
+      timeRange: selectedTimeRange,
+      summary: securityOverview,
+      activeThreats: threatRows,
+      incidents: incidentRows,
+      compliance,
+      blockedIPs: blockedIpRows,
+      vulnerabilityScan,
+    };
+
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `security-report-${selectedTimeRange}-${Date.now()}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    toast.success("Security report exported.");
+  };
+
+  const openIncidentDialog = (incident: SecurityIncident) => {
+    setSelectedIncident(incident);
+    setIncidentStatusDraft(incident.status);
+    setIncidentAssigneeDraft(incident.assignee ?? "");
+  };
+
+  const handleIncidentUpdate = async () => {
+    if (!selectedIncident) return;
+
+    setPendingIncidentId(selectedIncident._id);
+    try {
+      await updateSecurityIncidentMutation({
+        sessionToken,
+        incidentId: selectedIncident._id,
+        updates: {
+          status: incidentStatusDraft,
+          assignee: incidentAssigneeDraft.trim() || undefined,
+        },
+      });
+      toast.success("Incident updated.");
+      setSelectedIncident(null);
+    } catch (error: any) {
+      console.error("Failed to update incident:", error);
+      toast.error(error?.message || "Failed to update incident.");
+    } finally {
+      setPendingIncidentId(null);
+    }
+  };
+
   if (
     !sessionToken ||
     !securityOverview ||
@@ -312,7 +401,7 @@ export default function SecurityDashboardPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Select value={selectedTimeRange} onValueChange={(value) => setSelectedTimeRange(value as "1h" | "24h" | "7d" | "30d")}>
+            <Select value={selectedTimeRange} onValueChange={(value: "1h" | "24h" | "7d" | "30d") => setSelectedTimeRange(value)}>
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
@@ -323,7 +412,7 @@ export default function SecurityDashboardPage() {
                 <SelectItem value="30d">Last 30 Days</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={() => toast.info("Security data refreshes automatically from Convex queries.")}>
+            <Button variant="outline" onClick={() => router.refresh()}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
@@ -414,24 +503,24 @@ export default function SecurityDashboardPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Failed Login Attempts</span>
                     <span className="text-lg font-bold text-red-600">
-                      {securityOverview?.access?.failedAttempts || 0}
+                      {accessDerivedMetrics.failedAttempts}
                     </span>
                   </div>
-                  <Progress value={75} className="h-2" />
+                  <Progress value={accessDerivedMetrics.failedRate} className="h-2" />
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Blocked IPs</span>
                     <span className="text-lg font-bold text-orange-600">
-                      {securityOverview?.access?.blockedAttempts || 0}
+                      {blockedIpRows.length}
                     </span>
                   </div>
-                  <Progress value={60} className="h-2" />
+                  <Progress value={accessDerivedMetrics.blockedRate} className="h-2" />
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Suspicious Activities</span>
                     <span className="text-lg font-bold text-yellow-600">
-                      {securityOverview?.access?.suspiciousIPs || 0}
+                      {accessDerivedMetrics.suspiciousIPs}
                     </span>
                   </div>
-                  <Progress value={30} className="h-2" />
+                  <Progress value={accessDerivedMetrics.suspiciousRate} className="h-2" />
                 </div>
               </CardContent>
             </Card>
@@ -450,29 +539,29 @@ export default function SecurityDashboardPage() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="font-medium">Malware Detected:</span>
-                      <div className="text-lg font-bold text-red-600">{threats.filter((threat: Threat) => threat.type === "malware").length}</div>
+                      <div className="text-lg font-bold text-red-600">{threatTypeCounts.malware}</div>
                     </div>
                     <div>
                       <span className="font-medium">Phishing Attempts:</span>
-                      <div className="text-lg font-bold text-orange-600">{threats.filter((threat: Threat) => threat.type === "phishing").length}</div>
+                      <div className="text-lg font-bold text-orange-600">{threatTypeCounts.phishing}</div>
                     </div>
                     <div>
                       <span className="font-medium">Brute Force:</span>
-                      <div className="text-lg font-bold text-yellow-600">{threats.filter((threat: Threat) => threat.type === "brute_force").length}</div>
+                      <div className="text-lg font-bold text-yellow-600">{threatTypeCounts.brute_force}</div>
                     </div>
                     <div>
                       <span className="font-medium">DDoS Attacks:</span>
-                      <div className="text-lg font-bold text-purple-600">{threats.filter((threat: Threat) => threat.type === "ddos").length}</div>
+                      <div className="text-lg font-bold text-purple-600">{threatTypeCounts.ddos}</div>
                     </div>
                   </div>
-                  {threats[0] ? (
+                  {threatRows[0] ? (
                     <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 text-red-600" />
                         <span className="font-medium text-red-800">Highest-priority active threat</span>
                       </div>
                       <p className="mt-2 text-sm text-red-700">
-                        {threats[0].description}
+                        {threatRows[0].description}
                       </p>
                     </div>
                   ) : (
@@ -521,10 +610,15 @@ export default function SecurityDashboardPage() {
                 <CardDescription>Active IP blocks applied through security workflows</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {blockedIPs.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No blocked IPs are currently active.</p>
+                {blockedIpRows.length === 0 ? (
+                  <EmptyState
+                    icon={Ban}
+                    title="No blocked IPs"
+                    description="Active IP blocks will appear here when security workflows quarantine suspicious sources."
+                    className="py-8"
+                  />
                 ) : (
-                  blockedIPs.slice(0, 8).map((blocked: any) => (
+                  blockedIpRows.slice(0, 8).map((blocked: any) => (
                     <div key={blocked._id} className="flex items-center justify-between rounded-lg border p-3">
                       <div>
                         <p className="font-mono text-sm">{blocked.ip}</p>
@@ -533,6 +627,15 @@ export default function SecurityDashboardPage() {
                       <div className="text-right text-xs text-muted-foreground">
                         <p>Blocked {formatRelativeTime(blocked.blockedAt)}</p>
                         <p>Expires {blocked.expiresAt ? formatRelativeTime(blocked.expiresAt) : "never"}</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="mt-2 h-7 px-2 text-xs"
+                          disabled={pendingUnblockId === blocked._id}
+                          onClick={() => handleUnblockIP(blocked._id)}
+                        >
+                          {pendingUnblockId === blocked._id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Unblock"}
+                        </Button>
                       </div>
                     </div>
                   ))
@@ -560,14 +663,25 @@ export default function SecurityDashboardPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2" onClick={exportSecurityReport}>
               <Download className="w-4 h-4" />
               Export Report
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {threats?.map((threat: Threat) => (
+          {threatRows.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <EmptyState
+                  icon={Shield}
+                  title="No threats for this filter"
+                  description="There are no recorded threats matching the current time range and category selection."
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {threatRows.map((threat: Threat) => (
               <Card key={threat._id} className="border-l-4 border-l-red-500">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -656,13 +770,25 @@ export default function SecurityDashboardPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="incidents" className="space-y-6">
-          <div className="space-y-4">
-            {incidents?.map((incident: SecurityIncident) => (
+          {incidentRows.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <EmptyState
+                  icon={Activity}
+                  title="No incidents in scope"
+                  description="Security incidents will appear here once they are opened for this platform tenant."
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {incidentRows.map((incident: SecurityIncident) => (
               <Card key={incident._id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -712,12 +838,12 @@ export default function SecurityDashboardPage() {
                       {incident.affectedTenants.length} tenants affected
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={() => openIncidentDialog(incident)}>
                         <FileText className="w-4 h-4 mr-1" />
                         View Details
                       </Button>
                       {incident.status === "open" && (
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => openIncidentDialog(incident)}>
                           <Settings className="w-4 h-4 mr-1" />
                           Assign
                         </Button>
@@ -726,8 +852,9 @@ export default function SecurityDashboardPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="compliance" className="space-y-6">
@@ -776,7 +903,15 @@ export default function SecurityDashboardPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  {(compliance?.areas ?? []).map((item: any) => (
+                  {(compliance?.areas ?? []).length === 0 ? (
+                    <EmptyState
+                      icon={ShieldCheck}
+                      title="No compliance areas available"
+                      description="Compliance scoring will appear once the security backend has enough audit data to assess."
+                      className="py-8"
+                    />
+                  ) : (
+                    (compliance?.areas ?? []).map((item: any) => (
                     <div key={item.area} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1">
                         <div className="font-medium">{item.area}</div>
@@ -797,7 +932,8 @@ export default function SecurityDashboardPage() {
                         </Badge>
                       </div>
                     </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -815,8 +951,16 @@ export default function SecurityDashboardPage() {
                 <CardDescription>System access and authentication events</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {accessLogs?.slice(0, 20).map((log: any, index: number) => (
+                {accessLogRows.length === 0 ? (
+                  <EmptyState
+                    icon={Clock}
+                    title="No access logs in range"
+                    description="Authentication and session events will appear here when they are recorded for the selected window."
+                    className="py-8"
+                  />
+                ) : (
+                  <div className="space-y-2">
+                    {accessLogRows.slice(0, 20).map((log: any, index: number) => (
                     <div key={index} className="flex items-center justify-between border-b p-3">
                       <div className="flex flex-1 items-center gap-3">
                         <div className={`h-2 w-2 rounded-full ${log.success ? 'bg-green-500' : 'bg-red-500'}`}></div>
@@ -835,8 +979,9 @@ export default function SecurityDashboardPage() {
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -891,6 +1036,100 @@ export default function SecurityDashboardPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={Boolean(selectedIncident)} onOpenChange={(open) => !open && setSelectedIncident(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedIncident?.title}</DialogTitle>
+          </DialogHeader>
+          {selectedIncident ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className={getSeverityColor(selectedIncident.severity)}>{selectedIncident.severity}</Badge>
+                <Badge className={getStatusColor(selectedIncident.status)}>{selectedIncident.status}</Badge>
+                <Badge variant="outline">{selectedIncident.category.replace(/_/g, " ")}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">{selectedIncident.description}</p>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm font-medium">Affected systems</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {selectedIncident.affectedSystems.length > 0
+                      ? selectedIncident.affectedSystems.join(", ")
+                      : "No affected systems recorded"}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm font-medium">Business impact</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {selectedIncident.impactAssessment.businessImpact || "No impact summary recorded"}
+                  </p>
+                </div>
+              </div>
+
+              {selectedIncident.rootCause ? (
+                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                  <p className="text-sm font-medium text-yellow-900">Root cause</p>
+                  <p className="mt-2 text-sm text-yellow-800">{selectedIncident.rootCause}</p>
+                </div>
+              ) : null}
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Status</p>
+                  <Select value={incidentStatusDraft} onValueChange={(value) => setIncidentStatusDraft(value as SecurityIncident["status"])}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="investigating">Investigating</SelectItem>
+                      <SelectItem value="contained">Contained</SelectItem>
+                      <SelectItem value="resolved">Resolved</SelectItem>
+                      <SelectItem value="closed">Closed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Assignee</p>
+                  <Input
+                    value={incidentAssigneeDraft}
+                    onChange={(event) => setIncidentAssigneeDraft(event.target.value)}
+                    placeholder="security.lead@edumyles.com"
+                  />
+                </div>
+              </div>
+
+              {selectedIncident.timeline && selectedIncident.timeline.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Timeline</p>
+                  <div className="space-y-2">
+                    {selectedIncident.timeline.slice(0, 5).map((entry, index) => (
+                      <div key={`${entry.timestamp}-${index}`} className="rounded-lg border p-3 text-sm">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-medium">{entry.action}</span>
+                          <span className="text-xs text-muted-foreground">{formatRelativeTime(entry.timestamp)}</span>
+                        </div>
+                        <p className="mt-1 text-muted-foreground">{entry.description}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">By {entry.user}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedIncident(null)}>
+              Close
+            </Button>
+            <Button disabled={pendingIncidentId === selectedIncident?._id} onClick={handleIncidentUpdate}>
+              {pendingIncidentId === selectedIncident?._id ? "Saving..." : "Save changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

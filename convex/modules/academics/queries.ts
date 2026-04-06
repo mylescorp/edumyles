@@ -105,6 +105,27 @@ export const getAssignments = query({
 });
 
 /**
+ * List subjects for the current tenant.
+ */
+export const getSubjects = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "students:read");
+
+    return await ctx.db
+      .query("subjects")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+  },
+});
+
+/**
  * Get a specific assignment by ID.
  */
 export const getAssignment = query({

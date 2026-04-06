@@ -189,7 +189,7 @@ export default function ROICalculator() {
             </p>
 
             <Link
-              href="/auth/signup"
+              href="/waitlist"
               className="inline-flex items-center justify-center gap-2 font-semibold text-sm px-6 py-3 rounded-full text-white transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
               style={{ background: "#061A12" }}
             >

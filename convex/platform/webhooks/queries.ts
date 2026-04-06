@@ -2,6 +2,27 @@ import { internalQuery, query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
+export const getWebhookEventCatalog = query({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+
+    return [
+      "tenant.created",
+      "tenant.updated",
+      "tenant.deleted",
+      "user.created",
+      "user.updated",
+      "ticket.created",
+      "ticket.resolved",
+      "payment.received",
+      "subscription.changed",
+    ];
+  },
+});
+
 /**
  * List all webhook endpoints for the tenant
  */

@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({
-      success: true,
       ...result,
+      success: result?.success ?? true,
     });
   } catch (error) {
     console.error("Bank transfer verification error:", error);

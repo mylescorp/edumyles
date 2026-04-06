@@ -31,7 +31,7 @@ describe("theme.colors", () => {
   it("hex colors have valid format", () => {
     const hexRe = /^#[0-9A-Fa-f]{3,6}$/;
     Object.entries(theme.colors).forEach(([key, value]) => {
-      expect(hexRe.test(value), `${key}: "${value}" is not a valid hex colour`).toBe(true);
+      expect(hexRe.test(value)).toBe(true);
     });
   });
 });
@@ -39,8 +39,8 @@ describe("theme.colors", () => {
 describe("theme.spacing", () => {
   it("all spacing values are positive integers", () => {
     Object.entries(theme.spacing).forEach(([key, value]) => {
-      expect(typeof value, `spacing.${key} should be a number`).toBe("number");
-      expect(value, `spacing.${key} should be > 0`).toBeGreaterThan(0);
+      expect(typeof value).toBe("number");
+      expect(value).toBeGreaterThan(0);
     });
   });
 
@@ -81,8 +81,8 @@ describe("theme.shadows", () => {
 describe("theme.fontSizes", () => {
   it("all font sizes are positive numbers", () => {
     Object.entries(theme.fontSizes).forEach(([key, value]) => {
-      expect(typeof value, `fontSizes.${key} should be a number`).toBe("number");
-      expect(value, `fontSizes.${key} should be > 0`).toBeGreaterThan(0);
+      expect(typeof value).toBe("number");
+      expect(value).toBeGreaterThan(0);
     });
   });
 });

@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQuery } from 'convex/react';
 import AttendanceRow, { type AttendanceRowProps } from '../components/AttendanceRow';
 
@@ -271,11 +271,10 @@ const AttendanceScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {isOffline && <Text style={styles.banner}>Showing cached attendance.</Text>}
-      <FlashList
+      <FlatList
         data={resolvedStudentAttendance as AttendanceRowProps[]}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <AttendanceRow {...item} />}
-        estimatedItemSize={64}
         contentContainerStyle={styles.content}
       />
     </View>

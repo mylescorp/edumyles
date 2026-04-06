@@ -4,6 +4,10 @@ import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireTenantSession } from "../../helpers/tenantGuard";
 import { ALL_MODULES, CORE_MODULE_IDS } from "./moduleDefinitions";
 
+// SECURITY: Platform and tenant access in this file is enforced via
+// requirePlatformSession()/requireTenantSession() because these bootstrap flows
+// are called with explicit sessionToken args rather than Convex JWT auth.
+
 /**
  * Seed the moduleRegistry with all module definitions.
  * Platform admin only — idempotent.

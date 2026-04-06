@@ -16,12 +16,32 @@ const planInputValidator = v.union(
 );
 
 const normalizePlan = (
-  plan: "free" | "starter" | "growth" | "standard" | "pro" | "enterprise"
+  plan: "free" | "starter" | "growth" | "standard" | "pro" | "enterprise" | string
 ): "starter" | "standard" | "pro" | "enterprise" => {
   if (plan === "free") return "starter";
   if (plan === "growth") return "standard";
-  return plan;
+  if (plan === "starter" || plan === "standard" || plan === "pro" || plan === "enterprise") {
+    return plan;
+  }
+  return "starter";
 };
+
+function buildDefaultOnboardingSteps(initialModulesConfigured = 0) {
+  const now = Date.now();
+  return {
+    schoolProfile: { completed: true, completedAt: now, count: 1 },
+    rolesConfigured: { completed: false, completedAt: undefined, count: undefined },
+    staffAdded: { completed: false, completedAt: undefined, count: undefined },
+    studentsAdded: { completed: false, completedAt: undefined, count: undefined },
+    classesCreated: { completed: false, completedAt: undefined, count: undefined },
+    modulesConfigured: initialModulesConfigured > 0
+      ? { completed: true, completedAt: now, count: initialModulesConfigured }
+      : { completed: false, completedAt: undefined, count: undefined },
+    portalCustomized: { completed: false, completedAt: undefined, count: undefined },
+    parentsInvited: { completed: false, completedAt: undefined, count: undefined },
+    firstPaymentProcessed: { completed: false, completedAt: undefined, count: undefined },
+  };
+}
 
 export const createTenant = mutation({
   args: {
@@ -105,6 +125,245 @@ export const createTenant = mutation({
     });
 
     return { id, tenantId, organizationId: orgId };
+  },
+});
+
+export const provisionTenant = mutation({
+  args: {
+    sessionToken: v.string(),
+    schoolName: v.string(),
+    schoolType: v.optional(v.string()),
+    country: v.string(),
+    county: v.string(),
+    address: v.optional(v.string()),
+    websiteUrl: v.optional(v.string()),
+    logoUrl: v.optional(v.string()),
+    adminFirstName: v.string(),
+    adminLastName: v.string(),
+    adminEmail: v.string(),
+    adminPhone: v.optional(v.string()),
+    adminJobTitle: v.optional(v.string()),
+    sendMagicLink: v.boolean(),
+    planId: v.string(),
+    billingCycle: v.union(v.literal("monthly"), v.literal("annual")),
+    customPriceMonthlyKes: v.optional(v.number()),
+    customPriceAnnualKes: v.optional(v.number()),
+    trialDays: v.number(),
+    studentCountEstimate: v.optional(v.number()),
+    paymentCollectionMode: v.union(v.literal("collect_now"), v.literal("prompt_later")),
+    subdomain: v.string(),
+    customDomain: v.optional(v.string()),
+    timezone: v.string(),
+    displayCurrency: v.string(),
+    academicYearStartMonth: v.number(),
+    termStructure: v.string(),
+    selectedModuleIds: v.array(v.string()),
+    pilotGrantModuleIds: v.array(v.string()),
+    welcomeTemplate: v.optional(v.string()),
+    welcomeMessage: v.optional(v.string()),
+    sendWelcomeImmediately: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const platform = await requirePlatformSession(ctx, args);
+
+    const existing = await ctx.db
+      .query("tenants")
+      .withIndex("by_subdomain", (q) => q.eq("subdomain", args.subdomain))
+      .first();
+    if (existing) {
+      throw new Error(`CONFLICT: Subdomain '${args.subdomain}' already taken`);
+    }
+
+    const plan = (await ctx.db.query("subscription_plans").collect()).find(
+      (record) => record.name === args.planId
+    );
+    if (!plan) {
+      throw new Error("NOT_FOUND: Subscription plan not found");
+    }
+
+    const now = Date.now();
+    const tenantId = generateTenantId();
+    const normalizedPlan = normalizePlan(args.planId as any);
+    const selectedModuleIds = Array.from(new Set(args.selectedModuleIds));
+    const trialEndsAt = args.trialDays > 0 ? now + args.trialDays * 24 * 60 * 60 * 1000 : undefined;
+    const currentPeriodEnd =
+      trialEndsAt ??
+      now + (args.billingCycle === "annual" ? 365 : 30) * 24 * 60 * 60 * 1000;
+
+    const tenantDocId = await ctx.db.insert("tenants", {
+      tenantId,
+      name: args.schoolName,
+      subdomain: args.subdomain,
+      email: args.adminEmail,
+      phone: args.adminPhone ?? "",
+      plan: normalizedPlan,
+      status: args.trialDays > 0 ? "trial" : "active",
+      county: args.county,
+      country: args.country,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const organizationId = await ctx.db.insert("organizations", {
+      tenantId,
+      workosOrgId: `edumyles-${tenantId}`,
+      name: args.schoolName,
+      subdomain: args.subdomain,
+      tier: normalizedPlan,
+      isActive: true,
+      createdAt: now,
+    });
+
+    await ctx.db.insert("tenant_subscriptions", {
+      tenantId,
+      planId: args.planId,
+      status: args.trialDays > 0 ? "trialing" : "active",
+      currentPeriodStart: now,
+      currentPeriodEnd,
+      cancelAtPeriodEnd: false,
+      studentCountAtBilling: args.studentCountEstimate,
+      paymentProvider: undefined,
+      paymentReference: undefined,
+      customPriceMonthlyKes: args.customPriceMonthlyKes,
+      customPriceAnnualKes: args.customPriceAnnualKes,
+      customPricingNotes: [
+        args.schoolType ? `School type: ${args.schoolType}` : null,
+        args.address ? `Address: ${args.address}` : null,
+        args.websiteUrl ? `Website: ${args.websiteUrl}` : null,
+        args.customDomain ? `Custom domain: ${args.customDomain}` : null,
+        `Timezone: ${args.timezone}`,
+        `Display currency: ${args.displayCurrency}`,
+        `Academic year start month: ${args.academicYearStartMonth}`,
+        `Term structure: ${args.termStructure}`,
+        `Payment collection: ${args.paymentCollectionMode}`,
+      ]
+        .filter(Boolean)
+        .join(" | "),
+      nextPaymentDue: currentPeriodEnd,
+      trialEndsAt,
+      cancelledAt: undefined,
+      cancellationReason: undefined,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    if (args.studentCountEstimate !== undefined) {
+      await ctx.db.insert("tenant_usage_stats", {
+        tenantId,
+        studentCount: args.studentCountEstimate,
+        staffCount: 1,
+        storageUsedGb: 0,
+        recordedAt: now,
+        createdAt: now,
+      });
+    }
+
+    await ctx.db.insert("tenant_onboarding", {
+      tenantId,
+      wizardCompleted: false,
+      wizardCompletedAt: undefined,
+      steps: buildDefaultOnboardingSteps(selectedModuleIds.length),
+      healthScore: selectedModuleIds.length > 0 ? 8 : 5,
+      lastActivityAt: now,
+      stalled: false,
+      assignedAccountManager: undefined,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const installedModuleIds = selectedModuleIds.length > 0 ? selectedModuleIds : CORE_MODULE_IDS;
+    for (const moduleId of installedModuleIds) {
+      await ctx.db.insert("installedModules", {
+        tenantId,
+        moduleId,
+        installedAt: now,
+        installedBy: platform.userId,
+        config: {
+          provisionedByPlatform: true,
+          provisioningSource: "platform_tenant_create",
+        },
+        status: "active",
+        updatedAt: now,
+      });
+    }
+
+    for (const moduleId of args.pilotGrantModuleIds) {
+      await ctx.db.insert("pilot_grants", {
+        moduleId,
+        tenantId,
+        grantType: "free_trial",
+        discountPct: undefined,
+        customPriceKes: 0,
+        startDate: now,
+        endDate: trialEndsAt ?? currentPeriodEnd,
+        grantedBy: platform.userId,
+        reason: "Platform-admin tenant provisioning pilot grant",
+        stealthMode: false,
+        status: "active",
+        convertedToPaid: false,
+        notificationsSent: [],
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    const pendingUserId = await ctx.db.insert("users", {
+      tenantId,
+      eduMylesUserId: crypto.randomUUID(),
+      workosUserId: `pending-${crypto.randomUUID()}`,
+      email: args.adminEmail,
+      firstName: args.adminFirstName,
+      lastName: args.adminLastName,
+      role: "school_admin",
+      permissions: [],
+      organizationId,
+      isActive: false,
+      phone: args.adminPhone,
+      bio: args.adminJobTitle,
+      createdAt: now,
+    });
+
+    if (args.sendWelcomeImmediately) {
+      await ctx.scheduler.runAfter(0, api.platform.tenants.emailActions.sendInviteEmail, {
+        to: args.adminEmail,
+        firstName: args.adminFirstName,
+        lastName: args.adminLastName,
+        role: "school_admin",
+        tenantName: args.schoolName,
+        subdomain: args.subdomain,
+        invitedByEmail: platform.email,
+      });
+    }
+
+    await logAction(ctx, {
+      tenantId: platform.tenantId,
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "tenant.created",
+      entityType: "tenant",
+      entityId: tenantId,
+      after: {
+        tenantDocId,
+        organizationId,
+        pendingUserId,
+        planId: args.planId,
+        billingCycle: args.billingCycle,
+        trialDays: args.trialDays,
+        installedModuleIds,
+        pilotGrantModuleIds: args.pilotGrantModuleIds,
+        sendMagicLink: args.sendMagicLink,
+        welcomeTemplate: args.welcomeTemplate,
+      },
+    });
+
+    return {
+      success: true,
+      tenantId,
+      tenantDocId,
+      organizationId,
+      pendingUserId,
+      requiresOrgProvisioning: true,
+    };
   },
 });
 

@@ -52,17 +52,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message too long (max 1600 characters)" }, { status: 400 });
     }
 
-    // Check user permissions for SMS sending
-    const userPermissions = await convex.query(api.modules.communications.queries.getUserPermissions, {
-      sessionToken,
-    });
+    const canSendSms =
+      session.role === "school_admin" ||
+      session.role === "principal" ||
+      session.permissions?.includes("communications:write") ||
+      session.permissions?.includes("communications:broadcast") ||
+      session.permissions?.includes("*");
 
-    if (!userPermissions?.canSendSMS) {
+    if (!canSendSms) {
       return NextResponse.json({ error: "Insufficient permissions to send SMS" }, { status: 403 });
     }
 
     // Send SMS via Convex action
-    const result = await convex.action((api as any).actions.communications.sms.sendBulkSms, {
+    const result = await convex.action((api as any)["modules/communications/sms"].sendBulkSms, {
       phones: recipients,
       message,
     });

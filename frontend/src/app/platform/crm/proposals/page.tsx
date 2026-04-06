@@ -1,503 +1,442 @@
 "use client";
 
-import { useState } from "react";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "convex/react";
+import Link from "next/link";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  FileText,
-  Plus,
-  Search,
-  Download,
-  Eye,
-  Send,
-  Loader2,
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { formatDate, formatRelativeTime } from "@/lib/formatters";
+import { FileText, Plus, RefreshCw, Search, Send } from "lucide-react";
+import { toast } from "sonner";
 
-export default function ProposalTemplatesPage() {
+type DealRow = {
+  _id: string;
+  leadId: string;
+  tenantId?: string;
+  valueKes: number;
+  stage: string;
+  proposalId?: string;
+  status: "open" | "won" | "lost";
+  updatedAt: number;
+};
+
+type LeadRow = {
+  _id: string;
+  schoolName: string;
+  contactName: string;
+  email: string;
+};
+
+type ProposalRow = {
+  _id: string;
+  planId?: string;
+  totalKes: number;
+  status: "draft" | "sent" | "accepted" | "rejected";
+  sentAt?: number;
+  acceptedAt?: number;
+  validUntil?: number;
+  createdAt: number;
+  updatedAt: number;
+  deal: DealRow;
+  lead: LeadRow;
+};
+
+type PlanRow = {
+  name: string;
+  priceMonthlyKes: number;
+};
+
+function formatKes(amount: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function statusTone(status: ProposalRow["status"]) {
+  switch (status) {
+    case "sent":
+      return "bg-sky-100 text-sky-700";
+    case "accepted":
+      return "bg-emerald-100 text-emerald-700";
+    case "rejected":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-slate-100 text-slate-700";
+  }
+}
+
+export default function PlatformCrmProposalsPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
-
-  const templatesData = usePlatformQuery(
-    api.platform.crm.proposalQueries.listProposalTemplates,
-    { sessionToken: sessionToken || "" },
-    !!sessionToken
-  );
-  const proposalsData = usePlatformQuery(
-    api.platform.crm.proposalQueries.listProposals,
-    { sessionToken: sessionToken || "" },
-    !!sessionToken
-  );
-
-  const createTemplate = useMutation(api.platform.crm.proposalMutations.createProposalTemplate);
-  const generateProposal = useMutation(api.platform.crm.proposalMutations.generateProposal);
-  const sendProposal = useMutation(api.platform.crm.proposalMutations.sendProposal);
-
-  const templates = (templatesData as any[]) || [];
-  const proposals = (proposalsData as any[]) || [];
-
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [activeTab, setActiveTab] = useState("templates");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
-  const [previewTemplate, setPreviewTemplate] = useState<any | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | ProposalRow["status"]>("all");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [selectedDealId, setSelectedDealId] = useState("");
+  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [customTotalKes, setCustomTotalKes] = useState("");
+  const [validUntil, setValidUntil] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRefreshing, startRefreshing] = useTransition();
 
-  // Create template form
-  const [newTemplateName, setNewTemplateName] = useState("");
-  const [newTemplateDescription, setNewTemplateDescription] = useState("");
-  const [newTemplateCategory, setNewTemplateCategory] = useState<"standard" | "custom" | "legal" | "pricing">("standard");
-  const [newTemplateContent, setNewTemplateContent] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const proposals = usePlatformQuery(
+    api.modules.platform.crm.getProposals,
+    sessionToken
+      ? {
+          sessionToken,
+          status: statusFilter === "all" ? undefined : statusFilter,
+        }
+      : "skip",
+    !!sessionToken
+  ) as ProposalRow[] | undefined;
 
-  // Generate proposal form
-  const [genSchoolName, setGenSchoolName] = useState("");
-  const [genEmail, setGenEmail] = useState("");
-  const [genVariables, setGenVariables] = useState<Record<string, string>>({});
-  const [isGenerating, setIsGenerating] = useState(false);
+  const deals = usePlatformQuery(
+    api.modules.platform.crm.getDeals,
+    sessionToken ? { sessionToken, status: "open" } : "skip",
+    !!sessionToken
+  ) as DealRow[] | undefined;
 
-  const handleCreateTemplate = async () => {
-    if (!sessionToken || !newTemplateName) return;
-    setIsCreating(true);
-    try {
-      await createTemplate({
-        sessionToken,
-        name: newTemplateName,
-        description: newTemplateDescription,
-        category: newTemplateCategory,
-        sections: newTemplateContent
-          ? [{ id: "1", title: "Content", content: newTemplateContent, order: 1, isRequired: true, variables: [] }]
-          : [],
-        variables: [],
-        terms: [],
-        pricing: { currency: "KES", oneTime: true, recurring: true, customPricing: false, priceTiers: [] },
-      });
-      setIsCreateDialogOpen(false);
-      setNewTemplateName("");
-      setNewTemplateDescription("");
-      setNewTemplateContent("");
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsCreating(false);
+  const leads = usePlatformQuery(
+    api.modules.platform.crm.getLeads,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as LeadRow[] | undefined;
+
+  const plans = usePlatformQuery(api.modules.platform.subscriptions.getSubscriptionPlans, {}, true) as
+    | PlanRow[]
+    | undefined;
+
+  const createProposal = useMutation(api.modules.platform.crm.createProposal);
+  const sendProposal = useMutation(api.modules.platform.crm.sendProposal);
+
+  const leadById = useMemo(
+    () => new Map((leads ?? []).map((lead) => [String(lead._id), lead])),
+    [leads]
+  );
+
+  const proposalRows = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return (proposals ?? []).filter((proposal) => {
+      if (!query) return true;
+      return (
+        proposal.lead.schoolName.toLowerCase().includes(query) ||
+        proposal.lead.contactName.toLowerCase().includes(query) ||
+        proposal.lead.email.toLowerCase().includes(query) ||
+        proposal.status.toLowerCase().includes(query)
+      );
+    });
+  }, [proposals, searchQuery]);
+
+  const dealOptions = useMemo(
+    () =>
+      (deals ?? [])
+        .filter((deal) => !deal.proposalId)
+        .map((deal) => ({
+          ...deal,
+          lead: leadById.get(String(deal.leadId)),
+        }))
+        .filter((deal) => deal.lead),
+    [deals, leadById]
+  );
+
+  const selectedPlan = useMemo(
+    () => (plans ?? []).find((plan) => plan.name === selectedPlanId),
+    [plans, selectedPlanId]
+  );
+
+  const summary = useMemo(
+    () => ({
+      total: proposalRows.length,
+      draft: proposalRows.filter((proposal) => proposal.status === "draft").length,
+      sent: proposalRows.filter((proposal) => proposal.status === "sent").length,
+      accepted: proposalRows.filter((proposal) => proposal.status === "accepted").length,
+      pipelineKes: proposalRows.reduce((sum, proposal) => sum + proposal.totalKes, 0),
+    }),
+    [proposalRows]
+  );
+
+  const handleCreateProposal = async () => {
+    if (!sessionToken || !selectedDealId) {
+      toast.error("Pick a deal before creating a proposal.");
+      return;
     }
-  };
 
-  const handleGenerateProposal = async () => {
-    if (!sessionToken || !selectedTemplate || !genSchoolName) return;
-    setIsGenerating(true);
+    const totalKes =
+      customTotalKes.trim().length > 0
+        ? Number(customTotalKes)
+        : (selectedPlan?.priceMonthlyKes ?? 0);
+
+    if (!Number.isFinite(totalKes) || totalKes <= 0) {
+      toast.error("Enter a valid proposal total in KES.");
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      await generateProposal({
+      await createProposal({
         sessionToken,
-        templateId: selectedTemplate._id,
-        schoolName: genSchoolName,
-        contactEmail: genEmail || undefined,
-        variables: genVariables,
+        dealId: selectedDealId as never,
+        planId: selectedPlanId || undefined,
+        totalKes,
+        validUntil: validUntil ? new Date(`${validUntil}T00:00:00.000Z`).getTime() : undefined,
       });
-      setIsGenerateDialogOpen(false);
-      setGenSchoolName("");
-      setGenEmail("");
-      setGenVariables({});
-      setSelectedTemplate(null);
-    } catch (err) {
-      console.error(err);
+      toast.success("Proposal created.");
+      setIsCreateOpen(false);
+      setSelectedDealId("");
+      setSelectedPlanId("");
+      setCustomTotalKes("");
+      setValidUntil("");
+      startRefreshing(() => router.refresh());
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create proposal.");
     } finally {
-      setIsGenerating(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleSendProposal = async (proposalId: string) => {
     if (!sessionToken) return;
     try {
-      await sendProposal({ sessionToken, proposalId });
-    } catch (err) {
-      console.error(err);
+      await sendProposal({
+        sessionToken,
+        proposalId: proposalId as never,
+      });
+      toast.success("Proposal sent.");
+      startRefreshing(() => router.refresh());
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to send proposal.");
     }
   };
 
-  const filteredTemplates = templates.filter((t: any) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      t.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || t.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "sent": return "bg-blue-100 text-blue-800";
-      case "viewed": return "bg-yellow-100 text-yellow-800";
-      case "signed": return "bg-green-100 text-green-800";
-      case "rejected": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
+  if (!sessionToken || proposals === undefined || deals === undefined || leads === undefined || plans === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Proposal Templates"
-        description="Create and manage proposal templates with customizable terms and e-signature integration"
+        title="Proposals"
+        description="Manage real CRM proposals, send them to schools, and track acceptance against live deals."
         breadcrumbs={[
+          { label: "Platform", href: "/platform" },
           { label: "CRM", href: "/platform/crm" },
-          { label: "Proposals", href: "/platform/crm/proposals" },
+          { label: "Proposals" },
         ]}
-      />
-
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="proposals">Generated Proposals</TabsTrigger>
-        </TabsList>
-
-        {/* ── Templates Tab ── */}
-        <TabsContent value="templates" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Proposal Templates</h2>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => startRefreshing(() => router.refresh())}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-1" /> Create Template
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Create proposal
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px]">
+              <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Create New Template</DialogTitle>
+                  <DialogTitle>Create proposal</DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Template Name</Label>
-                      <Input
-                        value={newTemplateName}
-                        onChange={(e) => setNewTemplateName(e.target.value)}
-                        placeholder="Enter template name"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Category</Label>
-                      <Select
-                        value={newTemplateCategory}
-                        onValueChange={(v) => setNewTemplateCategory(v as any)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="standard">Standard</SelectItem>
-                          <SelectItem value="custom">Custom</SelectItem>
-                          <SelectItem value="legal">Legal</SelectItem>
-                          <SelectItem value="pricing">Pricing</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={newTemplateDescription}
-                      onChange={(e) => setNewTemplateDescription(e.target.value)}
-                      placeholder="Describe the template purpose"
-                      rows={2}
+                    <Label>Open deal</Label>
+                    <Select value={selectedDealId} onValueChange={setSelectedDealId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose deal" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {dealOptions.map((deal) => (
+                          <SelectItem key={deal._id} value={String(deal._id)}>
+                            {deal.lead?.schoolName} · {formatKes(deal.valueKes)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Plan</Label>
+                    <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(plans ?? []).map((plan) => (
+                          <SelectItem key={plan.name} value={plan.name}>
+                            {plan.name} · {formatKes(plan.priceMonthlyKes)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="customTotalKes">Total (KES)</Label>
+                    <Input
+                      id="customTotalKes"
+                      type="number"
+                      min={0}
+                      value={customTotalKes}
+                      onChange={(event) => setCustomTotalKes(event.target.value)}
+                      placeholder={selectedPlan ? String(selectedPlan.priceMonthlyKes) : "Enter total KES"}
                     />
                   </div>
+
                   <div className="space-y-2">
-                    <Label>Template Content</Label>
-                    <Textarea
-                      value={newTemplateContent}
-                      onChange={(e) => setNewTemplateContent(e.target.value)}
-                      placeholder="Enter template content. Use {{school_name}} for variables."
-                      rows={8}
+                    <Label htmlFor="validUntil">Valid until</Label>
+                    <Input
+                      id="validUntil"
+                      type="date"
+                      value={validUntil}
+                      onChange={(event) => setValidUntil(event.target.value)}
                     />
                   </div>
+
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
                       Cancel
                     </Button>
-                    <Button onClick={handleCreateTemplate} disabled={!newTemplateName || isCreating}>
-                      {isCreating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                      Create Template
+                    <Button onClick={handleCreateProposal} disabled={isSubmitting || !selectedDealId}>
+                      {isSubmitting ? "Creating..." : "Create proposal"}
                     </Button>
                   </div>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
+        }
+      />
 
-          {/* Filters */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search templates..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-80"
-                  />
-                </div>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="standard">Standard</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
-                    <SelectItem value="legal">Legal</SelectItem>
-                    <SelectItem value="pricing">Pricing</SelectItem>
-                  </SelectContent>
-                </Select>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard title="Proposals" value={String(summary.total)} />
+        <MetricCard title="Draft" value={String(summary.draft)} />
+        <MetricCard title="Sent" value={String(summary.sent)} />
+        <MetricCard title="Pipeline value" value={formatKes(summary.pipelineKes)} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <CardTitle>Proposal queue</CardTitle>
+              <CardDescription>Search by school, contact, or proposal status.</CardDescription>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="relative min-w-[260px]">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search proposals"
+                  className="pl-9"
+                />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Templates Grid */}
-          {filteredTemplates.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
-              <p>No templates found. Create your first template.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTemplates.map((template: any) => (
-                <Card key={template._id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{template.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">{template.description}</p>
-                      </div>
-                      {template.isDefault && <Badge variant="secondary">Default</Badge>}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <Badge variant="outline">{template.category}</Badge>
-                      <span className="text-muted-foreground">{template.usageCount ?? 0} uses</span>
-                    </div>
-                    <div className="flex items-center gap-2 pt-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setPreviewTemplate(template)}
-                        className="flex-1"
-                      >
-                        <Eye className="h-4 w-4 mr-1" /> Preview
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => { setSelectedTemplate(template); setIsGenerateDialogOpen(true); }}
-                        className="flex-1"
-                      >
-                        <FileText className="h-4 w-4 mr-1" /> Generate
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* ── Proposals Tab ── */}
-        <TabsContent value="proposals" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Generated Proposals</h2>
-            <Button onClick={() => setIsGenerateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Generate Proposal
-            </Button>
-          </div>
-
-          <Card>
-            <CardContent className="p-0">
-              {proposals.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                  <p>No proposals generated yet.</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-3 font-semibold">School</th>
-                        <th className="text-left p-3 font-semibold">Template</th>
-                        <th className="text-left p-3 font-semibold">Status</th>
-                        <th className="text-left p-3 font-semibold">Created</th>
-                        <th className="text-left p-3 font-semibold">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {proposals.map((proposal: any) => {
-                        const tmpl = templates.find((t: any) => t._id === proposal.templateId);
-                        return (
-                          <tr key={proposal._id} className="border-b hover:bg-muted/50">
-                            <td className="p-3 font-medium">{proposal.schoolName}</td>
-                            <td className="p-3 text-sm">{tmpl?.name ?? "—"}</td>
-                            <td className="p-3">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(proposal.status)}`}>
-                                {proposal.status}
-                              </span>
-                            </td>
-                            <td className="p-3 text-sm">
-                              {new Date(proposal.createdAt).toLocaleDateString()}
-                            </td>
-                            <td className="p-3">
-                              <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="sm" title="View">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="sm" title="Download">
-                                  <Download className="h-4 w-4" />
-                                </Button>
-                                {proposal.status === "draft" && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    title="Send"
-                                    onClick={() => handleSendProposal(proposal._id)}
-                                  >
-                                    <Send className="h-4 w-4" />
-                                  </Button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Template Preview Dialog */}
-      <Dialog open={!!previewTemplate} onOpenChange={() => setPreviewTemplate(null)}>
-        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Preview: {previewTemplate?.name}</DialogTitle>
-          </DialogHeader>
-          {previewTemplate && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><Label>Category</Label><p>{previewTemplate.category}</p></div>
-                <div><Label>Usage Count</Label><p>{previewTemplate.usageCount ?? 0} times</p></div>
-              </div>
-              <Separator />
-              <p className="text-sm text-muted-foreground">{previewTemplate.description}</p>
-              {previewTemplate.sections?.map((s: any) => (
-                <Card key={s.id}>
-                  <CardHeader><CardTitle className="text-base">{s.title}</CardTitle></CardHeader>
-                  <CardContent>
-                    <div className="text-sm whitespace-pre-wrap">{s.content}</div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Generate Proposal Dialog */}
-      <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Generate Proposal</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Template</Label>
-              <Select
-                value={selectedTemplate?._id ?? ""}
-                onValueChange={(v) => setSelectedTemplate(templates.find((t: any) => t._id === v) ?? null)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a template" />
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as "all" | ProposalRow["status"])}>
+                <SelectTrigger className="w-full sm:w-44">
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  {templates.map((t: any) => (
-                    <SelectItem key={t._id} value={t._id}>{t.name}</SelectItem>
-                  ))}
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="sent">Sent</SelectItem>
+                  <SelectItem value="accepted">Accepted</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>School Name <span className="text-red-500">*</span></Label>
-              <Input
-                value={genSchoolName}
-                onChange={(e) => setGenSchoolName(e.target.value)}
-                placeholder="e.g. Nairobi International Academy"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Contact Email</Label>
-              <Input
-                value={genEmail}
-                onChange={(e) => setGenEmail(e.target.value)}
-                placeholder="contact@school.com"
-                type="email"
-              />
-            </div>
-            {selectedTemplate?.variables?.map((v: any) => (
-              <div key={v.id} className="space-y-1">
-                <Label className="text-sm">
-                  {v.name} {v.required && <span className="text-red-500">*</span>}
-                </Label>
-                {v.type === "select" ? (
-                  <Select
-                    value={genVariables[v.name] ?? ""}
-                    onValueChange={(val) => setGenVariables((prev) => ({ ...prev, [v.name]: val }))}
-                  >
-                    <SelectTrigger><SelectValue placeholder={v.description} /></SelectTrigger>
-                    <SelectContent>
-                      {v.options?.map((opt: string) => (
-                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Input
-                    type={v.type === "number" ? "number" : "text"}
-                    placeholder={v.description}
-                    value={genVariables[v.name] ?? v.defaultValue ?? ""}
-                    onChange={(e) => setGenVariables((prev) => ({ ...prev, [v.name]: e.target.value }))}
-                  />
-                )}
-              </div>
-            ))}
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsGenerateDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleGenerateProposal}
-                disabled={!selectedTemplate || !genSchoolName || isGenerating}
-              >
-                {isGenerating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Generate Proposal
-              </Button>
-            </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </CardHeader>
+        <CardContent>
+          {proposalRows.length === 0 ? (
+            <EmptyState
+              icon={FileText}
+              title="No proposals yet"
+              description="Create the first proposal from an open deal to start moving schools toward conversion."
+            />
+          ) : (
+            <div className="space-y-3">
+              {proposalRows.map((proposal) => (
+                <div key={proposal._id} className="rounded-xl border p-4">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium">{proposal.lead.schoolName}</p>
+                        <Badge className={statusTone(proposal.status)}>{proposal.status}</Badge>
+                        {proposal.planId ? <Badge variant="outline">{proposal.planId}</Badge> : null}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <p>{proposal.lead.contactName} · {proposal.lead.email}</p>
+                        <p>
+                          Created {formatDate(proposal.createdAt)} · Updated {formatRelativeTime(proposal.updatedAt)}
+                          {proposal.validUntil ? ` · Valid until ${formatDate(proposal.validUntil)}` : ""}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-lg font-semibold">{formatKes(proposal.totalKes)}</p>
+                        <p className="text-xs text-muted-foreground">{proposal.deal.stage} stage deal</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Link href={`/platform/crm/proposals/${proposal._id}`}>
+                          <Button variant="outline" size="sm">
+                            View
+                          </Button>
+                        </Link>
+                        {proposal.status === "draft" ? (
+                          <Button size="sm" onClick={() => handleSendProposal(String(proposal._id))}>
+                            <Send className="mr-2 h-4 w-4" />
+                            Send
+                          </Button>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
+  );
+}
+
+function MetricCard({ title, value }: { title: string; value: string }) {
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <p className="text-sm text-muted-foreground">{title}</p>
+        <p className="text-2xl font-semibold">{value}</p>
+      </CardContent>
+    </Card>
   );
 }

@@ -109,6 +109,77 @@ export const createAssignment = mutation({
 });
 
 /**
+ * Update an existing assignment.
+ */
+export const updateAssignment = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    assignmentId: v.id("assignments"),
+    updates: v.object({
+      classId: v.optional(v.string()),
+      subjectId: v.optional(v.string()),
+      title: v.optional(v.string()),
+      description: v.optional(v.string()),
+      instructions: v.optional(v.string()),
+      dueDate: v.optional(v.string()),
+      dueTime: v.optional(v.string()),
+      maxPoints: v.optional(v.number()),
+      type: v.optional(v.string()),
+      allowLateSubmission: v.optional(v.boolean()),
+      latePenalty: v.optional(v.number()),
+      status: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+
+    const assignment = await ctx.db.get(args.assignmentId);
+    if (!assignment || assignment.tenantId !== tenant.tenantId) {
+      throw new Error("Assignment not found");
+    }
+
+    const updates: Record<string, unknown> = { updatedAt: Date.now() };
+    for (const [key, value] of Object.entries(args.updates)) {
+      if (value !== undefined) {
+        updates[key] = value;
+      }
+    }
+
+    await ctx.db.patch(args.assignmentId, updates);
+    return { success: true };
+  },
+});
+
+/**
+ * Delete an assignment within the current tenant.
+ */
+export const deleteAssignment = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    assignmentId: v.id("assignments"),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+
+    const assignment = await ctx.db.get(args.assignmentId);
+    if (!assignment || assignment.tenantId !== tenant.tenantId) {
+      throw new Error("Assignment not found");
+    }
+
+    await ctx.db.delete(args.assignmentId);
+    return { success: true };
+  },
+});
+
+/**
  * Grade a student's submission.
  */
 export const gradeSubmission = mutation({

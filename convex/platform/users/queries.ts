@@ -3,6 +3,51 @@ import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { filterAndSortUsers } from "./utils";
 
+async function resolveCurrentPlatformUser(ctx: any, session: { userId: string; workosUserId?: string; email: string; tenantId: string }) {
+    const byEduMylesUserId = await ctx.db
+        .query("users")
+        .withIndex("by_user_id", (q: any) => q.eq("eduMylesUserId", session.userId))
+        .first();
+
+    if (byEduMylesUserId) {
+        return byEduMylesUserId;
+    }
+
+    if (session.workosUserId) {
+        const byWorkosId = await ctx.db
+            .query("users")
+            .withIndex("by_workos_user", (q: any) => q.eq("workosUserId", session.workosUserId!))
+            .first();
+
+        if (byWorkosId) {
+            return byWorkosId;
+        }
+    }
+
+    const bySessionUserIdAsWorkos = await ctx.db
+        .query("users")
+        .withIndex("by_workos_user", (q: any) => q.eq("workosUserId", session.userId))
+        .first();
+
+    if (bySessionUserIdAsWorkos) {
+        return bySessionUserIdAsWorkos;
+    }
+
+    const byPlatformEmail = await ctx.db
+        .query("users")
+        .withIndex("by_tenant_email", (q: any) =>
+            q.eq("tenantId", session.tenantId).eq("email", session.email || "")
+        )
+        .first();
+
+    if (byPlatformEmail) {
+        return byPlatformEmail;
+    }
+
+    const allUsers = await ctx.db.query("users").collect();
+    return allUsers.find((user: any) => user.email === session.email) || null;
+}
+
 // List all platform admins (master_admin + super_admin)
 export const listPlatformAdmins = query({
     args: { sessionToken: v.string() },
@@ -22,27 +67,7 @@ export const getCurrentPlatformUser = query({
     handler: async (ctx, args) => {
         try {
             const session = await requirePlatformSession(ctx, args);
-            const byWorkosId = await ctx.db
-                .query("users")
-                .withIndex("by_workos_user", (q) => q.eq("workosUserId", session.userId))
-                .first();
-
-            if (byWorkosId) {
-                return byWorkosId;
-            }
-
-            const byPlatformEmail = await ctx.db
-                .query("users")
-                .withIndex("by_tenant_email", (q) =>
-                    q.eq("tenantId", session.tenantId).eq("email", session.email || "")
-                )
-                .first();
-            if (byPlatformEmail) {
-                return byPlatformEmail;
-            }
-
-            const allUsers = await ctx.db.query("users").collect();
-            return allUsers.find((user) => user.email === session.email) || null;
+            return await resolveCurrentPlatformUser(ctx, session);
         } catch (error) {
             console.error("Error in getCurrentPlatformUser:", error);
             // Return null instead of throwing to prevent app crashes

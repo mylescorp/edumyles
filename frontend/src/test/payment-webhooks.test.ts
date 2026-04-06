@@ -28,6 +28,14 @@ vi.mock('convex/browser', () => ({
   ),
 }));
 
+vi.mock('@/convex/_generated/api', () => ({
+  api: {
+    "modules/finance/actions": {
+      recordPaymentFromGateway: "recordPaymentFromGateway",
+    },
+  },
+}));
+
 // ─── Import real handlers AFTER mock declarations ─────────────────────────────
 import { POST as mpesaPost } from '@/app/api/webhooks/mpesa/route';
 import { POST as airtelPost } from '@/app/api/webhooks/airtel/route';

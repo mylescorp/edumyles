@@ -369,12 +369,19 @@ export async function GET(req: NextRequest) {
       );
 
     if (isDevBypassEnabled) {
-      const devSession = buildDevSessionFromCookies(
-        currentSessionCookie === DEV_PLATFORM_SESSION_TOKEN
+      // No session cookie at all → default to platform master_admin so the dev
+      // can browse every panel without being blocked by RoleGuard.
+      const devTokenToUse =
+        !currentSessionCookie || currentSessionCookie === "dev_session_token"
           ? DEV_PLATFORM_SESSION_TOKEN
-          : DEV_TENANT_SESSION_TOKEN,
-        userCookie,
-        roleCookie
+          : currentSessionCookie === DEV_PLATFORM_SESSION_TOKEN
+            ? DEV_PLATFORM_SESSION_TOKEN
+            : DEV_TENANT_SESSION_TOKEN;
+
+      const devSession = buildDevSessionFromCookies(
+        devTokenToUse,
+        undefined, // ignore stale user cookie — force the token-based session
+        undefined
       );
 
       const response = NextResponse.json({

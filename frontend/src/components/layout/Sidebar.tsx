@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
-import { ChevronLeft, ChevronRight, LogOut, X, Star } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, LogOut, X, Star } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { user, logout, sessionToken } = useAuth();
-  const { isModuleInstalled, isModuleActive, isLoading } = useInstalledModules();
+  const { isModuleInstalled, isModuleActive } = useInstalledModules();
   const pendingAdmissions = useQuery(
     api.modules.admissions.queries.listApplications,
     sessionToken ? { sessionToken, status: "pending" } : "skip"
@@ -64,7 +64,43 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
       return 0;
     });
 
-  const SidebarContent = () => (
+  const groupedItems = filteredItems.reduce<Array<{ section: string; items: NavItem[] }>>((groups, item) => {
+    const section = item.section ?? "Navigation";
+    const existingGroup = groups.find((group) => group.section === section);
+    if (existingGroup) {
+      existingGroup.items.push(item);
+      return groups;
+    }
+
+    groups.push({ section, items: [item] });
+    return groups;
+  }, []);
+
+  const activeSection = useMemo(() => {
+    const activeGroup = groupedItems.find((group) =>
+      group.items.some((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
+    );
+    return activeGroup?.section ?? groupedItems[0]?.section ?? "Navigation";
+  }, [groupedItems, pathname]);
+
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+
+  const isSectionExpanded = (section: string) => {
+    if (collapsed) return true;
+    if (expandedSections[section] !== undefined) {
+      return expandedSections[section];
+    }
+    return section === "Overview" || section === activeSection;
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((current) => ({
+      ...current,
+      [section]: !isSectionExpanded(section),
+    }));
+  };
+
+  const sidebarContent = (
     <>
       {/* Logo */}
       <div
@@ -109,8 +145,44 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
       {/* Navigation */}
       <ScrollArea className="flex-1 py-2">
         <TooltipProvider delayDuration={0}>
-          <nav className="flex flex-col gap-1 px-2">
-            {filteredItems.map((item) => {
+          <nav className="flex flex-col gap-4 px-2 py-1">
+            {groupedItems.map((group, groupIndex) => (
+              <div
+                key={group.section}
+                className={cn(
+                  "space-y-1.5",
+                  groupIndex > 0 && "border-t border-sidebar-border/70 pt-3"
+                )}
+              >
+                {!collapsed ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(group.section)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-colors",
+                      "hover:bg-sidebar-accent/40"
+                    )}
+                  >
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-text/70">
+                        {group.section}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-sidebar-text/50">
+                        {group.items.length} items
+                      </p>
+                    </div>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 text-sidebar-text/60 transition-transform duration-200",
+                        isSectionExpanded(group.section) ? "rotate-0" : "-rotate-90"
+                      )}
+                    />
+                  </button>
+                ) : (
+                  <div className="mx-auto h-px w-8 bg-sidebar-border/70" />
+                )}
+                {isSectionExpanded(group.section) &&
+                  group.items.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
               const Icon = item.icon;
 
@@ -195,46 +267,48 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                 </Link>
               );
 
-              if (collapsed && !isMobile) {
-                return (
-                  <Tooltip key={item.href}>
-                    <TooltipTrigger asChild>{link}</TooltipTrigger>
-                    <TooltipContent side="right">
-                      <div className="flex items-center gap-2">
-                        <span>{item.label}</span>
-                        <div className="flex items-center gap-1">
-                          {/* Core module indicator in tooltip */}
-                          {item.module && coreModuleIds.includes(item.module) && (
-                            <Star className="h-3 w-3 text-em-amber-500" />
-                          )}
-                          {/* Badge count */}
-                          {badgeCount && (
-                            <Badge
-                              variant="destructive"
-                              className="h-4 w-4 rounded-full p-0 text-[10px]"
-                            >
-                              {badgeCount}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              }
+                  if (collapsed && !isMobile) {
+                    return (
+                      <Tooltip key={item.href}>
+                        <TooltipTrigger asChild>{link}</TooltipTrigger>
+                        <TooltipContent side="right">
+                          <div className="space-y-1">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              {group.section}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <span>{item.label}</span>
+                              <div className="flex items-center gap-1">
+                                {item.module && coreModuleIds.includes(item.module) && (
+                                  <Star className="h-3 w-3 text-em-amber-500" />
+                                )}
+                                {badgeCount && (
+                                  <Badge
+                                    variant="destructive"
+                                    className="h-4 w-4 rounded-full p-0 text-[10px]"
+                                  >
+                                    {badgeCount}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }
 
-              return link;
-            })}
+                  return link;
+                })}
+              </div>
+            ))}
           </nav>
         </TooltipProvider>
       </ScrollArea>
 
       {/* User section at bottom */}
       {!isMobile && (
-        <div
-          className="border-t border-sidebar-border p-4"
-          style={{ background: "linear-gradient(to top, rgba(6,26,18,0.6), transparent)" }}
-        >
+        <div className="border-t border-sidebar-border bg-[linear-gradient(to_top,rgba(6,26,18,0.8),rgba(6,26,18,0.2))] p-4">
           <div
             className={cn(
               "flex items-center gap-3 transition-all duration-200",
@@ -257,6 +331,9 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                     "User"}
                 </p>
                 <p className="text-xs text-sidebar-text truncate">{user?.email ?? ""}</p>
+                <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-sidebar-text/60">
+                  Workspace access
+                </p>
               </div>
             )}
             {!collapsed && (
@@ -286,7 +363,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
     return (
       <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm">
         <div className="fixed inset-y-0 left-0 z-[10000] w-64 bg-sidebar">
-          <SidebarContent />
+          {sidebarContent}
         </div>
       </div>
     );
@@ -300,7 +377,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
         collapsed ? "w-16" : "w-64"
       )}
     >
-      <SidebarContent />
+      {sidebarContent}
     </aside>
   );
 }

@@ -512,9 +512,17 @@ export const savePerformanceReview = mutation({
       .first()
       .catch(() => null);
 
+    const reviewPayload: any = {
+      scores: args.scores,
+      overallScore,
+      comments: args.comments,
+      goals: args.goals,
+      updatedAt: now,
+    };
+
     let reviewId: any;
     if (existing) {
-await ctx.db.patch((existing as any)._id, { scores: args.scores, overallScore, comments: args.comments, goals: args.goals, updatedAt: now });
+      await ctx.db.patch((existing as any)._id, reviewPayload);
       reviewId = (existing as any)._id;
     } else {
       reviewId = await ctx.db.insert("staffPerformanceReviews" as any, {
@@ -522,12 +530,8 @@ await ctx.db.patch((existing as any)._id, { scores: args.scores, overallScore, c
         staffId: args.staffId,
         reviewerId: tenant.userId,
         period: args.period,
-        scores: args.scores,
-        overallScore,
-        comments: args.comments,
-        goals: args.goals,
+        ...reviewPayload,
         createdAt: now,
-        updatedAt: now,
       });
     }
 

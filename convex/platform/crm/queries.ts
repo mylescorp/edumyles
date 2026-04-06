@@ -100,7 +100,8 @@ export const getPipelineStats = query({
 
     const allDeals = await ctx.db.query("crmDeals").collect();
     const totalValue = allDeals.reduce((sum, d) => sum + d.value, 0);
-    const wonValue = stats.closed_won.totalValue;
+    const wonStageStats = stats.closed_won ?? { count: 0, totalValue: 0 };
+    const wonValue = wonStageStats.totalValue;
 
     return {
       stages: stats,
@@ -108,7 +109,7 @@ export const getPipelineStats = query({
       totalValue,
       wonValue,
       winRate: allDeals.length > 0
-        ? Math.round((stats.closed_won.count / allDeals.length) * 100)
+        ? Math.round((wonStageStats.count / allDeals.length) * 100)
         : 0,
     };
   },

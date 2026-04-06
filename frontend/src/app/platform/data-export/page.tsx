@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { useMutation } from "convex/react";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
@@ -22,7 +25,11 @@ import {
   Headphones,
   TrendingUp,
   BarChart3,
+  RefreshCw,
 } from "lucide-react";
+import { toast } from "sonner";
+
+type ExportType = "users" | "tenants" | "tickets" | "deals" | "analytics";
 
 const EXPORT_TYPES = [
   { value: "users", label: "Users", icon: Users, description: "Export all platform users" },
@@ -33,10 +40,12 @@ const EXPORT_TYPES = [
 ];
 
 export default function DataExportPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedType, setSelectedType] = useState<ExportType | "">("");
   const [selectedFormat, setSelectedFormat] = useState("csv");
   const [isExporting, setIsExporting] = useState(false);
+  const [isRefreshing, startRefreshing] = useTransition();
 
   const exports = usePlatformQuery(
     api.platform.dataExport.queries.listExports,
@@ -56,16 +65,50 @@ export default function DataExportPage() {
         format: selectedFormat as any,
         filters: {},
       });
+      toast.success("Export started.");
     } catch (error) {
       console.error("Export failed:", error);
+      toast.error(error instanceof Error ? error.message : "Export failed.");
     } finally {
       setIsExporting(false);
     }
   };
 
+  const handleDownload = (exp: any) => {
+    if (exp.fileUrl) {
+      window.open(exp.fileUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (exp.dataContent) {
+      const mimeType = exp.format === "json" ? "application/json" : "text/csv";
+      const blob = new Blob([exp.dataContent], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${exp.exportType}-export.${exp.format}`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      return;
+    }
+    toast.error("This export is complete, but no downloadable file is attached yet.");
+  };
+
+  if (exports === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
   return (
     <div className="p-6 space-y-6">
-      <PageHeader title="Data Export" description="Export your platform data in various formats" />
+      <PageHeader
+        title="Data Export"
+        description="Export platform data and download completed export payloads."
+        actions={
+          <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
@@ -76,7 +119,10 @@ export default function DataExportPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Export Type</Label>
-                <Select value={selectedType} onValueChange={setSelectedType}>
+                <Select
+                  value={selectedType}
+                  onValueChange={(value) => setSelectedType(value as ExportType)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select data to export" />
                   </SelectTrigger>
@@ -146,15 +192,13 @@ export default function DataExportPage() {
               <CardTitle className="text-lg">Export History</CardTitle>
             </CardHeader>
             <CardContent>
-              {!exports ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : exports.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>No exports yet. Create your first export above.</p>
-                </div>
+              {exports.length === 0 ? (
+                <EmptyState
+                  icon={FileText}
+                  title="No exports yet"
+                  description="Create the first platform export to start building your audit-friendly export history."
+                  className="py-8"
+                />
               ) : (
                 <div className="space-y-3">
                   {exports.map((exp: any) => (
@@ -180,7 +224,7 @@ export default function DataExportPage() {
                           {exp.status}
                         </Badge>
                         {exp.status === "completed" && (
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleDownload(exp)}>
                             <Download className="h-4 w-4" />
                           </Button>
                         )}

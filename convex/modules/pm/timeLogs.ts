@@ -1,6 +1,9 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../_generated/server";
 import { requirePmRole } from "./roles";
+
+// SECURITY: PM functions use requirePmRole(), which internally validates the
+// tenant session before applying PM-specific authorization.
 import { updateEpicProgress } from "./epics";
 
 // Queries

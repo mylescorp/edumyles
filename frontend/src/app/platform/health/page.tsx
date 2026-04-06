@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Badge } from "@/components/ui/badge";
@@ -91,12 +93,14 @@ const UPTIME_PERIOD_BY_RESOURCE_RANGE: Record<ResourceRange, UptimePeriod> = {
 };
 
 export default function SystemHealthPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [resourceRange, setResourceRange] = useState<ResourceRange>("24h");
   const [alertStatus, setAlertStatus] = useState<AlertStatusFilter>("active");
   const [alertSeverity, setAlertSeverity] = useState<AlertSeverityFilter>("all");
   const [selectedAlert, setSelectedAlert] = useState<AlertRecord | null>(null);
   const [pendingAlertId, setPendingAlertId] = useState<string | null>(null);
+  const [isRefreshing, startRefreshing] = useTransition();
 
   const queriesEnabled = !!sessionToken;
   const performanceRange = PERFORMANCE_RANGE_BY_RESOURCE_RANGE[resourceRange];
@@ -252,11 +256,25 @@ export default function SystemHealthPage() {
   };
 
   const handleRefresh = () => {
-    toast.info("Convex health queries refresh automatically. Change a filter to reload a specific slice.");
+    startRefreshing(() => router.refresh());
   };
 
   const handleExport = () => {
-    toast.info("Export is not wired yet. The dashboard is now using live data, but report download still needs a backend export endpoint.");
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      systemHealth: systemHealthData,
+      performance: performanceMetricsData,
+      uptime: uptimeStatsData,
+      alerts,
+      resourceUsage: resourceUsageData,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `platform-health-${resourceRange}.json`;
+    link.click();
+    window.URL.revokeObjectURL(url);
   };
 
   const handleAcknowledgeAlert = async (alertId: string) => {
@@ -319,7 +337,7 @@ export default function SystemHealthPage() {
         actions={
           <>
             <Button variant="outline" size="sm" onClick={handleRefresh}>
-              <RefreshCw className="mr-2 h-4 w-4" />
+              <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
               Refresh
             </Button>
             <Button variant="outline" size="sm" onClick={handleExport}>
@@ -551,8 +569,13 @@ export default function SystemHealthPage() {
 
           {alerts.length === 0 ? (
             <Card>
-              <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                No alerts matched the current filters.
+              <CardContent>
+                <EmptyState
+                  icon={Bell}
+                  title="No alerts matched"
+                  description="Try another severity or status filter to inspect a different slice of live health alerts."
+                  className="py-10"
+                />
               </CardContent>
             </Card>
           ) : (

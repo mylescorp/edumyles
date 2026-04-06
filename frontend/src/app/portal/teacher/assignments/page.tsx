@@ -30,8 +30,8 @@ export default function AssignmentsPage() {
   );
 
   const assignments = useQuery(
-    api.modules.academics.queries.listAssignments,
-    user?._id ? { teacherId: user._id, limit: 100 } : "skip"
+    api.modules.academics.assignments.listAssignments,
+    user?._id ? { sessionToken: sessionToken || undefined, teacherId: user._id, limit: 100 } : "skip"
   );
 
   if (authLoading || classes === undefined || assignments === undefined) {

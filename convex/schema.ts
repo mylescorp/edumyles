@@ -512,6 +512,8 @@ export default defineSchema({
     tenantId: v.string(),
     gateway: v.string(), // mpesa | stripe | airtel
     externalId: v.string(), // CheckoutRequestID, Stripe payment intent id, etc.
+    checkoutSessionId: v.optional(v.string()),
+    paymentIntentId: v.optional(v.string()),
     invoiceId: v.optional(v.string()),
     amount: v.optional(v.number()),
     reference: v.optional(v.string()), // M-Pesa TransID, Stripe charge id
@@ -522,6 +524,8 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_external_id", ["gateway", "externalId"])
+    .index("by_checkout_session_id", ["gateway", "checkoutSessionId"])
+    .index("by_payment_intent_id", ["gateway", "paymentIntentId"])
     .index("by_tenant_gateway", ["tenantId", "gateway"]),
 
   notifications: defineTable({
@@ -716,9 +720,11 @@ export default defineSchema({
     title: v.string(),
     body: v.string(),
     audience: v.string(),
+    targetRoles: v.optional(v.array(v.string())),
     priority: v.string(),
     status: v.string(),
     publishedAt: v.optional(v.number()),
+    archivedAt: v.optional(v.number()),
     createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -3861,4 +3867,1013 @@ export default defineSchema({
     .index("by_tenant_type", ["tenantId", "type"])
     .index("by_tenant_category", ["tenantId", "category"])
     .index("by_tenant_active", ["tenantId", "isActive"]),
+
+  // ─── Phase 2 Platform Schema Extensions ──────────────────────────────────
+
+  platform_users: defineTable({
+    userId: v.string(),
+    role: v.union(
+      v.literal("master_admin"),
+      v.literal("super_admin"),
+      v.literal("platform_manager"),
+      v.literal("support_agent"),
+      v.literal("billing_admin"),
+      v.literal("marketplace_reviewer"),
+      v.literal("content_moderator"),
+      v.literal("analytics_viewer")
+    ),
+    department: v.optional(v.string()),
+    addedPermissions: v.optional(v.array(v.string())),
+    removedPermissions: v.optional(v.array(v.string())),
+    status: v.union(v.literal("active"), v.literal("suspended")),
+    accessExpiresAt: v.optional(v.number()),
+    invitedBy: v.optional(v.string()),
+    acceptedAt: v.optional(v.number()),
+    lastLogin: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_role", ["role"])
+    .index("by_status", ["status"])
+    .index("by_createdAt", ["createdAt"]),
+
+  platform_user_invites: defineTable({
+    email: v.string(),
+    role: v.string(),
+    department: v.optional(v.string()),
+    addedPermissions: v.optional(v.array(v.string())),
+    removedPermissions: v.optional(v.array(v.string())),
+    accessExpiresAt: v.optional(v.number()),
+    invitedBy: v.string(),
+    token: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("accepted"),
+      v.literal("expired"),
+      v.literal("revoked")
+    ),
+    expiresAt: v.number(),
+    acceptedAt: v.optional(v.number()),
+    notifyInviter: v.optional(v.boolean()),
+    personalMessage: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_email", ["email"])
+    .index("by_token", ["token"])
+    .index("by_status", ["status"])
+    .index("by_expiresAt", ["expiresAt"])
+    .index("by_createdAt", ["createdAt"]),
+
+  platform_settings: defineTable({
+    key: v.string(),
+    value: v.any(),
+    updatedBy: v.string(),
+    updatedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_key", ["key"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  feature_flags: defineTable({
+    key: v.string(),
+    enabledGlobally: v.boolean(),
+    enabledTenantIds: v.array(v.string()),
+    rolloutPct: v.optional(v.number()),
+    updatedBy: v.string(),
+    updatedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_key", ["key"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  maintenance_windows: defineTable({
+    startAt: v.number(),
+    endAt: v.number(),
+    reason: v.string(),
+    affectsTenants: v.array(v.string()),
+    bypassIps: v.array(v.string()),
+    status: v.union(
+      v.literal("scheduled"),
+      v.literal("in_progress"),
+      v.literal("completed"),
+      v.literal("cancelled")
+    ),
+    createdBy: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_startAt", ["startAt"])
+    .index("by_createdAt", ["createdAt"]),
+
+  waitlist: defineTable({
+    fullName: v.string(),
+    email: v.string(),
+    schoolName: v.string(),
+    country: v.string(),
+    studentCount: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    referralSource: v.optional(v.string()),
+    biggestChallenge: v.optional(v.string()),
+    status: v.union(
+      v.literal("waiting"),
+      v.literal("invited"),
+      v.literal("converted"),
+      v.literal("rejected")
+    ),
+    invitedAt: v.optional(v.number()),
+    convertedAt: v.optional(v.number()),
+    crmLeadId: v.optional(v.string()),
+    inviteToken: v.optional(v.string()),
+    inviteExpiresAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_email", ["email"])
+    .index("by_status", ["status"])
+    .index("by_createdAt", ["createdAt"]),
+
+  tenant_invites: defineTable({
+    email: v.string(),
+    tenantId: v.string(),
+    role: v.string(),
+    invitedBy: v.string(),
+    token: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("accepted"),
+      v.literal("expired"),
+      v.literal("revoked")
+    ),
+    expiresAt: v.number(),
+    acceptedAt: v.optional(v.number()),
+    personalMessage: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_token", ["token"])
+    .index("by_createdAt", ["createdAt"]),
+
+  tenant_onboarding: defineTable({
+    tenantId: v.string(),
+    wizardCompleted: v.boolean(),
+    wizardCompletedAt: v.optional(v.number()),
+    steps: v.object({
+      schoolProfile: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+      rolesConfigured: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+      staffAdded: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+      studentsAdded: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+      classesCreated: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+      modulesConfigured: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+      portalCustomized: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+      parentsInvited: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+      firstPaymentProcessed: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
+    }),
+    healthScore: v.number(),
+    lastActivityAt: v.number(),
+    stalled: v.boolean(),
+    assignedAccountManager: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_stalled", ["stalled"])
+    .index("by_lastActivityAt", ["lastActivityAt"]),
+
+  trial_interventions: defineTable({
+    tenantId: v.string(),
+    interventionType: v.union(
+      v.literal("email"),
+      v.literal("in_app"),
+      v.literal("sms"),
+      v.literal("call_scheduled")
+    ),
+    trigger: v.union(
+      v.literal("day_1"),
+      v.literal("day_3"),
+      v.literal("day_7"),
+      v.literal("day_10"),
+      v.literal("day_12"),
+      v.literal("day_13"),
+      v.literal("day_14")
+    ),
+    sentAt: v.number(),
+    opened: v.optional(v.boolean()),
+    clicked: v.optional(v.boolean()),
+    createdAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_tenant_trigger", ["tenantId", "trigger"])
+    .index("by_sentAt", ["sentAt"]),
+
+  churn_records: defineTable({
+    tenantId: v.string(),
+    cancellationReason: v.string(),
+    cancellationDetail: v.optional(v.string()),
+    cancelledBy: v.string(),
+    effectiveDate: v.number(),
+    retentionOfferMade: v.optional(v.boolean()),
+    retentionOfferAccepted: v.optional(v.boolean()),
+    dataExportRequested: v.optional(v.boolean()),
+    dataPurgeDate: v.optional(v.number()),
+    crmDealId: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_effectiveDate", ["effectiveDate"])
+    .index("by_createdAt", ["createdAt"]),
+
+  subscription_plans: defineTable({
+    name: v.union(
+      v.literal("free"),
+      v.literal("starter"),
+      v.literal("pro"),
+      v.literal("enterprise")
+    ),
+    priceMonthlyKes: v.number(),
+    priceAnnualKes: v.number(),
+    studentLimit: v.optional(v.number()),
+    staffLimit: v.optional(v.number()),
+    storageGb: v.optional(v.number()),
+    includedModuleIds: v.array(v.string()),
+    maxAdditionalModules: v.optional(v.number()),
+    apiAccess: v.union(v.literal("none"), v.literal("read"), v.literal("read_write")),
+    whiteLabel: v.union(v.literal("none"), v.literal("logo"), v.literal("full")),
+    customDomain: v.boolean(),
+    supportTier: v.string(),
+    slaHours: v.optional(v.number()),
+    isActive: v.boolean(),
+    isDefault: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_name", ["name"])
+    .index("by_isActive", ["isActive"])
+    .index("by_isDefault", ["isDefault"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  tenant_subscriptions: defineTable({
+    tenantId: v.string(),
+    planId: v.string(),
+    status: v.union(
+      v.literal("trialing"),
+      v.literal("active"),
+      v.literal("past_due"),
+      v.literal("suspended"),
+      v.literal("cancelled")
+    ),
+    currentPeriodStart: v.number(),
+    currentPeriodEnd: v.number(),
+    cancelAtPeriodEnd: v.optional(v.boolean()),
+    studentCountAtBilling: v.optional(v.number()),
+    paymentProvider: v.optional(
+      v.union(
+        v.literal("mpesa"),
+        v.literal("airtel"),
+        v.literal("stripe"),
+        v.literal("bank_transfer")
+      )
+    ),
+    paymentReference: v.optional(v.string()),
+    customPriceMonthlyKes: v.optional(v.number()),
+    customPriceAnnualKes: v.optional(v.number()),
+    customPricingNotes: v.optional(v.string()),
+    nextPaymentDue: v.optional(v.number()),
+    trialEndsAt: v.optional(v.number()),
+    cancelledAt: v.optional(v.number()),
+    cancellationReason: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_currentPeriodEnd", ["currentPeriodEnd"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  subscription_invoices: defineTable({
+    tenantId: v.string(),
+    subscriptionId: v.string(),
+    amountKes: v.number(),
+    displayCurrency: v.string(),
+    displayAmount: v.number(),
+    exchangeRate: v.number(),
+    vatAmountKes: v.number(),
+    totalAmountKes: v.number(),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("sent"),
+      v.literal("paid"),
+      v.literal("void"),
+      v.literal("refunded")
+    ),
+    dueDate: v.number(),
+    paidAt: v.optional(v.number()),
+    paymentProvider: v.optional(v.string()),
+    paymentReference: v.optional(v.string()),
+    lineItems: v.array(
+      v.object({
+        description: v.string(),
+        quantity: v.number(),
+        amountKes: v.number(),
+      })
+    ),
+    pdfUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_dueDate", ["dueDate"])
+    .index("by_createdAt", ["createdAt"]),
+
+  subscription_plan_changes: defineTable({
+    tenantId: v.string(),
+    fromPlanId: v.string(),
+    toPlanId: v.string(),
+    changeType: v.union(
+      v.literal("upgrade"),
+      v.literal("downgrade"),
+      v.literal("custom_negotiation")
+    ),
+    effectiveDate: v.number(),
+    initiatedBy: v.string(),
+    prorationAmountKes: v.optional(v.number()),
+    refundAmountKes: v.optional(v.number()),
+    modulesSuspended: v.array(v.string()),
+    modulesUnlocked: v.array(v.string()),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("scheduled")
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_effectiveDate", ["effectiveDate"])
+    .index("by_createdAt", ["createdAt"]),
+
+  tenant_usage_stats: defineTable({
+    tenantId: v.string(),
+    studentCount: v.number(),
+    staffCount: v.number(),
+    storageUsedGb: v.number(),
+    recordedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_recordedAt", ["recordedAt"])
+    .index("by_tenant_recordedAt", ["tenantId", "recordedAt"]),
+
+  currency_rates: defineTable({
+    fromCurrency: v.string(),
+    toCurrency: v.string(),
+    rate: v.number(),
+    fetchedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_pair", ["fromCurrency", "toCurrency"])
+    .index("by_fetchedAt", ["fetchedAt"]),
+
+  module_price_history: defineTable({
+    moduleId: v.string(),
+    oldPriceKes: v.number(),
+    newPriceKes: v.number(),
+    changedBy: v.string(),
+    changedAt: v.number(),
+    reason: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_moduleId", ["moduleId"])
+    .index("by_changedAt", ["changedAt"]),
+
+  platform_pricing_rules: defineTable({
+    category: v.string(),
+    minPriceKes: v.number(),
+    maxPriceKes: v.number(),
+    defaultRevenueSharePct: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_category", ["category"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  publishers: defineTable({
+    userId: v.string(),
+    companyName: v.string(),
+    email: v.string(),
+    website: v.optional(v.string()),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("suspended"),
+      v.literal("banned")
+    ),
+    tier: v.union(v.literal("indie"), v.literal("verified"), v.literal("enterprise")),
+    revenueSharePct: v.number(),
+    bankDetails: v.optional(v.any()),
+    webhookUrl: v.optional(v.string()),
+    apiKey: v.optional(v.string()),
+    taxId: v.optional(v.string()),
+    billingCountry: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_email", ["email"])
+    .index("by_status", ["status"])
+    .index("by_tier", ["tier"])
+    .index("by_createdAt", ["createdAt"]),
+
+  modules: defineTable({
+    publisherId: v.string(),
+    name: v.string(),
+    slug: v.string(),
+    tagline: v.optional(v.string()),
+    category: v.string(),
+    description: v.string(),
+    featureList: v.array(v.string()),
+    supportedRoles: v.array(v.string()),
+    minimumPlan: v.optional(v.string()),
+    pricingModel: v.string(),
+    suggestedPriceKes: v.optional(v.number()),
+    platformPriceKes: v.optional(v.number()),
+    compatibleModuleIds: v.array(v.string()),
+    incompatibleModuleIds: v.array(v.string()),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("pending_review"),
+      v.literal("changes_requested"),
+      v.literal("published"),
+      v.literal("deprecated"),
+      v.literal("suspended"),
+      v.literal("banned")
+    ),
+    isFeatured: v.boolean(),
+    documentationUrl: v.optional(v.string()),
+    supportEmail: v.optional(v.string()),
+    termsUrl: v.optional(v.string()),
+    privacyUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_publisherId", ["publisherId"])
+    .index("by_slug", ["slug"])
+    .index("by_status", ["status"])
+    .index("by_category", ["category"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  module_versions: defineTable({
+    moduleId: v.string(),
+    version: v.string(),
+    changelog: v.optional(v.string()),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("pending_review"),
+      v.literal("published"),
+      v.literal("deprecated")
+    ),
+    submittedAt: v.optional(v.number()),
+    reviewedAt: v.optional(v.number()),
+    reviewerId: v.optional(v.string()),
+    reviewerNotes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_moduleId", ["moduleId"])
+    .index("by_status", ["status"])
+    .index("by_submittedAt", ["submittedAt"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  module_assets: defineTable({
+    moduleId: v.string(),
+    versionId: v.optional(v.string()),
+    type: v.union(v.literal("screenshot"), v.literal("video")),
+    url: v.string(),
+    order: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_moduleId", ["moduleId"])
+    .index("by_versionId", ["versionId"])
+    .index("by_type", ["type"]),
+
+  module_installs: defineTable({
+    moduleId: v.string(),
+    versionId: v.optional(v.string()),
+    tenantId: v.string(),
+    status: v.union(
+      v.literal("install_requested"),
+      v.literal("payment_pending"),
+      v.literal("installing"),
+      v.literal("active"),
+      v.literal("suspended"),
+      v.literal("uninstalled")
+    ),
+    installedAt: v.optional(v.number()),
+    installedBy: v.optional(v.string()),
+    uninstalledAt: v.optional(v.number()),
+    exceptionGrantId: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_installedAt", ["installedAt"]),
+
+  module_configs: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    rolePermissions: v.optional(v.record(v.string(), v.array(v.string()))),
+    featureFlags: v.optional(v.record(v.string(), v.boolean())),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_tenant_module", ["tenantId", "moduleId"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  module_exception_grants: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    grantedBy: v.string(),
+    grantedAt: v.number(),
+    expiresAt: v.optional(v.number()),
+    reason: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_tenant_module", ["tenantId", "moduleId"])
+    .index("by_expiresAt", ["expiresAt"]),
+
+  module_requests: defineTable({
+    tenantId: v.string(),
+    requestedBy: v.string(),
+    type: v.union(
+      v.literal("new_module"),
+      v.literal("plan_locked"),
+      v.literal("rbac_restricted"),
+      v.literal("beta_suspended")
+    ),
+    moduleId: v.optional(v.string()),
+    name: v.optional(v.string()),
+    description: v.optional(v.string()),
+    useCase: v.optional(v.string()),
+    urgencyLevel: v.optional(v.string()),
+    budgetKes: v.optional(v.number()),
+    status: v.union(
+      v.literal("submitted"),
+      v.literal("under_review"),
+      v.literal("approved_plan_upgrade_required"),
+      v.literal("approved_exception_granted"),
+      v.literal("approved_forwarded"),
+      v.literal("rejected"),
+      v.literal("waitlisted")
+    ),
+    resolution: v.optional(v.string()),
+    waitlistPosition: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  module_waitlist: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    joinedAt: v.number(),
+    notifiedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_tenant_module", ["tenantId", "moduleId"])
+    .index("by_joinedAt", ["joinedAt"]),
+
+  module_reviews: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    rating: v.number(),
+    title: v.optional(v.string()),
+    body: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("approved"),
+      v.literal("flagged"),
+      v.literal("deleted")
+    ),
+    publisherReply: v.optional(v.string()),
+    flaggedAt: v.optional(v.number()),
+    installedDaysAtReview: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  module_flags: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    flaggedBy: v.string(),
+    reason: v.union(
+      v.literal("misleading_description"),
+      v.literal("not_working"),
+      v.literal("inappropriate"),
+      v.literal("security_concern"),
+      v.literal("pricing_dispute")
+    ),
+    status: v.union(
+      v.literal("flagged"),
+      v.literal("under_investigation"),
+      v.literal("resolved_no_action"),
+      v.literal("resolved_warning"),
+      v.literal("resolved_suspended"),
+      v.literal("resolved_banned")
+    ),
+    resolution: v.optional(v.string()),
+    adminNotes: v.optional(v.string()),
+    publisherResponse: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  module_payments: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    amountKes: v.number(),
+    currency: v.string(),
+    displayAmount: v.number(),
+    exchangeRate: v.number(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("success"),
+      v.literal("failed"),
+      v.literal("refunded")
+    ),
+    provider: v.string(),
+    invoiceId: v.optional(v.string()),
+    periodStart: v.optional(v.number()),
+    periodEnd: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  module_revenue_splits: defineTable({
+    paymentId: v.string(),
+    publisherAmountKes: v.number(),
+    platformAmountKes: v.number(),
+    revenueSharePct: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_paymentId", ["paymentId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  module_analytics_events: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    eventType: v.string(),
+    metadata: v.optional(v.any()),
+    timestamp: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_eventType", ["eventType"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_tenant_timestamp", ["tenantId", "timestamp"]),
+
+  module_install_stats: defineTable({
+    moduleId: v.string(),
+    totalInstalls: v.number(),
+    activeInstalls: v.number(),
+    churnedInstalls: v.number(),
+    avgRating: v.optional(v.number()),
+    totalRevenueKes: v.number(),
+    updatedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_moduleId", ["moduleId"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  pilot_grants: defineTable({
+    moduleId: v.string(),
+    tenantId: v.string(),
+    grantType: v.union(
+      v.literal("free_trial"),
+      v.literal("free_permanent"),
+      v.literal("discounted"),
+      v.literal("plan_upgrade"),
+      v.literal("beta_access")
+    ),
+    discountPct: v.optional(v.number()),
+    customPriceKes: v.optional(v.number()),
+    startDate: v.number(),
+    endDate: v.optional(v.number()),
+    grantedBy: v.string(),
+    reason: v.string(),
+    stealthMode: v.optional(v.boolean()),
+    status: v.union(
+      v.literal("active"),
+      v.literal("expired"),
+      v.literal("revoked"),
+      v.literal("extended")
+    ),
+    convertedToPaid: v.optional(v.boolean()),
+    notificationsSent: v.optional(v.array(v.string())),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_moduleId", ["moduleId"])
+    .index("by_endDate", ["endDate"]),
+
+  publisher_payouts: defineTable({
+    publisherId: v.string(),
+    amountKes: v.number(),
+    periodStart: v.number(),
+    periodEnd: v.number(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("processing"),
+      v.literal("paid"),
+      v.literal("failed")
+    ),
+    processedAt: v.optional(v.number()),
+    bankReference: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_publisherId", ["publisherId"])
+    .index("by_status", ["status"])
+    .index("by_periodEnd", ["periodEnd"])
+    .index("by_createdAt", ["createdAt"]),
+
+  publisher_support_tickets: defineTable({
+    publisherId: v.string(),
+    moduleId: v.string(),
+    tenantId: v.string(),
+    subject: v.string(),
+    status: v.union(
+      v.literal("open"),
+      v.literal("in_progress"),
+      v.literal("resolved"),
+      v.literal("closed")
+    ),
+    priority: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    ),
+    assignedTo: v.optional(v.string()),
+    slaDueAt: v.optional(v.number()),
+    resolvedAt: v.optional(v.number()),
+    thread: v.optional(v.array(v.any())),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_publisherId", ["publisherId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  publisher_webhook_logs: defineTable({
+    publisherId: v.string(),
+    moduleId: v.optional(v.string()),
+    eventType: v.string(),
+    payload: v.any(),
+    status: v.union(
+      v.literal("delivered"),
+      v.literal("failed"),
+      v.literal("retrying")
+    ),
+    attempts: v.number(),
+    lastAttemptAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_publisherId", ["publisherId"])
+    .index("by_status", ["status"])
+    .index("by_eventType", ["eventType"])
+    .index("by_createdAt", ["createdAt"]),
+
+  crm_leads: defineTable({
+    schoolName: v.string(),
+    contactName: v.string(),
+    email: v.string(),
+    phone: v.optional(v.string()),
+    country: v.string(),
+    studentCount: v.optional(v.number()),
+    budgetConfirmed: v.optional(v.boolean()),
+    timeline: v.optional(v.string()),
+    decisionMaker: v.optional(v.string()),
+    source: v.optional(v.string()),
+    qualificationScore: v.optional(v.number()),
+    stage: v.string(),
+    assignedTo: v.optional(v.string()),
+    dealValueKes: v.optional(v.number()),
+    expectedClose: v.optional(v.number()),
+    tenantId: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    status: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_stage", ["stage"])
+    .index("by_email", ["email"])
+    .index("by_createdAt", ["createdAt"]),
+
+  crm_deals: defineTable({
+    leadId: v.string(),
+    tenantId: v.optional(v.string()),
+    valueKes: v.number(),
+    stage: v.string(),
+    proposalId: v.optional(v.string()),
+    closedAt: v.optional(v.number()),
+    status: v.union(v.literal("open"), v.literal("won"), v.literal("lost")),
+    lossReason: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_stage", ["stage"])
+    .index("by_leadId", ["leadId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  crm_proposals: defineTable({
+    dealId: v.string(),
+    tenantId: v.optional(v.string()),
+    planId: v.optional(v.string()),
+    customItems: v.optional(
+      v.array(
+        v.object({
+          description: v.string(),
+          amountKes: v.number(),
+          quantity: v.optional(v.number()),
+        })
+      )
+    ),
+    totalKes: v.number(),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("sent"),
+      v.literal("accepted"),
+      v.literal("rejected"),
+      v.literal("expired")
+    ),
+    sentAt: v.optional(v.number()),
+    acceptedAt: v.optional(v.number()),
+    validUntil: v.optional(v.number()),
+    pdfUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_dealId", ["dealId"])
+    .index("by_validUntil", ["validUntil"])
+    .index("by_createdAt", ["createdAt"]),
+
+  support_tickets: defineTable({
+    tenantId: v.string(),
+    userId: v.string(),
+    moduleId: v.optional(v.string()),
+    subject: v.string(),
+    status: v.union(
+      v.literal("open"),
+      v.literal("in_progress"),
+      v.literal("resolved"),
+      v.literal("closed")
+    ),
+    priority: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    ),
+    assignedTo: v.optional(v.string()),
+    slaDueAt: v.optional(v.number()),
+    resolvedAt: v.optional(v.number()),
+    source: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_slaDueAt", ["slaDueAt"])
+    .index("by_createdAt", ["createdAt"]),
+
+  support_ticket_messages: defineTable({
+    ticketId: v.string(),
+    senderId: v.string(),
+    body: v.string(),
+    attachments: v.optional(v.array(v.string())),
+    sentAt: v.number(),
+    isInternal: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_ticketId", ["ticketId"])
+    .index("by_sentAt", ["sentAt"]),
+
+  kb_articles: defineTable({
+    title: v.string(),
+    slug: v.string(),
+    body: v.string(),
+    category: v.optional(v.string()),
+    tags: v.array(v.string()),
+    visibility: v.union(
+      v.literal("public"),
+      v.literal("tenants_only"),
+      v.literal("staff_only")
+    ),
+    publishedAt: v.optional(v.number()),
+    authorId: v.string(),
+    views: v.number(),
+    relatedArticleIds: v.array(v.string()),
+    status: v.optional(v.union(v.literal("draft"), v.literal("published"), v.literal("archived"))),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_visibility", ["visibility"])
+    .index("by_status", ["status"])
+    .index("by_publishedAt", ["publishedAt"])
+    .index("by_createdAt", ["createdAt"]),
+
+  platform_announcements: defineTable({
+    title: v.string(),
+    body: v.string(),
+    targetPlans: v.array(v.string()),
+    targetCountries: v.array(v.string()),
+    channels: v.array(v.string()),
+    isCritical: v.boolean(),
+    startsAt: v.number(),
+    endsAt: v.optional(v.number()),
+    createdBy: v.string(),
+    status: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("scheduled"),
+        v.literal("active"),
+        v.literal("archived")
+      )
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_startsAt", ["startsAt"])
+    .index("by_createdAt", ["createdAt"]),
+
+  sla_configs: defineTable({
+    supportTier: v.union(
+      v.literal("community"),
+      v.literal("email"),
+      v.literal("priority"),
+      v.literal("dedicated")
+    ),
+    firstResponseHours: v.number(),
+    resolutionHours: v.number(),
+    businessHoursOnly: v.boolean(),
+    escalationRules: v.any(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_supportTier", ["supportTier"])
+    .index("by_updatedAt", ["updatedAt"]),
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,7 +9,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQuery } from 'convex/react';
 
 import { useAuth } from '../hooks/useAuth';
@@ -228,7 +228,7 @@ const AssignmentsScreen: React.FC = () => {
             {(resolvedParentMessages ?? []).length === 0 ? (
               <Text style={styles.meta}>No messages in this thread yet.</Text>
             ) : (
-              <FlashList
+              <FlatList
                 data={(resolvedParentMessages ?? []) as Array<{ _id: string; senderRole?: string; content?: string; createdAt?: number }>}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item: message }) => (
@@ -240,7 +240,6 @@ const AssignmentsScreen: React.FC = () => {
                     </Text>
                   </View>
                 )}
-                estimatedItemSize={72}
                 inverted
               />
             )}

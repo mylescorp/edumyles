@@ -35,20 +35,20 @@ export function useStudentsBySchool(orgId?: string) {
   const queryArgs = {
     orgId,
     limit,
-    cursor,
+    cursor: cursor ?? undefined,
     ...filters,
   };
 
   const result = useQuery(
-    api.sis.studentQueries.getStudentsBySchool,
-    Object.values(queryArgs).some(v => v !== undefined) ? queryArgs : null
+    api.modules.sis.studentQueries.getStudentsBySchool,
+    Object.values(queryArgs).some(v => v !== undefined) ? queryArgs : "skip"
   );
 
   const loadMore = useCallback(() => {
     if (result?.nextCursor) {
       setCursor(result.nextCursor);
     }
-  }, [result?.nextCursor]);
+  }, [result]);
 
   const reset = useCallback(() => {
     setCursor(null);
@@ -75,7 +75,7 @@ export function useStudentsBySchool(orgId?: string) {
  * Hook for student count statistics
  */
 export function useStudentCount(orgId?: string) {
-  return useQuery(api.sis.studentQueries.getStudentCountBySchool, {
+  return useQuery(api.modules.sis.studentQueries.getStudentCountBySchool, {
     orgId,
   });
 }

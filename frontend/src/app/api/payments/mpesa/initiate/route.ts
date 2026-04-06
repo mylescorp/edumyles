@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     const normalizedPhone = normalizePhone(phone);
 
     // Use our new M-Pesa action instead of direct API calls
-    const result = await convex.action(api.modules.finance.actions.initiateMpesaPayment, {
+    const result = await convex.action((api as any)["modules/finance/actions"].initiateMpesaPayment, {
       webhookSecret: serverSecret,
       tenantId: session.tenantId,
       invoiceId: String(invoiceId),

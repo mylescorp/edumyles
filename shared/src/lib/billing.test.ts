@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BillingEngine } from "./billing";
-import type { Subscription } from "./billing";
+import { BillingEngine } from "./billing.js";
+import type { Subscription, SubscriptionPlan } from "./billing.js";
 
 function makeSubscription(overrides: Partial<Subscription> = {}): Subscription {
   const now = new Date();
@@ -25,11 +25,11 @@ describe("BillingEngine.getPlans", () => {
   });
 
   it("each plan has required fields", () => {
-    BillingEngine.getPlans().forEach((plan) => {
+    BillingEngine.getPlans().forEach((plan: SubscriptionPlan) => {
       expect(plan.id).toBeTruthy();
       expect(plan.name).toBeTruthy();
       expect(plan.monthlyPrice).toBeGreaterThanOrEqual(0);
-      expect(plan.maxStudents).toBeGreaterThan(0);
+      expect(plan.maxStudents === -1 || plan.maxStudents > 0).toBe(true);
     });
   });
 });
@@ -85,11 +85,11 @@ describe("BillingEngine.isSubscriptionPastDue", () => {
 
 describe("BillingEngine.calculateProratedAmount", () => {
   it("returns a non-negative prorated amount", () => {
-    const start = new Date();
-    const end = new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
-    const midpoint = new Date(start.getTime() + 15 * 24 * 60 * 60 * 1000);
-    const amount = BillingEngine.calculateProratedAmount(100, start, end, midpoint);
+    const plan = BillingEngine.getPlanById("starter-monthly");
+    expect(plan).not.toBeNull();
+
+    const amount = BillingEngine.calculateProratedAmount(plan!, "monthly", 30, 15);
     expect(amount).toBeGreaterThanOrEqual(0);
-    expect(amount).toBeLessThanOrEqual(100);
+    expect(amount).toBeLessThanOrEqual(plan!.monthlyPrice);
   });
 });

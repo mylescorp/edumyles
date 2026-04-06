@@ -1,11 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation, useAction } from "@/hooks/useSSRSafeConvex";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +39,7 @@ import {
   KeyRound,
   Plus,
   Check,
+  RefreshCw,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
@@ -57,11 +61,13 @@ function ChangePasswordModal({
   onOpenChange,
   sessionToken,
   hasExistingPassword,
+  onSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   sessionToken: string;
   hasExistingPassword: boolean;
+  onSuccess?: () => void;
 }) {
   const { toast } = useToast();
   const changePassword = useAction(api.actions.auth.password.changePassword);
@@ -113,6 +119,7 @@ function ChangePasswordModal({
       });
       resetForm();
       onOpenChange(false);
+      onSuccess?.();
     } catch (err: any) {
       setError(err.message || "Failed to change password");
     } finally {
@@ -296,7 +303,12 @@ function ActiveSessionsModal({
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : sessions.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">No active sessions found.</p>
+            <EmptyState
+              icon={Monitor}
+              title="No active sessions found"
+              description="There are no additional saved sessions available for this account right now."
+              className="py-6"
+            />
           ) : (
             sessions.map((s: any) => (
               <div
@@ -368,11 +380,13 @@ function TwoFactorModal({
   onOpenChange,
   sessionToken,
   twoFactorEnabled,
+  onSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   sessionToken: string;
   twoFactorEnabled: boolean;
+  onSuccess?: () => void;
 }) {
   const { toast } = useToast();
   const generateSecret = useAction(api.actions.auth.twoFactor.generateTwoFactorSecret);
@@ -429,6 +443,7 @@ function TwoFactorModal({
       });
       resetSetup();
       onOpenChange(false);
+      onSuccess?.();
     } catch (err: any) {
       setError(err.message || "Failed to enable 2FA");
     } finally {
@@ -452,6 +467,7 @@ function TwoFactorModal({
       });
       setDisablePassword("");
       onOpenChange(false);
+      onSuccess?.();
     } catch (err: any) {
       setError(err.message || "Failed to disable 2FA");
     } finally {
@@ -561,7 +577,7 @@ function TwoFactorModal({
                   {qrCode && (
                     <div className="flex justify-center">
                       <div className="p-4 bg-white rounded-lg border">
-                        <img src={qrCode} alt="2FA QR Code" className="w-48 h-48" />
+                        <Image src={qrCode} alt="2FA QR Code" width={192} height={192} className="w-48 h-48" unoptimized />
                       </div>
                     </div>
                   )}
@@ -647,8 +663,10 @@ function TwoFactorModal({
 
 // ─── Main Profile Page ──────────────────────────────────────────────────────
 export default function ProfilePage() {
+  const router = useRouter();
   const { user: sessionUser, sessionToken, logout } = useAuth();
   const { toast } = useToast();
+  const [isRefreshing, startRefreshing] = useTransition();
 
   const profileData = usePlatformQuery(
     api.platform.users.queries.getCurrentPlatformUser,
@@ -706,13 +724,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!editForm || !sessionToken) return;
     setIsSaving(true);
-    
-    console.log("handleSave called with:", {
-      editForm,
-      sessionToken: sessionToken ? "present" : "missing",
-      hasEditForm: !!editForm
-    });
-    
+
     try {
       await updateProfile({
         sessionToken,
@@ -725,6 +737,7 @@ export default function ProfilePage() {
       setIsEditing(false);
       setEditForm(null);
       toast({ title: "Profile Updated", description: "Your profile has been saved." });
+      router.refresh();
     } catch (error: any) {
       console.error("handleSave error:", error);
       toast({
@@ -770,24 +783,34 @@ export default function ProfilePage() {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !sessionToken) return;
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file",
+        description: "Please upload an image file for your avatar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Image too large",
+        description: "Avatar images must be 5MB or smaller.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsUploadingAvatar(true);
     try {
       const uploadUrl = await generateUploadUrl({ sessionToken });
-      console.log("Avatar upload URL:", uploadUrl);
-      console.log("File details:", { name: file.name, type: file.type, size: file.size });
-      
+
       const result = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { 
+        method: "POST",
+        headers: {
           "Content-Type": file.type,
-          "Content-Length": file.size.toString(),
-          },
+        },
         body: file,
       });
-      
-      console.log("Upload response status:", result.status);
-      console.log("Upload response ok:", result.ok);
-      
+
       if (!result.ok) {
         const errorText = await result.text();
         console.error("Upload failed:", errorText);
@@ -795,10 +818,10 @@ export default function ProfilePage() {
       }
       
       const { storageId } = await result.json();
-      console.log("Storage ID received:", storageId);
       
       await saveAvatar({ sessionToken, storageId });
       toast({ title: "Photo Updated", description: "Your avatar has been updated." });
+      router.refresh();
     } catch (error: any) {
       console.error("Avatar upload error:", error);
       toast({
@@ -808,8 +831,15 @@ export default function ProfilePage() {
       });
     } finally {
       setIsUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
+
+  if (isLoading) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div className="space-y-6">
@@ -822,6 +852,10 @@ export default function ProfilePage() {
         ]}
         actions={
           <div className="flex items-center space-x-2">
+            <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing || isSaving}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
             {isEditing ? (
               <>
                 <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
@@ -1142,7 +1176,7 @@ export default function ProfilePage() {
                     onClick={logout}
                   >
                     <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out of All Devices
+                    Sign Out
                   </Button>
                 </CardContent>
               </Card>
@@ -1190,7 +1224,12 @@ export default function ProfilePage() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-muted-foreground text-center py-4">No recent activity recorded.</p>
+                      <EmptyState
+                        icon={Clock}
+                        title="No recent activity recorded"
+                        description="Audit activity for this profile will appear here once account actions are logged."
+                        className="py-4"
+                      />
                     )}
 
                     <div className="text-center pt-2">
@@ -1214,6 +1253,7 @@ export default function ProfilePage() {
             onOpenChange={setShowPasswordModal}
             sessionToken={sessionToken}
             hasExistingPassword={hasExistingPassword}
+            onSuccess={() => router.refresh()}
           />
           <ActiveSessionsModal
             open={showSessionsModal}
@@ -1225,6 +1265,7 @@ export default function ProfilePage() {
             onOpenChange={setShowTwoFactorModal}
             sessionToken={sessionToken}
             twoFactorEnabled={twoFactorEnabled}
+            onSuccess={() => router.refresh()}
           />
         </>
       )}

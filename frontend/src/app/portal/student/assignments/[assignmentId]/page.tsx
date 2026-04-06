@@ -35,7 +35,7 @@ export default function AssignmentDetailPage() {
 
   const mySubmission = useQuery(
     api.modules.portal.student.queries.getMySubmission,
-    (user && assignmentId) ? { assignmentId, userId: user!._id } : "skip"
+    (user && assignmentId) ? { assignmentId } : "skip"
   );
 
   const submitAssignment = useMutation(api.modules.portal.student.mutations.submitAssignment);

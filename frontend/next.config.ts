@@ -46,6 +46,14 @@ const nextConfig = {
         { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
       ],
     },
+    // ── Dev navigator — never cache so changes are always fresh ─────────
+    {
+      source: '/dev',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+      ],
+    },
     // ── Static Next.js assets — long-lived, immutable ────────────────────
     {
       source: '/_next/static/(.*)',

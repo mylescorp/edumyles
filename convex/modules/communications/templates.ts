@@ -138,7 +138,9 @@ export function validateTemplateVariables(
   let match;
   
   while ((match = templateVariableRegex.exec(template)) !== null) {
-    foundVariables.push(match[1]);
+    if (match[1]) {
+      foundVariables.push(match[1]);
+    }
   }
   
   const missingVariables = requiredVariables.filter(

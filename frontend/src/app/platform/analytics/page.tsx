@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -86,9 +87,9 @@ function getReportTimeRange(timeRange: BusinessTimeRange): ReportTimeRange {
   return timeRange === "1y" ? "90d" : timeRange;
 }
 
-function getRelativeTime(timestamp?: number) {
+function getRelativeTime(timestamp: number | undefined, now: number) {
   if (!timestamp) return "Never";
-  const diffMs = Date.now() - timestamp;
+  const diffMs = now - timestamp;
   const minutes = Math.floor(diffMs / (1000 * 60));
   if (minutes < 1) return "Just now";
   if (minutes < 60) return `${minutes}m ago`;
@@ -110,6 +111,8 @@ export default function AdvancedAnalyticsPage() {
   const [isCreateReportOpen, setIsCreateReportOpen] = useState(false);
   const [isCreatingReport, setIsCreatingReport] = useState(false);
   const [exportingReportId, setExportingReportId] = useState<string | null>(null);
+  const [previewReportId, setPreviewReportId] = useState<string | null>(null);
+  const [pageLoadedAt] = useState(() => Date.now());
 
   const [reportName, setReportName] = useState("");
   const [reportDescription, setReportDescription] = useState("");
@@ -143,13 +146,23 @@ export default function AdvancedAnalyticsPage() {
   const exportReport = useMutation(api.platform.analytics.mutations.exportReport);
   const generateReport = useMutation(api.platform.analytics.queries.generateReport);
 
-  const recentReports = reportsData?.recentReports ?? [];
-  const scheduledReports = reportsData?.scheduledReports ?? [];
-  const availableReports = (reportsData?.availableReports ?? []) as AvailableReportTemplate[];
+  const recentReports = useMemo(() => reportsData?.recentReports ?? [], [reportsData?.recentReports]);
+  const scheduledReports = useMemo(
+    () => reportsData?.scheduledReports ?? [],
+    [reportsData?.scheduledReports]
+  );
+  const availableReports = useMemo(
+    () => ((reportsData?.availableReports ?? []) as AvailableReportTemplate[]),
+    [reportsData?.availableReports]
+  );
 
   const templatesById = useMemo(
     () => new Map<string, AvailableReportTemplate>(availableReports.map((report) => [report.id, report])),
     [availableReports]
+  );
+  const previewReport = useMemo(
+    () => recentReports.find((report: any) => report._id === previewReportId) ?? null,
+    [previewReportId, recentReports]
   );
 
   const handleExportReport = async (reportId: string, format: ReportFormat) => {
@@ -693,6 +706,12 @@ export default function AdvancedAnalyticsPage() {
           <CardTitle>Available Report Templates</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-2">
+          {availableReports.length === 0 && (
+            <EmptyState
+              title="No report templates yet"
+              description="Report templates will appear here once analytics templates are available in Convex."
+            />
+          )}
           {availableReports.map((report: any) => (
             <div key={report.id} className="rounded-lg border p-4">
               <div className="mb-2 flex items-center justify-between">
@@ -735,9 +754,10 @@ export default function AdvancedAnalyticsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {scheduledReports.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                No scheduled reports yet. Create one with a daily, weekly, or monthly schedule.
-              </p>
+              <EmptyState
+                title="No scheduled reports"
+                description="Create a report with a daily, weekly, or monthly schedule to monitor recurring analytics."
+              />
             )}
             {scheduledReports.map((report: any) => (
               <div key={report._id} className="rounded-lg border p-4">
@@ -758,7 +778,7 @@ export default function AdvancedAnalyticsPage() {
                 <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    Next run: {getRelativeTime(report.nextScheduled)}
+                    Next run: {getRelativeTime(report.nextScheduled, pageLoadedAt)}
                   </span>
                   <span className="flex items-center gap-1">
                     <FileText className="h-4 w-4" />
@@ -776,9 +796,10 @@ export default function AdvancedAnalyticsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {recentReports.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                No reports have been generated yet.
-              </p>
+              <EmptyState
+                title="No generated reports yet"
+                description="Queue a report from a template or create a custom report to build your reporting history."
+              />
             )}
             {recentReports.map((report: any) => {
               const template = templatesById.get(report.name);
@@ -804,11 +825,11 @@ export default function AdvancedAnalyticsPage() {
                   <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      Created {getRelativeTime(report.createdAt)}
+                      Created {getRelativeTime(report.createdAt, pageLoadedAt)}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
-                      Last generated {getRelativeTime(report.lastGenerated)}
+                      Last generated {getRelativeTime(report.lastGenerated, pageLoadedAt)}
                     </span>
                     <span className="flex items-center gap-1">
                       <FileText className="h-4 w-4" />
@@ -820,12 +841,10 @@ export default function AdvancedAnalyticsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        toast.message("Preview uses the stored report metadata until a dedicated viewer is added.")
-                      }
+                      onClick={() => setPreviewReportId(report._id)}
                     >
                       <Eye className="mr-1 h-4 w-4" />
-                      Preview Metadata
+                      Preview Report
                     </Button>
                     <Button
                       variant="outline"
@@ -881,6 +900,71 @@ export default function AdvancedAnalyticsPage() {
           </p>
         </CardContent>
       </Card>
+
+      <Dialog open={previewReportId !== null} onOpenChange={(open) => !open && setPreviewReportId(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{previewReport ? previewReport.name : "Report preview"}</DialogTitle>
+          </DialogHeader>
+          {previewReport ? (
+            <div className="space-y-4 text-sm">
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Type</div>
+                  <div className="mt-1 font-medium">
+                    {getReportTypeLabel(previewReport.reportType)}
+                  </div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Status</div>
+                  <div className="mt-1 font-medium">{previewReport.status}</div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Created</div>
+                  <div className="mt-1 font-medium">
+                    {getRelativeTime(previewReport.createdAt, pageLoadedAt)}
+                  </div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Last generated</div>
+                  <div className="mt-1 font-medium">
+                    {getRelativeTime(previewReport.lastGenerated, pageLoadedAt)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-3">
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">Description</div>
+                <div className="mt-1 text-foreground">
+                  {previewReport.description || "No description provided for this report."}
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-3">
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">Configuration</div>
+                <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words text-xs text-muted-foreground">
+                  {JSON.stringify(previewReport.config ?? {}, null, 2)}
+                </pre>
+              </div>
+
+              {Array.isArray(previewReport.schedule?.recipients) &&
+              previewReport.schedule.recipients.length > 0 ? (
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Recipients</div>
+                  <div className="mt-1 text-foreground">
+                    {previewReport.schedule.recipients.join(", ")}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <EmptyState
+              title="Report not found"
+              description="The selected report is no longer available."
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 

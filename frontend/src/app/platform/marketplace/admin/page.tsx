@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,8 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Package, Star, Download, CheckCircle, XCircle,
-  Shield, Users, Eye, Clock, AlertTriangle,
-  DollarSign, Building, Award, Layers,
+  Users, Eye, AlertTriangle,
+  Building, Layers,
   Ban, Play, Trash2, RefreshCw,
   DownloadCloud,
 } from "lucide-react";
@@ -86,32 +86,32 @@ function MarketplaceAdminContent() {
 
   // Queries
   const pendingModules = usePlatformQuery(
-    api.platform.marketplace.getPendingModules,
+    api.platform.marketplace.queries.getPendingModules,
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
   const allInstallations = usePlatformQuery(
-    api.platform.marketplace.getAllInstallations,
+    api.platform.marketplace.queries.getAllInstallations,
     { sessionToken: sessionToken || "", limit: 50 }
   ) as any[] | undefined;
 
   const publishers = usePlatformQuery(
-    api.platform.marketplace.getPublishers,
+    api.platform.marketplace.queries.getPublishers,
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
   const disputes = usePlatformQuery(
-    api.platform.marketplace.getDisputes,
+    api.platform.marketplace.queries.getDisputes,
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
   const categories = usePlatformQuery(
-    api.platform.marketplace.getCategories,
+    api.platform.marketplace.queries.getCategories,
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
   const featuredPlacements = usePlatformQuery(
-    api.platform.marketplace.getFeaturedPlacements,
+    api.platform.marketplace.queries.getFeaturedPlacements,
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
@@ -126,17 +126,16 @@ function MarketplaceAdminContent() {
   ) as any[] | undefined;
 
   // Mutations
-  const reviewModule = useMutation(api.platform.marketplace.reviewModule);
-  const publishModule = useMutation(api.platform.marketplace.publishModule);
-  const suspendModule = useMutation(api.platform.marketplace.suspendModule);
-  const installModule = useMutation(api.platform.marketplace.installModule);
-  const updatePublisherVerification = useMutation(api.platform.marketplace.updatePublisherVerification);
-  const setPublisherStatus = useMutation(api.platform.marketplace.setPublisherStatus);
-  const seedCategories = useMutation(api.platform.marketplace.seedCategories);
-  const upsertCategory = useMutation(api.platform.marketplace.upsertCategory);
-  const manageFeaturedPlacement = useMutation(api.platform.marketplace.manageFeaturedPlacement);
+  const reviewModule = useMutation(api.platform.marketplace.mutations.reviewModule);
+  const publishModule = useMutation(api.platform.marketplace.mutations.publishModule);
+  const installModule = useMutation(api.platform.marketplace.mutations.installModule);
+  const updatePublisherVerification = useMutation(api.platform.marketplace.mutations.updatePublisherVerification);
+  const setPublisherStatus = useMutation(api.platform.marketplace.mutations.setPublisherStatus);
+  const seedCategories = useMutation(api.platform.marketplace.mutations.seedCategories);
+  const upsertCategory = useMutation(api.platform.marketplace.mutations.upsertCategory);
+  const manageFeaturedPlacement = useMutation(api.platform.marketplace.mutations.manageFeaturedPlacement);
   const seedModuleRegistry = useMutation(api.modules.marketplace.mutations.runSeedModuleRegistry);
-  const uninstallCatalogModule = useMutation(api.platform.marketplace.uninstallCatalogModule);
+  const uninstallCatalogModule = useMutation(api.platform.marketplace.mutations.uninstallCatalogModule);
 
   const handleReview = async (decision: "approved" | "rejected" | "requires_changes") => {
     if (!sessionToken || !selectedModule) return;

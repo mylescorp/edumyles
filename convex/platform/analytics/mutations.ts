@@ -109,7 +109,7 @@ async function getUserAnalytics(ctx: any, tenantId: string, cutoffTime: number) 
     featureUsage[module] = (featureUsage[module] || 0) + 1;
   });
   Object.keys(featureUsage).forEach((k) => {
-    featureUsage[k] = featureUsage[k] / totalLogs;
+    featureUsage[k] = (featureUsage[k] ?? 0) / totalLogs;
   });
 
   return {
@@ -529,7 +529,15 @@ export const createCustomReport = mutation({
     ),
     config: v.object({
       timeRange: v.union(v.literal("1h"), v.literal("24h"), v.literal("7d"), v.literal("30d"), v.literal("90d")),
-      filters: v.optional(v.record(v.string(), v.any())),
+      filters: v.optional(
+        v.array(
+          v.object({
+            field: v.string(),
+            op: v.string(),
+            value: v.union(v.string(), v.number(), v.boolean()),
+          })
+        )
+      ),
       metrics: v.array(v.string()),
       groupBy: v.optional(v.string()),
       chartType: v.union(v.literal("line"), v.literal("bar"), v.literal("pie"), v.literal("table")),

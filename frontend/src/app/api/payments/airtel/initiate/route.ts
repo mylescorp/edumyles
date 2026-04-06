@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     // Normalize phone number and detect country
     const normalizedPhone = normalizePhone(phone);
-    const result = await convex.action(api.modules.finance.actions.initiateAirtelPayment, {
+    const result = await convex.action((api as any)["modules/finance/actions"].initiateAirtelPayment, {
       webhookSecret: serverSecret,
       tenantId: session.tenantId,
       invoiceId: String(invoiceId),

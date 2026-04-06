@@ -1,14 +1,18 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, AlertTriangle, CheckCircle, Gauge, Star, TrendingDown, TrendingUp } from "lucide-react";
+import { Activity, AlertTriangle, CheckCircle, Gauge, RefreshCw, Star, TrendingDown, TrendingUp, Users } from "lucide-react";
 
 function trendMeta(trend: string) {
   if (trend === "up") {
@@ -22,8 +26,10 @@ function trendMeta(trend: string) {
 
 export default function StaffPerformanceDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const staffId = params.staffId as string;
+  const [isRefreshing, startRefreshing] = useTransition();
 
   const detail = usePlatformQuery(
     api.platform.staffPerformance.queries.getStaffDetail,
@@ -31,8 +37,31 @@ export default function StaffPerformanceDetailPage() {
     !!sessionToken
   ) as any;
 
+  if (detail === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
   if (!detail) {
-    return <div className="p-6">Loading...</div>;
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Staff record not found"
+          breadcrumbs={[
+            { label: "Platform", href: "/platform" },
+            { label: "Staff Performance", href: "/platform/staff-performance" },
+          ]}
+        />
+        <Card>
+          <CardContent className="pt-6">
+            <EmptyState
+              icon={Users}
+              title="No staff detail found"
+              description="Return to the performance list and select another team member."
+            />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const latestPeriod = detail.periods?.[0];
@@ -49,6 +78,17 @@ export default function StaffPerformanceDetailPage() {
           { label: "Staff Performance", href: "/platform/staff-performance" },
           { label: detail.userName, href: `/platform/staff-performance/${staffId}` },
         ]}
+        actions={
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => startRefreshing(() => router.refresh())}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

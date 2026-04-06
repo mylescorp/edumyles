@@ -62,7 +62,7 @@ export default function MobileTeaser() {
           </div>
 
           <Link
-            href="/auth/signup"
+            href="/waitlist"
             className="inline-flex items-center gap-2 font-semibold text-sm px-6 py-3 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"
             style={{ background: "#E8A020", color: "#061A12" }}
           >

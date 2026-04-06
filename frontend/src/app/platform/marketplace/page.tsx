@@ -96,13 +96,13 @@ function MarketplaceContent() {
 
   // Queries
   const marketplaceHome = usePlatformQuery(
-    api.platform.marketplace.getMarketplaceHome,
+    api.platform.marketplace.queries.getMarketplaceHome,
     { sessionToken: sessionToken || "" },
     !!sessionToken
   ) as any;
 
   const browseResult = usePlatformQuery(
-    api.platform.marketplace.browseModules,
+    api.platform.marketplace.queries.browseModules,
     {
       sessionToken: sessionToken || "",
       category: selectedCategory !== "all" ? selectedCategory : undefined,
@@ -115,7 +115,7 @@ function MarketplaceContent() {
   ) as any;
 
   const overview = usePlatformQuery(
-    api.platform.marketplace.getMarketplaceOverview,
+    api.platform.marketplace.queries.getMarketplaceOverview,
     { sessionToken: sessionToken || "" },
     !!sessionToken
   ) as any;

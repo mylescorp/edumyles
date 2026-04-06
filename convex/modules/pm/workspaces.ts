@@ -1,6 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../_generated/server";
 import { requirePmRole } from "./roles";
+import { logAction } from "../../helpers/auditLog";
+
+// SECURITY: PM functions use requirePmRole(), which internally validates the
+// tenant session before applying PM-specific authorization.
 
 // Queries
 export const getWorkspaces = query({
@@ -154,6 +158,23 @@ export const createWorkspace = mutation({
       updatedAt: Date.now(),
     });
 
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.workspace.created",
+      entityType: "pmWorkspace",
+      entityId: String(workspaceId),
+      after: {
+        name: args.name,
+        slug: args.slug,
+        type: args.type,
+        icon: args.icon,
+        defaultStatuses: args.defaultStatuses,
+        customFieldSchema: args.customFieldSchema || [],
+      },
+    });
+
     return workspaceId;
   },
 });
@@ -175,7 +196,7 @@ export const updateWorkspace = mutation({
     }))),
   },
   handler: async (ctx, args) => {
-    await requirePmRole(ctx, args, "admin", args.workspaceId);
+    const tenantCtx = await requirePmRole(ctx, args, "admin", args.workspaceId);
 
     const workspace = await ctx.db.get(args.workspaceId);
     if (!workspace) {
@@ -205,6 +226,23 @@ export const updateWorkspace = mutation({
     if (args.customFieldSchema !== undefined) updateData.customFieldSchema = args.customFieldSchema;
 
     await ctx.db.patch(args.workspaceId, updateData);
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.workspace.updated",
+      entityType: "pmWorkspace",
+      entityId: String(args.workspaceId),
+      before: {
+        name: workspace.name,
+        slug: workspace.slug,
+        icon: workspace.icon,
+        defaultStatuses: workspace.defaultStatuses,
+        customFieldSchema: workspace.customFieldSchema,
+      },
+      after: updateData,
+    });
     return true;
   },
 });
@@ -213,9 +251,10 @@ export const deleteWorkspace = mutation({
   args: {
     sessionToken: v.string(),
     workspaceId: v.id("pmWorkspaces"),
+    reason: v.string(),
   },
   handler: async (ctx, args) => {
-    await requirePmRole(ctx, args, "admin", args.workspaceId);
+    const tenantCtx = await requirePmRole(ctx, args, "admin", args.workspaceId);
 
     const workspace = await ctx.db.get(args.workspaceId);
     if (!workspace) {
@@ -233,6 +272,26 @@ export const deleteWorkspace = mutation({
     }
 
     await ctx.db.delete(args.workspaceId);
+
+    await logAction(ctx, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      action: "pm.workspace.deleted",
+      entityType: "pmWorkspace",
+      entityId: String(args.workspaceId),
+      before: {
+        name: workspace.name,
+        slug: workspace.slug,
+        type: workspace.type,
+        icon: workspace.icon,
+        defaultStatuses: workspace.defaultStatuses,
+        customFieldSchema: workspace.customFieldSchema,
+      },
+      after: {
+        reason: args.reason,
+      },
+    });
     return true;
   },
 });

@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
+    await convex.action((api as any)["modules/finance/actions"].recordPaymentFromGateway, {
       webhookSecret,
       gateway: "mpesa",
       externalId: checkoutRequestId,

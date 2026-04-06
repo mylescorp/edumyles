@@ -36,14 +36,14 @@ export default function AuditReportsPage() {
   const [actionFilter, setActionFilter] = useState("all");
 
   const logs = useQuery(
-    api.platform.audit.listTenantAuditLogs,
+    api.platform.audit.queries.listTenantAuditLogs,
     sessionToken
       ? { sessionToken, action: actionFilter === "all" ? undefined : actionFilter, limit: 200 }
       : "skip"
   );
 
   const actionTypes = useQuery(
-    api.platform.audit.getTenantAuditActionTypes,
+    api.platform.audit.queries.getTenantAuditActionTypes,
     sessionToken ? { sessionToken } : "skip"
   );
 

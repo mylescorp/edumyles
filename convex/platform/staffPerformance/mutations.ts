@@ -52,9 +52,12 @@ export const createPerformanceRecord = mutation({
 
     let trend: "up" | "down" | "stable" = "stable";
     if (previousRecords.length > 0) {
-      const prevScore = previousRecords[0].overallScore;
-      if (overallScore > prevScore + 2) trend = "up";
-      else if (overallScore < prevScore - 2) trend = "down";
+      const previousRecord = previousRecords[0];
+      if (previousRecord) {
+        const prevScore = previousRecord.overallScore;
+        if (overallScore > prevScore + 2) trend = "up";
+        else if (overallScore < prevScore - 2) trend = "down";
+      }
     }
 
     const recordId = await ctx.db.insert("staffPerformanceRecords", {
@@ -246,9 +249,12 @@ export const calculatePerformanceScores = mutation({
 
     let trend: "up" | "down" | "stable" = "stable";
     if (previousRecords.length > 0) {
-      const prevScore = previousRecords[0].overallScore;
-      if (overallScore > prevScore + 2) trend = "up";
-      else if (overallScore < prevScore - 2) trend = "down";
+      const previousRecord = previousRecords[0];
+      if (previousRecord) {
+        const prevScore = previousRecord.overallScore;
+        if (overallScore > prevScore + 2) trend = "up";
+        else if (overallScore < prevScore - 2) trend = "down";
+      }
     }
 
     const now = Date.now();
@@ -274,10 +280,11 @@ export const calculatePerformanceScores = mutation({
     }
 
     // Need user info - try to find from existing records or use userId
-    const userName = existing.length > 0 ? existing[0].userName : args.userId;
-    const userEmail = existing.length > 0 ? existing[0].userEmail : "";
-    const role = existing.length > 0 ? existing[0].role : "agent";
-    const department = existing.length > 0 ? existing[0].department : undefined;
+    const existingRecord = existing[0];
+    const userName = existingRecord?.userName ?? args.userId;
+    const userEmail = existingRecord?.userEmail ?? "";
+    const role = existingRecord?.role ?? "agent";
+    const department = existingRecord?.department;
 
     const recordId = await ctx.db.insert("staffPerformanceRecords", {
       userId: args.userId,
@@ -287,7 +294,7 @@ export const calculatePerformanceScores = mutation({
       department,
       period: args.period,
       metrics,
-      goals: existing.length > 0 ? existing[0].goals : undefined,
+      goals: existingRecord?.goals,
       achievements: [],
       trend,
       overallScore,

@@ -114,6 +114,50 @@ async function postConfirmedPayment(ctx: any, args: {
   };
 }
 
+async function findPaymentCallback(ctx: any, args: {
+  gateway: string;
+  externalId?: string;
+  checkoutSessionId?: string;
+  paymentIntentId?: string;
+}) {
+  if (args.checkoutSessionId) {
+    const byCheckoutSessionId = await ctx.db
+      .query("paymentCallbacks")
+      .withIndex("by_checkout_session_id", (q: any) =>
+        q.eq("gateway", args.gateway).eq("checkoutSessionId", args.checkoutSessionId)
+      )
+      .first();
+
+    if (byCheckoutSessionId) {
+      return byCheckoutSessionId;
+    }
+  }
+
+  if (args.paymentIntentId) {
+    const byPaymentIntentId = await ctx.db
+      .query("paymentCallbacks")
+      .withIndex("by_payment_intent_id", (q: any) =>
+        q.eq("gateway", args.gateway).eq("paymentIntentId", args.paymentIntentId)
+      )
+      .first();
+
+    if (byPaymentIntentId) {
+      return byPaymentIntentId;
+    }
+  }
+
+  if (args.externalId) {
+    return await ctx.db
+      .query("paymentCallbacks")
+      .withIndex("by_external_id", (q: any) =>
+        q.eq("gateway", args.gateway).eq("externalId", args.externalId)
+      )
+      .first();
+  }
+
+  return null;
+}
+
 export const createFeeStructure = mutation({
   args: {
     name: v.string(),
@@ -513,6 +557,8 @@ export const savePaymentCallback = internalMutation({
     tenantId: v.string(),
     gateway: v.union(v.literal("mpesa"), v.literal("airtel"), v.literal("stripe"), v.literal("bank_transfer")),
     externalId: v.string(),
+    checkoutSessionId: v.optional(v.string()),
+    paymentIntentId: v.optional(v.string()),
     invoiceId: v.string(),
     amount: v.number(),
     reference: v.optional(v.string()),
@@ -525,6 +571,8 @@ export const savePaymentCallback = internalMutation({
       tenantId: args.tenantId,
       gateway: args.gateway,
       externalId: args.externalId,
+      checkoutSessionId: args.checkoutSessionId,
+      paymentIntentId: args.paymentIntentId,
       invoiceId: args.invoiceId,
       amount: args.amount,
       reference: args.reference,
@@ -542,16 +590,18 @@ export const recordPaymentFromGatewayInternal = internalMutation({
   args: {
     gateway: v.string(),
     externalId: v.string(),
+    checkoutSessionId: v.optional(v.string()),
+    paymentIntentId: v.optional(v.string()),
     resultCode: v.number(), // 0 = success for M-Pesa
     reference: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("paymentCallbacks")
-      .withIndex("by_external_id", (q) =>
-        q.eq("gateway", args.gateway).eq("externalId", args.externalId)
-      )
-      .first();
+    const existing = await findPaymentCallback(ctx, {
+      gateway: args.gateway,
+      externalId: args.externalId,
+      checkoutSessionId: args.checkoutSessionId,
+      paymentIntentId: args.paymentIntentId,
+    });
 
     if (!existing) {
       throw new Error("Payment callback not found");
@@ -602,6 +652,8 @@ export const recordPaymentFromGatewayInternal = internalMutation({
       status: "completed",
       reference,
       updatedAt: now,
+      checkoutSessionId: args.checkoutSessionId ?? existing.checkoutSessionId,
+      paymentIntentId: args.paymentIntentId ?? existing.paymentIntentId,
       payload: {
         ...(existing.payload ?? {}),
         resultCode: args.resultCode,
@@ -627,12 +679,16 @@ export const updatePaymentCallbackExternalId = internalMutation({
   args: {
     callbackId: v.id("paymentCallbacks"),
     externalId: v.string(),
+    checkoutSessionId: v.optional(v.string()),
+    paymentIntentId: v.optional(v.string()),
     reference: v.optional(v.string()),
     payload: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.callbackId, {
       externalId: args.externalId,
+      ...(args.checkoutSessionId !== undefined ? { checkoutSessionId: args.checkoutSessionId } : {}),
+      ...(args.paymentIntentId !== undefined ? { paymentIntentId: args.paymentIntentId } : {}),
       ...(args.reference !== undefined ? { reference: args.reference } : {}),
       ...(args.payload !== undefined
         ? {

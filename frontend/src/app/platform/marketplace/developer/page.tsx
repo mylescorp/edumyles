@@ -12,10 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Package, Star, Download, Plus, CheckCircle,
-  DollarSign, Users, TrendingUp, Clock,
+  Package, Plus, CheckCircle,
+  Users,
   FileText, AlertTriangle, Eye, Send,
-  Building, Award, Layers, Wallet, ExternalLink, Pencil, GitBranch, Save,
+  Building, Award, Wallet, ExternalLink, Pencil, GitBranch, Save,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -72,15 +72,15 @@ function DeveloperPortalContent() {
   const [modForm, setModForm] = useState(EMPTY_MODULE_FORM);
 
   const publishers = usePlatformQuery(
-    api.platform.marketplace.getPublishers,
+    api.platform.marketplace.queries.getPublishers,
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
-  const registerPublisher = useMutation(api.platform.marketplace.registerPublisher);
-  const createModule = useMutation(api.platform.marketplace.createModule);
-  const updateModule = useMutation(api.platform.marketplace.updateModule);
-  const createModuleVersion = useMutation(api.platform.marketplace.createModuleVersion);
-  const submitModuleForReview = useMutation(api.platform.marketplace.submitModuleForReview);
+  const registerPublisher = useMutation(api.platform.marketplace.mutations.registerPublisher);
+  const createModule = useMutation(api.platform.marketplace.mutations.createModule);
+  const updateModule = useMutation(api.platform.marketplace.mutations.updateModule);
+  const createModuleVersion = useMutation(api.platform.marketplace.mutations.createModuleVersion);
+  const submitModuleForReview = useMutation(api.platform.marketplace.mutations.submitModuleForReview);
 
   // Find current user's publisher profile
   const myPublisher = useMemo(
@@ -89,14 +89,14 @@ function DeveloperPortalContent() {
   );
 
   const myPublisherDetail = usePlatformQuery(
-    api.platform.marketplace.getPublisherDetail,
+    api.platform.marketplace.queries.getPublisherDetail,
     myPublisher?._id
       ? { sessionToken: sessionToken || "", publisherId: myPublisher._id }
       : "skip"
   ) as any;
 
   const selectedModuleDetail = usePlatformQuery(
-    api.platform.marketplace.getModuleDetail,
+    api.platform.marketplace.queries.getModuleDetail,
     selectedModuleId
       ? { sessionToken: sessionToken || "", moduleId: selectedModuleId }
       : "skip"
@@ -630,7 +630,7 @@ function DeveloperPortalContent() {
                 {myPayouts.length > 0 ? myPayouts.map((payout: any) => (
                   <div key={payout._id} className="flex items-center justify-between border rounded-lg p-3">
                     <div>
-                      <p className="font-medium text-sm">{formatDate(payout.createdAt || payout.scheduledAt || Date.now())}</p>
+                      <p className="font-medium text-sm">{formatDate(payout.createdAt || payout.scheduledAt || 0)}</p>
                       <p className="text-xs text-muted-foreground">{payout.status}</p>
                     </div>
                     <div className="text-right">

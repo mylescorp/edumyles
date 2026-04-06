@@ -222,16 +222,19 @@ export const getRevenueBreakdown = query({
       if (!byPlan[t.plan]) {
         byPlan[t.plan] = { count: 0, mrrCents: 0, revenueCents: 0 };
       }
-      byPlan[t.plan].count++;
+      const planEntry = byPlan[t.plan];
+      if (!planEntry) continue;
+      planEntry.count++;
       if (t.status === "active" || t.status === "trial") {
-        byPlan[t.plan].mrrCents += PLAN_PRICES_CENTS[t.plan] ?? 0;
+        planEntry.mrrCents += PLAN_PRICES_CENTS[t.plan] ?? 0;
       }
     }
 
     // Add actual revenue from invoices
     for (const inv of paidInvoices) {
-      if (byPlan[inv.plan]) {
-        byPlan[inv.plan].revenueCents += inv.amountCents;
+      const planEntry = byPlan[inv.plan];
+      if (planEntry) {
+        planEntry.revenueCents += inv.amountCents;
       }
     }
 

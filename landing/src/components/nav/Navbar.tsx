@@ -7,7 +7,7 @@ import Logo from "@/components/shared/Logo";
 import { School, GraduationCap, Globe, Building2, Briefcase } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-const SIGNUP_URL = "/auth/signup";
+const SIGNUP_URL = "/waitlist";
 
 const navLinks = [
   { label: "Features", href: "/features" },

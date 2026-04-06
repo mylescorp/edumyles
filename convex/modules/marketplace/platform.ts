@@ -2,6 +2,9 @@ import { mutation, query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
+// SECURITY: Platform-scoped functions in this file use requirePlatformSession()
+// because they are called with explicit sessionToken args rather than Convex JWT auth.
+
 /**
  * Update a module's status in the registry (active/beta/deprecated).
  * Platform admin only.

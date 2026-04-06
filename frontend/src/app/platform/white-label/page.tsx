@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,17 +16,18 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
 import {
-  Palette,
   Save,
   RotateCcw,
   Globe,
-  Mail,
-  Image,
+  Image as ImageIcon,
   Type,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function WhiteLabelPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [tenantId, setTenantId] = useState("");
   const [brandName, setBrandName] = useState("");
@@ -38,6 +42,7 @@ export default function WhiteLabelPage() {
   const [footerText, setFooterText] = useState("");
   const [customCSS, setCustomCSS] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isRefreshing, startRefreshing] = useTransition();
 
   const configs = usePlatformQuery(
     api.platform.whiteLabel.queries.listWhiteLabelConfigs,
@@ -92,8 +97,10 @@ export default function WhiteLabelPage() {
         footerText: footerText || undefined,
         customCSS: customCSS || undefined,
       });
+      toast.success("White-label configuration saved.");
     } catch (error) {
       console.error("Failed to save:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to save configuration.");
     } finally {
       setIsSaving(false);
     }
@@ -114,16 +121,28 @@ export default function WhiteLabelPage() {
       setEmailFromAddress("");
       setFooterText("");
       setCustomCSS("");
+      toast.success("White-label configuration reset.");
     } catch (error) {
       console.error("Failed to reset:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to reset configuration.");
     }
   };
+
+  if (!sessionToken || configs === undefined || tenants === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div className="p-6 space-y-6">
       <PageHeader
         title="White-Label Configuration"
         description="Customize branding for each tenant"
+        actions={
+          <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        }
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -150,6 +169,14 @@ export default function WhiteLabelPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {tenants.length === 0 ? (
+                <EmptyState
+                  icon={Globe}
+                  title="No tenants available"
+                  description="Create a tenant first before configuring white-label branding."
+                  className="py-6"
+                />
+              ) : null}
               <div className="space-y-2">
                 <Label>Brand Name</Label>
                 <Input value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="School name or brand" />
@@ -182,9 +209,9 @@ export default function WhiteLabelPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Image className="h-5 w-5" /> Assets
-              </CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5" /> Assets
+                </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

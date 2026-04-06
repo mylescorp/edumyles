@@ -1,93 +1,26 @@
 "use client";
 
-/**
- * /platform/waitlist
- *
- * Master admin review queue for users who signed up via WorkOS but are not
- * yet provisioned in the EduMyles database.
- *
- * Actions:
- *  • Approve  — assigns a tenant and role, then calls /api/waitlist/approve
- *               which creates the Convex user record and adds the user to the
- *               corresponding WorkOS Organization.
- *  • Reject   — calls /api/waitlist/reject with an optional review note.
- */
-
-import { useState } from "react";
-import { PageHeader } from "@/components/shared/PageHeader";
-import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
-import { useAuth } from "@/hooks/useAuth";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
-  Clock,
-  CheckCircle,
-  XCircle,
-  Users,
-  Building2,
-  Mail,
-  User,
-  Search,
-  RefreshCw,
-} from "lucide-react";
-import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
-
-// ── Types ────────────────────────────────────────────────────────────────────
-
-interface WaitlistApplication {
-  _id: string;
-  workosUserId: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  country?: string;
-  county?: string;
-  schoolName?: string;
-  requestedRole?: string;
-  message?: string;
-  source?: string;
-  status: "pending" | "approved" | "rejected";
-  requestedAt: number;
-  reviewedBy?: string;
-  reviewedAt?: number;
-  reviewNotes?: string;
-  assignedTenantId?: string;
-  assignedRole?: string;
-}
-
-interface TenantOption {
-  tenantId: string;
-  name: string;
-  subdomain: string;
-}
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
+import { Building2, CheckCircle2, Clock3, Mail, SearchX, UserPlus2, Users, XCircle } from "lucide-react";
 
 const ROLE_OPTIONS = [
   { value: "school_admin", label: "School Admin" },
@@ -98,399 +31,495 @@ const ROLE_OPTIONS = [
   { value: "librarian", label: "Librarian" },
   { value: "transport_manager", label: "Transport Manager" },
   { value: "board_member", label: "Board Member" },
-  { value: "parent", label: "Parent / Guardian" },
-  { value: "student", label: "Student" },
-  { value: "alumni", label: "Alumni" },
-  { value: "partner", label: "Partner" },
-];
+] as const;
 
-// ── Component ────────────────────────────────────────────────────────────────
+const STATUS_FILTERS = ["all", "waiting", "invited", "converted", "rejected"] as const;
+
+type WaitlistEntry = {
+  _id: string;
+  fullName: string;
+  email: string;
+  schoolName: string;
+  country: string;
+  studentCount?: number;
+  phone?: string;
+  referralSource?: string;
+  biggestChallenge?: string;
+  status: "waiting" | "invited" | "converted" | "rejected";
+  invitedAt?: number;
+  convertedAt?: number;
+  crmLeadId?: string;
+  inviteToken?: string;
+  inviteExpiresAt?: number;
+  createdAt: number;
+  updatedAt: number;
+};
+
+function statusClass(status: WaitlistEntry["status"]) {
+  switch (status) {
+    case "waiting":
+      return "border-amber-500/20 bg-amber-500/10 text-amber-700";
+    case "invited":
+      return "border-sky-500/20 bg-sky-500/10 text-sky-700";
+    case "converted":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
+    case "rejected":
+      return "border-rose-500/20 bg-rose-500/10 text-rose-700";
+    default:
+      return "";
+  }
+}
+
+function labelize(value: string) {
+  return value.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
+}
 
 export default function WaitlistPage() {
-  const { isLoading, sessionToken } = useAuth();
+  const { sessionToken, isLoading } = useAuth();
+  const { toast } = useToast();
 
-  // Data
-  const applications = usePlatformQuery(
-    api.waitlist.listApplications,
-    { sessionToken: sessionToken ?? "" }
-  ) as WaitlistApplication[] | undefined;
+  const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]>("all");
+  const [search, setSearch] = useState("");
+  const [inviteTarget, setInviteTarget] = useState<WaitlistEntry | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<WaitlistEntry | null>(null);
+  const [convertTarget, setConvertTarget] = useState<WaitlistEntry | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [inviteForm, setInviteForm] = useState({
+    tenantId: "",
+    role: "school_admin",
+    personalMessage: "",
+  });
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [convertTenantId, setConvertTenantId] = useState("");
 
-  const counts = usePlatformQuery(
-    api.waitlist.getApplicationCounts,
-    { sessionToken: sessionToken ?? "" }
-  );
+  const entries = usePlatformQuery(
+    api.modules.platform.waitlist.getWaitlistEntries,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as WaitlistEntry[] | undefined;
 
   const tenants = usePlatformQuery(
     api.platform.tenants.queries.listAllTenants,
-    { sessionToken: sessionToken ?? "" }
-  ) as TenantOption[] | undefined;
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as Array<{ tenantId: string; name: string; subdomain?: string }> | undefined;
 
-  // UI state
-  const [tab, setTab] = useState<"pending" | "approved" | "rejected">("pending");
-  const [search, setSearch] = useState("");
-  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [selectedApp, setSelectedApp] = useState<WaitlistApplication | null>(null);
+  const inviteFromWaitlist = useMutation(api.modules.platform.waitlist.inviteFromWaitlist);
+  const updateWaitlistStatus = useMutation(api.modules.platform.waitlist.updateWaitlistStatus);
+  const convertWaitlistEntry = useMutation(api.modules.platform.waitlist.convertWaitlistEntry);
 
-  // Approve form state
-  const [assignedTenantId, setAssignedTenantId] = useState("");
-  const [assignedRole, setAssignedRole] = useState("school_admin");
-  const [approveNotes, setApproveNotes] = useState("");
+  const tenantMap = useMemo(
+    () => new Map((tenants ?? []).map((tenant) => [tenant.tenantId, tenant.name])),
+    [tenants]
+  );
 
-  // Reject form state
-  const [rejectNotes, setRejectNotes] = useState("");
+  const sortedEntries = useMemo(
+    () => [...(entries ?? [])].sort((left, right) => right.createdAt - left.createdAt),
+    [entries]
+  );
 
-  const [processing, setProcessing] = useState(false);
+  const filteredEntries = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return sortedEntries.filter((entry) => {
+      const statusMatches = statusFilter === "all" || entry.status === statusFilter;
+      if (!statusMatches) return false;
+      if (!needle) return true;
+      return [
+        entry.fullName,
+        entry.email,
+        entry.schoolName,
+        entry.country,
+        entry.referralSource ?? "",
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(needle);
+    });
+  }, [search, sortedEntries, statusFilter]);
 
-  const isProvisionableApplication = (app: WaitlistApplication | null) =>
-    Boolean(app?.workosUserId) && !app!.workosUserId.startsWith("landing:");
+  const stats = useMemo(() => {
+    const all = sortedEntries;
+    return {
+      total: all.length,
+      waiting: all.filter((entry) => entry.status === "waiting").length,
+      invited: all.filter((entry) => entry.status === "invited").length,
+      converted: all.filter((entry) => entry.status === "converted").length,
+      rejected: all.filter((entry) => entry.status === "rejected").length,
+    };
+  }, [sortedEntries]);
 
-  if (isLoading || !applications) {
+  if (isLoading || entries === undefined || tenants === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
 
-  // ── Filter ───────────────────────────────────────────────────────────────
+  const resetDialogs = () => {
+    setInviteTarget(null);
+    setRejectTarget(null);
+    setConvertTarget(null);
+    setInviteForm({ tenantId: "", role: "school_admin", personalMessage: "" });
+    setRejectionReason("");
+    setConvertTenantId("");
+  };
 
-  const filtered = applications
-    .filter((a) => a.status === tab)
-    .filter((a) => {
-      if (!search) return true;
-      const q = search.toLowerCase();
-      return (
-        a.email.toLowerCase().includes(q) ||
-        (a.firstName ?? "").toLowerCase().includes(q) ||
-        (a.lastName ?? "").toLowerCase().includes(q) ||
-        (a.schoolName ?? "").toLowerCase().includes(q)
-      );
-    });
-
-  // ── Actions ──────────────────────────────────────────────────────────────
-
-  function openApprove(app: WaitlistApplication) {
-    setSelectedApp(app);
-    setAssignedTenantId(app.assignedTenantId ?? "");
-    setAssignedRole(app.requestedRole ?? "school_admin");
-    setApproveNotes("");
-    setApproveDialogOpen(true);
-  }
-
-  function openReject(app: WaitlistApplication) {
-    setSelectedApp(app);
-    setRejectNotes("");
-    setRejectDialogOpen(true);
-  }
-
-  async function handleApprove() {
-    if (!selectedApp || !sessionToken) return;
-    const needsProvisioning = isProvisionableApplication(selectedApp);
-    if (needsProvisioning && (!assignedTenantId || !assignedRole)) return;
-    setProcessing(true);
+  const handleInvite = async () => {
+    if (!sessionToken || !inviteTarget || !inviteForm.tenantId || !inviteForm.role) return;
+    setSaving(true);
     try {
-      const res = await fetch("/api/waitlist/approve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionToken,
-          applicationId: selectedApp._id,
-          assignedTenantId: needsProvisioning ? assignedTenantId : undefined,
-          assignedRole: needsProvisioning ? assignedRole : undefined,
-          reviewNotes: approveNotes || undefined,
-        }),
+      await inviteFromWaitlist({
+        sessionToken,
+        waitlistId: inviteTarget._id as never,
+        tenantId: inviteForm.tenantId,
+        role: inviteForm.role,
+        personalMessage: inviteForm.personalMessage.trim() || undefined,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Approval failed");
-      toast.success(
-        data.provisioned
-          ? `${selectedApp.email} approved and provisioned`
-          : `${selectedApp.email} approved and queued for follow-up`
-      );
-      setApproveDialogOpen(false);
-    } catch (err: any) {
-      toast.error(err.message ?? "Failed to approve");
+      toast({ title: "Invite sent", description: `${inviteTarget.email} has been invited to join EduMyles.` });
+      resetDialogs();
+    } catch (error) {
+      toast({
+        title: "Unable to send invite",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
     } finally {
-      setProcessing(false);
+      setSaving(false);
     }
-  }
+  };
 
-  async function handleReject() {
-    if (!selectedApp || !sessionToken) return;
-    setProcessing(true);
+  const handleReject = async () => {
+    if (!sessionToken || !rejectTarget || !rejectionReason.trim()) return;
+    setSaving(true);
     try {
-      const res = await fetch("/api/waitlist/reject", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionToken,
-          applicationId: selectedApp._id,
-          reviewNotes: rejectNotes || undefined,
-        }),
+      await updateWaitlistStatus({
+        sessionToken,
+        waitlistId: rejectTarget._id as never,
+        status: "rejected",
+        reason: rejectionReason.trim(),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Rejection failed");
-      toast.success(`${selectedApp.email} application rejected`);
-      setRejectDialogOpen(false);
-    } catch (err: any) {
-      toast.error(err.message ?? "Failed to reject");
+      toast({ title: "Waitlist entry rejected" });
+      resetDialogs();
+    } catch (error) {
+      toast({
+        title: "Unable to reject entry",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
     } finally {
-      setProcessing(false);
+      setSaving(false);
     }
-  }
+  };
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  const handleConvert = async () => {
+    if (!sessionToken || !convertTarget || !convertTenantId) return;
+    setSaving(true);
+    try {
+      await convertWaitlistEntry({
+        sessionToken,
+        waitlistId: convertTarget._id as never,
+        tenantId: convertTenantId,
+      });
+      toast({ title: "Waitlist entry converted" });
+      resetDialogs();
+    } catch (error) {
+      toast({
+        title: "Unable to convert entry",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Waitlist & Approvals"
-        description="Review sign-up requests and provision users to their tenant"
+        title="Waitlist"
+        description="Review inbound school interest, send tenant invites, and convert qualified schools into active tenants."
         breadcrumbs={[
           { label: "Platform", href: "/platform" },
           { label: "Waitlist" },
         ]}
       />
 
-      {/* Stats row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatsCard
-          icon={<Clock className="h-5 w-5 text-amber-500" />}
-          label="Pending review"
-          value={counts?.pending ?? 0}
-          bg="bg-amber-50 dark:bg-amber-950/20"
-        />
-        <StatsCard
-          icon={<CheckCircle className="h-5 w-5 text-green-500" />}
-          label="Approved"
-          value={counts?.approved ?? 0}
-          bg="bg-green-50 dark:bg-green-950/20"
-        />
-        <StatsCard
-          icon={<XCircle className="h-5 w-5 text-red-400" />}
-          label="Rejected"
-          value={counts?.rejected ?? 0}
-          bg="bg-red-50 dark:bg-red-950/20"
-        />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <MetricCard title="Total entries" value={stats.total} icon={Users} />
+        <MetricCard title="Waiting" value={stats.waiting} icon={Clock3} />
+        <MetricCard title="Invited" value={stats.invited} icon={Mail} />
+        <MetricCard title="Converted" value={stats.converted} icon={CheckCircle2} />
+        <MetricCard title="Rejected" value={stats.rejected} icon={XCircle} />
       </div>
 
-      {/* Table */}
       <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Applications
-            </CardTitle>
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <CardHeader className="gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <CardTitle>Waitlist pipeline</CardTitle>
+            <div className="flex flex-wrap items-center gap-3">
               <Input
-                placeholder="Search by email or name…"
-                className="pl-9"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search schools, contacts, and sources"
+                className="w-full md:w-80"
               />
+              <Select
+                value={statusFilter}
+                onValueChange={(value) => setStatusFilter(value as (typeof STATUS_FILTERS)[number])}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_FILTERS.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status === "all" ? "All statuses" : labelize(status)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-            <TabsList>
-              <TabsTrigger value="pending">
-                Pending
-                {(counts?.pending ?? 0) > 0 && (
-                  <Badge variant="destructive" className="ml-1.5 h-4 min-w-4 text-[10px]">
-                    {counts?.pending}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="approved">Approved</TabsTrigger>
-              <TabsTrigger value="rejected">Rejected</TabsTrigger>
-            </TabsList>
-
-            {(["pending", "approved", "rejected"] as const).map((t) => (
-              <TabsContent key={t} value={t} className="mt-4">
-                {filtered.length === 0 ? (
-                  <EmptyState tab={t} />
-                ) : (
-                  <div className="divide-y">
-                    {filtered.map((app) => (
-                      <ApplicationRow
-                        key={app._id}
-                        app={app}
-                        onApprove={() => openApprove(app)}
-                        onReject={() => openReject(app)}
-                      />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
+          {filteredEntries.length === 0 ? (
+            <EmptyState
+              icon={search || statusFilter !== "all" ? SearchX : Building2}
+              title={search || statusFilter !== "all" ? "No waitlist entries match these filters" : "No waitlist entries yet"}
+              description="New school interest from the landing page will appear here as soon as prospects join the EduMyles waitlist."
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>School</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>CRM</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Last update</TableHead>
+                  <TableHead className="w-[250px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredEntries.map((entry) => (
+                  <TableRow key={String(entry._id)}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{entry.schoolName}</div>
+                        <div className="text-sm text-muted-foreground">{entry.country}</div>
+                        {entry.studentCount ? (
+                          <div className="text-xs text-muted-foreground">{entry.studentCount.toLocaleString()} students</div>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{entry.fullName}</div>
+                        <div className="text-sm text-muted-foreground">{entry.email}</div>
+                        {entry.phone ? <div className="text-xs text-muted-foreground">{entry.phone}</div> : null}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={statusClass(entry.status)}>
+                        {labelize(entry.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {entry.crmLeadId ? (
+                        <Link href="/platform/crm" className="text-sm text-primary hover:underline">
+                          Lead linked
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">Not linked</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">{formatDateTime(entry.createdAt)}</div>
+                      <div className="text-xs text-muted-foreground">{formatRelativeTime(entry.createdAt)}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">{formatDateTime(entry.updatedAt)}</div>
+                      {entry.inviteExpiresAt ? (
+                        <div className="text-xs text-muted-foreground">
+                          Invite expires {formatDateTime(entry.inviteExpiresAt)}
+                        </div>
+                      ) : null}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-2">
+                        {entry.status === "waiting" ? (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setInviteTarget(entry);
+                                setInviteForm({ tenantId: "", role: "school_admin", personalMessage: "" });
+                              }}
+                            >
+                              Invite
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => setRejectTarget(entry)}>
+                              Reject
+                            </Button>
+                          </>
+                        ) : null}
+                        {entry.status === "invited" ? (
+                          <>
+                            <Button size="sm" variant="outline" onClick={() => {
+                              setInviteTarget(entry);
+                              setInviteForm({ tenantId: "", role: "school_admin", personalMessage: "" });
+                            }}>
+                              Resend invite
+                            </Button>
+                            <Button size="sm" onClick={() => {
+                              setConvertTarget(entry);
+                              setConvertTenantId("");
+                            }}>
+                              Convert
+                            </Button>
+                          </>
+                        ) : null}
+                        {entry.status === "converted" ? (
+                          <Button asChild size="sm" variant="outline">
+                            <Link href="/platform/tenants">View tenants</Link>
+                          </Button>
+                        ) : null}
+                      </div>
+                      {entry.biggestChallenge ? (
+                        <p className="mt-2 max-w-xs text-xs text-muted-foreground">{entry.biggestChallenge}</p>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
-      {/* ── Approve dialog ── */}
-      <Dialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
-        <DialogContent className="max-w-lg">
+      <Dialog open={!!inviteTarget} onOpenChange={(open) => !open && resetDialogs()}>
+        <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Approve application</DialogTitle>
+            <DialogTitle>{inviteTarget?.status === "invited" ? "Resend tenant invite" : "Invite school from waitlist"}</DialogTitle>
           </DialogHeader>
-
-          {selectedApp && (
-            <div className="space-y-5">
-              {/* Applicant info */}
-              <div className="rounded-lg border bg-muted/30 p-4 space-y-1 text-sm">
-                <p className="font-medium">
-                  {selectedApp.firstName} {selectedApp.lastName}
-                </p>
-                <p className="text-muted-foreground">{selectedApp.email}</p>
-                {selectedApp.phone && (
-                  <p className="text-muted-foreground">Phone: {selectedApp.phone}</p>
-                )}
-                {(selectedApp.country || selectedApp.county) && (
-                  <p className="text-muted-foreground">
-                    Location: {[selectedApp.county, selectedApp.country].filter(Boolean).join(", ")}
-                  </p>
-                )}
-                {selectedApp.schoolName && (
-                  <p className="text-muted-foreground">
-                    School: {selectedApp.schoolName}
-                  </p>
-                )}
-                {selectedApp.source === "landing_public_signup" && (
-                  <p className="text-muted-foreground">
-                    Source: Landing page application
-                  </p>
-                )}
-              </div>
-
-              {isProvisionableApplication(selectedApp) ? (
-                <>
-                  <div className="space-y-2">
-                    <Label>Assign to tenant *</Label>
-                    <Select value={assignedTenantId} onValueChange={setAssignedTenantId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a school / tenant…" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(tenants ?? []).map((t) => (
-                          <SelectItem key={t.tenantId} value={t.tenantId}>
-                            {t.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Assign role *</Label>
-                    <Select value={assignedRole} onValueChange={setAssignedRole}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ROLE_OPTIONS.map((r) => (
-                          <SelectItem key={r.value} value={r.value}>
-                            {r.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </>
-              ) : (
-                <div className="rounded-lg border bg-blue-50 p-4 text-sm text-blue-900 dark:bg-blue-950/20 dark:text-blue-100">
-                  This application came from the public landing page. Approving it will mark it as reviewed so your team can follow up directly with the applicant.
-                </div>
-              )}
-
-              {/* Notes */}
+          <div className="space-y-4">
+            <div className="rounded-lg border bg-muted/40 p-4 text-sm">
+              <div className="font-medium">{inviteTarget?.schoolName}</div>
+              <div className="text-muted-foreground">{inviteTarget?.fullName} · {inviteTarget?.email}</div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Review notes (optional)</Label>
-                <Textarea
-                  placeholder="Any notes to attach to this decision…"
-                  value={approveNotes}
-                  onChange={(e) => setApproveNotes(e.target.value)}
-                  rows={3}
-                />
+                <Label>Tenant</Label>
+                <Select
+                  value={inviteForm.tenantId}
+                  onValueChange={(value) => setInviteForm((current) => ({ ...current, tenantId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select tenant" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tenants.map((tenant) => (
+                      <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                        {tenant.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Select
+                  value={inviteForm.role}
+                  onValueChange={(value) => setInviteForm((current) => ({ ...current, role: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          )}
-
+            <div className="space-y-2">
+              <Label>Personal message</Label>
+              <Textarea
+                value={inviteForm.personalMessage}
+                onChange={(event) => setInviteForm((current) => ({ ...current, personalMessage: event.target.value }))}
+                rows={4}
+                placeholder="Share rollout notes, onboarding context, or next steps for the school contact."
+              />
+            </div>
+          </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setApproveDialogOpen(false)}
-              disabled={processing}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleApprove}
-              disabled={
-                processing ||
-                (isProvisionableApplication(selectedApp) &&
-                  (!assignedTenantId || !assignedRole))
-              }
-            >
-              {processing ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <CheckCircle className="h-4 w-4 mr-2" />
-              )}
-              {isProvisionableApplication(selectedApp)
-                ? "Approve & provision"
-                : "Approve application"}
+            <Button variant="outline" onClick={resetDialogs}>Cancel</Button>
+            <Button onClick={handleInvite} disabled={saving || !inviteForm.tenantId || !inviteForm.role}>
+              <UserPlus2 className="mr-2 h-4 w-4" />
+              {inviteTarget?.status === "invited" ? "Resend invite" : "Send invite"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ── Reject dialog ── */}
-      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-        <DialogContent className="max-w-md">
+      <Dialog open={!!rejectTarget} onOpenChange={(open) => !open && resetDialogs()}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject application</DialogTitle>
+            <DialogTitle>Reject waitlist entry</DialogTitle>
           </DialogHeader>
-
-          {selectedApp && (
-            <div className="space-y-5">
-              <p className="text-sm text-muted-foreground">
-                You are about to reject the application from{" "}
-                <span className="font-medium text-foreground">
-                  {selectedApp.email}
-                </span>
-                .
-              </p>
-              <div className="space-y-2">
-                <Label>Reason / notes (optional)</Label>
-                <Textarea
-                  placeholder="Explain why the application is being rejected…"
-                  value={rejectNotes}
-                  onChange={(e) => setRejectNotes(e.target.value)}
-                  rows={4}
-                />
-              </div>
-            </div>
-          )}
-
+          <div className="space-y-2">
+            <Label>Reason</Label>
+            <Textarea
+              value={rejectionReason}
+              onChange={(event) => setRejectionReason(event.target.value)}
+              rows={4}
+              placeholder="Capture why this school is not moving forward right now."
+            />
+          </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setRejectDialogOpen(false)}
-              disabled={processing}
-            >
-              Cancel
+            <Button variant="outline" onClick={resetDialogs}>Cancel</Button>
+            <Button variant="destructive" onClick={handleReject} disabled={saving || !rejectionReason.trim()}>
+              Reject entry
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleReject}
-              disabled={processing}
-            >
-              {processing ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <XCircle className="h-4 w-4 mr-2" />
-              )}
-              Reject
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!convertTarget} onOpenChange={(open) => !open && resetDialogs()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Convert invited school</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg border bg-muted/40 p-4 text-sm">
+              Mark this waitlist record as converted after the school has been provisioned into a live tenant.
+            </div>
+            <div className="space-y-2">
+              <Label>Tenant</Label>
+              <Select value={convertTenantId} onValueChange={setConvertTenantId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select tenant" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tenants.map((tenant) => (
+                    <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
+                      {tenant.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {convertTenantId ? (
+                <p className="text-xs text-muted-foreground">
+                  This will link the waitlist entry to {tenantMap.get(convertTenantId) ?? convertTenantId}.
+                </p>
+              ) : null}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={resetDialogs}>Cancel</Button>
+            <Button onClick={handleConvert} disabled={saving || !convertTenantId}>
+              Convert entry
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -499,162 +528,28 @@ export default function WaitlistPage() {
   );
 }
 
-// ── Sub-components ───────────────────────────────────────────────────────────
-
-function StatsCard({
-  icon,
-  label,
+function MetricCard({
+  title,
   value,
-  bg,
+  icon: Icon,
 }: {
-  icon: React.ReactNode;
-  label: string;
+  title: string;
   value: number;
-  bg: string;
+  icon: typeof Users;
 }) {
   return (
-    <Card className={bg}>
-      <CardContent className="pt-5 pb-5 flex items-center gap-4">
-        <div className="p-2 rounded-lg bg-background/60">{icon}</div>
-        <div>
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-sm text-muted-foreground">{label}</p>
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-3xl font-semibold">{value}</p>
+          </div>
+          <div className="rounded-xl border bg-muted/40 p-2">
+            <Icon className="h-4 w-4" />
+          </div>
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-function ApplicationRow({
-  app,
-  onApprove,
-  onReject,
-}: {
-  app: WaitlistApplication;
-  onApprove: () => void;
-  onReject: () => void;
-}) {
-  const displayName =
-    app.firstName || app.lastName
-      ? `${app.firstName ?? ""} ${app.lastName ?? ""}`.trim()
-      : null;
-
-  return (
-    <div className="flex items-start justify-between py-4 gap-4 flex-wrap">
-      <div className="flex items-start gap-3 min-w-0">
-        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-          <User className="h-5 w-5 text-primary" />
-        </div>
-        <div className="min-w-0 space-y-0.5">
-          {displayName && (
-            <p className="font-medium text-sm truncate">{displayName}</p>
-          )}
-          <p className="text-sm text-muted-foreground flex items-center gap-1">
-            <Mail className="h-3.5 w-3.5" />
-            {app.email}
-          </p>
-          {app.schoolName && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <Building2 className="h-3 w-3" />
-              {app.schoolName}
-            </p>
-          )}
-          {app.phone && (
-            <p className="text-xs text-muted-foreground">{app.phone}</p>
-          )}
-          {(app.country || app.county) && (
-            <p className="text-xs text-muted-foreground">
-              {[app.county, app.country].filter(Boolean).join(", ")}
-            </p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            Applied {formatDistanceToNow(app.requestedAt, { addSuffix: true })}
-          </p>
-          {app.source === "landing_public_signup" && (
-            <p className="text-xs font-medium text-blue-600">
-              Landing application
-            </p>
-          )}
-          {app.message && (
-            <p className="text-xs text-muted-foreground italic max-w-xs truncate">
-              "{app.message}"
-            </p>
-          )}
-          {app.reviewNotes && app.status !== "pending" && (
-            <p className="text-xs text-muted-foreground">
-              Note: {app.reviewNotes}
-            </p>
-          )}
-          {app.assignedTenantId && app.status === "approved" && (
-            <p className="text-xs text-green-600">
-              Assigned to {app.assignedTenantId} as {app.assignedRole}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <StatusBadge status={app.status} />
-        {app.status === "pending" && (
-          <>
-            <Button size="sm" onClick={onApprove} className="h-8">
-              <CheckCircle className="h-3.5 w-3.5 mr-1" />
-              Approve
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onReject}
-              className="h-8 text-destructive border-destructive/30 hover:bg-destructive/10"
-            >
-              <XCircle className="h-3.5 w-3.5 mr-1" />
-              Reject
-            </Button>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; className: string }> = {
-    pending: {
-      label: "Pending",
-      className:
-        "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400",
-    },
-    approved: {
-      label: "Approved",
-      className:
-        "bg-green-100 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400",
-    },
-    rejected: {
-      label: "Rejected",
-      className:
-        "bg-red-100 text-red-600 border-red-200 dark:bg-red-950/30 dark:text-red-400",
-    },
-  };
-  const config = (map[status] ?? map.pending ?? {
-    label: "Pending",
-    className: "",
-  }) as { label: string; className: string };
-  return (
-    <Badge variant="outline" className={config.className}>
-      {config.label}
-    </Badge>
-  );
-}
-
-function EmptyState({ tab }: { tab: string }) {
-  const msgs: Record<string, string> = {
-    pending: "No pending applications. All sign-up requests have been reviewed.",
-    approved: "No approved applications yet.",
-    rejected: "No rejected applications.",
-  };
-  return (
-    <div className="py-12 text-center text-muted-foreground text-sm">
-      {msgs[tab] ?? "No applications found."}
-    </div>
   );
 }

@@ -36,6 +36,8 @@ export const savePaymentCallbackFromServer: any = action({
     tenantId: v.string(),
     gateway: paymentGatewayValidator,
     externalId: v.string(),
+    checkoutSessionId: v.optional(v.string()),
+    paymentIntentId: v.optional(v.string()),
     invoiceId: v.string(),
     amount: v.number(),
     status: paymentStatusValidator,
@@ -46,6 +48,8 @@ export const savePaymentCallbackFromServer: any = action({
       tenantId: args.tenantId,
       gateway: args.gateway,
       externalId: args.externalId,
+      checkoutSessionId: args.checkoutSessionId,
+      paymentIntentId: args.paymentIntentId,
       invoiceId: args.invoiceId,
       amount: args.amount,
       status: args.status,
@@ -204,6 +208,8 @@ export const recordPaymentFromGateway: any = action({
     webhookSecret: v.string(),
     gateway: paymentGatewayValidator,
     externalId: v.string(),
+    checkoutSessionId: v.optional(v.string()),
+    paymentIntentId: v.optional(v.string()),
     resultCode: v.number(), // 0 = success for M-Pesa
     reference: v.optional(v.string()),
   },
@@ -214,6 +220,8 @@ export const recordPaymentFromGateway: any = action({
       {
         gateway: args.gateway,
         externalId: args.externalId,
+        checkoutSessionId: args.checkoutSessionId,
+        paymentIntentId: args.paymentIntentId,
         resultCode: args.resultCode,
         reference: args.reference,
       }

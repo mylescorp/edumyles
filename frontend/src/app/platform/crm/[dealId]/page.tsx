@@ -1,601 +1,482 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
-import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
 import { api } from "@/convex/_generated/api";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { 
-  Building,
-  MapPin,
-  Phone,
-  Mail,
-  Calendar,
-  DollarSign,
-  Users,
-  Clock,
-  TrendingUp,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  ArrowRight,
-  Edit,
-  Trash2,
-  Plus,
-  PhoneCall,
-  Mail as MailIcon,
-  Calendar as CalendarIcon,
-  FileText,
-  Eye,
-  Download,
-  RefreshCw
-} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { formatDate, formatDateTime } from "@/lib/formatters";
+import { ArrowRight, CheckCircle, FileText, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
-interface Activity {
+type DealDetail = {
   _id: string;
-  type: "call" | "email" | "meeting" | "note" | "task";
-  title: string;
-  description: string;
+  leadId: string;
+  tenantId?: string;
+  valueKes: number;
+  stage: string;
+  proposalId?: string;
+  closedAt?: number;
+  status: "open" | "won" | "lost";
+  lossReason?: string;
   createdAt: number;
-  createdBy: string;
-}
-
-interface Deal {
-  _id: string;
-  schoolName: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
-  county: string;
-  schoolType: string;
-  currentStudents: number;
-  potentialStudents: number;
-  stage: "lead" | "qualified" | "proposal" | "negotiation" | "closed_won" | "closed_lost";
-  value: number;
-  currency: string;
-  source: string;
-  assignedTo: string;
-  createdAt: number;
-  lastActivity: number;
-  expectedCloseDate: number;
-  probability: number;
-  tags: string[];
-  notes: string;
-  activities: Activity[];
-}
-
-function normalizeDeal(input: Partial<Deal>): Deal {
-  return {
-    _id: input._id ?? "",
-    schoolName: input.schoolName ?? "",
-    contactPerson: input.contactPerson ?? "",
-    email: input.email ?? "",
-    phone: input.phone ?? "",
-    county: input.county ?? "",
-    schoolType: input.schoolType ?? "",
-    currentStudents: input.currentStudents ?? 0,
-    potentialStudents: input.potentialStudents ?? 0,
-    stage: input.stage ?? "lead",
-    value: input.value ?? 0,
-    currency: input.currency ?? "KES",
-    source: input.source ?? "",
-    assignedTo: input.assignedTo ?? "",
-    createdAt: input.createdAt ?? Date.now(),
-    lastActivity: input.lastActivity ?? Date.now(),
-    expectedCloseDate: input.expectedCloseDate ?? Date.now(),
-    probability: input.probability ?? 0,
-    tags: input.tags ?? [],
-    notes: input.notes ?? "",
-    activities: input.activities ?? [],
+  updatedAt: number;
+  lead: {
+    _id: string;
+    schoolName: string;
+    contactName: string;
+    email: string;
+    phone?: string;
+    country: string;
+    studentCount?: number;
+    source?: string;
+    qualificationScore?: number;
+    expectedClose?: number;
+    notes?: string;
   };
+  proposal?: {
+    _id: string;
+    status: string;
+    totalKes: number;
+  } | null;
+};
+
+type PlanRow = {
+  name: string;
+};
+
+function formatKes(amount: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
-const pipelineStages = [
-  { id: "lead", name: "Lead", color: "bg-gray-100 border-gray-200" },
-  { id: "qualified", name: "Qualified", color: "bg-blue-100 border-blue-200" },
-  { id: "proposal", name: "Proposal", color: "bg-yellow-100 border-yellow-200" },
-  { id: "negotiation", name: "Negotiation", color: "bg-orange-100 border-orange-200" },
-  { id: "closed_won", name: "Closed Won", color: "bg-green-100 border-green-200" },
-  { id: "closed_lost", name: "Closed Lost", color: "bg-red-100 border-red-200" }
-];
+function stageTone(stage: string) {
+  switch (stage) {
+    case "proposal":
+      return "bg-amber-100 text-amber-700";
+    case "negotiation":
+      return "bg-orange-100 text-orange-700";
+    case "converted":
+    case "won":
+      return "bg-emerald-100 text-emerald-700";
+    case "lost":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-slate-100 text-slate-700";
+  }
+}
 
 export default function DealDetailPage() {
+  const router = useRouter();
   const params = useParams();
-  const dealId = params.dealId as string;
+  const dealId = String(params.dealId);
   const { sessionToken } = useAuth();
+  const [selectedStage, setSelectedStage] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<"open" | "won" | "lost">("open");
+  const [lossReason, setLossReason] = useState("");
+  const [planId, setPlanId] = useState("");
+  const [proposalTotal, setProposalTotal] = useState("");
+  const [subdomain, setSubdomain] = useState("");
+  const [conversionPlan, setConversionPlan] = useState<"starter" | "standard" | "pro" | "enterprise">("starter");
+  const [isProposalOpen, setIsProposalOpen] = useState(false);
+  const [isConvertOpen, setIsConvertOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isRefreshing, startRefreshing] = useTransition();
 
-  const dealData = usePlatformQuery(
-    api.platform.crm.queries.getDealById,
-    { sessionToken: sessionToken || "", dealId },
+  const deal = usePlatformQuery(
+    api.modules.platform.crm.getDeal,
+    sessionToken ? { sessionToken, dealId: dealId as never } : "skip",
     !!sessionToken
-  );
+  ) as DealDetail | null | undefined;
 
-  const [deal, setDeal] = useState<Deal | null>(null);
+  const plans = usePlatformQuery(api.modules.platform.subscriptions.getSubscriptionPlans, {}, true) as
+    | PlanRow[]
+    | undefined;
 
-  const [newActivity, setNewActivity] = useState({
-    type: "note" as const,
-    title: "",
-    description: ""
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedDeal, setEditedDeal] = useState<Deal | null>(null);
+  const updateDealStage = useMutation(api.modules.platform.crm.updateDealStage);
+  const createProposal = useMutation(api.modules.platform.crm.createProposal);
+  const convertDealToTenant = useMutation(api.modules.platform.crm.convertDealToTenant);
 
   useEffect(() => {
-    if (!dealData) return;
-    const normalizedDeal = normalizeDeal(dealData as Partial<Deal>);
-    setDeal(normalizedDeal);
-    setEditedDeal(normalizedDeal);
-  }, [dealData]);
-
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString('en-KE');
-  };
-
-  const formatDateTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('en-KE');
-  };
-
-  const getStageColor = (stage: string) => {
-    const stageConfig = pipelineStages.find(s => s.id === stage);
-    return stageConfig?.color || "bg-gray-100";
-  };
-
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case "call": return <PhoneCall className="h-4 w-4" />;
-      case "email": return <MailIcon className="h-4 w-4" />;
-      case "meeting": return <CalendarIcon className="h-4 w-4" />;
-      case "note": return <FileText className="h-4 w-4" />;
-      case "task": return <CheckCircle className="h-4 w-4" />;
-      default: return <FileText className="h-4 w-4" />;
+    if (deal) {
+      setSelectedStage(deal.stage);
+      setSelectedStatus(deal.status);
+      setProposalTotal(deal.valueKes > 0 ? String(deal.valueKes) : "");
     }
-  };
+  }, [deal]);
 
-  const handleAddActivity = () => {
-    if (newActivity.title && newActivity.description && deal) {
-      const activity: Activity = {
-        _id: Date.now().toString(),
-        ...newActivity,
-        createdAt: Date.now(),
-        createdBy: "current.user@edumyles.com"
-      };
-      
-      setDeal({
-        ...deal,
-        activities: [activity, ...deal.activities],
-        lastActivity: Date.now()
+  const refreshPage = () => startRefreshing(() => router.refresh());
+
+  const handleSaveStage = async () => {
+    if (!sessionToken || !deal) return;
+    setIsSaving(true);
+    try {
+      await updateDealStage({
+        sessionToken,
+        dealId: deal._id as never,
+        stage: selectedStage,
+        status: selectedStatus,
+        lossReason: selectedStatus === "lost" ? lossReason || undefined : undefined,
       });
-      
-      setNewActivity({ type: "note", title: "", description: "" });
+      toast.success("Deal updated.");
+      refreshPage();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update deal.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleUpdateDeal = () => {
-    if (!editedDeal) return;
-    setDeal(editedDeal);
-    setIsEditing(false);
+  const handleCreateProposal = async () => {
+    if (!sessionToken || !deal || !proposalTotal) return;
+    setIsSaving(true);
+    try {
+      await createProposal({
+        sessionToken,
+        dealId: deal._id as never,
+        planId: planId || undefined,
+        totalKes: Number(proposalTotal),
+      });
+      toast.success("Proposal created.");
+      setIsProposalOpen(false);
+      refreshPage();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create proposal.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleStageChange = (newStage: string) => {
-    if (!deal) return;
-    const updatedDeal = { ...deal, stage: newStage as Deal['stage'] };
-    setDeal(updatedDeal);
-    setEditedDeal(updatedDeal);
+  const handleConvert = async () => {
+    if (!sessionToken || !deal || !subdomain.trim()) return;
+    setIsSaving(true);
+    try {
+      await convertDealToTenant({
+        sessionToken,
+        dealId: deal._id as never,
+        subdomain: subdomain.trim().toLowerCase(),
+        plan: conversionPlan,
+        country: deal.lead.country,
+        phone: deal.lead.phone,
+      });
+      toast.success("Deal converted to tenant.");
+      setIsConvertOpen(false);
+      refreshPage();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to convert deal.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  if (!deal) return <div className="p-6 text-center text-muted-foreground">Loading deal details...</div>;
+  if (!sessionToken || deal === undefined || plans === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  if (!deal) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Deal not found"
+          breadcrumbs={[
+            { label: "Platform", href: "/platform" },
+            { label: "CRM", href: "/platform/crm" },
+          ]}
+        />
+        <Card>
+          <CardContent className="pt-6">
+            <EmptyState
+              icon={FileText}
+              title="This deal does not exist"
+              description="Return to the CRM board and choose a different opportunity."
+              action={
+                <Button asChild>
+                  <Link href="/platform/crm">Back to CRM</Link>
+                </Button>
+              }
+            />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={deal.schoolName} 
-        description="Manage deal details and track activities"
+        title={deal.lead.schoolName}
+        description="Work the opportunity, create a proposal, and convert the school into a live tenant."
         breadcrumbs={[
+          { label: "Platform", href: "/platform" },
           { label: "CRM", href: "/platform/crm" },
-          { label: "Pipeline", href: "/platform/crm" },
-          { label: deal.schoolName, href: `/platform/crm/${dealId}` }
+          { label: deal.lead.schoolName },
         ]}
-      />
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="gap-2" onClick={refreshPage} disabled={isRefreshing}>
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Deal Information */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Deal Overview */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Deal Overview</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)}>
-                    <Edit className="h-4 w-4 mr-1" />
-                    {isEditing ? "Cancel" : "Edit"}
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isEditing && editedDeal ? (
+            <Dialog open={isProposalOpen} onOpenChange={setIsProposalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">Create proposal</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create proposal</DialogTitle>
+                </DialogHeader>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="schoolName">School Name</Label>
-                      <Input
-                        id="schoolName"
-                        value={editedDeal.schoolName}
-                        onChange={(e) => setEditedDeal({...editedDeal, schoolName: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="contactPerson">Contact Person</Label>
-                      <Input
-                        id="contactPerson"
-                        value={editedDeal.contactPerson}
-                        onChange={(e) => setEditedDeal({...editedDeal, contactPerson: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={editedDeal.email}
-                        onChange={(e) => setEditedDeal({...editedDeal, email: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        value={editedDeal.phone}
-                        onChange={(e) => setEditedDeal({...editedDeal, phone: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="value">Deal Value</Label>
-                      <Input
-                        id="value"
-                        type="number"
-                        value={editedDeal.value}
-                        onChange={(e) => setEditedDeal({...editedDeal, value: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="probability">Probability (%)</Label>
-                      <Input
-                        id="probability"
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={editedDeal.probability}
-                        onChange={(e) => setEditedDeal({...editedDeal, probability: parseInt(e.target.value)})}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Plan</Label>
+                    <Select value={planId} onValueChange={setPlanId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Optional plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {plans.map((plan) => (
+                          <SelectItem key={plan.name} value={plan.name}>
+                            {plan.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button onClick={handleUpdateDeal}>
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                      Save Changes
-                    </Button>
-                    <Button variant="outline" onClick={() => setIsEditing(false)}>
+                  <div className="space-y-2">
+                    <Label htmlFor="proposalTotal">Total (KES)</Label>
+                    <Input
+                      id="proposalTotal"
+                      type="number"
+                      value={proposalTotal}
+                      onChange={(event) => setProposalTotal(event.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsProposalOpen(false)}>
                       Cancel
                     </Button>
+                    <Button onClick={handleCreateProposal} disabled={isSaving || !proposalTotal}>
+                      {isSaving ? "Creating..." : "Create proposal"}
+                    </Button>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-muted-foreground">School Name</div>
-                      <div className="font-medium">{deal.schoolName}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Contact Person</div>
-                      <div className="font-medium">{deal.contactPerson}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Email</div>
-                      <div className="font-medium flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        {deal.email}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Phone</div>
-                      <div className="font-medium flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        {deal.phone}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">County</div>
-                      <div className="font-medium flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        {deal.county}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">School Type</div>
-                      <div className="font-medium">{deal.schoolType}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Current Students</div>
-                      <div className="font-medium">{deal.currentStudents}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Potential Students</div>
-                      <div className="font-medium">{deal.potentialStudents}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Deal Value</div>
-                      <div className="font-medium text-lg text-green-600">
-                        {formatCurrency(deal.value, deal.currency)}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Probability</div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${deal.probability}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium">{deal.probability}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-2">Tags</div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {deal.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary">{tag}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-2">Notes</div>
-                    <div className="text-sm bg-muted p-3 rounded-lg">
-                      {deal.notes}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </DialogContent>
+            </Dialog>
 
-          {/* Activities Timeline */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Activities Timeline</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Add New Activity */}
-              <div className="space-y-3 p-4 bg-muted rounded-lg">
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <Label htmlFor="activityType">Type</Label>
-                    <Select value={newActivity.type} onValueChange={(value: any) => setNewActivity({...newActivity, type: value})}>
+            <Dialog open={isConvertOpen} onOpenChange={setIsConvertOpen}>
+              <DialogTrigger asChild>
+                <Button disabled={deal.status === "won" || Boolean(deal.tenantId)}>Convert to tenant</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create tenant from deal</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="subdomain">Subdomain</Label>
+                    <Input
+                      id="subdomain"
+                      value={subdomain}
+                      onChange={(event) => setSubdomain(event.target.value)}
+                      placeholder="school-name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Plan</Label>
+                    <Select value={conversionPlan} onValueChange={(value) => setConversionPlan(value as typeof conversionPlan)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="call">Call</SelectItem>
-                        <SelectItem value="email">Email</SelectItem>
-                        <SelectItem value="meeting">Meeting</SelectItem>
-                        <SelectItem value="note">Note</SelectItem>
-                        <SelectItem value="task">Task</SelectItem>
+                        <SelectItem value="starter">starter</SelectItem>
+                        <SelectItem value="standard">standard</SelectItem>
+                        <SelectItem value="pro">pro</SelectItem>
+                        <SelectItem value="enterprise">enterprise</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="activityTitle">Title</Label>
-                    <Input
-                      id="activityTitle"
-                      value={newActivity.title}
-                      onChange={(e) => setNewActivity({...newActivity, title: e.target.value})}
-                      placeholder="Activity title"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="activityDescription">Description</Label>
-                    <Input
-                      id="activityDescription"
-                      value={newActivity.description}
-                      onChange={(e) => setNewActivity({...newActivity, description: e.target.value})}
-                      placeholder="Brief description"
-                    />
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsConvertOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleConvert} disabled={isSaving || !subdomain.trim()}>
+                      {isSaving ? "Converting..." : "Convert"}
+                    </Button>
                   </div>
                 </div>
-                <Button onClick={handleAddActivity} disabled={!newActivity.title || !newActivity.description}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Activity
-                </Button>
-              </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        }
+      />
 
-              {/* Activities List */}
-              <div className="space-y-4">
-                {deal.activities.map((activity, index) => (
-                  <div key={activity._id} className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      {getActivityIcon(activity.type)}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">{activity.title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {formatDateTime(activity.createdAt)}
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {activity.description}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        By {activity.createdBy.split("@")[0]}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Deal overview</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className={stageTone(deal.stage)}>{deal.stage}</Badge>
+              <Badge variant="outline">{deal.status}</Badge>
+              {deal.proposal ? <Badge variant="outline">proposal linked</Badge> : null}
+              {deal.tenantId ? <Badge variant="outline">tenant created</Badge> : null}
+            </div>
 
-        {/* Right Column - Actions and Status */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <Detail label="School" value={deal.lead.schoolName} />
+              <Detail label="Contact" value={deal.lead.contactName} />
+              <Detail label="Email" value={deal.lead.email} />
+              <Detail label="Phone" value={deal.lead.phone ?? "Not provided"} />
+              <Detail label="Country" value={deal.lead.country} />
+              <Detail label="Students" value={String(deal.lead.studentCount ?? 0)} />
+              <Detail label="Source" value={deal.lead.source ?? "Not recorded"} />
+              <Detail label="Qualification" value={`${deal.lead.qualificationScore ?? 0}%`} />
+              <Detail label="Expected close" value={deal.lead.expectedClose ? formatDate(deal.lead.expectedClose) : "Not set"} />
+              <Detail label="Value" value={formatKes(deal.valueKes)} />
+              <Detail label="Created" value={formatDateTime(deal.createdAt)} />
+              <Detail label="Updated" value={formatDateTime(deal.updatedAt)} />
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <p className="text-sm text-muted-foreground">Lead notes</p>
+              <p className="mt-2 whitespace-pre-wrap text-sm">{deal.lead.notes ?? "No notes recorded."}</p>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="space-y-6">
-          {/* Deal Status */}
           <Card>
             <CardHeader>
-              <CardTitle>Deal Status</CardTitle>
+              <CardTitle>Stage controls</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="stage">Current Stage</Label>
-                <Select value={deal.stage} onValueChange={handleStageChange}>
+              <div className="space-y-2">
+                <Label>Stage</Label>
+                <Select value={selectedStage} onValueChange={setSelectedStage}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {pipelineStages.map(stage => (
-                      <SelectItem key={stage.id} value={stage.id}>
-                        {stage.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="new">new</SelectItem>
+                    <SelectItem value="contacted">contacted</SelectItem>
+                    <SelectItem value="qualified">qualified</SelectItem>
+                    <SelectItem value="proposal">proposal</SelectItem>
+                    <SelectItem value="negotiation">negotiation</SelectItem>
+                    <SelectItem value="won">won</SelectItem>
+                    <SelectItem value="lost">lost</SelectItem>
+                    <SelectItem value="converted">converted</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div>
-                <Label htmlFor="assignedTo">Assigned To</Label>
-                <Select value={deal.assignedTo}>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={selectedStatus} onValueChange={(value) => setSelectedStatus(value as typeof selectedStatus)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="michael.chen@edumyles.com">Michael Chen</SelectItem>
-                    <SelectItem value="sarah.wilson@edumyles.com">Sarah Wilson</SelectItem>
-                    <SelectItem value="david.kim@edumyles.com">David Kim</SelectItem>
+                    <SelectItem value="open">open</SelectItem>
+                    <SelectItem value="won">won</SelectItem>
+                    <SelectItem value="lost">lost</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              {selectedStatus === "lost" ? (
+                <div className="space-y-2">
+                  <Label htmlFor="lossReason">Loss reason</Label>
+                  <Input
+                    id="lossReason"
+                    value={lossReason}
+                    onChange={(event) => setLossReason(event.target.value)}
+                    placeholder="Optional reason"
+                  />
+                </div>
+              ) : null}
+              <Button onClick={handleSaveStage} disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save deal"}
+              </Button>
+            </CardContent>
+          </Card>
 
-              <div>
-                <Label htmlFor="expectedCloseDate">Expected Close Date</Label>
-                <Input
-                  id="expectedCloseDate"
-                  type="date"
-                  value={new Date(deal.expectedCloseDate).toISOString().split('T')[0]}
-                  onChange={(e) => setDeal({...deal, expectedCloseDate: new Date(e.target.value).getTime()})}
+          <Card>
+            <CardHeader>
+              <CardTitle>Linked records</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {deal.proposal ? (
+                <div className="rounded-xl border p-4">
+                  <p className="font-medium">Proposal</p>
+                  <p className="text-sm text-muted-foreground">
+                    {deal.proposal.status} · {formatKes(deal.proposal.totalKes)}
+                  </p>
+                  <Button asChild variant="outline" size="sm" className="mt-3">
+                    <Link href={`/platform/crm/proposals/${deal.proposal._id}`}>
+                      Open proposal
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              ) : (
+                <EmptyState
+                  icon={FileText}
+                  title="No proposal yet"
+                  description="Create a proposal from this deal to move it into the commercial approval flow."
+                  className="py-6"
                 />
-              </div>
+              )}
 
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Created</div>
-                <div className="font-medium">{formatDate(deal.createdAt)}</div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Last Activity</div>
-                <div className="font-medium">{formatDate(deal.lastActivity)}</div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Source</div>
-                <div className="font-medium">{deal.source}</div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button className="w-full justify-start" variant="outline">
-                <PhoneCall className="h-4 w-4 mr-2" />
-                Log Call
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <MailIcon className="h-4 w-4 mr-2" />
-                Send Email
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                Schedule Meeting
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                Create Proposal
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Export Deal
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Deal Metrics */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Deal Metrics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Deal Age</div>
-                <div className="font-medium">
-                  {Math.round((Date.now() - deal.createdAt) / (1000 * 60 * 60 * 24))} days
+              {deal.tenantId ? (
+                <div className="rounded-xl border p-4">
+                  <p className="font-medium">Tenant created</p>
+                  <p className="text-sm text-muted-foreground">{deal.tenantId}</p>
+                  <Button asChild variant="outline" size="sm" className="mt-3">
+                    <Link href={`/platform/tenants/${deal.tenantId}`}>Open tenant</Link>
+                  </Button>
                 </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Days to Close</div>
-                <div className="font-medium">
-                  {Math.round((deal.expectedCloseDate - Date.now()) / (1000 * 60 * 60 * 24))} days
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Student Growth</div>
-                <div className="font-medium">
-                  +{deal.potentialStudents - deal.currentStudents} students
-                  <span className="text-sm text-muted-foreground ml-2">
-                    ({Math.round(((deal.potentialStudents - deal.currentStudents) / deal.currentStudents) * 100)}%)
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Value per Student</div>
-                <div className="font-medium">
-                  {formatCurrency(deal.value / deal.potentialStudents, deal.currency)}
-                </div>
-              </div>
+              ) : (
+                <EmptyState
+                  icon={CheckCircle}
+                  title="Not converted yet"
+                  description="Convert this opportunity to create the tenant, organization, onboarding, and trial subscription."
+                  className="py-6"
+                />
+              )}
             </CardContent>
           </Card>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="font-medium">{value}</p>
     </div>
   );
 }

@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
+import { saveSession } from "@workos-inc/authkit-nextjs";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
@@ -106,7 +107,8 @@ export async function GET(req: NextRequest) {
     const convex = new ConvexHttpClient(convexUrl);
     const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
 
-    const { user, organizationId } = await workos.userManagement.authenticateWithCode({
+    const { accessToken, refreshToken, user, organizationId, impersonator } =
+      await workos.userManagement.authenticateWithCode({
       clientId,
       code,
     });
@@ -149,6 +151,7 @@ export async function GET(req: NextRequest) {
           : getRoleDashboard(role);
 
       console.log(`[auth/callback] ✅ master_admin ${user.email} → ${returnTo}`);
+      await saveSession({ accessToken, refreshToken, user, impersonator }, req);
       const res = NextResponse.redirect(new URL(returnTo, req.url));
       setSessionCookies(res, sessionToken, user, role, tenantId, isProduction);
       return res;
@@ -207,6 +210,7 @@ export async function GET(req: NextRequest) {
 
         const returnTo = getRoleDashboard(role);
         console.log(`[auth/callback] ✅ first-user auto-promoted to master_admin: ${user.email}`);
+        await saveSession({ accessToken, refreshToken, user, impersonator }, req);
         const res = NextResponse.redirect(new URL(returnTo, req.url));
         setSessionCookies(res, sessionToken, user, role, tenantId, isProduction);
         return res;
@@ -235,6 +239,7 @@ export async function GET(req: NextRequest) {
           : getRoleDashboard(role);
 
       console.log(`[auth/callback] ✅ ${user.email} → ${role} → ${returnTo}`);
+      await saveSession({ accessToken, refreshToken, user, impersonator }, req);
       const res = NextResponse.redirect(new URL(returnTo, req.url));
       setSessionCookies(res, sessionToken, user, role, tenantId, isProduction);
       return res;
