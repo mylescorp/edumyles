@@ -188,6 +188,59 @@ export const upsertPlatformPricingRule = mutation({
   },
 });
 
+export const updatePlatformSettings = mutation({
+  args: {
+    sessionToken: v.string(),
+    updates: v.array(
+      v.object({
+        key: v.string(),
+        value: v.any(),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const platform = await requirePlatformSession(ctx, args);
+    requireMasterAdmin(platform.role);
+
+    const now = Date.now();
+
+    for (const update of args.updates) {
+      const existing = await ctx.db
+        .query("platform_settings")
+        .withIndex("by_key", (q) => q.eq("key", update.key))
+        .first();
+
+      if (existing) {
+        await ctx.db.patch(existing._id, {
+          value: update.value,
+          updatedBy: platform.userId,
+          updatedAt: now,
+        });
+      } else {
+        await ctx.db.insert("platform_settings", {
+          key: update.key,
+          value: update.value,
+          updatedBy: platform.userId,
+          updatedAt: now,
+          createdAt: now,
+        });
+      }
+
+      await logAction(ctx, {
+        tenantId: "PLATFORM",
+        actorId: platform.userId,
+        actorEmail: platform.email,
+        action: "settings.updated",
+        entityType: "platform_setting",
+        entityId: update.key,
+        after: { value: update.value },
+      });
+    }
+
+    return { success: true, updated: args.updates.length };
+  },
+});
+
 export const sendPlatformTestEmail = mutation({
   args: {
     sessionToken: v.string(),

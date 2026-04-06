@@ -91,7 +91,7 @@ function formatSigned(value: number, prefix = "") {
 
 function EmptyPanel({ title }: { title: string }) {
   return (
-    <div className="flex h-[240px] items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/20 text-sm text-muted-foreground">
+    <div className="flex h-[160px] items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/20 text-sm text-muted-foreground">
       {title}
     </div>
   );
@@ -359,13 +359,13 @@ export default function PlatformDashboardPage() {
         </div>
       </div>
 
-      <div className="sticky top-20 z-20 rounded-xl border border-border/60 bg-background/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">
-        <div className="grid gap-3 lg:grid-cols-4">
-          <div className="rounded-xl border border-border/60 bg-card p-4">
+      <div className="rounded-xl border border-border/60 bg-background/95 p-2 shadow-sm">
+        <div className="grid gap-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-border/60 bg-card px-3.5 py-2.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tenants</p>
             <div className="mt-2 flex items-end justify-between gap-3">
               <div>
-                <p className="text-2xl font-semibold">{stats.totalTenants.toLocaleString()}</p>
+                <p className="text-lg font-semibold">{stats.totalTenants.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground">
                   {stats.activeTenants.toLocaleString()} active • {stats.trialTenants.toLocaleString()} in trial
                 </p>
@@ -374,44 +374,44 @@ export default function PlatformDashboardPage() {
                 {stats.suspendedTenants.toLocaleString()} suspended
               </Badge>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="mt-1.5 text-xs text-muted-foreground">
               Trend {formatSigned(stats.trends.tenantGrowth)}
             </p>
           </div>
-          <div className="rounded-xl border border-border/60 bg-card p-4">
+          <div className="rounded-xl border border-border/60 bg-card px-3.5 py-2.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">People</p>
             <div className="mt-2 flex items-end justify-between gap-3">
               <div>
-                <p className="text-2xl font-semibold">{stats.totalStudents.toLocaleString()}</p>
+                <p className="text-lg font-semibold">{stats.totalStudents.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground">Students across all tenants</p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-semibold">{stats.totalStaff.toLocaleString()}</p>
+                <p className="text-sm font-semibold">{stats.totalStaff.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground">Staff</p>
               </div>
             </div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-card p-4">
+          <div className="rounded-xl border border-border/60 bg-card px-3.5 py-2.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Revenue</p>
             <div className="mt-2 flex items-end justify-between gap-3">
               <div>
-                <p className="text-2xl font-semibold">{formatKes(stats.totalRevenueKes)}</p>
+                <p className="text-lg font-semibold">{formatKes(stats.totalRevenueKes)}</p>
                 <p className="text-xs text-muted-foreground">Total collected</p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-semibold">{formatKes(stats.mrrKes)}</p>
+                <p className="text-sm font-semibold">{formatKes(stats.mrrKes)}</p>
                 <p className="text-xs text-muted-foreground">MRR</p>
               </div>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="mt-1.5 text-xs text-muted-foreground">
               Trend {formatSigned(stats.trends.revenueGrowthKes, "KES ")}
             </p>
           </div>
-          <div className="rounded-xl border border-border/60 bg-card p-4">
+          <div className="rounded-xl border border-border/60 bg-card px-3.5 py-2.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Operations</p>
             <div className="mt-2 flex items-end justify-between gap-3">
               <div>
-                <p className="text-2xl font-semibold">{stats.activeModules.toLocaleString()}</p>
+                <p className="text-lg font-semibold">{stats.activeModules.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground">Active modules</p>
               </div>
               <div className="text-right text-xs text-muted-foreground">
@@ -424,9 +424,9 @@ export default function PlatformDashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.15fr_1.35fr]">
+      <div className="grid gap-4 xl:grid-cols-[0.96fr_1.04fr]">
         <Card className="border-border/60 shadow-sm">
-          <CardHeader className="flex flex-row items-start justify-between gap-4">
+          <CardHeader className="flex flex-row items-start justify-between gap-4 pb-4">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                 <Activity className="h-4 w-4 text-[#0F4C2A]" />
@@ -438,19 +438,19 @@ export default function PlatformDashboardPage() {
             </div>
             <HealthBadge status={health.status} />
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-end justify-between rounded-2xl border border-border/60 bg-muted/20 p-5">
+          <CardContent className="space-y-2.5">
+            <div className="flex items-end justify-between rounded-xl border border-border/60 bg-muted/20 p-3">
               <div>
                 <p className="text-sm text-muted-foreground">Health score</p>
-                <p className="text-4xl font-semibold tracking-tight">{health.score}%</p>
+                <p className="text-xl font-semibold tracking-tight">{health.score}%</p>
               </div>
               <div className="text-right text-sm text-muted-foreground">
                 <p>{health.failedActions24h.toLocaleString()} failed actions in the last 24h</p>
                 <p>{health.scheduledMaintenance.toLocaleString()} scheduled maintenance windows ahead</p>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-border/60 p-4">
+            <div className="grid gap-2.5 sm:grid-cols-2">
+              <div className="rounded-xl border border-border/60 p-2.5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Convex status</p>
                 <div className="mt-2 flex items-center gap-2">
                   <span
@@ -463,24 +463,24 @@ export default function PlatformDashboardPage() {
                           : "bg-[#D64545]"
                     )}
                   />
-                  <p className="text-2xl font-semibold capitalize">{health.status}</p>
+                  <p className="text-base font-semibold capitalize">{health.status}</p>
                 </div>
               </div>
-              <div className="rounded-xl border border-border/60 p-4">
+              <div className="rounded-xl border border-border/60 p-2.5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">API response avg</p>
-                <p className="mt-2 text-2xl font-semibold">{health.responseTimeAvg.toLocaleString()} ms</p>
+                <p className="mt-1.5 text-base font-semibold">{health.responseTimeAvg.toLocaleString()} ms</p>
               </div>
-              <div className="rounded-xl border border-border/60 p-4">
+              <div className="rounded-xl border border-border/60 p-2.5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Error rate 24h</p>
-                <p className="mt-2 text-2xl font-semibold">{health.errorRate24h}%</p>
+                <p className="mt-1.5 text-base font-semibold">{health.errorRate24h}%</p>
               </div>
-              <div className="rounded-xl border border-border/60 p-4">
+              <div className="rounded-xl border border-border/60 p-2.5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Active sessions</p>
-                <p className="mt-2 text-2xl font-semibold">{health.activeSessions.toLocaleString()}</p>
+                <p className="mt-1.5 text-base font-semibold">{health.activeSessions.toLocaleString()}</p>
               </div>
             </div>
             {health.errorRateTrend.length > 0 ? (
-              <div className="h-[160px] rounded-xl border border-border/60 p-3">
+               <div className="h-[94px] rounded-xl border border-border/60 p-2.5">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={health.errorRateTrend}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -492,31 +492,31 @@ export default function PlatformDashboardPage() {
                 </ResponsiveContainer>
               </div>
             ) : null}
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-xl border border-border/60 p-4">
+            <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-xl border border-border/60 p-2.5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Failed payments 7d</p>
-                <p className={cn("mt-2 text-2xl font-semibold", health.failedPayments7d > 0 && "text-[#D64545]")}>
+                <p className={cn("mt-1.5 text-base font-semibold", health.failedPayments7d > 0 && "text-[#D64545]")}>
                   {health.failedPayments7d.toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-xl border border-border/60 p-4">
+              <div className="rounded-xl border border-border/60 p-2.5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Webhook delivery</p>
-                <p className="mt-2 text-2xl font-semibold">{health.webhookDeliveryRate}%</p>
+                <p className="mt-1.5 text-base font-semibold">{health.webhookDeliveryRate}%</p>
               </div>
-              <div className="rounded-xl border border-border/60 p-4">
+              <div className="rounded-xl border border-border/60 p-2.5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">SMS delivery</p>
-                <p className="mt-2 text-2xl font-semibold">{health.smsDeliveryRate}%</p>
+                <p className="mt-1.5 text-base font-semibold">{health.smsDeliveryRate}%</p>
               </div>
-              <div className="rounded-xl border border-border/60 p-4">
+              <div className="rounded-xl border border-border/60 p-2.5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email delivery</p>
-                <p className="mt-2 text-2xl font-semibold">{health.emailDeliveryRate}%</p>
+                <p className="mt-1.5 text-base font-semibold">{health.emailDeliveryRate}%</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-border/60 shadow-sm">
-          <CardHeader className="space-y-1">
+          <CardHeader className="space-y-1 pb-4">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
               <CreditCard className="h-4 w-4 text-[#1565C0]" />
               Revenue Overview
@@ -525,30 +525,30 @@ export default function PlatformDashboardPage() {
               Billing performance over the selected window with current recurring revenue and open pipeline.
             </p>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-border/60 p-4">
+          <CardContent className="grid gap-2.5 sm:grid-cols-2">
+            <div className="rounded-xl border border-border/60 p-2.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">MRR</p>
-              <p className="mt-2 text-2xl font-semibold">{formatKes(revenue.mrrKes)}</p>
+              <p className="mt-1.5 text-base font-semibold">{formatKes(revenue.mrrKes)}</p>
             </div>
-            <div className="rounded-xl border border-border/60 p-4">
+            <div className="rounded-xl border border-border/60 p-2.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ARR</p>
-              <p className="mt-2 text-2xl font-semibold">{formatKes(revenue.arrKes)}</p>
+              <p className="mt-1.5 text-base font-semibold">{formatKes(revenue.arrKes)}</p>
             </div>
-            <div className="rounded-xl border border-border/60 p-4">
+            <div className="rounded-xl border border-border/60 p-2.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Collected</p>
-              <p className="mt-2 text-2xl font-semibold">{formatKes(revenue.collectedKes)}</p>
+              <p className="mt-1.5 text-base font-semibold">{formatKes(revenue.collectedKes)}</p>
               <p className="mt-1 text-sm text-muted-foreground">{revenue.paidInvoices.toLocaleString()} paid invoices</p>
             </div>
-            <div className="rounded-xl border border-border/60 p-4">
+            <div className="rounded-xl border border-border/60 p-2.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Overdue</p>
-              <p className="mt-2 text-2xl font-semibold">{formatKes(revenue.overdueKes)}</p>
+              <p className="mt-1.5 text-base font-semibold">{formatKes(revenue.overdueKes)}</p>
               <p className="mt-1 text-sm text-muted-foreground">{revenue.overdueInvoices.toLocaleString()} outstanding invoices</p>
             </div>
-            <div className="rounded-xl border border-border/60 p-4 sm:col-span-2">
+            <div className="rounded-xl border border-border/60 p-2.5 sm:col-span-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Open CRM pipeline</p>
-              <p className="mt-2 text-3xl font-semibold">{formatKes(revenue.pipelineKes)}</p>
+              <p className="mt-1.5 text-lg font-semibold">{formatKes(revenue.pipelineKes)}</p>
             </div>
-            <div className="rounded-xl border border-border/60 p-4 sm:col-span-2">
+            <div className="rounded-xl border border-border/60 p-2.5 sm:col-span-2">
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="space-y-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Revenue by plan</p>
@@ -581,7 +581,7 @@ export default function PlatformDashboardPage() {
                 </div>
               </div>
             </div>
-            <div className="rounded-xl border border-border/60 p-4 sm:col-span-2">
+            <div className="rounded-xl border border-border/60 p-2.5 sm:col-span-2">
               <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
                 <div className="space-y-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Top revenue modules</p>
@@ -600,13 +600,13 @@ export default function PlatformDashboardPage() {
                   )}
                 </div>
                 <div className="space-y-3">
-                  <div className="rounded-xl border border-border/60 p-4">
+                  <div className="rounded-xl border border-border/60 p-2.5">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Pending publisher payouts</p>
-                    <p className="mt-2 text-2xl font-semibold">{formatKes(revenue.pendingPublisherPayoutsKes)}</p>
+                    <p className="mt-1.5 text-base font-semibold">{formatKes(revenue.pendingPublisherPayoutsKes)}</p>
                   </div>
-                  <div className="rounded-xl border border-border/60 p-4">
+                  <div className="rounded-xl border border-border/60 p-2.5">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Overdue invoices</p>
-                    <p className="mt-2 text-2xl font-semibold">{formatKes(revenue.overdueKes)}</p>
+                    <p className="mt-1.5 text-base font-semibold">{formatKes(revenue.overdueKes)}</p>
                   </div>
                 </div>
               </div>
@@ -651,7 +651,7 @@ export default function PlatformDashboardPage() {
             {planDistribution.length === 0 ? (
               <EmptyPanel title="Plan distribution will appear once subscriptions are active." />
             ) : (
-              <div className="h-[240px]">
+              <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -753,7 +753,7 @@ export default function PlatformDashboardPage() {
             {marketplaceBreakdown.length === 0 ? (
               <EmptyPanel title="Module status breakdown will appear once submissions exist." />
             ) : (
-              <div className="h-[240px]">
+              <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={marketplaceBreakdown}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -816,7 +816,7 @@ export default function PlatformDashboardPage() {
             {revenueTrend.length === 0 ? (
               <EmptyPanel title="Revenue trend data will appear once invoices and subscriptions exist." />
             ) : (
-              <div className="h-[300px]">
+              <div className="h-[210px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={revenueTrend}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -846,7 +846,7 @@ export default function PlatformDashboardPage() {
             {tenantGrowth.length === 0 ? (
               <EmptyPanel title="Tenant growth will appear once onboarding activity starts." />
             ) : (
-              <div className="h-[300px]">
+              <div className="h-[210px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={tenantGrowth}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -863,7 +863,7 @@ export default function PlatformDashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.35fr]">
+      <div className="grid gap-4 xl:grid-cols-[0.88fr_1.12fr]">
         <div className="space-y-3">
           <div className="px-1">
             <p className="flex items-center gap-2 text-sm font-semibold">

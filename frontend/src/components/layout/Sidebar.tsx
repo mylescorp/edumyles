@@ -65,7 +65,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
     });
 
   const groupedItems = filteredItems.reduce<Array<{ section: string; items: NavItem[] }>>((groups, item) => {
-    const section = item.section ?? "Navigation";
+    const section = item.section ?? "__standalone__";
     const existingGroup = groups.find((group) => group.section === section);
     if (existingGroup) {
       existingGroup.items.push(item);
@@ -80,7 +80,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
     const activeGroup = groupedItems.find((group) =>
       group.items.some((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
     );
-    return activeGroup?.section ?? groupedItems[0]?.section ?? "Navigation";
+    return activeGroup?.section ?? groupedItems[0]?.section ?? "__standalone__";
   }, [groupedItems, pathname]);
 
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -90,7 +90,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
     if (expandedSections[section] !== undefined) {
       return expandedSections[section];
     }
-    return section === "Overview" || section === activeSection;
+    return section === "__standalone__" || section === activeSection;
   };
 
   const toggleSection = (section: string) => {
@@ -154,7 +154,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                   groupIndex > 0 && "border-t border-sidebar-border/70 pt-3"
                 )}
               >
-                {!collapsed ? (
+                {!collapsed && group.section !== "__standalone__" ? (
                   <button
                     type="button"
                     onClick={() => toggleSection(group.section)}
@@ -167,9 +167,6 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-text/70">
                         {group.section}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-sidebar-text/50">
-                        {group.items.length} items
-                      </p>
                     </div>
                     <ChevronDown
                       className={cn(
@@ -178,9 +175,9 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                       )}
                     />
                   </button>
-                ) : (
+                ) : group.section !== "__standalone__" ? (
                   <div className="mx-auto h-px w-8 bg-sidebar-border/70" />
-                )}
+                ) : null}
                 {isSectionExpanded(group.section) &&
                   group.items.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + "/");

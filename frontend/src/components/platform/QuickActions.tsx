@@ -124,65 +124,55 @@ export function QuickActions({
           </CardTitle>
         </CardHeader>
       )}
-      <CardContent>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4">
+      <CardContent className="space-y-2.5 px-4 pb-4 pt-0">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
           {actions.map((action) => (
             <Button
               key={action.id}
               variant="outline"
-              className={`relative min-h-[148px] h-auto items-start justify-start overflow-hidden border-border/50 p-4 text-left hover:border-border ${action.bgColor} group`}
+              className={`relative h-auto min-h-[58px] justify-start overflow-hidden border-border/50 px-3 py-2 text-left hover:border-border ${action.bgColor} group`}
               onClick={() => handleActionClick(action)}
               disabled={loadingAction === action.id}
             >
-              {/* Background gradient effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-background/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              {/* Badge */}
+
               {action.badge && (
                 <Badge 
                   variant="secondary" 
-                  className="absolute top-2 right-2 text-xs px-2 py-0.5 h-5"
+                  className="absolute right-2 top-2 h-5 px-1.5 py-0 text-[10px]"
                 >
                   {action.badge}
                 </Badge>
               )}
-              
-              {/* Icon */}
-              <div className={`relative z-10 mb-3 rounded-xl p-3 ${action.bgColor} transition-transform group-hover:scale-110`}>
-                <action.icon className={`h-6 w-6 ${action.color}`} />
-              </div>
-              
-              {/* Content */}
-              <div className="relative z-10 flex-1 space-y-1">
-                <h3 className="line-clamp-2 text-sm font-semibold leading-tight transition-colors group-hover:text-primary">
-                  {action.title}
-                </h3>
-                <p className="line-clamp-3 text-xs leading-tight text-muted-foreground">
-                  {action.description}
-                </p>
-              </div>
-              
-              {/* Loading indicator */}
-              {loadingAction === action.id && (
-                <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">
-                  <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+
+              <div className="relative z-10 flex w-full items-start gap-2.5">
+                <div className={`shrink-0 rounded-md p-1.5 ${action.bgColor} transition-transform group-hover:scale-105`}>
+                  <action.icon className={`h-3.5 w-3.5 ${action.color}`} />
                 </div>
+                <div className="min-w-0 flex-1 pr-7">
+                  <h3 className="line-clamp-1 text-sm font-semibold leading-tight transition-colors group-hover:text-primary">
+                    {action.title}
+                  </h3>
+                  <p className="line-clamp-1 text-[11px] leading-tight text-muted-foreground">
+                    {action.description}
+                  </p>
+                </div>
+                <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+              </div>
+
+              {loadingAction === action.id && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/80">
+                <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+              </div>
               )}
-              
-              {/* Hover effect */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/50 to-accent/50 transform scale-x-0 group-hover:scale-x-100 transition-transform" />
             </Button>
           ))}
         </div>
-        
-        {/* Quick stats */}
-        <div className="mt-6 pt-4 border-t border-border/50">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Quick access to common platform operations</span>
-            <div className="flex items-center space-x-2">
-              <div className="h-2 w-2 bg-em-success rounded-full animate-pulse" />
-              <span>All systems operational</span>
-            </div>
+
+        <div className="border-t border-border/50 pt-2">
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>Common platform actions</span>
+            <span>Operational</span>
           </div>
         </div>
       </CardContent>
