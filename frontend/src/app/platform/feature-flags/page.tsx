@@ -21,6 +21,7 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime } from "@/lib/formatters";
 import { AlertTriangle, Flag, Globe, Plus, Rocket, SearchX, Settings2, Users } from "lucide-react";
+import { SecurityAdminRail } from "@/components/platform/SecurityAdminRail";
 
 type FeatureFlagRow = {
   _id: string;
@@ -132,6 +133,8 @@ export default function FeatureFlagsPage() {
           </div>
         }
       />
+
+      <SecurityAdminRail currentHref="/platform/feature-flags" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Total flags" value={String(stats.total)} icon={Flag} />

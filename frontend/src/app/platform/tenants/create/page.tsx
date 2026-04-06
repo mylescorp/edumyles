@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { TenantProvisioningWizard } from "@/components/platform/TenantProvisioningWizard";
+import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Sparkles } from "lucide-react";
 
@@ -23,6 +24,8 @@ export default function CreateTenantPage() {
                     { label: "Create" },
                 ]}
             />
+
+            <TenantsAdminRail currentHref="/platform/tenants/create" />
 
             <div className="max-w-4xl mx-auto space-y-6">
                 <Card className="bg-gradient-to-r from-em-primary/10 to-em-accent/10 border-em-primary/20">

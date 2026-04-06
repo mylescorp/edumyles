@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -230,6 +231,8 @@ export default function PlatformCrmDashboardPage() {
           </div>
         }
       />
+
+      <CrmAdminRail currentHref="/platform/crm" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>

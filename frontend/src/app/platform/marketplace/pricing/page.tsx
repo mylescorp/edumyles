@@ -5,19 +5,21 @@ import { api } from "@/convex/_generated/api";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime } from "@/lib/formatters";
-import { Coins, SearchX } from "lucide-react";
+import { Coins, PencilLine, SearchX, Trash2 } from "lucide-react";
 
 function formatKes(amount?: number) {
   return `KES ${(amount ?? 0).toLocaleString()}`;
@@ -33,8 +35,13 @@ export default function MarketplacePricingPage() {
   const [search, setSearch] = useState("");
   const [ruleDialogOpen, setRuleDialogOpen] = useState(false);
   const [priceDialogOpen, setPriceDialogOpen] = useState(false);
+  const [currencyDialogOpen, setCurrencyDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedModule, setSelectedModule] = useState<any>(null);
+  const [selectedRule, setSelectedRule] = useState<any>(null);
+  const [selectedRate, setSelectedRate] = useState<any>(null);
+  const [overrideReason, setOverrideReason] = useState("");
 
   const [ruleForm, setRuleForm] = useState({
     category: "",
@@ -43,6 +50,7 @@ export default function MarketplacePricingPage() {
     defaultRevenueSharePct: "",
   });
   const [priceOverrideKes, setPriceOverrideKes] = useState("");
+  const [currencyOverrideRate, setCurrencyOverrideRate] = useState("");
 
   const pricingRules = usePlatformQuery(
     api.modules.platform.ops.getPlatformPricingRules,
@@ -52,14 +60,14 @@ export default function MarketplacePricingPage() {
 
   const currencyRates = usePlatformQuery(
     api.modules.platform.currency.getCurrencyRates,
-    {},
-    true
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
   ) as Array<any> | undefined;
 
   const supportedCurrencies = usePlatformQuery(
     api.modules.platform.currency.getSupportedCurrencies,
-    {},
-    true
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
   ) as Array<any> | undefined;
 
   const browseResult = usePlatformQuery(
@@ -68,8 +76,17 @@ export default function MarketplacePricingPage() {
     !!sessionToken
   ) as { modules?: Array<any> } | undefined;
 
+  const pricingHistory = usePlatformQuery(
+    api.modules.platform.ops.getMarketplaceModulePricingHistory,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as Array<any> | undefined;
+
   const upsertPricingRule = useMutation(api.modules.platform.ops.upsertPlatformPricingRule);
-  const overrideModulePrice = useMutation(api.modules.marketplace.modules.overrideModulePrice);
+  const deletePricingRule = useMutation(api.modules.platform.ops.deletePlatformPricingRule);
+  const upsertCurrencyRateOverride = useMutation(api.modules.platform.currency.upsertCurrencyRateOverride);
+  const upsertMarketplaceModulePricingOverride = useMutation(api.modules.platform.ops.upsertMarketplaceModulePricingOverride);
+  const deleteMarketplaceModulePricingOverride = useMutation(api.modules.platform.ops.deleteMarketplaceModulePricingOverride);
 
   const modules = useMemo(() => {
     const rows = browseResult?.modules ?? [];
@@ -84,7 +101,7 @@ export default function MarketplacePricingPage() {
     const rows = browseResult?.modules ?? [];
     return {
       moduleCount: rows.length,
-      overriddenCount: rows.filter((module) => typeof module.priceCents === "number" && module.priceCents > 0).length,
+      overriddenCount: rows.filter((module) => Boolean(module.hasPlatformOverride)).length,
       ruleCount: (pricingRules ?? []).length,
       currencyCount: (currencyRates ?? []).length,
     };
@@ -95,12 +112,14 @@ export default function MarketplacePricingPage() {
     pricingRules === undefined ||
     currencyRates === undefined ||
     supportedCurrencies === undefined ||
-    browseResult === undefined
+    browseResult === undefined ||
+    pricingHistory === undefined
   ) {
     return <LoadingSkeleton variant="page" />;
   }
 
   const openRuleDialog = (rule?: any) => {
+    setSelectedRule(rule ?? null);
     setRuleForm({
       category: rule?.category ?? "",
       minPriceKes: String(rule?.minPriceKes ?? ""),
@@ -114,12 +133,21 @@ export default function MarketplacePricingPage() {
     setSelectedModule(module);
     setPriceOverrideKes(
       String(
-        typeof module.priceCents === "number"
-          ? Math.round(module.priceCents / 100)
-          : module.priceKes ?? 0
+        typeof module.effectivePriceKes === "number"
+          ? module.effectivePriceKes
+          : typeof module.priceCents === "number"
+            ? Math.round(module.priceCents / 100)
+            : module.priceKes ?? 0
       )
     );
+    setOverrideReason(module.overrideReason ?? "");
     setPriceDialogOpen(true);
+  };
+
+  const openCurrencyDialog = (rate?: any) => {
+    setSelectedRate(rate ?? null);
+    setCurrencyOverrideRate(String(rate?.rate ?? ""));
+    setCurrencyDialogOpen(true);
   };
 
   const handleSaveRule = async () => {
@@ -135,6 +163,7 @@ export default function MarketplacePricingPage() {
       });
       toast({ title: "Pricing rule saved" });
       setRuleDialogOpen(false);
+      setSelectedRule(null);
       setRuleForm({ category: "", minPriceKes: "", maxPriceKes: "", defaultRevenueSharePct: "" });
     } catch (error) {
       toast({
@@ -147,22 +176,97 @@ export default function MarketplacePricingPage() {
     }
   };
 
+  const handleDeleteRule = async () => {
+    if (!sessionToken || !selectedRule) return;
+    setSaving(true);
+    try {
+      await deletePricingRule({
+        sessionToken,
+        pricingRuleId: selectedRule._id,
+      });
+      toast({ title: "Pricing rule deleted" });
+      setDeleteDialogOpen(false);
+      setSelectedRule(null);
+    } catch (error) {
+      toast({
+        title: "Unable to delete pricing rule",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSaveOverride = async () => {
     if (!sessionToken || !selectedModule) return;
     setSaving(true);
     try {
-      await overrideModulePrice({
+      await upsertMarketplaceModulePricingOverride({
         sessionToken,
-        moduleId: selectedModule._id,
+        moduleId: selectedModule.moduleId,
         priceKes: Number(priceOverrideKes),
+        reason: overrideReason || undefined,
       });
       toast({ title: "Module price override saved" });
       setPriceDialogOpen(false);
       setSelectedModule(null);
       setPriceOverrideKes("");
+      setOverrideReason("");
     } catch (error) {
       toast({
         title: "Unable to save module price",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteOverride = async (module: any) => {
+    if (!sessionToken) return;
+    setSaving(true);
+    try {
+      await deleteMarketplaceModulePricingOverride({
+        sessionToken,
+        moduleId: module.moduleId,
+      });
+      toast({ title: "Module price override removed" });
+      if (selectedModule?.moduleId === module.moduleId) {
+        setPriceDialogOpen(false);
+        setSelectedModule(null);
+        setPriceOverrideKes("");
+        setOverrideReason("");
+      }
+    } catch (error) {
+      toast({
+        title: "Unable to remove override",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveCurrencyOverride = async () => {
+    if (!sessionToken || !selectedRate || !currencyOverrideRate) return;
+    setSaving(true);
+    try {
+      await upsertCurrencyRateOverride({
+        sessionToken,
+        fromCurrency: selectedRate.fromCurrency,
+        toCurrency: selectedRate.toCurrency,
+        rate: Number(currencyOverrideRate),
+      });
+      toast({ title: "Currency rate updated" });
+      setCurrencyDialogOpen(false);
+      setSelectedRate(null);
+      setCurrencyOverrideRate("");
+    } catch (error) {
+      toast({
+        title: "Unable to update rate",
         description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
@@ -181,8 +285,17 @@ export default function MarketplacePricingPage() {
           { label: "Marketplace", href: "/platform/marketplace" },
           { label: "Pricing" },
         ]}
-        actions={<Button onClick={() => openRuleDialog()}>Add Pricing Rule</Button>}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => openCurrencyDialog(currencyRates[0])} disabled={currencyRates.length === 0}>
+              Manual Currency Override
+            </Button>
+            <Button onClick={() => openRuleDialog()}>Add Pricing Rule</Button>
+          </div>
+        }
       />
+
+      <MarketplaceAdminRail currentHref="/platform/marketplace/pricing" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Pricing rules</p><p className="text-3xl font-semibold">{stats.ruleCount}</p></CardContent></Card>
@@ -207,7 +320,7 @@ export default function MarketplacePricingPage() {
                     <TableHead>Range</TableHead>
                     <TableHead>Revenue Share</TableHead>
                     <TableHead>Updated</TableHead>
-                    <TableHead className="w-[100px]">Edit</TableHead>
+                    <TableHead className="w-[180px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -217,7 +330,25 @@ export default function MarketplacePricingPage() {
                       <TableCell>{formatKes(rule.minPriceKes)} - {formatKes(rule.maxPriceKes)}</TableCell>
                       <TableCell>{rule.defaultRevenueSharePct}%</TableCell>
                       <TableCell>{formatDateTime(rule.updatedAt)}</TableCell>
-                      <TableCell><Button size="sm" variant="outline" onClick={() => openRuleDialog(rule)}>Edit</Button></TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => openRuleDialog(rule)}>
+                            <PencilLine className="mr-1 h-3.5 w-3.5" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedRule(rule);
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="mr-1 h-3.5 w-3.5" />
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -243,6 +374,7 @@ export default function MarketplacePricingPage() {
                     <TableHead>Pair</TableHead>
                     <TableHead>Rate</TableHead>
                     <TableHead>Fetched</TableHead>
+                    <TableHead className="w-[120px]">Override</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -251,6 +383,11 @@ export default function MarketplacePricingPage() {
                       <TableCell>{rate.fromCurrency} → {rate.toCurrency}</TableCell>
                       <TableCell>{rate.rate}</TableCell>
                       <TableCell>{formatDateTime(rate.fetchedAt)}</TableCell>
+                      <TableCell>
+                        <Button size="sm" variant="outline" onClick={() => openCurrencyDialog(rate)}>
+                          Edit
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -265,12 +402,15 @@ export default function MarketplacePricingPage() {
           <CardTitle>Per-Module Price Overrides</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search modules by name, category, or publisher"
-            className="max-w-sm"
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search modules by name, category, or publisher"
+              className="max-w-sm"
+            />
+            <Badge variant="outline">KES remains the canonical stored currency</Badge>
+          </div>
 
           {modules.length === 0 ? (
             <EmptyState
@@ -287,7 +427,8 @@ export default function MarketplacePricingPage() {
                   <TableHead>Publisher</TableHead>
                   <TableHead>Pricing Model</TableHead>
                   <TableHead>Current Platform Price</TableHead>
-                  <TableHead className="w-[120px]">Override</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[200px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -299,10 +440,75 @@ export default function MarketplacePricingPage() {
                     <TableCell>
                       <Badge variant="outline">{titleCase(module.pricingModel)}</Badge>
                     </TableCell>
-                    <TableCell>{formatKes(typeof module.priceCents === "number" ? Math.round(module.priceCents / 100) : 0)}</TableCell>
                     <TableCell>
-                      <Button size="sm" variant="outline" onClick={() => openPriceDialog(module)}>Edit</Button>
+                      {formatKes(
+                        typeof module.effectivePriceKes === "number"
+                          ? module.effectivePriceKes
+                          : typeof module.priceCents === "number"
+                            ? Math.round(module.priceCents / 100)
+                            : 0
+                      )}
                     </TableCell>
+                    <TableCell>
+                      <Badge variant={module.hasPlatformOverride ? "default" : "outline"}>
+                        {module.hasPlatformOverride ? "Override active" : "Base price"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" onClick={() => openPriceDialog(module)}>
+                          {module.hasPlatformOverride ? "Edit override" : "Create override"}
+                        </Button>
+                        {module.hasPlatformOverride ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteOverride(module)}
+                            disabled={saving}
+                          >
+                            Clear
+                          </Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Price History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {pricingHistory.length === 0 ? (
+            <EmptyState
+              icon={Coins}
+              title="No pricing history yet"
+              description="Module price changes will appear here after overrides are created or updated."
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Module</TableHead>
+                  <TableHead>Old Price</TableHead>
+                  <TableHead>New Price</TableHead>
+                  <TableHead>Reason</TableHead>
+                  <TableHead>Changed At</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pricingHistory.slice(0, 12).map((entry) => (
+                  <TableRow key={String(entry._id)}>
+                    <TableCell className="font-medium">{entry.moduleId}</TableCell>
+                    <TableCell>{formatKes(entry.oldPriceKes)}</TableCell>
+                    <TableCell>{formatKes(entry.newPriceKes)}</TableCell>
+                    <TableCell>{entry.reason || "Platform pricing override"}</TableCell>
+                    <TableCell>{formatDateTime(entry.changedAt)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -352,9 +558,60 @@ export default function MarketplacePricingPage() {
             <Label>Platform Price (KES)</Label>
             <Input value={priceOverrideKes} onChange={(event) => setPriceOverrideKes(event.target.value)} />
           </div>
+          <div className="space-y-2">
+            <Label>Reason</Label>
+            <Textarea
+              value={overrideReason}
+              onChange={(event) => setOverrideReason(event.target.value)}
+              rows={3}
+              placeholder="Explain why this module price is being overridden."
+            />
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPriceDialogOpen(false)}>Cancel</Button>
+            {selectedModule?.hasPlatformOverride ? (
+              <Button
+                variant="outline"
+                onClick={() => handleDeleteOverride(selectedModule)}
+                disabled={saving}
+              >
+                Clear Override
+              </Button>
+            ) : null}
             <Button onClick={handleSaveOverride} disabled={saving || !priceOverrideKes}>Save Override</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={currencyDialogOpen} onOpenChange={setCurrencyDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Manual Currency Override</DialogTitle></DialogHeader>
+          <div className="space-y-2">
+            <Label>Currency Pair</Label>
+            <p className="text-sm text-muted-foreground">
+              {selectedRate?.fromCurrency} → {selectedRate?.toCurrency}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label>Rate</Label>
+            <Input value={currencyOverrideRate} onChange={(event) => setCurrencyOverrideRate(event.target.value)} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCurrencyDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveCurrencyOverride} disabled={saving || !currencyOverrideRate}>Save Override</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Delete Pricing Rule</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Delete the pricing rule for <span className="font-medium text-foreground">{selectedRule?.category}</span>? This removes the category guardrail from the pricing controls.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteRule} disabled={saving}>Delete Rule</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

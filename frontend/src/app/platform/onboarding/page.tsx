@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
+import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -141,6 +142,8 @@ export default function OnboardingPage() {
           </Button>
         }
       />
+
+      <TenantsAdminRail currentHref="/platform/onboarding" />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>

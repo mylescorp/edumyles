@@ -5,6 +5,7 @@ export {
   getTenantInstallations,
   getAllInstallations,
   getModuleReviews,
+  getAllMarketplaceReviews,
   getPendingReviews,
   getPublishers,
   getPublisherDetail,

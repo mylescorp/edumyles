@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
+import { BillingAdminRail } from "@/components/platform/BillingAdminRail";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -219,6 +220,8 @@ export default function PlatformBillingSubscriptionsPage() {
           </div>
         }
       />
+
+      <BillingAdminRail currentHref="/platform/billing/subscriptions" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <MetricCard title="Total subscriptions" value={stats.total} icon={CreditCard} />

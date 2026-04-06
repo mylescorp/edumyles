@@ -15,6 +15,17 @@ const onboardingStepNames = [
   "firstPaymentProcessed",
 ] as const;
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+const TRIAL_INTERVENTION_TRIGGERS = [
+  { day: 1, trigger: "day_1" as const },
+  { day: 3, trigger: "day_3" as const },
+  { day: 7, trigger: "day_7" as const },
+  { day: 10, trigger: "day_10" as const },
+  { day: 12, trigger: "day_12" as const },
+  { day: 13, trigger: "day_13" as const },
+  { day: 14, trigger: "day_14" as const },
+];
+
 type OnboardingStepName = (typeof onboardingStepNames)[number];
 
 function buildDefaultSteps() {
@@ -277,6 +288,110 @@ export const getPlatformOnboardingRecords = query({
         };
       })
     );
+  },
+});
+
+export const checkStalledOnboardings = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const cutoff = now - 3 * DAY_MS;
+    const records = await ctx.db.query("tenant_onboarding").collect();
+    let stalledCount = 0;
+
+    for (const record of records) {
+      if (record.stalled || record.lastActivityAt > cutoff || record.wizardCompleted) {
+        continue;
+      }
+
+      await ctx.db.patch(record._id, {
+        stalled: true,
+        updatedAt: now,
+      });
+      stalledCount += 1;
+
+      if (record.assignedAccountManager) {
+        await ctx.db.insert("notifications", {
+          tenantId: "PLATFORM",
+          userId: record.assignedAccountManager,
+          title: "Stalled onboarding detected",
+          message: `Tenant ${record.tenantId} has stalled onboarding progress and needs intervention.`,
+          type: "platform_alert",
+          isRead: false,
+          link: `/platform/onboarding?tenantId=${record.tenantId}`,
+          createdAt: now,
+        });
+      }
+    }
+
+    return { stalledCount };
+  },
+});
+
+export const sendTrialInterventions = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const subscriptions = await ctx.db
+      .query("tenant_subscriptions")
+      .withIndex("by_status", (q) => q.eq("status", "trialing"))
+      .collect();
+
+    let sent = 0;
+    for (const subscription of subscriptions) {
+      const elapsedDays = Math.max(
+        1,
+        Math.floor((now - subscription.currentPeriodStart) / DAY_MS) + 1
+      );
+      const matchingTrigger = TRIAL_INTERVENTION_TRIGGERS.find(
+        (entry) => entry.day === elapsedDays
+      );
+
+      if (!matchingTrigger) continue;
+
+      const existing = await ctx.db
+        .query("trial_interventions")
+        .withIndex("by_tenant_trigger", (q) =>
+          q.eq("tenantId", subscription.tenantId).eq("trigger", matchingTrigger.trigger)
+        )
+        .first();
+
+      if (existing) continue;
+
+      await ctx.db.insert("trial_interventions", {
+        tenantId: subscription.tenantId,
+        interventionType: "in_app",
+        trigger: matchingTrigger.trigger,
+        sentAt: now,
+        opened: false,
+        clicked: false,
+        createdAt: now,
+      });
+
+      const schoolAdmins = await ctx.db
+        .query("users")
+        .withIndex("by_tenant_role", (q) =>
+          q.eq("tenantId", subscription.tenantId).eq("role", "school_admin")
+        )
+        .collect();
+
+      for (const admin of schoolAdmins) {
+        await ctx.db.insert("notifications", {
+          tenantId: subscription.tenantId,
+          userId: admin.eduMylesUserId,
+          title: "Trial success tip",
+          message: `Your EduMyles trial is on ${matchingTrigger.day === 14 ? "its final day" : `day ${matchingTrigger.day}`}. Complete onboarding tasks to maximize setup success.`,
+          type: "trial_intervention",
+          isRead: false,
+          link: "/admin",
+          createdAt: now,
+        });
+      }
+
+      sent += 1;
+    }
+
+    return { sent };
   },
 });
 

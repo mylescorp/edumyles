@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,8 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { useToast } from "@/components/ui/use-toast";
 import { formatDateTime } from "@/lib/formatters";
-import { Building2, SearchX } from "lucide-react";
+import { Building2, CheckCircle2, SearchX, ShieldX, XCircle } from "lucide-react";
 
 function badgeClass(status: string) {
   switch (status) {
@@ -45,9 +48,12 @@ function tierClass(tier: string) {
 
 export default function MarketplacePublishersPage() {
   const { sessionToken, isLoading } = useAuth();
+  const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [tierFilter, setTierFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"publishers" | "applications">("publishers");
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const publishers = usePlatformQuery(
     api.modules.marketplace.publishers.getPublishers,
@@ -61,17 +67,25 @@ export default function MarketplacePublishersPage() {
     !!sessionToken
   ) as Array<any> | undefined;
 
+  const approvePublisher = useMutation(api.modules.marketplace.publishers.approvePublisher);
+  const rejectPublisher = useMutation(api.modules.marketplace.publishers.rejectPublisher);
+  const suspendPublisher = useMutation(api.modules.marketplace.publishers.suspendPublisher);
+
   const filtered = useMemo(() => {
     const rows = publishers ?? [];
-    if (!search.trim()) return rows;
+    const scopedRows =
+      viewMode === "applications"
+        ? rows.filter((publisher) => publisher.status === "pending")
+        : rows;
+    if (!search.trim()) return scopedRows;
     const needle = search.toLowerCase();
-    return rows.filter((publisher) =>
+    return scopedRows.filter((publisher) =>
       [publisher.companyName, publisher.email, publisher.website ?? "", publisher.billingCountry ?? ""]
         .join(" ")
         .toLowerCase()
         .includes(needle)
     );
-  }, [publishers, search]);
+  }, [publishers, search, viewMode]);
 
   const stats = useMemo(() => {
     const rows = publishers ?? [];
@@ -87,6 +101,26 @@ export default function MarketplacePublishersPage() {
     return <LoadingSkeleton variant="page" />;
   }
 
+  const runPublisherAction = async (
+    publisherId: any,
+    action: () => Promise<unknown>,
+    successMessage: string
+  ) => {
+    setBusyId(String(publisherId));
+    try {
+      await action();
+      toast({ title: successMessage });
+    } catch (error) {
+      toast({
+        title: "Action failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -98,6 +132,28 @@ export default function MarketplacePublishersPage() {
           { label: "Publishers" },
         ]}
       />
+
+      <MarketplaceAdminRail currentHref="/platform/marketplace/publishers" />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant={viewMode === "publishers" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setViewMode("publishers")}
+        >
+          Publishers
+        </Button>
+        <Button
+          variant={viewMode === "applications" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setViewMode("applications")}
+        >
+          Applications
+          <Badge variant="secondary" className="ml-2">
+            {stats.pending}
+          </Badge>
+        </Button>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Total publishers</p><p className="text-3xl font-semibold">{stats.total}</p></CardContent></Card>
@@ -153,7 +209,7 @@ export default function MarketplacePublishersPage() {
                   <TableHead>Revenue Share</TableHead>
                   <TableHead>Country</TableHead>
                   <TableHead>Created</TableHead>
-                  <TableHead className="w-[120px]">Open</TableHead>
+                  <TableHead className="w-[280px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -179,9 +235,60 @@ export default function MarketplacePublishersPage() {
                     <TableCell>{publisher.billingCountry ?? "—"}</TableCell>
                     <TableCell>{formatDateTime(publisher.createdAt)}</TableCell>
                     <TableCell>
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/platform/marketplace/publishers/${publisher._id}`}>View</Link>
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={`/platform/marketplace/publishers/${publisher._id}`}>View</Link>
+                        </Button>
+                        {publisher.status === "pending" ? (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                runPublisherAction(
+                                  publisher._id,
+                                  () => approvePublisher({ sessionToken: sessionToken!, publisherId: publisher._id }),
+                                  "Publisher approved"
+                                )
+                              }
+                              disabled={busyId === String(publisher._id)}
+                            >
+                              <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                runPublisherAction(
+                                  publisher._id,
+                                  () => rejectPublisher({ sessionToken: sessionToken!, publisherId: publisher._id }),
+                                  "Publisher rejected"
+                                )
+                              }
+                              disabled={busyId === String(publisher._id)}
+                            >
+                              <XCircle className="mr-1 h-3.5 w-3.5" />
+                              Reject
+                            </Button>
+                          </>
+                        ) : publisher.status === "approved" ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              runPublisherAction(
+                                publisher._id,
+                                () => suspendPublisher({ sessionToken: sessionToken!, publisherId: publisher._id }),
+                                "Publisher suspended"
+                              )
+                            }
+                            disabled={busyId === String(publisher._id)}
+                          >
+                            <ShieldX className="mr-1 h-3.5 w-3.5" />
+                            Suspend
+                          </Button>
+                        ) : null}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

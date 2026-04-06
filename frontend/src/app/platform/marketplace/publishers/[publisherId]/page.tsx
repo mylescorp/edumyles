@@ -6,9 +6,13 @@ import { api } from "@/convex/_generated/api";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
@@ -40,6 +44,8 @@ export default function PublisherDetailPage() {
   const params = useParams();
   const publisherId = params.publisherId as string;
   const [saving, setSaving] = useState(false);
+  const [revenueDialogOpen, setRevenueDialogOpen] = useState(false);
+  const [revenueSharePct, setRevenueSharePct] = useState("");
 
   const detail = usePlatformQuery(
     api.modules.marketplace.publishers.getPublisherDetailBundle,
@@ -52,6 +58,7 @@ export default function PublisherDetailPage() {
   const suspendPublisher = useMutation(api.modules.marketplace.publishers.suspendPublisher);
   const banPublisher = useMutation(api.modules.marketplace.publishers.banPublisher);
   const updateTier = useMutation(api.modules.marketplace.publishers.updatePublisherTier);
+  const updateRevenueShare = useMutation(api.modules.marketplace.publishers.updateRevenueShare);
 
   if (isLoading || detail === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -85,6 +92,29 @@ export default function PublisherDetailPage() {
     }
   };
 
+  const handleRevenueShareSave = async () => {
+    if (!sessionToken || !revenueSharePct) return;
+    setSaving(true);
+    try {
+      await updateRevenueShare({
+        sessionToken,
+        publisherId: publisher._id,
+        revenueSharePct: Number(revenueSharePct),
+      });
+      toast({ title: "Revenue share updated" });
+      setRevenueDialogOpen(false);
+      setRevenueSharePct("");
+    } catch (error) {
+      toast({
+        title: "Action failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -103,6 +133,8 @@ export default function PublisherDetailPage() {
           </Button>
         }
       />
+
+      <MarketplaceAdminRail currentHref="/platform/marketplace/publishers" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Modules</p><p className="text-3xl font-semibold">{stats.totalModules}</p></CardContent></Card>
@@ -146,6 +178,15 @@ export default function PublisherDetailPage() {
             <SelectItem value="enterprise">Enterprise</SelectItem>
           </SelectContent>
         </Select>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setRevenueSharePct(String(publisher.revenueSharePct ?? 70));
+            setRevenueDialogOpen(true);
+          }}
+        >
+          Update Revenue Share
+        </Button>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -240,6 +281,28 @@ export default function PublisherDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={revenueDialogOpen} onOpenChange={setRevenueDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Revenue Share</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Publisher</Label>
+              <p className="text-sm text-muted-foreground">{publisher.companyName}</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Revenue Share %</Label>
+              <Input value={revenueSharePct} onChange={(event) => setRevenueSharePct(event.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRevenueDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleRevenueShareSave} disabled={saving || !revenueSharePct}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

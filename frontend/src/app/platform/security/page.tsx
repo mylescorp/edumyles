@@ -38,6 +38,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { SecurityAdminRail } from "@/components/platform/SecurityAdminRail";
 
 interface SecurityIncident {
   _id: string;
@@ -419,6 +420,8 @@ export default function SecurityDashboardPage() {
           </div>
         }
       />
+
+      <SecurityAdminRail currentHref="/platform/security" />
 
       {/* Security Overview */}
       {securityOverview && (

@@ -445,7 +445,22 @@ export const getModuleAccessStatus = query({
     }
 
     // Payment check
-    if (registryModule.platformPriceKes && registryModule.platformPriceKes > 0) {
+    const successfulPayment = await ctx.db
+      .query("module_payments")
+      .withIndex("by_tenant_status", (q) =>
+        q.eq("tenantId", tenantId).eq("status", "success")
+      )
+      .filter((q) => q.eq(q.field("moduleId"), args.moduleId))
+      .collect();
+    const hasSuccessfulPayment = successfulPayment.some(
+      (payment) => payment.status === "success"
+    );
+
+    if (
+      registryModule.platformPriceKes &&
+      registryModule.platformPriceKes > 0 &&
+      !hasSuccessfulPayment
+    ) {
       return {
         status: "payment_required",
         reason: "Module requires a one-time payment",

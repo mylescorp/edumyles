@@ -94,11 +94,23 @@ function normalizeSubscriptionPlan(plan: any) {
 export const getSubscriptionPlans = query({
   args: {},
   handler: async (ctx) => {
-    const plans = await ctx.db
+    const activePlans = await ctx.db
       .query("subscription_plans")
       .withIndex("by_isActive", (q) => q.eq("isActive", true))
       .collect();
-    return plans.map(normalizeSubscriptionPlan);
+
+    const plans =
+      activePlans.length > 0
+        ? activePlans
+        : await ctx.db.query("subscription_plans").collect();
+
+    return plans
+      .map(normalizeSubscriptionPlan)
+      .sort((left, right) => {
+        if (left.isDefault && !right.isDefault) return -1;
+        if (!left.isDefault && right.isDefault) return 1;
+        return left.priceMonthlyKes - right.priceMonthlyKes;
+      });
   },
 });
 
@@ -151,6 +163,51 @@ export const getTenantSubscription = query({
       ...subscription,
       id: String(subscription._id),
       plan,
+    };
+  },
+});
+
+export const previewDowngradePlan = query({
+  args: {
+    planId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    requireRole(tenant, "school_admin");
+
+    const currentSubscription = await getTenantSubscriptionDoc(ctx, tenant.tenantId);
+    if (!currentSubscription) {
+      throw new Error("Subscription record not found");
+    }
+
+    const targetPlan = await getSubscriptionPlanByName(ctx, args.planId);
+    if (!targetPlan || !targetPlan.isActive) {
+      throw new Error("Target subscription plan not found");
+    }
+
+    const installs = await ctx.db
+      .query("module_installs")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+
+    const activeInstalls = installs.filter((install) => install.status === "active");
+    const targetIncludedModules = new Set(targetPlan.includedModuleIds);
+    const modulesToSuspend = activeInstalls.filter(
+      (install) => !targetIncludedModules.has(install.moduleId)
+    );
+
+    const modules = await ctx.db.query("modules").collect();
+    const moduleMap = new Map(modules.map((module) => [String(module._id), module]));
+
+    return {
+      currentPlanId: currentSubscription.planId,
+      targetPlanId: args.planId,
+      modulesToSuspend: modulesToSuspend.map((install) => ({
+        moduleId: install.moduleId,
+        name: moduleMap.get(install.moduleId)?.name ?? install.moduleId,
+        category: moduleMap.get(install.moduleId)?.category ?? "module",
+      })),
+      moduleCount: modulesToSuspend.length,
     };
   },
 });

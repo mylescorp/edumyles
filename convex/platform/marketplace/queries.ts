@@ -102,6 +102,7 @@ function normalizeMarketplaceModuleRecord(mod: any) {
   return {
     ...(builtinSummary || {}),
     ...mod,
+    documentId: mod?._id,
     name: mod.name || builtinSummary?.name || "Untitled module",
     shortDescription:
       mod.shortDescription ||
@@ -421,10 +422,10 @@ export const browseModules = query({
     limit: v.optional(v.number()),
     offset: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    handler: async (ctx, args) => {
+      await requirePlatformSession(ctx, args);
 
-    let modules: any[];
+      let modules: any[];
     try {
       if (args.category) {
         modules = await ctx.db
@@ -441,11 +442,53 @@ export const browseModules = query({
       }
     } catch {
       modules = [];
-    }
+      }
 
-    modules = mergeWithBuiltinModules(modules);
+      let moduleOverrides = new Map<string, any>();
+      try {
+        const settings = await ctx.db.query("platform_settings").collect();
+        moduleOverrides = new Map(
+          settings
+            .filter((setting: any) => setting.key.startsWith("marketplace_module_override:"))
+            .map((setting: any) => [
+              setting.key.replace("marketplace_module_override:", ""),
+              setting.value,
+            ])
+        );
+      } catch {
+        moduleOverrides = new Map();
+      }
 
-    // Apply filters
+      modules = mergeWithBuiltinModules(modules);
+      modules = modules.map((module) => {
+        const override = moduleOverrides.get(module.moduleId);
+        if (!override || typeof override !== "object") {
+          return {
+            ...module,
+            hasPlatformOverride: false,
+            effectivePriceKes:
+              typeof module.priceCents === "number" ? Math.round(module.priceCents / 100) : 0,
+          };
+        }
+
+        const overridePriceKes =
+          typeof override.priceKes === "number"
+            ? override.priceKes
+            : typeof module.priceCents === "number"
+              ? Math.round(module.priceCents / 100)
+              : 0;
+
+        return {
+          ...module,
+          hasPlatformOverride: true,
+          priceCents: Math.round(overridePriceKes * 100),
+          effectivePriceKes: overridePriceKes,
+          overrideReason: override.reason,
+          overrideUpdatedAt: override.updatedAt,
+        };
+      });
+
+      // Apply filters
     if (args.category) {
       modules = modules.filter((m) => m.category === args.category);
     }
@@ -812,6 +855,41 @@ export const getPendingReviews = query({
     );
 
     return enriched.sort((a, b) => a.createdAt - b.createdAt);
+  },
+});
+
+export const getAllMarketplaceReviews = query({
+  args: {
+    sessionToken: v.string(),
+    status: v.optional(v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"))),
+    moduleId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let reviews = await ctx.db.query("marketplaceReviews").collect();
+    if (args.status) {
+      reviews = reviews.filter((review) => review.status === args.status);
+    }
+    if (args.moduleId) {
+      reviews = reviews.filter((review) => review.moduleId === args.moduleId);
+    }
+
+    const enriched = await Promise.all(
+      reviews.map(async (review) => {
+        const mod = await ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_moduleId", (q) => q.eq("moduleId", review.moduleId))
+          .first();
+        return {
+          ...review,
+          moduleName: mod?.name || review.moduleId,
+          publisherName: mod?.publisherName || "Unknown Publisher",
+        };
+      })
+    );
+
+    return enriched.sort((a, b) => b.createdAt - a.createdAt);
   },
 });
 

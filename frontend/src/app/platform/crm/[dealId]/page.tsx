@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { api } from "@/convex/_generated/api";
+import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -331,6 +332,8 @@ export default function DealDetailPage() {
           </div>
         }
       />
+
+      <CrmAdminRail currentHref="/platform/crm" />
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
         <Card>

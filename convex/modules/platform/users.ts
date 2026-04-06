@@ -1,4 +1,4 @@
-import { query, mutation } from "../../_generated/server";
+import { query, mutation, internalMutation } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
@@ -336,6 +336,30 @@ export const revokePlatformInvite = mutation({
       updatedAt: Date.now(),
     });
     return { success: true };
+  },
+});
+
+export const expireOldInvites = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const invites = await ctx.db
+      .query("platform_user_invites")
+      .withIndex("by_status", (q) => q.eq("status", "pending"))
+      .collect();
+
+    let expired = 0;
+    for (const invite of invites) {
+      if (invite.expiresAt > now) continue;
+
+      await ctx.db.patch(invite._id, {
+        status: "expired",
+        updatedAt: now,
+      });
+      expired += 1;
+    }
+
+    return { expired };
   },
 });
 

@@ -32,6 +32,7 @@ import {
   Shield,
   Trash2,
 } from "lucide-react";
+import { SecurityAdminRail } from "@/components/platform/SecurityAdminRail";
 
 type ApiKeyRow = {
   _id: string;
@@ -194,6 +195,8 @@ export default function ApiKeysPage() {
           </div>
         }
       />
+
+      <SecurityAdminRail currentHref="/platform/api-keys" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Total Keys" value={String(stats.total)} icon={Key} />

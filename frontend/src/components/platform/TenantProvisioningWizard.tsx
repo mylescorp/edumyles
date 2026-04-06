@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/convex/_generated/api";
@@ -52,7 +52,7 @@ const wizardSchema = z.object({
   adminJobTitle: z.string().min(2, "Job title is required"),
   sendMagicLink: z.boolean(),
   planId: z.string().min(1, "Select a plan"),
-  billingCycle: z.enum(["monthly", "annual"]),
+  billingCycle: z.enum(["monthly", "quarterly", "annual"]),
   customPriceMonthlyKes: z.string().optional(),
   customPriceAnnualKes: z.string().optional(),
   trialDays: z.string(),
@@ -82,12 +82,87 @@ const STEP_TITLES = [
   "Invite & Welcome",
 ] as const;
 
+const STEP_FIELDS: Array<Array<keyof WizardData>> = [
+  ["schoolName", "schoolType", "country", "county", "websiteUrl", "logoUrl"],
+  ["adminFirstName", "adminLastName", "adminEmail", "adminPhone", "adminJobTitle"],
+  [
+    "planId",
+    "billingCycle",
+    "customPriceMonthlyKes",
+    "customPriceAnnualKes",
+    "trialDays",
+    "studentCountEstimate",
+    "paymentCollectionMode",
+  ],
+  ["subdomain", "customDomain", "timezone", "displayCurrency", "academicYearStartMonth", "termStructure"],
+  ["selectedModuleIds", "pilotGrantModuleIds"],
+  ["welcomeTemplate", "welcomeMessage", "sendWelcomeImmediately"],
+];
+
 const DEFAULT_TIMEZONE = "Africa/Nairobi";
+const SCHOOL_TYPE_OPTIONS = [
+  "Pre-Primary",
+  "Primary School",
+  "Junior Secondary",
+  "Secondary School",
+  "Technical Institute",
+  "TVET College",
+  "College",
+  "University",
+  "International School",
+  "Special Needs School",
+] as const;
+
+const ADMIN_JOB_TITLE_OPTIONS = [
+  "School Owner",
+  "Director",
+  "Principal",
+  "Deputy Principal",
+  "Head Teacher",
+  "Deputy Head Teacher",
+  "Bursar",
+  "Administrator",
+  "ICT Lead",
+  "Academic Registrar",
+  "Operations Manager",
+  "Finance Manager",
+] as const;
+
+const ADDRESS_OPTIONS = [
+  "Town / CBD Campus",
+  "Suburban Campus",
+  "Peri-Urban Campus",
+  "Rural Campus",
+  "Highway / Roadside Campus",
+  "Multi-Campus Setup",
+] as const;
+
+type LocationOption = {
+  label: string;
+  value: string;
+};
 
 function toNumber(value: string | undefined) {
   if (!value) return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function getWebsiteSubdomainValue(websiteUrl?: string) {
+  if (!websiteUrl) return "";
+
+  try {
+    const url = new URL(websiteUrl);
+    const hostSuffix = `.${getRootDomain()}`;
+    return url.hostname.endsWith(hostSuffix)
+      ? url.hostname.slice(0, -hostSuffix.length)
+      : url.hostname;
+  } catch {
+    return websiteUrl
+      .replace(/^https?:\/\//i, "")
+      .replace(new RegExp(`\\.${getRootDomain().replace(".", "\\.")}$`, "i"), "")
+      .replace(/\/.*$/, "");
+  }
 }
 
 export function TenantProvisioningWizard({ className = "" }: { className?: string }) {
@@ -97,12 +172,21 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
 
   const plans = useQuery(api.modules.platform.subscriptions.getSubscriptionPlans, {});
   const modules = useQuery(api.modules.marketplace.modules.getPublishedModules, {});
-  const currencies = useQuery(api.modules.platform.currency.getSupportedCurrencies, {});
+  const currencies = useQuery(
+    api.modules.platform.currency.getSupportedCurrencies,
+    sessionToken ? { sessionToken } : "skip"
+  );
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [submitStage, setSubmitStage] = useState<string | null>(null);
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [regions, setRegions] = useState<LocationOption[]>([]);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false);
+  const [isLoadingRegions, setIsLoadingRegions] = useState(false);
   const [formData, setFormData] = useState<WizardData>({
     schoolName: "",
     schoolType: "",
@@ -136,6 +220,13 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     welcomeMessage: "",
     sendWelcomeImmediately: true,
   });
+  const subdomainAvailability = useQuery(
+    api.platform.tenants.queries.checkSubdomainAvailability,
+    sessionToken && formData.subdomain.trim().length >= 3
+      ? { sessionToken, subdomain: formData.subdomain.trim().toLowerCase() }
+      : "skip",
+    !!sessionToken && formData.subdomain.trim().length >= 3
+  );
 
   const planList = useMemo(() => (plans as Array<any> | undefined) ?? [], [plans]);
   const publishedModules = useMemo(() => (modules as Array<any> | undefined) ?? [], [modules]);
@@ -170,6 +261,16 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   }, [formData.selectedModuleIds, publishedModules]);
 
   const progress = ((currentStep + 1) / STEP_TITLES.length) * 100;
+  const websiteSubdomainValue = getWebsiteSubdomainValue(formData.websiteUrl);
+  const subdomainStatusTone =
+    formData.subdomain.trim().length < 3
+      ? "text-muted-foreground"
+      : subdomainAvailability === undefined
+        ? "text-[#1565C0]"
+        : subdomainAvailability.available
+          ? "text-[#26A65B]"
+          : "text-destructive";
+  const regionOptions = regions;
 
   const setField = <K extends keyof WizardData>(field: K, value: WizardData[K]) => {
     setFormData((current) => ({ ...current, [field]: value }));
@@ -185,18 +286,26 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     const result = wizardSchema.safeParse(formData);
     if (!result.success) {
       const nextErrors: Record<string, string> = {};
+      const currentStepFields = new Set(STEP_FIELDS[currentStep]);
       for (const issue of result.error.issues) {
         const path = issue.path[0];
-        if (typeof path === "string" && !nextErrors[path]) {
+        if (typeof path === "string" && currentStepFields.has(path as keyof WizardData) && !nextErrors[path]) {
           nextErrors[path] = issue.message;
         }
       }
-      setFormErrors(nextErrors);
-      return false;
+      if (Object.keys(nextErrors).length > 0) {
+        setFormErrors(nextErrors);
+        return false;
+      }
     }
 
     if (currentStep === 3 && formData.customDomain && !["pro", "enterprise"].includes(formData.planId)) {
       setFormErrors((current) => ({ ...current, customDomain: "Custom domains require a Pro or Enterprise plan" }));
+      return false;
+    }
+
+    if (currentStep === 3 && formData.subdomain.trim().length >= 3 && subdomainAvailability && !subdomainAvailability.available) {
+      setFormErrors((current) => ({ ...current, subdomain: subdomainAvailability.reason }));
       return false;
     }
 
@@ -218,6 +327,128 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     setError(null);
     setCurrentStep((step) => Math.max(step - 1, 0));
   };
+
+  useEffect(() => {
+    if (!formData.schoolName || formData.subdomain.trim().length > 0) return;
+    const suggestion = formData.schoolName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .slice(0, 40);
+    if (suggestion) {
+      setFormData((current) => ({ ...current, subdomain: suggestion }));
+    }
+  }, [formData.schoolName, formData.subdomain]);
+
+  useEffect(() => {
+    if (formData.planId || planList.length === 0) {
+      return;
+    }
+
+    const defaultPlan = planList.find((plan) => plan.isDefault) ?? planList[0];
+    if (!defaultPlan) {
+      return;
+    }
+
+    setFormData((current) => ({
+      ...current,
+      planId: defaultPlan.name,
+      selectedModuleIds:
+        current.selectedModuleIds.length > 0
+          ? current.selectedModuleIds
+          : [...((defaultPlan.includedModuleIds as string[] | undefined) ?? [])],
+    }));
+  }, [formData.planId, planList]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCountries = async () => {
+      setIsLoadingCountries(true);
+      setGeoError(null);
+
+      try {
+        const response = await fetch("/api/geo/countries", {
+          cache: "no-store",
+        });
+        const payload = (await response.json()) as {
+          items?: LocationOption[];
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(payload.error ?? "Failed to load countries");
+        }
+
+        if (!isMounted) return;
+        setCountries(payload.items ?? []);
+      } catch (loadError) {
+        if (!isMounted) return;
+        const message = loadError instanceof Error ? loadError.message : "Failed to load countries";
+        setGeoError(message);
+        setCountries([]);
+      } finally {
+        if (isMounted) {
+          setIsLoadingCountries(false);
+        }
+      }
+    };
+
+    void loadCountries();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!formData.country) {
+      setRegions([]);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    const loadRegions = async () => {
+      setIsLoadingRegions(true);
+      setGeoError(null);
+
+      try {
+        const response = await fetch(`/api/geo/regions?country=${encodeURIComponent(formData.country)}`, {
+          cache: "no-store",
+        });
+        const payload = (await response.json()) as {
+          items?: LocationOption[];
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(payload.error ?? "Failed to load regions");
+        }
+
+        if (!isMounted) return;
+        setRegions(payload.items ?? []);
+      } catch (loadError) {
+        if (!isMounted) return;
+        const message = loadError instanceof Error ? loadError.message : "Failed to load regions";
+        setGeoError(message);
+        setRegions([]);
+      } finally {
+        if (isMounted) {
+          setIsLoadingRegions(false);
+        }
+      }
+    };
+
+    void loadRegions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [formData.country]);
 
   const toggleSelectedModule = (moduleId: string) => {
     setField(
@@ -249,6 +480,15 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     }
   };
 
+  const updateWebsiteSubdomain = (value: string) => {
+    const normalized = value
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/^-+|-+$/g, "");
+
+    setField("websiteUrl", normalized ? `https://${normalized}.${getRootDomain()}` : "");
+  };
+
   const handleSubmit = async () => {
     setError(null);
     if (!validateCurrentStep()) return;
@@ -259,6 +499,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
 
     setIsSubmitting(true);
     try {
+      setSubmitStage("Creating tenant workspace");
       const result = await provisionTenant({
         sessionToken,
         schoolName: formData.schoolName,
@@ -294,17 +535,20 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
         sendWelcomeImmediately: formData.sendWelcomeImmediately,
       });
 
+      setSubmitStage("Provisioning organization");
       await fetch("/api/tenants/provision-org", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionToken, tenantId: result.tenantId }),
       }).catch(() => null);
 
-      router.push("/platform/tenants");
+      setSubmitStage("Redirecting to tenant profile");
+      router.push(`/platform/tenants/${result.tenantId}`);
     } catch (submitError: any) {
       setError(submitError?.message ?? "Failed to provision tenant");
     } finally {
       setIsSubmitting(false);
+      setSubmitStage(null);
     }
   };
 
@@ -360,6 +604,13 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
         </Alert>
       )}
 
+      {isSubmitting && submitStage && (
+        <Alert>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <AlertDescription>{submitStage}...</AlertDescription>
+        </Alert>
+      )}
+
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-6 p-6">
           {currentStep === 0 && (
@@ -371,28 +622,100 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
               </div>
               <div className="space-y-2">
                 <Label>School type</Label>
-                <Input
-                  value={formData.schoolType}
-                  onChange={(e) => setField("schoolType", e.target.value)}
-                  placeholder="Primary, Secondary, University, College..."
-                />
+                <Select value={formData.schoolType} onValueChange={(value) => setField("schoolType", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select school type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SCHOOL_TYPE_OPTIONS.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {formErrors.schoolType && <p className="text-xs text-destructive">{formErrors.schoolType}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Country</Label>
-                <Input value={formData.country} onChange={(e) => setField("country", e.target.value)} />
+                <Select
+                  value={formData.country}
+                  onValueChange={(value) => {
+                    setField("country", value);
+                    setField("county", "");
+                    if (!formData.address) {
+                      setField("address", ADDRESS_OPTIONS[0]);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={isLoadingCountries ? "Loading countries..." : "Select country"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.value} value={country.value}>
+                        {country.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {geoError && <p className="text-xs text-destructive">{geoError}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Region / county</Label>
-                <Input value={formData.county} onChange={(e) => setField("county", e.target.value)} />
+                <Select value={formData.county} onValueChange={(value) => setField("county", value)}>
+                  <SelectTrigger disabled={!formData.country || isLoadingRegions || regionOptions.length === 0}>
+                    <SelectValue
+                      placeholder={
+                        !formData.country
+                          ? "Select country first"
+                          : isLoadingRegions
+                            ? "Loading regions..."
+                            : "Select region or county"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regionOptions.map((region) => (
+                      <SelectItem key={region.value} value={region.value}>
+                        {region.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formErrors.county && <p className="text-xs text-destructive">{formErrors.county}</p>}
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label>Physical address</Label>
-                <Textarea value={formData.address} onChange={(e) => setField("address", e.target.value)} rows={3} />
+                <Select value={formData.address || ""} onValueChange={(value) => setField("address", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select physical address profile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ADDRESS_OPTIONS.map((address) => (
+                      <SelectItem key={address} value={address}>
+                        {address}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
-                <Label>Website URL</Label>
-                <Input value={formData.websiteUrl} onChange={(e) => setField("websiteUrl", e.target.value)} placeholder="https://school.edumyles.com" />
+                <Label>Website subdomain</Label>
+                <div className="flex items-center rounded-md border border-input bg-background">
+                  <Input
+                    value={websiteSubdomainValue}
+                    onChange={(e) => updateWebsiteSubdomain(e.target.value)}
+                    placeholder="greenfield-academy"
+                    className="border-0 shadow-none focus-visible:ring-0"
+                  />
+                  <div className="shrink-0 border-l border-border/60 px-3 text-sm text-muted-foreground">
+                    .{getRootDomain()}
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Full website URL: {formData.websiteUrl || `https://school.${getRootDomain()}`}
+                </p>
                 {formErrors.websiteUrl && <p className="text-xs text-destructive">{formErrors.websiteUrl}</p>}
               </div>
               <div className="space-y-2">
@@ -427,7 +750,18 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label>Job title</Label>
-                <Input value={formData.adminJobTitle} onChange={(e) => setField("adminJobTitle", e.target.value)} placeholder="Principal, Director, ICT Lead..." />
+                <Select value={formData.adminJobTitle} onValueChange={(value) => setField("adminJobTitle", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select job title" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ADMIN_JOB_TITLE_OPTIONS.map((title) => (
+                      <SelectItem key={title} value={title}>
+                        {title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {formErrors.adminJobTitle && <p className="text-xs text-destructive">{formErrors.adminJobTitle}</p>}
               </div>
               <div className="flex items-center gap-3 md:col-span-2">
@@ -442,47 +776,60 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
 
           {currentStep === 2 && (
             <div className="space-y-6">
-              <div className="grid gap-4 lg:grid-cols-2">
-                {planList.map((plan) => (
-                  <button
-                    key={plan.id}
-                    type="button"
-                    onClick={() => {
-                      setField("planId", plan.name);
-                      setField("selectedModuleIds", [...(plan.includedModuleIds ?? [])]);
-                    }}
-                    className={`rounded-xl border p-4 text-left transition ${
-                      formData.planId === plan.name ? "border-primary bg-primary/5" : "border-border/60 hover:border-primary/40"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-lg font-semibold">{plan.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          KES {plan.priceMonthlyKes?.toLocaleString() ?? 0}/mo
-                          {plan.priceAnnualKes ? ` or KES ${plan.priceAnnualKes.toLocaleString()}/yr` : ""}
-                        </p>
+              {planList.length === 0 ? (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    No subscription plans are currently available. Add or activate at least one plan in platform billing before creating a tenant.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {planList.map((plan) => (
+                    <button
+                      key={plan.id}
+                      type="button"
+                      onClick={() => {
+                        setField("planId", plan.name);
+                        setField("selectedModuleIds", [...(plan.includedModuleIds ?? [])]);
+                      }}
+                      className={`rounded-xl border p-4 text-left transition ${
+                        formData.planId === plan.name ? "border-primary bg-primary/5" : "border-border/60 hover:border-primary/40"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-lg font-semibold">{plan.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            KES {plan.priceMonthlyKes?.toLocaleString() ?? 0}/mo
+                            {plan.priceAnnualKes ? ` or KES ${plan.priceAnnualKes.toLocaleString()}/yr` : ""}
+                          </p>
+                        </div>
+                        {plan.isDefault ? <Badge>Default</Badge> : null}
                       </div>
-                      {plan.isDefault ? <Badge>Default</Badge> : null}
-                    </div>
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      Includes {(plan.includedModuleIds ?? []).length} bundled module{(plan.includedModuleIds ?? []).length === 1 ? "" : "s"}.
-                    </p>
-                  </button>
-                ))}
-              </div>
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        Includes {(plan.includedModuleIds ?? []).length} bundled module{(plan.includedModuleIds ?? []).length === 1 ? "" : "s"}.
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              )}
               {formErrors.planId && <p className="text-xs text-destructive">{formErrors.planId}</p>}
 
               <div className="grid gap-5 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Billing cycle</Label>
-                  <Select value={formData.billingCycle} onValueChange={(value: "monthly" | "annual") => setField("billingCycle", value)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="annual">Annual</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <Select
+                      value={formData.billingCycle}
+                      onValueChange={(value: "monthly" | "quarterly" | "annual") => setField("billingCycle", value)}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="quarterly">Termly</SelectItem>
+                        <SelectItem value="annual">Annual</SelectItem>
+                      </SelectContent>
+                    </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Trial days</Label>
@@ -522,7 +869,16 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                   <Input value={formData.subdomain} onChange={(e) => setField("subdomain", e.target.value.toLowerCase())} />
                   <Button type="button" variant="outline" onClick={autoSuggestSubdomain}>Suggest</Button>
                 </div>
-                <p className="text-xs text-muted-foreground">Will resolve as `{formData.subdomain || "school"}.{getRootDomain()}`</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Will resolve as `{formData.subdomain || "school"}.{getRootDomain()}`</p>
+                  <p className={`text-xs font-medium ${subdomainStatusTone}`}>
+                    {formData.subdomain.trim().length < 3
+                      ? "Enter at least 3 characters to check availability."
+                      : subdomainAvailability === undefined
+                        ? "Checking availability..."
+                        : subdomainAvailability.reason}
+                  </p>
+                </div>
                 {formErrors.subdomain && <p className="text-xs text-destructive">{formErrors.subdomain}</p>}
               </div>
               <div className="space-y-2">

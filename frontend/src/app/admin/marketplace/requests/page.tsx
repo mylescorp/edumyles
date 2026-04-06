@@ -62,8 +62,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function ModuleRequestsPage() {
-  const { isLoading: authLoading, sessionToken } = useAuth();
+  const { isLoading: authLoading, isAuthenticated, sessionToken } = useAuth();
   const { isLoading: tenantLoading } = useTenant();
+  const hasLiveTenantSession = !!sessionToken && sessionToken !== "dev_session_token";
+  const canQueryRequests = !authLoading && isAuthenticated && hasLiveTenantSession;
   const [activeTab, setActiveTab] = useState("all");
   const [submitOpen, setSubmitOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -82,19 +84,22 @@ export default function ModuleRequestsPage() {
   // New module_requests (4-type)
   const typedRequests = useQuery(
     api.modules.marketplace.modules.getModuleRequests,
-    {}
+    sessionToken ? { sessionToken } : "skip",
+    canQueryRequests
   ) as any[] | undefined;
 
   // Legacy moduleRequests (access requests from users)
   const legacyRequests = useQuery(
     api.modules.marketplace.queries.getModuleRequests,
     sessionToken ? { sessionToken } : "skip"
+    ,
+    canQueryRequests
   ) as any[] | undefined;
 
   const submitRequest = useMutation(api.modules.marketplace.modules.submitModuleRequest);
   const reviewLegacy = useMutation(api.modules.marketplace.mutations.reviewModuleRequest);
 
-  if (authLoading || tenantLoading || typedRequests === undefined || legacyRequests === undefined) {
+  if (authLoading || tenantLoading || (canQueryRequests && (typedRequests === undefined || legacyRequests === undefined))) {
     return <LoadingSkeleton variant="page" />;
   }
 

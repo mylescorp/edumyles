@@ -27,6 +27,7 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import { OperationsAdminRail } from "@/components/platform/OperationsAdminRail";
 
 type MessageStatus = "all" | "draft" | "scheduled" | "sent";
 
@@ -146,6 +147,8 @@ export default function BroadcastPage() {
           </Button>
         }
       />
+
+      <OperationsAdminRail currentHref="/platform/communications/broadcast" />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card>

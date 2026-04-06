@@ -74,7 +74,10 @@ export default function MarketplacePage() {
     { sessionToken: sessionToken ?? "" },
     canQueryMarketplace
   );
-  const resolvedAvailableModules = (availableModules as any[]) ?? [];
+  const resolvedAvailableModules = useMemo(
+    () => (availableModules as any[]) ?? [],
+    [availableModules]
+  );
 
   // Live access-check for the module the user is about to install
   const accessStatus = useQuery(
@@ -86,6 +89,7 @@ export default function MarketplacePage() {
 
   const installModule = useMutation(api.modules.marketplace.mutations.installModule);
   const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
+  const recordModulePayment = useMutation(api.modules.marketplace.modules.recordModulePayment);
 
   useEffect(() => {
     if (!canQueryMarketplace) { setMarketplaceTimedOut(false); return; }
@@ -176,6 +180,35 @@ export default function MarketplacePage() {
       setDialog(null);
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to install module");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleConfirmPaymentInstall = async (
+    moduleId: string,
+    platformPriceKes: number
+  ) => {
+    if (!tenantId || !paymentReference.trim()) return;
+    setIsProcessing(true);
+    try {
+      await recordModulePayment({
+        tenantId,
+        moduleId,
+        amountKes: platformPriceKes,
+        currency: "KES",
+        displayAmount: platformPriceKes,
+        exchangeRate: 1,
+        provider: paymentProvider,
+        status: "success",
+      });
+
+      await installModule({ sessionToken: sessionToken!, tenantId, moduleId });
+      toast.success("Payment confirmed and module installed successfully");
+      setDialog(null);
+      setPaymentReference("");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to confirm payment and install module");
     } finally {
       setIsProcessing(false);
     }
@@ -498,7 +531,9 @@ export default function MarketplacePage() {
               <Button
                 className="bg-[#0F4C2A] hover:bg-[#1A7A4A] text-white"
                 disabled={isProcessing || !paymentReference.trim()}
-                onClick={() => handleConfirmInstall(dialog.moduleId)}
+                onClick={() =>
+                  handleConfirmPaymentInstall(dialog.moduleId, dialog.platformPriceKes)
+                }
               >
                 {isProcessing ? "Processing…" : "Confirm Payment & Install"}
               </Button>

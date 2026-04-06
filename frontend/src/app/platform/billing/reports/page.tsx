@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
+import { BillingAdminRail } from "@/components/platform/BillingAdminRail";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -115,6 +116,8 @@ export default function BillingReportsPage() {
           </div>
         }
       />
+
+      <BillingAdminRail currentHref="/platform/billing/reports" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard icon={Receipt} title="Total billed" value={formatKes(overview.summary.totalBilledKes)} />

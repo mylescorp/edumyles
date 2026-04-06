@@ -26,6 +26,7 @@ import {
   Shield,
   Timer,
 } from "lucide-react";
+import { OperationsSuiteRail } from "@/components/platform/OperationsSuiteRail";
 
 type SlaConfig = {
   _id: string;
@@ -202,6 +203,8 @@ export default function PlatformSlaPage() {
           </Dialog>
         }
       />
+
+      <OperationsSuiteRail currentHref="/platform/sla" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>

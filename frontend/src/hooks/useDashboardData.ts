@@ -23,11 +23,32 @@ export function usePlatformDashboardOverview(timeRange: TimeRange) {
 }
 
 export function useActivityFeed(limit = 20) {
+  return useActivityFeedByType(limit);
+}
+
+export function useActivityFeedByType(
+  limit = 20,
+  eventType?:
+    | "school"
+    | "payment"
+    | "ticket"
+    | "done"
+    | "alert"
+    | "red"
+    | "up"
+    | "exit"
+    | "user"
+    | "billing"
+    | "document"
+    | "system"
+    | "security"
+    | "scheduled"
+) {
   const { sessionToken, isLoading: authLoading } = useAuth();
 
   const events = useQuery(
     api.platform.dashboard.queries.getActivityFeed,
-    { sessionToken: sessionToken || "", limit },
+    { sessionToken: sessionToken || "", limit, eventType },
     !!sessionToken
   );
 

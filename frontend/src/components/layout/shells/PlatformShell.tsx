@@ -57,7 +57,16 @@ class PlatformErrorBoundary extends React.Component<
   }
 }
 
-const PLATFORM_ROLES = ["master_admin", "super_admin"];
+const PLATFORM_ROLES = [
+  "master_admin",
+  "super_admin",
+  "platform_manager",
+  "support_agent",
+  "billing_admin",
+  "marketplace_reviewer",
+  "content_moderator",
+  "analytics_viewer",
+];
 
 export function PlatformShell({ children }: { children: ReactNode }) {
   return (

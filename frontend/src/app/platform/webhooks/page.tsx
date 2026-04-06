@@ -29,6 +29,7 @@ import {
   Webhook,
   XCircle,
 } from "lucide-react";
+import { SecurityAdminRail } from "@/components/platform/SecurityAdminRail";
 
 type Endpoint = {
   _id: string;
@@ -178,6 +179,8 @@ export default function WebhooksPage() {
           </Button>
         }
       />
+
+      <SecurityAdminRail currentHref="/platform/webhooks" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Total Endpoints" value={String(stats.totalEndpoints)} icon={Webhook} />

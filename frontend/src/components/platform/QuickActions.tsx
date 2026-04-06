@@ -6,18 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
-  School,
-  MessageSquare,
-  Send,
-  FileText,
-  Users,
   Plus,
   ChevronRight,
   Sparkles,
   TrendingUp
 } from "lucide-react";
 
-interface QuickAction {
+export interface QuickAction {
   id: string;
   title: string;
   description: string;
@@ -29,63 +24,15 @@ interface QuickAction {
   onClick?: () => void;
 }
 
-const quickActions: QuickAction[] = [
-  {
-    id: "provision-school",
-    title: "Provision New School",
-    description: "Create and configure a new school tenant",
-    icon: School,
-    color: "text-em-success",
-    bgColor: "bg-em-success-bg/10 hover:bg-em-success-bg/20",
-    href: "/platform/tenants/create",
-    badge: "New"
-  },
-  {
-    id: "create-ticket",
-    title: "Create Ticket",
-    description: "Create a new support ticket",
-    icon: MessageSquare,
-    color: "text-em-info",
-    bgColor: "bg-em-info-bg/10 hover:bg-em-info-bg/20",
-    href: "/platform/tickets/create",
-  },
-  {
-    id: "send-broadcast",
-    title: "Send Broadcast",
-    description: "Send message to multiple tenants",
-    icon: Send,
-    color: "text-em-accent-dark",
-    bgColor: "bg-em-accent-bg/10 hover:bg-em-accent-bg/20",
-    href: "/platform/communications/broadcast",
-  },
-  {
-    id: "create-invoice",
-    title: "Create Invoice",
-    description: "Generate billing invoice",
-    icon: FileText,
-    color: "text-em-warning",
-    bgColor: "bg-em-warning-bg/10 hover:bg-em-warning-bg/20",
-    href: "/platform/billing/invoices/create",
-  },
-  {
-    id: "add-lead",
-    title: "Add Lead",
-    description: "Add new CRM lead",
-    icon: Users,
-    color: "text-em-danger",
-    bgColor: "bg-em-danger-bg/10 hover:bg-em-danger-bg/20",
-    href: "/platform/crm/leads/create",
-    badge: "CRM"
-  },
-];
-
 interface QuickActionsProps {
+  actions: QuickAction[];
   className?: string;
   variant?: "grid" | "list";
   showHeader?: boolean;
 }
 
 export function QuickActions({ 
+  actions,
   className = "", 
   variant = "grid",
   showHeader = true 
@@ -118,13 +65,13 @@ export function QuickActions({
               <Sparkles className="h-5 w-5 text-em-accent" />
               <span>Quick Actions</span>
               <Badge variant="secondary" className="text-xs">
-                {quickActions.length} available
+                {actions.length} available
               </Badge>
             </CardTitle>
           </CardHeader>
         )}
         <CardContent className="space-y-2">
-          {quickActions.map((action) => (
+          {actions.map((action) => (
             <Button
               key={action.id}
               variant="ghost"
@@ -167,7 +114,7 @@ export function QuickActions({
               <Sparkles className="h-5 w-5 text-em-accent" />
               <span>Quick Actions</span>
               <Badge variant="secondary" className="text-xs">
-                {quickActions.length} available
+                {actions.length} available
               </Badge>
             </div>
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
@@ -178,12 +125,12 @@ export function QuickActions({
         </CardHeader>
       )}
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {quickActions.map((action) => (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4">
+          {actions.map((action) => (
             <Button
               key={action.id}
               variant="outline"
-              className={`h-auto p-4 flex-col space-y-3 border-border/50 hover:border-border ${action.bgColor} group relative overflow-hidden`}
+              className={`relative min-h-[148px] h-auto items-start justify-start overflow-hidden border-border/50 p-4 text-left hover:border-border ${action.bgColor} group`}
               onClick={() => handleActionClick(action)}
               disabled={loadingAction === action.id}
             >
@@ -201,16 +148,16 @@ export function QuickActions({
               )}
               
               {/* Icon */}
-              <div className={`p-3 rounded-xl ${action.bgColor} group-hover:scale-110 transition-transform`}>
+              <div className={`relative z-10 mb-3 rounded-xl p-3 ${action.bgColor} transition-transform group-hover:scale-110`}>
                 <action.icon className={`h-6 w-6 ${action.color}`} />
               </div>
               
               {/* Content */}
-              <div className="flex-1 text-center space-y-1">
-                <h3 className="font-semibold text-sm leading-tight group-hover:text-primary transition-colors">
+              <div className="relative z-10 flex-1 space-y-1">
+                <h3 className="line-clamp-2 text-sm font-semibold leading-tight transition-colors group-hover:text-primary">
                   {action.title}
                 </h3>
-                <p className="text-xs text-muted-foreground line-clamp-2 leading-tight">
+                <p className="line-clamp-3 text-xs leading-tight text-muted-foreground">
                   {action.description}
                 </p>
               </div>
@@ -247,6 +194,7 @@ export function QuickActions({
 export function CompactQuickActions({ className = "" }: { className?: string }) {
   const router = useRouter();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const compactActions = actionsCatalog.slice(0, 3);
 
   const handleActionClick = async (action: QuickAction) => {
     setLoadingAction(action.id);
@@ -262,7 +210,7 @@ export function CompactQuickActions({ className = "" }: { className?: string }) 
 
   return (
     <div className={`space-y-1 ${className}`}>
-      {quickActions.slice(0, 3).map((action) => (
+      {compactActions.map((action) => (
         <Button
           key={action.id}
           variant="ghost"
@@ -292,3 +240,33 @@ export function CompactQuickActions({ className = "" }: { className?: string }) 
     </div>
   );
 }
+
+const actionsCatalog: QuickAction[] = [
+  {
+    id: "create-tenant",
+    title: "Create Tenant",
+    description: "Start onboarding a new school tenant.",
+    icon: Sparkles,
+    color: "text-[#0F4C2A]",
+    bgColor: "bg-[#0F4C2A]/5 hover:bg-[#0F4C2A]/10",
+    href: "/platform/tenants/create",
+  },
+  {
+    id: "review-modules",
+    title: "Review Modules",
+    description: "Process marketplace submissions waiting for moderation.",
+    icon: TrendingUp,
+    color: "text-[#1565C0]",
+    bgColor: "bg-[#1565C0]/5 hover:bg-[#1565C0]/10",
+    href: "/platform/marketplace/admin",
+  },
+  {
+    id: "billing",
+    title: "Billing",
+    description: "Open platform billing and invoice operations.",
+    icon: ChevronRight,
+    color: "text-[#E8A020]",
+    bgColor: "bg-[#E8A020]/5 hover:bg-[#E8A020]/10",
+    href: "/platform/billing",
+  },
+];

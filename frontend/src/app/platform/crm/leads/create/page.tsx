@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,8 +75,18 @@ export default function CreateLeadPage() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <PageHeader title="Create Lead" description="Add a new school lead to the CRM pipeline" />
+        <PageHeader
+          title="Create Lead"
+          description="Add a new school lead to the CRM pipeline"
+          breadcrumbs={[
+            { label: "Platform", href: "/platform" },
+            { label: "CRM", href: "/platform/crm" },
+            { label: "Create Lead" },
+          ]}
+        />
       </div>
+
+      <CrmAdminRail currentHref="/platform/crm/leads/create" />
 
       <Card className="max-w-2xl">
         <CardHeader>
