@@ -7,6 +7,20 @@ import { useAuth } from "./useAuth";
 
 const CORE_MODULE_IDS = ["sis", "communications", "users"];
 
+function isPlatformRole(role: string | null | undefined) {
+  if (!role) return false;
+  return [
+    "master_admin",
+    "super_admin",
+    "platform_manager",
+    "support_agent",
+    "billing_admin",
+    "marketplace_reviewer",
+    "content_moderator",
+    "analytics_viewer",
+  ].includes(role);
+}
+
 export function deriveTenantResolutionState(args: {
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -56,7 +70,7 @@ export function useTenant() {
   } = useAuth();
   const hasLiveTenantSession =
     !!sessionToken && sessionToken !== "dev_session_token";
-  const isPlatformSession = role === "master_admin" || role === "super_admin";
+  const isPlatformSession = isPlatformRole(role);
   const canQueryTenant = !isLoading && isAuthenticated && hasLiveTenantSession && !isPlatformSession;
   const [queryTimedOut, setQueryTimedOut] = useState(false);
 

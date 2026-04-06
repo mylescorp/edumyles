@@ -5,6 +5,8 @@ import { logAction } from "../../helpers/auditLog";
 import { requireRole } from "../../helpers/authorize";
 import { requirePlatformRole, requirePlatformSession } from "../../helpers/platformGuard";
 import { requireTenantContext } from "../../helpers/tenantGuard";
+import { CORE_MODULES, OPTIONAL_MODULES } from "../marketplace/moduleDefinitions";
+import { TIER_MODULES } from "../marketplace/tierModules";
 
 type TenantSubscriptionDoc = {
   _id: any;
@@ -84,10 +86,30 @@ async function getLatestUsageStats(ctx: any, tenantId: string) {
   return stats.sort((a: any, b: any) => b.recordedAt - a.recordedAt)[0] ?? null;
 }
 
+const STATIC_MODULE_MAP = new Map(
+  [...CORE_MODULES, ...OPTIONAL_MODULES].map((module) => [
+    module.moduleId,
+    {
+      id: module.moduleId,
+      name: module.name,
+      category: module.category,
+    },
+  ])
+);
+
+function getEffectiveIncludedModuleIds(plan: any) {
+  if (Array.isArray(plan.includedModuleIds) && plan.includedModuleIds.length > 0) {
+    return plan.includedModuleIds;
+  }
+
+  return TIER_MODULES[plan.name] ?? [];
+}
+
 function normalizeSubscriptionPlan(plan: any) {
   return {
     ...plan,
     id: String(plan._id),
+    includedModuleIds: getEffectiveIncludedModuleIds(plan),
   };
 }
 
@@ -130,21 +152,26 @@ export const getPlatformPlanCatalog = query({
     const moduleMap = new Map<string, any>(modules.map((module) => [String(module._id), module]));
 
     return plans
-      .map((plan) => ({
-        ...normalizeSubscriptionPlan(plan),
-        subscriberCount: subscriptions.filter(
-          (subscription) =>
-            subscription.planId === plan.name && subscription.status !== "cancelled"
-        ).length,
-        includedModules: plan.includedModuleIds.map((moduleId) => {
-          const module = moduleMap.get(moduleId);
-          return {
-            id: moduleId,
-            name: module?.name ?? moduleId,
-            category: module?.category ?? "module",
-          };
-        }),
-      }))
+      .map((plan) => {
+        const includedModuleIds = getEffectiveIncludedModuleIds(plan);
+
+        return {
+          ...normalizeSubscriptionPlan(plan),
+          subscriberCount: subscriptions.filter(
+            (subscription) =>
+              subscription.planId === plan.name && subscription.status !== "cancelled"
+          ).length,
+          includedModules: includedModuleIds.map((moduleId: string) => {
+            const module = moduleMap.get(moduleId);
+            const staticModule = STATIC_MODULE_MAP.get(moduleId);
+            return {
+              id: moduleId,
+              name: module?.name ?? staticModule?.name ?? moduleId,
+              category: module?.category ?? staticModule?.category ?? "module",
+            };
+          }),
+        };
+      })
       .sort((left, right) => left.priceMonthlyKes - right.priceMonthlyKes);
   },
 });
@@ -191,7 +218,7 @@ export const previewDowngradePlan = query({
       .collect();
 
     const activeInstalls = installs.filter((install) => install.status === "active");
-    const targetIncludedModules = new Set(targetPlan.includedModuleIds);
+    const targetIncludedModules = new Set(getEffectiveIncludedModuleIds(targetPlan));
     const modulesToSuspend = activeInstalls.filter(
       (install) => !targetIncludedModules.has(install.moduleId)
     );
@@ -260,7 +287,7 @@ export const upgradePlan = mutation({
       prorationAmountKes: plan.priceMonthlyKes,
       refundAmountKes: undefined,
       modulesSuspended: [],
-      modulesUnlocked: plan.includedModuleIds,
+      modulesUnlocked: getEffectiveIncludedModuleIds(plan),
       status: "completed",
       createdAt: now,
       updatedAt: now,
@@ -604,6 +631,11 @@ export const updateSubscriptionPlan = mutation({
     }
 
     const now = Date.now();
+    const nextIncludedModuleIds =
+      args.includedModuleIds.length > 0
+        ? args.includedModuleIds
+        : (TIER_MODULES[args.planName] ?? []);
+
     if (args.isDefault) {
       const defaultPlans = await ctx.db
         .query("subscription_plans")
@@ -626,7 +658,7 @@ export const updateSubscriptionPlan = mutation({
       studentLimit: args.studentLimit,
       staffLimit: args.staffLimit,
       storageGb: args.storageGb,
-      includedModuleIds: args.includedModuleIds,
+      includedModuleIds: nextIncludedModuleIds,
       maxAdditionalModules: args.maxAdditionalModules,
       apiAccess: args.apiAccess,
       whiteLabel: args.whiteLabel,
@@ -651,7 +683,7 @@ export const updateSubscriptionPlan = mutation({
         studentLimit: plan.studentLimit,
         staffLimit: plan.staffLimit,
         storageGb: plan.storageGb,
-        includedModuleIds: plan.includedModuleIds,
+        includedModuleIds: getEffectiveIncludedModuleIds(plan),
         maxAdditionalModules: plan.maxAdditionalModules,
         apiAccess: plan.apiAccess,
         whiteLabel: plan.whiteLabel,
@@ -715,6 +747,11 @@ export const createSubscriptionPlan = mutation({
     }
 
     const now = Date.now();
+    const nextIncludedModuleIds =
+      args.includedModuleIds.length > 0
+        ? args.includedModuleIds
+        : (TIER_MODULES[args.planName] ?? []);
+
     if (args.isDefault) {
       const defaultPlans = await ctx.db
         .query("subscription_plans")
@@ -736,7 +773,7 @@ export const createSubscriptionPlan = mutation({
       studentLimit: args.studentLimit,
       staffLimit: args.staffLimit,
       storageGb: args.storageGb,
-      includedModuleIds: args.includedModuleIds,
+      includedModuleIds: nextIncludedModuleIds,
       maxAdditionalModules: args.maxAdditionalModules,
       apiAccess: args.apiAccess,
       whiteLabel: args.whiteLabel,
@@ -763,7 +800,7 @@ export const createSubscriptionPlan = mutation({
         studentLimit: args.studentLimit,
         staffLimit: args.staffLimit,
         storageGb: args.storageGb,
-        includedModuleIds: args.includedModuleIds,
+        includedModuleIds: nextIncludedModuleIds,
         maxAdditionalModules: args.maxAdditionalModules,
         apiAccess: args.apiAccess,
         whiteLabel: args.whiteLabel,
@@ -1357,7 +1394,7 @@ export const runModuleAuditForDowngrade = internalMutation({
       .filter((install) => install.status === "active")
       .map((install) => install.moduleId);
 
-    const included = new Set(plan.includedModuleIds);
+    const included = new Set(getEffectiveIncludedModuleIds(plan));
     const modulesToSuspend = activeModuleIds.filter((moduleId) => !included.has(moduleId));
 
     return {

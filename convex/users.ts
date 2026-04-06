@@ -508,13 +508,16 @@ export const listUserAuditLogs = query({
 // Invite/create a tenant user with a pending WorkOS identity.
 export const inviteTenantUser = mutation({
   args: {
+    sessionToken: v.optional(v.string()),
     email: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
     role: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     requirePermission(tenant, "users:manage");
 
     const existing = await ctx.db
@@ -548,7 +551,7 @@ export const inviteTenantUser = mutation({
       role: args.role,
       permissions: [],
       organizationId: org._id,
-      isActive: true,
+      isActive: false,
       createdAt: Date.now(),
     });
 
@@ -562,7 +565,56 @@ export const inviteTenantUser = mutation({
       after: { email: args.email, role: args.role },
     });
 
-    return { id, eduMylesUserId };
+    return {
+      id,
+      eduMylesUserId,
+      tenantId: tenant.tenantId,
+      organizationId: org._id,
+      workosOrgId: org.workosOrgId,
+      email: args.email,
+      role: args.role,
+    };
+  },
+});
+
+export const getPendingUserInvitationByEmail = query({
+  args: {
+    email: v.string(),
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
+    }
+
+    const normalizedEmail = args.email.trim().toLowerCase();
+    const users = await ctx.db.query("users").collect();
+    const pending = users
+      .filter(
+        (user) =>
+          user.email.trim().toLowerCase() === normalizedEmail &&
+          user.workosUserId.startsWith("pending-")
+      )
+      .sort((a, b) => b.createdAt - a.createdAt)[0];
+
+    if (!pending) {
+      return null;
+    }
+
+    return {
+      _id: pending._id,
+      tenantId: pending.tenantId,
+      eduMylesUserId: pending.eduMylesUserId,
+      organizationId: pending.organizationId,
+      email: pending.email,
+      firstName: pending.firstName,
+      lastName: pending.lastName,
+      role: pending.role,
+      permissions: pending.permissions,
+      isActive: pending.isActive,
+      createdAt: pending.createdAt,
+    };
   },
 });
 

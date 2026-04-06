@@ -149,6 +149,17 @@ export default async function LoginPage({
             </Link>
           </p>
 
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            Forgot your password?{" "}
+            <Link
+              href="/auth/password-reset"
+              className="font-semibold underline-offset-2 hover:underline"
+              style={{ color: "#0F4C2A" }}
+            >
+              Reset it with WorkOS
+            </Link>
+          </p>
+
           {/* Help */}
           <p className="text-center text-xs text-gray-400 dark:text-gray-600">
             Need help?{" "}

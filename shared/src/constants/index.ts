@@ -9,6 +9,12 @@ import type { LegacyUserRoleAlias, Module, UserRole, TenantTier } from "../types
 export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
   master_admin: { label: "Master Admin", level: 100 },
   super_admin: { label: "Super Admin", level: 95 },
+  platform_manager: { label: "Platform Manager", level: 85 },
+  support_agent: { label: "Support Agent", level: 70 },
+  billing_admin: { label: "Billing Admin", level: 70 },
+  marketplace_reviewer: { label: "Marketplace Reviewer", level: 65 },
+  content_moderator: { label: "Content Moderator", level: 60 },
+  analytics_viewer: { label: "Analytics Viewer", level: 50 },
   school_admin: { label: "School Admin", level: 90 },
   principal: { label: "Principal", level: 80 },
   bursar: { label: "Finance Officer", level: 60 },
@@ -28,7 +34,16 @@ export const LEGACY_ROLE_ALIASES: Record<LegacyUserRoleAlias, UserRole> = {
   platform_admin: "super_admin",
 };
 
-export const CANONICAL_PLATFORM_ROLES: UserRole[] = ["master_admin", "super_admin"];
+export const CANONICAL_PLATFORM_ROLES: UserRole[] = [
+  "master_admin",
+  "super_admin",
+  "platform_manager",
+  "support_agent",
+  "billing_admin",
+  "marketplace_reviewer",
+  "content_moderator",
+  "analytics_viewer",
+];
 
 export function normalizeUserRole(role: string | null | undefined): UserRole | null {
   if (!role) return null;

@@ -328,18 +328,6 @@ export const provisionTenant = mutation({
       createdAt: now,
     });
 
-    if (args.sendWelcomeImmediately) {
-      await ctx.scheduler.runAfter(0, api.platform.tenants.emailActions.sendInviteEmail, {
-        to: args.adminEmail,
-        firstName: args.adminFirstName,
-        lastName: args.adminLastName,
-        role: "school_admin",
-        tenantName: args.schoolName,
-        subdomain: args.subdomain,
-        invitedByEmail: platform.email,
-      });
-    }
-
     await logAction(ctx, {
       tenantId: platform.tenantId,
       actorId: platform.userId,
@@ -357,6 +345,7 @@ export const provisionTenant = mutation({
         installedModuleIds,
         pilotGrantModuleIds: args.pilotGrantModuleIds,
         sendMagicLink: args.sendMagicLink,
+        invitationProvider: "workos",
         welcomeTemplate: args.welcomeTemplate,
       },
     });
@@ -621,7 +610,7 @@ export const deleteTenant = mutation({
 /**
  * Invite a user to a tenant as school_admin (or another role).
  * Creates a pending user record that gets linked on first WorkOS login.
- * Schedules an invite email via Resend.
+ * Invitation delivery is handled by the Next.js WorkOS route.
  */
 export const inviteTenantAdmin = mutation({
   args: {
@@ -703,18 +692,15 @@ export const inviteTenantAdmin = mutation({
       },
     });
 
-    // Schedule invite email (non-blocking — don't fail invite if email fails)
-    await ctx.scheduler.runAfter(0, api.platform.tenants.emailActions.sendInviteEmail, {
-      to: args.email,
-      firstName: args.firstName,
-      lastName: args.lastName,
+    return {
+      success: true,
+      email: args.email,
       role: args.role,
       tenantName: tenant.name,
       subdomain: tenant.subdomain,
-      invitedByEmail: tenantCtx.email,
-    });
-
-    return { success: true, email: args.email, role: args.role };
+      workosOrgId: org.workosOrgId,
+      organizationId: org._id,
+    };
   },
 });
 

@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform", "/student", "/support"];
-const PUBLIC_ROUTES = ["/auth/callback", "/auth/error", "/auth/pending"];
 const AUTH_PAGES = ["/auth/login", "/auth/signup"];
 
 // Master admin emails — these always get master_admin role regardless of the
@@ -17,9 +16,33 @@ function isMasterAdminEmail(email?: string | null): boolean {
   return MASTER_ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
+function isPlatformRole(role?: string | null): boolean {
+  if (!role) return false;
+  const normalizedRole = role === "platform_admin" ? "super_admin" : role;
+  return [
+    "master_admin",
+    "super_admin",
+    "platform_manager",
+    "support_agent",
+    "billing_admin",
+    "marketplace_reviewer",
+    "content_moderator",
+    "analytics_viewer",
+  ].includes(normalizedRole);
+}
+
 // ── RBAC: Which roles can access which route prefixes ─────────
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
-  "/platform": ["master_admin", "super_admin"],
+  "/platform": [
+    "master_admin",
+    "super_admin",
+    "platform_manager",
+    "support_agent",
+    "billing_admin",
+    "marketplace_reviewer",
+    "content_moderator",
+    "analytics_viewer",
+  ],
   "/admin": [
     "school_admin",
     "principal",
@@ -96,10 +119,10 @@ function getClientIP(request: NextRequest): string {
 
 function getRoleDashboard(role: string): string {
   const normalizedRole = role === "platform_admin" ? "super_admin" : role;
+  if (isPlatformRole(normalizedRole)) {
+    return "/platform";
+  }
   switch (normalizedRole) {
-    case "master_admin":
-    case "super_admin":
-      return "/platform";
     case "teacher":
       return "/portal/teacher";
     case "parent":
@@ -180,7 +203,6 @@ export async function proxy(request: NextRequest) {
   }
 
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
-  const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
   const hasServerSession = Boolean(workosSession.user);
 
   // Normalize legacy student routes to the canonical portal path.

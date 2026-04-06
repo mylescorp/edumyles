@@ -17,6 +17,20 @@ function normalizeRole(role: string | null | undefined) {
   return role ?? null;
 }
 
+function isPlatformRole(role: string | null | undefined) {
+  if (!role) return false;
+  return [
+    "master_admin",
+    "super_admin",
+    "platform_manager",
+    "support_agent",
+    "billing_admin",
+    "marketplace_reviewer",
+    "content_moderator",
+    "analytics_viewer",
+  ].includes(role);
+}
+
 type AuthStoreState = {
   session: Session | null;
   isLoading: boolean;
@@ -222,13 +236,13 @@ export function useAuth() {
   const platformProfile = useQuery(
     api.platform.users.queries.getCurrentPlatformUser,
     { sessionToken: session?.sessionToken ?? "" },
-    !!session?.sessionToken && (session.role === "master_admin" || session.role === "super_admin")
+    !!session?.sessionToken && isPlatformRole(session.role)
   );
 
   const tenantProfile = useQuery(
     api.users.getCurrentUser,
     { sessionToken: session?.sessionToken ?? "" },
-    !!session?.sessionToken && session.role !== "master_admin" && session.role !== "super_admin"
+    !!session?.sessionToken && !isPlatformRole(session.role)
   );
 
   const studentProfile = useQuery(
