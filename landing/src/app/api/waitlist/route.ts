@@ -4,21 +4,23 @@ import { api } from "@/convex/_generated/api";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Send a plain notification email via Resend when Convex is unavailable. */
-async function sendFallbackEmail(data: {
+interface WaitlistSubmission {
   fullName: string;
   email: string;
   schoolName: string;
   country: string;
-  studentCount?: number;
   phone?: string;
+  studentCount?: number;
   referralSource?: string;
   biggestChallenge?: string;
-}) {
+}
+
+/** Send a plain notification email via Resend when Convex is unavailable. */
+async function sendFallbackEmail(data: WaitlistSubmission): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) return;
 
-  const notifyTo = process.env.WAITLIST_NOTIFY_EMAIL || "sales@edumyles.com";
+  const notifyTo = process.env.WAITLIST_NOTIFY_EMAIL ?? "sales@edumyles.com";
   const body = [
     `New waitlist submission (Convex unavailable — manual follow-up needed):`,
     ``,
@@ -93,20 +95,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const submission: WaitlistSubmission = {
+      fullName,
+      email,
+      phone,
+      country,
+      schoolName,
+      studentCount,
+      referralSource,
+      biggestChallenge,
+    };
+
     const convexUrl =
       process.env.CONVEX_URL ||
       process.env.NEXT_PUBLIC_CONVEX_URL ||
       "https://insightful-alpaca-351.convex.cloud";
 
-    const submissionData = {
-      fullName, email, phone, country, schoolName,
-      studentCount, referralSource, biggestChallenge,
-    };
-
     // Primary path — save to Convex
     try {
       const convex = new ConvexHttpClient(convexUrl);
-      const result = await convex.mutation(api.modules.platform.waitlist.addToWaitlist, submissionData);
+      const result = await convex.mutation(api.modules.platform.waitlist.addToWaitlist, submission);
       return NextResponse.json({
         success: true,
         waitlistId: result.waitlistId,
@@ -116,7 +124,9 @@ export async function POST(request: NextRequest) {
       // Convex unavailable (not yet deployed, or schema mismatch) —
       // fall back to email notification so the lead is never lost.
       console.error("[landing/api/waitlist] Convex call failed, using email fallback:", convexError);
-      await sendFallbackEmail(submissionData);
+      await sendFallbackEmail(submission).catch((e) =>
+        console.error("[landing/api/waitlist] Fallback email failed:", e)
+      );
       return NextResponse.json({ success: true });
     }
   } catch (error) {
