@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { api } from "@/convex/_generated/api";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, CheckCircle2, Copy, Mail, UserPlus, Users } from "lucide-react";
+import { Check, CheckCircle2, Copy, ExternalLink, Link as LinkIcon, Mail, TriangleAlert, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 
 const inviteSchema = z.object({
@@ -34,7 +32,6 @@ export function PlatformAdminInviteForm({
   onComplete,
 }: PlatformAdminInviteFormProps) {
   const router = useRouter();
-  const invitePlatformUser = useMutation(api.modules.platform.users.invitePlatformUser);
 
   const [form, setForm] = useState({
     email: "",
@@ -45,12 +42,20 @@ export function PlatformAdminInviteForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [result, setResult] = useState<{ invitedEmail: string; token: string } | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [result, setResult] = useState<{
+    invitedEmail: string;
+    token: string;
+    signUpUrl: string;
+    emailSent: boolean;
+    workosError?: string;
+  } | null>(null);
 
   const resetFlow = () => {
     setForm({ email: "", role: "super_admin", department: "", personalMessage: "" });
     setError(null);
     setCopied(false);
+    setCopiedUrl(false);
     setResult(null);
   };
 
@@ -65,20 +70,36 @@ export function PlatformAdminInviteForm({
     setError(null);
     setSubmitting(true);
     try {
-      const response = await invitePlatformUser({
-        sessionToken,
-        email: parsed.data.email,
-        role: parsed.data.role,
-        department: parsed.data.department?.trim() || undefined,
-        personalMessage: parsed.data.personalMessage?.trim() || undefined,
+      const response = await fetch("/api/platform/invite-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionToken,
+          email: parsed.data.email,
+          role: parsed.data.role,
+          department: parsed.data.department?.trim() || undefined,
+          personalMessage: parsed.data.personalMessage?.trim() || undefined,
+        }),
       });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Unable to send invitation");
+      }
 
       setResult({
         invitedEmail: parsed.data.email,
-        token: response.token,
+        token: payload.token,
+        signUpUrl: payload.signUpUrl,
+        emailSent: Boolean(payload.emailSent),
+        workosError: payload.workosError,
       });
       onComplete?.();
-      toast.success(`Invitation queued for ${parsed.data.email}`);
+      toast.success(
+        payload.emailSent
+          ? `WorkOS invitation sent to ${parsed.data.email}`
+          : `Invite created for ${parsed.data.email}`
+      );
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unexpected error");
     } finally {
@@ -94,14 +115,52 @@ export function PlatformAdminInviteForm({
     window.setTimeout(() => setCopied(false), 1500);
   };
 
+  const handleCopyUrl = async () => {
+    if (!result?.signUpUrl) return;
+    await navigator.clipboard.writeText(result.signUpUrl);
+    setCopiedUrl(true);
+    toast.success("Sign-up link copied");
+    window.setTimeout(() => setCopiedUrl(false), 1500);
+  };
+
   if (result) {
     return (
       <div className="space-y-4 py-2">
-        <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
-          <span>
-            Invite created for <strong>{result.invitedEmail}</strong>. Email delivery was handed off to Convex.
-          </span>
+        {result.emailSent ? (
+          <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+            <span>
+              WorkOS login invitation sent to <strong>{result.invitedEmail}</strong>.
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <span>
+              Invite record was created for <strong>{result.invitedEmail}</strong>, but the WorkOS email could not be sent.
+              {result.workosError ? ` ${result.workosError}` : ""}
+            </span>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Direct WorkOS sign-up link</p>
+          <div className="flex gap-2">
+            <Input readOnly value={result.signUpUrl} className="text-xs" />
+            <Button size="sm" variant="outline" onClick={handleCopyUrl}>
+              {copiedUrl ? <Check className="h-4 w-4 text-green-600" /> : <LinkIcon className="h-4 w-4" />}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.open(result.signUpUrl, "_blank", "noopener,noreferrer")}
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Share this link manually if the recipient needs a direct path into WorkOS sign-up.
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -113,7 +172,7 @@ export function PlatformAdminInviteForm({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Keep this token for support follow-up in case the invite email needs to be resent.
+            Keep this token for platform support follow-up and invite reconciliation.
           </p>
         </div>
 

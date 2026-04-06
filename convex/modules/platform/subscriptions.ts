@@ -683,6 +683,102 @@ export const updateSubscriptionPlan = mutation({
   },
 });
 
+export const createSubscriptionPlan = mutation({
+  args: {
+    sessionToken: v.string(),
+    planName: v.union(
+      v.literal("free"),
+      v.literal("starter"),
+      v.literal("pro"),
+      v.literal("enterprise")
+    ),
+    priceMonthlyKes: v.number(),
+    priceAnnualKes: v.number(),
+    studentLimit: v.optional(v.number()),
+    staffLimit: v.optional(v.number()),
+    storageGb: v.optional(v.number()),
+    includedModuleIds: v.array(v.string()),
+    maxAdditionalModules: v.optional(v.number()),
+    apiAccess: v.union(v.literal("none"), v.literal("read"), v.literal("read_write")),
+    whiteLabel: v.union(v.literal("none"), v.literal("logo"), v.literal("full")),
+    customDomain: v.boolean(),
+    supportTier: v.string(),
+    slaHours: v.optional(v.number()),
+    isActive: v.boolean(),
+    isDefault: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const platform = await requirePlatformRole(ctx, args, ["master_admin"]);
+    const existing = await getSubscriptionPlanByName(ctx, args.planName);
+    if (existing) {
+      throw new Error("A subscription plan with this name already exists");
+    }
+
+    const now = Date.now();
+    if (args.isDefault) {
+      const defaultPlans = await ctx.db
+        .query("subscription_plans")
+        .withIndex("by_isDefault", (q: any) => q.eq("isDefault", true))
+        .collect();
+
+      for (const defaultPlan of defaultPlans) {
+        await ctx.db.patch(defaultPlan._id, {
+          isDefault: false,
+          updatedAt: now,
+        });
+      }
+    }
+
+    const planId = await ctx.db.insert("subscription_plans", {
+      name: args.planName,
+      priceMonthlyKes: args.priceMonthlyKes,
+      priceAnnualKes: args.priceAnnualKes,
+      studentLimit: args.studentLimit,
+      staffLimit: args.staffLimit,
+      storageGb: args.storageGb,
+      includedModuleIds: args.includedModuleIds,
+      maxAdditionalModules: args.maxAdditionalModules,
+      apiAccess: args.apiAccess,
+      whiteLabel: args.whiteLabel,
+      customDomain: args.customDomain,
+      supportTier: args.supportTier,
+      slaHours: args.slaHours,
+      isActive: args.isActive,
+      isDefault: args.isDefault,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "billing.subscription_updated",
+      entityType: "subscription_plan",
+      entityId: String(planId),
+      after: {
+        name: args.planName,
+        priceMonthlyKes: args.priceMonthlyKes,
+        priceAnnualKes: args.priceAnnualKes,
+        studentLimit: args.studentLimit,
+        staffLimit: args.staffLimit,
+        storageGb: args.storageGb,
+        includedModuleIds: args.includedModuleIds,
+        maxAdditionalModules: args.maxAdditionalModules,
+        apiAccess: args.apiAccess,
+        whiteLabel: args.whiteLabel,
+        customDomain: args.customDomain,
+        supportTier: args.supportTier,
+        slaHours: args.slaHours,
+        isActive: args.isActive,
+        isDefault: args.isDefault,
+      },
+    });
+
+    return { success: true, planId: String(planId) };
+  },
+});
+
 export const getAllSubscriptions = query({
   args: {
     sessionToken: v.string(),

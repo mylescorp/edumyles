@@ -817,7 +817,7 @@ function LeftSidebar({
 
   const groupedNavItems = useMemo(() => {
     return navItems.reduce<Array<{ section: string; items: NavItem[] }>>((groups, item) => {
-      const section = item.section ?? "Navigation";
+      const section = item.section ?? "__standalone__";
       const existing = groups.find((group) => group.section === section);
       if (existing) {
         existing.items.push(item);
@@ -834,7 +834,7 @@ function LeftSidebar({
         (item) => pathname === item.href || (item.href.length > 1 && pathname?.startsWith(item.href + "/"))
       )
     );
-    return activeGroup?.section ?? groupedNavItems[0]?.section ?? "Navigation";
+    return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
   }, [groupedNavItems, pathname]);
 
   const isExpanded = (section: string) => {
@@ -874,7 +874,7 @@ function LeftSidebar({
                 )}
                 style={index > 0 ? { borderColor: "var(--sidebar-border)" } : undefined}
               >
-                {!collapsed ? (
+                {!collapsed && group.section !== "__standalone__" ? (
                   <button
                     type="button"
                     onClick={() => toggleSection(group.section)}
@@ -894,9 +894,6 @@ function LeftSidebar({
                       <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--sidebar-text)]">
                         {group.section}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-white/60">
-                        {group.items.length} items
-                      </p>
                     </div>
                     <ChevronRight
                       className={cn(
@@ -905,9 +902,9 @@ function LeftSidebar({
                       )}
                     />
                   </button>
-                ) : (
+                ) : group.section !== "__standalone__" ? (
                   <div className="mx-auto h-px w-8 bg-white/10" />
-                )}
+                ) : null}
 
                 {isExpanded(group.section) &&
                   group.items.map((item) => {
@@ -955,7 +952,7 @@ function LeftSidebar({
                           >
                             <div className="space-y-1">
                               <p className="text-[10px] uppercase tracking-[0.14em] text-white/50">
-                                {group.section}
+                                {group.section === "__standalone__" ? "Navigation" : group.section}
                               </p>
                               <p>{item.label}</p>
                             </div>
@@ -1090,7 +1087,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const settingsHref = pathname?.startsWith("/platform")
     ? "/platform/settings"
     : "/admin/settings";
-  const supportHref = pathname?.startsWith("/platform") ? "/support/tickets" : sectionHref("tickets");
+  const supportHref = pathname?.startsWith("/platform") ? "/platform/support" : sectionHref("tickets");
   const knowledgeHref = pathname?.startsWith("/platform") ? "/platform/knowledge-base" : "/support";
   const aiSupportHref = pathname?.startsWith("/platform") ? "/platform/ai-support" : "/support";
   const shellHealthTone =
@@ -1509,30 +1506,8 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
           className="sticky bottom-0 z-40 flex-shrink-0 border-t border-white/12 bg-[var(--topnav-bg)] px-4 py-2.5 shadow-[0_-16px_40px_rgba(3,12,8,0.38)]"
           style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.09), 0 -16px 40px rgba(3,12,8,0.38)" }}
         >
-          <div className="flex min-h-[44px] flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-white">
-              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                EduMyles Platform
-              </span>
-              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                {shellHealth?.activeSessions ?? 0} active sessions
-              </span>
-              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                {shellHealth?.pendingReviews ?? 0} review items
-              </span>
-              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                {shellHealth?.activeFlags ?? 0} active flags
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-white">
-              <Link
-                href={supportHref}
-                className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
-              >
-                <HelpCircle className="h-3.5 w-3.5" />
-                Support
-              </Link>
+          <div className="flex min-h-[44px] items-center justify-between gap-3 overflow-x-auto whitespace-nowrap">
+            <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
               <Link
                 href={settingsHref}
                 className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
@@ -1540,7 +1515,31 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                 <Lock className="h-3.5 w-3.5" />
                 Platform settings
               </Link>
-              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            </div>
+
+            <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-[11px] text-white/55">
+              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                Powered by{" "}
+                <a
+                  href="https://mylesoft.vercel.app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="ml-1 font-semibold text-[var(--em-gold)] hover:underline"
+                >
+                  MylesCorp Technologies
+                </a>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
+              <Link
+                href={supportHref}
+                className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
+                Support
+              </Link>
+              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold text-[var(--em-gold)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
                 EduMyles 2026
               </span>
             </div>

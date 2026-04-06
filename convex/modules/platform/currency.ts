@@ -26,19 +26,21 @@ export const getCurrencyRates = query({
 
 export const getSupportedCurrencies = query({
   args: {
-    sessionToken: v.string(),
+    sessionToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformRole(ctx, args, [
-      "analytics_viewer",
-      "billing_admin",
-      "platform_manager",
-      "marketplace_reviewer",
-      "content_moderator",
-      "support_agent",
-      "super_admin",
-      "master_admin",
-    ]);
+    if (args.sessionToken) {
+      await requirePlatformRole(ctx, { sessionToken: args.sessionToken }, [
+        "analytics_viewer",
+        "billing_admin",
+        "platform_manager",
+        "marketplace_reviewer",
+        "content_moderator",
+        "support_agent",
+        "super_admin",
+        "master_admin",
+      ]);
+    }
     const unique = new Map(
       SUPPORTED_COUNTRIES.map((country) => [
         country.currency,

@@ -7,38 +7,52 @@ import crypto from "crypto";
 /**
  * POST /api/platform/invite-user
  *
- * 1. Creates a Convex user record (pending WorkOS ID).
+ * 1. Creates a platform invite record in Convex.
  * 2. Tries to send a WorkOS invitation email.
  * 3. Always returns a direct sign-up URL the admin can share manually,
- *    so the invitee can sign up even if the email didn't arrive.
+ *    plus the platform invite token for support fallback.
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, firstName, lastName, role, sessionToken } = body as {
+    const { email, role, department, personalMessage, sessionToken } = body as {
       email: string;
-      firstName: string;
-      lastName: string;
-      role: "master_admin" | "super_admin";
+      role:
+        | "master_admin"
+        | "super_admin"
+        | "platform_manager"
+        | "support_agent"
+        | "billing_admin"
+        | "marketplace_reviewer"
+        | "content_moderator"
+        | "analytics_viewer";
+      department?: string;
+      personalMessage?: string;
       sessionToken: string;
     };
 
-    if (!email || !firstName || !lastName || !role || !sessionToken) {
+    if (!email || !role || !sessionToken) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // ── 1. Create Convex record ───────────────────────────────────────────────
+    // ── 1. Create platform invite record ──────────────────────────────────────
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
     if (!convexUrl) {
       return NextResponse.json({ error: "Convex not configured" }, { status: 500 });
     }
 
     const convex = new ConvexHttpClient(convexUrl);
-    let convexResult: { id: string; userId: string };
+    let convexResult: { success: boolean; inviteId: string; token: string };
     try {
       convexResult = await convex.mutation(
-        api.platform.users.mutations.createPlatformAdmin,
-        { email, firstName, lastName, role, sessionToken }
+        api.modules.platform.users.invitePlatformUser,
+        {
+          sessionToken,
+          email,
+          role,
+          department: department?.trim() || undefined,
+          personalMessage: personalMessage?.trim() || undefined,
+        }
       );
     } catch (convexErr: any) {
       const msg: string = convexErr?.message ?? String(convexErr);
@@ -49,7 +63,7 @@ export async function POST(req: NextRequest) {
         );
       }
       console.error("[invite-user] Convex error:", msg);
-      return NextResponse.json({ error: "Failed to create user record" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to create invite record" }, { status: 500 });
     }
 
     // ── 2. Build a direct WorkOS sign-up URL (always — even without API key) ─
@@ -90,7 +104,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         emailSent: false,
-        userId: convexResult.userId,
+        inviteId: convexResult.inviteId,
+        token: convexResult.token,
         signUpUrl,
         workosError: "WORKOS_API_KEY is not set in the frontend Vercel project. Go to Vercel → edumyles-frontend → Settings → Environment Variables and add it.",
       });
@@ -107,7 +122,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         emailSent: true,
-        userId: convexResult.userId,
+        inviteId: convexResult.inviteId,
+        token: convexResult.token,
         signUpUrl, // always returned so admin has it as backup
       });
     } catch (workosErr: any) {
@@ -119,7 +135,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         emailSent: false,
-        userId: convexResult.userId,
+        inviteId: convexResult.inviteId,
+        token: convexResult.token,
         signUpUrl,
         workosError: errCode ? `${errCode}: ${errMsg}` : errMsg,
       });

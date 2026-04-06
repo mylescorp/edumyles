@@ -46,7 +46,7 @@ export interface NavItem {
 }
 
 export const platformNavItems: NavItem[] = [
-  { label: "Dashboard", href: "/platform", icon: LayoutDashboard, section: "Overview" },
+  { label: "Dashboard", href: "/platform", icon: LayoutDashboard },
   { label: "All Tenants", href: "/platform/tenants", icon: Building2, section: "Tenants" },
   { label: "Create Tenant", href: "/platform/tenants/create", icon: Rocket, section: "Tenants" },
   { label: "Tenant Success", href: "/platform/tenant-success", icon: TrendingUp, section: "Tenants" },
