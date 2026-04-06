@@ -170,6 +170,10 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   const { sessionToken } = useAuth();
   const provisionTenant = useMutation(api.platform.tenants.mutations.provisionTenant);
 
+  const planCatalog = useQuery(
+    api.modules.platform.subscriptions.getPlatformPlanCatalog,
+    sessionToken ? { sessionToken } : "skip"
+  );
   const plans = useQuery(api.modules.platform.subscriptions.getSubscriptionPlans, {});
   const modules = useQuery(api.modules.marketplace.modules.getPublishedModules, {});
   const currencies = useQuery(
@@ -228,7 +232,10 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     !!sessionToken && formData.subdomain.trim().length >= 3
   );
 
-  const planList = useMemo(() => (plans as Array<any> | undefined) ?? [], [plans]);
+  const planList = useMemo(
+    () => ((planCatalog as Array<any> | undefined) ?? (plans as Array<any> | undefined) ?? []),
+    [planCatalog, plans]
+  );
   const publishedModules = useMemo(() => (modules as Array<any> | undefined) ?? [], [modules]);
   const currencyOptions = useMemo(() => (currencies as Array<any> | undefined) ?? [], [currencies]);
 
@@ -243,7 +250,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   );
 
   const planModuleDetails = useMemo(() => {
-    return includedModuleIds.map((moduleId) => {
+    const details = includedModuleIds.map((moduleId) => {
       const match = publishedModules.find(
         (module) => String(module._id) === moduleId || module.slug === moduleId || module.name === moduleId
       );
@@ -253,7 +260,17 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
         category: match?.category ?? "core",
       };
     });
-  }, [includedModuleIds, publishedModules]);
+
+    if (details.length > 0) {
+      return details;
+    }
+
+    return (selectedPlan?.includedModules as Array<any> | undefined)?.map((module) => ({
+      id: String(module.id ?? module._id ?? module.name),
+      name: module.name ?? String(module.id ?? module._id ?? "Module"),
+      category: module.category ?? "core",
+    })) ?? [];
+  }, [includedModuleIds, publishedModules, selectedPlan]);
 
   const pilotCandidates = useMemo(() => {
     const included = new Set(formData.selectedModuleIds);
@@ -536,11 +553,33 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
       });
 
       setSubmitStage("Provisioning organization");
-      await fetch("/api/tenants/provision-org", {
+      const orgResponse = await fetch("/api/tenants/provision-org", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionToken, tenantId: result.tenantId }),
-      }).catch(() => null);
+      });
+      const orgPayload = await orgResponse.json().catch(() => ({}));
+      if (!orgResponse.ok) {
+        throw new Error(orgPayload.error ?? "Failed to provision WorkOS organization");
+      }
+
+      setSubmitStage("Sending WorkOS invitation");
+      const inviteResponse = await fetch("/api/tenants/invite-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionToken,
+          tenantId: result.tenantId,
+          email: formData.adminEmail,
+          firstName: formData.adminFirstName,
+          lastName: formData.adminLastName,
+          role: "school_admin",
+        }),
+      });
+      const invitePayload = await inviteResponse.json().catch(() => ({}));
+      if (!inviteResponse.ok) {
+        throw new Error(invitePayload.error ?? "Failed to send WorkOS invitation");
+      }
 
       setSubmitStage("Redirecting to tenant profile");
       router.push(`/platform/tenants/${result.tenantId}`);
@@ -552,7 +591,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     }
   };
 
-  if (plans === undefined || modules === undefined || currencies === undefined) {
+  if ((planCatalog === undefined && plans === undefined) || modules === undefined || currencies === undefined) {
     return (
       <Card className={className}>
         <CardContent className="space-y-4 p-6">
@@ -787,11 +826,14 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                 <div className="grid gap-4 lg:grid-cols-2">
                   {planList.map((plan) => (
                     <button
-                      key={plan.id}
+                      key={plan.id ?? plan.name}
                       type="button"
                       onClick={() => {
                         setField("planId", plan.name);
-                        setField("selectedModuleIds", [...(plan.includedModuleIds ?? [])]);
+                        setField(
+                          "selectedModuleIds",
+                          [...((plan.includedModuleIds as string[] | undefined) ?? (plan.includedModules as Array<any> | undefined)?.map((module) => String(module.id ?? module._id ?? module.name)) ?? [])]
+                        );
                       }}
                       className={`rounded-xl border p-4 text-left transition ${
                         formData.planId === plan.name ? "border-primary bg-primary/5" : "border-border/60 hover:border-primary/40"
@@ -808,7 +850,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                         {plan.isDefault ? <Badge>Default</Badge> : null}
                       </div>
                       <p className="mt-3 text-sm text-muted-foreground">
-                        Includes {(plan.includedModuleIds ?? []).length} bundled module{(plan.includedModuleIds ?? []).length === 1 ? "" : "s"}.
+                        Includes {((plan.includedModuleIds as string[] | undefined) ?? (plan.includedModules as Array<any> | undefined)?.map((module) => String(module.id ?? module._id ?? module.name)) ?? []).length} bundled module{(((plan.includedModuleIds as string[] | undefined) ?? (plan.includedModules as Array<any> | undefined)?.map((module) => String(module.id ?? module._id ?? module.name)) ?? []).length === 1 ? "" : "s")}.
                       </p>
                     </button>
                   ))}
@@ -939,8 +981,16 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                     Modules included in the selected plan are preloaded from Convex and can be toggled before provisioning.
                   </p>
                 </div>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {planModuleDetails.map((module) => (
+                {planModuleDetails.length === 0 ? (
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      The selected plan does not expose bundled modules yet. Choose another plan or add bundled modules in Billing Plans first.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {planModuleDetails.map((module) => (
                     <button
                       type="button"
                       key={module.id}
@@ -957,8 +1007,9 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                         {formData.selectedModuleIds.includes(module.id) ? <CheckCircle2 className="h-4 w-4 text-primary" /> : null}
                       </div>
                     </button>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
                 {formErrors.selectedModuleIds && <p className="text-xs text-destructive">{formErrors.selectedModuleIds}</p>}
               </div>
 
@@ -1049,7 +1100,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
               <Alert>
                 <Mail className="h-4 w-4" />
                 <AlertDescription>
-                  The current provisioning flow creates the tenant, organization placeholder, subscription, onboarding record, selected installed modules, pilot grants, and pending school-admin invite in one mutation.
+                  The current provisioning flow creates the tenant, WorkOS organization, subscription, onboarding record, selected installed modules, pilot grants, and a WorkOS-backed school-admin invitation.
                 </AlertDescription>
               </Alert>
             </div>
@@ -1110,7 +1161,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
             <Mail className="mt-0.5 h-4 w-4 text-primary" />
             <div>
               <p className="font-medium">Invite-ready admin account</p>
-              <p className="text-sm text-muted-foreground">The school admin is staged as a pending user and can receive the standard EduMyles invite email immediately.</p>
+              <p className="text-sm text-muted-foreground">The school admin is staged for first login and receives a WorkOS invitation linked to the tenant organization.</p>
             </div>
           </CardContent>
         </Card>

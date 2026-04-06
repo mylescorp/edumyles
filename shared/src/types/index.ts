@@ -35,6 +35,12 @@ export interface Tenant {
 export type UserRole =
   | "master_admin" // Platform super-admin
   | "super_admin" // Platform operations admin
+  | "platform_manager"
+  | "support_agent"
+  | "billing_admin"
+  | "marketplace_reviewer"
+  | "content_moderator"
+  | "analytics_viewer"
   | "school_admin" // Full access within their tenant
   | "principal"
   | "teacher"

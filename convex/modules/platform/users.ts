@@ -5,23 +5,60 @@ import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 import { idGenerator } from "../../helpers/idGenerator";
 
+function isTrustedServerCall(serverSecret?: string) {
+  return Boolean(
+    serverSecret &&
+      process.env.CONVEX_WEBHOOK_SECRET &&
+      serverSecret === process.env.CONVEX_WEBHOOK_SECRET
+  );
+}
+
 function ensureMasterAdmin(role: string) {
   if (role !== "master_admin") {
     throw new Error("FORBIDDEN: master_admin access required");
   }
 }
 
+function ensurePlatformAdmin(role: string) {
+  if (!["master_admin", "super_admin"].includes(role)) {
+    throw new Error("FORBIDDEN: platform admin access required");
+  }
+}
+
+async function getPlatformUserByIdOrThrow(ctx: any, platformUserId: any) {
+  const user = await ctx.db.get(platformUserId);
+  if (!user) {
+    throw new Error("Platform user not found");
+  }
+  return user;
+}
+
+async function countActiveMasterAdmins(ctx: any) {
+  const users = await ctx.db
+    .query("platform_users")
+    .withIndex("by_role", (q: any) => q.eq("role", "master_admin"))
+    .collect();
+
+  return users.filter((user: any) => user.status === "active").length;
+}
+
 async function enrichPlatformUser(ctx: any, doc: any) {
-  const [session, profile] = await Promise.all([
+  const [session, profileByWorkos, profileByEduMylesId] = await Promise.all([
     ctx.db
       .query("sessions")
       .withIndex("by_userId", (q: any) => q.eq("userId", doc.userId))
       .first(),
     ctx.db
       .query("users")
+      .withIndex("by_workos_user", (q: any) => q.eq("workosUserId", doc.userId))
+      .first(),
+    ctx.db
+      .query("users")
       .withIndex("by_user_id", (q: any) => q.eq("eduMylesUserId", doc.userId))
       .first(),
   ]);
+
+  const profile = profileByWorkos ?? profileByEduMylesId;
 
   return {
     ...doc,
@@ -66,6 +103,57 @@ export const getplatformUsers = query({
 });
 
 export const getPlatformUsers = getplatformUsers;
+
+export const getPlatformAccessByWorkosIdentity = query({
+  args: {
+    workosUserId: v.string(),
+    email: v.string(),
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
+    }
+
+    const now = Date.now();
+    const normalizedEmail = args.email.trim().toLowerCase();
+
+    const [platformUser, invites] = await Promise.all([
+      ctx.db
+        .query("platform_users")
+        .withIndex("by_userId", (q) => q.eq("userId", args.workosUserId))
+        .first(),
+      ctx.db
+        .query("platform_user_invites")
+        .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
+        .collect(),
+    ]);
+
+    const pendingInvite = invites
+      .filter((invite) => invite.status === "pending" && invite.expiresAt >= now)
+      .sort((a, b) => b.createdAt - a.createdAt)[0];
+
+    return {
+      platformUser: platformUser
+        ? {
+            id: String(platformUser._id),
+            role: platformUser.role,
+            status: platformUser.status,
+            accessExpiresAt: platformUser.accessExpiresAt,
+          }
+        : null,
+      pendingInvite: pendingInvite
+        ? {
+            id: String(pendingInvite._id),
+            token: pendingInvite.token,
+            role: pendingInvite.role,
+            expiresAt: pendingInvite.expiresAt,
+          }
+        : null,
+    };
+  },
+});
 
 export const getPlatformUser = query({
   args: {
@@ -128,6 +216,7 @@ export const invitePlatformUser = mutation({
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformSession(ctx, args);
+    ensurePlatformAdmin(platform.role);
     const now = Date.now();
     const token = idGenerator("platform_invite");
 
@@ -147,15 +236,6 @@ export const invitePlatformUser = mutation({
       personalMessage: args.personalMessage,
       createdAt: now,
       updatedAt: now,
-    });
-
-    await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
-      tenantId: "PLATFORM",
-      actorId: platform.userId,
-      actorEmail: platform.email,
-      to: [args.email],
-      subject: "EduMyles platform access invite",
-      text: `You have been invited to the EduMyles platform as ${args.role}. Use invite token: ${token}`,
     });
 
     await logAction(ctx, {
@@ -264,11 +344,36 @@ export const updatePlatformUserRole = mutation({
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformSession(ctx, args);
+    ensurePlatformAdmin(platform.role);
     ensureMasterAdmin(platform.role);
+
+    const existing = await getPlatformUserByIdOrThrow(ctx, args.platformUserId);
+
+    if (
+      existing.userId === platform.userId &&
+      existing.role === "master_admin" &&
+      args.role !== "master_admin"
+    ) {
+      const masterAdminCount = await countActiveMasterAdmins(ctx);
+      if (masterAdminCount <= 1) {
+        throw new Error("Cannot demote the last master admin");
+      }
+    }
 
     await ctx.db.patch(args.platformUserId, {
       role: args.role as any,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.platformUserId),
+      before: { role: existing.role },
+      after: { role: args.role },
     });
 
     return { success: true };
@@ -286,10 +391,29 @@ export const updatePlatformUserPermissions = mutation({
     const platform = await requirePlatformSession(ctx, args);
     ensureMasterAdmin(platform.role);
 
+    const existing = await getPlatformUserByIdOrThrow(ctx, args.platformUserId);
+
     await ctx.db.patch(args.platformUserId, {
       addedPermissions: args.addedPermissions,
       removedPermissions: args.removedPermissions,
       updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.platformUserId),
+      before: {
+        addedPermissions: existing.addedPermissions,
+        removedPermissions: existing.removedPermissions,
+      },
+      after: {
+        addedPermissions: args.addedPermissions,
+        removedPermissions: args.removedPermissions,
+      },
     });
 
     return { success: true };
@@ -300,13 +424,142 @@ export const suspendPlatformUser = mutation({
   args: {
     sessionToken: v.string(),
     platformUserId: v.id("platform_users"),
+    reason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
+    ensurePlatformAdmin(platform.role);
+    const existing = await getPlatformUserByIdOrThrow(ctx, args.platformUserId);
+
+    if (existing.userId === platform.userId) {
+      throw new Error("You cannot suspend your own platform account");
+    }
+
+    if (existing.role === "master_admin") {
+      const masterAdminCount = await countActiveMasterAdmins(ctx);
+      if (masterAdminCount <= 1) {
+        throw new Error("Cannot suspend the last master admin");
+      }
+    }
+
     await ctx.db.patch(args.platformUserId, {
       status: "suspended",
       updatedAt: Date.now(),
     });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.platformUserId),
+      before: { status: existing.status },
+      after: { status: "suspended", reason: args.reason ?? null },
+    });
+    return { success: true };
+  },
+});
+
+export const syncPlatformUserProfile = mutation({
+  args: {
+    workosUserId: v.string(),
+    email: v.string(),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    role: v.string(),
+    lastLoginAt: v.optional(v.number()),
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
+    }
+
+    const now = Date.now();
+    const normalizedEmail = args.email.trim().toLowerCase();
+
+    const [existingUser, existingByEmail, platformUser] = await Promise.all([
+      ctx.db
+        .query("users")
+        .withIndex("by_workos_user", (q: any) => q.eq("workosUserId", args.workosUserId))
+        .first(),
+      ctx.db
+        .query("users")
+        .withIndex("by_tenant_email", (q: any) => q.eq("tenantId", "PLATFORM").eq("email", normalizedEmail))
+        .first(),
+      ctx.db
+        .query("platform_users")
+        .withIndex("by_userId", (q: any) => q.eq("userId", args.workosUserId))
+        .first(),
+    ]);
+
+    if (platformUser) {
+      await ctx.db.patch(platformUser._id, {
+        lastLogin: args.lastLoginAt ?? now,
+        updatedAt: now,
+      });
+    }
+
+    const target = existingUser ?? existingByEmail;
+    const profilePatch = {
+      tenantId: "PLATFORM",
+      eduMylesUserId: target?.eduMylesUserId ?? `USR-PLATFORM-${args.workosUserId}`,
+      workosUserId: args.workosUserId,
+      email: normalizedEmail,
+      firstName: args.firstName,
+      lastName: args.lastName,
+      role: args.role,
+      permissions: target?.permissions ?? [],
+      isActive: true,
+      createdAt: target?.createdAt ?? now,
+    };
+
+    if (target) {
+      await ctx.db.patch(target._id, {
+        tenantId: "PLATFORM",
+        workosUserId: args.workosUserId,
+        email: normalizedEmail,
+        firstName: args.firstName,
+        lastName: args.lastName,
+        role: args.role,
+        isActive: true,
+      });
+      return { success: true, userId: target._id };
+    }
+
+    const createdId = await ctx.db.insert("users", profilePatch);
+    return { success: true, userId: createdId };
+  },
+});
+
+export const activatePlatformUser = mutation({
+  args: {
+    sessionToken: v.string(),
+    platformUserId: v.id("platform_users"),
+  },
+  handler: async (ctx, args) => {
+    const platform = await requirePlatformSession(ctx, args);
+    ensurePlatformAdmin(platform.role);
+    const existing = await getPlatformUserByIdOrThrow(ctx, args.platformUserId);
+
+    await ctx.db.patch(args.platformUserId, {
+      status: "active",
+      updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.platformUserId),
+      before: { status: existing.status },
+      after: { status: "active" },
+    });
+
     return { success: true };
   },
 });
@@ -315,11 +568,40 @@ export const deletePlatformUser = mutation({
   args: {
     sessionToken: v.string(),
     platformUserId: v.id("platform_users"),
+    reason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformSession(ctx, args);
     ensureMasterAdmin(platform.role);
+    const existing = await getPlatformUserByIdOrThrow(ctx, args.platformUserId);
+
+    if (existing.userId === platform.userId) {
+      throw new Error("You cannot delete your own platform account");
+    }
+
+    if (existing.role === "master_admin") {
+      const masterAdminCount = await countActiveMasterAdmins(ctx);
+      if (masterAdminCount <= 1) {
+        throw new Error("Cannot delete the last master admin");
+      }
+    }
+
     await ctx.db.delete(args.platformUserId);
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "user.deleted",
+      entityType: "platform_user",
+      entityId: String(args.platformUserId),
+      before: {
+        userId: existing.userId,
+        role: existing.role,
+        status: existing.status,
+        reason: args.reason ?? null,
+      },
+    });
     return { success: true };
   },
 });
@@ -330,11 +612,89 @@ export const revokePlatformInvite = mutation({
     inviteId: v.id("platform_user_invites"),
   },
   handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    const platform = await requirePlatformSession(ctx, args);
+    ensurePlatformAdmin(platform.role);
+    const existing = await ctx.db.get(args.inviteId);
+    if (!existing) {
+      throw new Error("Invite not found");
+    }
     await ctx.db.patch(args.inviteId, {
       status: "revoked",
       updatedAt: Date.now(),
     });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "user.updated",
+      entityType: "platform_user_invite",
+      entityId: String(args.inviteId),
+      before: { status: existing.status, email: existing.email, role: existing.role },
+      after: { status: "revoked" },
+    });
+    return { success: true };
+  },
+});
+
+export const updatePlatformUser = mutation({
+  args: {
+    sessionToken: v.string(),
+    platformUserId: v.id("platform_users"),
+    role: v.string(),
+    department: v.optional(v.string()),
+    accessExpiresAt: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    addedPermissions: v.optional(v.array(v.string())),
+    removedPermissions: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const platform = await requirePlatformSession(ctx, args);
+    ensureMasterAdmin(platform.role);
+
+    const existing = await getPlatformUserByIdOrThrow(ctx, args.platformUserId);
+
+    if (
+      existing.userId === platform.userId &&
+      existing.role === "master_admin" &&
+      args.role !== "master_admin"
+    ) {
+      const masterAdminCount = await countActiveMasterAdmins(ctx);
+      if (masterAdminCount <= 1) {
+        throw new Error("Cannot demote the last master admin");
+      }
+    }
+
+    const patch = {
+      role: args.role as any,
+      department: args.department,
+      accessExpiresAt: args.accessExpiresAt,
+      notes: args.notes,
+      addedPermissions: args.addedPermissions ?? [],
+      removedPermissions: args.removedPermissions ?? [],
+      updatedAt: Date.now(),
+    };
+
+    await ctx.db.patch(args.platformUserId, patch);
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.platformUserId),
+      before: {
+        role: existing.role,
+        department: existing.department,
+        accessExpiresAt: existing.accessExpiresAt,
+        notes: existing.notes,
+        addedPermissions: existing.addedPermissions,
+        removedPermissions: existing.removedPermissions,
+      },
+      after: patch,
+    });
+
     return { success: true };
   },
 });
@@ -370,6 +730,7 @@ export const resendPlatformInvite = mutation({
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformSession(ctx, args);
+    ensurePlatformAdmin(platform.role);
     const invite = await ctx.db.get(args.inviteId);
     if (!invite) {
       throw new Error("Invite not found");
@@ -391,6 +752,17 @@ export const resendPlatformInvite = mutation({
       to: [invite.email],
       subject: "EduMyles platform invite reminder",
       text: `Your updated EduMyles platform invite token is: ${token}`,
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "user.updated",
+      entityType: "platform_user_invite",
+      entityId: String(args.inviteId),
+      before: { token: invite.token, expiresAt: invite.expiresAt },
+      after: { token, expiresAt: now + PLATFORM_INVITE_EXPIRY_MS },
     });
 
     return { success: true, token };

@@ -22,9 +22,9 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { WorkOS } from "@workos-inc/node";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { ensureTenantWorkOSOrganization } from "@/lib/workos-invitations";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,13 +39,9 @@ export async function POST(req: NextRequest) {
     }
 
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-    const workosApiKey = process.env.WORKOS_API_KEY;
 
     if (!convexUrl) {
       return NextResponse.json({ error: "CONVEX_URL not configured" }, { status: 500 });
-    }
-    if (!workosApiKey) {
-      return NextResponse.json({ error: "WORKOS_API_KEY not configured" }, { status: 500 });
     }
 
     const convex = new ConvexHttpClient(convexUrl);
@@ -57,54 +53,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
     }
 
-    // ── 2. Look up existing org ──────────────────────────────────────────────
-    const existingOrg = await convex.query(api.organizations.getOrgBySubdomain, {
-      sessionToken,
-      subdomain: tenant.subdomain,
-    });
-
-    // If org already has a real WorkOS ID, return it without re-creating
-    if (
-      existingOrg?.workosOrgId &&
-      !existingOrg.workosOrgId.startsWith("edumyles-") &&
-      !existingOrg.workosOrgId.startsWith("platform-")
-    ) {
-      return NextResponse.json({
-        workosOrgId: existingOrg.workosOrgId,
-        organizationId: existingOrg._id,
-        alreadyExists: true,
-      });
-    }
-
-    // ── 3. Create WorkOS Organization ────────────────────────────────────────
-    const workos = new WorkOS(workosApiKey);
-
-    const workosOrg = await workos.organizations.createOrganization({
-      name: tenant.name,
-      // Domains can be added later via the WorkOS dashboard or API
-    });
-
-    console.log(
-      `[provision-org] ✅ Created WorkOS org for "${tenant.name}": ${workosOrg.id}`
-    );
-
-    // ── 4. Update the Convex organization record with the real WorkOS org ID ─
-    const orgId = await convex.mutation(api.organizations.upsertOrganization, {
-      sessionToken,
+    const org = await ensureTenantWorkOSOrganization({
+      convex,
       tenantId,
-      workosOrgId: workosOrg.id,
-      name: tenant.name,
-      subdomain: tenant.subdomain,
-      tier: (tenant.plan as "starter" | "standard" | "pro" | "enterprise") ?? "starter",
+      sessionToken,
     });
-
-    console.log(
-      `[provision-org] ✅ Updated Convex org ${orgId} with WorkOS org ${workosOrg.id}`
-    );
 
     return NextResponse.json({
-      workosOrgId: workosOrg.id,
-      organizationId: orgId,
+      workosOrgId: org.workosOrgId,
+      organizationId: org.organizationId,
+      alreadyExists: org.alreadyExists,
     });
   } catch (err: any) {
     console.error("[provision-org] Error:", err);

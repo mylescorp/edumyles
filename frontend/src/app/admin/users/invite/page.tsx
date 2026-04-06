@@ -12,17 +12,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
-import { api } from "@/convex/_generated/api";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function InviteUserPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const inviteUser = useMutation((api as any).users.inviteTenantUser);
 
     const [form, setForm] = useState({
         email: "",
@@ -41,15 +38,28 @@ export default function InviteUserPage() {
 
         try {
             if (!form.email) throw new Error("Email is required.");
-            await inviteUser({
-                email: form.email.trim().toLowerCase(),
-                firstName: form.firstName.trim() || undefined,
-                lastName: form.lastName.trim() || undefined,
-                role: form.role,
+            if (!sessionToken) throw new Error("Your session expired. Please sign in again.");
+
+            const response = await fetch("/api/tenant-users/invite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sessionToken,
+                    email: form.email.trim().toLowerCase(),
+                    firstName: form.firstName.trim() || undefined,
+                    lastName: form.lastName.trim() || undefined,
+                    role: form.role,
+                }),
             });
+
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.error ?? "Failed to invite user");
+            }
+
             toast({
                 title: "User invited",
-                description: "The user was added with a pending invitation profile.",
+                description: "A WorkOS invitation has been sent to the user.",
             });
             router.push("/admin/users");
         } catch (err) {

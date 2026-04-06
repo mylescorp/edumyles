@@ -32,11 +32,27 @@ function normalizeRole(role: string): string {
   return role === "platform_admin" ? "super_admin" : role;
 }
 
+function isPlatformRole(role: string): boolean {
+  return [
+    "master_admin",
+    "super_admin",
+    "platform_manager",
+    "support_agent",
+    "billing_admin",
+    "marketplace_reviewer",
+    "content_moderator",
+    "analytics_viewer",
+  ].includes(normalizeRole(role));
+}
+
 function getRoleDashboard(role: string): string {
-  switch (role) {
-    case "master_admin":
-    case "super_admin":
-      return "/platform";
+  const normalizedRole = normalizeRole(role);
+
+  if (isPlatformRole(normalizedRole)) {
+    return "/platform";
+  }
+
+  switch (normalizedRole) {
     case "teacher":
       return "/portal/teacher";
     case "parent":
@@ -107,7 +123,7 @@ export async function GET(req: NextRequest) {
     const convex = new ConvexHttpClient(convexUrl);
     const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
 
-    const { accessToken, refreshToken, user, organizationId, impersonator } =
+    const { accessToken, refreshToken, user, impersonator } =
       await workos.userManagement.authenticateWithCode({
       clientId,
       code,
@@ -157,7 +173,105 @@ export async function GET(req: NextRequest) {
       return res;
     }
 
-    // ── 2. Look up user in Convex ────────────────────────────────────────────
+    // ── 2. Platform staff fast-path ──────────────────────────────────────────
+    let platformAccess:
+      | {
+          platformUser: {
+            id: string;
+            role: string;
+            status: string;
+            accessExpiresAt?: number;
+          } | null;
+          pendingInvite: {
+            id: string;
+            token: string;
+            role: string;
+            expiresAt: number;
+          } | null;
+        }
+      | null = null;
+
+    try {
+      platformAccess = await convex.query(
+        api.modules.platform.users.getPlatformAccessByWorkosIdentity,
+        {
+          workosUserId: user.id,
+          email: user.email.toLowerCase(),
+          serverSecret,
+        }
+      );
+    } catch (error) {
+      console.warn("[auth/callback] Platform access lookup failed:", error);
+    }
+
+    if (!platformAccess?.platformUser && platformAccess?.pendingInvite?.token) {
+      try {
+        await convex.mutation(api.modules.platform.users.acceptPlatformInvite, {
+          token: platformAccess.pendingInvite.token,
+          userId: user.id,
+          email: user.email.toLowerCase(),
+        });
+
+        platformAccess = await convex.query(
+          api.modules.platform.users.getPlatformAccessByWorkosIdentity,
+          {
+            workosUserId: user.id,
+            email: user.email.toLowerCase(),
+            serverSecret,
+          }
+        );
+      } catch (error) {
+        console.error("[auth/callback] Failed to accept platform invite:", error);
+      }
+    }
+
+    if (
+      platformAccess?.platformUser &&
+      platformAccess.platformUser.status === "active" &&
+      (platformAccess.platformUser.accessExpiresAt === undefined ||
+        platformAccess.platformUser.accessExpiresAt >= Date.now())
+    ) {
+      const role = normalizeRole(platformAccess.platformUser.role);
+      const tenantId = "PLATFORM";
+
+      try {
+        await convex.mutation(api.modules.platform.users.syncPlatformUserProfile, {
+          workosUserId: user.id,
+          email: user.email,
+          firstName: user.firstName ?? undefined,
+          lastName: user.lastName ?? undefined,
+          role,
+          lastLoginAt: Date.now(),
+          serverSecret,
+        });
+      } catch (error) {
+        console.warn("[auth/callback] Platform profile sync failed:", error);
+      }
+
+      const sessionToken = crypto.randomBytes(32).toString("hex");
+      await convex.mutation(api.sessions.createSession, {
+        serverSecret: serverSecret ?? "",
+        sessionToken,
+        tenantId,
+        userId: user.id,
+        email: user.email,
+        role,
+        expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      });
+
+      const returnTo =
+        stateData.returnTo && stateData.returnTo.startsWith("/")
+          ? stateData.returnTo
+          : "/platform";
+
+      console.log(`[auth/callback] ✅ platform staff ${user.email} → ${role} → ${returnTo}`);
+      await saveSession({ accessToken, refreshToken, user, impersonator }, req);
+      const res = NextResponse.redirect(new URL(returnTo, req.url));
+      setSessionCookies(res, sessionToken, user, role, tenantId, isProduction);
+      return res;
+    }
+
+    // ── 3. Look up user in Convex ────────────────────────────────────────────
     let existing: {
       role: string;
       tenantId: string;
@@ -174,7 +288,43 @@ export async function GET(req: NextRequest) {
       // Convex unavailable — fall through to waitlist/error path
     }
 
-    // ── 3. Check if first user ever (auto-bootstrap master admin) ────────────
+    if (!existing) {
+      try {
+        const pendingInvite = await convex.query(api.users.getPendingUserInvitationByEmail, {
+          email: user.email.toLowerCase(),
+          serverSecret,
+        });
+
+        if (pendingInvite) {
+          if (!pendingInvite.organizationId) {
+            throw new Error("Pending invite is missing organization context");
+          }
+
+          await convex.mutation(api.users.upsertUser, {
+            tenantId: pendingInvite.tenantId,
+            eduMylesUserId: pendingInvite.eduMylesUserId,
+            workosUserId: user.id,
+            email: user.email,
+            firstName: user.firstName ?? pendingInvite.firstName ?? undefined,
+            lastName: user.lastName ?? pendingInvite.lastName ?? undefined,
+            role: pendingInvite.role,
+            permissions: pendingInvite.permissions ?? [],
+            organizationId: pendingInvite.organizationId,
+          });
+
+          existing = {
+            role: pendingInvite.role,
+            tenantId: pendingInvite.tenantId,
+            workosUserId: user.id,
+            isActive: true,
+          };
+        }
+      } catch (error) {
+        console.warn("[auth/callback] Pending tenant invite lookup failed:", error);
+      }
+    }
+
+    // ── 4. Check if first user ever (auto-bootstrap master admin) ────────────
     if (!existing) {
       let hasMasterAdmin = false;
       try {
@@ -217,7 +367,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // ── 4. Existing active user — allow login ────────────────────────────────
+    // ── 5. Existing active user — allow login ────────────────────────────────
     if (existing && existing.isActive) {
       const role = normalizeRole(existing.role);
       const tenantId = existing.tenantId;
@@ -245,13 +395,13 @@ export async function GET(req: NextRequest) {
       return res;
     }
 
-    // ── 5. Inactive / deactivated user ──────────────────────────────────────
+    // ── 6. Inactive / deactivated user ──────────────────────────────────────
     if (existing && !existing.isActive) {
       console.warn(`[auth/callback] ⛔ Inactive user attempted login: ${user.email}`);
       return authError(req, "account_inactive");
     }
 
-    // ── 6. User not in DB ────────────────────────────────────────────────────
+    // ── 7. User not in DB ────────────────────────────────────────────────────
     // Sign-UP flow → add to waitlist and redirect to pending page.
     // Sign-IN flow → they are not authorized (not pre-provisioned).
     if (isSignUp) {
