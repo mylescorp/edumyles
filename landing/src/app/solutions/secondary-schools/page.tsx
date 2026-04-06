@@ -75,7 +75,7 @@ export default function SecondarySchoolsPage() {
           {/* CTAs */}
           <div className="flex flex-wrap justify-center gap-4 mb-10">
             <a
-              href="/auth/signup"
+              href="/waitlist"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "#E8A020", color: "#061A12" }}
             >
@@ -916,7 +916,7 @@ export default function SecondarySchoolsPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
-              href="/auth/signup"
+              href="/waitlist"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-9 py-4 rounded-[50px] no-underline"
               style={{ background: "#E8A020", color: "#061A12" }}
             >

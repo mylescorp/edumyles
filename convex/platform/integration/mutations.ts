@@ -366,11 +366,12 @@ export const updateIntegrationSubscription = mutation({
       enterprise: { amount: 299, features: ["unlimited_sync", "dedicated_support", "custom_development", "sla_guarantee"] },
     };
 
-    const pricing = planPricing[args.plan];
+    const fallbackPricing = planPricing.free ?? { amount: 0, features: [] as string[] };
+    const pricing = planPricing[args.plan] ?? fallbackPricing;
     const now = Date.now();
     const cycleMonths: Record<string, number> = { monthly: 1, quarterly: 3, annual: 12 };
     const expiresAt = args.plan !== "free"
-      ? now + (cycleMonths[args.billingCycle] * 30 * 24 * 60 * 60 * 1000)
+      ? now + ((cycleMonths[args.billingCycle] ?? 1) * 30 * 24 * 60 * 60 * 1000)
       : undefined;
 
     await ctx.db.patch(args.installationId as Id<"integrationInstallations">, {

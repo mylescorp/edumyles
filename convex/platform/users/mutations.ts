@@ -4,6 +4,85 @@ import { ConvexError } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
+async function resolveCurrentPlatformUser(ctx: any, tenantCtx: { userId: string; workosUserId?: string; email: string; tenantId: string }) {
+  const byEduMylesUserId = await ctx.db
+    .query("users")
+    .withIndex("by_user_id", (q: any) => q.eq("eduMylesUserId", tenantCtx.userId))
+    .first();
+
+  if (byEduMylesUserId) {
+    return byEduMylesUserId;
+  }
+
+  if (tenantCtx.workosUserId) {
+    const byWorkosUserId = await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q: any) => q.eq("workosUserId", tenantCtx.workosUserId!))
+      .first();
+
+    if (byWorkosUserId) {
+      return byWorkosUserId;
+    }
+  }
+
+  const bySessionUserIdAsWorkos = await ctx.db
+    .query("users")
+    .withIndex("by_workos_user", (q: any) => q.eq("workosUserId", tenantCtx.userId))
+    .first();
+
+  if (bySessionUserIdAsWorkos) {
+    return bySessionUserIdAsWorkos;
+  }
+
+  const byTenantEmail = await ctx.db
+    .query("users")
+    .withIndex("by_tenant_email", (q: any) =>
+      q.eq("tenantId", tenantCtx.tenantId).eq("email", tenantCtx.email)
+    )
+    .first();
+
+  if (byTenantEmail) {
+    return byTenantEmail;
+  }
+
+  const allUsers = await ctx.db.query("users").collect();
+  return allUsers.find((user: any) => user.email === tenantCtx.email) || null;
+}
+
+async function resolveOrCreateCurrentPlatformUser(
+  ctx: any,
+  tenantCtx: { userId: string; workosUserId?: string; email: string; tenantId: string; role: string }
+) {
+  const existing = await resolveCurrentPlatformUser(ctx, tenantCtx);
+  if (existing) {
+    return existing;
+  }
+
+  const inferredEduMylesUserId =
+    tenantCtx.userId.startsWith("USR-") || tenantCtx.userId.startsWith("USER-")
+      ? tenantCtx.userId
+      : `USR-PLATFORM-${tenantCtx.userId}`;
+
+  const inferredWorkosUserId = tenantCtx.workosUserId ?? tenantCtx.userId;
+  const inferredPermissions = tenantCtx.role === "master_admin" ? ["*"] : [];
+
+  const userId = await ctx.db.insert("users", {
+    tenantId: tenantCtx.tenantId,
+    eduMylesUserId: inferredEduMylesUserId,
+    workosUserId: inferredWorkosUserId,
+    email: tenantCtx.email,
+    firstName: undefined,
+    lastName: undefined,
+    role: tenantCtx.role,
+    permissions: inferredPermissions,
+    organizationId: undefined,
+    isActive: true,
+    createdAt: Date.now(),
+  });
+
+  return await ctx.db.get(userId);
+}
+
 // Create a new platform admin
 export const createPlatformAdmin = mutation({
   args: {
@@ -140,11 +219,7 @@ export const updateUserProfile = mutation({
     const { sessionToken, ...fields } = args;
 
     const tenantCtx = await requirePlatformSession(ctx, { sessionToken });
-
-    const user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("eduMylesUserId"), tenantCtx.userId))
-      .first();
+    const user = await resolveOrCreateCurrentPlatformUser(ctx, tenantCtx);
 
     if (!user) throw new ConvexError("User not found");
 
@@ -193,10 +268,7 @@ export const saveUserAvatar = mutation({
     const url = await ctx.storage.getUrl(args.storageId);
     if (!url) throw new ConvexError("Failed to retrieve upload URL");
 
-    const user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("eduMylesUserId"), tenantCtx.userId))
-      .first();
+    const user = await resolveOrCreateCurrentPlatformUser(ctx, tenantCtx);
 
     if (!user) throw new ConvexError("User not found");
 

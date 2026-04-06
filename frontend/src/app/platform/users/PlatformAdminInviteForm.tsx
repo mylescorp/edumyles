@@ -2,14 +2,23 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { api } from "@/convex/_generated/api";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Check, CheckCircle2, Copy, Mail, UserPlus, Users } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Check, CheckCircle2, Copy, Mail, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 
-type PlatformAdminRole = "master_admin" | "super_admin";
+const inviteSchema = z.object({
+  email: z.string().email("Enter a valid email address"),
+  role: z.string().min(1, "Select a role"),
+  department: z.string().optional(),
+  personalMessage: z.string().optional(),
+});
 
 interface PlatformAdminInviteFormProps {
   sessionToken: string;
@@ -25,24 +34,21 @@ export function PlatformAdminInviteForm({
   onComplete,
 }: PlatformAdminInviteFormProps) {
   const router = useRouter();
+  const invitePlatformUser = useMutation(api.modules.platform.users.invitePlatformUser);
+
   const [form, setForm] = useState({
     email: "",
-    firstName: "",
-    lastName: "",
-    role: "super_admin" as PlatformAdminRole,
+    role: "super_admin",
+    department: "",
+    personalMessage: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [result, setResult] = useState<{
-    invitedEmail: string;
-    emailSent: boolean;
-    signUpUrl: string;
-    workosError?: string;
-  } | null>(null);
+  const [result, setResult] = useState<{ invitedEmail: string; token: string } | null>(null);
 
   const resetFlow = () => {
-    setForm({ email: "", firstName: "", lastName: "", role: "super_admin" });
+    setForm({ email: "", role: "super_admin", department: "", personalMessage: "" });
     setError(null);
     setCopied(false);
     setResult(null);
@@ -50,39 +56,29 @@ export function PlatformAdminInviteForm({
 
   const handleSubmit = async (event?: React.FormEvent) => {
     event?.preventDefault();
-    if (!form.email || !form.firstName || !form.lastName) {
-      setError("First name, last name, and email are required.");
+    const parsed = inviteSchema.safeParse(form);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Enter valid invite details.");
       return;
     }
 
     setError(null);
     setSubmitting(true);
     try {
-      const response = await fetch("/api/platform/invite-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, sessionToken }),
+      const response = await invitePlatformUser({
+        sessionToken,
+        email: parsed.data.email,
+        role: parsed.data.role,
+        department: parsed.data.department?.trim() || undefined,
+        personalMessage: parsed.data.personalMessage?.trim() || undefined,
       });
-      const data = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
-        setError(data.error ?? "Failed to invite platform admin.");
-        return;
-      }
-
-      const inviteResult = {
-        invitedEmail: form.email,
-        emailSent: data.emailSent ?? false,
-        signUpUrl: data.signUpUrl ?? `${window.location.origin}/auth/login/api`,
-        workosError: data.workosError,
-      };
-
-      setResult(inviteResult);
+      setResult({
+        invitedEmail: parsed.data.email,
+        token: response.token,
+      });
       onComplete?.();
-
-      if (inviteResult.emailSent) {
-        toast.success(`Invitation email sent to ${inviteResult.invitedEmail}`);
-      }
+      toast.success(`Invitation queued for ${parsed.data.email}`);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unexpected error");
     } finally {
@@ -90,11 +86,11 @@ export function PlatformAdminInviteForm({
     }
   };
 
-  const handleCopyLink = async () => {
-    if (!result?.signUpUrl) return;
-    await navigator.clipboard.writeText(result.signUpUrl);
+  const handleCopyToken = async () => {
+    if (!result?.token) return;
+    await navigator.clipboard.writeText(result.token);
     setCopied(true);
-    toast.success("Link copied");
+    toast.success("Invite token copied");
     window.setTimeout(() => setCopied(false), 1500);
   };
 
@@ -104,50 +100,22 @@ export function PlatformAdminInviteForm({
         <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
           <span>
-            User <strong>{result.invitedEmail}</strong> created successfully.
+            Invite created for <strong>{result.invitedEmail}</strong>. Email delivery was handed off to Convex.
           </span>
         </div>
 
-        {result.emailSent ? (
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-            <div className="flex items-start gap-2">
-              <Mail className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
-              <div className="text-sm text-green-800">
-                <p className="font-semibold">Invitation email sent</p>
-                <p className="mt-1 text-green-700">
-                  {result.invitedEmail} will receive a sign-in link that expires in 7 days.
-                </p>
-              </div>
-            </div>
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Fallback invite token</p>
+          <div className="flex gap-2">
+            <Input readOnly value={result.token} className="font-mono text-xs" />
+            <Button size="sm" variant="outline" onClick={handleCopyToken}>
+              {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+            </Button>
           </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                <div>
-                  <p className="font-semibold">Invitation email not sent</p>
-                  <p className="mt-1 text-xs text-amber-700">
-                    {result.workosError ?? "WorkOS is not configured for invitation delivery."}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Share this sign-up link directly:</p>
-              <div className="flex gap-2">
-                <Input readOnly value={result.signUpUrl} className="font-mono text-xs" />
-                <Button size="sm" variant="outline" onClick={handleCopyLink}>
-                  {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Send this link to <strong>{result.invitedEmail}</strong> via email, WhatsApp, or Slack.
-              </p>
-            </div>
-          </div>
-        )}
+          <p className="text-xs text-muted-foreground">
+            Keep this token for support follow-up in case the invite email needs to be resent.
+          </p>
+        </div>
 
         <div className="flex flex-wrap justify-end gap-2">
           <Button variant="outline" onClick={resetFlow}>
@@ -157,7 +125,7 @@ export function PlatformAdminInviteForm({
           {mode === "page" ? (
             <Button onClick={() => router.push("/platform/users")}>
               <Users className="mr-2 h-4 w-4" />
-              View All Admins
+              View All Staff
             </Button>
           ) : (
             <Button onClick={onCancel}>Done</Button>
@@ -169,66 +137,67 @@ export function PlatformAdminInviteForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {error && (
+      {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
         </div>
-      )}
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor={`invite-firstName-${mode}`}>First Name</Label>
-          <Input
-            id={`invite-firstName-${mode}`}
-            placeholder="John"
-            value={form.firstName}
-            onChange={(event) => setForm((current) => ({ ...current, firstName: event.target.value }))}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor={`invite-lastName-${mode}`}>Last Name</Label>
-          <Input
-            id={`invite-lastName-${mode}`}
-            placeholder="Doe"
-            value={form.lastName}
-            onChange={(event) => setForm((current) => ({ ...current, lastName: event.target.value }))}
-            required
-          />
-        </div>
-      </div>
+      ) : null}
 
       <div className="space-y-2">
         <Label htmlFor={`invite-email-${mode}`}>Email</Label>
         <Input
           id={`invite-email-${mode}`}
           type="email"
-          placeholder="john@edumyles.com"
+          placeholder="admin@edumyles.com"
           value={form.email}
           onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
           required
         />
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor={`invite-role-${mode}`}>Role</Label>
+          <Select
+            value={form.role}
+            onValueChange={(value) => setForm((current) => ({ ...current, role: value }))}
+          >
+            <SelectTrigger id={`invite-role-${mode}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="master_admin">Master Admin</SelectItem>
+              <SelectItem value="super_admin">Super Admin</SelectItem>
+              <SelectItem value="platform_manager">Platform Manager</SelectItem>
+              <SelectItem value="support_agent">Support Agent</SelectItem>
+              <SelectItem value="billing_admin">Billing Admin</SelectItem>
+              <SelectItem value="marketplace_reviewer">Marketplace Reviewer</SelectItem>
+              <SelectItem value="content_moderator">Content Moderator</SelectItem>
+              <SelectItem value="analytics_viewer">Analytics Viewer</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`invite-department-${mode}`}>Department</Label>
+          <Input
+            id={`invite-department-${mode}`}
+            placeholder="Operations"
+            value={form.department}
+            onChange={(event) => setForm((current) => ({ ...current, department: event.target.value }))}
+          />
+        </div>
+      </div>
+
       <div className="space-y-2">
-        <Label htmlFor={`invite-role-${mode}`}>Role</Label>
-        <Select
-          value={form.role}
-          onValueChange={(value) => setForm((current) => ({ ...current, role: value as PlatformAdminRole }))}
-        >
-          <SelectTrigger id={`invite-role-${mode}`}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="super_admin">Super Admin</SelectItem>
-            <SelectItem value="master_admin">Master Admin</SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-muted-foreground">
-          {form.role === "master_admin"
-            ? "Full platform control including billing, settings, and tenant operations."
-            : "Operational platform access for support, visibility, and administration."}
-        </p>
+        <Label htmlFor={`invite-message-${mode}`}>Personal Message</Label>
+        <Textarea
+          id={`invite-message-${mode}`}
+          placeholder="Optional onboarding note for the invite email"
+          value={form.personalMessage}
+          onChange={(event) => setForm((current) => ({ ...current, personalMessage: event.target.value }))}
+          rows={4}
+        />
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-2">
@@ -238,7 +207,7 @@ export function PlatformAdminInviteForm({
         <Button type="submit" disabled={submitting}>
           {submitting ? (
             <>
-              <UserPlus className="mr-2 h-4 w-4" />
+              <Mail className="mr-2 h-4 w-4" />
               Sending...
             </>
           ) : (

@@ -143,6 +143,7 @@ export const deleteScheduledReport = mutation({
   args: {
     sessionToken: v.string(),
     reportId: v.string(),
+    reason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { tenantId, userId, email } = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
@@ -159,7 +160,12 @@ export const deleteScheduledReport = mutation({
       action: "scheduled_report.deleted",
       entityType: "scheduled_report",
       entityId: args.reportId,
-      before: { name: report.name, reportType: report.reportType, schedule: report.schedule },
+      before: {
+        name: report.name,
+        reportType: report.reportType,
+        schedule: report.schedule,
+        reason: args.reason?.trim() || null,
+      },
     });
 
     return { success: true, message: "Report deleted" };

@@ -38,4 +38,18 @@ crons.interval(
   { staleAfterHours: 24 }
 );
 
+crons.interval(
+  "refresh currency rates",
+  { hours: 24 },
+  (internal as any).modules.platform.currency.updateCurrencyRates,
+  {}
+);
+
+crons.interval(
+  "process expired pilot grants",
+  { hours: 24 },
+  (internal as any).modules.platform.pilotGrants.processExpiredGrants,
+  {}
+);
+
 export default crons;

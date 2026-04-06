@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     try {
       // Get user session from Convex
-      const session = await convex.query(api.sessions.getSessionByToken, {
+      const session = await convex.query(api.sessions.getSession, {
         sessionToken,
         serverSecret,
       });

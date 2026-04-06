@@ -38,6 +38,9 @@ function makeJsonRequest(body: unknown): NextRequest {
 function makeUrlRequest(url: string): NextRequest {
   return {
     nextUrl: new URL(url),
+    headers: {
+      get: vi.fn(() => null),
+    },
   } as unknown as NextRequest;
 }
 

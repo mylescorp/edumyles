@@ -346,7 +346,7 @@ export default function RoadmapPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/auth/signup"
+              href="/waitlist"
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
               style={{ background: "#E8A020", color: "#061A12", fontSize: "15px" }}
             >

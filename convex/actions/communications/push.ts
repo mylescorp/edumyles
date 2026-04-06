@@ -3,7 +3,7 @@
 import { internal } from "../../_generated/api";
 import { action, internalAction } from "../../_generated/server";
 import { v } from "convex/values";
-import { requireTenantSession } from "../../helpers/tenantGuard";
+import { requireActionTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 
 type ExpoPushMessage = {
@@ -21,6 +21,21 @@ type ExpoPushTicket = {
   details?: Record<string, unknown>;
 };
 
+type PushRecipient = {
+  userId: string;
+  pushToken: string;
+  platform?: string;
+  deviceName?: string;
+};
+
+type SendPushResult = {
+  success: boolean;
+  sent: number;
+  failed: number;
+  tickets?: ExpoPushTicket[];
+  message?: string;
+};
+
 function chunk<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
   for (let index = 0; index < items.length; index += size) {
@@ -29,7 +44,7 @@ function chunk<T>(items: T[], size: number): T[][] {
   return chunks;
 }
 
-async function sendExpoBatch(messages: ExpoPushMessage[]) {
+async function sendExpoBatch(messages: ExpoPushMessage[]): Promise<ExpoPushTicket[]> {
   const response = await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: {
@@ -67,24 +82,25 @@ export const sendPush = action({
     link: v.optional(v.string()),
     metadata: v.optional(v.any()),
   },
-  handler: async (ctx, args) => {
-    const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken });
+  handler: async (ctx, args): Promise<SendPushResult> => {
+    const tenant = await requireActionTenantContext(ctx);
     requirePermission(tenant, "communications:broadcast");
 
     // Fetch push tokens — scope to specific users or entire tenant
-    const allTokens = await ctx.runQuery(
+    const allTokens: PushRecipient[] = await ctx.runQuery(
       internal.modules.communications.queries.listPushTokensInternal,
       { tenantId: tenant.tenantId }
     );
 
-    const recipients = (allTokens as Array<{ userId: string; pushToken: string; platform?: string; deviceName?: string }>)
-      .filter((t) => !args.userIds || args.userIds.includes(t.userId));
+    const recipients: PushRecipient[] = allTokens.filter(
+      (token) => !args.userIds || args.userIds.includes(token.userId)
+    );
 
     if (recipients.length === 0) {
       return { success: true, sent: 0, failed: 0, message: "No registered devices found" };
     }
 
-    return ctx.runAction(internal.actions.communications.push.sendPushInternal, {
+    return await ctx.runAction(internal.actions.communications.push.sendPushInternal, {
       tenantId: tenant.tenantId,
       actorId: tenant.userId,
       actorEmail: tenant.email,
@@ -115,7 +131,12 @@ export const sendPushInternal = internalAction({
     link: v.optional(v.string()),
     metadata: v.optional(v.any()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    success: boolean;
+    sent: number;
+    failed: number;
+    tickets: ExpoPushTicket[];
+  }> => {
     if (args.recipients.length === 0) {
       return { success: true, sent: 0, failed: 0, tickets: [] };
     }

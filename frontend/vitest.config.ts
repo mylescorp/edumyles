@@ -37,7 +37,7 @@ export default defineConfig({
     alias: [
       {
         find: "@/convex/_generated/api",
-        replacement: resolve(__dirname, "./convex/_generated/api.js"),
+        replacement: resolve(__dirname, "../convex/_generated/api.js"),
       },
       { find: '@', replacement: resolve(__dirname, './src') },
       // Redirect Convex generated-server imports to the frontend's copy.
@@ -45,11 +45,11 @@ export default defineConfig({
       // be imported in vitest tests without a running Convex deployment.
       {
         find: /\/_generated\/server$/,
-        replacement: resolve(__dirname, './convex/_generated/server.js'),
+        replacement: resolve(__dirname, '../convex/_generated/server.js'),
       },
       {
         find: /\/_generated\/api$/,
-        replacement: resolve(__dirname, "./convex/_generated/api.js"),
+        replacement: resolve(__dirname, "../convex/_generated/api.js"),
       },
     ],
   },

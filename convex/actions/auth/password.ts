@@ -42,11 +42,8 @@ export const changePassword = action({
     newPassword: v.string(),
   },
   handler: async (ctx, args) => {
-    // Validate session
-    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
-    const session = await ctx.runQuery(api.sessions.getSession, {
+    const session = await ctx.runQuery(api.sessions.getCurrentSession, {
       sessionToken: args.sessionToken,
-      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 
@@ -96,10 +93,8 @@ export const setInitialPassword = action({
     newPassword: v.string(),
   },
   handler: async (ctx, args) => {
-    const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
-    const session = await ctx.runQuery(api.sessions.getSession, {
+    const session = await ctx.runQuery(api.sessions.getCurrentSession, {
       sessionToken: args.sessionToken,
-      serverSecret,
     });
     if (!session) throw new Error("UNAUTHENTICATED: Invalid session");
 

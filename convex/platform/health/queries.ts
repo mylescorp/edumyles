@@ -99,7 +99,7 @@ export const getPerformanceMetrics = query({
       "7d": 7 * 24 * 60 * 60 * 1000,
       "30d": 30 * 24 * 60 * 60 * 1000,
     };
-    const since = Date.now() - msMap[args.timeRange ?? "24h"];
+    const since = Date.now() - (msMap[args.timeRange ?? "24h"] ?? msMap["24h"] ?? 0);
 
     const auditLogs = await ctx.db
       .query("auditLogs")
@@ -119,7 +119,8 @@ export const getPerformanceMetrics = query({
       args.timeRange === "7d" ? 24 * 60 * 60 * 1000 :
       24 * 60 * 60 * 1000;
 
-    const buckets = Math.min(24, Math.ceil(msMap[args.timeRange ?? "24h"] / intervalMs));
+    const rangeMs = msMap[args.timeRange ?? "24h"] ?? msMap["24h"] ?? 0;
+    const buckets = Math.min(24, Math.ceil(rangeMs / intervalMs));
     const trends = Array.from({ length: buckets }, (_, i) => {
       const bucketStart = since + i * intervalMs;
       const bucketEnd = bucketStart + intervalMs;
@@ -190,7 +191,7 @@ export const getUptimeStats = query({
       "30d": 30 * 24 * 60 * 60 * 1000,
       "90d": 90 * 24 * 60 * 60 * 1000,
     };
-    const since = Date.now() - msMap[args.period ?? "30d"];
+    const since = Date.now() - (msMap[args.period ?? "30d"] ?? msMap["30d"] ?? 0);
 
     const incidents = await ctx.db
       .query("incidents")
@@ -206,7 +207,7 @@ export const getUptimeStats = query({
       return sum + (end - i.createdAt);
     }, 0);
 
-    const periodMs = msMap[args.period ?? "30d"];
+    const periodMs = msMap[args.period ?? "30d"] ?? msMap["30d"] ?? 1;
     const uptimePct = ((periodMs - totalDowntimeMs) / periodMs) * 100;
 
     return {
@@ -245,7 +246,7 @@ export const getResourceUsage = query({
       "24h": 24 * 60 * 60 * 1000,
       "7d": 7 * 24 * 60 * 60 * 1000,
     };
-    const since = Date.now() - msMap[args.timeRange ?? "24h"];
+    const since = Date.now() - (msMap[args.timeRange ?? "24h"] ?? msMap["24h"] ?? 0);
 
     // Use audit log density as proxy for resource usage
     const auditLogs = await ctx.db
@@ -264,7 +265,7 @@ export const getResourceUsage = query({
     const cpuUsage = Math.min(90, 20 + activityLevel * 0.5);
 
     // Build trend buckets
-    const intervalMs = msMap[args.timeRange ?? "24h"] / 12;
+    const intervalMs = (msMap[args.timeRange ?? "24h"] ?? msMap["24h"] ?? 0) / 12;
     const trends = Array.from({ length: 12 }, (_, i) => {
       const bucketStart = since + i * intervalMs;
       const bucketEnd = bucketStart + intervalMs;

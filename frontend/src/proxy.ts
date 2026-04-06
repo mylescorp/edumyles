@@ -1,3 +1,4 @@
+import { authkit, handleAuthkitHeaders } from "@workos-inc/authkit-nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 // ── Route Classification ──────────────────────────────────────
@@ -20,6 +21,16 @@ function isMasterAdminEmail(email?: string | null): boolean {
 const ROUTE_ROLE_MAP: Record<string, string[]> = {
   "/platform": ["master_admin", "super_admin"],
   "/admin": [
+    "school_admin",
+    "principal",
+    "bursar",
+    "hr_manager",
+    "librarian",
+    "transport_manager",
+    "master_admin",
+    "super_admin",
+  ],
+  "/portal/admin": [
     "school_admin",
     "principal",
     "bursar",
@@ -118,6 +129,16 @@ function isRoleAllowedForPath(pathname: string, role: string): boolean {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Dev bypass — skip ALL auth checks before any WorkOS call.
+  // Only allowed outside production to prevent redirect loops.
+  if (process.env.ENABLE_DEV_AUTH_BYPASS === "true" && process.env.NODE_ENV !== "production") {
+    return NextResponse.next();
+  }
+
+  const { session: workosSession, headers: authkitHeaders, authorizationUrl } = await authkit(
+    request
+  );
+
   // ── 0. IP blocking enforcement ────────────────────────────────
   // Skip the check for the blocked-ips endpoint itself and static assets
   const isStaticAsset = pathname.startsWith("/_next") || pathname.startsWith("/favicon");
@@ -137,11 +158,6 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Dev bypass — skip ALL auth checks. Only allowed outside production to prevent
-  // the redirect loop: /admin → login → bypass → /admin → login → ...
-  if (process.env.ENABLE_DEV_AUTH_BYPASS === "true" && process.env.NODE_ENV !== "production") {
-    return NextResponse.next();
-  }
 
   const session = request.cookies.get("edumyles_session");
   let role = request.cookies.get("edumyles_role")?.value;
@@ -165,6 +181,7 @@ export async function proxy(request: NextRequest) {
 
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const isPublic = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
+  const hasServerSession = Boolean(workosSession.user);
 
   // Normalize legacy student routes to the canonical portal path.
   if (pathname === "/student" || pathname.startsWith("/student/")) {
@@ -188,25 +205,30 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 1. Unauthenticated → login
-  if (isProtected && !session) {
-    const loginUrl = new URL("/auth/login/api", request.nextUrl.origin);
-    loginUrl.searchParams.set("returnTo", pathname);
-    return NextResponse.redirect(loginUrl);
+  // 1. Unauthenticated → WorkOS login. Legacy cookie-only sessions are allowed
+  // temporarily while existing users cycle through the updated callback flow.
+  if (isProtected && !hasServerSession && !session) {
+    return handleAuthkitHeaders(request, authkitHeaders, {
+      redirect: authorizationUrl ?? new URL("/auth/login/api", request.nextUrl.origin),
+    });
   }
 
   // 1b. Auth pages should not remain accessible once a session exists.
   if (
-    session &&
+    (session || hasServerSession) &&
     AUTH_PAGES.some((route) => pathname === route || pathname.startsWith(`${route}/`))
   ) {
-    return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
+    return handleAuthkitHeaders(request, authkitHeaders, {
+      redirect: new URL(getRoleDashboard(role ?? "school_admin"), request.url),
+    });
   }
 
   // 2. Root redirect
   if (pathname === "/") {
-    if (session) {
-      return NextResponse.redirect(new URL(getRoleDashboard(role ?? "school_admin"), request.url));
+    if (session || hasServerSession) {
+      return handleAuthkitHeaders(request, authkitHeaders, {
+        redirect: new URL(getRoleDashboard(role ?? "school_admin"), request.url),
+      });
     }
     // Unauthenticated at root → send to landing page
     const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL;
@@ -223,7 +245,7 @@ export async function proxy(request: NextRequest) {
       if (!pathname.startsWith(correctDashboard)) {
         const redirectUrl = new URL(correctDashboard, request.url);
         redirectUrl.searchParams.set("error", "unauthorized");
-        return NextResponse.redirect(redirectUrl);
+        return handleAuthkitHeaders(request, authkitHeaders, { redirect: redirectUrl });
       }
     }
   }
@@ -233,7 +255,7 @@ export async function proxy(request: NextRequest) {
   const parts = host.split(".");
   const firstPart = parts[0] ?? "";
 
-  const response = NextResponse.next();
+  const response = handleAuthkitHeaders(request, authkitHeaders);
 
   // Prevent browser from caching authenticated pages — ensures back button
   // always hits the server (and middleware) rather than serving a stale page
@@ -263,16 +285,11 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
     "/admin/:path*",
     "/dashboard/:path*",
     "/portal/:path*",
     "/platform/:path*",
     "/support/:path*",
-    "/auth/:path*",
     "/student/:path*",
-    "/api/auth/:path*",
-    "/api/waitlist/:path*",
-    "/api/tenants/:path*",
   ],
 };

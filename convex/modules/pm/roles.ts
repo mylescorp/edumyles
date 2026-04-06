@@ -12,6 +12,25 @@ const ROLE_HIERARCHY = {
 type PmRole = keyof typeof ROLE_HIERARCHY;
 type PmScope = "global" | "workspace" | "project";
 
+function getDefaultPmRoleForTenantRole(role: string): PmRole {
+  switch (role) {
+    case "master_admin":
+    case "super_admin":
+    case "school_admin":
+    case "principal":
+      return "admin";
+    case "teacher":
+    case "hr_manager":
+    case "bursar":
+    case "transport_manager":
+    case "librarian":
+    case "receptionist":
+      return "member";
+    default:
+      return "viewer";
+  }
+}
+
 /**
  * Get the effective role for a user in a given scope
  * Priority: project > workspace > global
@@ -92,12 +111,16 @@ export async function requirePmRole(
     throw new Error("AUTHENTICATION_REQUIRED");
   }
 
-  const effectiveRole = await getEffectivePmRole(
+  const explicitRole = await getEffectivePmRole(
     ctx,
     tenantCtx.userId,
     workspaceId,
     projectId
   );
+  const effectiveRole =
+    explicitRole === "viewer"
+      ? getDefaultPmRoleForTenantRole(tenantCtx.role)
+      : explicitRole;
   
   if (!hasMinimumRole(effectiveRole, minRole)) {
     throw new Error("INSUFFICIENT_PERMISSIONS");

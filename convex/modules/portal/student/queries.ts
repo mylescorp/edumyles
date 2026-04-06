@@ -188,3 +188,59 @@ export const getMyNotifications = query({
 
 // Export the assignment query from the academics module
 export { getMyAssignments };
+
+export const getMySubmission = query({
+    args: {
+        assignmentId: v.string(),
+        sessionToken: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "academics");
+
+        const student = await ctx.db
+            .query("students")
+            .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
+            .first();
+
+        if (!student || student.tenantId !== tenant.tenantId) {
+            return null;
+        }
+
+        return await ctx.db
+            .query("submissions")
+            .withIndex("by_assignment_student", (q) =>
+                q.eq("assignmentId", args.assignmentId).eq("studentId", student._id as any)
+            )
+            .first();
+    },
+});
+
+export const getMyReportCards = query({
+    args: {
+        sessionToken: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "academics");
+
+        const student = await ctx.db
+            .query("students")
+            .withIndex("by_user", (q) => q.eq("userId", tenant.userId))
+            .first();
+
+        if (!student || student.tenantId !== tenant.tenantId) {
+            return [];
+        }
+
+        return await ctx.db
+            .query("reportCards")
+            .withIndex("by_student_term", (q) => q.eq("studentId", student._id as any))
+            .collect()
+            .then((cards) => cards.sort((a, b) => b.generatedAt - a.generatedAt));
+    },
+});

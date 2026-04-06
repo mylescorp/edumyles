@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, useTransition, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Badge } from "@/components/ui/badge";
@@ -217,6 +219,7 @@ function InsightSummaryCard({
 }
 
 export default function AISupportPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "tickets" | "insights">("overview");
   const [statusFilter, setStatusFilter] = useState<"all" | TicketStatus>("all");
@@ -233,6 +236,7 @@ export default function AISupportPage() {
   const [newPriority, setNewPriority] = useState<TicketPriority | "">("");
   const [newEmail, setNewEmail] = useState("");
   const [newTags, setNewTags] = useState("");
+  const [isRefreshing, startRefreshing] = useTransition();
 
   const dateRange = useMemo(() => {
     const end = Date.now();
@@ -427,10 +431,16 @@ export default function AISupportPage() {
         title="AI Support"
         description="Operate the live AI support queue with real tenant tickets, analytics, and human escalation controls."
         actions={
-          <Button onClick={() => setIsCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Ticket
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing}>
+              <Clock3 className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Ticket
+            </Button>
+          </div>
         }
       />
 
@@ -512,7 +522,12 @@ export default function AISupportPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {(trendsInsight?.topCategories ?? []).length === 0 ? (
-                  <div className="text-sm text-muted-foreground">No category trends available in this window.</div>
+                  <EmptyState
+                    icon={Lightbulb}
+                    title="No category trends available"
+                    description="This reporting window does not yet have enough AI support ticket volume."
+                    className="py-8"
+                  />
                 ) : (
                   (trendsInsight?.topCategories ?? []).map((entry) => (
                     <div key={entry.category} className="flex items-center justify-between rounded-lg border p-3">
@@ -594,8 +609,13 @@ export default function AISupportPage() {
             <div className="space-y-4">
               {(aiTickets ?? []).length === 0 ? (
                 <Card>
-                  <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                    No AI support tickets match the current filters.
+                  <CardContent>
+                    <EmptyState
+                      icon={MessageSquare}
+                      title="No AI support tickets matched"
+                      description="Try another ticket status, category, or priority filter."
+                      className="py-10"
+                    />
                   </CardContent>
                 </Card>
               ) : (

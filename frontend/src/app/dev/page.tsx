@@ -374,11 +374,11 @@ function readSessionInfo(): SessionInfo {
 function StatusIcon({ status }: { status: RouteStatus }) {
   if (status === null) return null;
   if (status === "loading") return <Loader2 className="w-3 h-3 animate-spin text-gray-400" />;
-  if (status === "error") return <AlertCircle className="w-3 h-3 text-orange-500" title="Network error" />;
-  if (status === 200) return <CheckCircle2 className="w-3 h-3 text-emerald-500" title="200 OK" />;
-  if (status === 404) return <XCircle className="w-3 h-3 text-red-500" title="404 Not Found" />;
-  if (status >= 300 && status < 400) return <RefreshCw className="w-3 h-3 text-blue-400" title={`${status} Redirect`} />;
-  if (status >= 500) return <AlertCircle className="w-3 h-3 text-red-600" title={`${status} Server Error`} />;
+  if (status === "error") return <AlertCircle className="w-3 h-3 text-orange-500" aria-label="Network error" />;
+  if (status === 200) return <CheckCircle2 className="w-3 h-3 text-emerald-500" aria-label="200 OK" />;
+  if (status === 404) return <XCircle className="w-3 h-3 text-red-500" aria-label="404 Not Found" />;
+  if (status >= 300 && status < 400) return <RefreshCw className="w-3 h-3 text-blue-400" aria-label={`${status} Redirect`} />;
+  if (status >= 500) return <AlertCircle className="w-3 h-3 text-red-600" aria-label={`${status} Server Error`} />;
   return <span className="text-[9px] font-mono text-gray-400">{status}</span>;
 }
 

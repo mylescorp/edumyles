@@ -136,7 +136,7 @@ export const getAutomationMetrics = query({
       "30d": 30 * 24 * 60 * 60 * 1000,
       "90d": 90 * 24 * 60 * 60 * 1000,
     };
-    const since = Date.now() - msMap[timeRange];
+    const since = Date.now() - (msMap[timeRange] ?? msMap["30d"] ?? 0);
 
     const allWorkflows = await ctx.db
       .query("workflows")
@@ -165,13 +165,17 @@ export const getAutomationMetrics = query({
       if (!categoryMap[wf.category]) {
         categoryMap[wf.category] = { count: 0, executions: 0, successCount: 0 };
       }
-      categoryMap[wf.category].count++;
+      const categoryEntry = categoryMap[wf.category];
+      if (categoryEntry) {
+        categoryEntry.count++;
+      }
     }
     for (const ex of recentExecutions) {
       const wf = allWorkflows.find((w) => w._id.toString() === ex.workflowId);
-      if (wf && categoryMap[wf.category]) {
-        categoryMap[wf.category].executions++;
-        if (ex.status === "completed") categoryMap[wf.category].successCount++;
+      const categoryEntry = wf ? categoryMap[wf.category] : undefined;
+      if (wf && categoryEntry) {
+        categoryEntry.executions++;
+        if (ex.status === "completed") categoryEntry.successCount++;
       }
     }
     const byCategory = Object.entries(categoryMap).map(([category, data]) => ({
@@ -202,7 +206,7 @@ export const getAutomationMetrics = query({
       const dayExecs = recentExecutions.filter((e) => e.startedAt >= dayStart && e.startedAt < dayEnd);
       const daySuc = dayExecs.filter((e) => e.status === "completed").length;
       trends.push({
-        date: new Date(dayStart).toISOString().split("T")[0],
+        date: new Date(dayStart).toISOString().split("T")[0] ?? "",
         executions: dayExecs.length,
         successRate: dayExecs.length > 0 ? (daySuc / dayExecs.length) * 100 : 0,
       });

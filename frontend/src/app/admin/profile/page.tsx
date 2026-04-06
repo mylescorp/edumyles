@@ -50,7 +50,7 @@ function ChangePasswordModal({
   onOpenChange: (v: boolean) => void;
   sessionToken: string | null;
 }) {
-  const changePassword = useAction(api["actions/auth/password"].changePassword);
+  const changePassword = useAction((api as any)["actions/auth/password"].changePassword);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

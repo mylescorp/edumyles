@@ -10,11 +10,15 @@ const COOKIE_CLEAR_OPTIONS = {
   expires: new Date(0),
 };
 
+const WORKOS_COOKIE_NAME = process.env.WORKOS_COOKIE_NAME || "wos-session";
+
 function clearSessionCookies(response: NextResponse): void {
   response.cookies.set("edumyles_session", "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
   response.cookies.set("edumyles_user", "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: false });
   response.cookies.set("edumyles_role", "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: false });
   response.cookies.set("workos_state", "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
+  response.cookies.set(WORKOS_COOKIE_NAME, "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
+  response.cookies.set("workos-access-token", "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
 }
 
 async function invalidateSession(sessionToken: string): Promise<void> {

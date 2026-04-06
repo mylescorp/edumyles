@@ -1,21 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EmptyState } from "@/components/shared/EmptyState";
 import {
   Activity,
   CheckCircle,
   Download,
   Eye,
+  RefreshCw,
   Search,
   Star,
   Timer,
@@ -95,11 +99,13 @@ function getTrendIcon(trend: StaffPerformanceRow["trend"]) {
 }
 
 export default function StaffPerformancePage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedRole, setSelectedRole] = useState("all");
   const [selectedPeriod, setSelectedPeriod] = useState("week");
+  const [isRefreshing, startRefreshing] = useTransition();
 
   const rawRecords = usePlatformQuery(
     api.platform.staffPerformance.queries.listStaffPerformance,
@@ -121,24 +127,30 @@ export default function StaffPerformancePage() {
     !!sessionToken
   ) as any;
 
-  if (!rawRecords) {
-    return <div className="p-6">Loading...</div>;
-  }
+  const rows = useMemo(() => (rawRecords ?? []).map(mapBackendRecord), [rawRecords]);
+  const departments = useMemo(
+    () => Array.from(new Set(rows.map((row) => row.department).filter(Boolean))).sort(),
+    [rows]
+  );
+  const roles = useMemo(
+    () => Array.from(new Set(rows.map((row) => row.role).filter(Boolean))).sort(),
+    [rows]
+  );
 
-  const rows = rawRecords.map(mapBackendRecord);
-  const departments = Array.from(new Set(rows.map((row) => row.department).filter(Boolean))).sort();
-  const roles = Array.from(new Set(rows.map((row) => row.role).filter(Boolean))).sort();
+  const filteredRows = useMemo(() => {
+    const normalizedSearch = searchQuery.toLowerCase();
 
-  const filteredRows = rows.filter((row) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      row.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      row.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      row.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDepartment = selectedDepartment === "all" || row.department === selectedDepartment;
-    const matchesRole = selectedRole === "all" || row.role === selectedRole;
-    return matchesSearch && matchesDepartment && matchesRole;
-  });
+    return rows.filter((row) => {
+      const matchesSearch =
+        normalizedSearch === "" ||
+        row.firstName.toLowerCase().includes(normalizedSearch) ||
+        row.lastName.toLowerCase().includes(normalizedSearch) ||
+        row.email.toLowerCase().includes(normalizedSearch);
+      const matchesDepartment = selectedDepartment === "all" || row.department === selectedDepartment;
+      const matchesRole = selectedRole === "all" || row.role === selectedRole;
+      return matchesSearch && matchesDepartment && matchesRole;
+    });
+  }, [rows, searchQuery, selectedDepartment, selectedRole]);
 
   const fallbackSummary = useMemo(() => {
     if (filteredRows.length === 0) {
@@ -167,6 +179,10 @@ export default function StaffPerformancePage() {
   }, [filteredRows]);
 
   const summary = trends ?? fallbackSummary;
+
+  if (rawRecords === undefined || trends === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   const handleExport = () => {
     const csv = [
@@ -222,6 +238,17 @@ export default function StaffPerformancePage() {
           { label: "Platform", href: "/platform" },
           { label: "Staff Performance", href: "/platform/staff-performance" },
         ]}
+        actions={
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => startRefreshing(() => router.refresh())}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -403,15 +430,19 @@ export default function StaffPerformancePage() {
                   </td>
                 </tr>
               ))}
-              {filteredRows.length === 0 && (
-                <tr>
-                  <td colSpan={9} className="p-8 text-center text-sm text-muted-foreground">
-                    No staff performance records match the current filters.
-                  </td>
-                </tr>
-              )}
+              {filteredRows.length === 0 ? null : null}
             </tbody>
           </table>
+          {filteredRows.length === 0 ? (
+            <div className="p-6">
+              <EmptyState
+                icon={Users}
+                title="No staff performance records"
+                description="Try another department, role, or reporting period."
+                className="py-10"
+              />
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     </div>

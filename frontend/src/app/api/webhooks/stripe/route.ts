@@ -44,15 +44,19 @@ export async function POST(req: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
     const sessionId = session.id;
     const paymentIntent = session.payment_intent;
-    const reference = typeof paymentIntent === "string" ? paymentIntent : undefined;
+    const paymentIntentId =
+      typeof paymentIntent === "string" ? paymentIntent : paymentIntent?.id;
+    const reference = paymentIntentId;
     if (!sessionId) {
       return NextResponse.json({ error: "Missing session id" }, { status: 400 });
     }
     try {
-      await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
+      await convex.action((api as any)["modules/finance/actions"].recordPaymentFromGateway, {
         webhookSecret,
         gateway: "stripe",
         externalId: sessionId,
+        checkoutSessionId: sessionId,
+        paymentIntentId,
         resultCode: 0,
         reference,
       });
@@ -78,19 +82,21 @@ export async function POST(req: NextRequest) {
       });
     }
     try {
-      await convex.action((api as any).modules.finance.actions.savePaymentCallbackFromServer, {
+      await convex.action((api as any)["modules/finance/actions"].savePaymentCallbackFromServer, {
         webhookSecret,
         tenantId: metadataTenantId,
         gateway: "stripe",
         externalId: paymentIntent.id,
+        paymentIntentId: paymentIntent.id,
         invoiceId: metadataInvoiceId,
         amount: (paymentIntent.amount_received || paymentIntent.amount || 0) / 100,
         status: "pending",
       });
-      await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
+      await convex.action((api as any)["modules/finance/actions"].recordPaymentFromGateway, {
         webhookSecret,
         gateway: "stripe",
         externalId: paymentIntent.id,
+        paymentIntentId: paymentIntent.id,
         resultCode: 0,
         reference: paymentIntent.id,
       });
@@ -107,10 +113,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing payment intent id" }, { status: 400 });
     }
     try {
-      await convex.action(api.modules.finance.actions.recordPaymentFromGateway, {
+      await convex.action((api as any)["modules/finance/actions"].recordPaymentFromGateway, {
         webhookSecret,
         gateway: "stripe",
         externalId: paymentIntent.id,
+        paymentIntentId: paymentIntent.id,
         resultCode: 1, // Failed
         reference: paymentIntent.id,
       });

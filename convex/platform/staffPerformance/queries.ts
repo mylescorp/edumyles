@@ -60,6 +60,7 @@ export const getStaffDetail = query({
     if (records.length === 0) throw new Error("No performance records found for this user");
 
     const latest = records[0];
+    if (!latest) throw new Error("No performance records found for this user");
     return {
       userId: latest.userId,
       userName: latest.userName,

@@ -52,7 +52,8 @@ function generateResponseTemplate(category: string, responseType: string, tone: 
       resolution: "We're pleased to let you know that your inquiry has been resolved. Please let us know if you need any further assistance.",
     },
   };
-  return (templates[category] ?? templates.general)[responseType] ??
+  const categoryTemplates = templates[category] ?? templates.general;
+  return categoryTemplates?.[responseType] ??
     "Thank you for contacting EduMyles support. We will assist you as soon as possible.";
 }
 

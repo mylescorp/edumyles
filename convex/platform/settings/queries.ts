@@ -21,7 +21,10 @@ export const getSettings = query({
     const result: Record<string, Record<string, string>> = {};
     for (const s of settings) {
       if (!result[s.section]) result[s.section] = {};
-      result[s.section][s.key] = s.value;
+      const sectionSettings = result[s.section];
+      if (sectionSettings) {
+        sectionSettings[s.key] = s.value;
+      }
     }
     return result;
   },

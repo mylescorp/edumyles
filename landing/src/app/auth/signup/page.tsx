@@ -8,26 +8,27 @@ import {
   Building2,
   CheckCircle2,
   Globe2,
-  MapPinned,
   Mail,
   MessageSquareText,
   Phone,
   ShieldCheck,
   Sparkles,
   UserRound,
+  Users,
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
 
 type FormState = "idle" | "loading" | "error";
 
-const ROLE_OPTIONS = [
-  { value: "school_admin", label: "School Owner / Director" },
-  { value: "principal", label: "Principal / Head Teacher" },
-  { value: "bursar", label: "Bursar / Finance Lead" },
-  { value: "hr_manager", label: "HR / Operations Lead" },
-  { value: "teacher", label: "Teacher / Academic Lead" },
-  { value: "partner", label: "Partner / Institution Representative" },
-];
+const REFERRAL_SOURCES = [
+  "Search engine",
+  "Social media",
+  "Referral",
+  "Conference or event",
+  "Sales outreach",
+  "Returning visitor",
+  "Other",
+] as const;
 
 const COUNTRY_OPTIONS = [
   "Kenya",
@@ -39,65 +40,6 @@ const COUNTRY_OPTIONS = [
   "Ethiopia",
   "Other",
 ];
-
-const COUNTY_OPTIONS: Record<string, string[]> = {
-  Kenya: [
-    "Mombasa",
-    "Kwale",
-    "Kilifi",
-    "Tana River",
-    "Lamu",
-    "Taita-Taveta",
-    "Garissa",
-    "Wajir",
-    "Mandera",
-    "Marsabit",
-    "Isiolo",
-    "Meru",
-    "Tharaka-Nithi",
-    "Embu",
-    "Kitui",
-    "Machakos",
-    "Makueni",
-    "Nyandarua",
-    "Nyeri",
-    "Kirinyaga",
-    "Murang'a",
-    "Kiambu",
-    "Turkana",
-    "West Pokot",
-    "Samburu",
-    "Trans Nzoia",
-    "Uasin Gishu",
-    "Elgeyo-Marakwet",
-    "Nandi",
-    "Baringo",
-    "Laikipia",
-    "Nakuru",
-    "Narok",
-    "Kajiado",
-    "Kericho",
-    "Bomet",
-    "Kakamega",
-    "Vihiga",
-    "Bungoma",
-    "Busia",
-    "Siaya",
-    "Kisumu",
-    "Homa Bay",
-    "Migori",
-    "Kisii",
-    "Nyamira",
-    "Nairobi",
-  ],
-  Uganda: ["Kampala", "Wakiso", "Mukono", "Gulu", "Mbarara", "Jinja", "Mbale", "Other"],
-  Tanzania: ["Dar es Salaam", "Arusha", "Mwanza", "Dodoma", "Mbeya", "Morogoro", "Other"],
-  Rwanda: ["Kigali", "Northern Province", "Southern Province", "Eastern Province", "Western Province"],
-  Zambia: ["Lusaka", "Copperbelt", "Central", "Southern", "Eastern", "Northern", "Other"],
-  "South Sudan": ["Juba", "Central Equatoria", "Western Bahr el Ghazal", "Jonglei", "Other"],
-  Ethiopia: ["Addis Ababa", "Oromia", "Amhara", "Tigray", "Sidama", "Other"],
-  Other: ["Other"],
-};
 
 const inputClass =
   "w-full rounded-xl border border-[#dbe9e0] bg-white px-4 py-3.5 font-jakarta text-[15px] text-[#061A12] outline-none transition-colors duration-200 focus:border-[#0F4C2A]";
@@ -121,27 +63,15 @@ function SignUpPageContent() {
     email: searchParams.get("email") ?? "",
     phone: "",
     country: "Kenya",
-    county: "Nairobi",
     schoolName: "",
-    requestedRole: "school_admin",
-    message: "",
+    studentCount: "",
+    referralSource: "Search engine",
+    biggestChallenge: "",
   });
-
-  const countyOptions = COUNTY_OPTIONS[fields.country] ?? ["Other"];
 
   function handleChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
-    if (event.target.name === "country") {
-      const nextCountry = event.target.value;
-      setFields((current) => ({
-        ...current,
-        country: nextCountry,
-        county: COUNTY_OPTIONS[nextCountry]?.[0] ?? "",
-      }));
-      return;
-    }
-
     setFields((current) => ({
       ...current,
       [event.target.name]: event.target.value,
@@ -167,7 +97,7 @@ function SignUpPageContent() {
       };
 
       if (!response.ok) {
-        throw new Error(payload.error ?? "We couldn't submit your application right now.");
+        throw new Error(payload.error ?? "We couldn't join the waitlist right now.");
       }
 
       const query = new URLSearchParams({
@@ -176,12 +106,12 @@ function SignUpPageContent() {
       });
       if (payload.alreadyExists) query.set("duplicate", "1");
 
-      router.push(`/auth/signup/success?${query.toString()}`);
+      router.push(`/waitlist/success?${query.toString()}`);
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "We couldn't submit your application right now."
+          : "We couldn't join the waitlist right now."
       );
       setFormState("error");
     }
@@ -204,17 +134,17 @@ function SignUpPageContent() {
           <div className="max-w-3xl pt-8 xl:pt-20">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#E8A020] bg-[rgba(232,160,32,0.12)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#E8A020]">
               <Sparkles className="h-4 w-4" />
-              Client Application
+              School Waitlist
             </div>
             <h1 className="font-playfair text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
-              Launch your
+              Join the
               <br />
-              EduMyles onboarding
+              EduMyles school
               <br />
-              with confidence.
+              waitlist.
             </h1>
             <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
-              Share your institution details once, and we will route your application into a guided approval workflow. Our onboarding team reviews every request, confirms the right rollout path, and reaches out with tailored next steps.
+              Share your school details once and we will add you to the EduMyles launch waitlist. Our team uses this information to prioritize onboarding, prepare the right rollout path, and reach out with next steps.
             </p>
           </div>
 
@@ -222,18 +152,18 @@ function SignUpPageContent() {
             {[
               {
                 icon: ShieldCheck,
-                title: "Reviewed with care",
-                body: "Every application is assessed carefully before access is activated so onboarding stays structured and secure.",
+                title: "Qualified for rollout",
+                body: "Every waitlist entry helps us understand readiness, rollout size, and the best onboarding track for your school.",
               },
               {
                 icon: Building2,
-                title: "Tailored setup plan",
-                body: "We align your onboarding around your school structure, rollout priority, and preferred modules.",
+                title: "Tailored onboarding plan",
+                body: "We align your onboarding around your school structure, rollout priority, and the modules you care about most.",
               },
               {
                 icon: MessageSquareText,
                 title: "Fast, human follow-up",
-                body: "You’ll hear from us with next steps, expected timeline, and the best channel to continue onboarding.",
+                body: "You’ll hear from us with expected timing, next steps, and the best channel to continue the rollout conversation.",
               },
             ].map((item) => (
               <div
@@ -250,14 +180,14 @@ function SignUpPageContent() {
           <div className="mt-12 grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
               <h2 className="font-playfair text-[28px] font-bold text-white">
-                What to expect after you apply
+                What happens after you join
               </h2>
               <div className="mt-6 space-y-4">
                 {[
-                  "Your application is added to the EduMyles approval queue instantly.",
-                  "Our onboarding team reviews your institution profile and contact details.",
-                  "We reach out to confirm rollout needs, modules, and onboarding timeline.",
-                  "Once approved, we guide you through activation and setup."
+                  "Your school is added to the EduMyles waitlist instantly.",
+                  "Our onboarding team reviews your institution profile and readiness details.",
+                  "We reach out to confirm rollout needs, student volume, and onboarding timing.",
+                  "Once your slot is ready, we guide you through activation and setup."
                 ].map((step, index) => (
                   <div key={step} className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(232,160,32,0.16)] font-jakarta text-xs font-bold text-[#E8A020]">
@@ -276,7 +206,7 @@ function SignUpPageContent() {
                       Recommended for school leaders
                     </h3>
                     <p className="mt-2 font-jakarta text-[14px] leading-7 text-[#E8F5EE]">
-                      Include your institution name, operating location, and your current priority areas so our team can prepare a sharper onboarding conversation.
+                      Include your institution name, learner volume, and current priority areas so our team can prepare a sharper onboarding conversation.
                     </p>
                   </div>
                 </div>
@@ -285,10 +215,10 @@ function SignUpPageContent() {
 
             <div className="rounded-[28px] border border-[rgba(232,160,32,0.22)] bg-[rgba(232,160,32,0.08)] p-6 xl:p-8">
               <h2 className="font-jakarta text-[15px] font-bold text-[#E8A020]">
-                Need to speak with us before approval?
+                Need to speak with us before activation?
               </h2>
               <p className="mt-2 font-jakarta text-[14px] leading-7 text-[#D7F3E2]">
-                Reach our onboarding or commercial team if you want to discuss timelines, partnerships, or a guided demo before your application is reviewed.
+                Reach our onboarding or commercial team if you want to discuss timelines, partnerships, or a guided demo before your waitlist entry is reviewed.
               </p>
               <div className="mt-5 grid gap-3 text-sm text-[#F3FBF6] sm:grid-cols-2 xl:grid-cols-1">
                 <a href="mailto:sales@edumyles.com" className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]">
@@ -304,7 +234,7 @@ function SignUpPageContent() {
                   +254 743 993 715
                 </a>
                 <a
-                  href="https://wa.me/254743993715?text=Hello%20EduMyles%2C%20I%20just%20submitted%20our%20school%20application%20and%20would%20love%20to%20connect."
+                  href="https://wa.me/254743993715?text=Hello%20EduMyles%2C%20I%20just%20joined%20the%20school%20waitlist%20and%20would%20love%20to%20connect."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
@@ -328,13 +258,13 @@ function SignUpPageContent() {
           <div className="mx-auto w-full max-w-[620px]">
           <div className="mb-8 pb-6">
             <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
-              Apply for access
+                    Join the waitlist
             </p>
             <h2 className="mt-2 font-playfair text-[clamp(2rem,3vw,2.7rem)] font-bold text-[#061A12]">
               Applicant details
             </h2>
             <p className="mt-3 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
-              Complete your profile with the details our onboarding team needs to assess your institution and contact you quickly.
+              Complete your profile with the details our onboarding team needs to qualify your school and contact you quickly.
             </p>
           </div>
 
@@ -444,26 +374,13 @@ function SignUpPageContent() {
                     </select>
                   </div>
                 </div>
-                <div>
-                  <label htmlFor="county" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
-                    County / State / Region
-                  </label>
-                  <div className="relative">
-                    <MapPinned className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
-                    <select
-                      id="county"
-                      name="county"
-                      value={fields.county}
-                      onChange={handleChange}
-                      className={`${inputClass} pl-10`}
-                    >
-                      {countyOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="rounded-[18px] border border-[#e5efe9] bg-white px-4 py-3">
+                  <p className="font-jakarta text-[11px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
+                    Waitlist quality tip
+                  </p>
+                  <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#5d6f66]">
+                    Work emails and accurate school size help us prioritize outreach faster.
+                  </p>
                 </div>
               </div>
             </div>
@@ -494,49 +411,59 @@ function SignUpPageContent() {
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="requestedRole" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
-                    You’re applying as
+                  <label htmlFor="studentCount" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    Approximate student count
+                  </label>
+                  <div className="relative">
+                    <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                    <input
+                    id="studentCount"
+                    name="studentCount"
+                    type="number"
+                    min="0"
+                    value={fields.studentCount}
+                    onChange={handleChange}
+                    className={`${inputClass} pl-10`}
+                    placeholder="650"
+                  />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="referralSource" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    How did you hear about EduMyles?
                   </label>
                   <select
-                    id="requestedRole"
-                    name="requestedRole"
-                    value={fields.requestedRole}
+                    id="referralSource"
+                    name="referralSource"
+                    value={fields.referralSource}
                     onChange={handleChange}
                     className={inputClass}
                   >
-                    {ROLE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                    {REFERRAL_SOURCES.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
                       </option>
                     ))}
                   </select>
-                </div>
-                <div className="rounded-[18px] border border-[#e5efe9] bg-white px-4 py-3">
-                  <p className="font-jakarta text-[11px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
-                    Application quality tip
-                  </p>
-                  <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#5d6f66]">
-                    Mention your immediate priorities such as admissions, fees, academics, HR, or parent engagement.
-                  </p>
                 </div>
               </div>
             </div>
 
             <div>
-              <label htmlFor="message" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
-                Tell us what you need most
+              <label htmlFor="biggestChallenge" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                Biggest challenge right now
               </label>
               <textarea
-                id="message"
-                name="message"
+                id="biggestChallenge"
+                name="biggestChallenge"
                 rows={5}
-                value={fields.message}
+                value={fields.biggestChallenge}
                 onChange={handleChange}
                 className={`${inputClass} min-h-[140px] resize-y`}
                 placeholder="Example: We want to streamline admissions, fees, and parent communication across two campuses."
               />
               <p className="mt-2 font-jakarta text-[12px] leading-5 text-[#7b8f85]">
-                This helps us prepare a more relevant onboarding conversation before we contact you.
+                This helps us prepare a more relevant onboarding conversation before we contact you from the waitlist.
               </p>
             </div>
 
@@ -551,12 +478,12 @@ function SignUpPageContent() {
               disabled={formState === "loading"}
               className="inline-flex w-full items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-[#0F4C2A] px-6 py-4 font-jakarta text-[15px] font-bold text-white transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {formState === "loading" ? "Submitting your application..." : "Submit application"}
+              {formState === "loading" ? "Joining the waitlist..." : "Join the waitlist"}
             </button>
 
             <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
               <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
-                By applying, you’re requesting onboarding review for your institution. We’ll contact you with next steps, onboarding guidance, and any clarification we may need before activation.
+                By joining, you’re adding your school to the EduMyles onboarding waitlist. We’ll contact you with next steps, onboarding guidance, and any clarification we may need before activation.
               </p>
             </div>
           </form>
@@ -572,13 +499,13 @@ function SignUpPageFallback() {
     <main className="flex min-h-screen items-center justify-center bg-[#EEF6F1] px-4 py-8 sm:px-6 lg:px-8">
       <div className="w-full max-w-xl rounded-[28px] bg-white px-8 py-12 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)]">
         <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
-          Preparing application
+          Preparing waitlist form
         </p>
         <h1 className="mt-3 font-playfair text-[2rem] font-bold text-[#061A12]">
           Loading your signup form...
         </h1>
         <p className="mt-4 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
-          Please hold for a moment while we prepare your onboarding application.
+          Please hold for a moment while we prepare your waitlist form.
         </p>
       </div>
     </main>

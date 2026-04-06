@@ -22,7 +22,7 @@ const plans = [
     ],
     notIncluded: ["M-Pesa / mobile money", "Multi-campus", "Advanced analytics", "API access"],
     cta: "Start Free Trial",
-    href: "/auth/signup",
+    href: "/waitlist",
     featured: false,
     highlight: null,
   },
@@ -45,7 +45,7 @@ const plans = [
     ],
     notIncluded: [],
     cta: "Start Free Trial",
-    href: "/auth/signup",
+    href: "/waitlist",
     featured: true,
     highlight: "Most Popular",
   },
@@ -368,7 +368,7 @@ export default function PricingContent() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
-              href="/auth/signup"
+              href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "#E8A020", color: "#061A12" }}
             >

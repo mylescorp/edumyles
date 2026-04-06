@@ -26,7 +26,7 @@ export const getBusinessIntelligence = query({
       "90d": 90 * 24 * 60 * 60 * 1000,
       "1y": 365 * 24 * 60 * 60 * 1000,
     };
-    const since = Date.now() - msMap[timeRange];
+    const since = Date.now() - (msMap[timeRange] ?? msMap["30d"] ?? 0);
 
     const allTenants = await ctx.db.query("tenants").collect();
     const activeTenants = allTenants.filter((t) => t.status === "active");
@@ -237,7 +237,15 @@ export const generateReport = mutation({
     sessionToken: v.string(),
     reportId: v.string(),
     format: v.union(v.literal("pdf"), v.literal("excel"), v.literal("csv")),
-    filters: v.optional(v.record(v.string(), v.any())),
+    filters: v.optional(
+      v.array(
+        v.object({
+          field: v.string(),
+          op: v.string(),
+          value: v.union(v.string(), v.number(), v.boolean()),
+        })
+      )
+    ),
     emailRecipients: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {

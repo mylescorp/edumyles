@@ -43,9 +43,10 @@ export const createArticle = mutation({
       .filter((q) => q.eq(q.field("name"), args.category))
       .collect();
 
-    if (categories.length > 0) {
-      await ctx.db.patch(categories[0]._id, {
-        articleCount: categories[0].articleCount + 1,
+    const firstCategory = categories[0];
+    if (firstCategory) {
+      await ctx.db.patch(firstCategory._id, {
+        articleCount: firstCategory.articleCount + 1,
         updatedAt: Date.now(),
       });
     }
@@ -109,9 +110,10 @@ export const updateArticle = mutation({
         .query("knowledgeBaseCategories")
         .filter((q) => q.eq(q.field("name"), article.category))
         .collect();
-      if (oldCats.length > 0) {
-        await ctx.db.patch(oldCats[0]._id, {
-          articleCount: Math.max(0, oldCats[0].articleCount - 1),
+      const oldCategory = oldCats[0];
+      if (oldCategory) {
+        await ctx.db.patch(oldCategory._id, {
+          articleCount: Math.max(0, oldCategory.articleCount - 1),
           updatedAt: Date.now(),
         });
       }
@@ -121,9 +123,10 @@ export const updateArticle = mutation({
         .query("knowledgeBaseCategories")
         .filter((q) => q.eq(q.field("name"), args.category))
         .collect();
-      if (newCats.length > 0) {
-        await ctx.db.patch(newCats[0]._id, {
-          articleCount: newCats[0].articleCount + 1,
+      const newCategory = newCats[0];
+      if (newCategory) {
+        await ctx.db.patch(newCategory._id, {
+          articleCount: newCategory.articleCount + 1,
           updatedAt: Date.now(),
         });
       }
@@ -180,9 +183,10 @@ export const deleteArticle = mutation({
       .query("knowledgeBaseCategories")
       .filter((q) => q.eq(q.field("name"), article.category))
       .collect();
-    if (cats.length > 0) {
-      await ctx.db.patch(cats[0]._id, {
-        articleCount: Math.max(0, cats[0].articleCount - 1),
+    const category = cats[0];
+    if (category) {
+      await ctx.db.patch(category._id, {
+        articleCount: Math.max(0, category.articleCount - 1),
         updatedAt: Date.now(),
       });
     }

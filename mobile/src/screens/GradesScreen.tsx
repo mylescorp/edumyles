@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,7 +9,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
 import { useMutation, useQuery } from 'convex/react';
 import GradeRow, { type GradeRowProps } from '../components/GradeRow';
 import StudentCard, { type StudentCardProps } from '../components/StudentCard';
@@ -242,11 +242,10 @@ const GradesScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {isOffline && <Text style={styles.banner}>Showing cached grades.</Text>}
-      <FlashList
+      <FlatList
         data={resolvedStudentGrades as GradeRowProps[]}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <GradeRow {...item} />}
-        estimatedItemSize={80}
         contentContainerStyle={styles.content}
       />
     </View>

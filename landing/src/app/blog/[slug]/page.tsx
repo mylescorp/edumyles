@@ -388,7 +388,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <h3 className="font-playfair font-bold text-[22px] text-white mb-3">Ready to manage your school smarter?</h3>
           <p className="font-jakarta text-[14px] mb-6" style={{ color: "#A8E6C3" }}>Join 50+ schools already running better with EduMyles. Free 30-day trial.</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/auth/signup" className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline" style={{ background: "#E8A020", color: "#061A12" }}>
+            <Link href="/waitlist" className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline" style={{ background: "#E8A020", color: "#061A12" }}>
               Start Free Trial →
             </Link>
             <Link href="/book-demo" className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-[50px] no-underline" style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.3)", color: "#ffffff" }}>

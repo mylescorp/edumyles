@@ -85,8 +85,10 @@ async function validateModuleTier(
   }
 
   // Check if module is available for this tier
-  const availableModules =
-    TIER_MODULES[tier as keyof typeof TIER_MODULES] ?? TIER_MODULES.starter;
+  const availableModules = [
+    ...(TIER_MODULES[tier as keyof typeof TIER_MODULES] ?? []),
+    ...((tier as keyof typeof TIER_MODULES) === "starter" ? [] : (TIER_MODULES.starter ?? [])),
+  ];
 
   if (!availableModules.includes(moduleId)) {
     throw new Error(

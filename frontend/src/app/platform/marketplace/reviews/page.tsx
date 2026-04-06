@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Star, CheckCircle, XCircle, Clock, MessageSquare,
+  Star, CheckCircle, XCircle, Clock,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
@@ -50,11 +50,11 @@ function ReviewModerationContent() {
   const [rejectionReason, setRejectionReason] = useState("");
 
   const pendingReviews = usePlatformQuery(
-    api.platform.marketplace.getPendingReviews,
+    api.platform.marketplace.queries.getPendingReviews,
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
-  const moderateReview = useMutation(api.platform.marketplace.moderateReview);
+  const moderateReview = useMutation(api.platform.marketplace.mutations.moderateReview);
 
   const handleApprove = async (reviewId: string) => {
     if (!sessionToken) return;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,7 @@ import {
   Pause,
   Square,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -117,20 +119,6 @@ interface OperationsAlert {
   acknowledged: boolean;
 }
 
-interface SystemHealth {
-  overall: string;
-  score: number;
-  lastChecked: number;
-  services: Array<{
-    name: string;
-    status: string;
-    responseTime: number;
-    uptime: number;
-    lastCheck: number;
-    metrics: Record<string, any>;
-  }>;
-}
-
 const EMPTY_INCIDENT_FORM = {
   title: "",
   description: "",
@@ -165,6 +153,7 @@ function toTimestamp(value: string) {
 }
 
 export default function OperationsCenterPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
@@ -182,6 +171,7 @@ export default function OperationsCenterPage() {
   const [isSubmittingIncident, setIsSubmittingIncident] = useState(false);
   const [isSubmittingMaintenance, setIsSubmittingMaintenance] = useState(false);
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
+  const [isRefreshing, startRefreshing] = useTransition();
 
   // Get operations overview
   const overview = usePlatformQuery(
@@ -231,7 +221,6 @@ export default function OperationsCenterPage() {
   const acknowledgeAlertMutation = useMutation(api.platform.operations.mutations.acknowledgeAlert);
   const resolveAlertMutation = useMutation(api.platform.operations.mutations.resolveAlert);
   const updateMaintenanceMutation = useMutation(api.platform.operations.mutations.updateMaintenanceStatus);
-  const cancelMaintenanceMutation = useMutation(api.platform.operations.mutations.cancelMaintenance);
 
   // Get severity color
   const getSeverityColor = (severity: string) => {
@@ -384,6 +373,15 @@ export default function OperationsCenterPage() {
         ]}
         actions={
           <>
+            <Button
+              onClick={() => startRefreshing(() => router.refresh())}
+              variant="outline"
+              className="flex items-center gap-2"
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              Refresh
+            </Button>
             <Button onClick={() => setIsIncidentDialogOpen(true)} className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
               New Incident

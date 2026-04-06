@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PayrollEngine } from "./payroll";
+import { PayrollEngine } from "./payroll.js";
 
 describe("PayrollEngine.calculatePAYE (Kenya 2024)", () => {
   it("returns 0 for zero salary", () => {

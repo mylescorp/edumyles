@@ -4,6 +4,11 @@ import { internal } from "../../_generated/api";
 
 const { createSMSService, SMSService } = require("../../../shared/src/lib/sms");
 
+// SECURITY: These are system/server actions invoked behind the shared webhook secret
+// from trusted backend routes, so they are exempt from requireTenantContext().
+// Tenant isolation is enforced by the caller supplying the tenantId and by the
+// downstream tenant-scoped query/mutation calls that use that tenantId.
+
 type CampaignRecipient = {
   userId: string;
   email?: string;

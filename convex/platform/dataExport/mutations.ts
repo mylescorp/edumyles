@@ -171,7 +171,7 @@ export const generateExportData = mutation({
         if (rows.length === 0) {
           dataContent = "";
         } else {
-          const headers = Object.keys(rows[0]);
+          const headers = Object.keys(rows[0] ?? {});
           const csvLines = [
             headers.join(","),
             ...rows.map((row) =>

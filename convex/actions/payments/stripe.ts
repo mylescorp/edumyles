@@ -27,7 +27,7 @@ export async function createStripeCheckoutSessionForPayment(args: {
   cancelUrl: string;
   clientReferenceId: string;
   metadata?: Record<string, string>;
-}): Promise<{ sessionId?: string; url?: string }> {
+}): Promise<{ sessionId?: string; paymentIntentId?: string; url?: string }> {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
     throw new Error("Stripe not configured. Set STRIPE_SECRET_KEY.");
@@ -46,6 +46,7 @@ export async function createStripeCheckoutSessionForPayment(args: {
       "line_items[0][price_data][product_data][name]": args.description,
       "line_items[0][quantity]": "1",
       "mode": "payment",
+      "expand[]": "payment_intent",
       "success_url": args.successUrl,
       "cancel_url": args.cancelUrl,
       "client_reference_id": args.clientReferenceId,
@@ -60,9 +61,18 @@ export async function createStripeCheckoutSessionForPayment(args: {
     throw new Error(err.error?.message ?? `Stripe API error: ${res.status}`);
   }
 
-  const data = (await res.json()) as { id?: string; url?: string };
+  const data = (await res.json()) as {
+    id?: string;
+    url?: string;
+    payment_intent?: string | { id?: string } | null;
+  };
+  const paymentIntentId =
+    typeof data.payment_intent === "string"
+      ? data.payment_intent
+      : data.payment_intent?.id;
   return {
     sessionId: data.id,
+    paymentIntentId,
     url: data.url,
   };
 }
@@ -128,10 +138,13 @@ export const createCheckoutSession = action({
         tenantId: session.tenantId,
         gateway: "stripe",
         externalId: data.sessionId,
+        checkoutSessionId: data.sessionId,
+        paymentIntentId: data.paymentIntentId,
         invoiceId: String(args.invoiceId),
         amount: invoice.amount,
         payload: {
           checkoutSessionId: data.sessionId,
+          paymentIntentId: data.paymentIntentId,
           clientReferenceId: String(args.invoiceId),
         },
         status: "pending",
@@ -139,6 +152,7 @@ export const createCheckoutSession = action({
     }
     return {
       sessionId: data.sessionId,
+      paymentIntentId: data.paymentIntentId,
       url: data.url,
     };
   },

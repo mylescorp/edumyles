@@ -33,7 +33,14 @@ export async function GET(req: NextRequest) {
       serverSecret,
     });
 
-    if (!session || !session.email) {
+    if (
+      !session ||
+      !session.sessionToken ||
+      !session.email ||
+      !session.tenantId ||
+      !session.userId ||
+      !session.role
+    ) {
       return NextResponse.redirect(new URL("/auth/error?reason=invalid_mobile_session", appUrl));
     }
 

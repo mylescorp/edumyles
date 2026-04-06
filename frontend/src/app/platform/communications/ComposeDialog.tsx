@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,6 +29,8 @@ import { toast } from "sonner";
 interface ComposeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialType?: MessageType;
+  title?: string;
 }
 
 type MessageType = "broadcast" | "targeted" | "alert" | "campaign";
@@ -42,11 +44,16 @@ const MESSAGE_TYPES: { value: MessageType; label: string }[] = [
 ];
 const PLAN_TIERS = ["starter", "standard", "pro", "enterprise"] as const;
 
-export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
+export function ComposeDialog({
+  open,
+  onOpenChange,
+  initialType = "broadcast",
+  title = "Compose New Message",
+}: ComposeDialogProps) {
   const { sessionToken } = useAuth();
 
   // Form state
-  const [type, setType] = useState<MessageType>("broadcast");
+  const [type, setType] = useState<MessageType>(initialType);
   const [subject, setSubject] = useState("");
   const [channels, setChannels] = useState<Channel[]>(["in_app"]);
   const [inAppBody, setInAppBody] = useState("");
@@ -63,6 +70,12 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
   const createMessage = useMutation(api.platform.communications.mutations.createPlatformMessage);
   const sendMessageNow = useMutation(api.platform.communications.mutations.sendPlatformMessageNow);
   const scheduleMessage = useMutation(api.platform.communications.mutations.schedulePlatformMessage);
+
+  useEffect(() => {
+    if (open) {
+      setType(initialType);
+    }
+  }, [initialType, open]);
 
   const toggleChannel = (ch: Channel) => {
     setChannels((prev) =>
@@ -86,7 +99,7 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
   };
 
   const resetForm = () => {
-    setType("broadcast");
+    setType(initialType);
     setSubject("");
     setChannels(["in_app"]);
     setInAppBody("");
@@ -188,7 +201,7 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Compose New Message</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-5 py-2">

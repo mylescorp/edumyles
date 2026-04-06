@@ -280,7 +280,7 @@ export default function SchoolGroupsPage() {
               Get a Group Quote <ArrowRight className="w-4 h-4" />
             </Link>
             <a
-              href="/auth/signup"
+              href="/waitlist"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
             >
@@ -787,7 +787,7 @@ export default function SchoolGroupsPage() {
               Get a group quote <ArrowRight className="w-4 h-4" />
             </Link>
             <a
-              href="/auth/signup"
+              href="/waitlist"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-7 py-3 rounded-[50px] no-underline"
               style={{ border: "2px solid #061A12", color: "#061A12" }}
             >

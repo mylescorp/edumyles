@@ -24,6 +24,13 @@ beforeEach(() => {
   jest.resetModules();
 });
 
+beforeEach(async () => {
+  await clearOfflineMutationQueue();
+  await removeCachedQuery("grades:student-1");
+  await removeCachedQuery("attendance:2026-04");
+  await removeCachedQuery("wallet:balance");
+});
+
 // Re-import after reset so each test gets a clean module
 async function getCache() {
   return import("../services/cache");

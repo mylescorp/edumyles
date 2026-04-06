@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { GradingSystem } from "./grading";
-import type { Grade } from "./grading";
+import { GradingSystem } from "./grading.js";
+import type { Grade } from "./grading.js";
 
 describe("GradingSystem.calculatePercentage", () => {
   it("returns correct percentage", () => {

@@ -1,15 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EmptyState } from "@/components/shared/EmptyState";
 import {
   MessageSquare,
   Send,
-  FileText,
   Plus,
   Trash2,
   Mail,
@@ -101,9 +102,17 @@ function ChannelIcons({ channels }: { channels: string[] }) {
 }
 
 export default function CommunicationsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { sessionToken } = useAuth();
-  const [activeTab, setActiveTab] = useState<"messages" | "analytics" | "templates" | "recipients">("messages");
+  const requestedTab = searchParams.get("tab");
+  const resolvedInitialTab: "messages" | "analytics" | "templates" | "recipients" =
+    requestedTab === "analytics" || requestedTab === "templates" || requestedTab === "recipients"
+      ? requestedTab
+      : "messages";
+  const [activeTab, setActiveTab] = useState<"messages" | "analytics" | "templates" | "recipients">(resolvedInitialTab);
   const [messageFilter, setMessageFilter] = useState<"all" | "draft" | "scheduled" | "sent">("all");
+  const [messageTypeFilter, setMessageTypeFilter] = useState<"all" | string>(requestedTab === "broadcast" ? "broadcast" : "all");
   const [isComposeOpen, setIsComposeOpen] = useState(false);
 
   const allMessages = usePlatformQuery<PlatformMessage[]>(
@@ -167,7 +176,7 @@ export default function CommunicationsPage() {
     campaigns === undefined;
 
   const messages: PlatformMessage[] = allMessages ?? [];
-  const recentTemplates = templates ?? [];
+  const recentTemplates = useMemo(() => templates ?? [], [templates]);
 
   const templateSummary = useMemo(() => {
     const countsByChannel = recentTemplates.reduce((acc: Record<string, number>, template: any) => {
@@ -184,7 +193,11 @@ export default function CommunicationsPage() {
   }
 
   const filteredMessages =
-    messageFilter === "all" ? messages : messages.filter((message) => message.status === messageFilter);
+    messages.filter((message) => {
+      const matchesStatus = messageFilter === "all" || message.status === messageFilter;
+      const matchesType = messageTypeFilter === "all" || message.type === messageTypeFilter;
+      return matchesStatus && matchesType;
+    });
 
   const counts = {
     all: messages.length,
@@ -197,6 +210,12 @@ export default function CommunicationsPage() {
   const channelBreakdown = deliveryAnalytics?.byChannel ?? [];
   const recentRecipientLists = recipientLists ?? [];
   const recentCampaigns = campaigns ?? [];
+
+  const handleTabChange = (value: typeof activeTab) => {
+    setActiveTab(value);
+    setMessageTypeFilter("all");
+    router.replace(`/platform/communications?tab=${value}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -260,7 +279,7 @@ export default function CommunicationsPage() {
         </Card>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(value) => handleTabChange(value as typeof activeTab)} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -282,13 +301,33 @@ export default function CommunicationsPage() {
             <Button variant={messageFilter === "sent" ? "default" : "outline"} size="sm" onClick={() => setMessageFilter("sent")}>
               Sent ({counts.sent})
             </Button>
+            <Button
+              variant={messageTypeFilter === "broadcast" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setMessageTypeFilter((current) => (current === "broadcast" ? "all" : "broadcast"))}
+            >
+              Broadcast only
+            </Button>
           </div>
 
           {filteredMessages.length === 0 ? (
             <Card>
-              <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-                <MessageSquare className="h-10 w-10 opacity-30" />
-                <p className="text-sm">No {messageFilter === "all" ? "" : `${messageFilter} `}messages yet.</p>
+              <CardContent className="py-6">
+                <EmptyState
+                  icon={MessageSquare}
+                  title="No messages for this view"
+                  description={
+                    messageTypeFilter === "broadcast"
+                      ? "Broadcast messages will appear here once they are drafted, scheduled, or sent."
+                      : `No ${messageFilter === "all" ? "" : `${messageFilter} `}messages are available yet.`
+                  }
+                  action={
+                    <Button onClick={() => setIsComposeOpen(true)}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Compose message
+                    </Button>
+                  }
+                />
               </CardContent>
             </Card>
           ) : (
@@ -406,7 +445,12 @@ export default function CommunicationsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {channelBreakdown.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No delivery records are available yet.</p>
+                  <EmptyState
+                    icon={BarChart3}
+                    title="No delivery records yet"
+                    description="Channel performance will appear once platform messages have been sent."
+                    className="py-8"
+                  />
                 ) : (
                   channelBreakdown.map((channel: any) => (
                     <div key={channel.channel} className="rounded-lg border p-3">
@@ -431,7 +475,12 @@ export default function CommunicationsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {recentCampaigns.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No platform campaigns have been created yet.</p>
+                  <EmptyState
+                    icon={Send}
+                    title="No campaigns yet"
+                    description="Campaign activity will appear here after the first platform campaign is created."
+                    className="py-8"
+                  />
                 ) : (
                   recentCampaigns.slice(0, 6).map((campaign: any) => (
                     <div key={campaign._id} className="rounded-lg border p-3">
@@ -454,8 +503,13 @@ export default function CommunicationsPage() {
           <div className="grid gap-4 lg:grid-cols-2">
             {recentTemplates.length === 0 ? (
               <Card>
-                <CardContent className="py-10 text-sm text-muted-foreground">
-                  No global communication templates are available.
+                <CardContent className="py-6">
+                  <EmptyState
+                    icon={LayoutTemplate}
+                    title="No global templates"
+                    description="Global communication templates will appear here once they are configured."
+                    className="py-8"
+                  />
                 </CardContent>
               </Card>
             ) : (
@@ -485,28 +539,41 @@ export default function CommunicationsPage() {
         </TabsContent>
 
         <TabsContent value="recipients" className="space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            {recentRecipientLists.map((list: any) => (
-              <Card key={list._id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="text-base">{list.name}</CardTitle>
-                    <Badge variant="outline">{list.type}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground">{list.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Reachable users</span>
-                    <span className="font-medium">{list.count}</span>
-                  </div>
-                  <div className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-                    {JSON.stringify(list.criteria)}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {recentRecipientLists.length === 0 ? (
+            <Card>
+              <CardContent className="py-6">
+                <EmptyState
+                  icon={Users}
+                  title="No recipient lists available"
+                  description="Recipient targeting lists will appear here once the communications backend exposes active segments."
+                  className="py-8"
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {recentRecipientLists.map((list: any) => (
+                <Card key={list._id}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between gap-2">
+                      <CardTitle className="text-base">{list.name}</CardTitle>
+                      <Badge variant="outline">{list.type}</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">{list.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Reachable users</span>
+                      <span className="font-medium">{list.count}</span>
+                    </div>
+                    <div className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
+                      {JSON.stringify(list.criteria)}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

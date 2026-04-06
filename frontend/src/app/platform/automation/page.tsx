@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -122,6 +124,7 @@ interface WorkflowTemplate {
 }
 
 export default function AutomationCenterPage() {
+  const router = useRouter();
   const { sessionToken } = useAuth();
   const [activeTab, setActiveTab] = useState("workflows");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -134,6 +137,7 @@ export default function AutomationCenterPage() {
   const [isCreateWorkflowOpen, setIsCreateWorkflowOpen] = useState(false);
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [isRefreshing, startRefreshing] = useTransition();
 
   // Workflow form state
   const [workflowName, setWorkflowName] = useState("");
@@ -333,7 +337,11 @@ export default function AutomationCenterPage() {
     );
   }, [templateSearch, workflowTemplates]);
 
-  if (!workflowsData) return <LoadingSkeleton variant="page" />;
+  if (!workflowsData || !executionsData || !templatesData || !metricsData) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  const refreshPage = () => startRefreshing(() => router.refresh());
 
   const handleRunWorkflow = async (workflowId: string) => {
     if (!sessionToken) return;
@@ -506,8 +514,8 @@ export default function AutomationCenterPage() {
           </Select>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={refreshPage} disabled={isRefreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
           <Dialog open={isCreateWorkflowOpen} onOpenChange={setIsCreateWorkflowOpen}>
@@ -776,8 +784,13 @@ export default function AutomationCenterPage() {
         ))}
         {filteredWorkflows.length === 0 && (
           <Card>
-            <CardContent className="pt-6 text-sm text-muted-foreground">
-              No workflows matched the current filters.
+            <CardContent>
+              <EmptyState
+                icon={Workflow}
+                title="No workflows matched"
+                description="Try another workflow search, category, or status filter."
+                className="py-10"
+              />
             </CardContent>
           </Card>
         )}
@@ -812,8 +825,8 @@ export default function AutomationCenterPage() {
           </Select>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={refreshPage} disabled={isRefreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
@@ -847,7 +860,7 @@ export default function AutomationCenterPage() {
                   <div>
                     <div className="text-sm font-medium mb-2">Execution Progress</div>
                     <div className="space-y-2">
-                      {execution.steps.map((step, index) => (
+                      {execution.steps.map((step) => (
                         <div key={step.id} className="flex items-center space-x-3">
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusColor(step.status)}`}
@@ -921,8 +934,13 @@ export default function AutomationCenterPage() {
         ))}
         {filteredExecutions.length === 0 && (
           <Card>
-            <CardContent className="pt-6 text-sm text-muted-foreground">
-              No workflow executions matched the current filters.
+            <CardContent>
+              <EmptyState
+                icon={Clock}
+                title="No workflow executions matched"
+                description="Adjust the execution search or status filter to inspect another run history slice."
+                className="py-10"
+              />
             </CardContent>
           </Card>
         )}
@@ -959,8 +977,8 @@ export default function AutomationCenterPage() {
           </Select>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button variant="outline" onClick={refreshPage} disabled={isRefreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
           <Dialog open={isCreateTemplateOpen} onOpenChange={setIsCreateTemplateOpen}>
@@ -1110,8 +1128,13 @@ export default function AutomationCenterPage() {
         ))}
         {filteredTemplates.length === 0 && (
           <Card className="md:col-span-2 lg:col-span-3">
-            <CardContent className="pt-6 text-sm text-muted-foreground">
-              No templates matched the current filters.
+            <CardContent>
+              <EmptyState
+                icon={Layers}
+                title="No templates matched"
+                description="Try another template search or category filter."
+                className="py-10"
+              />
             </CardContent>
           </Card>
         )}

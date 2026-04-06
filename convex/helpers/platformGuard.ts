@@ -17,6 +17,12 @@ export interface PlatformContext {
   workosUserId?: string;
 }
 
+export interface PlatformRoleContext extends PlatformContext {
+  platformUserId?: string;
+  addedPermissions?: string[];
+  removedPermissions?: string[];
+}
+
 /**
  * Validates a platform session token and ensures the caller has
  * master_admin or super_admin role.
@@ -76,5 +82,43 @@ export async function requirePlatformSession(
     role: effectiveRole,
     email: session.email || "",
     workosUserId: userRow?.workosUserId,
+  };
+}
+
+export async function requirePlatformRole(
+  ctx: QueryCtx | MutationCtx,
+  args: { sessionToken: string },
+  allowedRoles: string[]
+): Promise<PlatformRoleContext> {
+  const platform = await requirePlatformSession(ctx, args);
+  if (platform.role === "master_admin") {
+    return platform;
+  }
+
+  const platformUser = await ctx.db
+    .query("platform_users")
+    .withIndex("by_userId", (q) => q.eq("userId", platform.userId))
+    .first();
+
+  const effectiveRole = platformUser?.role ?? platform.role;
+  if (platformUser) {
+    if (platformUser.status !== "active") {
+      throw new Error("FORBIDDEN: Platform staff account is suspended");
+    }
+    if (platformUser.accessExpiresAt !== undefined && platformUser.accessExpiresAt < Date.now()) {
+      throw new Error("FORBIDDEN: Platform staff access has expired");
+    }
+  }
+
+  if (!allowedRoles.includes(effectiveRole)) {
+    throw new Error(`FORBIDDEN: requires one of [${allowedRoles.join(", ")}]`);
+  }
+
+  return {
+    ...platform,
+    role: effectiveRole,
+    platformUserId: platformUser ? String(platformUser._id) : undefined,
+    addedPermissions: platformUser?.addedPermissions,
+    removedPermissions: platformUser?.removedPermissions,
   };
 }

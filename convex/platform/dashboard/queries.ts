@@ -1,234 +1,391 @@
-import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { query } from "../../_generated/server";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
-export const getDashboardKPIs = query({
-  args: { sessionToken: v.string() },
-  handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-    const now = Date.now();
-    const currentMonth = new Date(now).getMonth();
-    const currentYear = new Date(now).getFullYear();
+type SupportedRange = "7d" | "30d" | "90d" | "12m";
 
-    // Get tenant data
-    const tenants = await ctx.db.query("tenants").collect();
-    const activeTenants = tenants.filter(t => t.status === "active");
-    const trialTenants = tenants.filter(t => t.status === "trial");
-    
-    // Calculate MRR and ARR (using KES as specified)
-    const PLAN_PRICES_KES = {
-      starter: 250000, // KES 2,500 per month in cents
-      standard: 650000, // KES 6,500 per month in cents
-      pro: 1500000,   // KES 15,000 per month in cents
-      enterprise: 0,  // Custom pricing
-    };
+function getRangeStart(now: number, timeRange: SupportedRange) {
+  switch (timeRange) {
+    case "7d":
+      return now - 7 * DAY_MS;
+    case "30d":
+      return now - 30 * DAY_MS;
+    case "90d":
+      return now - 90 * DAY_MS;
+    case "12m":
+    default:
+      return new Date(new Date(now).getFullYear(), new Date(now).getMonth() - 11, 1).getTime();
+  }
+}
 
-    const mrr = activeTenants.reduce((sum, tenant) => {
-      const planPrice = PLAN_PRICES_KES[tenant.plan as keyof typeof PLAN_PRICES_KES] || 0;
-      return sum + planPrice;
-    }, 0);
+function buildBuckets(now: number, timeRange: SupportedRange) {
+  if (timeRange === "12m") {
+    return Array.from({ length: 12 }, (_, index) => {
+      const date = new Date(now);
+      date.setDate(1);
+      date.setMonth(date.getMonth() - (11 - index));
 
-    const arr = mrr * 12;
+      const start = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
+      const end = new Date(date.getFullYear(), date.getMonth() + 1, 1).getTime();
 
-    // Get ticket data
-    const tickets = await ctx.db.query("tickets").collect();
-    const openTickets = tickets.filter(t => t.status !== "closed");
-
-    // Pipeline value — CRM deals table not yet in schema, default to 0
-    const pipelineValue = 0;
-
-    // System health derived from recent error rate in audit logs
-    const recentLogs = await ctx.db
-      .query("auditLogs")
-      .filter((q) => q.gte(q.field("timestamp"), now - 60 * 60 * 1000))
-      .collect();
-    const errorLogs = recentLogs.filter((l) =>
-      l.action.includes("fail") || l.action.includes("error") || l.action.includes("denied")
-    );
-    const errorRate = recentLogs.length > 0 ? errorLogs.length / recentLogs.length : 0;
-    const systemHealth = Math.max(80, Math.round((1 - errorRate) * 100 * 10) / 10);
-
-    // Get new tenants this month
-    const newThisMonth = tenants.filter(tenant => {
-      const createdDate = new Date(tenant.createdAt);
-      return createdDate.getMonth() === currentMonth && createdDate.getFullYear() === currentYear;
-    }).length;
-
-    return {
-      activeTenants: activeTenants.length,
-      mrr: mrr / 100, // Convert from cents to KES
-      arr: arr / 100,   // Convert from cents to KES
-      openTickets: openTickets.length,
-      pipelineValue,
-      systemHealth,
-      trialsActive: trialTenants.length,
-      newThisMonth,
-    };
-  },
-});
-
-export const getDashboardCharts = query({
-  args: { 
-    sessionToken: v.string(),
-    timeRange: v.optional(v.union(v.literal("7d"), v.literal("30d"), v.literal("90d"), v.literal("12m")))
-  },
-  handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
-
-    const timeRange = args.timeRange || "12m";
-    const now = Date.now();
-    
-    // Calculate date range
-    let startDate: number;
-    if (timeRange === "7d") {
-      startDate = now - (7 * 24 * 60 * 60 * 1000);
-    } else if (timeRange === "30d") {
-      startDate = now - (30 * 24 * 60 * 60 * 1000);
-    } else if (timeRange === "90d") {
-      startDate = now - (90 * 24 * 60 * 60 * 1000);
-    } else {
-      startDate = now - (12 * 30 * 24 * 60 * 60 * 1000); // 12 months
-    }
-
-    // Get MRR trend data
-    const tenants = await ctx.db.query("tenants").collect();
-    const PLAN_PRICES_KES = {
-      starter: 250000,
-      standard: 650000,
-      pro: 1500000,
-      enterprise: 0,
-    };
-
-    // Generate monthly MRR data for the last 12 months
-    const mrrTrend = [];
-    for (let i = 11; i >= 0; i--) {
-      const monthDate = new Date(now);
-      monthDate.setMonth(monthDate.getMonth() - i);
-      const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).getTime();
-      const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getTime();
-      
-      const activeTenantsInMonth = tenants.filter(t => 
-        t.status === "active" && t.createdAt <= monthEnd
-      );
-      
-      const monthMRR = activeTenantsInMonth.reduce((sum, tenant) => {
-        const planPrice = PLAN_PRICES_KES[tenant.plan as keyof typeof PLAN_PRICES_KES] || 0;
-        return sum + planPrice;
-      }, 0);
-
-      mrrTrend.push({
-        month: monthDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        mrr: monthMRR / 100, // Convert to KES
-        newTenants: tenants.filter(t => 
-          t.createdAt >= monthStart && t.createdAt <= monthEnd
-        ).length,
-      });
-    }
-
-    // Get tenant growth data
-    const tenantGrowth = [];
-    for (let i = 11; i >= 0; i--) {
-      const monthDate = new Date(now);
-      monthDate.setMonth(monthDate.getMonth() - i);
-      const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).getTime();
-      const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getTime();
-      
-      const newTenants = tenants.filter(t => 
-        t.createdAt >= monthStart && t.createdAt <= monthEnd
-      );
-      
-      // Count by plan tier
-      const planCounts = {
-        starter: newTenants.filter(t => t.plan === "starter").length,
-        standard: newTenants.filter(t => t.plan === "standard").length,
-        pro: newTenants.filter(t => t.plan === "pro").length,
-        enterprise: newTenants.filter(t => t.plan === "enterprise").length,
-      };
-
-      tenantGrowth.push({
-        month: monthDate.toLocaleDateString('en-US', { month: 'short' }),
-        ...planCounts,
-        total: newTenants.length,
-      });
-    }
-
-    // Get ticket volume data (weekly for last 8 weeks)
-    const tickets = await ctx.db.query("tickets").collect();
-    const ticketVolume = [];
-    
-    for (let i = 7; i >= 0; i--) {
-      const weekStart = new Date(now);
-      weekStart.setDate(weekStart.getDate() - (i * 7));
-      weekStart.setHours(0, 0, 0, 0);
-      const weekEnd = new Date(weekStart.getTime() + (7 * 24 * 60 * 60 * 1000));
-      
-      const createdTickets = tickets.filter(t => 
-        t.createdAt >= weekStart.getTime() && t.createdAt < weekEnd.getTime()
-      );
-      const resolvedTickets = tickets.filter(t => 
-        t.resolvedAt && t.resolvedAt >= weekStart.getTime() && t.resolvedAt < weekEnd.getTime()
-      );
-
-      ticketVolume.push({
-        week: `Week ${8 - i}`,
-        created: createdTickets.length,
-        resolved: resolvedTickets.length,
-      });
-    }
-
-    // Get revenue by plan
-    const activeTenants = tenants.filter(t => t.status === "active");
-    const revenueByPlan = Object.entries(PLAN_PRICES_KES).map(([plan, price]) => {
-      const tenantsInPlan = activeTenants.filter((t: any) => t.plan === plan);
-      const totalMRR = tenantsInPlan.length * price;
-      
       return {
-        plan: plan.charAt(0).toUpperCase() + plan.slice(1),
-        mrr: totalMRR / 100, // Convert to KES
-        tenants: tenantsInPlan.length,
+        start,
+        end,
+        label: date.toLocaleDateString("en-US", { month: "short" }),
       };
-    }).filter(item => item.mrr > 0);
+    });
+  }
+
+  const bucketSize = timeRange === "90d" ? 7 * DAY_MS : DAY_MS;
+  const bucketCount = timeRange === "90d" ? 13 : timeRange === "30d" ? 30 : 7;
+  const start = getRangeStart(now, timeRange);
+
+  return Array.from({ length: bucketCount }, (_, index) => {
+    const bucketStart = start + index * bucketSize;
+    const bucketEnd = bucketStart + bucketSize;
+    const date = new Date(bucketStart);
 
     return {
-      mrrTrend,
-      tenantGrowth,
-      ticketVolume,
-      revenueByPlan,
+      start: bucketStart,
+      end: bucketEnd,
+      label:
+        timeRange === "90d"
+          ? date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+          : date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    };
+  });
+}
+
+function isOpenTicket(status: string) {
+  return status === "open" || status === "in_progress";
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getMonthlyPlanPriceKes(subscription: any, planByName: Map<string, any>) {
+  if (typeof subscription.customPriceMonthlyKes === "number") {
+    return subscription.customPriceMonthlyKes;
+  }
+
+  if (typeof subscription.customPriceAnnualKes === "number") {
+    return Math.round(subscription.customPriceAnnualKes / 12);
+  }
+
+  const plan = planByName.get(subscription.planId);
+  if (!plan) {
+    return 0;
+  }
+
+  if (typeof plan.priceMonthlyKes === "number") {
+    return plan.priceMonthlyKes;
+  }
+
+  if (typeof plan.priceAnnualKes === "number") {
+    return Math.round(plan.priceAnnualKes / 12);
+  }
+
+  return 0;
+}
+
+function sum<T>(items: T[], selector: (item: T) => number) {
+  return items.reduce((total, item) => total + selector(item), 0);
+}
+
+export const getDashboardOverview = query({
+  args: {
+    sessionToken: v.string(),
+    timeRange: v.optional(v.union(v.literal("7d"), v.literal("30d"), v.literal("90d"), v.literal("12m"))),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const timeRange = args.timeRange ?? "30d";
+    const now = Date.now();
+    const rangeStart = getRangeStart(now, timeRange);
+
+    const [
+      tenants,
+      subscriptions,
+      plans,
+      invoices,
+      waitlistEntries,
+      supportTickets,
+      modules,
+      moduleInstalls,
+      moduleRequests,
+      publishers,
+      pilotGrants,
+      deals,
+      incidents,
+      securityIncidents,
+      maintenanceWindows,
+      auditLogs,
+    ] = await Promise.all([
+      ctx.db.query("tenants").collect(),
+      ctx.db.query("tenant_subscriptions").collect(),
+      ctx.db.query("subscription_plans").collect(),
+      ctx.db.query("subscription_invoices").collect(),
+      ctx.db.query("waitlist").collect(),
+      ctx.db.query("support_tickets").collect(),
+      ctx.db.query("modules").collect(),
+      ctx.db.query("module_installs").collect(),
+      ctx.db.query("module_requests").collect(),
+      ctx.db.query("publishers").collect(),
+      ctx.db.query("pilot_grants").collect(),
+      ctx.db.query("crm_deals").collect(),
+      ctx.db.query("incidents").collect(),
+      ctx.db.query("securityIncidents").collect(),
+      ctx.db.query("maintenance_windows").collect(),
+      ctx.db
+        .query("auditLogs")
+        .filter((q) => q.gte(q.field("timestamp"), now - DAY_MS))
+        .collect(),
+    ]);
+
+    const planByName = new Map(plans.map((plan) => [plan.name, plan]));
+
+    const activeSubscriptions = subscriptions.filter(
+      (subscription) => subscription.status === "active" || subscription.status === "past_due"
+    );
+    const trialSubscriptions = subscriptions.filter((subscription) => subscription.status === "trialing");
+    const activeOrTrialSubscriptions = subscriptions.filter(
+      (subscription) => subscription.status === "active" || subscription.status === "past_due" || subscription.status === "trialing"
+    );
+
+    const mrrKes = sum(activeSubscriptions, (subscription) =>
+      getMonthlyPlanPriceKes(subscription, planByName)
+    );
+    const arrKes = mrrKes * 12;
+
+    const paidInvoices = invoices.filter((invoice) => invoice.status === "paid");
+    const paidInvoicesInRange = paidInvoices.filter(
+      (invoice) => typeof invoice.paidAt === "number" && invoice.paidAt >= rangeStart
+    );
+    const outstandingInvoices = invoices.filter(
+      (invoice) => invoice.status === "sent" && invoice.dueDate < now
+    );
+
+    const openTickets = supportTickets.filter((ticket) => isOpenTicket(ticket.status));
+    const criticalTickets = openTickets.filter(
+      (ticket) => ticket.priority === "critical" || ticket.priority === "high"
+    );
+    const slaBreachedTickets = openTickets.filter(
+      (ticket) => typeof ticket.slaDueAt === "number" && ticket.slaDueAt < now
+    );
+
+    const activeIncidents = incidents.filter(
+      (incident) => incident.status === "active" || incident.status === "investigating"
+    );
+    const openSecurityIncidents = securityIncidents.filter(
+      (incident) => incident.status === "open" || incident.status === "investigating" || incident.status === "contained"
+    );
+    const activeMaintenance = maintenanceWindows.filter(
+      (window) => window.status === "in_progress" || (window.status === "scheduled" && window.startAt <= now && window.endAt >= now)
+    );
+    const upcomingMaintenance = maintenanceWindows.filter(
+      (window) => window.status === "scheduled" && window.startAt > now
+    );
+
+    const failedAuditActions = auditLogs.filter((log) =>
+      ["fail", "error", "denied"].some((keyword) => log.action.toLowerCase().includes(keyword))
+    ).length;
+
+    const healthScore = clamp(
+      100 -
+        activeIncidents.length * 14 -
+        openSecurityIncidents.length * 10 -
+        activeMaintenance.length * 6 -
+        criticalTickets.length * 4 -
+        Math.min(20, failedAuditActions),
+      38,
+      100
+    );
+
+    const healthStatus =
+      healthScore >= 90
+        ? "healthy"
+        : healthScore >= 75
+          ? "watch"
+          : "degraded";
+
+    const activeTenants = tenants.filter((tenant) => tenant.status === "active");
+    const trialTenants = tenants.filter((tenant) => tenant.status === "trial");
+    const suspendedTenants = tenants.filter((tenant) => tenant.status === "suspended");
+
+    const planDistributionMap = new Map<string, number>();
+    for (const subscription of activeOrTrialSubscriptions) {
+      planDistributionMap.set(
+        subscription.planId,
+        (planDistributionMap.get(subscription.planId) ?? 0) + 1
+      );
+    }
+    const planDistribution = Array.from(planDistributionMap.entries())
+      .map(([planId, count]) => ({
+        planId,
+        count,
+      }))
+      .sort((left, right) => right.count - left.count);
+
+    const buckets = buildBuckets(now, timeRange);
+    const revenueTrend = buckets.map((bucket) => {
+      const paidInBucket = paidInvoices.filter(
+        (invoice) =>
+          typeof invoice.paidAt === "number" &&
+          invoice.paidAt >= bucket.start &&
+          invoice.paidAt < bucket.end
+      );
+      const subscriptionsInBucket = subscriptions.filter(
+        (subscription) => subscription.createdAt >= bucket.start && subscription.createdAt < bucket.end
+      );
+      const recurringRevenueKes = sum(
+        subscriptionsInBucket.filter(
+          (subscription) =>
+            subscription.status === "active" ||
+            subscription.status === "past_due" ||
+            subscription.status === "trialing"
+        ),
+        (subscription) => getMonthlyPlanPriceKes(subscription, planByName)
+      );
+
+      return {
+        label: bucket.label,
+        invoicesKes: sum(paidInBucket, (invoice) => invoice.totalAmountKes),
+        recurringKes: recurringRevenueKes,
+      };
+    });
+
+    const tenantGrowth = buckets.map((bucket) => ({
+      label: bucket.label,
+      newTenants: tenants.filter(
+        (tenant) => tenant.createdAt >= bucket.start && tenant.createdAt < bucket.end
+      ).length,
+      waitlistConversions: waitlistEntries.filter(
+        (entry) =>
+          typeof entry.convertedAt === "number" &&
+          entry.convertedAt >= bucket.start &&
+          entry.convertedAt < bucket.end
+      ).length,
+    }));
+
+    const marketplaceStatusMap = new Map<string, number>();
+    for (const module of modules) {
+      marketplaceStatusMap.set(
+        module.status,
+        (marketplaceStatusMap.get(module.status) ?? 0) + 1
+      );
+    }
+
+    const activePilotGrants = pilotGrants.filter(
+      (grant) =>
+        grant.status === "active" &&
+        grant.startDate <= now &&
+        (grant.endDate === undefined || grant.endDate >= now)
+    );
+
+    const openPipelineDeals = deals.filter((deal) => deal.status === "open");
+
+    return {
+      period: {
+        timeRange,
+        startAt: rangeStart,
+        endAt: now,
+      },
+      stats: {
+        activeTenants: activeTenants.length,
+        totalTenants: tenants.length,
+        trialTenants: trialTenants.length || trialSubscriptions.length,
+        waitlistEntries: waitlistEntries.filter((entry) => entry.status === "waiting").length,
+        mrrKes,
+        arrKes,
+        openTickets: openTickets.length,
+        activeInstalls: moduleInstalls.filter((install) => install.status === "active").length,
+      },
+      health: {
+        score: healthScore,
+        status: healthStatus,
+        activeIncidents: activeIncidents.length,
+        openSecurityIncidents: openSecurityIncidents.length,
+        activeMaintenance: activeMaintenance.length,
+        scheduledMaintenance: upcomingMaintenance.length,
+        criticalTickets: criticalTickets.length,
+        slaBreaches: slaBreachedTickets.length,
+        failedActions24h: failedAuditActions,
+      },
+      revenue: {
+        mrrKes,
+        arrKes,
+        collectedKes: sum(paidInvoicesInRange, (invoice) => invoice.totalAmountKes),
+        overdueKes: sum(outstandingInvoices, (invoice) => invoice.totalAmountKes),
+        pipelineKes: sum(openPipelineDeals, (deal) => deal.valueKes),
+        paidInvoices: paidInvoicesInRange.length,
+        overdueInvoices: outstandingInvoices.length,
+      },
+      tenants: {
+        total: tenants.length,
+        active: activeTenants.length,
+        trialing: trialTenants.length || trialSubscriptions.length,
+        suspended: suspendedTenants.length,
+        newInRange: tenants.filter((tenant) => tenant.createdAt >= rangeStart).length,
+        waitlistWaiting: waitlistEntries.filter((entry) => entry.status === "waiting").length,
+        planDistribution,
+        growth: tenantGrowth,
+      },
+      marketplace: {
+        publishedModules: modules.filter((module) => module.status === "published").length,
+        pendingReview: modules.filter((module) => module.status === "pending_review").length,
+        activePublishers: publishers.filter((publisher) => publisher.status === "approved").length,
+        featuredModules: modules.filter((module) => module.isFeatured).length,
+        activeInstalls: moduleInstalls.filter((install) => install.status === "active").length,
+        activePilotGrants: activePilotGrants.length,
+        pendingRequests: moduleRequests.filter(
+          (request) => request.status === "submitted" || request.status === "under_review"
+        ).length,
+        statusBreakdown: Array.from(marketplaceStatusMap.entries())
+          .map(([status, count]) => ({ status, count }))
+          .sort((left, right) => right.count - left.count),
+      },
+      charts: {
+        revenueTrend,
+        tenantGrowth,
+        planDistribution,
+      },
     };
   },
 });
 
 export const getActivityFeed = query({
-  args: { 
+  args: {
     sessionToken: v.string(),
     limit: v.optional(v.number()),
-    eventType: v.optional(v.union(
-      v.literal("school"),
-      v.literal("payment"), 
-      v.literal("ticket"),
-      v.literal("done"),
-      v.literal("alert"),
-      v.literal("red"),
-      v.literal("up"),
-      v.literal("exit"),
-      v.literal("user"),
-      v.literal("billing"),
-      v.literal("document"),
-      v.literal("system"),
-      v.literal("security"),
-      v.literal("scheduled")
-    ))
+    eventType: v.optional(
+      v.union(
+        v.literal("school"),
+        v.literal("payment"),
+        v.literal("ticket"),
+        v.literal("done"),
+        v.literal("alert"),
+        v.literal("red"),
+        v.literal("up"),
+        v.literal("exit"),
+        v.literal("user"),
+        v.literal("billing"),
+        v.literal("document"),
+        v.literal("system"),
+        v.literal("security"),
+        v.literal("scheduled")
+      )
+    ),
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
     const limit = args.limit ?? 50;
-
-    // Get recent audit logs across all tenants
     const logs = await ctx.db.query("auditLogs").order("desc").take(limit);
 
-    // Enrich with tenant names and categorize events
     const enriched = await Promise.all(
       logs.map(async (log) => {
         const tenant = await ctx.db
@@ -236,12 +393,10 @@ export const getActivityFeed = query({
           .withIndex("by_tenantId", (q) => q.eq("tenantId", log.tenantId))
           .first();
 
-        // Enhanced event categorization with metadata
         let eventType: string = "system";
         let icon = "Clock";
-        let metadata: Record<string, any> = {};
+        let metadata: Record<string, unknown> = {};
 
-        // School-related events
         if (log.action.includes("created") && log.entityType === "tenant") {
           eventType = "school";
           icon = "Building";
@@ -255,124 +410,99 @@ export const getActivityFeed = query({
           icon = "TrendingUp";
           metadata = { plan: log.after?.plan || "unknown" };
         } else if (log.action.includes("trial") && log.entityType === "tenant") {
-          if (log.action.includes("started")) {
-            eventType = "school";
-            icon = "Building";
-          } else if (log.action.includes("expired")) {
-            eventType = "exit";
-            icon = "LogOut";
-          }
+          eventType = log.action.includes("expired") ? "exit" : "school";
+          icon = log.action.includes("expired") ? "LogOut" : "Building";
           metadata = { plan: log.after?.plan || "trial" };
-        }
-
-        // Payment-related events
-        else if (log.action.includes("payment") || log.action.includes("invoice")) {
+        } else if (log.action.includes("payment") || log.action.includes("invoice")) {
           eventType = "payment";
           icon = "DollarSign";
-          metadata = { 
+          metadata = {
             amount: log.after?.amount || 0,
             method: log.after?.method || "unknown",
-            status: log.action.includes("failed") ? "failed" : "success"
+            status: log.action.includes("failed") ? "failed" : "success",
           };
         } else if (log.action.includes("billing") || log.action.includes("subscription")) {
           eventType = "billing";
           icon = "CreditCard";
-          metadata = { 
+          metadata = {
             plan: log.after?.plan || "unknown",
-            amount: log.after?.amount || 0
+            amount: log.after?.amount || 0,
           };
-        }
-
-        // Ticket-related events
-        else if (log.entityType === "ticket") {
-          eventType = "ticket";
-          icon = "MessageSquare";
-          metadata = { 
+        } else if (log.entityType === "ticket") {
+          eventType = log.action.includes("resolved") || log.action.includes("closed") ? "done" : "ticket";
+          icon = log.action.includes("resolved") || log.action.includes("closed") ? "CheckCircle" : "MessageSquare";
+          metadata = {
             ticketId: log.entityId,
             priority: log.after?.priority || "normal",
-            category: log.after?.category || "general"
+            category: log.after?.category || "general",
           };
-          if (log.action.includes("resolved") || log.action.includes("closed")) {
-            eventType = "done";
-            icon = "CheckCircle";
-          }
-        }
-
-        // User-related events
-        else if (log.action.includes("user") || log.entityType === "user") {
-          eventType = "user";
-          icon = "Users";
-          metadata = { 
+        } else if (log.action.includes("user") || log.entityType === "user") {
+          eventType = log.action.includes("suspended") ? "alert" : "user";
+          icon = log.action.includes("suspended") ? "AlertTriangle" : "Users";
+          metadata = {
             role: log.after?.role || "unknown",
-            email: log.after?.email || ""
+            email: log.after?.email || "",
           };
-          if (log.action.includes("suspended")) {
-            eventType = "alert";
-            icon = "AlertTriangle";
-          }
-        }
-
-        // Module-related events
-        else if (log.action.includes("module") || log.entityType === "module") {
+        } else if (log.action.includes("module") || log.entityType === "module") {
           eventType = "done";
           icon = "CheckCircle";
-          metadata = { 
+          metadata = {
             module: log.after?.module || "unknown",
-            action: log.action.includes("installed") ? "installed" : "updated"
+            action: log.action.includes("installed") ? "installed" : "updated",
           };
-        }
-
-        // Security events
-        else if (log.action.includes("impersonation")) {
+        } else if (log.action.includes("impersonation")) {
           eventType = "security";
           icon = "Shield";
-          metadata = { 
+          metadata = {
             adminUser: log.after?.adminUser || "unknown",
-            targetUser: log.after?.targetUser || "unknown"
+            targetUser: log.after?.targetUser || "unknown",
           };
         } else if (log.action.includes("login") && log.action.includes("failed")) {
           eventType = "alert";
           icon = "AlertTriangle";
-          metadata = { 
+          metadata = {
             attempts: log.after?.attempts || 1,
-            ip: log.after?.ip || "unknown"
+            ip: log.after?.ip || "unknown",
           };
         } else if (log.action.includes("unauthorized") || log.action.includes("forbidden")) {
           eventType = "red";
           icon = "X";
-          metadata = { 
+          metadata = {
             resource: log.after?.resource || "unknown",
-            ip: log.after?.ip || "unknown"
+            ip: log.after?.ip || "unknown",
           };
-        }
-
-        // Document-related events
-        else if (log.action.includes("document") || log.action.includes("report") || log.action.includes("export")) {
+        } else if (
+          log.action.includes("document") ||
+          log.action.includes("report") ||
+          log.action.includes("export")
+        ) {
           eventType = "document";
           icon = "FileText";
-          metadata = { 
+          metadata = {
             documentType: log.after?.type || "unknown",
-            format: log.after?.format || "pdf"
+            format: log.after?.format || "pdf",
           };
-        }
-
-        // System events
-        else if (log.action.includes("system") || log.action.includes("backup") || log.action.includes("maintenance")) {
+        } else if (
+          log.action.includes("system") ||
+          log.action.includes("backup") ||
+          log.action.includes("maintenance")
+        ) {
           eventType = "system";
           icon = "Settings";
-          metadata = { 
+          metadata = {
             component: log.after?.component || "unknown",
-            status: log.action.includes("failed") ? "failed" : "success"
+            status: log.action.includes("failed") ? "failed" : "success",
           };
-        }
-
-        // Scheduled events
-        else if (log.action.includes("scheduled") || log.action.includes("cron") || log.action.includes("reminder")) {
+        } else if (
+          log.action.includes("scheduled") ||
+          log.action.includes("cron") ||
+          log.action.includes("reminder")
+        ) {
           eventType = "scheduled";
           icon = "Calendar";
-          metadata = { 
+          metadata = {
             schedule: log.after?.schedule || "unknown",
-            nextRun: log.after?.nextRun || ""
+            nextRun: log.after?.nextRun || "",
           };
         }
 
@@ -386,9 +516,8 @@ export const getActivityFeed = query({
       })
     );
 
-    // Filter by event type if specified
     if (args.eventType) {
-      return enriched.filter(event => event.eventType === args.eventType);
+      return enriched.filter((event) => event.eventType === args.eventType);
     }
 
     return enriched;

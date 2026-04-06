@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import {
   Package, Star, Download, Shield, CheckCircle, ExternalLink,
-  Users, BookOpen, Video, ThumbsUp, ThumbsDown, Lock, Cpu,
+  BookOpen, Video, ThumbsUp, ThumbsDown, Lock, Cpu,
   MessageSquare, Sparkles, CreditCard, Building,
   GraduationCap, BarChart3, Plug, Heart,
 } from "lucide-react";
@@ -89,7 +89,7 @@ function ModuleDetailContent() {
   const [reviewTags, setReviewTags] = useState<string[]>([]);
 
   const detail = usePlatformQuery(
-    api.platform.marketplace.getModuleDetail,
+    api.platform.marketplace.queries.getModuleDetail,
     { sessionToken: sessionToken || "", moduleId }
   ) as any;
 
@@ -98,17 +98,28 @@ function ModuleDetailContent() {
     { sessionToken: sessionToken || "" }
   ) as any[] | undefined;
 
+  const effectiveTenantId = selectedTenantId || tenants?.[0]?.tenantId || "";
+
   const tenantInstallations = usePlatformQuery(
-    api.platform.marketplace.getTenantInstallations,
-    selectedTenantId
-      ? { sessionToken: sessionToken || "", tenantId: selectedTenantId }
+    api.platform.marketplace.queries.getTenantInstallations,
+    effectiveTenantId
+      ? { sessionToken: sessionToken || "", tenantId: effectiveTenantId }
       : "skip"
   ) as any[] | undefined;
 
-  const installModule = useMutation(api.platform.marketplace.installModule);
-  const uninstallCatalogModule = useMutation(api.platform.marketplace.uninstallCatalogModule);
-  const submitReview = useMutation(api.platform.marketplace.submitReview);
-  const voteReview = useMutation(api.platform.marketplace.voteReview);
+  const currentInstallation = useMemo(
+    () =>
+      tenantInstallations?.find(
+        (installation) =>
+          installation.moduleId === moduleId && installation.status === "active"
+      ) ?? null,
+    [moduleId, tenantInstallations]
+  );
+
+  const installModule = useMutation(api.platform.marketplace.mutations.installModule);
+  const uninstallCatalogModule = useMutation(api.platform.marketplace.mutations.uninstallCatalogModule);
+  const submitReview = useMutation(api.platform.marketplace.mutations.submitReview);
+  const voteReview = useMutation(api.platform.marketplace.mutations.voteReview);
 
   if (!detail) {
     return (
@@ -133,14 +144,6 @@ function ModuleDetailContent() {
   const versions = detail.versions || [];
   const reviews = detail.reviews || [];
   const otherModules = detail.otherModulesByPublisher || [];
-  const currentInstallation = useMemo(
-    () =>
-      tenantInstallations?.find(
-        (installation) =>
-          installation.moduleId === moduleId && installation.status === "active"
-      ) ?? null,
-    [moduleId, tenantInstallations]
-  );
   const isCoreModule = Boolean(mod.isCore);
 
   const REVIEW_TAGS = [
@@ -148,20 +151,14 @@ function ModuleDetailContent() {
     "Buggy", "Poor Documentation", "Feature Rich", "Reliable",
   ];
 
-  useEffect(() => {
-    if (!selectedTenantId && tenants && tenants.length > 0) {
-      setSelectedTenantId(tenants[0].tenantId);
-    }
-  }, [selectedTenantId, tenants]);
-
   const handleInstallAction = async () => {
-    if (!sessionToken || !selectedTenantId || isCoreModule) return;
+    if (!sessionToken || !effectiveTenantId || isCoreModule) return;
 
     try {
       if (currentInstallation) {
         await uninstallCatalogModule({
           sessionToken,
-          tenantId: selectedTenantId,
+          tenantId: effectiveTenantId,
           moduleId,
           reason: "Removed from platform marketplace detail page",
         });
@@ -169,7 +166,7 @@ function ModuleDetailContent() {
       } else {
         await installModule({
           sessionToken,
-          tenantId: selectedTenantId,
+          tenantId: effectiveTenantId,
           moduleId,
           configuration: {},
           assignedRoles: selectedRoles,
@@ -305,9 +302,23 @@ function ModuleDetailContent() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
                   {mod.screenshots.map((url: string, i: number) => (
-                    <div key={i} className="aspect-video bg-muted rounded-lg flex items-center justify-center border">
-                      <span className="text-xs text-muted-foreground">Screenshot {i + 1}</span>
-                    </div>
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative aspect-video overflow-hidden rounded-lg border bg-muted"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`${mod.name} screenshot ${i + 1}`}
+                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-xs text-white">
+                        Screenshot {i + 1}
+                      </div>
+                    </a>
                   ))}
                 </div>
               </CardContent>
@@ -712,7 +723,7 @@ function ModuleDetailContent() {
           <div className="space-y-4">
             <div>
               <Label className="text-sm font-semibold">Install For Tenant</Label>
-              <Select value={selectedTenantId} onValueChange={setSelectedTenantId}>
+              <Select value={effectiveTenantId} onValueChange={setSelectedTenantId}>
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Select tenant" />
                 </SelectTrigger>

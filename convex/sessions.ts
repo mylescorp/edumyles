@@ -109,6 +109,38 @@ export const getSession = query({
   },
 });
 
+export const getCurrentSession = query({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) {
+      return null;
+    }
+
+    return {
+      _id: session._id,
+      sessionToken: session.sessionToken,
+      tenantId: session.tenantId,
+      userId: session.userId,
+      email: session.email,
+      role: session.role,
+      expiresAt: session.expiresAt,
+      createdAt: session.createdAt,
+      deviceInfo: session.deviceInfo,
+      isActive: session.isActive ?? true,
+      permissions: session.permissions ?? [],
+      workosUserId: session.workosUserId,
+      impersonatedBy: session.impersonatedBy,
+    };
+  },
+});
+
 export const deleteSession = mutation({
   args: {
     sessionToken: v.string(),

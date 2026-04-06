@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,7 @@ import {
   Lock,
   PanelLeftClose,
   PanelLeftOpen,
+  ChevronRight,
 } from "lucide-react";
 import {
   Tooltip,
@@ -547,77 +548,187 @@ function LeftSidebar({
   onToggle: () => void;
 }) {
   const pathname = usePathname();
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+
+  const groupedNavItems = useMemo(() => {
+    return navItems.reduce<Array<{ section: string; items: NavItem[] }>>((groups, item) => {
+      const section = item.section ?? "Navigation";
+      const existing = groups.find((group) => group.section === section);
+      if (existing) {
+        existing.items.push(item);
+        return groups;
+      }
+      groups.push({ section, items: [item] });
+      return groups;
+    }, []);
+  }, [navItems]);
+
+  const activeSection = useMemo(() => {
+    const activeGroup = groupedNavItems.find((group) =>
+      group.items.some(
+        (item) => pathname === item.href || (item.href.length > 1 && pathname?.startsWith(item.href + "/"))
+      )
+    );
+    return activeGroup?.section ?? groupedNavItems[0]?.section ?? "Navigation";
+  }, [groupedNavItems, pathname]);
+
+  const isExpanded = (section: string) => {
+    if (collapsed) return true;
+    if (expandedSections[section] !== undefined) {
+      return expandedSections[section];
+    }
+    return true;
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((current) => ({
+      ...current,
+      [section]: !isExpanded(section),
+    }));
+  };
 
   return (
     <TooltipProvider delayDuration={200}>
       <aside
         className="hidden md:flex flex-col flex-shrink-0 border-r transition-all duration-200 overflow-hidden"
         style={{
-          width: collapsed ? 52 : 220,
+          width: collapsed ? 60 : 286,
           background: "var(--sidebar-bg)",
           borderColor: "var(--sidebar-border)",
         }}
       >
+        {!collapsed && (
+          <div
+            className="border-b px-4 py-3"
+            style={{ borderColor: "var(--sidebar-border)" }}
+          >
+            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-white/55">
+              Platform Navigation
+            </p>
+            <p className="mt-1 text-xs leading-5 text-white/38">
+              Browse admin surfaces, operations, and platform controls.
+            </p>
+          </div>
+        )}
+
         {/* Scrollable nav items */}
         <ScrollArea className="flex-1 overflow-hidden">
-          <nav className="flex flex-col gap-0.5 p-1.5 pt-2">
-            {navItems.map((item) => {
-              const isActive =
-                pathname === item.href ||
-                (item.href.length > 1 && pathname?.startsWith(item.href + "/"));
-              const Icon = item.icon;
+          <nav className="flex flex-col gap-4 p-3">
+            {groupedNavItems.map((group, index) => (
+              <div
+                key={group.section}
+                className={cn(
+                  "space-y-2",
+                  index > 0 && "border-t pt-4"
+                )}
+                style={index > 0 ? { borderColor: "var(--sidebar-border)" } : undefined}
+              >
+                {!collapsed ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(group.section)}
+                    className="flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left transition-colors hover:bg-white/6"
+                    style={{
+                      borderColor:
+                        group.section === activeSection
+                          ? "var(--topnav-active-border)"
+                          : "rgba(255,255,255,0.06)",
+                      background:
+                        group.section === activeSection
+                          ? "rgba(217, 119, 6, 0.08)"
+                          : "rgba(255,255,255,0.02)",
+                    }}
+                  >
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/72">
+                        {group.section}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-white/42">
+                        {group.items.length} items
+                      </p>
+                    </div>
+                    <ChevronRight
+                      className={cn(
+                        "h-4 w-4 text-white/45 transition-transform duration-200",
+                        isExpanded(group.section) && "rotate-90"
+                      )}
+                    />
+                  </button>
+                ) : (
+                  <div className="mx-auto h-px w-8 bg-white/10" />
+                )}
 
-              const navBtn = (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium transition-all duration-150 min-w-0",
-                    collapsed ? "justify-center" : "",
-                    isActive
-                      ? "bg-[var(--sidebar-accent-hover)] text-white border-l-2 border-[var(--em-gold)]"
-                      : "text-white/65 hover:text-white hover:bg-white/8 border-l-2 border-transparent"
-                  )}
-                >
-                  <Icon
-                    className={cn(
-                      "h-[18px] w-[18px] flex-shrink-0",
-                      isActive ? "text-[var(--em-gold)]" : "text-white/50 group-hover:text-[var(--em-gold)]"
-                    )}
-                  />
-                  {!collapsed && (
-                    <span className="truncate leading-none">{item.label}</span>
-                  )}
-                </Link>
-              );
+                {isExpanded(group.section) &&
+                  group.items.map((item) => {
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href.length > 1 && pathname?.startsWith(item.href + "/"));
+                    const Icon = item.icon;
 
-              if (collapsed) {
-                return (
-                  <Tooltip key={item.href}>
-                    <TooltipTrigger asChild>{navBtn}</TooltipTrigger>
-                    <TooltipContent
-                      side="right"
-                      className="bg-[var(--sidebar-bg)] border border-[var(--sidebar-border)] text-white text-xs"
-                    >
-                      {item.label}
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              }
-              return navBtn;
-            })}
+                    const navBtn = (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 min-w-0",
+                          collapsed ? "justify-center" : "",
+                          isActive
+                            ? "bg-[var(--sidebar-accent-hover)] text-white shadow-sm ring-1 ring-[var(--topnav-active-border)]"
+                            : "text-white/75 hover:text-white hover:bg-white/8"
+                        )}
+                      >
+                        <Icon
+                          className={cn(
+                            "h-[18px] w-[18px] flex-shrink-0",
+                            isActive ? "text-[var(--em-gold)]" : "text-white/50 group-hover:text-[var(--em-gold)]"
+                          )}
+                        />
+                        {!collapsed && (
+                          <div className="min-w-0 flex-1">
+                            <span className="block truncate leading-none">{item.label}</span>
+                          </div>
+                        )}
+                        {!collapsed && isActive && (
+                          <span className="h-2 w-2 rounded-full bg-[var(--em-gold)]" />
+                        )}
+                      </Link>
+                    );
+
+                    if (collapsed) {
+                      return (
+                        <Tooltip key={item.href}>
+                          <TooltipTrigger asChild>{navBtn}</TooltipTrigger>
+                          <TooltipContent
+                            side="right"
+                            className="border border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-xs text-white"
+                          >
+                            <div className="space-y-1">
+                              <p className="text-[10px] uppercase tracking-[0.14em] text-white/50">
+                                {group.section}
+                              </p>
+                              <p>{item.label}</p>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    }
+
+                    return navBtn;
+                  })}
+              </div>
+            ))}
           </nav>
         </ScrollArea>
 
         {/* Collapse toggle */}
         <div
-          className="border-t p-1.5"
+          className="border-t p-2"
           style={{ borderColor: "var(--sidebar-border)" }}
         >
           <button
             onClick={onToggle}
             className={cn(
-              "flex items-center gap-2 w-full rounded-md px-2 py-2 text-xs text-white/40 hover:text-[var(--em-gold)] hover:bg-white/8 transition-all duration-150",
+              "flex items-center gap-2 w-full rounded-xl px-3 py-2 text-xs text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8 transition-all duration-150",
               collapsed ? "justify-center" : ""
             )}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -763,7 +874,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                       "relative px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap",
                       isActive
                         ? "text-white bg-[var(--topnav-active-bg)]"
-                        : "text-white/70 hover:text-white hover:bg-white/8"
+                        : "text-white/56 hover:text-white/88 hover:bg-white/8"
                     )}
                   >
                     {group.label}
@@ -915,7 +1026,13 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
         />
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto" style={{ background: "var(--em-bg-subtle)" }}>
+        <main
+          className="flex-1 overflow-y-auto"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(240,248,244,0.9) 0%, rgba(245,249,246,1) 220px)",
+          }}
+        >
           {children}
         </main>
       </div>

@@ -5,14 +5,14 @@
 jest.mock("@react-native-async-storage/async-storage", () => ({
   __esModule: true,
   default: null, // force cache.ts to use the in-memory fallback
-}));
+}), { virtual: true });
 
 // Mock expo-secure-store
 jest.mock("expo-secure-store", () => ({
   getItemAsync: jest.fn().mockResolvedValue(null),
   setItemAsync: jest.fn().mockResolvedValue(undefined),
   deleteItemAsync: jest.fn().mockResolvedValue(undefined),
-}));
+}), { virtual: true });
 
 // Mock expo-linking
 jest.mock("expo-linking", () => ({
@@ -30,7 +30,7 @@ jest.mock("expo-linking", () => ({
     }
     return { scheme, path, queryParams: params };
   }),
-}));
+}), { virtual: true });
 
 // Silence React Native's Animated warnings in tests
-jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
+jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper", () => ({}), { virtual: true });

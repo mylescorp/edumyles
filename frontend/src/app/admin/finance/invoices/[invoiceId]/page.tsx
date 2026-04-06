@@ -59,8 +59,8 @@ function printReceipt(receipt: Record<string, any>) {
   <div class="row"><span>Reference</span><span>${receipt.reference ?? "—"}</span></div>
   <div class="row"><span>Date</span><span>${receipt.processedAt ? new Date(receipt.processedAt).toLocaleString() : "—"}</span></div>
   <hr style="margin: 16px 0"/>
-  ${(receipt.items ?? []).map((item: any) => `<div class="row"><span>${item.description}</span><span>${formatCurrency ? item.amount : item.amount}</span></div>`).join("")}
-  <div class="row total"><span>TOTAL PAID</span><span>${receipt.amount ?? receipt.total}</span></div>
+  ${(receipt.items ?? []).map((item: any) => `<div class="row"><span>${item.description}</span><span>${formatCurrency(item.amount ?? 0)}</span></div>`).join("")}
+  <div class="row total"><span>TOTAL PAID</span><span>${formatCurrency(receipt.amount ?? receipt.total ?? 0)}</span></div>
   <div style="text-align:center; margin-top:32px">
     <span class="stamp">PAID</span>
   </div>

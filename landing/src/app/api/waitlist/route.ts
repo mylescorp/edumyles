@@ -12,25 +12,33 @@ export async function POST(request: NextRequest) {
       email?: string;
       phone?: string;
       country?: string;
-      county?: string;
       schoolName?: string;
-      requestedRole?: string;
-      message?: string;
+      studentCount?: number | string;
+      referralSource?: string;
+      biggestChallenge?: string;
     };
 
     const firstName = body.firstName?.trim() ?? "";
     const lastName = body.lastName?.trim() ?? "";
+    const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
     const email = body.email?.trim().toLowerCase() ?? "";
     const phone = body.phone?.trim() || undefined;
-    const country = body.country?.trim() || undefined;
-    const county = body.county?.trim() || undefined;
+    const country = body.country?.trim() ?? "";
     const schoolName = body.schoolName?.trim() ?? "";
-    const requestedRole = body.requestedRole?.trim() || "school_admin";
-    const message = body.message?.trim() || undefined;
+    const biggestChallenge = body.biggestChallenge?.trim() || undefined;
+    const referralSource = body.referralSource?.trim() || "landing_waitlist";
+    const parsedStudentCount =
+      typeof body.studentCount === "string"
+        ? Number(body.studentCount)
+        : body.studentCount;
+    const studentCount =
+      typeof parsedStudentCount === "number" && Number.isFinite(parsedStudentCount)
+        ? parsedStudentCount
+        : undefined;
 
-    if (!firstName || !lastName || !schoolName || !email) {
+    if (!fullName || !schoolName || !email || !country) {
       return NextResponse.json(
-        { error: "Please complete your name, work email, and school name." },
+        { error: "Please complete your name, work email, school name, and country." },
         { status: 400 }
       );
     }
@@ -54,23 +62,21 @@ export async function POST(request: NextRequest) {
     }
 
     const convex = new ConvexHttpClient(convexUrl);
-    const result = await convex.mutation(api.waitlist.submitWaitlistApplication, {
+    const result = await convex.mutation(api.modules.platform.waitlist.addToWaitlist, {
+      fullName,
       email,
-      firstName,
-      lastName,
       phone,
       country,
-      county,
       schoolName,
-      requestedRole,
-      message,
-      source: "landing_public_signup",
+      studentCount,
+      referralSource,
+      biggestChallenge,
     });
 
     return NextResponse.json({
       success: true,
-      status: result.status,
-      alreadyExists: !result.isNew,
+      waitlistId: result.waitlistId,
+      alreadyExists: Boolean(result.duplicate),
     });
   } catch (error) {
     console.error("[landing/api/waitlist] Failed to submit application:", error);
