@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { requireTenantSession } from "../../helpers/tenantGuard";
 import { requireRole } from "../../helpers/authorize";
 import { TIER_MODULES } from "./tierModules";
-import { CORE_MODULE_IDS, ALL_MODULES } from "./moduleDefinitions";
+import { CORE_MODULE_IDS, ALL_MODULES, MODULE_DEPENDENCIES } from "./moduleDefinitions";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -338,5 +338,121 @@ export const getModuleRequests = query({
         };
       })
     );
+  },
+});
+
+/**
+ * Public query that checks whether a tenant can install a given module and
+ * returns one of five access statuses so the UI can route to the right flow.
+ * Mirrors the logic in the internalMutation checkModuleAccess.
+ */
+export const getModuleAccessStatus = query({
+  args: { sessionToken: v.string(), moduleId: v.string() },
+  handler: async (ctx, args): Promise<{
+    status: "allowed" | "plan_upgrade_required" | "rbac_escalation_required" | "payment_required" | "waitlist_only";
+    reason: string;
+    platformPriceKes?: number;
+  }> => {
+    const { tenantId } = await requireTenantSession(ctx, args);
+
+    // Resolve module from registry or static definitions
+    const registryModule =
+      (await ctx.db
+        .query("moduleRegistry")
+        .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
+        .first()) ??
+      (ALL_MODULES.find((m) => m.moduleId === args.moduleId) as any ?? null);
+
+    if (!registryModule) {
+      return { status: "waitlist_only", reason: "Module not found" };
+    }
+
+    if (registryModule.status && registryModule.status !== "published") {
+      return { status: "waitlist_only", reason: "Module is not yet published" };
+    }
+
+    // Core modules are always allowed
+    if (CORE_MODULE_IDS.includes(args.moduleId)) {
+      return { status: "allowed", reason: "Core module" };
+    }
+
+    // Check pilot grant
+    const pilotGrant = await ctx.db
+      .query("pilot_grants")
+      .withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "active"))
+      .collect();
+    const activePilot = pilotGrant.find(
+      (g) =>
+        (g as any).moduleId === args.moduleId &&
+        (!((g as any).endDate) || (g as any).endDate >= Date.now())
+    );
+    if (activePilot) {
+      return { status: "allowed", reason: "Pilot grant active" };
+    }
+
+    // Check exception grant
+    const exceptionGrant = await ctx.db
+      .query("module_exception_grants")
+      .withIndex("by_tenant_module", (q) =>
+        q.eq("tenantId", tenantId).eq("moduleId", String(registryModule._id ?? args.moduleId))
+      )
+      .first();
+    if (exceptionGrant && (!exceptionGrant.expiresAt || exceptionGrant.expiresAt >= Date.now())) {
+      return { status: "allowed", reason: "Exception grant active" };
+    }
+
+    // Check plan tier
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
+      .first();
+    const plan = tenant?.plan ?? "free";
+    const allowedForPlan = TIER_MODULES[plan] ?? [];
+    if (!allowedForPlan.includes(args.moduleId)) {
+      return { status: "plan_upgrade_required", reason: `Module requires a higher plan (current: ${plan})` };
+    }
+
+    // RBAC check — if module declares required roles, at least one active user must have it
+    if (Array.isArray(registryModule.supportedRoles) && registryModule.supportedRoles.length > 0) {
+      const tenantUsers = await ctx.db
+        .query("users")
+        .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId))
+        .collect();
+      const hasEligibleRole = tenantUsers.some(
+        (user: any) => user.isActive && registryModule.supportedRoles.includes(user.role)
+      );
+      if (!hasEligibleRole) {
+        return {
+          status: "rbac_escalation_required",
+          reason: `No active users with roles: ${registryModule.supportedRoles.join(", ")}`,
+        };
+      }
+    }
+
+    // Dependency check
+    const deps = MODULE_DEPENDENCIES[args.moduleId] ?? [];
+    for (const dep of deps) {
+      const depInstall = await ctx.db
+        .query("installedModules")
+        .withIndex("by_tenant_module", (q) => q.eq("tenantId", tenantId).eq("moduleId", dep))
+        .first();
+      if (!depInstall || depInstall.status !== "active") {
+        return {
+          status: "waitlist_only",
+          reason: `Missing dependency: ${dep} must be installed and active first`,
+        };
+      }
+    }
+
+    // Payment check
+    if (registryModule.platformPriceKes && registryModule.platformPriceKes > 0) {
+      return {
+        status: "payment_required",
+        reason: "Module requires a one-time payment",
+        platformPriceKes: registryModule.platformPriceKes,
+      };
+    }
+
+    return { status: "allowed", reason: "Access granted" };
   },
 });
