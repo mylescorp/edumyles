@@ -33,7 +33,13 @@ export function useQuery(query: any, args?: any, enabled?: boolean) {
     };
   }
   
-  return result;
+  // Wrap the raw Convex result in the expected object structure
+  return {
+    data: result,
+    isLoading: false, // Convex handles loading state internally
+    error: undefined,
+    refetch: () => {}, // Convex doesn't expose refetch in the same way
+  };
 }
 
 export function useMutation(mutation: any) {
