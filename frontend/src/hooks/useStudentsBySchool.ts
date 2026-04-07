@@ -2,7 +2,7 @@
 // EduMyles — Frontend Hook for getStudentsBySchool Query
 // ============================================================
 
-import { useQuery } from "convex/react";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useState, useCallback } from "react";
 
