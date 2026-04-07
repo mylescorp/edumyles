@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/platform/invite/accept?token=${state}&success=true`);
   } catch (error) {
     console.error("Error in invite callback:", error);
+    const searchParams = request.nextUrl.searchParams;
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/platform/invite/accept?token=${searchParams.get("state")}&error=callback_failed`);
   }
 }
