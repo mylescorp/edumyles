@@ -48,7 +48,7 @@ export default function ClassDetailPage() {
 
     if (isLoading || classes === undefined) return <LoadingSkeleton variant="page" />;
 
-    const classInfo = (classes as any[])?.find((c) => c._id === classId);
+    const classInfo = (classes.data as any[])?.find((c) => c._id === classId);
 
     if (!classInfo) {
         return (

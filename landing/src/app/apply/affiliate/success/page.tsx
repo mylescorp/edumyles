@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
 
-export default function AffiliateApplicationSuccessPage() {
+function AffiliateApplicationSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const applicationId = searchParams.get("id");
@@ -162,5 +162,13 @@ export default function AffiliateApplicationSuccessPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function AffiliateApplicationSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AffiliateApplicationSuccessContent />
+    </Suspense>
   );
 }
