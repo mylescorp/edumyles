@@ -119,7 +119,7 @@ crons.weekly(
 
 crons.monthly(
   "generate monthly reseller reports",
-  { hourUTC: 3, minuteUTC: 0, dayOfMonth: 1 },
+  { hourUTC: 3, minuteUTC: 0, day: 1 },
   internal.modules.reseller.internal.crons.generateMonthlyReports,
   {}
 );
@@ -154,7 +154,7 @@ crons.weekly(
 
 crons.monthly(
   "generate publisher revenue reports",
-  { hourUTC: 7, minuteUTC: 0, dayOfMonth: 1 },
+  { hourUTC: 7, minuteUTC: 0, day: 1 },
   internal.modules.publisher.internal.crons.generatePublisherRevenueReports,
   {}
 );

@@ -136,7 +136,7 @@ export function requireCreationLimit(reseller: any, currentSchools: number) {
     platinum: null,
   };
 
-  const limit = limits[reseller.tier];
+  const limit = limits[reseller.tier as keyof typeof limits];
   if (limit !== null && currentSchools >= limit) {
     throw new ConvexError({
       code: "FORBIDDEN",

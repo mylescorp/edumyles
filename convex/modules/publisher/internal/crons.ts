@@ -1,9 +1,9 @@
-import { internalMutation } from "../../_generated/server";
+import { internalMutation } from "../../../_generated/server";
 
 // Process publisher tier upgrades and validations
 export const processPublisherTierReviews = internalMutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx: any) => {
     const publishers = await ctx.db
       .query("publishers")
       .collect();
@@ -47,7 +47,7 @@ export const processPublisherTierReviews = internalMutation({
 // Generate publisher revenue reports
 export const generatePublisherRevenueReports = internalMutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx: any) => {
     const now = Date.now();
     const lastMonth = new Date(now);
     lastMonth.setMonth(lastMonth.getMonth() - 1);
@@ -101,7 +101,7 @@ export const generatePublisherRevenueReports = internalMutation({
 // Review pending publisher applications
 export const reviewPendingApplications = internalMutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx: any) => {
     const pendingApplications = await ctx.db
       .query("publisherApplications")
       .withIndex("by_status", q => q.eq("status", "submitted"))
@@ -197,7 +197,7 @@ export const reviewPendingApplications = internalMutation({
 // Update publisher statistics
 export const updatePublisherStats = internalMutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx: any) => {
     const publishers = await ctx.db
       .query("publishers")
       .collect();

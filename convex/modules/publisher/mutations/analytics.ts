@@ -237,8 +237,8 @@ export const getGeographicAnalytics = query({
     if (args.moduleId) {
       // Get installations for specific module
       const module = await ctx.db
-        .query("moduleRegistry")
-        .withIndex("by_moduleId", q => q.eq("moduleId", args.moduleId))
+        .query("modules")
+        .withIndex("by_slug", q => q.eq("slug", args.moduleId))
         .unique();
 
       if (!module || module.publisherId !== publisher.publisherId) {
@@ -252,14 +252,16 @@ export const getGeographicAnalytics = query({
     } else {
       // Get installations for all modules by this publisher
       const modules = await ctx.db
-        .query("moduleRegistry")
-        .filter(q => q.eq(q.field("publisherId"), publisher.publisherId))
+        .query("modules")
+        .withIndex("by_publisherId", q => q.eq("publisherId", publisher.publisherId))
         .collect();
 
+      // Filter installations for all modules by this publisher
+      const moduleIds = modules.map(m => m.moduleId);
       installations = await ctx.db
         .query("installedModules")
         .filter(q => 
-          q.inq("moduleId", modules.map(m => m.moduleId))
+          q.or(...moduleIds.map(moduleId => q.eq("moduleId", moduleId)))
         )
         .collect();
     }

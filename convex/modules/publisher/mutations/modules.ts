@@ -17,10 +17,9 @@ export const getMyModules = query({
     const skip = (page - 1) * pageSize;
 
     // Query modules from moduleRegistry where publisher is the owner
-    // Note: You'll need to add a publisherId field to moduleRegistry
     const modules = await ctx.db
-      .query("moduleRegistry")
-      .filter(q => q.eq(q.field("publisherId"), publisher.publisherId))
+      .query("modules")
+      .withIndex("by_publisherId", q => q.eq("publisherId", publisher.publisherId))
       .collect();
 
     // Filter by status if provided
@@ -48,7 +47,6 @@ export const createModule = mutation({
     name: v.string(),
     description: v.string(),
     category: v.string(),
-    version: v.string(),
     pricing: v.object({
       type: v.union(v.literal("free"), v.literal("paid"), v.literal("freemium")),
       amount: v.number(),
@@ -65,10 +63,10 @@ export const createModule = mutation({
   handler: async (ctx, args) => {
     const publisher = await requirePublisherContext(ctx);
 
-    // Check if module ID already exists
+    // Check if module slug already exists
     const existingModule = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_moduleId", q => q.eq("moduleId", args.moduleId))
+      .query("modules")
+      .withIndex("by_slug", q => q.eq("slug", args.moduleId))
       .unique();
 
     if (existingModule) {
@@ -76,15 +74,15 @@ export const createModule = mutation({
     }
 
     // Create the module
-    const moduleId = await ctx.db.insert("moduleRegistry", {
-      moduleId: args.moduleId,
+    const moduleId = await ctx.db.insert("modules", {
+      publisherId: publisher.publisherId,
       name: args.name,
+      slug: args.moduleId,
+      tagline: args.description,
       description: args.description,
       category: args.category,
-      version: args.version,
-      publisherId: publisher.publisherId,
-      publisherName: publisher.businessName,
-      pricing: args.pricing,
+      pricingModel: args.pricing.type,
+      suggestedPriceKes: args.pricing.amount,
       features: args.features,
       requirements: args.requirements,
       documentation: args.documentation,
@@ -100,14 +98,21 @@ export const createModule = mutation({
       updatedAt: Date.now(),
     });
 
-    // Update publisher stats
-    await ctx.db.patch(publisher.publisherId, {
-      stats: {
-        ...publisher.publisher.stats,
-        totalModules: publisher.publisher.stats.totalModules + 1,
-      },
-      updatedAt: Date.now(),
-    });
+    // Get publisher record to update stats
+    const publisherRecord = await ctx.db
+      .query("publishers")
+      .withIndex("by_userId", q => q.eq("userId", publisher.userId))
+      .first();
+    
+    if (publisherRecord) {
+      await ctx.db.patch(publisherRecord._id, {
+        stats: {
+          ...publisherRecord.stats,
+          totalModules: publisherRecord.stats.totalModules + 1,
+        },
+        updatedAt: Date.now(),
+      });
+    }
 
     // Log the action
     await ctx.runMutation(internalLogAction, {
@@ -130,11 +135,10 @@ export const updateModule = mutation({
     name: v.optional(v.string()),
     description: v.optional(v.string()),
     category: v.optional(v.string()),
-    version: v.optional(v.string()),
     pricing: v.optional(v.object({
       type: v.union(v.literal("free"), v.literal("paid"), v.literal("freemium")),
-      amount: v.number(),
       currency: v.string(),
+      amount: v.number(),
       billingCycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
     })),
     features: v.optional(v.array(v.string())),
@@ -149,8 +153,8 @@ export const updateModule = mutation({
 
     // Get the module
     const module = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_moduleId", q => q.eq("moduleId", args.moduleId))
+      .query("modules")
+      .withIndex("by_slug", q => q.eq("slug", args.moduleId))
       .unique();
 
     if (!module) {
@@ -174,8 +178,10 @@ export const updateModule = mutation({
     if (args.name) updates.name = args.name;
     if (args.description) updates.description = args.description;
     if (args.category) updates.category = args.category;
-    if (args.version) updates.version = args.version;
-    if (args.pricing) updates.pricing = args.pricing;
+    if (args.pricing) {
+      updates.pricingModel = args.pricing.type;
+      updates.suggestedPriceKes = args.pricing.amount;
+    }
     if (args.features) updates.features = args.features;
     if (args.requirements) updates.requirements = args.requirements;
     if (args.documentation !== undefined) updates.documentation = args.documentation;

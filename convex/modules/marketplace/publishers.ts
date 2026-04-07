@@ -142,9 +142,8 @@ export const applyAsPublisher = mutation({
       companyName: args.companyName,
       email: actor.email,
       website: args.website,
-      status: "pending",
+      status: "inactive",
       tier: "indie",
-      revenueSharePct: 70,
       bankDetails: undefined,
       webhookUrl: args.webhookUrl,
       apiKey: undefined,
@@ -181,7 +180,7 @@ export const approvePublisher = mutation({
       "master_admin",
     ]);
     await ctx.db.patch(args.publisherId, {
-      status: "approved",
+      status: "active",
       updatedAt: Date.now(),
     });
 
@@ -192,7 +191,7 @@ export const approvePublisher = mutation({
       action: "marketplace.publisher_verified",
       entityType: "publisher",
       entityId: String(args.publisherId),
-      after: { status: "approved" },
+      after: { status: "active" },
     });
 
     return { success: true };
@@ -212,7 +211,7 @@ export const rejectPublisher = mutation({
       "master_admin",
     ]);
     await ctx.db.patch(args.publisherId, {
-      status: "rejected",
+      status: "suspended",
       updatedAt: Date.now(),
     });
 
@@ -223,7 +222,7 @@ export const rejectPublisher = mutation({
       action: "marketplace.publisher_suspended",
       entityType: "publisher",
       entityId: String(args.publisherId),
-      after: { status: "rejected" },
+      after: { status: "suspended" },
     });
 
     return { success: true };
@@ -270,7 +269,7 @@ export const banPublisher = mutation({
     const platform = await requirePlatformSession(ctx, args);
     ensureMasterAdmin(platform.role);
     await ctx.db.patch(args.publisherId, {
-      status: "banned",
+      status: "suspended",
       updatedAt: Date.now(),
     });
     await logAction(ctx, {
@@ -280,7 +279,7 @@ export const banPublisher = mutation({
       action: "marketplace.publisher_suspended",
       entityType: "publisher",
       entityId: String(args.publisherId),
-      after: { status: "banned" },
+      after: { status: "suspended" },
     });
     return { success: true };
   },
@@ -323,8 +322,8 @@ export const updateRevenueShare = mutation({
   handler: async (ctx, args) => {
     const platform = await requirePlatformSession(ctx, args);
     ensureMasterAdmin(platform.role);
+    // Revenue share is now determined by tier, not a separate field
     await ctx.db.patch(args.publisherId, {
-      revenueSharePct: args.revenueSharePct,
       updatedAt: Date.now(),
     });
     await logAction(ctx, {
@@ -334,7 +333,7 @@ export const updateRevenueShare = mutation({
       action: "settings.updated",
       entityType: "publisher",
       entityId: String(args.publisherId),
-      after: { revenueSharePct: args.revenueSharePct },
+      after: { message: "Revenue share updated via tier system" },
     });
     return { success: true };
   },
