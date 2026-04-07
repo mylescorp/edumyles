@@ -65,7 +65,7 @@ export default function AdminExamsPage() {
       />
 
       <DataTable
-        data={exams}
+        data={exams.data || []}
         columns={columns}
         searchable
         searchPlaceholder="Search exams..."
