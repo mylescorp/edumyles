@@ -16,12 +16,12 @@ export function useNotifications() {
     hasLiveTenantSession &&
     !isLocalBootstrapSession;
 
-  const notifications = useQuery(
+  const notificationsResult = useQuery(
     api.notifications.getNotifications,
     canQueryNotifications ? { sessionToken, limit: 20 } : "skip"
   );
 
-  const unreadCount = useQuery(
+  const unreadCountResult = useQuery(
     api.notifications.getUnreadCount,
     canQueryNotifications ? { sessionToken } : "skip"
   );
@@ -29,7 +29,10 @@ export function useNotifications() {
   const markAsRead = useMutation(api.notifications.markAsRead);
   const markAllAsRead = useMutation(api.notifications.markAllAsRead);
 
-  const normalizedNotifications = (notifications ?? []).map((notification: any) => ({
+  const notifications = notificationsResult?.data;
+  const unreadCount = unreadCountResult?.data;
+
+  const normalizedNotifications = (notifications && Array.isArray(notifications) ? notifications : []).map((notification: any) => ({
     ...notification,
     read: notification.isRead,
   }));
