@@ -525,6 +525,7 @@ export const createPlatformInviteRecord = async (
   ctx: MutationCtx,
   actor: any,
   args: {
+    sessionToken: string;
     email: string;
     role: string;
     department?: string;
