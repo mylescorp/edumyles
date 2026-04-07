@@ -31,14 +31,17 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   const { can, isLoaded: platformPermissionsLoaded } = usePlatformPermissions();
   const { isModuleInstalled, isModuleActive } = useInstalledModules();
   const isPlatformSidebar = navItems.some((item) => item.href.startsWith("/platform"));
-  const pendingAdmissions = useQuery(
+  const pendingAdmissionsResult = useQuery(
     api.modules.admissions.queries.listApplications,
     sessionToken ? { sessionToken, status: "pending" } : "skip"
   );
-  const pendingInvoices = useQuery(
+  const pendingInvoicesResult = useQuery(
     api.modules.finance.queries.listInvoices,
     sessionToken ? { sessionToken, status: "pending" } : "skip"
   );
+
+  const pendingAdmissions = pendingAdmissionsResult?.data;
+  const pendingInvoices = pendingInvoicesResult?.data;
 
   // Core module IDs that should always be visible
   const coreModuleIds = ["sis", "communications", "users"];
