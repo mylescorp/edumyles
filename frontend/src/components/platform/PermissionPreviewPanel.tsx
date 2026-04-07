@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronRight, Shield, Eye, EyeOff, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -362,55 +361,40 @@ export function PermissionPreviewPanel({
               const grantedCount = categoryPermissions.filter(p => finalPermissions.has(p)).length;
 
               return (
-                <Collapsible
-                  key={category}
-                  open={isExpanded}
-                  onOpenChange={() => toggleCategory(category)}
-                >
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-between p-2 h-auto"
-                    >
-                      <div className="flex items-center gap-2">
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
-                        <span className="font-medium">{category}</span>
-                        <Badge variant="secondary" className="ml-auto">
-                          {grantedCount}/{categoryPermissions.length}
-                        </Badge>
-                      </div>
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-1 p-2">
-                    {categoryPermissions.map(permission => {
-                      const status = getPermissionStatus(permission);
-                      return (
-                        <div
-                          key={permission}
-                          className="flex items-center justify-between p-2 rounded-lg bg-slate-50"
-                        >
-                          <div className="flex items-center gap-2">
-                            {getPermissionIcon(status)}
-                            <span className={cn(
-                              "text-sm",
-                              status === 'removed' || status === 'denied' ? "text-gray-500 line-through" : ""
-                            )}>
-                              {PERMISSION_LABELS[permission] || permission}
-                            </span>
+                <div key={category}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-between p-2 h-auto"
+                    onClick={() => toggleCategory(category)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      <span className="font-medium">{category}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {grantedCount}/{categoryPermissions.length}
+                    </Badge>
+                  </Button>
+                  {isExpanded && (
+                    <div className="space-y-1 p-2">
+                      {categoryPermissions.map(permission => {
+                        const status = getPermissionStatus(permission);
+                        return (
+                          <div key={permission} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                            <div className="flex items-center gap-2">
+                              {getPermissionIcon(status)}
+                              <span className="text-sm">{PERMISSION_LABELS[permission] || permission}</span>
+                            </div>
+                            <Badge variant={getPermissionVariant(status) as any} className="text-xs">
+                              {status}
+                            </Badge>
                           </div>
-                          <Badge variant={getPermissionVariant(status)} className="text-xs">
-                            {status}
-                          </Badge>
-                        </div>
-                      );
-                    })}
-                  </CollapsibleContent>
+                        );
+                      })}
+                    </div>
+                  )}
                   <Separator className="my-2" />
-                </Collapsible>
+                </div>
               );
             })}
           </div>
