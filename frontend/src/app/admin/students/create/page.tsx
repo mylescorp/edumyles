@@ -34,10 +34,11 @@ export default function CreateStudentPage() {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const classes = useQuery(
+    const classesResult = useQuery(
         api.modules.sis.queries.listClasses,
         sessionToken ? { sessionToken } : "skip"
     );
+    const classes = classesResult?.data;
 
     const createStudent = useMutation(api.modules.sis.mutations.createStudent);
 

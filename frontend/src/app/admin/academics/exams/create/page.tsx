@@ -22,10 +22,11 @@ export default function AdminCreateExamPage() {
   const [classId, setClassId] = useState("");
   const [className, setClassName] = useState("");
 
-  const classes = useQuery(
+  const classesResult = useQuery(
     api.modules.sis.queries.listClasses,
     sessionToken ? { sessionToken } : "skip"
-  ) as any[] | undefined;
+  );
+  const classes = classesResult?.data;
   const createExamination = useMutation(api.modules.academics.mutations.createExamination);
 
   if (isLoading || classes === undefined) {
