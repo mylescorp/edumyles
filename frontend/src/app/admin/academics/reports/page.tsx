@@ -45,16 +45,16 @@ export default function AdminAcademicReportsPage() {
     sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   );
-  const recentExams = usePlatformQuery(
-    api.modules.academics.queries.getRecentExams,
+  const recentClasses = useQuery(
+    api.modules.sis.queries.listClasses,
     sessionToken ? { sessionToken, limit: 5 } : "skip",
     !!sessionToken
-  ) as any[] | null;
+  );
 
   const students = useQuery(
     api.modules.sis.queries.listStudents,
     sessionToken ? { sessionToken, status: "active" } : "skip"
-  ) as any[] | undefined;
+  );
 
   const generateReportCard = useMutation(api.modules.academics.mutations.generateReportCard);
 
@@ -112,7 +112,7 @@ export default function AdminAcademicReportsPage() {
                   <SelectValue placeholder="Select student..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {(students ?? []).map((s: any) => (
+                  {(students.data ?? []).map((s: any) => (
                     <SelectItem key={s._id} value={s._id}>
                       {s.firstName} {s.lastName}
                       {s.admissionNumber ? ` — ${s.admissionNumber}` : ""}
