@@ -194,6 +194,7 @@ export function UsersNavigationRail({ sessionToken, className }: UsersNavigation
               </div>
             </div>
           )}
+        </div>
       </CardContent>
     </Card>
   );
