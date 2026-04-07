@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "../../../_generated/server";
 import { requireResellerContext, requireAffiliateContext } from "../../../helpers/resellerGuard";
 import { internalLogAction } from "../../../helpers/auditLog";
-import { REFERRAL_COOKIE_DURATION, REFERRAL_COOKIE_NAME } from "../../../shared/src/constants";
+import { REFERRAL_COOKIE_NAME, REFERRAL_COOKIE_DAYS } from "../../../../shared/src/constants";
 
 export const getMarketingMaterials = query({
   args: {
@@ -272,7 +272,7 @@ export const getReferralCode = query({
       referralCode,
       referralUrl: `https://edumyles.com?ref=${referralCode}`,
       cookieName: REFERRAL_COOKIE_NAME,
-      cookieDuration: REFERRAL_COOKIE_DURATION,
+      cookieDuration: REFERRAL_COOKIE_DAYS,
     };
   },
 });

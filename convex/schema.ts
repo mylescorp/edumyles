@@ -4949,51 +4949,6 @@ export default defineSchema({
     .index("by_reviewedBy", ["reviewedBy"])
     .index("by_submittedAt", ["submittedAt"]),
 
-  publishers: defineTable({
-    userId: v.string(),
-    publisherId: v.string(), // Unique publisher identifier
-    businessName: v.string(),
-    businessType: v.union(v.literal("individual"), v.literal("company")),
-    website: v.optional(v.string()),
-    description: v.string(),
-    tier: v.union(v.literal("indie"), v.literal("verified"), v.literal("enterprise")),
-    status: v.union(v.literal("active"), v.literal("suspended"), v.literal("inactive")),
-    verifiedAt: v.optional(v.number()),
-    verificationDocuments: v.array(v.string()), // URLs to verification docs
-    contactInfo: v.object({
-      email: v.string(),
-      phone: v.string(),
-      address: v.string(),
-      country: v.string(),
-    }),
-    banking: v.object({
-      bankName: v.string(),
-      accountNumber: v.string(),
-      accountName: v.string(),
-      branchCode: v.optional(v.string()),
-    }),
-    stats: v.object({
-      totalModules: v.number(),
-      activeModules: v.number(),
-      totalRevenue: v.number(),
-      monthlyRevenue: v.number(),
-      totalInstalls: v.number(),
-      activeInstalls: v.number(),
-    }),
-    settings: v.object({
-      autoApproveUpdates: v.boolean(),
-      emailNotifications: v.boolean(),
-      supportLevel: v.union(v.literal("basic"), v.literal("standard"), v.literal("premium")),
-    }),
-    apiKey: v.optional(v.string()), // API key for marketplace integration
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_userId", ["userId"])
-    .index("by_publisherId", ["publisherId"])
-    .index("by_status", ["status"])
-    .index("by_tier", ["tier"]),
-
   resellerApplications: defineTable({
     applicantId: v.string(), // User ID of the applicant
     applicantEmail: v.string(),

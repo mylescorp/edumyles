@@ -571,7 +571,7 @@ export const getDashboardOverview = query({
         publishedModules: modules.filter((module) => module.status === "published").length,
         pendingReview: modules.filter((module) => module.status === "pending_review").length,
         activeFlags: activeFlags.length,
-        activePublishers: publishers.filter((publisher) => publisher.status === "approved").length,
+        activePublishers: publishers.filter((publisher) => publisher.status === "pending").length,
         featuredModules: modules.filter((module) => module.isFeatured).length,
         activeInstalls: moduleInstalls.filter((install) => install.status === "active").length,
         activePilotGrants: activePilotGrants.length,

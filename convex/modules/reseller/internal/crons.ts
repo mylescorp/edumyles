@@ -1,5 +1,5 @@
 import { internalMutation } from "../../_generated/server";
-import { COMMISSION_HOLD_DAYS, AFFILIATE_COMMISSION_RATE } from "../../../shared/src/constants";
+import { COMMISSION_HOLD_DAYS } from "../../../../shared/src/constants";
 
 // Process commission availability - move commissions from "held" to "available"
 export const processCommissionAvailability = internalMutation({

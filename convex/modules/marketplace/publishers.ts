@@ -24,17 +24,16 @@ export const getPublishers = query({
       "super_admin",
       "master_admin",
     ]);
-    let publishers = await ctx.db.query("publishers").collect();
-    if (args.status) publishers = publishers.filter((publisher) => publisher.status === args.status);
-    if (args.tier) publishers = publishers.filter((publisher) => publisher.tier === args.tier);
-    return publishers;
+    let applications = await ctx.db.query("publisherApplications").collect();
+    if (args.status) applications = applications.filter((app) => app.status === args.status);
+    return applications;
   },
 });
 
 export const getPublisher = query({
   args: {
     sessionToken: v.optional(v.string()),
-    publisherId: v.optional(v.id("publishers")),
+    publisherId: v.optional(v.id("publisherApplications")),
   },
   handler: async (ctx, args) => {
     if (args.sessionToken) {
@@ -52,8 +51,8 @@ export const getPublisher = query({
 
     const publisherCtx = await requirePublisherContext(ctx);
     return await ctx.db
-      .query("publishers")
-      .withIndex("by_userId", (q) => q.eq("userId", publisherCtx.userId))
+      .query("publisherApplications")
+      .withIndex("by_applicant", (q) => q.eq("applicantId", publisherCtx.userId))
       .first();
   },
 });
@@ -61,7 +60,7 @@ export const getPublisher = query({
 export const getPublisherDetailBundle = query({
   args: {
     sessionToken: v.string(),
-    publisherId: v.id("publishers"),
+    publisherId: v.id("publisherApplications"),
   },
   handler: async (ctx, args) => {
     await requirePlatformRole(ctx, args, [
@@ -129,26 +128,28 @@ export const applyAsPublisher = mutation({
   handler: async (ctx, args) => {
     const actor = await requireTenantContext(ctx);
     const existing = await ctx.db
-      .query("publishers")
-      .withIndex("by_userId", (q) => q.eq("userId", actor.userId))
+      .query("publisherApplications")
+      .withIndex("by_applicant", (q) => q.eq("applicantId", actor.userId))
       .first();
 
     if (existing) {
       throw new Error("Publisher application already exists");
     }
 
-    const publisherId = await ctx.db.insert("publishers", {
-      userId: actor.userId,
+    const publisherId = await ctx.db.insert("publisherApplications", {
+      applicantId: actor.userId,
+      applicantEmail: actor.email,
       businessName: args.companyName,
-      email: actor.email,
+      businessType: "company", // Default to company type
+      businessDescription: "Publisher application for " + args.companyName,
       website: args.website,
-      status: "inactive",
-      tier: "indie",
-      bankDetails: undefined,
-      webhookUrl: args.webhookUrl,
-      apiKey: undefined,
-      taxId: args.taxId,
-      billingCountry: args.billingCountry,
+      contactPhone: "+254", // Default Kenya phone prefix
+      contactAddress: "Kenya",
+      country: args.billingCountry || "Kenya",
+      experience: "New publisher",
+      modules: [],
+      status: "submitted",
+      submittedAt: Date.now(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -191,7 +192,7 @@ export const approvePublisher = mutation({
       action: "marketplace.publisher_verified",
       entityType: "publisher",
       entityId: String(args.publisherId),
-      after: { status: "active" },
+      after: { status: "approved" },
     });
 
     return { success: true };
@@ -201,7 +202,7 @@ export const approvePublisher = mutation({
 export const rejectPublisher = mutation({
   args: {
     sessionToken: v.string(),
-    publisherId: v.id("publishers"),
+    publisherId: v.id("publisherApplications"),
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformRole(ctx, args, [
@@ -211,7 +212,9 @@ export const rejectPublisher = mutation({
       "master_admin",
     ]);
     await ctx.db.patch(args.publisherId, {
-      status: "suspended",
+      status: "rejected",
+      reviewedBy: platform.userId,
+      reviewedAt: Date.now(),
       updatedAt: Date.now(),
     });
 
@@ -222,7 +225,7 @@ export const rejectPublisher = mutation({
       action: "marketplace.publisher_suspended",
       entityType: "publisher",
       entityId: String(args.publisherId),
-      after: { status: "suspended" },
+      after: { status: "rejected" },
     });
 
     return { success: true };
@@ -232,7 +235,7 @@ export const rejectPublisher = mutation({
 export const suspendPublisher = mutation({
   args: {
     sessionToken: v.string(),
-    publisherId: v.id("publishers"),
+    publisherId: v.id("publisherApplications"),
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformRole(ctx, args, [
@@ -242,7 +245,9 @@ export const suspendPublisher = mutation({
       "master_admin",
     ]);
     await ctx.db.patch(args.publisherId, {
-      status: "suspended",
+      status: "on_hold",
+      reviewedBy: platform.userId,
+      reviewedAt: Date.now(),
       updatedAt: Date.now(),
     });
 
@@ -253,7 +258,7 @@ export const suspendPublisher = mutation({
       action: "marketplace.publisher_suspended",
       entityType: "publisher",
       entityId: String(args.publisherId),
-      after: { status: "suspended" },
+      after: { status: "on_hold" },
     });
 
     return { success: true };
@@ -263,13 +268,15 @@ export const suspendPublisher = mutation({
 export const banPublisher = mutation({
   args: {
     sessionToken: v.string(),
-    publisherId: v.id("publishers"),
+    publisherId: v.id("publisherApplications"),
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformSession(ctx, args);
     ensureMasterAdmin(platform.role);
     await ctx.db.patch(args.publisherId, {
-      status: "suspended",
+      status: "rejected",
+      reviewedBy: platform.userId,
+      reviewedAt: Date.now(),
       updatedAt: Date.now(),
     });
     await logAction(ctx, {
@@ -279,62 +286,38 @@ export const banPublisher = mutation({
       action: "marketplace.publisher_suspended",
       entityType: "publisher",
       entityId: String(args.publisherId),
-      after: { status: "suspended" },
+      after: { status: "rejected" },
     });
     return { success: true };
   },
 });
 
-export const updatePublisherTier = mutation({
-  args: {
-    sessionToken: v.string(),
-    publisherId: v.id("publishers"),
-    tier: v.union(v.literal("indie"), v.literal("verified"), v.literal("enterprise")),
-  },
-  handler: async (ctx, args) => {
-    const platform = await requirePlatformSession(ctx, args);
-    ensureMasterAdmin(platform.role);
-    await ctx.db.patch(args.publisherId, {
-      tier: args.tier,
-      updatedAt: Date.now(),
-    });
+// TODO: Re-implement when publisherApplications schema supports tier management
+// export const updatePublisherTier = mutation({
+//   args: {
+//     sessionToken: v.string(),
+//     publisherId: v.id("publisherApplications"),
+//     tier: v.union(v.literal("indie"), v.literal("verified"), v.literal("enterprise")),
+//   },
+//   handler: async (ctx, args) => {
+//     const platform = await requirePlatformSession(ctx, args);
+//     ensureMasterAdmin(platform.role);
+//     // Tier management not supported in publisherApplications schema
+//     throw new Error("Tier management not available for publisher applications");
+//   },
+// });
 
-    await logAction(ctx, {
-      tenantId: "PLATFORM",
-      actorId: platform.userId,
-      actorEmail: platform.email,
-      action: "marketplace.publisher_verified",
-      entityType: "publisher",
-      entityId: String(args.publisherId),
-      after: { tier: args.tier },
-    });
-
-    return { success: true };
-  },
-});
-
-export const updateRevenueShare = mutation({
-  args: {
-    sessionToken: v.string(),
-    publisherId: v.id("publishers"),
-    revenueSharePct: v.number(),
-  },
-  handler: async (ctx, args) => {
-    const platform = await requirePlatformSession(ctx, args);
-    ensureMasterAdmin(platform.role);
-    // Revenue share is now determined by tier, not a separate field
-    await ctx.db.patch(args.publisherId, {
-      updatedAt: Date.now(),
-    });
-    await logAction(ctx, {
-      tenantId: "PLATFORM",
-      actorId: platform.userId,
-      actorEmail: platform.email,
-      action: "settings.updated",
-      entityType: "publisher",
-      entityId: String(args.publisherId),
-      after: { message: "Revenue share updated via tier system" },
-    });
-    return { success: true };
-  },
-});
+// TODO: Revenue share is now determined by tier, not a separate field
+// export const updateRevenueShare = mutation({
+//   args: {
+//     sessionToken: v.string(),
+//     publisherId: v.id("publisherApplications"),
+//     revenueSharePct: v.number(),
+//   },
+//   handler: async (ctx, args) => {
+//     const platform = await requirePlatformSession(ctx, args);
+//     ensureMasterAdmin(platform.role);
+//     // Revenue share is now determined by tier, not a separate field
+//     throw new Error("Revenue share management not available for publisher applications");
+//   },
+// });
