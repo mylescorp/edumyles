@@ -27,7 +27,7 @@ export default function AdminExamDetailPage({ params }: { params: { examId: stri
     return <LoadingSkeleton variant="page" />;
   }
 
-  const exam = exams.find((entry: any) => entry._id === params.examId);
+  const exam = exams.data?.find((entry: any) => entry._id === params.examId);
   if (!exam) {
     return <LoadingSkeleton variant="page" />;
   }
