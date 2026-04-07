@@ -84,7 +84,7 @@ export default function AdminCreateAssignmentPage() {
                 <SelectValue placeholder="Select a class" />
               </SelectTrigger>
               <SelectContent>
-                {classes.data?.map((cls) => (
+                {classes.data?.map((cls: any) => (
                   <SelectItem key={cls._id} value={cls._id}>
                     {cls.name}
                   </SelectItem>
