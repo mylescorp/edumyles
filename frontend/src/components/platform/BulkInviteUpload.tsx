@@ -42,7 +42,7 @@ export function BulkInviteUpload() {
     const lines = text.split('\n').filter(line => line.trim());
     if (lines.length < 2) return [];
 
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const headers = lines[0]?.split(',').map(h => h.trim().toLowerCase()) || [];
     const invites: ParsedInvite[] = [];
 
     for (let i = 1; i < lines.length; i++) {
