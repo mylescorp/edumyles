@@ -583,7 +583,7 @@ async function createPlatformInviteRecord(
   await logAction(ctx, {
     tenantId: "PLATFORM",
     actorId: actor.userId,
-    actorEmail: actor.email,
+    actorEmail: actor.email || "unknown@example.com",
     action: "user.invited",
     entityType: "platform_user_invite",
     entityId: String(inviteId),
@@ -717,7 +717,7 @@ export const createRole = mutation({
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
-      actorEmail: actor.email,
+      actorEmail: actor.email || "unknown@example.com",
       action: "role.created",
       entityType: "platform_role",
       entityId: String(roleId),
@@ -760,7 +760,7 @@ export const updateRole = mutation({
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
-      actorEmail: actor.email,
+      actorEmail: actor.email || "unknown@example.com",
       action: "role.updated",
       entityType: "platform_role",
       entityId: String(args.roleId),
@@ -788,7 +788,7 @@ export const deleteRole = mutation({
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
-      actorEmail: actor.email,
+      actorEmail: actor.email || "unknown@example.com",
       action: "role.deleted",
       entityType: "platform_role",
       entityId: String(args.roleId),
@@ -834,7 +834,7 @@ export const duplicateRole = mutation({
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
-      actorEmail: actor.email,
+      actorEmail: actor.email || "unknown@example.com",
       action: "role.duplicated",
       entityType: "platform_role",
       entityId: String(roleId),
@@ -1006,7 +1006,7 @@ export const resendPlatformInvite = mutation({
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
-      actorEmail: actor.email,
+      actorEmail: actor.email || "unknown@example.com",
       action: "user.updated",
       entityType: "platform_user_invite",
       entityId: String(args.inviteId),
@@ -1034,7 +1034,7 @@ export const revokePlatformInvite = mutation({
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
-      actorEmail: actor.email,
+      actorEmail: actor.email || "unknown@example.com",
       action: "user.updated",
       entityType: "platform_user_invite",
       entityId: String(args.inviteId),
@@ -1097,7 +1097,7 @@ export const updateUserRole = mutation({
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
-      actorEmail: actor.email,
+      actorEmail: actor.email || "unknown@example.com",
       action: "user.updated",
       entityType: "platform_user",
       entityId: String(args.targetUserId),
@@ -1236,7 +1236,7 @@ export const deletePlatformUser = mutation({
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
-      actorEmail: actor.email,
+      actorEmail: actor.email || "unknown@example.com",
       action: "user.deleted",
       entityType: "platform_user",
       entityId: String(args.targetUserId),
