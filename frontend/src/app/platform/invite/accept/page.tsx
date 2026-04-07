@@ -129,7 +129,9 @@ export default function InviteAcceptPage() {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
-          fieldErrors[err.path[0]] = err.message;
+          if (err.path[0]) {
+            fieldErrors[err.path[0]] = err.message;
+          }
         });
         setErrors(fieldErrors);
       } else {
