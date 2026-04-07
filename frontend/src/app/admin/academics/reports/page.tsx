@@ -261,32 +261,7 @@ export default function AdminAcademicReportsPage() {
               </div>
             )}
           </CardContent>
-        </Card>
-      )}
-
-      {/* Recent Exams */}
-      {recentExams && recentExams.length > 0 && (
-        <Card className="print:hidden">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Recent Examination Activity</CardTitle>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/admin/academics/exams">Open Exams</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {recentExams.map((exam) => (
-              <div key={exam._id} className="flex items-center justify-between rounded-lg border p-3">
-                <div>
-                  <p className="font-medium">{exam.name}</p>
-                  <p className="text-sm text-muted-foreground">{exam.className} · {exam.date}</p>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {exam.submissions}/{exam.total} submissions
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      </Card>
       )}
     </div>
   );
