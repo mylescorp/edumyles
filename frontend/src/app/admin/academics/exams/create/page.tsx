@@ -85,7 +85,7 @@ export default function AdminCreateExamPage() {
                 value={classId}
                 onValueChange={(value) => {
                   setClassId(value);
-                  const selectedClass = classes.find((entry) => entry._id === value);
+                  const selectedClass = classes.find((entry: any) => entry._id === value);
                   setClassName(selectedClass?.name ?? "");
                 }}
               >
@@ -93,7 +93,7 @@ export default function AdminCreateExamPage() {
                   <SelectValue placeholder="Select a class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {classes.map((entry) => (
+                  {classes.map((entry: any) => (
                     <SelectItem key={entry._id} value={entry._id}>
                       {entry.name}
                     </SelectItem>

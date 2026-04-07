@@ -20,14 +20,14 @@ export default function AdminExamDetailPage({ params }: { params: { examId: stri
   const exams = useQuery(
     api.modules.academics.queries.getRecentExams,
     sessionToken ? { sessionToken, limit: 100 } : "skip"
-  ) as any[] | undefined;
+  );
   const updateStatus = useMutation(api.modules.academics.mutations.updateExaminationStatus);
 
   if (isLoading || exams === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const exam = exams.find((entry) => entry._id === params.examId);
+  const exam = exams.find((entry: any) => entry._id === params.examId);
   if (!exam) {
     return <LoadingSkeleton variant="page" />;
   }
