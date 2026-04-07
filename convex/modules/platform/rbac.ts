@@ -1,8 +1,8 @@
-import { query, mutation, internalMutation, MutationCtx } from "../_generated/server";
+import { query, mutation, internalMutation, MutationCtx } from "../../_generated/server";
 import { v } from "convex/values";
-import { requirePlatformSession } from "../helpers/platformGuard";
-import { api } from "../_generated/api";
-import { logAction } from "../helpers/auditLog";
+import { requirePlatformSession } from "../../helpers/platformGuard";
+import { api } from "../../_generated/api";
+import { logAction } from "../../helpers/auditLog";
 import { idGenerator } from "../../helpers/idGenerator";
 
 const PLATFORM_INVITE_EXPIRY_MS = 72 * 60 * 60 * 1000;
