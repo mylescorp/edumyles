@@ -669,6 +669,31 @@ export const getRoles = query({
   },
 });
 
+export const getUserScopeRestrictions = query({
+  args: {
+    sessionToken: v.string(),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePermission(ctx, "platform_users.view", args.sessionToken);
+    
+    const platformUser = await ctx.db
+      .query("platform_users")
+      .withIndex("by_userId", (q: any) => q.eq("userId", args.userId))
+      .unique();
+    
+    if (!platformUser) {
+      throw new Error("Platform user not found");
+    }
+    
+    return {
+      scopeCountries: platformUser.scopeCountries || [],
+      scopeTenantIds: platformUser.scopeTenantIds || [],
+      scopePlans: platformUser.scopePlans || [],
+    };
+  },
+});
+
 export const getRoleBySlug = query({
   args: {
     slug: v.string(),
