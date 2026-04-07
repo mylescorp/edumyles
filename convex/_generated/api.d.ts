@@ -51,6 +51,7 @@ import type * as modules_communications_platform from "../modules/communications
 import type * as modules_communications_queries from "../modules/communications/queries.js";
 import type * as modules_communications_sms from "../modules/communications/sms.js";
 import type * as modules_communications_templates from "../modules/communications/templates.js";
+import type * as modules_communications_workos from "../modules/communications/workos.js";
 import type * as modules_ecommerce_index from "../modules/ecommerce/index.js";
 import type * as modules_ecommerce_mutations from "../modules/ecommerce/mutations.js";
 import type * as modules_ecommerce_queries from "../modules/ecommerce/queries.js";
@@ -285,6 +286,7 @@ declare const fullApi: ApiFromModules<{
   "modules/communications/queries": typeof modules_communications_queries;
   "modules/communications/sms": typeof modules_communications_sms;
   "modules/communications/templates": typeof modules_communications_templates;
+  "modules/communications/workos": typeof modules_communications_workos;
   "modules/ecommerce/index": typeof modules_ecommerce_index;
   "modules/ecommerce/mutations": typeof modules_ecommerce_mutations;
   "modules/ecommerce/queries": typeof modules_ecommerce_queries;

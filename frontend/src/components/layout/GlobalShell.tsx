@@ -9,7 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useNotifications } from "@/hooks/useNotifications";
+import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { usePermissionBasedNavItems, getNavItemsBySection } from "@/hooks/usePermissionBasedNav";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -814,19 +816,13 @@ function LeftSidebar({
 }) {
   const pathname = usePathname();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const { can } = usePlatformPermissions();
 
+  // Use permission-based navigation
+  const permissionBasedNavItems = usePermissionBasedNavItems();
   const groupedNavItems = useMemo(() => {
-    return navItems.reduce<Array<{ section: string; items: NavItem[] }>>((groups, item) => {
-      const section = item.section ?? "__standalone__";
-      const existing = groups.find((group) => group.section === section);
-      if (existing) {
-        existing.items.push(item);
-        return groups;
-      }
-      groups.push({ section, items: [item] });
-      return groups;
-    }, []);
-  }, [navItems]);
+    return getNavItemsBySection(permissionBasedNavItems);
+  }, [permissionBasedNavItems]);
 
   const activeSection = useMemo(() => {
     const activeGroup = groupedNavItems.find((group) =>
@@ -1019,6 +1015,9 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const coreModuleIds = ["sis", "communications", "users"];
   const isPlatformRoute = pathname?.startsWith("/platform");
 
+  // Use permission-based navigation for platform routes
+  const permissionBasedNavItems = usePermissionBasedNavItems();
+
   useEffect(() => {
     if (!isPlatformRoute) return;
 
@@ -1038,30 +1037,11 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     isPlatformRoute && !!sessionToken
   );
 
-  const visibleNavItems = navItems.filter((item) => {
+  // For platform routes, use permission-based navigation; for others, use original navItems
+  const visibleNavItems = isPlatformRoute ? permissionBasedNavItems : navItems.filter((item) => {
     if (!item.module) return true;
     if (coreModuleIds.includes(item.module)) return true;
     if (!isModuleInstalled(item.module)) return false;
-    if (!isPlatformRoute) return true;
-
-    const isSecurityItem =
-      item.section === "Security & Reliability" ||
-      item.href === "/platform/security" ||
-      item.href === "/platform/audit" ||
-      item.href === "/platform/api-keys" ||
-      item.href === "/platform/webhooks";
-    const isBillingItem = item.href.startsWith("/platform/billing");
-    const isImpersonationItem = item.href === "/platform/impersonation";
-    const isStaffPerformanceItem = item.href.startsWith("/platform/staff-performance");
-
-    if (isBillingItem) {
-      return role === "billing_admin" || role === "master_admin";
-    }
-
-    if (isImpersonationItem || isStaffPerformanceItem || isSecurityItem) {
-      return role === "master_admin" || role === "super_admin";
-    }
-
     return true;
   });
 

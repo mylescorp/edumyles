@@ -1,7 +1,9 @@
 import { query, mutation, internalMutation } from "../../_generated/server";
+import { api } from "../../_generated/api";
 import { v } from "convex/values";
 import { logAction } from "../../helpers/auditLog";
 import { idGenerator } from "../../helpers/idGenerator";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 const PLATFORM_INVITE_EXPIRY_MS = 72 * 60 * 60 * 1000;
 
@@ -889,7 +891,19 @@ export const invitePlatformUser = mutation({
   },
   handler: async (ctx, args) => {
     const actor = await requirePermission(ctx, "platform_users.invite", args.sessionToken);
-    return await createPlatformInviteRecord(ctx, actor, args);
+    const result = await createPlatformInviteRecord(ctx, actor, args);
+
+    // Send invite email via WorkOS
+    await ctx.scheduler.runAfter(0, api.modules.communications.workos.sendInviteEmail, {
+      to: args.email,
+      token: result.token,
+      roleName: result.roleName,
+      inviterName: "Platform Team", // TODO: Get actual inviter name
+      personalMessage: args.personalMessage,
+      permissions: [], // Will be populated by the email function
+    });
+
+    return result;
   },
 });
 
@@ -915,18 +929,26 @@ export const bulkInvitePlatformUsers = mutation({
 
     for (const invite of args.invites) {
       try {
-        await createPlatformInviteRecord(ctx, actor, {
-          email: invite.email,
-          role: invite.role,
-          department: invite.department,
-          personalMessage: invite.personalMessage,
-          addedPermissions: args.defaultAddedPermissions,
-          removedPermissions: args.defaultRemovedPermissions,
-          scopeCountries: args.defaultScopeCountries,
-          scopeTenantIds: args.defaultScopeTenantIds,
-          scopePlans: args.defaultScopePlans,
+        const result = await createPlatformInviteRecord(ctx, actor, {
+          ...invite,
+          addedPermissions: args.defaultAddedPermissions ?? [],
+          removedPermissions: args.defaultRemovedPermissions ?? [],
+          scopeCountries: args.defaultScopeCountries ?? [],
+          scopeTenantIds: args.defaultScopeTenantIds ?? [],
+          scopePlans: args.defaultScopePlans ?? [],
           notifyInviter: args.notifyInviter,
-        } as any);
+        });
+
+        // Send invite email via WorkOS
+        await ctx.scheduler.runAfter(0, api.modules.communications.workos.sendInviteEmail, {
+          to: invite.email,
+          token: result.token,
+          roleName: result.roleName,
+          inviterName: "Platform Team", // TODO: Get actual inviter name
+          personalMessage: invite.personalMessage,
+          permissions: [], // Will be populated by the email function
+        });
+
         results.push({ email: invite.email, success: true });
       } catch (error) {
         results.push({
@@ -1294,6 +1316,44 @@ export const setUserAccessExpiry = mutation({
   },
 });
 
+export const validateInviteToken = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const invite = await ctx.db
+      .query("platform_user_invites")
+      .withIndex("by_token", (q) => q.eq("token", args.token))
+      .unique();
+
+    return invite;
+  },
+});
+
+export const getRoleBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    let role = await ctx.db
+      .query("platform_roles")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+
+    if (role) return role;
+
+    const seed = SYSTEM_ROLE_SEEDS[args.slug];
+    if (!seed) return null;
+
+    return {
+      ...seed,
+      _id: undefined,
+      baseRole: undefined,
+      isSystem: true,
+      isActive: true,
+      createdBy: "system",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+  },
+});
+
 export const getMyPermissions = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
@@ -1332,6 +1392,236 @@ export const getMyPermissions = query({
         id: platformUser._id ? String(platformUser._id) : platformUser.userId,
       },
     };
+  },
+});
+
+export const getUserSessions = query({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    
+    const sessions = await ctx.db
+      .query("sessions")
+      .filter((q) => q.eq(q.field("email"), actor.email))
+      .collect();
+
+    // Get current session ID
+    const currentSession = await ctx.db
+      .query("sessions")
+      .filter((q) => q.eq(q.field("sessionToken"), args.sessionToken))
+      .first();
+
+    return sessions.map(session => ({
+      ...session,
+      isCurrentSession: session._id === currentSession?._id,
+      deviceInfo: session.deviceInfo || {
+        userAgent: "Unknown",
+        ip: "Unknown",
+        device: "Desktop",
+        browser: "Unknown",
+        os: "Unknown"
+      }
+    }));
+  },
+});
+
+export const revokeSession = mutation({
+  args: {
+    sessionToken: v.string(),
+    sessionId: v.id("sessions"),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) {
+      throw new Error("SESSION_NOT_FOUND");
+    }
+
+    if (session.email !== actor.email) {
+      throw new Error("ACCESS_DENIED");
+    }
+
+    // Mark session as inactive
+    await ctx.db.patch(args.sessionId, {
+      isActive: false,
+    });
+  },
+});
+
+export const revokeAllOtherSessions = mutation({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    
+    // Get current session
+    const currentSession = await ctx.db
+      .query("sessions")
+      .filter((q) => q.eq(q.field("sessionToken"), args.sessionToken))
+      .first();
+
+    if (!currentSession) {
+      throw new Error("CURRENT_SESSION_NOT_FOUND");
+    }
+
+    // Get all other active sessions for this user
+    const otherSessions = await ctx.db
+      .query("sessions")
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("email"), actor.email),
+          q.eq(q.field("isActive"), true)
+        )
+      )
+      .collect();
+
+    // Revoke all other sessions
+    const revokedSessions = [];
+    for (const session of otherSessions) {
+      if (session._id !== currentSession._id) {
+        await ctx.db.patch(session._id, {
+          isActive: false,
+        });
+        revokedSessions.push(session._id);
+      }
+    }
+
+    return { revokedCount: revokedSessions.length };
+  },
+});
+
+export const getUserActivityLogs = query({
+  args: {
+    sessionToken: v.string(),
+    userId: v.optional(v.string()),
+    limit: v.optional(v.number()),
+    offset: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    
+    let logs;
+    if (args.userId) {
+      // Get logs for specific user (requires permission)
+      await requirePermission(ctx, "platform_users.view_activity", args.sessionToken);
+      logs = await ctx.db
+        .query("auditLogs")
+        .filter((q) => q.eq(q.field("actorId"), args.userId))
+        .order("desc")
+        .take(args.limit || 100);
+    } else {
+      // Get current user's logs
+      logs = await ctx.db
+        .query("auditLogs")
+        .filter((q) => q.eq(q.field("actorId"), actor.userId))
+        .order("desc")
+        .take(args.limit || 100);
+    }
+
+    return logs.map(log => ({
+      ...log,
+      userId: log.actorId,
+      action: log.action,
+      details: {
+        previousValue: log.before,
+        newValue: log.after,
+        entityId: log.entityId,
+        entityType: log.entityType,
+      },
+      timestamp: log.timestamp,
+      severity: log.action.includes('error') ? 'error' : 
+               log.action.includes('suspend') || log.action.includes('delete') ? 'warning' :
+               log.action.includes('create') || log.action.includes('accept') ? 'success' : 'info',
+    }));
+  },
+});
+
+export const getUserScopeRestrictions = query({
+  args: {
+    sessionToken: v.string(),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    await requirePermission(ctx, "platform_users.edit_permissions", args.sessionToken);
+    
+    const platformUser = await ctx.db
+      .query("platform_users")
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .first();
+
+    if (!platformUser) {
+      throw new Error("USER_NOT_FOUND");
+    }
+
+    return {
+      scopeCountries: platformUser.scopeCountries || [],
+      scopeTenantIds: platformUser.scopeTenantIds || [],
+      scopePlans: platformUser.scopePlans || [],
+      accessExpiresAt: platformUser.accessExpiresAt,
+    };
+  },
+});
+
+export const updateUserScopeRestrictions = mutation({
+  args: {
+    sessionToken: v.string(),
+    userId: v.string(),
+    scopeCountries: v.array(v.string()),
+    scopeTenantIds: v.array(v.string()),
+    scopePlans: v.array(v.string()),
+    accessExpiresAt: v.optional(v.number()),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
+    await requirePermission(ctx, "platform_users.edit_permissions", args.sessionToken);
+    
+    const platformUser = await ctx.db
+      .query("platform_users")
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .first();
+
+    if (!platformUser) {
+      throw new Error("USER_NOT_FOUND");
+    }
+
+    const previousRestrictions = {
+      scopeCountries: platformUser.scopeCountries || [],
+      scopeTenantIds: platformUser.scopeTenantIds || [],
+      scopePlans: platformUser.scopePlans || [],
+      accessExpiresAt: platformUser.accessExpiresAt,
+    };
+
+    // Update user scope restrictions
+    await ctx.db.patch(platformUser._id, {
+      scopeCountries: args.scopeCountries,
+      scopeTenantIds: args.scopeTenantIds,
+      scopePlans: args.scopePlans,
+      accessExpiresAt: args.accessExpiresAt,
+    });
+
+    // Log the action
+    await ctx.db.insert("auditLogs", {
+      tenantId: actor.tenantId || "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email,
+      action: "scope_restrictions_updated",
+      entityId: args.userId,
+      entityType: "user",
+      before: previousRestrictions,
+      after: {
+        scopeCountries: args.scopeCountries,
+        scopeTenantIds: args.scopeTenantIds,
+        scopePlans: args.scopePlans,
+        accessExpiresAt: args.accessExpiresAt,
+      },
+      timestamp: Date.now(),
+    });
   },
 });
 

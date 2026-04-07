@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { Check, CheckCircle2, Copy, ExternalLink, Link as LinkIcon, Mail, TriangleAlert, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
+import { PermissionPreviewPanel } from "@/components/platform/PermissionPreviewPanel";
 
 const inviteSchema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -287,31 +288,12 @@ const roles = usePlatformQuery(
       </div>
       </form>
 
-      <Card className="h-fit">
-        <CardHeader>
-          <CardTitle>Permission Preview</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <p className="font-medium">{selectedRole?.name ?? "Select a role"}</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {selectedRole?.description ?? "Role capabilities will appear here."}
-            </p>
-          </div>
-          <div className="space-y-2">
-            {(selectedRole?.permissions ?? []).slice(0, 12).map((permission: string) => (
-              <div key={permission} className="rounded-lg border px-3 py-2 text-xs font-mono">
-                {permission}
-              </div>
-            ))}
-            {(selectedRole?.permissions?.length ?? 0) > 12 ? (
-              <p className="text-xs text-muted-foreground">
-                And {(selectedRole?.permissions?.length ?? 0) - 12} more permissions.
-              </p>
-            ) : null}
-          </div>
-        </CardContent>
-      </Card>
+      <PermissionPreviewPanel
+        role={selectedRole?.name ?? "No Role Selected"}
+        rolePermissions={selectedRole?.permissions ?? []}
+        addedPermissions={[]}
+        removedPermissions={[]}
+      />
     </div>
   );
 }

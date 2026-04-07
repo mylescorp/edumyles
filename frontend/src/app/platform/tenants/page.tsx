@@ -7,6 +7,7 @@ import { useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { PermissionGate } from "@/components/platform/PermissionGate";
 import { formatDate } from "@/lib/formatters";
 import { formatTenantHostname } from "@/lib/domains";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -428,12 +429,14 @@ export default function TenantsPage() {
                 Analytics
               </Button>
             </Link>
-            <Link href="/platform/tenants/create">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Tenant
-              </Button>
-            </Link>
+            <PermissionGate permission="tenants.create">
+              <Link href="/platform/tenants/create">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Tenant
+                </Button>
+              </Link>
+            </PermissionGate>
           </div>
         }
       />
@@ -648,10 +651,12 @@ export default function TenantsPage() {
                 <Download className="mr-2 h-4 w-4" />
                 Export CSV
               </Button>
-              <Button variant="destructive" onClick={() => setBulkSuspendOpen(true)}>
-                <Ban className="mr-2 h-4 w-4" />
-                Suspend
-              </Button>
+              <PermissionGate permission="tenants.suspend">
+                <Button variant="destructive" onClick={() => setBulkSuspendOpen(true)}>
+                  <Ban className="mr-2 h-4 w-4" />
+                  Suspend
+                </Button>
+              </PermissionGate>
             </div>
           </CardContent>
         </Card>
@@ -754,12 +759,14 @@ export default function TenantsPage() {
                                   View
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
-                                <Link href={`/platform/impersonation?tenantId=${tenant.tenantId}`}>
-                                  <ShieldUser className="mr-2 h-4 w-4" />
-                                  Impersonate
-                                </Link>
-                              </DropdownMenuItem>
+                              <PermissionGate permission="tenants.impersonate">
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/platform/impersonation?tenantId=${tenant.tenantId}`}>
+                                    <ShieldUser className="mr-2 h-4 w-4" />
+                                    Impersonate
+                                  </Link>
+                                </DropdownMenuItem>
+                              </PermissionGate>
                               <DropdownMenuItem onClick={() => (window.location.href = `mailto:${tenant.email}`)}>
                                 <Mail className="mr-2 h-4 w-4" />
                                 Send Email
@@ -769,21 +776,25 @@ export default function TenantsPage() {
                                 Export
                               </DropdownMenuItem>
                               {tenant.status === "suspended" ? (
+                                <PermissionGate permission="tenants.unsuspend">
                                 <DropdownMenuItem onClick={() => void handleQuickActivate(tenant)}>
                                   <ChevronRight className="mr-2 h-4 w-4" />
                                   Unsuspend
                                 </DropdownMenuItem>
+                              </PermissionGate>
                               ) : (
-                                <DropdownMenuItem
-                                  className="text-destructive focus:text-destructive"
-                                  onClick={() => {
-                                    setSelectedTenant(tenant);
-                                    setSuspendDialogOpen(true);
-                                  }}
-                                >
-                                  <Ban className="mr-2 h-4 w-4" />
-                                  Suspend
-                                </DropdownMenuItem>
+                                <PermissionGate permission="tenants.suspend">
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => {
+                                      setSelectedTenant(tenant);
+                                      setSuspendDialogOpen(true);
+                                    }}
+                                  >
+                                    <Ban className="mr-2 h-4 w-4" />
+                                    Suspend
+                                  </DropdownMenuItem>
+                                </PermissionGate>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
