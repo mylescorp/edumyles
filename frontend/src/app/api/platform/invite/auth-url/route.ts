@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
       clientId: process.env.WORKOS_CLIENT_ID!,
       redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/platform/invite/callback`,
       state: token, // Pass the invite token as state
-      scopes: ["user:email"],
     });
 
     return NextResponse.json({ url: authUrl });
