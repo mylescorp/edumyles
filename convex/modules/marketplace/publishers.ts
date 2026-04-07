@@ -139,7 +139,7 @@ export const applyAsPublisher = mutation({
 
     const publisherId = await ctx.db.insert("publishers", {
       userId: actor.userId,
-      companyName: args.companyName,
+      businessName: args.companyName,
       email: actor.email,
       website: args.website,
       status: "inactive",

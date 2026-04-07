@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/shared/Logo";
-import { School, GraduationCap, Globe, Building2, Briefcase } from "lucide-react";
+import { School, GraduationCap, Globe, Building2, Briefcase, Code, Users, Award } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const SIGNUP_URL = "/waitlist";
@@ -15,7 +15,6 @@ const navLinks = [
   { label: "About", href: "/about" },
   { label: "Team", href: "/team" },
   { label: "Careers", href: "/careers" },
-  { label: "Resellers", href: "/resellers" },
   { label: "Pricing",  href: "/pricing" },
   { label: "Blog",     href: "/blog" },
   { label: "Contact",  href: "/contact" },
@@ -61,12 +60,42 @@ const solutionItems: SolutionItem[] = [
   },
 ];
 
+type PartnerItem = {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  subtitle: string;
+};
+
+const partnerItems: PartnerItem[] = [
+  {
+    icon: Code,
+    label: "Developers",
+    href: "/apply/developer",
+    subtitle: "Build and sell educational modules on our marketplace",
+  },
+  {
+    icon: Users,
+    label: "Affiliates",
+    href: "/apply/affiliate",
+    subtitle: "Earn commissions by referring schools to EduMyles",
+  },
+  {
+    icon: Award,
+    label: "Resellers",
+    href: "/apply/reseller",
+    subtitle: "Sell EduMyles solutions and earn recurring revenue",
+  },
+];
+
 
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [solutionsOpen, setSolutionsOpen] = useState(false);
+  const [partnersOpen, setPartnersOpen] = useState(false);
   const solutionsRef = useRef<HTMLDivElement>(null);
+  const partnersRef = useRef<HTMLDivElement>(null);
   const activeLink = pathname.split("/").pop() || "index";
 
   useEffect(() => {
@@ -84,6 +113,12 @@ export default function Navbar() {
         !solutionsRef.current.contains(event.target as Node)
       ) {
         setSolutionsOpen(false);
+      }
+      if (
+        partnersRef.current &&
+        !partnersRef.current.contains(event.target as Node)
+      ) {
+        setPartnersOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);

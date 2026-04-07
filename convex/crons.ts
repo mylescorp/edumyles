@@ -96,67 +96,69 @@ crons.daily(
 
 // Publisher & Reseller System Cron Jobs
 
-crons.hourly(
-  "process commission availability",
-  { minuteUTC: 0 },
-  internal.modules.reseller.internal.crons.processCommissionAvailability,
-  {}
-);
+// TODO: Re-enable these crons after API generation includes reseller/publisher modules
+// crons.hourly(
+//   "process commission availability",
+//   { minuteUTC: 0 },
+//   internal.modules.reseller.internal.crons.processCommissionAvailability,
+//   {}
+// );
 
-crons.daily(
-  "process renewal commissions",
-  { hourUTC: 2, minuteUTC: 0 },
-  internal.modules.reseller.internal.crons.processRenewalCommissions,
-  {}
-);
+// crons.daily(
+//   "process renewal commissions",
+//   { hourUTC: 2, minuteUTC: 0 },
+//   internal.modules.reseller.internal.crons.processRenewalCommissions,
+//   {}
+// );
 
-crons.weekly(
-  "process tier promotions",
-  { hourUTC: 1, minuteUTC: 0, dayOfWeek: "monday" },
-  internal.modules.reseller.internal.crons.processTierPromotions,
-  {}
-);
+// crons.weekly(
+//   "process tier promotions",
+//   { hourUTC: 1, minuteUTC: 0, dayOfWeek: "monday" },
+//   internal.modules.reseller.internal.crons.processTierPromotions,
+//   {}
+// );
 
-crons.monthly(
-  "generate monthly reseller reports",
-  { hourUTC: 3, minuteUTC: 0, day: 1 },
-  internal.modules.reseller.internal.crons.generateMonthlyReports,
-  {}
-);
+// crons.monthly(
+//   "generate monthly reseller reports",
+//   { hourUTC: 3, minuteUTC: 0, day: 1 },
+//   internal.modules.reseller.internal.crons.generateMonthlyReports,
+//   {}
+// );
 
-crons.weekly(
-  "cleanup old referral clicks",
-  { hourUTC: 4, minuteUTC: 0, dayOfWeek: "sunday" },
-  internal.modules.reseller.internal.crons.cleanupOldReferralClicks,
-  {}
-);
+// crons.weekly(
+//   "cleanup old referral clicks",
+//   { hourUTC: 4, minuteUTC: 0, dayOfWeek: "sunday" },
+//   internal.modules.reseller.internal.crons.cleanupOldReferralClicks,
+//   {}
+// );
 
-crons.daily(
-  "review pending publisher applications",
-  { hourUTC: 9, minuteUTC: 0 },
-  internal.modules.publisher.internal.crons.reviewPendingApplications,
-  {}
-);
+// crons.weekly(
+//   "process publisher tier reviews",
+//   { hourUTC: 6, minuteUTC: 0, dayOfWeek: "wednesday" },
+//   internal.modules.publisher.internal.crons.processPublisherTierReviews,
+//   {}
+// );
 
-crons.daily(
-  "update publisher statistics",
-  { hourUTC: 5, minuteUTC: 0 },
-  internal.modules.publisher.internal.crons.updatePublisherStats,
-  {}
-);
+// crons.monthly(
+//   "generate publisher revenue reports",
+//   { hourUTC: 7, minuteUTC: 0, day: 1 },
+//   internal.modules.publisher.internal.crons.generatePublisherRevenueReports,
+//   {}
+// );
 
-crons.weekly(
-  "process publisher tier reviews",
-  { hourUTC: 6, minuteUTC: 0, dayOfWeek: "wednesday" },
-  internal.modules.publisher.internal.crons.processPublisherTierReviews,
-  {}
-);
+// TODO: Re-enable after API generation includes publisher modules
+// crons.daily(
+//   "review pending publisher applications",
+//   { hourUTC: 9, minuteUTC: 0 },
+//   internal.modules.publisher.internal.crons.reviewPendingApplications,
+//   {}
+// );
 
-crons.monthly(
-  "generate publisher revenue reports",
-  { hourUTC: 7, minuteUTC: 0, day: 1 },
-  internal.modules.publisher.internal.crons.generatePublisherRevenueReports,
-  {}
-);
+// crons.daily(
+//   "update publisher statistics",
+//   { hourUTC: 5, minuteUTC: 0 },
+//   internal.modules.publisher.internal.crons.updatePublisherStats,
+//   {}
+// );
 
 export default crons;
