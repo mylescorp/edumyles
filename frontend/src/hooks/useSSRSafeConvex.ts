@@ -40,6 +40,8 @@ export function useMutation(mutation: any) {
   return useConvexMutation(mutation);
 }
 
+export { useConvexMutation };
+
 export function useAction(action: any) {
   return useConvexAction(action);
 }
