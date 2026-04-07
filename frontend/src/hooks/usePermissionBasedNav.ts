@@ -1,16 +1,16 @@
 import type { NavItem } from "@/lib/routes";
 import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Plus, 
-  TrendingUp, 
-  ClipboardCheck, 
-  Rocket, 
-  Users, 
-  UserPlus, 
-  Shield, 
-  UserCheck, 
+import {
+  LayoutDashboard,
+  Building2,
+  Plus,
+  TrendingUp,
+  ClipboardCheck,
+  Rocket,
+  Users,
+  Activity,
+  UserPlus,
+  Shield,
   BarChart3,
   Store,
   Clipboard,
@@ -36,7 +36,8 @@ import {
   FileSearch,
   Key,
   Zap,
-  Kanban
+  Kanban,
+  UserCheck,
 } from "lucide-react";
 
 const PLATFORM_NAV_ITEMS: NavItem[] = [
@@ -89,6 +90,20 @@ const PLATFORM_NAV_ITEMS: NavItem[] = [
     section: "USERS & STAFF",
   },
   {
+    label: "Sessions",
+    href: "/platform/users/sessions",
+    permission: "platform_users.view",
+    icon: Shield,
+    section: "USERS & STAFF",
+  },
+  {
+    label: "Activity Logs",
+    href: "/platform/users/activity",
+    permission: "platform_users.view",
+    icon: Activity,
+    section: "USERS & STAFF",
+  },
+  {
     label: "Invite Staff",
     href: "/platform/users/invite",
     permission: "platform_users.invite",
@@ -101,6 +116,13 @@ const PLATFORM_NAV_ITEMS: NavItem[] = [
     permission: "platform_users.view",
     icon: Shield,
     section: "USERS & STAFF",
+  },
+  {
+    label: "Admin",
+    href: "/platform/admin",
+    permission: "platform_admin.view",
+    icon: Settings,
+    section: "ADMIN",
   },
   {
     label: "Impersonation",
