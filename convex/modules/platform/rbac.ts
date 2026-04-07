@@ -617,7 +617,7 @@ async function createPlatformInviteRecord(
     // Continue with invitation creation even if email fails
   }
 
-  return { success: true, inviteId, email: normalizedEmail, roleName: role.name };
+  return { success: true, inviteId, token: idGenerator("platform_invite"), email: normalizedEmail, roleName: role.name };
 }
 
 export const getPermissionCatalog = query({
