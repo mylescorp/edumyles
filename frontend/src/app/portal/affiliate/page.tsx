@@ -16,6 +16,7 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  Download,
 } from "lucide-react";
 
 export default function AffiliateDashboard() {
