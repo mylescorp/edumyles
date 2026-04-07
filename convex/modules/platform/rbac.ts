@@ -311,12 +311,31 @@ function dedupePermissions(permissions: string[]) {
 }
 
 async function getSessionIdentity(ctx: any, sessionToken?: string) {
-  if (!sessionToken) return null;
+  console.log("getSessionIdentity called with:", {
+    sessionToken: sessionToken ? "present" : "missing",
+    sessionTokenLength: sessionToken?.length
+  });
+
+  if (!sessionToken) {
+    console.log("No session token provided");
+    return null;
+  }
 
   const session = await ctx.db
     .query("sessions")
     .withIndex("by_token", (q: any) => q.eq("sessionToken", sessionToken))
     .first();
+
+  console.log("Session lookup result:", session ? "found" : "not found");
+  if (session) {
+    console.log("Session details:", {
+      userId: session.userId,
+      email: session.email,
+      role: session.role,
+      expiresAt: session.expiresAt,
+      isExpired: session.expiresAt < Date.now()
+    });
+  }
 
   if (!session) throw new Error("UNAUTHENTICATED: Session not found");
   if (session.expiresAt < Date.now()) throw new Error("UNAUTHENTICATED: Session expired");
@@ -608,6 +627,13 @@ export const getRoles = query({
     includeInactive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    console.log("getRoles called with:", {
+      sessionToken: args.sessionToken ? "present" : "missing",
+      sessionTokenLength: args.sessionToken?.length,
+      includeSystem: args.includeSystem,
+      includeInactive: args.includeInactive
+    });
+
     await requirePermission(ctx, "platform_users.view", args.sessionToken);
 
     const dbRoles = await ctx.db.query("platform_roles").collect();
