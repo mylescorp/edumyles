@@ -1,10 +1,33 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { BarChart2 } from "lucide-react";
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
+  const searchParams = useSearchParams();
+  
+  // Track referral click when component mounts
+  useEffect(() => {
+    const referralCode = searchParams.get("ref");
+    if (referralCode) {
+      // Track the referral click
+      fetch("/api/referral/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          referralCode,
+          source: "landing_page",
+          landingPage: window.location.pathname,
+          userAgent: navigator.userAgent,
+          referrer: document.referrer,
+        }),
+      }).catch(() => {
+        // Silently fail tracking - don't interrupt user flow
+      });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     // Fade-in on scroll for stat badges

@@ -94,4 +94,69 @@ crons.daily(
   {}
 );
 
+// Publisher & Reseller System Cron Jobs
+
+crons.hourly(
+  "process commission availability",
+  { minuteUTC: 0 },
+  internal.modules.reseller.internal.crons.processCommissionAvailability,
+  {}
+);
+
+crons.daily(
+  "process renewal commissions",
+  { hourUTC: 2, minuteUTC: 0 },
+  internal.modules.reseller.internal.crons.processRenewalCommissions,
+  {}
+);
+
+crons.weekly(
+  "process tier promotions",
+  { hourUTC: 1, minuteUTC: 0, dayOfWeek: "monday" },
+  internal.modules.reseller.internal.crons.processTierPromotions,
+  {}
+);
+
+crons.monthly(
+  "generate monthly reseller reports",
+  { hourUTC: 3, minuteUTC: 0, dayOfMonth: 1 },
+  internal.modules.reseller.internal.crons.generateMonthlyReports,
+  {}
+);
+
+crons.weekly(
+  "cleanup old referral clicks",
+  { hourUTC: 4, minuteUTC: 0, dayOfWeek: "sunday" },
+  internal.modules.reseller.internal.crons.cleanupOldReferralClicks,
+  {}
+);
+
+crons.daily(
+  "review pending publisher applications",
+  { hourUTC: 9, minuteUTC: 0 },
+  internal.modules.publisher.internal.crons.reviewPendingApplications,
+  {}
+);
+
+crons.daily(
+  "update publisher statistics",
+  { hourUTC: 5, minuteUTC: 0 },
+  internal.modules.publisher.internal.crons.updatePublisherStats,
+  {}
+);
+
+crons.weekly(
+  "process publisher tier reviews",
+  { hourUTC: 6, minuteUTC: 0, dayOfWeek: "wednesday" },
+  internal.modules.publisher.internal.crons.processPublisherTierReviews,
+  {}
+);
+
+crons.monthly(
+  "generate publisher revenue reports",
+  { hourUTC: 7, minuteUTC: 0, dayOfMonth: 1 },
+  internal.modules.publisher.internal.crons.generatePublisherRevenueReports,
+  {}
+);
+
 export default crons;

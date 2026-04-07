@@ -4985,6 +4985,7 @@ export default defineSchema({
       emailNotifications: v.boolean(),
       supportLevel: v.union(v.literal("basic"), v.literal("standard"), v.literal("premium")),
     }),
+    apiKey: v.optional(v.string()), // API key for marketplace integration
     createdAt: v.number(),
     updatedAt: v.number(),
   })

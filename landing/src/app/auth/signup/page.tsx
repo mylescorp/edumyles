@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -57,6 +57,10 @@ function SignUpPageContent() {
   const searchParams = useSearchParams();
   const [formState, setFormState] = useState<FormState>("idle");
   const [error, setError] = useState("");
+  
+  // Get referral code from URL parameters
+  const referralCode = searchParams.get("ref");
+  
   const [fields, setFields] = useState({
     firstName: "",
     lastName: "",
@@ -65,9 +69,30 @@ function SignUpPageContent() {
     country: "Kenya",
     schoolName: "",
     studentCount: "",
-    referralSource: "Search engine",
+    referralSource: referralCode ? "Referral" : "Search engine",
     biggestChallenge: "",
+    referralCode: referralCode || "", // Include referral code in form data
   });
+
+  // Track referral click when page loads with referral code
+  React.useEffect(() => {
+    if (referralCode) {
+      // Track the referral click
+      fetch("/api/referral/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          referralCode,
+          source: "signup_page",
+          landingPage: window.location.pathname,
+          userAgent: navigator.userAgent,
+          referrer: document.referrer,
+        }),
+      }).catch(() => {
+        // Silently fail tracking - don't interrupt user flow
+      });
+    }
+  }, [referralCode]);
 
   function handleChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
