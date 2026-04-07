@@ -934,6 +934,22 @@ export const bulkInvitePlatformUsers = mutation({
   },
 });
 
+export const validateInviteToken = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const invite = await ctx.db
+      .query("platform_user_invites")
+      .withIndex("by_token", (q: any) => q.eq("token", args.token))
+      .unique();
+
+    if (!invite) return null;
+    if (invite.status !== "pending") return null;
+    if (invite.expiresAt < Date.now()) return null;
+
+    return invite;
+  },
+});
+
 export const acceptPlatformInvite = mutation({
   args: {
     token: v.string(),
