@@ -578,6 +578,7 @@ async function createPlatformInviteRecord(
     throw new Error("A pending invite already exists for this email");
   }
 
+  const token = idGenerator("platform_invite");
   const inviteId = await ctx.db.insert("platform_user_invites", {
     email: normalizedEmail,
     role: args.role,
@@ -589,7 +590,7 @@ async function createPlatformInviteRecord(
     scopePlans: args.scopePlans ?? [],
     accessExpiresAt: args.accessExpiresAt,
     invitedBy: actor.userId,
-    token: idGenerator("platform_invite"),
+    token: token,
     status: "pending",
     expiresAt: Date.now() + PLATFORM_INVITE_EXPIRY_MS,
     acceptedAt: undefined,
@@ -609,7 +610,7 @@ async function createPlatformInviteRecord(
     after: { email: normalizedEmail, role: args.role, department: args.department },
   });
 
-  return { success: true, inviteId, email: normalizedEmail, roleName: role.name };
+  return { success: true, inviteId, token: token, email: normalizedEmail, roleName: role.name };
 }
 
 export const getPermissionCatalog = query({
