@@ -26,15 +26,18 @@ export function useInstalledModules() {
 
   // Single query for full module records — IDs are derived from these, avoiding
   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
-  const installedModuleDetails = useQuery(
+  const installedModuleDetailsResult = useQuery(
     api.modules.marketplace.queries.getInstalledModules,
     canQueryModules ? { sessionToken } : "skip"
   );
 
-  const availableModules = useQuery(
+  const availableModulesResult = useQuery(
     api.modules.marketplace.queries.getAvailableForTier,
     canQueryModules ? { sessionToken } : "skip"
   );
+
+  const installedModuleDetails = installedModuleDetailsResult?.data;
+  const availableModules = availableModulesResult?.data;
 
   useEffect(() => {
     if (!canQueryModules) {
@@ -62,7 +65,7 @@ export function useInstalledModules() {
     : availableModules;
 
   // Derive IDs from details; always include core modules
-  const installedModuleIds: string[] = resolvedInstalledModuleDetails
+  const installedModuleIds: string[] = resolvedInstalledModuleDetails && Array.isArray(resolvedInstalledModuleDetails)
     ? [...new Set([...CORE_MODULE_IDS, ...resolvedInstalledModuleDetails.map((m: any) => m.moduleId)])]
     : CORE_MODULE_IDS;
 
