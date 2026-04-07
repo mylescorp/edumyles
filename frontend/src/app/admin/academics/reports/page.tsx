@@ -51,10 +51,11 @@ export default function AdminAcademicReportsPage() {
     !!sessionToken
   );
 
-  const students = useQuery(
+  const studentsResult = useQuery(
     api.modules.sis.queries.listStudents,
     sessionToken ? { sessionToken, status: "active" } : "skip"
   );
+  const students = studentsResult?.data;
 
   const generateReportCard = useMutation(api.modules.academics.mutations.generateReportCard);
 

@@ -143,10 +143,15 @@ export default function BillingSettingsPage() {
   const [enterpriseNotes, setEnterpriseNotes] = useState("");
   const [processingAction, setProcessingAction] = useState<"upgrade" | "downgrade" | "cancel" | "enterprise" | null>(null);
 
-  const subscription = useQuery(api.modules.platform.subscriptions.getTenantSubscription, sessionToken ? { sessionToken } : "skip", canQueryBilling) as any;
-  const plans = useQuery(api.modules.platform.subscriptions.getSubscriptionPlans, {}, true) as any[] | undefined;
-  const invoices = useQuery(api.modules.platform.subscriptions.getSubscriptionInvoices, sessionToken ? { sessionToken } : "skip", canQueryBilling) as any[] | undefined;
-  const usageHistory = useQuery(api.modules.platform.subscriptions.getTenantUsageStats, sessionToken ? { sessionToken } : "skip", canQueryBilling) as any[] | undefined;
+  const subscriptionResult = useQuery(api.modules.platform.subscriptions.getTenantSubscription, sessionToken ? { sessionToken } : "skip", canQueryBilling);
+  const plansResult = useQuery(api.modules.platform.subscriptions.getSubscriptionPlans, {}, true);
+  const invoicesResult = useQuery(api.modules.platform.subscriptions.getSubscriptionInvoices, sessionToken ? { sessionToken } : "skip", canQueryBilling);
+  const usageHistoryResult = useQuery(api.modules.platform.subscriptions.getTenantUsageStats, sessionToken ? { sessionToken } : "skip", canQueryBilling);
+  
+  const subscription = subscriptionResult?.data;
+  const plans = plansResult?.data;
+  const invoices = invoicesResult?.data;
+  const usageHistory = usageHistoryResult?.data;
   const downgradePreview = useQuery(
     api.modules.platform.subscriptions.previewDowngradePlan,
     downgradeDialogOpen && selectedPlan ? { planId: selectedPlan.name } : "skip",
