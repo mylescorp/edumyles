@@ -322,7 +322,7 @@ const canManageUsers = can("platform_users.edit_role") || can("platform_users.ed
         ]}
       />
 
-      <UsersAdminRail />
+      <UsersNavigationRail />
 
       <div className="flex flex-wrap items-center gap-3">
         <Input
