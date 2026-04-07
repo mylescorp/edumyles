@@ -841,7 +841,13 @@ export const recordModulePayment = mutation({
         .query("publishers")
         .withIndex("by_userId", (q: any) => q.eq("userId", module.publisherId))
         .first();
-      const revenueSharePct = publisher?.revenueSharePct ?? 70;
+      // Use tier-based revenue share since revenueSharePct doesn't exist in schema
+      const tierRevenueShares = {
+        indie: 60,    // 60% for indie developers
+        verified: 70, // 70% for verified publishers
+        enterprise: 80 // 80% for enterprise publishers
+      };
+      const revenueSharePct = tierRevenueShares[publisher?.tier as keyof typeof tierRevenueShares] ?? 70;
       const publisherAmountKes = Math.round((args.amountKes * revenueSharePct) / 100);
       await ctx.db.insert("module_revenue_splits", {
         paymentId: String(paymentId),
