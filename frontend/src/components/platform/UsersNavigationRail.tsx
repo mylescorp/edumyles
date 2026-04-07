@@ -169,6 +169,7 @@ export function UsersNavigationRail({ sessionToken, className }: UsersNavigation
               )}
             </div>
           </div>
+        </div>
 
           {/* Quick Actions */}
           {currentUser && (
@@ -194,8 +195,7 @@ export function UsersNavigationRail({ sessionToken, className }: UsersNavigation
               </div>
             </div>
           )}
-        </div>
-      </CardContent>
+    </CardContent>
     </Card>
   );
 }
