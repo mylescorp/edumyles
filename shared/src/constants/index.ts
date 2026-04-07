@@ -28,6 +28,9 @@ export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
   parent: { label: "Parent", level: 20 },
   alumni: { label: "Alumni", level: 15 },
   student: { label: "Student", level: 10 },
+  publisher: { label: "Publisher", level: 35 },
+  reseller: { label: "Reseller", level: 30 },
+  affiliate: { label: "Affiliate", level: 25 },
 };
 
 export const LEGACY_ROLE_ALIASES: Record<LegacyUserRoleAlias, UserRole> = {
@@ -242,3 +245,33 @@ export const MAX_PAGE_SIZE = 100;
 export const DATE_FORMAT = "DD/MM/YYYY";
 export const DATETIME_FORMAT = "DD/MM/YYYY HH:mm";
 export const TIME_FORMAT = "HH:mm";
+
+// ----------------------------------------------------------
+// Publisher & Reseller Constants
+// ----------------------------------------------------------
+export const RESELLER_TIERS = ["starter", "silver", "gold", "platinum"] as const;
+export const PUBLISHER_TIERS = ["indie", "verified", "enterprise"] as const;
+
+export type ResellerTier = typeof RESELLER_TIERS[number];
+export type PublisherTier = typeof PUBLISHER_TIERS[number];
+
+export const COMMISSION_HOLD_DAYS = 7;
+export const MIN_PAYOUT_KES = 500;
+export const REFERRAL_COOKIE_NAME = "edumyles_ref";
+export const REFERRAL_COOKIE_DAYS = 30;
+
+export const RESELLER_CREATION_LIMITS = {
+  starter: 5,
+  silver: 15,
+  gold: 30,
+  platinum: null,
+} as const;
+
+export const RESELLER_COMMISSION_RATES = {
+  starter: 20,
+  silver: 25,
+  gold: 30,
+  platinum: 35,
+} as const;
+
+export const AFFILIATE_COMMISSION_RATE = 10;

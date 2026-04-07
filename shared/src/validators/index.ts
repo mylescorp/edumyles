@@ -66,6 +66,9 @@ export const createUserSchema = z.object({
       "super_admin",
       "platform_admin",
       "master_admin",
+      "publisher",
+      "reseller",
+      "affiliate",
     ])
     .transform((role) => (role === "platform_admin" ? "super_admin" : role)),
 });

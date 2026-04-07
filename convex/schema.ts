@@ -4915,4 +4915,523 @@ export default defineSchema({
   })
     .index("by_supportTier", ["supportTier"])
     .index("by_updatedAt", ["updatedAt"]),
+
+  // Publisher & Reseller System
+  publisherApplications: defineTable({
+    applicantId: v.string(), // User ID of the applicant
+    applicantEmail: v.string(),
+    businessName: v.string(),
+    businessType: v.union(v.literal("individual"), v.literal("company")),
+    businessDescription: v.string(),
+    website: v.optional(v.string()),
+    contactPhone: v.string(),
+    contactAddress: v.string(),
+    country: v.string(),
+    experience: v.string(),
+    modules: v.array(v.string()), // List of modules they plan to publish
+    status: v.union(
+      v.literal("submitted"),
+      v.literal("under_review"),
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("on_hold")
+    ),
+    reviewedBy: v.optional(v.string()),
+    reviewNotes: v.optional(v.string()),
+    rejectedReason: v.optional(v.string()),
+    submittedAt: v.number(),
+    reviewedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_applicant", ["applicantId"])
+    .index("by_status", ["status"])
+    .index("by_reviewedBy", ["reviewedBy"])
+    .index("by_submittedAt", ["submittedAt"]),
+
+  publishers: defineTable({
+    userId: v.string(),
+    publisherId: v.string(), // Unique publisher identifier
+    businessName: v.string(),
+    businessType: v.union(v.literal("individual"), v.literal("company")),
+    website: v.optional(v.string()),
+    description: v.string(),
+    tier: v.union(v.literal("indie"), v.literal("verified"), v.literal("enterprise")),
+    status: v.union(v.literal("active"), v.literal("suspended"), v.literal("inactive")),
+    verifiedAt: v.optional(v.number()),
+    verificationDocuments: v.array(v.string()), // URLs to verification docs
+    contactInfo: v.object({
+      email: v.string(),
+      phone: v.string(),
+      address: v.string(),
+      country: v.string(),
+    }),
+    banking: v.object({
+      bankName: v.string(),
+      accountNumber: v.string(),
+      accountName: v.string(),
+      branchCode: v.optional(v.string()),
+    }),
+    stats: v.object({
+      totalModules: v.number(),
+      activeModules: v.number(),
+      totalRevenue: v.number(),
+      monthlyRevenue: v.number(),
+      totalInstalls: v.number(),
+      activeInstalls: v.number(),
+    }),
+    settings: v.object({
+      autoApproveUpdates: v.boolean(),
+      emailNotifications: v.boolean(),
+      supportLevel: v.union(v.literal("basic"), v.literal("standard"), v.literal("premium")),
+    }),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_publisherId", ["publisherId"])
+    .index("by_status", ["status"])
+    .index("by_tier", ["tier"]),
+
+  resellerApplications: defineTable({
+    applicantId: v.string(), // User ID of the applicant
+    applicantEmail: v.string(),
+    businessName: v.string(),
+    businessType: v.union(v.literal("reseller"), v.literal("affiliate")),
+    businessDescription: v.string(),
+    website: v.optional(v.string()),
+    contactPhone: v.string(),
+    contactAddress: v.string(),
+    country: v.string(),
+    targetMarket: v.string(), // Description of target schools/regions
+    experience: v.string(),
+    marketingChannels: v.array(v.string()), // How they plan to market
+    expectedVolume: v.string(), // Expected monthly volume
+    status: v.union(
+      v.literal("submitted"),
+      v.literal("under_review"),
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("on_hold")
+    ),
+    reviewedBy: v.optional(v.string()),
+    reviewNotes: v.optional(v.string()),
+    rejectedReason: v.optional(v.string()),
+    submittedAt: v.number(),
+    reviewedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_applicant", ["applicantId"])
+    .index("by_status", ["status"])
+    .index("by_applicantType", ["businessType"])
+    .index("by_reviewedBy", ["reviewedBy"])
+    .index("by_submittedAt", ["submittedAt"]),
+
+  resellers: defineTable({
+    userId: v.string(),
+    resellerId: v.string(), // Unique reseller identifier
+    businessName: v.string(),
+    applicantType: v.union(v.literal("reseller"), v.literal("affiliate")),
+    website: v.optional(v.string()),
+    description: v.string(),
+    tier: v.union(v.literal("starter"), v.literal("silver"), v.literal("gold"), v.literal("platinum")),
+    status: v.union(v.literal("active"), v.literal("suspended"), v.literal("inactive")),
+    verifiedAt: v.optional(v.number()),
+    verificationDocuments: v.array(v.string()), // URLs to verification docs
+    contactInfo: v.object({
+      email: v.string(),
+      phone: v.string(),
+      address: v.string(),
+      country: v.string(),
+    }),
+    banking: v.object({
+      bankName: v.string(),
+      accountNumber: v.string(),
+      accountName: v.string(),
+      branchCode: v.optional(v.string()),
+      payPalEmail: v.optional(v.string()),
+    }),
+    commission: v.object({
+      rate: v.number(), // Percentage
+      tier: v.union(v.literal("starter"), v.literal("silver"), v.literal("gold"), v.literal("platinum")),
+      holdDays: v.number(), // Days to hold commission before payout
+      minPayout: v.number(), // Minimum payout amount in KES
+    }),
+    stats: v.object({
+      totalReferrals: v.number(),
+      activeReferrals: v.number(),
+      totalCommission: v.number(),
+      monthlyCommission: v.number(),
+      totalPayouts: v.number(),
+      conversionRate: v.number(), // Percentage of referrals that convert
+    }),
+    settings: v.object({
+      emailNotifications: v.boolean(),
+      monthlyReports: v.boolean(),
+      referralTracking: v.boolean(),
+    }),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_resellerId", ["resellerId"])
+    .index("by_status", ["status"])
+    .index("by_tier", ["tier"])
+    .index("by_applicantType", ["applicantType"]),
+
+  resellerSchools: defineTable({
+    resellerId: v.string(),
+    schoolId: v.string(), // Tenant ID of the school
+    schoolName: v.string(),
+    schoolEmail: v.string(),
+    schoolPhone: v.string(),
+    status: v.union(v.literal("lead"), v.literal("contacted"), v.literal("demo_scheduled"), v.literal("trial"), v.literal("converted"), v.literal("closed")),
+    source: v.string(), // How the reseller found this lead
+    assignedAt: v.number(),
+    contactedAt: v.optional(v.number()),
+    demoScheduledAt: v.optional(v.number()),
+    trialStartedAt: v.optional(v.number()),
+    convertedAt: v.optional(v.number()),
+    subscriptionPlan: v.optional(v.string()), // Plan they subscribed to
+    subscriptionValue: v.optional(v.number()), // Value in KES
+    commissionRate: v.number(), // Commission rate for this school
+    commissionEarned: v.number(), // Total commission earned from this school
+    notes: v.array(v.string()), // Notes about interactions
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_reseller", ["resellerId"])
+    .index("by_school", ["schoolId"])
+    .index("by_status", ["status"])
+    .index("by_assignedAt", ["assignedAt"])
+    .index("by_convertedAt", ["convertedAt"]),
+
+  resellerLeads: defineTable({
+    resellerId: v.string(),
+    leadId: v.string(), // Unique lead identifier
+    schoolName: v.string(),
+    contactName: v.string(),
+    contactEmail: v.string(),
+    contactPhone: v.string(),
+    schoolSize: v.union(v.literal("small"), v.literal("medium"), v.literal("large")), // Student count
+    currentSystem: v.optional(v.string()), // Current management system
+    requirements: v.array(v.string()), // What they're looking for
+    budget: v.optional(v.string()), // Monthly budget range
+    timeline: v.union(v.literal("immediate"), v.literal("1_month"), v.literal("3_months"), v.literal("6_months"), v.literal("exploring")),
+    source: v.string(), // How they found the reseller
+    status: v.union(v.literal("new"), v.literal("contacted"), v.literal("qualified"), v.literal("proposal_sent"), v.literal("negotiation"), v.literal("closed_won"), v.literal("closed_lost")),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+    value: v.optional(v.number()), // Potential deal value in KES
+    probability: v.number(), // Win probability percentage
+    expectedCloseDate: v.optional(v.number()),
+    notes: v.array(v.string()),
+    assignedAt: v.number(),
+    contactedAt: v.optional(v.number()),
+    qualifiedAt: v.optional(v.number()),
+    proposalSentAt: v.optional(v.number()),
+    closedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_reseller", ["resellerId"])
+    .index("by_status", ["status"])
+    .index("by_priority", ["priority"])
+    .index("by_assignedAt", ["assignedAt"])
+    .index("by_expectedCloseDate", ["expectedCloseDate"]),
+
+  resellerCommissions: defineTable({
+    resellerId: v.string(),
+    commissionId: v.string(), // Unique commission identifier
+    sourceId: v.string(), // School ID or lead ID
+    sourceType: v.union(v.literal("school"), v.literal("lead")),
+    type: v.union(v.literal("referral"), v.literal("subscription"), v.literal("upgrade"), v.literal("renewal")),
+    amount: v.number(), // Commission amount in KES
+    rate: v.number(), // Commission percentage
+    currency: v.string(), // Should be "KES"
+    status: v.union(v.literal("pending"), v.literal("held"), v.literal("available"), v.literal("paid"), v.literal("cancelled")),
+    earnedAt: v.number(),
+    availableAt: v.number(), // When commission becomes available for payout
+    paidAt: v.optional(v.number()),
+    payoutId: v.optional(v.string()), // Reference to payout record
+    description: v.string(), // What this commission is for
+    metadata: v.optional(v.record(v.string(), v.any())), // Additional data
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_reseller", ["resellerId"])
+    .index("by_status", ["status"])
+    .index("by_source", ["sourceType", "sourceId"])
+    .index("by_earnedAt", ["earnedAt"])
+    .index("by_availableAt", ["availableAt"])
+    .index("by_paidAt", ["paidAt"]),
+
+  resellerPayouts: defineTable({
+    resellerId: v.string(),
+    payoutId: v.string(), // Unique payout identifier
+    amount: v.number(), // Total payout amount in KES
+    currency: v.string(), // Should be "KES"
+    status: v.union(v.literal("pending"), v.literal("processing"), v.literal("completed"), v.literal("failed"), v.literal("cancelled")),
+    method: v.union(v.literal("bank_transfer"), v.literal("mpesa"), v.literal("paypal"), v.literal("check")),
+    bankDetails: v.optional(v.object({
+      bankName: v.string(),
+      accountNumber: v.string(),
+      accountName: v.string(),
+      branchCode: v.optional(v.string()),
+    })),
+    mpesaDetails: v.optional(v.object({
+      phoneNumber: v.string(),
+      accountName: v.string(),
+    })),
+    paypalDetails: v.optional(v.object({
+      email: v.string(),
+    })),
+    commissionIds: v.array(v.string()), // IDs of commissions included in this payout
+    period: v.object({
+      startDate: v.number(),
+      endDate: v.number(),
+    }),
+    requestedAt: v.number(),
+    processedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    transactionId: v.optional(v.string()), // Bank transaction reference
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_reseller", ["resellerId"])
+    .index("by_status", ["status"])
+    .index("by_requestedAt", ["requestedAt"])
+    .index("by_completedAt", ["completedAt"]),
+
+  resellerTiers: defineTable({
+    tierName: v.union(v.literal("starter"), v.literal("silver"), v.literal("gold"), v.literal("platinum")),
+    displayName: v.string(),
+    description: v.string(),
+    requirements: v.object({
+      minReferrals: v.number(),
+      minRevenue: v.number(), // In KES
+      minConversionRate: v.number(), // Percentage
+      experience: v.optional(v.string()),
+    }),
+    benefits: v.array(v.string()), // List of benefits
+    commissionRate: v.number(), // Base commission rate
+    creationLimit: v.optional(v.number()), // Max schools they can create (null = unlimited)
+    features: v.array(v.string()), // Features available at this tier
+    supportLevel: v.union(v.literal("basic"), v.literal("standard"), v.literal("priority"), v.literal("dedicated")),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tier", ["tierName"])
+    .index("by_active", ["isActive"]),
+
+  resellerSubdomains: defineTable({
+    resellerId: v.string(),
+    subdomain: v.string(), // e.g. "myschools.edumyles.com"
+    domain: v.string(), // Full domain
+    status: v.union(v.literal("active"), v.literal("inactive"), v.literal("pending"), v.literal("suspended")),
+    config: v.object({
+      logoUrl: v.optional(v.string()),
+      primaryColor: v.optional(v.string()),
+      secondaryColor: v.optional(v.string()),
+      customCss: v.optional(v.string()),
+      companyName: v.string(),
+      contactEmail: v.string(),
+      contactPhone: v.string(),
+      address: v.string(),
+    }),
+    dns: v.object({
+      aRecord: v.string(), // IP address
+      cnameRecord: v.optional(v.string()),
+      mxRecord: v.optional(v.string()),
+      txtRecord: v.optional(v.string()),
+    }),
+    ssl: v.object({
+      enabled: v.boolean(),
+      certificateId: v.optional(v.string()),
+      expiresAt: v.optional(v.number()),
+      autoRenew: v.boolean(),
+    }),
+    stats: v.object({
+      totalVisits: v.number(),
+      uniqueVisitors: v.number(),
+      pageViews: v.number(),
+      bounceRate: v.number(),
+      avgSessionDuration: v.number(),
+    }),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_reseller", ["resellerId"])
+    .index("by_subdomain", ["subdomain"])
+    .index("by_domain", ["domain"])
+    .index("by_status", ["status"]),
+
+  resellerMarketingMaterials: defineTable({
+    resellerId: v.string(),
+    materialId: v.string(), // Unique material identifier
+    type: v.union(v.literal("brochure"), v.literal("flyer"), v.literal("presentation"), v.literal("video"), v.literal("email_template"), v.literal("social_media")),
+    name: v.string(),
+    description: v.string(),
+    fileUrl: v.string(), // URL to the file
+    fileSize: v.number(), // File size in bytes
+    fileType: v.string(), // MIME type
+    thumbnailUrl: v.optional(v.string()), // Thumbnail for videos/images
+    tags: v.array(v.string()), // Tags for categorization
+    language: v.string(), // Language code (e.g., "en", "sw")
+    targetAudience: v.union(v.literal("schools"), v.literal("parents"), v.literal("students"), v.literal("administrators")),
+    status: v.union(v.literal("draft"), v.literal("approved"), v.literal("published"), v.literal("archived")),
+    usage: v.object({
+      downloads: v.number(),
+      views: v.number(),
+      shares: v.number(),
+    }),
+    approvedBy: v.optional(v.string()),
+    approvedAt: v.optional(v.number()),
+    publishedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_reseller", ["resellerId"])
+    .index("by_type", ["type"])
+    .index("by_status", ["status"])
+    .index("by_language", ["language"])
+    .index("by_targetAudience", ["targetAudience"])
+    .index("by_publishedAt", ["publishedAt"]),
+
+  resellerCourses: defineTable({
+    courseId: v.string(), // Unique course identifier
+    title: v.string(),
+    description: v.string(),
+    category: v.union(v.literal("product_training"), v.literal("sales_training"), v.literal("technical_training"), v.literal("marketing"), v.literal("onboarding")),
+    level: v.union(v.literal("beginner"), v.literal("intermediate"), v.literal("advanced")),
+    duration: v.number(), // Duration in minutes
+    content: v.array(v.object({
+      type: v.union(v.literal("video"), v.literal("text"), v.literal("quiz"), v.literal("assignment")),
+      title: v.string(),
+      content: v.string(), // URL for video, text for content, etc.
+      duration: v.number(), // Duration in minutes
+      order: v.number(),
+    })),
+    instructor: v.string(), // Instructor name
+    instructorBio: v.string(),
+    thumbnailUrl: v.optional(v.string()),
+    tags: v.array(v.string()),
+    language: v.string(), // Language code
+    prerequisites: v.array(v.string()), // Course prerequisites
+    learningObjectives: v.array(v.string()),
+    status: v.union(v.literal("draft"), v.literal("published"), v.literal("archived")),
+    enrollmentCount: v.number(),
+    completionRate: v.number(),
+    averageRating: v.number(),
+    ratingCount: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_courseId", ["courseId"])
+    .index("by_category", ["category"])
+    .index("by_level", ["level"])
+    .index("by_status", ["status"])
+    .index("by_language", ["language"]),
+
+  resellerCourseProgress: defineTable({
+    resellerId: v.string(),
+    courseId: v.string(),
+    enrollmentId: v.string(), // Unique enrollment identifier
+    status: v.union(v.literal("not_started"), v.literal("in_progress"), v.literal("completed"), v.literal("dropped")),
+    progress: v.number(), // Percentage complete (0-100)
+    currentModule: v.number(), // Current module index
+    completedModules: v.array(v.number()), // Array of completed module indices
+    quizScores: v.record(v.string(), v.number()), // Quiz scores by module
+    startedAt: v.number(),
+    lastAccessedAt: v.number(),
+    completedAt: v.optional(v.number()),
+    certificateUrl: v.optional(v.string()), // URL to completion certificate
+    notes: v.optional(v.string()), // User notes about the course
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_reseller", ["resellerId"])
+    .index("by_course", ["courseId"])
+    .index("by_status", ["status"])
+    .index("by_startedAt", ["startedAt"])
+    .index("by_completedAt", ["completedAt"]),
+
+  resellerDirectoryListings: defineTable({
+    listingId: v.string(), // Unique listing identifier
+    resellerId: v.string(),
+    companyName: v.string(),
+    description: v.string(),
+    category: v.union(v.literal("technology"), v.literal("education"), v.literal("consulting"), v.literal("training"), v.literal("other")),
+    location: v.object({
+      country: v.string(),
+      city: v.string(),
+      address: v.string(),
+    }),
+    contactInfo: v.object({
+      email: v.string(),
+      phone: v.string(),
+      website: v.optional(v.string()),
+    }),
+    services: v.array(v.string()), // List of services offered
+    specializations: v.array(v.string()), // Areas of specialization
+    certifications: v.array(v.string()), // Certifications held
+    experience: v.number(), // Years of experience
+    portfolio: v.array(v.object({
+      title: v.string(),
+      description: v.string(),
+      imageUrl: v.optional(v.string()),
+      projectUrl: v.optional(v.string()),
+    })),
+    testimonials: v.array(v.object({
+      clientName: v.string(),
+      clientCompany: v.string(),
+      rating: v.number(), // 1-5 stars
+      testimonial: v.string(),
+      date: v.number(),
+    })),
+    rating: v.number(), // Overall rating (1-5)
+    reviewCount: v.number(),
+    verificationStatus: v.union(v.literal("unverified"), v.literal("pending"), v.literal("verified")),
+    featured: v.boolean(),
+    status: v.union(v.literal("draft"), v.literal("published"), v.literal("suspended")),
+    views: v.number(),
+    contacts: v.number(), // Number of contact requests
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_listingId", ["listingId"])
+    .index("by_reseller", ["resellerId"])
+    .index("by_category", ["category"])
+    .index("by_location", ["location.country", "location.city"])
+    .index("by_status", ["status"])
+    .index("by_featured", ["featured"])
+    .index("by_verificationStatus", ["verificationStatus"])
+    .index("by_rating", ["rating"])
+    .index("by_createdAt", ["createdAt"]),
+
+  resellerReferralClicks: defineTable({
+    clickId: v.string(), // Unique click identifier
+    resellerId: v.string(),
+    referralCode: v.string(), // The referral code used
+    source: v.string(), // Where the click came from (e.g., "email", "social", "website")
+    campaign: v.optional(v.string()), // Campaign identifier
+    ipAddress: v.string(), // IP address of the clicker
+    userAgent: v.string(), // Browser user agent
+    referrer: v.optional(v.string()), // HTTP referrer
+    landingPage: v.string(), // Page they landed on
+    converted: v.boolean(), // Whether this click resulted in a conversion
+    conversionId: v.optional(v.string()), // ID of the conversion (if any)
+    conversionValue: v.optional(v.number()), // Value of the conversion in KES
+    timestamp: v.number(), // When the click occurred
+    createdAt: v.number(),
+  })
+    .index("by_reseller", ["resellerId"])
+    .index("by_referralCode", ["referralCode"])
+    .index("by_source", ["source"])
+    .index("by_campaign", ["campaign"])
+    .index("by_converted", ["converted"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_conversionId", ["conversionId"]),
 });

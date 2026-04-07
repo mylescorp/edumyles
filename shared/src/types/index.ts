@@ -53,7 +53,10 @@ export type UserRole =
   | "board_member" // Board-level read-only access
   | "receptionist"
   | "alumni"
-  | "partner";
+  | "partner"
+  | "publisher" // Module publisher/developer
+  | "reseller" // School reseller partner
+  | "affiliate"; // Referral affiliate
 
 export type LegacyUserRoleAlias = "platform_admin";
 

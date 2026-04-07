@@ -38,12 +38,13 @@ export default function AdmissionsPage() {
     const { isLoading, sessionToken } = useAuth();
     const [statusFilter, setStatusFilter] = useState<string>("all");
 
-    const applications = useQuery(
+    const applicationsResult = useQuery(
         api.modules.admissions.queries.listApplications,
         sessionToken
             ? { sessionToken, status: statusFilter === "all" ? undefined : statusFilter }
             : "skip"
     );
+    const applications = applicationsResult?.data;
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
@@ -125,7 +126,7 @@ export default function AdmissionsPage() {
             </div>
 
             <DataTable
-                data={(applications as Application[]) ?? []}
+                data={applications ?? []}
                 columns={columns}
                 searchable
                 searchPlaceholder="Search by name or application ID..."
