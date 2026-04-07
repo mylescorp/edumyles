@@ -669,6 +669,15 @@ export const getRoles = query({
   },
 });
 
+export const getRoleBySlug = query({
+  args: {
+    slug: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await getRoleDefinition(ctx, args.slug);
+  },
+});
+
 export const getRole = query({
   args: {
     sessionToken: v.string(),
