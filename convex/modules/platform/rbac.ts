@@ -519,9 +519,9 @@ async function writePermissionAuditLog(ctx: any, params: {
   });
 }
 
-async function createPlatformInviteRecord(
-  ctx: any,
-  actor: { userId: string; email?: string | null; permissions: string[] },
+export const createPlatformInviteRecord = async (
+  ctx: MutationCtx,
+  actor: any,
   args: {
     email: string;
     role: string;
@@ -534,8 +534,11 @@ async function createPlatformInviteRecord(
     accessExpiresAt?: number;
     notifyInviter?: boolean;
     personalMessage?: string;
+    firstName?: string;
+    lastName?: string;
+    isExistingUser?: boolean;
   }
-) {
+) => {
   const normalizedEmail = args.email.trim().toLowerCase();
   const role = await getRoleDefinition(ctx, args.role);
   if (!role || !role.isActive) throw new Error("Invalid or inactive role");

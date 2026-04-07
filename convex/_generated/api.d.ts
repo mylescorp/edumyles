@@ -48,6 +48,7 @@ import type * as modules_communications_emailTemplates from "../modules/communic
 import type * as modules_communications_index from "../modules/communications/index.js";
 import type * as modules_communications_mutations from "../modules/communications/mutations.js";
 import type * as modules_communications_platform from "../modules/communications/platform.js";
+import type * as modules_communications_platformInviteEmails from "../modules/communications/platformInviteEmails.js";
 import type * as modules_communications_queries from "../modules/communications/queries.js";
 import type * as modules_communications_sms from "../modules/communications/sms.js";
 import type * as modules_communications_templates from "../modules/communications/templates.js";
@@ -283,6 +284,7 @@ declare const fullApi: ApiFromModules<{
   "modules/communications/index": typeof modules_communications_index;
   "modules/communications/mutations": typeof modules_communications_mutations;
   "modules/communications/platform": typeof modules_communications_platform;
+  "modules/communications/platformInviteEmails": typeof modules_communications_platformInviteEmails;
   "modules/communications/queries": typeof modules_communications_queries;
   "modules/communications/sms": typeof modules_communications_sms;
   "modules/communications/templates": typeof modules_communications_templates;
