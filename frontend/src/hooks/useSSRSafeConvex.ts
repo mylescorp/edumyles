@@ -21,7 +21,19 @@ export function useQuery(query: any, args?: any, enabled?: boolean) {
   // If enabled is explicitly false, pass "skip" to prevent query execution
   const shouldSkip = enabled === false;
   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
-  return useConvexQuery(query, queryArgs);
+  const result = useConvexQuery(query, queryArgs);
+  
+  // Return consistent object structure whether skipped or not
+  if (shouldSkip) {
+    return {
+      data: undefined,
+      isLoading: false,
+      error: undefined,
+      refetch: () => {},
+    };
+  }
+  
+  return result;
 }
 
 export function useMutation(mutation: any) {
