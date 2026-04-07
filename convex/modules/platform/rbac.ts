@@ -590,6 +590,33 @@ async function createPlatformInviteRecord(
     after: { email: normalizedEmail, role: args.role, department: args.department },
   });
 
+  // Send invitation email
+  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/platform/invite/accept?token=${idGenerator("platform_invite")}`;
+  const templateType = args.isExistingUser ? "existing_user" : "new_user";
+  
+  try {
+    await ctx.runMutation(api.modules.communications.platformInviteEmails.sendPlatformInviteEmail, {
+      sessionToken: args.sessionToken,
+      email: normalizedEmail,
+      templateType,
+      variables: {
+        firstName: args.firstName || "",
+        lastName: args.lastName || "",
+        roleName: role.name,
+        department: args.department || "Platform Administration",
+        invitedByName: `${actor.firstName || ""} ${actor.lastName || ""}`.trim() || actor.email,
+        invitedByEmail: actor.email,
+        inviteUrl,
+        platformUrl: process.env.NEXT_PUBLIC_APP_URL,
+        addedPermissions: args.addedPermissions || [],
+        removedPermissions: args.removedPermissions || [],
+      },
+    });
+  } catch (error) {
+    console.error("Failed to send platform invite email:", error);
+    // Continue with invitation creation even if email fails
+  }
+
   return { success: true, inviteId, email: normalizedEmail, roleName: role.name };
 }
 
@@ -859,6 +886,7 @@ export const invitePlatformUser = mutation({
     accessExpiresAt: v.optional(v.number()),
     notifyInviter: v.optional(v.boolean()),
     personalMessage: v.optional(v.string()),
+    isExistingUser: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const actor = await requirePermission(ctx, "platform_users.invite", args.sessionToken);
