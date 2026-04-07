@@ -89,6 +89,7 @@ import type * as modules_platform_currency from "../modules/platform/currency.js
 import type * as modules_platform_onboarding from "../modules/platform/onboarding.js";
 import type * as modules_platform_ops from "../modules/platform/ops.js";
 import type * as modules_platform_pilotGrants from "../modules/platform/pilotGrants.js";
+import type * as modules_platform_rbac from "../modules/platform/rbac.js";
 import type * as modules_platform_subscriptions from "../modules/platform/subscriptions.js";
 import type * as modules_platform_support from "../modules/platform/support.js";
 import type * as modules_platform_users from "../modules/platform/users.js";
@@ -322,6 +323,7 @@ declare const fullApi: ApiFromModules<{
   "modules/platform/onboarding": typeof modules_platform_onboarding;
   "modules/platform/ops": typeof modules_platform_ops;
   "modules/platform/pilotGrants": typeof modules_platform_pilotGrants;
+  "modules/platform/rbac": typeof modules_platform_rbac;
   "modules/platform/subscriptions": typeof modules_platform_subscriptions;
   "modules/platform/support": typeof modules_platform_support;
   "modules/platform/users": typeof modules_platform_users;

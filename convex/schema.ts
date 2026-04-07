@@ -3872,38 +3872,55 @@ export default defineSchema({
 
   platform_users: defineTable({
     userId: v.string(),
-    role: v.union(
-      v.literal("master_admin"),
-      v.literal("super_admin"),
-      v.literal("platform_manager"),
-      v.literal("support_agent"),
-      v.literal("billing_admin"),
-      v.literal("marketplace_reviewer"),
-      v.literal("content_moderator"),
-      v.literal("analytics_viewer")
-    ),
+    role: v.string(),
     department: v.optional(v.string()),
-    addedPermissions: v.optional(v.array(v.string())),
-    removedPermissions: v.optional(v.array(v.string())),
+    addedPermissions: v.array(v.string()),
+    removedPermissions: v.array(v.string()),
+    scopeCountries: v.array(v.string()),
+    scopeTenantIds: v.array(v.string()),
+    scopePlans: v.array(v.string()),
     status: v.union(v.literal("active"), v.literal("suspended")),
     accessExpiresAt: v.optional(v.number()),
     invitedBy: v.optional(v.string()),
     acceptedAt: v.optional(v.number()),
     lastLogin: v.optional(v.number()),
+    notes: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_userId", ["userId"])
     .index("by_role", ["role"])
     .index("by_status", ["status"])
+    .index("by_accessExpiresAt", ["accessExpiresAt"])
     .index("by_createdAt", ["createdAt"]),
+
+  platform_roles: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    description: v.string(),
+    baseRole: v.optional(v.string()),
+    isSystem: v.boolean(),
+    isActive: v.boolean(),
+    color: v.string(),
+    icon: v.string(),
+    permissions: v.array(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_isSystem", ["isSystem"])
+    .index("by_isActive", ["isActive"]),
 
   platform_user_invites: defineTable({
     email: v.string(),
     role: v.string(),
     department: v.optional(v.string()),
-    addedPermissions: v.optional(v.array(v.string())),
-    removedPermissions: v.optional(v.array(v.string())),
+    addedPermissions: v.array(v.string()),
+    removedPermissions: v.array(v.string()),
+    scopeCountries: v.array(v.string()),
+    scopeTenantIds: v.array(v.string()),
+    scopePlans: v.array(v.string()),
     accessExpiresAt: v.optional(v.number()),
     invitedBy: v.string(),
     token: v.string(),
@@ -3915,7 +3932,7 @@ export default defineSchema({
     ),
     expiresAt: v.number(),
     acceptedAt: v.optional(v.number()),
-    notifyInviter: v.optional(v.boolean()),
+    notifyInviter: v.boolean(),
     personalMessage: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -3923,7 +3940,29 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_token", ["token"])
     .index("by_status", ["status"])
+    .index("by_invitedBy", ["invitedBy"])
     .index("by_expiresAt", ["expiresAt"])
+    .index("by_createdAt", ["createdAt"]),
+
+  permission_audit_log: defineTable({
+    targetUserId: v.string(),
+    changedBy: v.string(),
+    changeType: v.union(
+      v.literal("role_changed"),
+      v.literal("permission_added"),
+      v.literal("permission_removed"),
+      v.literal("scope_changed"),
+      v.literal("access_expiry_set"),
+      v.literal("account_suspended"),
+      v.literal("account_unsuspended")
+    ),
+    previousValue: v.string(),
+    newValue: v.string(),
+    reason: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_targetUserId", ["targetUserId"])
+    .index("by_changedBy", ["changedBy"])
     .index("by_createdAt", ["createdAt"]),
 
   platform_settings: defineTable({

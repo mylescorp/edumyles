@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { UsersAdminRail } from "@/components/platform/UsersAdminRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -209,6 +210,8 @@ export default function PlatformUserDetailPage() {
           { label: user.email },
         ]}
       />
+
+      <UsersAdminRail />
 
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="ghost" onClick={() => router.push("/platform/users")}>

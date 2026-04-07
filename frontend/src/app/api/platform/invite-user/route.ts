@@ -17,15 +17,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, role, department, personalMessage, sessionToken } = body as {
       email: string;
-      role:
-        | "master_admin"
-        | "super_admin"
-        | "platform_manager"
-        | "support_agent"
-        | "billing_admin"
-        | "marketplace_reviewer"
-        | "content_moderator"
-        | "analytics_viewer";
+      role: string;
       department?: string;
       personalMessage?: string;
       sessionToken: string;
@@ -45,7 +37,7 @@ export async function POST(req: NextRequest) {
     let convexResult: { success: boolean; inviteId: string; token: string };
     try {
       convexResult = await convex.mutation(
-        api.modules.platform.users.invitePlatformUser,
+        api.modules.platform.rbac.invitePlatformUser,
         {
           sessionToken,
           email,
