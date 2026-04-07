@@ -17,7 +17,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, role, department, personalMessage, sessionToken } = body as {
       email: string;
-      role: string;
+      role:
+        | "master_admin"
+        | "super_admin"
+        | "platform_manager"
+        | "support_agent"
+        | "billing_admin"
+        | "marketplace_reviewer"
+        | "content_moderator"
+        | "analytics_viewer";
       department?: string;
       personalMessage?: string;
       sessionToken: string;

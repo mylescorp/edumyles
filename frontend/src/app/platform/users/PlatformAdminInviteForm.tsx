@@ -53,7 +53,7 @@ export function PlatformAdminInviteForm({
     emailSent: boolean;
     workosError?: string;
   } | null>(null);
-  const roles = usePlatformQuery(
+const roles = usePlatformQuery(
     api.modules.platform.rbac.getRoles,
     sessionToken ? { sessionToken, includeSystem: true } : "skip",
     !!sessionToken

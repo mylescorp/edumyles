@@ -74,7 +74,7 @@ function badgeClass(status: string) {
 
 export default function PlatformUsersPage() {
   const { isLoading, sessionToken } = useAuth();
-  const { can, isMasterAdmin } = usePlatformPermissions();
+const { can, isMasterAdmin } = usePlatformPermissions();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -171,7 +171,7 @@ export default function PlatformUsersPage() {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const canManageUsers = can("platform_users.edit_role") || can("platform_users.edit_permissions");
+const canManageUsers = can("platform_users.edit_role") || can("platform_users.edit_permissions");
   const canInviteUsers = can("platform_users.invite");
   const canSuspendUsers = can("platform_users.suspend");
   const canDeleteUsers = can("platform_users.delete") || isMasterAdmin;
