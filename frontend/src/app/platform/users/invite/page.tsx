@@ -2,23 +2,24 @@
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { UsersAdminRail } from "@/components/platform/UsersAdminRail";
 import { useAuth } from "@/hooks/useAuth";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserPlus } from "lucide-react";
 import { PlatformAdminInviteForm } from "../PlatformAdminInviteForm";
 
 export default function InviteAdminPage() {
   const { isLoading, sessionToken } = useAuth();
-  const { hasRole } = usePermissions();
-  const isMasterAdmin = hasRole("master_admin");
+  const { can, isLoaded } = usePlatformPermissions();
+  const canInvite = can("platform_users.invite");
 
-  if (isLoading) return <LoadingSkeleton variant="page" />;
+  if (isLoading || !isLoaded) return <LoadingSkeleton variant="page" />;
 
-  if (!isMasterAdmin || !sessionToken) {
+  if (!canInvite || !sessionToken) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <p className="text-muted-foreground">Only Master Admins can invite new platform administrators.</p>
+        <p className="text-muted-foreground">You do not have permission to invite platform staff.</p>
       </div>
     );
   }
@@ -34,6 +35,10 @@ export default function InviteAdminPage() {
           { label: "Invite" },
         ]}
       />
+
+      <div className="mb-6">
+        <UsersAdminRail />
+      </div>
 
       <Card className="max-w-2xl">
         <CardHeader>

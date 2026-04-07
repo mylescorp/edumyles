@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { UsersAdminRail } from "@/components/platform/UsersAdminRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +26,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime } from "@/lib/formatters";
@@ -73,7 +74,7 @@ function badgeClass(status: string) {
 
 export default function PlatformUsersPage() {
   const { isLoading, sessionToken } = useAuth();
-  const { hasPermission, hasRole } = usePermissions();
+const { can, isMasterAdmin } = usePlatformPermissions();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -170,10 +171,10 @@ export default function PlatformUsersPage() {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const canManageUsers = hasPermission("platform:users:write") || hasRole("master_admin");
-  const canInviteUsers = hasPermission("platform:users:invite") || hasRole("master_admin");
-  const canSuspendUsers = hasPermission("platform:users:suspend") || hasRole("master_admin", "super_admin");
-  const canDeleteUsers = hasPermission("platform:users:delete") || hasRole("master_admin");
+const canManageUsers = can("platform_users.edit_role") || can("platform_users.edit_permissions");
+  const canInviteUsers = can("platform_users.invite");
+  const canSuspendUsers = can("platform_users.suspend");
+  const canDeleteUsers = can("platform_users.delete") || isMasterAdmin;
 
   const resetActionState = () => {
     setDeleteTarget(null);
@@ -320,6 +321,8 @@ export default function PlatformUsersPage() {
           { label: "Users" },
         ]}
       />
+
+      <UsersAdminRail />
 
       <div className="flex flex-wrap items-center gap-3">
         <Input

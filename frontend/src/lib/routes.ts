@@ -42,61 +42,63 @@ export interface NavItem {
   icon: LucideIcon;
   module?: string;
   section?: string;
+  permission?: string | null;
   children?: NavItem[];
 }
 
 export const platformNavItems: NavItem[] = [
-  { label: "Dashboard", href: "/platform", icon: LayoutDashboard },
-  { label: "All Tenants", href: "/platform/tenants", icon: Building2, section: "Tenants" },
-  { label: "Create Tenant", href: "/platform/tenants/create", icon: Rocket, section: "Tenants" },
-  { label: "Tenant Success", href: "/platform/tenant-success", icon: TrendingUp, section: "Tenants" },
-  { label: "Waitlist", href: "/platform/waitlist", icon: ClipboardCheck, section: "Tenants" },
-  { label: "Onboarding", href: "/platform/onboarding", icon: Rocket, section: "Tenants" },
+  { label: "Dashboard", href: "/platform", icon: LayoutDashboard, permission: null },
+  { label: "All Tenants", href: "/platform/tenants", icon: Building2, section: "Tenants", permission: "tenants.view" },
+  { label: "Create Tenant", href: "/platform/tenants/create", icon: Rocket, section: "Tenants", permission: "tenants.create" },
+  { label: "Tenant Success", href: "/platform/tenant-success", icon: TrendingUp, section: "Tenants", permission: "onboarding.view" },
+  { label: "Waitlist", href: "/platform/waitlist", icon: ClipboardCheck, section: "Tenants", permission: "waitlist.view" },
+  { label: "Onboarding", href: "/platform/onboarding", icon: Rocket, section: "Tenants", permission: "onboarding.view" },
 
-  { label: "All Users", href: "/platform/users", icon: Users, section: "Users & Staff" },
-  { label: "Invite Staff", href: "/platform/users/invite", icon: UserCog, section: "Users & Staff" },
-  { label: "Impersonation", href: "/platform/impersonation", icon: Eye, section: "Users & Staff" },
-  { label: "Staff Performance", href: "/platform/staff-performance", icon: BarChart3, section: "Users & Staff" },
+  { label: "All Users", href: "/platform/users", icon: Users, section: "Users & Staff", permission: "platform_users.view" },
+  { label: "Invite Staff", href: "/platform/users/invite", icon: UserCog, section: "Users & Staff", permission: "platform_users.invite" },
+  { label: "Roles", href: "/platform/users/roles", icon: Shield, section: "Users & Staff", permission: "platform_users.view" },
+  { label: "Impersonation", href: "/platform/impersonation", icon: Eye, section: "Users & Staff", permission: "tenants.impersonate" },
+  { label: "Staff Performance", href: "/platform/staff-performance", icon: BarChart3, section: "Users & Staff", permission: "staff_performance.view" },
 
-  { label: "Marketplace Overview", href: "/platform/marketplace", icon: ShoppingCart, section: "Marketplace" },
-  { label: "Modules", href: "/platform/marketplace/module", icon: Package, section: "Marketplace" },
-  { label: "Review Queue", href: "/platform/marketplace/admin", icon: ClipboardList, section: "Marketplace" },
-  { label: "Pricing", href: "/platform/marketplace/pricing", icon: DollarSign, section: "Marketplace" },
-  { label: "Flags", href: "/platform/marketplace/flags", icon: Flag, section: "Marketplace" },
-  { label: "Reviews", href: "/platform/marketplace/reviews", icon: ClipboardCheck, section: "Marketplace" },
-  { label: "Pilot Grants", href: "/platform/marketplace/pilot-grants", icon: Sparkles, section: "Marketplace" },
-  { label: "Publishers", href: "/platform/marketplace/publishers", icon: Building2, section: "Marketplace" },
+  { label: "Marketplace Overview", href: "/platform/marketplace", icon: ShoppingCart, section: "Marketplace", permission: "marketplace.view" },
+  { label: "Modules", href: "/platform/marketplace/module", icon: Package, section: "Marketplace", permission: "marketplace.view" },
+  { label: "Review Queue", href: "/platform/marketplace/admin", icon: ClipboardList, section: "Marketplace", permission: "marketplace.review_modules" },
+  { label: "Pricing", href: "/platform/marketplace/pricing", icon: DollarSign, section: "Marketplace", permission: "marketplace.manage_pricing" },
+  { label: "Flags", href: "/platform/marketplace/flags", icon: Flag, section: "Marketplace", permission: "marketplace.manage_flags" },
+  { label: "Reviews", href: "/platform/marketplace/reviews", icon: ClipboardCheck, section: "Marketplace", permission: "marketplace.manage_reviews" },
+  { label: "Pilot Grants", href: "/platform/marketplace/pilot-grants", icon: Sparkles, section: "Marketplace", permission: "marketplace.manage_pilot_grants" },
+  { label: "Publishers", href: "/platform/marketplace/publishers", icon: Building2, section: "Marketplace", permission: "publishers.view" },
 
-  { label: "PM", href: "/platform/pm", icon: Kanban, section: "Project Management" },
+  { label: "PM", href: "/platform/pm", icon: Kanban, section: "Project Management", permission: "pm.view" },
 
-  { label: "Billing Dashboard", href: "/platform/billing", icon: DollarSign, section: "Billing" },
-  { label: "Plans", href: "/platform/billing/plans", icon: Package, section: "Billing" },
-  { label: "Invoices", href: "/platform/billing/invoices", icon: FileText, section: "Billing" },
-  { label: "Subscriptions", href: "/platform/billing/subscriptions", icon: Wallet, section: "Billing" },
-  { label: "Reports", href: "/platform/billing/reports", icon: BarChart3, section: "Billing" },
+  { label: "Billing Dashboard", href: "/platform/billing", icon: DollarSign, section: "Billing", permission: "billing.view_dashboard" },
+  { label: "Plans", href: "/platform/billing/plans", icon: Package, section: "Billing", permission: "billing.manage_plans" },
+  { label: "Invoices", href: "/platform/billing/invoices", icon: FileText, section: "Billing", permission: "billing.view_invoices" },
+  { label: "Subscriptions", href: "/platform/billing/subscriptions", icon: Wallet, section: "Billing", permission: "billing.view_subscriptions" },
+  { label: "Reports", href: "/platform/billing/reports", icon: BarChart3, section: "Billing", permission: "billing.view_reports" },
 
-  { label: "Pipeline", href: "/platform/crm", icon: ClipboardList, section: "CRM" },
-  { label: "Leads", href: "/platform/crm/leads", icon: TrendingUp, section: "CRM" },
-  { label: "Create Lead", href: "/platform/crm/leads/create", icon: Rocket, section: "CRM" },
-  { label: "Proposals", href: "/platform/crm/proposals", icon: FileText, section: "CRM" },
+  { label: "Pipeline", href: "/platform/crm", icon: ClipboardList, section: "CRM", permission: "crm.view" },
+  { label: "Leads", href: "/platform/crm/leads", icon: TrendingUp, section: "CRM", permission: "crm.view" },
+  { label: "Create Lead", href: "/platform/crm/leads/create", icon: Rocket, section: "CRM", permission: "crm.create_lead" },
+  { label: "Proposals", href: "/platform/crm/proposals", icon: FileText, section: "CRM", permission: "crm.create_proposal" },
 
-  { label: "Broadcast", href: "/platform/communications/broadcast", icon: Bell, section: "Communications" },
-  { label: "Announcements", href: "/platform/communications", icon: MessageSquare, section: "Communications" },
-  { label: "Knowledge Base", href: "/platform/knowledge-base", icon: BookOpen, section: "Communications" },
+  { label: "Broadcast", href: "/platform/communications/broadcast", icon: Bell, section: "Communications", permission: "communications.send_broadcast" },
+  { label: "Announcements", href: "/platform/communications", icon: MessageSquare, section: "Communications", permission: "communications.manage_announcements" },
+  { label: "Knowledge Base", href: "/platform/knowledge-base", icon: BookOpen, section: "Communications", permission: "knowledge_base.view" },
 
-  { label: "Analytics", href: "/platform/analytics", icon: BarChart3, section: "Operations" },
-  { label: "Scheduled Reports", href: "/platform/scheduled-reports", icon: Clock, section: "Operations" },
-  { label: "SLA", href: "/platform/sla", icon: Timer, section: "Operations" },
-  { label: "Tickets", href: "/platform/tickets", icon: Headphones, section: "Tickets" },
+  { label: "Analytics", href: "/platform/analytics", icon: BarChart3, section: "Operations", permission: "analytics.view_platform" },
+  { label: "Scheduled Reports", href: "/platform/scheduled-reports", icon: Clock, section: "Operations", permission: "analytics.manage_reports" },
+  { label: "SLA", href: "/platform/sla", icon: Timer, section: "Operations", permission: "settings.manage_sla" },
+  { label: "Tickets", href: "/platform/tickets", icon: Headphones, section: "Tickets", permission: "support.view" },
 
-  { label: "Feature Flags", href: "/platform/feature-flags", icon: Flag, section: "Security" },
-  { label: "Security", href: "/platform/security", icon: Shield, section: "Security" },
-  { label: "Audit Log", href: "/platform/audit", icon: History, section: "Security" },
-  { label: "API Keys", href: "/platform/api-keys", icon: Key, section: "Security" },
-  { label: "Webhooks", href: "/platform/webhooks", icon: Webhook, section: "Security" },
-  { label: "White-Label", href: "/platform/white-label", icon: Palette, section: "Security" },
+  { label: "Feature Flags", href: "/platform/feature-flags", icon: Flag, section: "Security", permission: "settings.manage_feature_flags" },
+  { label: "Security", href: "/platform/security", icon: Shield, section: "Security", permission: "security.view_dashboard" },
+  { label: "Audit Log", href: "/platform/audit", icon: History, section: "Security", permission: "security.view_audit_log" },
+  { label: "API Keys", href: "/platform/api-keys", icon: Key, section: "Security", permission: "security.manage_api_keys" },
+  { label: "Webhooks", href: "/platform/webhooks", icon: Webhook, section: "Security", permission: "security.manage_webhooks" },
+  { label: "White-Label", href: "/platform/white-label", icon: Palette, section: "Security", permission: "settings.edit_general" },
 
-  { label: "Settings", href: "/platform/settings", icon: Settings, section: "Settings" },
+  { label: "Settings", href: "/platform/settings", icon: Settings, section: "Settings", permission: "settings.view" },
 ];
 
 export const adminNavItems: NavItem[] = [

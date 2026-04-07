@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     let convexResult: { success: boolean; inviteId: string; token: string };
     try {
       convexResult = await convex.mutation(
-        api.modules.platform.users.invitePlatformUser,
+        api.modules.platform.rbac.invitePlatformUser,
         {
           sessionToken,
           email,

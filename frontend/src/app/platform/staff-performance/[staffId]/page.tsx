@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { UsersAdminRail } from "@/components/platform/UsersAdminRail";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
@@ -90,6 +91,8 @@ export default function StaffPerformanceDetailPage() {
           </Button>
         }
       />
+
+      <UsersAdminRail />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>

@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import { api } from "@/convex/_generated/api";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { Check, CheckCircle2, Copy, ExternalLink, Link as LinkIcon, Mail, TriangleAlert, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 
@@ -50,6 +53,13 @@ export function PlatformAdminInviteForm({
     emailSent: boolean;
     workosError?: string;
   } | null>(null);
+const roles = usePlatformQuery(
+    api.modules.platform.rbac.getRoles,
+    sessionToken ? { sessionToken, includeSystem: true } : "skip",
+    !!sessionToken
+  ) as Array<any> | undefined;
+
+  const selectedRole = (roles ?? []).find((role) => role.slug === form.role);
 
   const resetFlow = () => {
     setForm({ email: "", role: "super_admin", department: "", personalMessage: "" });
@@ -195,7 +205,8 @@ export function PlatformAdminInviteForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <form onSubmit={handleSubmit} className="space-y-5">
       {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
@@ -225,14 +236,11 @@ export function PlatformAdminInviteForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="master_admin">Master Admin</SelectItem>
-              <SelectItem value="super_admin">Super Admin</SelectItem>
-              <SelectItem value="platform_manager">Platform Manager</SelectItem>
-              <SelectItem value="support_agent">Support Agent</SelectItem>
-              <SelectItem value="billing_admin">Billing Admin</SelectItem>
-              <SelectItem value="marketplace_reviewer">Marketplace Reviewer</SelectItem>
-              <SelectItem value="content_moderator">Content Moderator</SelectItem>
-              <SelectItem value="analytics_viewer">Analytics Viewer</SelectItem>
+              {(roles ?? []).map((role) => (
+                <SelectItem key={role.slug} value={role.slug}>
+                  {role.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -277,6 +285,33 @@ export function PlatformAdminInviteForm({
           )}
         </Button>
       </div>
-    </form>
+      </form>
+
+      <Card className="h-fit">
+        <CardHeader>
+          <CardTitle>Permission Preview</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div>
+            <p className="font-medium">{selectedRole?.name ?? "Select a role"}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {selectedRole?.description ?? "Role capabilities will appear here."}
+            </p>
+          </div>
+          <div className="space-y-2">
+            {(selectedRole?.permissions ?? []).slice(0, 12).map((permission: string) => (
+              <div key={permission} className="rounded-lg border px-3 py-2 text-xs font-mono">
+                {permission}
+              </div>
+            ))}
+            {(selectedRole?.permissions?.length ?? 0) > 12 ? (
+              <p className="text-xs text-muted-foreground">
+                And {(selectedRole?.permissions?.length ?? 0) - 12} more permissions.
+              </p>
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
