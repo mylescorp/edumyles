@@ -124,7 +124,7 @@ export default function ApplicationDetailPage() {
         setPendingAction(null);
     };
 
-    const transitions = VALID_TRANSITIONS[application.status] ?? [];
+    const transitions = VALID_TRANSITIONS[application.data?.status] ?? [];
 
     return (
         <div>
