@@ -171,7 +171,7 @@ export const applyAsPublisher = mutation({
 export const approvePublisher = mutation({
   args: {
     sessionToken: v.string(),
-    publisherId: v.id("publishers"),
+    publisherId: v.id("publisherApplications"),
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformRole(ctx, args, [
@@ -181,7 +181,9 @@ export const approvePublisher = mutation({
       "master_admin",
     ]);
     await ctx.db.patch(args.publisherId, {
-      status: "active",
+      status: "approved",
+      reviewedBy: platform.userId,
+      reviewedAt: Date.now(),
       updatedAt: Date.now(),
     });
 

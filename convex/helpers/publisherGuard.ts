@@ -35,18 +35,18 @@ export async function requirePublisherContext(
   }
 
   const publisher = await ctx.db
-    .query("publishers")
-    .withIndex("by_userId", (q) => q.eq("userId", session.userId))
+    .query("publisherApplications")
+    .withIndex("by_applicant", (q) => q.eq("applicantId", session.userId))
     .first();
 
   if (!publisher) {
-    throw new ConvexError({ code: "FORBIDDEN", message: "Publisher account not found" });
+    throw new ConvexError({ code: "FORBIDDEN", message: "Publisher application not found" });
   }
 
-  if (publisher.status !== "active") {
+  if (publisher.status !== "approved") {
     throw new ConvexError({
       code: "FORBIDDEN",
-      message: `Publisher account is ${publisher.status}`,
+      message: `Publisher application is ${publisher.status}`,
     });
   }
 
@@ -56,7 +56,7 @@ export async function requirePublisherContext(
     publisherId: String(publisher._id),
     businessName: publisher.businessName,
     status: publisher.status,
-    tier: publisher.tier,
+    tier: "indie", // Default tier since applications don't have tier field
     publisher,
   };
 }
