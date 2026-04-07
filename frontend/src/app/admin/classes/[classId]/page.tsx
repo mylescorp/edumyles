@@ -184,7 +184,7 @@ export default function ClassDetailPage() {
             <div className="mt-6">
                 <h3 className="mb-4 text-lg font-semibold">Class Roster</h3>
                 <DataTable
-                    data={(students as StudentRow[]) ?? []}
+                    data={(students.data as StudentRow[]) ?? []}
                     columns={studentColumns}
                     searchable
                     searchPlaceholder="Search students in class..."

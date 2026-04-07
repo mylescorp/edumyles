@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -58,7 +58,7 @@ const POPULAR_MODULES = [
 const inputClass =
   "w-full rounded-xl border border-[#dbe9e0] bg-white px-4 py-3.5 font-jakarta text-[15px] text-[#061A12] outline-none transition-colors duration-200 focus:border-[#0F4C2A]";
 
-export default function PublisherApplicationPage() {
+function PublisherApplicationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formState, setFormState] = useState<FormState>("idle");
@@ -492,5 +492,13 @@ export default function PublisherApplicationPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function PublisherApplicationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PublisherApplicationContent />
+    </Suspense>
   );
 }
