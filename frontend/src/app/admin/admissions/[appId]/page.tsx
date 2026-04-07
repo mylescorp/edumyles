@@ -135,12 +135,12 @@ export default function ApplicationDetailPage() {
             </div>
 
             <PageHeader
-                title={`${application.firstName} ${application.lastName}`}
-                description={`Application ID: ${application.applicationId}`}
+                title={`${application.data?.firstName} ${application.data?.lastName}`}
+                description={`Application ID: ${application.data?.applicationId}`}
                 actions={
                     <div className="flex items-center gap-2">
-                        <Badge variant={statusColors[application.status] ?? "outline"} className="text-sm px-3 py-1">
-                            {application.status.replace("_", " ")}
+                        <Badge variant={statusColors[application.data?.status] ?? "outline"} className="text-sm px-3 py-1">
+                            {application.data?.status.replace("_", " ")}
                         </Badge>
                     </div>
                 }
@@ -168,10 +168,10 @@ export default function ApplicationDetailPage() {
                         <CardTitle className="text-base">Applicant Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <InfoRow icon={UserCircle} label="Full Name" value={`${application.firstName} ${application.lastName}`} />
-                        <InfoRow icon={Calendar} label="Date of Birth" value={application.dateOfBirth} />
-                        <InfoRow icon={UserCircle} label="Gender" value={application.gender} />
-                        <InfoRow icon={GraduationCap} label="Requested Grade" value={application.requestedGrade} />
+                        <InfoRow icon={UserCircle} label="Full Name" value={`${application.data?.firstName} ${application.data?.lastName}`} />
+                        <InfoRow icon={Calendar} label="Date of Birth" value={application.data?.dateOfBirth} />
+                        <InfoRow icon={UserCircle} label="Gender" value={application.data?.gender} />
+                        <InfoRow icon={GraduationCap} label="Requested Grade" value={application.data?.requestedGrade} />
                     </CardContent>
                 </Card>
 
@@ -180,19 +180,19 @@ export default function ApplicationDetailPage() {
                         <CardTitle className="text-base">Guardian Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <InfoRow icon={UserCircle} label="Guardian Name" value={application.guardianName} />
-                        <InfoRow icon={Mail} label="Guardian Email" value={application.guardianEmail} />
-                        <InfoRow icon={Phone} label="Guardian Phone" value={application.guardianPhone} />
+                        <InfoRow icon={UserCircle} label="Guardian Name" value={application.data?.guardianName} />
+                        <InfoRow icon={Mail} label="Guardian Email" value={application.data?.guardianEmail} />
+                        <InfoRow icon={Phone} label="Guardian Phone" value={application.data?.guardianPhone} />
                     </CardContent>
                 </Card>
 
-                {application.notes && (
+                {application.data?.notes && (
                     <Card className="md:col-span-2">
                         <CardHeader>
                             <CardTitle className="text-base">Notes</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm text-muted-foreground">{application.notes}</p>
+                            <p className="text-sm text-muted-foreground">{application.data?.notes}</p>
                         </CardContent>
                     </Card>
                 )}
@@ -258,18 +258,18 @@ export default function ApplicationDetailPage() {
                     <CardContent className="space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Created</span>
-                            <span>{new Date(application.createdAt).toLocaleString()}</span>
+                            <span>{new Date(application.data?.createdAt).toLocaleString()}</span>
                         </div>
-                        {application.submittedAt && (
+                        {application.data?.submittedAt && (
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Submitted</span>
-                                <span>{new Date(application.submittedAt).toLocaleString()}</span>
+                                <span>{new Date(application.data?.submittedAt).toLocaleString()}</span>
                             </div>
                         )}
-                        {application.reviewedAt && (
+                        {application.data?.reviewedAt && (
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Last Reviewed</span>
-                                <span>{new Date(application.reviewedAt).toLocaleString()}</span>
+                                <span>{new Date(application.data?.reviewedAt).toLocaleString()}</span>
                             </div>
                         )}
                     </CardContent>
@@ -280,7 +280,7 @@ export default function ApplicationDetailPage() {
                 open={!!pendingAction}
                 onOpenChange={(open) => !open && setPendingAction(null)}
                 title={`${pendingAction?.label} Application`}
-                description={`Are you sure you want to ${pendingAction?.label?.toLowerCase()} this application for ${application.firstName} ${application.lastName}?`}
+                description={`Are you sure you want to ${pendingAction?.label?.toLowerCase()} this application for ${application.data?.firstName} ${application.data?.lastName}?`}
                 onConfirm={handleAction}
                 confirmLabel={pendingAction?.label ?? "Confirm"}
                 variant={pendingAction?.status === "rejected" ? "destructive" : "default"}
