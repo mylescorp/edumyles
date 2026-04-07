@@ -9,15 +9,16 @@ export const getDashboardStats = query({
     
     // Get all modules for this publisher
     const modules = await ctx.db
-      .query("moduleRegistry")
-      .filter(q => q.eq(q.field("publisherId"), publisher.publisherId))
+      .query("modules")
+      .withIndex("by_publisherId", q => q.eq("publisherId", publisher.publisherId))
       .collect();
 
-    // Get installed modules (you'll need to create a table for module installations)
+    // Get installed modules
+    const moduleIds = modules.map(m => m.moduleId);
     const installations = await ctx.db
       .query("installedModules")
       .filter(q => 
-        q.inq("moduleId", modules.map(m => m.moduleId))
+        q.or(...moduleIds.map(moduleId => q.eq("moduleId", moduleId)))
       )
       .collect();
 
@@ -44,8 +45,8 @@ export const getDashboardStats = query({
       installs: installations.filter(i => i.moduleId === module.moduleId).length,
       activeInstalls: installations.filter(i => i.moduleId === module.moduleId && i.status === "active").length,
       revenue: 0, // TODO: Calculate revenue per module
-      rating: module.rating,
-      reviewCount: module.reviewCount,
+      rating: 0, // TODO: Calculate from reviews table
+      reviewCount: 0, // TODO: Calculate from reviews table
     }));
 
     return {
@@ -136,8 +137,8 @@ export const getModuleAnalytics = query({
     
     // Get the module
     const module = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_moduleId", q => q.eq("moduleId", args.moduleId))
+      .query("modules")
+      .withIndex("by_slug", q => q.eq("slug", args.moduleId))
       .unique();
 
     if (!module) {
