@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
 
-export default function PublisherApplicationSuccessPage() {
+function PublisherApplicationSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const applicationId = searchParams.get("id");
@@ -152,5 +152,13 @@ export default function PublisherApplicationSuccessPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function PublisherApplicationSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PublisherApplicationSuccessContent />
+    </Suspense>
   );
 }

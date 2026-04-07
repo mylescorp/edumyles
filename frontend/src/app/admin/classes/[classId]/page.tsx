@@ -229,7 +229,7 @@ export default function ClassDetailPage() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="__none__">Unassigned</SelectItem>
-                                        {((teachers as any[]) ?? []).map((teacher) => (
+                                        {((teachers.data as any[]) ?? []).map((teacher) => (
                                             <SelectItem key={teacher._id} value={teacher._id}>
                                                 {teacher.firstName} {teacher.lastName}
                                             </SelectItem>
