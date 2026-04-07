@@ -25,7 +25,7 @@ export default function AdminExamsPage() {
   const exams = useQuery(
     api.modules.academics.queries.getRecentExams,
     sessionToken ? { sessionToken, limit: 50 } : "skip"
-  ) as ExamRow[] | undefined;
+  );
 
   if (isLoading || exams === undefined) {
     return <LoadingSkeleton variant="page" />;
