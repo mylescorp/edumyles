@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     const convex = new ConvexHttpClient(convexUrl);
-    let convexResult: { success: boolean; inviteId: string; token: string };
+    let convexResult: { success: boolean; inviteId: string; token: string; email: string; roleName: any };
     try {
       convexResult = await convex.mutation(
         api.modules.platform.rbac.invitePlatformUser,
