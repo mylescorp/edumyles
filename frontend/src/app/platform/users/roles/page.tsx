@@ -17,13 +17,6 @@ import { Copy, Plus, Shield } from "lucide-react";
 export default function PlatformRolesPage() {
   const { isLoading, sessionToken } = useAuth();
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
-  
-  console.log("PlatformRolesPage - sessionToken:", {
-    sessionToken: sessionToken ? "present" : "missing",
-    sessionTokenLength: sessionToken?.length,
-    isLoading
-  });
-
   const roles = usePlatformQuery(
     api.modules.platform.rbac.getRoles,
     sessionToken ? { sessionToken, includeSystem: true, includeInactive: true } : "skip",
