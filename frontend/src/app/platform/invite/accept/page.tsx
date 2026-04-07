@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/convex/_generated/api";
-import { useConvexMutation } from "../hooks/useSSRSafeConvex";
+import { useConvexMutation } from "@/hooks/useSSRSafeConvex";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
