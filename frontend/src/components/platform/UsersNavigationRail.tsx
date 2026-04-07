@@ -195,7 +195,7 @@ export function UsersNavigationRail({ sessionToken, className }: UsersNavigation
               </div>
             </div>
           )}
-    </CardContent>
+      </CardContent>
     </Card>
   );
 }
