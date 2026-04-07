@@ -46,7 +46,7 @@ export function BulkInviteUpload() {
     const invites: ParsedInvite[] = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
+      const values = lines[i]?.split(',').map(v => v.trim()) || [];
       const invite: ParsedInvite = {
         email: "",
         role: "",
