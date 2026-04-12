@@ -312,6 +312,28 @@ function dedupePermissions(permissions: string[]) {
   return [...new Set(permissions.filter(Boolean))].sort();
 }
 
+function buildSyntheticMasterAdminPlatformUser(userId: string) {
+  return {
+    _id: undefined,
+    userId,
+    role: "master_admin",
+    department: "Platform",
+    addedPermissions: [],
+    removedPermissions: [],
+    scopeCountries: [],
+    scopeTenantIds: [],
+    scopePlans: [],
+    status: "active",
+    accessExpiresAt: undefined,
+    invitedBy: undefined,
+    acceptedAt: undefined,
+    lastLogin: undefined,
+    notes: undefined,
+    createdAt: 0,
+    updatedAt: 0,
+  };
+}
+
 async function getSessionIdentity(ctx: any, sessionToken?: string) {
   if (!sessionToken) return null;
 
@@ -323,16 +345,33 @@ async function getSessionIdentity(ctx: any, sessionToken?: string) {
   if (!session) throw new Error("UNAUTHENTICATED: Session not found");
   if (session.expiresAt < Date.now()) throw new Error("UNAUTHENTICATED: Session expired");
 
-  const userRow = await ctx.db
-    .query("users")
-    .withIndex("by_user_id", (q: any) => q.eq("eduMylesUserId", session.userId))
-    .first();
+  const [userByEduMylesId, userByWorkosUserId, platformUser] = await Promise.all([
+    ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q: any) => q.eq("eduMylesUserId", session.userId))
+      .first(),
+    ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q: any) => q.eq("workosUserId", session.userId))
+      .first(),
+    ctx.db
+      .query("platform_users")
+      .withIndex("by_userId", (q: any) => q.eq("userId", session.userId))
+      .first(),
+  ]);
+
+  const userRow = userByEduMylesId ?? userByWorkosUserId;
 
   const masterAdminWorkosUserId = process.env.MASTER_ADMIN_WORKOS_USER_ID?.trim();
   const masterAdminEmail = process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase();
+  const sessionEmail = session.email?.trim().toLowerCase();
+  const userEmail = userRow?.email?.trim().toLowerCase();
   const isConfiguredMasterAdmin =
-    Boolean(masterAdminWorkosUserId && userRow?.workosUserId === masterAdminWorkosUserId) ||
-    Boolean(masterAdminEmail && session.email?.toLowerCase() === masterAdminEmail);
+    Boolean(
+      masterAdminWorkosUserId &&
+      [session.userId, userRow?.workosUserId, platformUser?.userId].some((candidate) => candidate === masterAdminWorkosUserId)
+    ) ||
+    Boolean(masterAdminEmail && [sessionEmail, userEmail].some((candidate) => candidate === masterAdminEmail));
 
   return {
     userId: userRow?.workosUserId ?? session.userId,
@@ -461,26 +500,10 @@ export async function requirePermission(ctx: any, permission: string, sessionTok
   if (!identity) throw new Error("Unauthenticated");
 
   let platformUser = await getPlatformUserBySubject(ctx, identity.userId);
-  if (!platformUser && identity.sessionRole === "master_admin") {
-    platformUser = {
-      _id: undefined,
-      userId: identity.userId,
-      role: "master_admin",
-      department: "Platform",
-      addedPermissions: [],
-      removedPermissions: [],
-      scopeCountries: [],
-      scopeTenantIds: [],
-      scopePlans: [],
-      status: "active",
-      accessExpiresAt: undefined,
-      invitedBy: undefined,
-      acceptedAt: undefined,
-      lastLogin: undefined,
-      notes: undefined,
-      createdAt: 0,
-      updatedAt: 0,
-    };
+  if (identity.sessionRole === "master_admin") {
+    platformUser = platformUser
+      ? { ...platformUser, role: "master_admin" }
+      : buildSyntheticMasterAdminPlatformUser(identity.userId);
   }
 
   if (!platformUser) throw new Error("UNAUTHORIZED: Platform access denied");
@@ -489,7 +512,10 @@ export async function requirePermission(ctx: any, permission: string, sessionTok
     throw new Error("FORBIDDEN: Platform staff access has expired");
   }
 
-  const permissions = platformUser.role === "master_admin" ? ["*"] : await getUserPermissions(ctx, identity.userId);
+  const permissions =
+    identity.sessionRole === "master_admin" || platformUser.role === "master_admin"
+      ? ["*"]
+      : await getUserPermissions(ctx, identity.userId);
   if (!hasPermission(permissions, permission)) {
     throw new Error(`Permission denied: requires ${permission}`);
   }
@@ -1344,32 +1370,19 @@ export const getMyPermissions = query({
     if (!identity) return { permissions: [], platformUser: null };
 
     let platformUser = await getPlatformUserBySubject(ctx, identity.userId);
-    if (!platformUser && identity.sessionRole === "master_admin") {
-      platformUser = {
-        _id: undefined,
-        userId: identity.userId,
-        role: "master_admin",
-        department: "Platform",
-        addedPermissions: [],
-        removedPermissions: [],
-        scopeCountries: [],
-        scopeTenantIds: [],
-        scopePlans: [],
-        status: "active",
-        accessExpiresAt: undefined,
-        invitedBy: undefined,
-        acceptedAt: undefined,
-        lastLogin: undefined,
-        notes: undefined,
-        createdAt: 0,
-        updatedAt: 0,
-      };
+    if (identity.sessionRole === "master_admin") {
+      platformUser = platformUser
+        ? { ...platformUser, role: "master_admin" }
+        : buildSyntheticMasterAdminPlatformUser(identity.userId);
     }
 
     if (!platformUser) return { permissions: [], platformUser: null };
 
     return {
-      permissions: platformUser.role === "master_admin" ? ["*"] : await getUserPermissions(ctx, identity.userId),
+      permissions:
+        identity.sessionRole === "master_admin" || platformUser.role === "master_admin"
+          ? ["*"]
+          : await getUserPermissions(ctx, identity.userId),
       platformUser: {
         ...platformUser,
         id: platformUser._id ? String(platformUser._id) : platformUser.userId,
@@ -1420,5 +1433,106 @@ export const seedSystemRoles = internalMutation({
     }
 
     return { created };
+  },
+});
+
+export const syncConfiguredMasterAdminAccess = internalMutation({
+  args: {
+    workosUserId: v.optional(v.string()),
+    email: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const masterAdminWorkosUserId = args.workosUserId?.trim() || process.env.MASTER_ADMIN_WORKOS_USER_ID?.trim();
+    const masterAdminEmail = args.email?.trim().toLowerCase() || process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase();
+
+    if (!masterAdminWorkosUserId && !masterAdminEmail) {
+      throw new Error("MASTER_ADMIN_EMAIL or MASTER_ADMIN_WORKOS_USER_ID must be configured");
+    }
+
+    const userByWorkosId = masterAdminWorkosUserId
+      ? await ctx.db
+          .query("users")
+          .withIndex("by_workos_user", (q: any) => q.eq("workosUserId", masterAdminWorkosUserId))
+          .first()
+      : null;
+
+    const userByEmail = !userByWorkosId && masterAdminEmail
+      ? await ctx.db
+          .query("users")
+          .withIndex("by_email", (q: any) => q.eq("email", masterAdminEmail))
+          .first()
+      : null;
+
+    const user = userByWorkosId ?? userByEmail;
+    if (!user) {
+      throw new Error("Configured master admin user was not found in users");
+    }
+
+    const workosUserId = user.workosUserId || masterAdminWorkosUserId;
+    if (!workosUserId) {
+      throw new Error("Configured master admin user has no WorkOS user id");
+    }
+
+    const now = Date.now();
+    const existingPlatformUser = await ctx.db
+      .query("platform_users")
+      .withIndex("by_userId", (q: any) => q.eq("userId", workosUserId))
+      .unique();
+
+    if (existingPlatformUser) {
+      await ctx.db.patch(existingPlatformUser._id, {
+        role: "master_admin",
+        status: "active",
+        addedPermissions: [],
+        removedPermissions: [],
+        accessExpiresAt: undefined,
+        acceptedAt: existingPlatformUser.acceptedAt ?? now,
+        updatedAt: now,
+      });
+    } else {
+      await ctx.db.insert("platform_users", {
+        userId: workosUserId,
+        role: "master_admin",
+        department: "Platform",
+        addedPermissions: [],
+        removedPermissions: [],
+        scopeCountries: [],
+        scopeTenantIds: [],
+        scopePlans: [],
+        status: "active",
+        accessExpiresAt: undefined,
+        invitedBy: workosUserId,
+        acceptedAt: now,
+        lastLogin: now,
+        notes: "Auto-synced from configured master admin environment variables.",
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    await ctx.db.patch(user._id, {
+      role: "master_admin",
+      permissions: ["*"],
+      isActive: true,
+    });
+
+    const activeSessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_userId", (q: any) => q.eq("userId", workosUserId))
+      .collect();
+
+    for (const session of activeSessions) {
+      await ctx.db.patch(session._id, {
+        role: "master_admin",
+        isActive: true,
+      });
+    }
+
+    return {
+      workosUserId,
+      email: user.email,
+      platformUserUpserted: true,
+      sessionsUpdated: activeSessions.length,
+    };
   },
 });
