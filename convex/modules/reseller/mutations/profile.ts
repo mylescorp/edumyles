@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../../_generated/server";
 import { requireResellerContext, requireAffiliateContext, requireTier } from "../../../helpers/resellerGuard";
-import { internalLogAction } from "../../../helpers/auditLog";
+import { logAction } from "../../../helpers/auditLog";
 
 export const getMyProfile = query({
   args: {},
@@ -65,14 +65,14 @@ export const updateProfile = mutation({
     const before = { ...reseller.reseller };
     const after = { ...reseller.reseller, ...updates };
 
-    await ctx.db.patch(reseller.resellerId, updates);
+    await ctx.db.patch(reseller.reseller._id, updates);
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.profile_updated",
+      action: "user.updated" as any,
       entityType: "reseller",
       entityId: reseller.resellerId,
       before,
@@ -94,17 +94,17 @@ export const uploadVerificationDocument = mutation({
     const currentDocuments = reseller.reseller.verificationDocuments || [];
     const updatedDocuments = [...currentDocuments, args.documentUrl];
 
-    await ctx.db.patch(reseller.resellerId, {
+    await ctx.db.patch(reseller.reseller._id, {
       verificationDocuments: updatedDocuments,
       updatedAt: Date.now(),
     });
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.document_uploaded",
+      action: "file.uploaded" as any,
       entityType: "reseller",
       entityId: reseller.resellerId,
       after: { documentUrl: args.documentUrl, documentType: args.documentType },
@@ -129,11 +129,11 @@ export const requestTierUpgrade = mutation({
     }
 
     // Log the tier upgrade request
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.tier_upgrade_requested",
+      action: "user.updated" as any,
       entityType: "reseller",
       entityId: reseller.resellerId,
       after: {
@@ -167,22 +167,22 @@ export const getStats = query({
     // Get additional stats
     const schools = await ctx.db
       .query("resellerSchools")
-      .withIndex("by_reseller", q => q.eq("resellerId", reseller._id))
+      .withIndex("by_reseller", q => q.eq("resellerId", reseller.resellerId))
       .collect();
 
     const leads = await ctx.db
       .query("resellerLeads")
-      .withIndex("by_reseller", q => q.eq("resellerId", reseller._id))
+      .withIndex("by_reseller", q => q.eq("resellerId", reseller.resellerId))
       .collect();
 
     const commissions = await ctx.db
       .query("resellerCommissions")
-      .withIndex("by_reseller", q => q.eq("resellerId", reseller._id))
+      .withIndex("by_reseller", q => q.eq("resellerId", reseller.resellerId))
       .collect();
 
     const payouts = await ctx.db
       .query("resellerPayouts")
-      .withIndex("by_reseller", q => q.eq("resellerId", reseller._id))
+      .withIndex("by_reseller", q => q.eq("resellerId", reseller.resellerId))
       .collect();
 
     return {

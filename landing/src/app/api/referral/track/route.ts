@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../../../../../convex/_generated/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,19 +15,23 @@ export async function POST(request: NextRequest) {
     const forwarded = request.headers.get("x-forwarded-for");
     const realIp = request.headers.get("x-real-ip");
     const ipAddress = forwarded 
-      ? forwarded.split(",")[0].trim() 
+      ? (forwarded.split(",")[0]?.trim() || "unknown")
       : realIp || "unknown";
 
-    // For now, just return success without backend integration
-    // TODO: Integrate with actual backend when modules are fixed
-    console.log("Referral tracked:", {
+    const convexUrl =
+      process.env.CONVEX_URL ||
+      process.env.NEXT_PUBLIC_CONVEX_URL ||
+      "https://insightful-alpaca-351.convex.cloud";
+    const convex = new ConvexHttpClient(convexUrl);
+
+    await convex.mutation(api.publicApplications.trackPublicReferralClick, {
       referralCode,
       source: source || "direct",
+      campaign: body.campaign || undefined,
       landingPage: landingPage || "/",
       userAgent: userAgent || "unknown",
-      referrer: referrer || null,
+      referrer: referrer || undefined,
       ipAddress,
-      timestamp: new Date().toISOString(),
     });
 
     return NextResponse.json({ success: true });

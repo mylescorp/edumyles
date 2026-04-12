@@ -58,7 +58,7 @@ export async function requireResellerContext(
   return {
     userId: session.userId,
     email: session.email || "",
-    resellerId: String(reseller._id),
+    resellerId: reseller.resellerId,
     businessName: reseller.businessName,
     status: reseller.status,
     tier: reseller.tier,
@@ -109,7 +109,7 @@ export async function requireAffiliateContext(
   return {
     userId: session.userId,
     email: session.email || "",
-    resellerId: String(reseller._id),
+    resellerId: reseller.resellerId,
     businessName: reseller.businessName,
     status: reseller.status,
     tier: reseller.tier,

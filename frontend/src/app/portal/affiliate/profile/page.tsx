@@ -1,479 +1,102 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  User,
-  Mail,
-  Phone,
-  Globe,
-  MapPin,
-  Calendar,
-  Edit,
-  Save,
-  X,
-  Camera,
-  Shield,
-  CreditCard,
-  Settings,
-  CheckCircle,
-  AlertCircle,
-  Upload,
-  FileText,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Award, Globe, Mail, MapPin, Phone, Save } from "lucide-react";
 
-export default function AffiliateProfile() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
+type Profile = {
+  businessName: string;
+  description: string;
+  website?: string;
+  tier: string;
+  status: string;
+  contactInfo: { email: string; phone: string; address: string; country: string };
+};
 
-  // Mock data - in real app this would come from Convex
-  const profileData = {
-    firstName: "John",
-    lastName: "Affiliate",
-    email: "john.affiliate@example.com",
-    phone: "+254 743 993 715",
-    address: "123 Nairobi Street, Nairobi, Kenya",
-    country: "Kenya",
-    website: "https://johnaffiliate.example.com",
-    socialMedia: {
-      facebook: "https://facebook.com/johnaffiliate",
-      twitter: "@johnaffiliate",
-      linkedin: "https://linkedin.com/in/johnaffiliate",
-    },
-    joinedDate: "2023-06-15",
-    status: "active",
-    tier: "standard",
-    totalEarnings: 28450,
-    referralCode: "JOHN123",
-    totalReferrals: 156,
-    conversionRate: 12.5,
-  };
+export default function AffiliateProfilePage() {
+  const profile = useQuery(api.modules.reseller.mutations.profile.getMyProfile, {}) as Profile | undefined;
+  const updateProfile = useMutation(api.modules.reseller.mutations.profile.updateProfile);
+  const [form, setForm] = useState({
+    businessName: "",
+    description: "",
+    website: "",
+    email: "",
+    phone: "",
+    address: "",
+    country: "",
+  });
+  const [saving, setSaving] = useState(false);
 
-  const [formData, setFormData] = useState(profileData);
+  useEffect(() => {
+    if (!profile) return;
+    setForm({
+      businessName: profile.businessName,
+      description: profile.description,
+      website: profile.website ?? "",
+      email: profile.contactInfo.email,
+      phone: profile.contactInfo.phone,
+      address: profile.contactInfo.address,
+      country: profile.contactInfo.country,
+    });
+  }, [profile]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  if (!profile) return <LoadingSkeleton variant="page" />;
 
-  const handleSocialMediaChange = (platform: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      socialMedia: {
-        ...prev.socialMedia,
-        [platform]: value,
-      },
-    }));
-  };
-
-  const handleSave = () => {
-    // In real app, save to Convex
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setFormData(profileData);
-    setIsEditing(false);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "suspended":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  async function save() {
+    setSaving(true);
+    try {
+      await updateProfile({
+        businessName: form.businessName,
+        description: form.description,
+        website: form.website,
+        contactInfo: {
+          email: form.email,
+          phone: form.phone,
+          address: form.address,
+          country: form.country,
+        },
+      });
+    } finally {
+      setSaving(false);
     }
-  };
-
-  const getTierColor = (tier: string) => {
-    switch (tier) {
-      case "bronze":
-        return "bg-orange-100 text-orange-800";
-      case "silver":
-        return "bg-gray-100 text-gray-800";
-      case "gold":
-        return "bg-yellow-100 text-yellow-800";
-      case "platinum":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-        <p className="text-gray-600">Manage your affiliate profile and account settings</p>
+      <PageHeader title="Affiliate Profile" description="Manage your live affiliate profile." badge={<Badge variant={profile.status === "active" ? "default" : "outline"}>{profile.status}</Badge>} />
+      <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+        <Card>
+          <CardHeader><CardTitle>Profile Details</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <Input value={form.businessName} onChange={(e) => setForm((f) => ({ ...f, businessName: e.target.value }))} />
+            <Textarea rows={4} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+            <Input value={form.website} onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))} placeholder="Website" />
+            <Input value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="Email" />
+            <Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="Phone" />
+            <Input value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder="Address" />
+            <Input value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} placeholder="Country" />
+            <Button onClick={save} disabled={saving}><Save className="mr-2 h-4 w-4" />{saving ? "Saving..." : "Save Profile"}</Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Account Overview</CardTitle></CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <p><Award className="mr-2 inline h-4 w-4 text-amber-500" />{profile.tier} tier</p>
+            <p><Mail className="mr-2 inline h-4 w-4" />{profile.contactInfo.email}</p>
+            <p><Phone className="mr-2 inline h-4 w-4" />{profile.contactInfo.phone}</p>
+            <p><MapPin className="mr-2 inline h-4 w-4" />{profile.contactInfo.address}</p>
+            <p><Globe className="mr-2 inline h-4 w-4" />{profile.contactInfo.country}</p>
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: "profile", label: "Profile", icon: User },
-            { id: "verification", label: "Verification", icon: Shield },
-            { id: "billing", label: "Billing", icon: CreditCard },
-            { id: "settings", label: "Settings", icon: Settings },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                py-2 px-1 border-b-2 font-medium text-sm flex items-center
-                ${activeTab === tab.id
-                  ? "border-[#0F4C2A] text-[#0F4C2A]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }
-              `}
-            >
-              <tab.icon className="h-4 w-4 mr-2" />
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Profile Tab */}
-      {activeTab === "profile" && (
-        <div className="space-y-6">
-          {/* Profile Header */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <div className="w-20 h-20 bg-[#0F4C2A] rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                    {profileData.firstName.charAt(0)}{profileData.lastName.charAt(0)}
-                  </div>
-                  {isEditing && (
-                    <button className="absolute bottom-0 right-0 p-1 bg-[#0F4C2A] text-white rounded-full hover:bg-[#061A12]">
-                      <Camera className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    {profileData.firstName} {profileData.lastName}
-                  </h2>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTierColor(profileData.tier)}`}>
-                      {profileData.tier.charAt(0).toUpperCase() + profileData.tier.slice(1)} Tier
-                    </span>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(profileData.status)}`}>
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      {profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Member since {new Date(profileData.joinedDate).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-              >
-                {isEditing ? (
-                  <>
-                    <X className="h-4 w-4 mr-2" />
-                    Cancel
-                  </>
-                ) : (
-                  <>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{profileData.totalReferrals}</p>
-                <p className="text-sm text-gray-600">Total Referrals</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">KES {profileData.totalEarnings.toLocaleString()}</p>
-                <p className="text-sm text-gray-600">Total Earnings</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{profileData.conversionRate}%</p>
-                <p className="text-sm text-gray-600">Conversion Rate</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{profileData.referralCode}</p>
-                <p className="text-sm text-gray-600">Referral Code</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Profile Form */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                <input
-                  type="text"
-                  value={formData.firstName}
-                  onChange={(e) => handleInputChange("firstName", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                <input
-                  type="text"
-                  value={formData.lastName}
-                  onChange={(e) => handleInputChange("lastName", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange("address", e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <select
-                    value={formData.country}
-                    onChange={(e) => handleInputChange("country", e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                  >
-                    <option value="Kenya">Kenya</option>
-                    <option value="Uganda">Uganda</option>
-                    <option value="Tanzania">Tanzania</option>
-                    <option value="Rwanda">Rwanda</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Website (Optional)</label>
-                <input
-                  type="url"
-                  value={formData.website}
-                  onChange={(e) => handleInputChange("website", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-            </div>
-
-            {/* Social Media */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <h4 className="font-medium text-gray-900 mb-4">Social Media Profiles</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
-                  <input
-                    type="url"
-                    value={formData.socialMedia.facebook}
-                    onChange={(e) => handleSocialMediaChange("facebook", e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Twitter</label>
-                  <input
-                    type="text"
-                    value={formData.socialMedia.twitter}
-                    onChange={(e) => handleSocialMediaChange("twitter", e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
-                  <input
-                    type="url"
-                    value={formData.socialMedia.linkedin}
-                    onChange={(e) => handleSocialMediaChange("linkedin", e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {isEditing && (
-              <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <button
-                  onClick={handleCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="flex items-center px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12]"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Verification Tab */}
-      {activeTab === "verification" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Verification Status</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">Email Verification</p>
-                    <p className="text-sm text-gray-500">Verified on June 15, 2023</p>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Verified</span>
-              </div>
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">Phone Verification</p>
-                    <p className="text-sm text-gray-500">Verified on June 15, 2023</p>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Verified</span>
-              </div>
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <AlertCircle className="h-5 w-5 text-yellow-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">Identity Verification</p>
-                    <p className="text-sm text-gray-500">Upload government-issued ID</p>
-                  </div>
-                </div>
-                <button className="px-3 py-1 bg-[#0F4C2A] text-white text-xs font-medium rounded hover:bg-[#061A12]">
-                  Upload
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tier Information</h3>
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h4 className="font-medium text-orange-900">Current Tier: Standard</h4>
-                  <p className="text-sm text-orange-700">15% commission rate with standard benefits</p>
-                </div>
-                <button className="px-3 py-1 bg-orange-600 text-white text-xs font-medium rounded hover:bg-orange-700">
-                  Upgrade to Gold
-                </button>
-              </div>
-              <div className="space-y-2 text-sm text-orange-800">
-                <p>Benefits:</p>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>15% commission on all referrals</li>
-                  <li>30-day cookie tracking</li>
-                  <li>Basic marketing materials</li>
-                  <li>Monthly payout reports</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Billing Tab */}
-      {activeTab === "billing" && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Billing Information</h3>
-          <div className="text-center py-8">
-            <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Billing and payment features coming soon</p>
-          </div>
-        </div>
-      )}
-
-      {/* Settings Tab */}
-      {activeTab === "settings" && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b border-gray-200">
-              <div>
-                <p className="font-medium text-gray-900">Email Notifications</p>
-                <p className="text-sm text-gray-500">Receive updates about your referrals and earnings</p>
-              </div>
-              <button className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer bg-[#0F4C2A] transition-colors">
-                <span className="translate-x-5 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform"></span>
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-gray-200">
-              <div>
-                <p className="font-medium text-gray-900">Marketing Emails</p>
-                <p className="text-sm text-gray-500">Receive promotional emails from EduMyles</p>
-              </div>
-              <button className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer bg-gray-200 transition-colors">
-                <span className="translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform"></span>
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-                <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
-              </div>
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-                Enable
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

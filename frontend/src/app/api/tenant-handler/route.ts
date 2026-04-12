@@ -47,7 +47,8 @@ export async function GET(req: NextRequest) {
   }
 
   // First, check if this is a reseller subdomain
-  const reseller = await convex.query(api.modules.reseller.queries.getResellerBySubdomain, { subdomain });
+  const resellerQuery = (api as any)?.modules?.reseller?.getResellerBySubdomain;
+  const reseller = resellerQuery ? await convex.query(resellerQuery, { subdomain }) : null;
   
   if (reseller && reseller.status === "active") {
     // This is a reseller white-label subdomain

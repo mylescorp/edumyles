@@ -109,7 +109,7 @@ export default function ResellerApplicationSuccessPage() {
                 Prepare Your Marketing Strategy
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Think about how you'll reach school administrators and decision-makers in your target region.
+                Think about how you&apos;ll reach school administrators and decision-makers in your target region.
               </p>
             </div>
             

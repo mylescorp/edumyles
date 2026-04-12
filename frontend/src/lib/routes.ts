@@ -24,6 +24,7 @@ import {
   TrendingUp,
   Timer,
   History,
+  Activity,
   Webhook,
   Key,
   Palette,
@@ -33,6 +34,8 @@ import {
   Kanban,
   ClipboardCheck,
   Sparkles,
+  Store,
+  Code2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -59,6 +62,8 @@ export const platformNavItems: NavItem[] = [
   { label: "Roles", href: "/platform/users/roles", icon: Shield, section: "Users & Staff", permission: "platform_users.view" },
   { label: "Impersonation", href: "/platform/impersonation", icon: Eye, section: "Users & Staff", permission: "tenants.impersonate" },
   { label: "Staff Performance", href: "/platform/staff-performance", icon: BarChart3, section: "Users & Staff", permission: "staff_performance.view" },
+  { label: "Sessions", href: "/platform/users/sessions", icon: Clock, section: "Users & Staff", permission: "platform_users.view_sessions" },
+  { label: "Activity Logs", href: "/platform/users/activity", icon: Activity, section: "Users & Staff", permission: "platform_users.view_activity" },
 
   { label: "Marketplace Overview", href: "/platform/marketplace", icon: ShoppingCart, section: "Marketplace", permission: "marketplace.view" },
   { label: "Modules", href: "/platform/marketplace/module", icon: Package, section: "Marketplace", permission: "marketplace.view" },
@@ -68,6 +73,18 @@ export const platformNavItems: NavItem[] = [
   { label: "Reviews", href: "/platform/marketplace/reviews", icon: ClipboardCheck, section: "Marketplace", permission: "marketplace.manage_reviews" },
   { label: "Pilot Grants", href: "/platform/marketplace/pilot-grants", icon: Sparkles, section: "Marketplace", permission: "marketplace.manage_pilot_grants" },
   { label: "Publishers", href: "/platform/marketplace/publishers", icon: Building2, section: "Marketplace", permission: "publishers.view" },
+
+  { label: "Reseller Management", href: "/admin/resellers", icon: Store, section: "Resellers", permission: "marketplace.view" },
+  { label: "Reseller Analytics", href: "/admin/resellers/analytics", icon: BarChart3, section: "Resellers", permission: "analytics.view_platform" },
+  { label: "Reseller Applications", href: "/admin/resellers/applications", icon: ClipboardCheck, section: "Resellers", permission: "marketplace.review_modules" },
+  { label: "Reseller Settings", href: "/admin/resellers/settings", icon: Settings, section: "Resellers", permission: "settings.view" },
+  { label: "Affiliate Dashboard", href: "/portal/affiliate", icon: Users, section: "Resellers", permission: "marketplace.view" },
+  { label: "Affiliate Referrals", href: "/portal/affiliate/referrals", icon: TrendingUp, section: "Resellers", permission: "marketplace.view" },
+  { label: "Affiliate Analytics", href: "/portal/affiliate/analytics", icon: BarChart3, section: "Resellers", permission: "analytics.view_platform" },
+  { label: "Affiliate Marketing", href: "/portal/affiliate/marketing", icon: MessageSquare, section: "Resellers", permission: "marketplace.view" },
+  { label: "Affiliate Settings", href: "/portal/affiliate/settings", icon: Settings, section: "Resellers", permission: "settings.view" },
+
+  { label: "Developer Portal", href: "/platform/marketplace/developer", icon: Code2, section: "Developers", permission: "marketplace.view" },
 
   { label: "PM", href: "/platform/pm", icon: Kanban, section: "Project Management", permission: "pm.view" },
 
@@ -172,6 +189,37 @@ export const partnerNavItems: NavItem[] = [
   { label: "Profile", href: "/portal/partner/profile", icon: Building2 },
 ];
 
+export const developerNavItems: NavItem[] = [
+  { label: "Dashboard", href: "/portal/developer", icon: LayoutDashboard },
+  { label: "My Modules", href: "/portal/developer/modules", icon: Package },
+  { label: "Analytics", href: "/portal/developer/analytics", icon: BarChart3 },
+  { label: "Applications", href: "/portal/developer/applications", icon: FileText },
+  { label: "Profile", href: "/portal/developer/profile", icon: UserCog },
+  { label: "Support", href: "/portal/developer/support", icon: Headphones },
+  { label: "Settings", href: "/portal/developer/settings", icon: Settings },
+];
+
+export const affiliateNavItems: NavItem[] = [
+  { label: "Dashboard", href: "/portal/affiliate", icon: LayoutDashboard },
+  { label: "Referrals", href: "/portal/affiliate/referrals", icon: Users },
+  { label: "Analytics", href: "/portal/affiliate/analytics", icon: BarChart3 },
+  { label: "Marketing", href: "/portal/affiliate/marketing", icon: MessageSquare },
+  { label: "Profile", href: "/portal/affiliate/profile", icon: UserCog },
+  { label: "Support", href: "/portal/affiliate/support", icon: Headphones },
+  { label: "Settings", href: "/portal/affiliate/settings", icon: Settings },
+];
+
+export const resellerNavItems: NavItem[] = [
+  { label: "Dashboard", href: "/portal/reseller", icon: LayoutDashboard },
+  { label: "Products", href: "/portal/reseller/products", icon: Package },
+  { label: "Customers", href: "/portal/reseller/customers", icon: Users },
+  { label: "Analytics", href: "/portal/reseller/analytics", icon: BarChart3 },
+  { label: "Orders", href: "/portal/reseller/orders", icon: FileText },
+  { label: "Profile", href: "/portal/reseller/profile", icon: UserCog },
+  { label: "Support", href: "/portal/reseller/support", icon: Headphones },
+  { label: "Settings", href: "/portal/reseller/settings", icon: Settings },
+];
+
 export function getNavItemsForRole(role: string): NavItem[] {
   const normalizedRole = role === "platform_admin" ? "super_admin" : role;
   switch (normalizedRole) {
@@ -195,6 +243,12 @@ export function getNavItemsForRole(role: string): NavItem[] {
       return alumniNavItems;
     case "partner":
       return partnerNavItems;
+    case "developer":
+      return developerNavItems;
+    case "affiliate":
+      return affiliateNavItems;
+    case "reseller":
+      return resellerNavItems;
     default:
       return adminNavItems;
   }
@@ -223,6 +277,12 @@ export function getRoleDashboard(role: string): string {
       return "/portal/alumni";
     case "partner":
       return "/portal/partner";
+    case "developer":
+      return "/portal/developer";
+    case "affiliate":
+      return "/portal/affiliate";
+    case "reseller":
+      return "/portal/reseller";
     default:
       return "/admin";
   }
@@ -250,6 +310,9 @@ export function getRoleLabel(role: string): string {
     board_member: "Board Member",
     alumni: "Alumni",
     partner: "Partner",
+    developer: "Developer",
+    affiliate: "Affiliate",
+    reseller: "Reseller",
   };
   const normalizedRole = role === "platform_admin" ? "super_admin" : role;
   return labels[normalizedRole] ?? normalizedRole;

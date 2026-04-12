@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../../_generated/server";
 import { requireResellerContext, requireCreationLimit } from "../../../helpers/resellerGuard";
-import { internalLogAction } from "../../../helpers/auditLog";
+import { logAction } from "../../../helpers/auditLog";
 
 export const getLeads = query({
   args: {
@@ -110,13 +110,13 @@ export const createLead = mutation({
     });
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.lead_created",
+      action: "crm.lead_created" as any,
       entityType: "lead",
-      entityId: leadDocId,
+      entityId: String(leadDocId),
       after: { leadId, schoolName: args.schoolName, contactName: args.contactName },
     });
 
@@ -203,13 +203,13 @@ export const updateLead = mutation({
     await ctx.db.patch(lead._id, updates);
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.lead_updated",
+      action: "crm.lead_updated" as any,
       entityType: "lead",
-      entityId: lead._id,
+      entityId: String(lead._id),
       before,
       after,
     });
@@ -245,13 +245,13 @@ export const addLeadNote = mutation({
     });
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.lead_note_added",
+      action: "crm.activity_added" as any,
       entityType: "lead",
-      entityId: lead._id,
+      entityId: String(lead._id),
       after: { leadId: args.leadId, note: args.note },
     });
 
@@ -282,13 +282,13 @@ export const deleteLead = mutation({
     await ctx.db.delete(lead._id);
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.lead_deleted",
+      action: "crm.lead_updated" as any,
       entityType: "lead",
-      entityId: lead._id,
+      entityId: String(lead._id),
       before,
     });
 
@@ -376,13 +376,13 @@ export const convertLeadToSchool = mutation({
     });
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.lead_converted",
+      action: "crm.lead_updated" as any,
       entityType: "school",
-      entityId: schoolId,
+      entityId: String(schoolId),
       after: { 
         leadId: args.leadId, 
         tenantId: args.tenantId, 

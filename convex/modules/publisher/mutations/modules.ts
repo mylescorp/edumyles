@@ -1,11 +1,11 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../../_generated/server";
 import { requirePublisherContext, requireTier } from "../../../helpers/publisherGuard";
-import { internalLogAction } from "../../../helpers/auditLog";
+import { logAction } from "../../../helpers/auditLog";
 
 export const getMyModules = query({
   args: {
-    status: v.optional(v.union(v.literal("draft"), v.literal("submitted"), v.literal("approved"), v.literal("published"), v.literal("suspended"))),
+    status: v.optional(v.union(v.literal("draft"), v.literal("pending_review"), v.literal("changes_requested"), v.literal("published"), v.literal("suspended"), v.literal("deprecated"), v.literal("banned"))),
     page: v.optional(v.number()),
     pageSize: v.optional(v.number()),
   },
@@ -28,15 +28,47 @@ export const getMyModules = query({
       filteredModules = modules.filter(m => m.status === args.status);
     }
 
+    const moduleIds = filteredModules.map((module) => String(module._id));
+    const [stats, reviews] = await Promise.all([
+      moduleIds.length === 0
+        ? Promise.resolve([])
+        : ctx.db
+            .query("module_install_stats")
+            .collect()
+            .then((items) => items.filter((item) => moduleIds.includes(item.moduleId))),
+      moduleIds.length === 0
+        ? Promise.resolve([])
+        : ctx.db
+            .query("module_reviews")
+            .collect()
+            .then((items) => items.filter((item) => moduleIds.includes(item.moduleId))),
+    ]);
+
+    const enrichedModules = filteredModules.map((module) => {
+      const moduleId = String(module._id);
+      const stat = stats.find((item) => item.moduleId === moduleId);
+      const reviewCount = reviews.filter(
+        (review) => review.moduleId === moduleId && review.status === "approved"
+      ).length;
+      return {
+        ...module,
+        installs: stat?.totalInstalls ?? 0,
+        activeInstalls: stat?.activeInstalls ?? 0,
+        revenueKes: stat?.totalRevenueKes ?? 0,
+        averageRating: stat?.avgRating ?? 0,
+        reviewCount,
+      };
+    });
+
     // Apply pagination
-    const paginatedModules = filteredModules.slice(skip, skip + pageSize);
+    const paginatedModules = enrichedModules.slice(skip, skip + pageSize);
 
     return {
       modules: paginatedModules,
-      total: filteredModules.length,
+      total: enrichedModules.length,
       page,
       pageSize,
-      hasMore: skip + pageSize < filteredModules.length,
+      hasMore: skip + pageSize < enrichedModules.length,
     };
   },
 });
@@ -83,45 +115,26 @@ export const createModule = mutation({
       category: args.category,
       pricingModel: args.pricing.type,
       suggestedPriceKes: args.pricing.amount,
-      features: args.features,
-      requirements: args.requirements,
-      documentation: args.documentation,
-      screenshots: args.screenshots || [],
-      demoUrl: args.demoUrl,
+      featureList: args.features,
+      supportedRoles: args.requirements,
       supportEmail: args.supportEmail,
+      documentationUrl: args.documentation,
       status: "draft",
-      tier: "indie", // Default tier
-      downloads: 0,
-      rating: 0,
-      reviewCount: 0,
+      isFeatured: false,
+      compatibleModuleIds: [],
+      incompatibleModuleIds: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
 
-    // Get publisher record to update stats
-    const publisherRecord = await ctx.db
-      .query("publishers")
-      .withIndex("by_userId", q => q.eq("userId", publisher.userId))
-      .first();
-    
-    if (publisherRecord) {
-      await ctx.db.patch(publisherRecord._id, {
-        stats: {
-          ...publisherRecord.stats,
-          totalModules: publisherRecord.stats.totalModules + 1,
-        },
-        updatedAt: Date.now(),
-      });
-    }
-
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.module_created",
+      action: "marketplace.module_submitted" as any,
       entityType: "module",
-      entityId: moduleId,
+      entityId: String(moduleId),
       after: { moduleId: args.moduleId, name: args.name },
     });
 
@@ -167,10 +180,6 @@ export const updateModule = mutation({
     }
 
     // Check if module can be updated in current status
-    if (module.status === "published" && !publisher.publisher.settings.autoApproveUpdates) {
-      throw new Error("Cannot update published module. Submit a new version instead.");
-    }
-
     const updates: any = {
       updatedAt: Date.now(),
     };
@@ -182,20 +191,14 @@ export const updateModule = mutation({
       updates.pricingModel = args.pricing.type;
       updates.suggestedPriceKes = args.pricing.amount;
     }
-    if (args.features) updates.features = args.features;
-    if (args.requirements) updates.requirements = args.requirements;
-    if (args.documentation !== undefined) updates.documentation = args.documentation;
-    if (args.screenshots) updates.screenshots = args.screenshots;
-    if (args.demoUrl !== undefined) updates.demoUrl = args.demoUrl;
+    if (args.features) updates.featureList = args.features;
+    if (args.requirements) updates.supportedRoles = args.requirements;
+    if (args.documentation !== undefined) updates.documentationUrl = args.documentation;
     if (args.supportEmail) updates.supportEmail = args.supportEmail;
 
     // If module was published and auto-approve is enabled, keep it published
     // Otherwise, set back to draft for review
-    if (module.status === "published" && publisher.publisher.settings.autoApproveUpdates) {
-      updates.status = "published";
-    } else if (module.status === "published") {
-      updates.status = "draft";
-    }
+    if (module.status === "published") updates.status = "pending_review";
 
     const before = { ...module };
     const after = { ...module, ...updates };
@@ -203,13 +206,13 @@ export const updateModule = mutation({
     await ctx.db.patch(module._id, updates);
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.module_updated",
+      action: "marketplace.module_updated",
       entityType: "module",
-      entityId: module._id,
+      entityId: String(module._id),
       before,
       after,
     });
@@ -228,8 +231,8 @@ export const submitForReview = mutation({
 
     // Get the module
     const module = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_moduleId", q => q.eq("moduleId", args.moduleId))
+      .query("modules")
+      .withIndex("by_slug", q => q.eq("slug", args.moduleId))
       .unique();
 
     if (!module) {
@@ -247,18 +250,17 @@ export const submitForReview = mutation({
     }
 
     await ctx.db.patch(module._id, {
-      status: "submitted",
-      updatedAt: Date.now(),
+      status: "pending_review",
     });
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.module_submitted",
+      action: "marketplace.module_submitted",
       entityType: "module",
-      entityId: module._id,
+      entityId: String(module._id),
       after: { moduleId: args.moduleId, reviewNotes: args.reviewNotes },
     });
 
@@ -275,8 +277,8 @@ export const deleteModule = mutation({
 
     // Get the module
     const module = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_moduleId", q => q.eq("moduleId", args.moduleId))
+      .query("modules")
+      .withIndex("by_slug", q => q.eq("slug", args.moduleId))
       .unique();
 
     if (!module) {
@@ -289,7 +291,12 @@ export const deleteModule = mutation({
     }
 
     // Cannot delete published modules with active installs
-    if (module.status === "published" && module.downloads > 0) {
+    const installs = await ctx.db
+      .query("module_installs")
+      .withIndex("by_moduleId", q => q.eq("moduleId", String(module._id)))
+      .collect();
+
+    if (module.status === "published" && installs.length > 0) {
       throw new Error("Cannot delete published module with active installations");
     }
 
@@ -297,26 +304,14 @@ export const deleteModule = mutation({
 
     await ctx.db.delete(module._id);
 
-    // Update publisher stats
-    await ctx.db.patch(publisher.publisherId, {
-      stats: {
-        ...publisher.publisher.stats,
-        totalModules: Math.max(0, publisher.publisher.stats.totalModules - 1),
-        activeModules: module.status === "published" 
-          ? Math.max(0, publisher.publisher.stats.activeModules - 1)
-          : publisher.publisher.stats.activeModules,
-      },
-      updatedAt: Date.now(),
-    });
-
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.module_deleted",
+      action: "marketplace.listing_deleted" as any,
       entityType: "module",
-      entityId: module._id,
+      entityId: String(module._id),
       before,
     });
 

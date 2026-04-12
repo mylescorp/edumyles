@@ -11,29 +11,44 @@ export const processPublisherTierReviews = internalMutation({
     const tierUpdates = [];
 
     for (const publisher of publishers) {
+      const publisherModules = await ctx.db
+        .query("modules")
+        .withIndex("by_publisherId", (q: any) => q.eq("publisherId", String(publisher._id)))
+        .collect();
+      const publisherInstalls = publisherModules.length === 0
+        ? []
+        : await ctx.db
+            .query("module_installs")
+            .collect()
+            .then((items: any[]) =>
+              items.filter((install) => publisherModules.some((module: any) => String(module._id) === install.moduleId))
+            );
+
       // Check for automatic tier upgrades based on performance
       const currentTier = publisher.tier;
+      const totalModules = publisherModules.length;
+      const activeInstalls = publisherInstalls.filter((install: any) => install.status === "active").length;
       
       // Tier upgrade logic
-      if (currentTier === "indie" && publisher.stats.totalModules >= 5 && publisher.stats.activeInstalls >= 50) {
+      if (currentTier === "indie" && totalModules >= 5 && activeInstalls >= 50) {
         await ctx.db.patch(publisher._id, {
           tier: "verified",
           updatedAt: Date.now(),
         });
         tierUpdates.push({
           publisherId: publisher._id,
-          businessName: publisher.businessName,
+          businessName: publisher.companyName,
           oldTier: "indie",
           newTier: "verified",
         });
-      } else if (currentTier === "verified" && publisher.stats.totalModules >= 20 && publisher.stats.activeInstalls >= 200) {
+      } else if (currentTier === "verified" && totalModules >= 20 && activeInstalls >= 200) {
         await ctx.db.patch(publisher._id, {
           tier: "enterprise",
           updatedAt: Date.now(),
         });
         tierUpdates.push({
           publisherId: publisher._id,
-          businessName: publisher.businessName,
+          businessName: publisher.companyName,
           oldTier: "verified",
           newTier: "enterprise",
         });
@@ -63,8 +78,8 @@ export const generatePublisherRevenueReports = internalMutation({
     for (const publisher of publishers) {
       // Get modules for this publisher
       const modules = await ctx.db
-        .query("moduleRegistry")
-        .filter(q => q.eq(q.field("publisherId"), publisher._id))
+        .query("modules")
+        .withIndex("by_publisherId", (q: any) => q.eq("publisherId", String(publisher._id)))
         .collect();
 
       // Get installations for the month (simplified - would come from paymentTransactions)
@@ -73,7 +88,7 @@ export const generatePublisherRevenueReports = internalMutation({
 
       const reportData = {
         publisherId: publisher._id,
-        businessName: publisher.businessName,
+        businessName: publisher.companyName,
         period: {
           start: monthStart,
           end: monthEnd,
@@ -81,14 +96,17 @@ export const generatePublisherRevenueReports = internalMutation({
         },
         revenue: {
           monthly: monthlyRevenue,
-          total: publisher.stats.totalRevenue,
+          total: 0,
         },
         modules: {
           total: modules.length,
-          active: modules.filter(m => m.status === "published").length,
+          active: modules.filter((m: any) => m.status === "published").length,
           newInstalls: monthlyInstalls,
         },
-        stats: publisher.stats,
+        stats: {
+          tier: publisher.tier,
+          status: publisher.status,
+        },
       };
 
       reportsGenerated.push(reportData);
@@ -104,7 +122,7 @@ export const reviewPendingApplications = internalMutation({
   handler: async (ctx: any) => {
     const pendingApplications = await ctx.db
       .query("publisherApplications")
-      .withIndex("by_status", q => q.eq("status", "submitted"))
+      .withIndex("by_status", (q: any) => q.eq("status", "submitted"))
       .collect();
 
     const autoApproved = [];
@@ -123,39 +141,14 @@ export const reviewPendingApplications = internalMutation({
         await ctx.db.insert("publishers", {
           userId: application.applicantId,
           publisherId,
-          businessName: application.businessName,
-          businessType: application.businessType,
+          companyName: application.businessName,
+          email: application.applicantEmail,
           website: application.website,
-          description: application.businessDescription,
+          revenueSharePct: 70,
           tier: "indie", // Start at indie tier
-          status: "active",
-          verifiedAt: Date.now(),
-          verificationDocuments: [],
-          contactInfo: {
-            email: application.applicantEmail,
-            phone: application.contactPhone,
-            address: application.contactAddress,
-            country: application.country,
-          },
-          banking: {
-            bankName: "",
-            accountNumber: "",
-            accountName: "",
-            branchCode: "",
-          },
-          stats: {
-            totalModules: 0,
-            activeModules: 0,
-            totalRevenue: 0,
-            monthlyRevenue: 0,
-            totalInstalls: 0,
-            activeInstalls: 0,
-          },
-          settings: {
-            autoApproveUpdates: true,
-            emailNotifications: true,
-            supportLevel: "basic",
-          },
+          status: "approved",
+          taxId: undefined,
+          billingCountry: application.country,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         });
@@ -207,35 +200,29 @@ export const updatePublisherStats = internalMutation({
     for (const publisher of publishers) {
       // Get modules for this publisher
       const modules = await ctx.db
-        .query("moduleRegistry")
-        .filter(q => q.eq(q.field("publisherId"), publisher._id))
+        .query("modules")
+        .withIndex("by_publisherId", (q: any) => q.eq("publisherId", String(publisher._id)))
         .collect();
 
-      // Get installations (simplified)
-      const totalInstalls = 0; // TODO: Calculate from installation data
-      const activeInstalls = 0; // TODO: Calculate from active installation data
-
-      // Calculate revenue (simplified)
-      const totalRevenue = 0; // TODO: Calculate from payment transactions
-      const monthlyRevenue = 0; // TODO: Calculate from recent transactions
+      const installs = modules.length === 0
+        ? []
+        : await ctx.db
+            .query("module_installs")
+            .collect()
+            .then((items: any[]) =>
+              items.filter((install) => modules.some((module: any) => String(module._id) === install.moduleId))
+            );
 
       const updatedStats = {
         totalModules: modules.length,
-        activeModules: modules.filter(m => m.status === "published").length,
-        totalRevenue,
-        monthlyRevenue,
-        totalInstalls,
-        activeInstalls,
+        activeModules: modules.filter((m: any) => m.status === "published").length,
+        totalInstalls: installs.length,
+        activeInstalls: installs.filter((install: any) => install.status === "active").length,
       };
-
-      await ctx.db.patch(publisher._id, {
-        stats: updatedStats,
-        updatedAt: Date.now(),
-      });
 
       statsUpdated.push({
         publisherId: publisher._id,
-        businessName: publisher.businessName,
+        businessName: publisher.companyName,
         stats: updatedStats,
       });
     }

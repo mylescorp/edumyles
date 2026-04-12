@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../../_generated/server";
 import { requirePublisherContext, requireTier } from "../../../helpers/publisherGuard";
-import { internalLogAction } from "../../../helpers/auditLog";
+import { logAction } from "../../../helpers/auditLog";
 
 export const getMyProfile = query({
   args: {},
@@ -15,24 +15,11 @@ export const updateProfile = mutation({
   args: {
     businessName: v.optional(v.string()),
     website: v.optional(v.string()),
-    description: v.optional(v.string()),
-    contactInfo: v.optional(v.object({
-      email: v.string(),
-      phone: v.string(),
-      address: v.string(),
-      country: v.string(),
-    })),
-    banking: v.optional(v.object({
-      bankName: v.string(),
-      accountNumber: v.string(),
-      accountName: v.string(),
-      branchCode: v.optional(v.string()),
-    })),
-    settings: v.optional(v.object({
-      autoApproveUpdates: v.boolean(),
-      emailNotifications: v.boolean(),
-      supportLevel: v.union(v.literal("basic"), v.literal("standard"), v.literal("premium")),
-    })),
+    email: v.optional(v.string()),
+    taxId: v.optional(v.string()),
+    billingCountry: v.optional(v.string()),
+    webhookUrl: v.optional(v.string()),
+    bankDetails: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const publisher = await requirePublisherContext(ctx);
@@ -41,24 +28,25 @@ export const updateProfile = mutation({
       updatedAt: Date.now(),
     };
 
-    if (args.businessName) updates.businessName = args.businessName;
+    if (args.businessName) updates.companyName = args.businessName;
     if (args.website !== undefined) updates.website = args.website;
-    if (args.description) updates.description = args.description;
-    if (args.contactInfo) updates.contactInfo = args.contactInfo;
-    if (args.banking) updates.banking = args.banking;
-    if (args.settings) updates.settings = { ...publisher.publisher.settings, ...args.settings };
+    if (args.email) updates.email = args.email;
+    if (args.taxId !== undefined) updates.taxId = args.taxId;
+    if (args.billingCountry !== undefined) updates.billingCountry = args.billingCountry;
+    if (args.webhookUrl !== undefined) updates.webhookUrl = args.webhookUrl;
+    if (args.bankDetails !== undefined) updates.bankDetails = args.bankDetails;
 
     const before = { ...publisher.publisher };
     const after = { ...publisher.publisher, ...updates };
 
-    await ctx.db.patch(publisher.publisherId, updates);
+    await ctx.db.patch(publisher.publisher._id, updates);
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform", // Platform-level action
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.profile_updated",
+      action: "user.updated" as any,
       entityType: "publisher",
       entityId: publisher.publisherId,
       before,
@@ -77,20 +65,11 @@ export const uploadVerificationDocument = mutation({
   handler: async (ctx, args) => {
     const publisher = await requirePublisherContext(ctx);
 
-    const currentDocuments = publisher.publisher.verificationDocuments || [];
-    const updatedDocuments = [...currentDocuments, args.documentUrl];
-
-    await ctx.db.patch(publisher.publisherId, {
-      verificationDocuments: updatedDocuments,
-      updatedAt: Date.now(),
-    });
-
-    // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.document_uploaded",
+      action: "file.uploaded" as any,
       entityType: "publisher",
       entityId: publisher.publisherId,
       after: { documentUrl: args.documentUrl, documentType: args.documentType },
@@ -117,11 +96,11 @@ export const requestTierUpgrade = mutation({
     // Create a tier upgrade request (you might want to create a separate table for this)
     // For now, we'll just log the request
 
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.tier_upgrade_requested",
+      action: "role.updated" as any,
       entityType: "publisher",
       entityId: publisher.publisherId,
       after: {
@@ -140,7 +119,26 @@ export const getStats = query({
   handler: async (ctx) => {
     const publisher = await requirePublisherContext(ctx);
     
-    // Return publisher stats from the publisher document
-    return publisher.publisher.stats;
+    const modules = await ctx.db
+      .query("modules")
+      .withIndex("by_publisherId", (q) => q.eq("publisherId", publisher.publisherId))
+      .collect();
+
+    const installs = await ctx.db
+      .query("module_installs")
+      .collect();
+
+    const myModuleIds = new Set(modules.map((module) => String(module._id)));
+    const myInstalls = installs.filter((install) => myModuleIds.has(install.moduleId));
+
+    return {
+      totalModules: modules.length,
+      publishedModules: modules.filter((module) => module.status === "published").length,
+      totalInstalls: myInstalls.length,
+      activeInstalls: myInstalls.filter((install) => install.status === "active").length,
+      revenueSharePct: publisher.publisher.revenueSharePct,
+      status: publisher.publisher.status,
+      tier: publisher.publisher.tier,
+    };
   },
 });

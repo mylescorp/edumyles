@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../../_generated/server";
 import { requirePublisherContext } from "../../../helpers/publisherGuard";
-import { internalLogAction } from "../../../helpers/auditLog";
+import { logAction } from "../../../helpers/auditLog";
 
 export const getSupportTickets = query({
   args: {
@@ -16,11 +16,9 @@ export const getSupportTickets = query({
     const pageSize = args.pageSize || 25;
     const skip = (page - 1) * pageSize;
 
-    // Query support tickets for this publisher
-    // Note: You'll need to add a publisherId field to the tickets table
     const tickets = await ctx.db
-      .query("tickets")
-      .filter(q => q.eq(q.field("publisherId"), publisher.publisherId))
+      .query("publisher_support_tickets")
+      .withIndex("by_publisherId", q => q.eq("publisherId", publisher.publisherId))
       .collect();
 
     // Filter by status if provided
@@ -50,37 +48,50 @@ export const createSupportTicket = mutation({
       v.literal("technical"),
       v.literal("billing"),
       v.literal("account"),
-      v.literal("module_issue"),
+      v.literal("feature"),
       v.literal("other")
     ),
-    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    priority: v.union(v.literal("P3"), v.literal("P2"), v.literal("P1"), v.literal("P0")),
     attachments: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const publisher = await requirePublisherContext(ctx);
+    const priorityMap = {
+      P3: "low",
+      P2: "medium",
+      P1: "high",
+      P0: "critical",
+    } as const;
 
-    const ticketId = await ctx.db.insert("tickets", {
-      tenantId: "platform", // Platform-level tickets
-      title: args.title,
-      body: args.body,
-      category: args.category,
-      priority: args.priority,
+    const ticketId = await ctx.db.insert("publisher_support_tickets", {
+      publisherId: publisher.publisherId,
+      moduleId: "general",
+      tenantId: "platform",
+      subject: args.title,
       status: "open",
-      createdBy: publisher.userId,
-      attachments: args.attachments || [],
-      publisherId: publisher.publisherId, // Add publisher reference
+      priority: priorityMap[args.priority],
+      thread: [
+        {
+          authorId: publisher.userId,
+          authorEmail: publisher.email,
+          authorRole: "publisher",
+          content: args.body,
+          attachments: args.attachments || [],
+          createdAt: Date.now(),
+        },
+      ],
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.ticket_created",
+      action: "ticket.created",
       entityType: "ticket",
-      entityId: ticketId,
+      entityId: String(ticketId),
       after: { title: args.title, category: args.category, priority: args.priority },
     });
 
@@ -88,9 +99,29 @@ export const createSupportTicket = mutation({
   },
 });
 
+export const getSupportTicketDetail = query({
+  args: {
+    ticketId: v.id("publisher_support_tickets"),
+  },
+  handler: async (ctx, args) => {
+    const publisher = await requirePublisherContext(ctx);
+
+    const ticket = await ctx.db.get(args.ticketId);
+    if (!ticket) {
+      throw new Error("Ticket not found");
+    }
+
+    if (ticket.publisherId !== publisher.publisherId) {
+      throw new Error("Not authorized to view this ticket");
+    }
+
+    return ticket;
+  },
+});
+
 export const addTicketComment = mutation({
   args: {
-    ticketId: v.id("tickets"),
+    ticketId: v.id("publisher_support_tickets"),
     content: v.string(),
     attachments: v.optional(v.array(v.string())),
     isInternal: v.boolean(),
@@ -104,14 +135,12 @@ export const addTicketComment = mutation({
       throw new Error("Ticket not found");
     }
 
-    // Check if publisher owns this ticket
     if (ticket.publisherId !== publisher.publisherId) {
       throw new Error("Not authorized to comment on this ticket");
     }
 
-    // Add comment
-    await ctx.db.insert("ticketComments", {
-      ticketId: args.ticketId,
+    const thread = Array.isArray(ticket.thread) ? [...ticket.thread] : [];
+    thread.push({
       authorId: publisher.userId,
       authorEmail: publisher.email,
       authorRole: "publisher",
@@ -121,22 +150,19 @@ export const addTicketComment = mutation({
       createdAt: Date.now(),
     });
 
-    // Update ticket status if it was closed
-    if (ticket.status === "closed") {
-      await ctx.db.patch(args.ticketId, {
-        status: "open",
-        updatedAt: Date.now(),
-      });
-    }
+    await ctx.db.patch(args.ticketId, {
+      thread,
+      updatedAt: Date.now(),
+    });
 
-    // Log the action
-    await ctx.runMutation(internalLogAction, {
+    // Update ticket status if it was closed
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.ticket_comment_added",
+      action: "ticket.comment_added",
       entityType: "ticket",
-      entityId: args.ticketId,
+      entityId: String(args.ticketId),
       after: { ticketId: args.ticketId, content: args.content },
     });
 
@@ -156,39 +182,44 @@ export const getModuleReviews = query({
     
     // Get the module
     const module = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_moduleId", q => q.eq("moduleId", args.moduleId))
+      .query("modules")
+      .withIndex("by_slug", q => q.eq("slug", args.moduleId))
       .unique();
 
     if (!module) {
       throw new Error("Module not found");
     }
 
-    // Check if publisher owns this module
     if (module.publisherId !== publisher.publisherId) {
       throw new Error("Not authorized to view reviews for this module");
     }
-
     const page = args.page || 1;
     const pageSize = args.pageSize || 25;
     const skip = (page - 1) * pageSize;
 
-    // TODO: Get reviews from a reviews table
-    // For now, return empty data
-    const reviews = [];
-    const total = 0;
+    let reviews = await ctx.db
+      .query("module_reviews")
+      .withIndex("by_moduleId", q => q.eq("moduleId", String(module._id)))
+      .collect();
+
+    if (args.rating !== undefined) {
+      reviews = reviews.filter((review) => review.rating === args.rating);
+    }
+
+    const total = reviews.length;
+    const paginatedReviews = reviews.slice(skip, skip + pageSize);
 
     return {
-      reviews,
+      reviews: paginatedReviews,
       total,
       page,
       pageSize,
       hasMore: skip + pageSize < total,
       moduleInfo: {
-        moduleId: module.moduleId,
+        moduleId: String(module._id),
         name: module.name,
-        averageRating: module.rating,
-        reviewCount: module.reviewCount,
+        averageRating: total > 0 ? reviews.reduce((sum, review) => sum + review.rating, 0) / total : 0,
+        reviewCount: total,
       },
     };
   },
@@ -206,11 +237,11 @@ export const respondToReview = mutation({
     // TODO: Get review from reviews table and validate ownership
     // For now, just log the action
 
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: publisher.userId,
       actorEmail: publisher.email,
-      action: "publisher.review_responded",
+      action: "marketplace.review_moderated" as any,
       entityType: "review",
       entityId: args.reviewId,
       after: { reviewId: args.reviewId, response: args.response, public: args.public },

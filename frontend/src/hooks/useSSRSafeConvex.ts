@@ -11,35 +11,58 @@ export const ConvexProvider = ReactConvexProvider;
 
 /**
  * SSR-safe useQuery wrapper that supports an optional `enabled` parameter.
- * When `enabled` is false, the query is skipped (returns undefined).
- * Returns the raw Convex query result (not wrapped in {data, isLoading, error}).
+ * When `enabled` is false, the query is skipped.
+ * Returns the raw Convex query result while also exposing `data`, `isLoading`,
+ * `error`, and `refetch` for newer call sites that expect an object shape.
  *
  * Important: React hooks must not be called inside try/catch blocks because
  * exceptions during render can change hook bookkeeping between renders.
  */
 export function useQuery(query: any, args?: any, enabled?: boolean) {
-  // If enabled is explicitly false, pass "skip" to prevent query execution
   const shouldSkip = enabled === false;
   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
   const result = useConvexQuery(query, queryArgs);
-  
-  // Return consistent object structure whether skipped or not
+
   if (shouldSkip) {
-    return {
-      data: undefined,
-      isLoading: false,
-      error: undefined,
-      refetch: () => {},
-    };
+    return undefined as any;
   }
-  
-  // Wrap the raw Convex result in the expected object structure
+
+  if (result !== null && (typeof result === "object" || typeof result === "function")) {
+    const target = result as Record<string, any>;
+    if (!Object.prototype.hasOwnProperty.call(target, "data")) {
+      Object.defineProperties(target, {
+        data: {
+          value: result,
+          enumerable: false,
+          configurable: true,
+        },
+        isLoading: {
+          value: false,
+          enumerable: false,
+          configurable: true,
+        },
+        error: {
+          value: undefined,
+          enumerable: false,
+          configurable: true,
+        },
+        refetch: {
+          value: () => {},
+          enumerable: false,
+          configurable: true,
+        },
+      });
+    }
+    return result as any;
+  }
+
   return {
     data: result,
-    isLoading: false, // Convex handles loading state internally
+    isLoading: false,
     error: undefined,
-    refetch: () => {}, // Convex doesn't expose refetch in the same way
-  };
+    refetch: () => {},
+    value: result,
+  } as any;
 }
 
 export function useMutation(mutation: any) {

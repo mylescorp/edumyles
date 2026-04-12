@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../../_generated/server";
 import { requireResellerContext } from "../../../helpers/resellerGuard";
-import { internalLogAction } from "../../../helpers/auditLog";
+import { logAction } from "../../../helpers/auditLog";
 
 export const getCommissions = query({
   args: {
@@ -111,21 +111,22 @@ export const requestPayout = mutation({
     const commissions = await ctx.db
       .query("resellerCommissions")
       .withIndex("by_reseller", q => q.eq("resellerId", reseller.resellerId))
-      .filter(q => q.inq("commissionId", args.commissionIds))
       .collect();
 
-    if (commissions.length !== args.commissionIds.length) {
+    const selectedCommissions = commissions.filter((commission) => args.commissionIds.includes(commission.commissionId));
+
+    if (selectedCommissions.length !== args.commissionIds.length) {
       throw new Error("Some commissions not found");
     }
 
     // Check if all commissions are available for payout
-    const unavailableCommissions = commissions.filter(c => c.status !== "available");
+    const unavailableCommissions = selectedCommissions.filter(c => c.status !== "available");
     if (unavailableCommissions.length > 0) {
       throw new Error("Some commissions are not available for payout");
     }
 
     // Calculate total amount
-    const totalAmount = commissions.reduce((sum, c) => sum + c.amount, 0);
+    const totalAmount = selectedCommissions.reduce((sum, c) => sum + c.amount, 0);
 
     // Check minimum payout
     if (totalAmount < reseller.reseller.commission.minPayout) {
@@ -148,8 +149,8 @@ export const requestPayout = mutation({
       paypalDetails: args.paypalDetails,
       commissionIds: args.commissionIds,
       period: {
-        startDate: Math.min(...commissions.map(c => c.earnedAt)),
-        endDate: Math.max(...commissions.map(c => c.earnedAt)),
+        startDate: Math.min(...selectedCommissions.map(c => c.earnedAt)),
+        endDate: Math.max(...selectedCommissions.map(c => c.earnedAt)),
       },
       requestedAt: Date.now(),
       notes: args.notes,
@@ -159,7 +160,7 @@ export const requestPayout = mutation({
 
     // Update commission status to paid
     await Promise.all(
-      commissions.map(commission =>
+      selectedCommissions.map(commission =>
         ctx.db.patch(commission._id, {
           status: "paid",
           paidAt: Date.now(),
@@ -169,18 +170,18 @@ export const requestPayout = mutation({
     );
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.payout_requested",
+      action: "billing.subscription_updated" as any,
       entityType: "payout",
-      entityId: payoutDocId,
+      entityId: String(payoutDocId),
       after: { 
         payoutId, 
         amount: totalAmount, 
         method: args.method,
-        commissionCount: commissions.length 
+        commissionCount: selectedCommissions.length 
       },
     });
 
@@ -340,13 +341,13 @@ export const cancelPayout = mutation({
     );
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.payout_cancelled",
+      action: "billing.subscription_updated" as any,
       entityType: "payout",
-      entityId: payout._id,
+      entityId: String(payout._id),
       after: { payoutId: args.payoutId, reason: args.reason },
     });
 
@@ -387,21 +388,19 @@ export const getCommissionSummary = query({
 
     // Group by type
     const byType = periodCommissions.reduce((acc, commission) => {
-      if (!acc[commission.type]) {
-        acc[commission.type] = { count: 0, amount: 0 };
-      }
-      acc[commission.type].count++;
-      acc[commission.type].amount += commission.amount;
+      const entry = acc[commission.type] ?? { count: 0, amount: 0 };
+      entry.count++;
+      entry.amount += commission.amount;
+      acc[commission.type] = entry;
       return acc;
     }, {} as Record<string, { count: number; amount: number }>);
 
     // Group by status
     const byStatus = periodCommissions.reduce((acc, commission) => {
-      if (!acc[commission.status]) {
-        acc[commission.status] = { count: 0, amount: 0 };
-      }
-      acc[commission.status].count++;
-      acc[commission.status].amount += commission.amount;
+      const entry = acc[commission.status] ?? { count: 0, amount: 0 };
+      entry.count++;
+      entry.amount += commission.amount;
+      acc[commission.status] = entry;
       return acc;
     }, {} as Record<string, { count: number; amount: number }>);
 

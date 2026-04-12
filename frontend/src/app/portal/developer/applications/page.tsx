@@ -1,349 +1,424 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  FileText,
-  Plus,
-  Search,
-  Filter,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  XCircle,
-  Eye,
-  Edit,
-  Download,
-  Upload,
-  Calendar,
-  User,
-  Building2,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Building2, FileText, Save, Send, ShieldCheck, XCircle } from "lucide-react";
 
-export default function DeveloperApplications() {
-  const [activeTab, setActiveTab] = useState("current");
-  const [selectedApplication, setSelectedApplication] = useState(null);
+type PublisherApplication = {
+  _id: string;
+  businessName: string;
+  businessType: "individual" | "company";
+  businessDescription: string;
+  website?: string;
+  contactPhone: string;
+  contactAddress: string;
+  country: string;
+  experience: string;
+  modules: string[];
+  status:
+    | "submitted"
+    | "under_review"
+    | "approved"
+    | "rejected"
+    | "on_hold"
+    | "withdrawn";
+  submittedAt: number;
+  updatedAt: number;
+  reviewNotes?: string;
+  rejectedReason?: string;
+};
 
-  // Mock data - in real app this would come from Convex
-  const currentApplication = {
-    id: 1,
-    businessName: "TechEdu Solutions",
-    businessType: "company",
-    status: "approved",
-    tier: "verified",
-    submittedAt: "2023-06-15T10:30:00Z",
-    reviewedAt: "2023-06-18T14:45:00Z",
-    modules: ["Attendance Management", "Fee Collection", "Exam Management"],
-    experience: "5+ years in educational software development",
-    website: "https://techedu.example.com",
-    country: "Kenya",
-  };
+const emptyForm = {
+  businessName: "",
+  businessType: "company" as "individual" | "company",
+  businessDescription: "",
+  website: "",
+  contactPhone: "",
+  contactAddress: "",
+  country: "",
+  experience: "",
+  modules: "",
+};
 
-  const pastApplications = [
-    {
-      id: 2,
-      businessName: "EduTech Kenya",
-      businessType: "individual",
-      status: "rejected",
-      tier: null,
-      submittedAt: "2023-03-10T09:15:00Z",
-      reviewedAt: "2023-03-12T16:30:00Z",
-      reason: "Insufficient development experience",
-      modules: ["Library Management"],
-    },
-  ];
+export default function DeveloperApplicationsPage() {
+  const application = useQuery(
+    api.modules.publisher.mutations.applications.getMyApplication,
+    {}
+  ) as PublisherApplication | null | undefined;
+  const submitApplication = useMutation(
+    api.modules.publisher.mutations.applications.submitApplication
+  );
+  const updateApplication = useMutation(
+    api.modules.publisher.mutations.applications.updateApplication
+  );
+  const withdrawApplication = useMutation(
+    api.modules.publisher.mutations.applications.withdrawApplication
+  );
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
-      case "withdrawn":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!application) return;
+    setForm({
+      businessName: application.businessName,
+      businessType: application.businessType,
+      businessDescription: application.businessDescription,
+      website: application.website ?? "",
+      contactPhone: application.contactPhone,
+      contactAddress: application.contactAddress,
+      country: application.country,
+      experience: application.experience,
+      modules: application.modules.join(", "),
+    });
+  }, [application]);
+
+  if (application === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  async function handleSubmit() {
+    setSaving(true);
+    const payload = {
+      businessName: form.businessName,
+      businessType: form.businessType,
+      businessDescription: form.businessDescription,
+      website: form.website || undefined,
+      contactPhone: form.contactPhone,
+      contactAddress: form.contactAddress,
+      country: form.country,
+      experience: form.experience,
+      modules: form.modules
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean),
+    };
+
+    try {
+      if (application) {
+        await updateApplication(payload);
+      } else {
+        await submitApplication(payload);
+      }
+    } finally {
+      setSaving(false);
     }
-  };
+  }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <CheckCircle className="h-4 w-4" />;
-      case "pending":
-        return <Clock className="h-4 w-4" />;
-      case "rejected":
-        return <XCircle className="h-4 w-4" />;
-      case "withdrawn":
-        return <AlertCircle className="h-4 w-4" />;
-      default:
-        return <Clock className="h-4 w-4" />;
+  async function handleWithdraw() {
+    setSaving(true);
+    try {
+      await withdrawApplication({});
+    } finally {
+      setSaving(false);
     }
-  };
+  }
 
-  const getTierColor = (tier: string) => {
-    switch (tier) {
-      case "indie":
-        return "bg-gray-100 text-gray-800";
-      case "verified":
-        return "bg-blue-100 text-blue-800";
-      case "enterprise":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  if (application?.status === "approved") {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Applications"
+          description="Your developer account is already live and managed through your approved publisher profile."
+          badge={<Badge>approved</Badge>}
+        />
+        <Card>
+          <CardContent className="flex flex-col items-start gap-4 p-6">
+            <ShieldCheck className="h-10 w-10 text-emerald-500" />
+            <div>
+              <h2 className="text-lg font-semibold">{application.businessName}</h2>
+              <p className="text-sm text-muted-foreground">
+                Your publisher application has already been approved, so this area now reflects the
+                live publisher account instead of mock review data.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button asChild>
+                <a href="/portal/developer/profile">Open Profile</a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href="/portal/developer/modules">Manage Modules</a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Applications</h1>
-        <p className="text-gray-600">Track your publisher application status</p>
-      </div>
+      <PageHeader
+        title="Developer Applications"
+        description="Submit or manage your live publisher application record from Convex."
+        badge={
+          application ? (
+            <Badge variant="outline">{application.status.replaceAll("_", " ")}</Badge>
+          ) : undefined
+        }
+      />
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: "current", label: "Current Application", icon: FileText },
-            { id: "past", label: "Past Applications", icon: Calendar },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                py-2 px-1 border-b-2 font-medium text-sm flex items-center
-                ${activeTab === tab.id
-                  ? "border-[#0F4C2A] text-[#0F4C2A]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+      {application ? (
+        <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+          <Card>
+            <CardHeader>
+              <CardTitle>Application Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">Business Name</label>
+                  <Input
+                    value={form.businessName}
+                    disabled={!["submitted", "on_hold"].includes(application.status)}
+                    onChange={(e) => setForm((current) => ({ ...current, businessName: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">Business Type</label>
+                  <select
+                    value={form.businessType}
+                    disabled={!["submitted", "on_hold"].includes(application.status)}
+                    onChange={(e) =>
+                      setForm((current) => ({
+                        ...current,
+                        businessType: e.target.value as "individual" | "company",
+                      }))
+                    }
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="company">Company</option>
+                    <option value="individual">Individual</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Business Description</label>
+                <Textarea
+                  rows={4}
+                  value={form.businessDescription}
+                  disabled={!["submitted", "on_hold"].includes(application.status)}
+                  onChange={(e) =>
+                    setForm((current) => ({ ...current, businessDescription: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input
+                  value={form.website}
+                  disabled={!["submitted", "on_hold"].includes(application.status)}
+                  onChange={(e) => setForm((current) => ({ ...current, website: e.target.value }))}
+                  placeholder="Website"
+                />
+                <Input
+                  value={form.contactPhone}
+                  disabled={!["submitted", "on_hold"].includes(application.status)}
+                  onChange={(e) =>
+                    setForm((current) => ({ ...current, contactPhone: e.target.value }))
+                  }
+                  placeholder="Phone"
+                />
+              </div>
+              <Input
+                value={form.contactAddress}
+                disabled={!["submitted", "on_hold"].includes(application.status)}
+                onChange={(e) =>
+                  setForm((current) => ({ ...current, contactAddress: e.target.value }))
                 }
-              `}
-            >
-              <tab.icon className="h-4 w-4 mr-2" />
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Current Application */}
-      {activeTab === "current" && (
-        <div className="space-y-6">
-          {currentApplication ? (
-            <>
-              {/* Application Status Card */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">Publisher Application</h2>
-                    <p className="text-gray-600">Application #{currentApplication.id}</p>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(currentApplication.status)}`}>
-                      {getStatusIcon(currentApplication.status)}
-                      <span className="ml-1">
-                        {currentApplication.status.charAt(0).toUpperCase() + currentApplication.status.slice(1)}
-                      </span>
-                    </span>
-                    {currentApplication.tier && (
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTierColor(currentApplication.tier)}`}>
-                        {currentApplication.tier.charAt(0).toUpperCase() + currentApplication.tier.slice(1)} Tier
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Timeline */}
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-[#0F4C2A] rounded-full flex items-center justify-center text-white text-sm font-bold">
-                      1
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">Application Submitted</h3>
-                      <p className="text-sm text-gray-600">Your application was received and is under review</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(currentApplication.submittedAt).toLocaleDateString()} at {new Date(currentApplication.submittedAt).toLocaleTimeString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                      2
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">Application Approved</h3>
-                      <p className="text-sm text-gray-600">Congratulations! Your application has been approved</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(currentApplication.reviewedAt).toLocaleDateString()} at {new Date(currentApplication.reviewedAt).toLocaleTimeString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                placeholder="Address"
+              />
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input
+                  value={form.country}
+                  disabled={!["submitted", "on_hold"].includes(application.status)}
+                  onChange={(e) => setForm((current) => ({ ...current, country: e.target.value }))}
+                  placeholder="Country"
+                />
+                <Input
+                  value={form.experience}
+                  disabled={!["submitted", "on_hold"].includes(application.status)}
+                  onChange={(e) =>
+                    setForm((current) => ({ ...current, experience: e.target.value }))
+                  }
+                  placeholder="Experience"
+                />
               </div>
-
-              {/* Application Details */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">Business Information</h4>
-                    <dl className="space-y-2">
-                      <div className="flex justify-between">
-                        <dt className="text-sm text-gray-600">Business Name:</dt>
-                        <dd className="text-sm font-medium text-gray-900">{currentApplication.businessName}</dd>
-                      </div>
-                      <div className="flex justify-between">
-                        <dt className="text-sm text-gray-600">Business Type:</dt>
-                        <dd className="text-sm font-medium text-gray-900">
-                          {currentApplication.businessType.charAt(0).toUpperCase() + currentApplication.businessType.slice(1)}
-                        </dd>
-                      </div>
-                      <div className="flex justify-between">
-                        <dt className="text-sm text-gray-600">Country:</dt>
-                        <dd className="text-sm font-medium text-gray-900">{currentApplication.country}</dd>
-                      </div>
-                      <div className="flex justify-between">
-                        <dt className="text-sm text-gray-600">Website:</dt>
-                        <dd className="text-sm font-medium text-gray-900">
-                          <a href={currentApplication.website} target="_blank" rel="noopener noreferrer" className="text-[#0F4C2A] hover:underline">
-                            {currentApplication.website}
-                          </a>
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">Application Content</h4>
-                    <dl className="space-y-2">
-                      <div>
-                        <dt className="text-sm text-gray-600">Experience:</dt>
-                        <dd className="text-sm font-medium text-gray-900 mt-1">{currentApplication.experience}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm text-gray-600">Modules to Develop:</dt>
-                        <dd className="text-sm font-medium text-gray-900 mt-1">
-                          <div className="flex flex-wrap gap-1">
-                            {currentApplication.modules.map((module) => (
-                              <span key={module} className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">
-                                {module}
-                              </span>
-                            ))}
-                          </div>
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Planned Modules</label>
+                <Textarea
+                  rows={3}
+                  value={form.modules}
+                  disabled={!["submitted", "on_hold"].includes(application.status)}
+                  onChange={(e) => setForm((current) => ({ ...current, modules: e.target.value }))}
+                  placeholder="Comma-separated module ideas"
+                />
               </div>
-
-              {/* Actions */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
+              {["submitted", "on_hold"].includes(application.status) ? (
                 <div className="flex flex-wrap gap-3">
-                  <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Full Application
-                  </button>
-                  <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download PDF
-                  </button>
-                  <button className="flex items-center px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12]">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Request Tier Upgrade
-                  </button>
+                  <Button onClick={handleSubmit} disabled={saving}>
+                    <Save className="mr-2 h-4 w-4" />
+                    {saving ? "Saving..." : "Update Application"}
+                  </Button>
+                  <Button variant="destructive" onClick={handleWithdraw} disabled={saving}>
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Withdraw
+                  </Button>
                 </div>
-              </div>
-            </>
-          ) : (
-            <div className="bg-white rounded-lg shadow p-12 text-center">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Application</h3>
-              <p className="text-gray-600 mb-6">You haven't submitted a publisher application yet.</p>
-              <button className="flex items-center px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12]">
-                <Plus className="h-4 w-4 mr-2" />
-                Submit Application
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+              ) : null}
+            </CardContent>
+          </Card>
 
-      {/* Past Applications */}
-      {activeTab === "past" && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Past Applications</h2>
-            {pastApplications.length > 0 ? (
-              <div className="space-y-4">
-                {pastApplications.map((application) => (
-                  <div key={application.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h3 className="font-medium text-gray-900">{application.businessName}</h3>
-                        <p className="text-sm text-gray-600">Application #{application.id}</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
-                          {getStatusIcon(application.status)}
-                          <span className="ml-1">
-                            {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Type:</span>
-                        <span className="ml-2 font-medium text-gray-900">
-                          {application.businessType.charAt(0).toUpperCase() + application.businessType.slice(1)}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Submitted:</span>
-                        <span className="ml-2 font-medium text-gray-900">
-                          {new Date(application.submittedAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Reviewed:</span>
-                        <span className="ml-2 font-medium text-gray-900">
-                          {new Date(application.reviewedAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    {application.reason && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Reason:</span> {application.reason}
-                        </p>
-                      </div>
-                    )}
-                    <div className="mt-3 flex justify-end space-x-2">
-                      <button className="flex items-center px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-                        <Eye className="h-3 w-3 mr-1" />
-                        View
-                      </button>
-                      <button className="flex items-center px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-                        <Download className="h-3 w-3 mr-1" />
-                        Download
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No past applications found</p>
-              </div>
-            )}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Application Status</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <p className="font-medium">{application.businessName}</p>
+                <p>Status: {application.status.replaceAll("_", " ")}</p>
+                <p>Submitted: {new Date(application.submittedAt).toLocaleString()}</p>
+                <p>Last updated: {new Date(application.updatedAt).toLocaleString()}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Review Notes</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <p>{application.reviewNotes ?? "No reviewer notes yet."}</p>
+                {application.rejectedReason ? (
+                  <p className="text-red-600">
+                    Rejection reason: {application.rejectedReason}
+                  </p>
+                ) : null}
+              </CardContent>
+            </Card>
           </div>
         </div>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Submit Publisher Application</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium">Business Name</label>
+                <Input
+                  value={form.businessName}
+                  onChange={(e) => setForm((current) => ({ ...current, businessName: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Business Type</label>
+                <select
+                  value={form.businessType}
+                  onChange={(e) =>
+                    setForm((current) => ({
+                      ...current,
+                      businessType: e.target.value as "individual" | "company",
+                    }))
+                  }
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="company">Company</option>
+                  <option value="individual">Individual</option>
+                </select>
+              </div>
+            </div>
+            <Textarea
+              rows={4}
+              value={form.businessDescription}
+              onChange={(e) => setForm((current) => ({ ...current, businessDescription: e.target.value }))}
+              placeholder="Describe your development business"
+            />
+            <div className="grid gap-4 md:grid-cols-2">
+              <Input
+                value={form.website}
+                onChange={(e) => setForm((current) => ({ ...current, website: e.target.value }))}
+                placeholder="Website"
+              />
+              <Input
+                value={form.contactPhone}
+                onChange={(e) =>
+                  setForm((current) => ({ ...current, contactPhone: e.target.value }))
+                }
+                placeholder="Phone"
+              />
+            </div>
+            <Input
+              value={form.contactAddress}
+              onChange={(e) => setForm((current) => ({ ...current, contactAddress: e.target.value }))}
+              placeholder="Address"
+            />
+            <div className="grid gap-4 md:grid-cols-2">
+              <Input
+                value={form.country}
+                onChange={(e) => setForm((current) => ({ ...current, country: e.target.value }))}
+                placeholder="Country"
+              />
+              <Input
+                value={form.experience}
+                onChange={(e) => setForm((current) => ({ ...current, experience: e.target.value }))}
+                placeholder="Experience"
+              />
+            </div>
+            <Textarea
+              rows={3}
+              value={form.modules}
+              onChange={(e) => setForm((current) => ({ ...current, modules: e.target.value }))}
+              placeholder="Comma-separated module ideas"
+            />
+            <Button onClick={handleSubmit} disabled={saving}>
+              <Send className="mr-2 h-4 w-4" />
+              {saving ? "Submitting..." : "Submit Application"}
+            </Button>
+          </CardContent>
+        </Card>
       )}
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <FileText className="h-8 w-8 text-primary" />
+            <div>
+              <p className="text-sm text-muted-foreground">Application Record</p>
+              <p className="text-lg font-semibold">{application ? "Live" : "Not started"}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Building2 className="h-8 w-8 text-emerald-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Business Type</p>
+              <p className="text-lg font-semibold">
+                {application?.businessType ?? form.businessType}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <ShieldCheck className="h-8 w-8 text-amber-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Status</p>
+              <p className="text-lg font-semibold">
+                {application ? application.status.replaceAll("_", " ") : "Drafting"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

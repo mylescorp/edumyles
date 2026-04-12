@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
@@ -10,20 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
 import { 
   Globe, 
-  MapPin, 
   CreditCard, 
   Building2, 
   Shield, 
-  Plus, 
-  X, 
   AlertTriangle,
   CheckCircle,
   RefreshCw
@@ -69,13 +64,14 @@ export function ScopeRestrictions({ userId, onSave, onCancel }: ScopeRestriction
 
   // Query available tenants for scope selection
   const { data: availableTenants } = useQuery(
-    api.modules.platform.tenants.listTenants,
-    { sessionToken: sessionToken || "", limit: 100 },
+    api.platform.tenants.queries.listAllTenants,
+    { sessionToken: sessionToken || "" },
     !!sessionToken
   );
 
   // Mutation to update scope restrictions
-  const updateScopeRestrictions = useMutation(api.modules.platform.rbac.updateUserScopeRestrictions);
+  const updateScopeRestrictions = useMutation(api.modules.platform.rbac.updateUserScope);
+  const updateAccessExpiry = useMutation(api.modules.platform.rbac.setUserAccessExpiry);
 
   // Form state
   const [scopeCountries, setScopeCountries] = useState<string[]>([]);
@@ -85,16 +81,18 @@ export function ScopeRestrictions({ userId, onSave, onCancel }: ScopeRestriction
   const [scopeReason, setScopeReason] = useState<string>("");
 
   // Initialize form from user scopes
-  useState(() => {
+  useEffect(() => {
     if (userScopes) {
       setScopeCountries(userScopes.scopeCountries || []);
       setScopeTenantIds(userScopes.scopeTenantIds || []);
       setScopePlans(userScopes.scopePlans || []);
       if (userScopes.accessExpiresAt) {
-        setAccessExpiresAt(new Date(userScopes.accessExpiresAt).toISOString().split('T')[0]);
+        setAccessExpiresAt(new Date(userScopes.accessExpiresAt).toISOString().split("T")[0] ?? "");
+      } else {
+        setAccessExpiresAt("");
       }
     }
-  });
+  }, [userScopes]);
 
   const handleCountryToggle = (countryCode: string) => {
     setScopeCountries(prev => 
@@ -127,12 +125,18 @@ export function ScopeRestrictions({ userId, onSave, onCancel }: ScopeRestriction
     try {
       await updateScopeRestrictions({
         sessionToken,
-        userId,
+        targetUserId: userId as any,
         scopeCountries,
         scopeTenantIds,
         scopePlans,
+        reason: scopeReason.trim() || "Updated scope restrictions",
+      });
+
+      await updateAccessExpiry({
+        sessionToken,
+        targetUserId: userId as any,
         accessExpiresAt: accessExpiresAt ? new Date(accessExpiresAt).getTime() : undefined,
-        reason: scopeReason || undefined,
+        reason: scopeReason.trim() || "Updated access expiry",
       });
 
       toast.success("Scope restrictions updated successfully");
@@ -248,7 +252,7 @@ export function ScopeRestrictions({ userId, onSave, onCancel }: ScopeRestriction
         <CardContent>
           <ScrollArea className="h-48">
             <div className="space-y-2">
-              {availableTenants?.map((tenant) => (
+              {availableTenants?.map((tenant: any) => (
                 <div key={tenant.tenantId} className="flex items-center space-x-2">
                   <Checkbox
                     id={`tenant-${tenant.tenantId}`}

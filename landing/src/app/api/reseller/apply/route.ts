@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../../../../../convex/_generated/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,22 +17,45 @@ export async function POST(request: NextRequest) {
       experience,
       marketingChannels,
       expectedVolume,
+      email,
     } = body;
 
     // Validate required fields
-    if (!businessName || !businessType || !country) {
+    if (!businessName || !businessType || !country || !email) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // For now, just return a success response
-    // TODO: Integrate with actual backend when modules are fixed
+    const convexUrl =
+      process.env.CONVEX_URL ||
+      process.env.NEXT_PUBLIC_CONVEX_URL ||
+      "https://insightful-alpaca-351.convex.cloud";
+    const convex = new ConvexHttpClient(convexUrl);
+
+    const result = await convex.mutation(api.publicApplications.submitPublicResellerApplication, {
+      applicantEmail: email,
+      businessName,
+      businessType,
+      businessDescription,
+      website: website || undefined,
+      contactPhone,
+      contactAddress,
+      country,
+      targetMarket,
+      experience,
+      marketingChannels: Array.isArray(marketingChannels) ? marketingChannels : [],
+      expectedVolume,
+    });
+
     return NextResponse.json({
       success: true,
-      applicationId: `RES-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-      message: "Reseller application submitted successfully",
+      applicationId: result.applicationId,
+      alreadyExists: Boolean(result.duplicate),
+      message: result.duplicate
+        ? "Reseller application already exists and remains on file"
+        : "Reseller application submitted successfully",
     });
   } catch (error) {
     console.error("Reseller application error:", error);

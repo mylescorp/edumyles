@@ -1,293 +1,212 @@
 "use client";
 
-import React from "react";
-import {
-  Package,
-  TrendingUp,
-  Users,
-  DollarSign,
-  FileText,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  BarChart3,
-  Download,
-  Eye,
-  Star,
-  ArrowUp,
-  ArrowDown,
-} from "lucide-react";
+import Link from "next/link";
+import { useMemo } from "react";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, BarChart3, Package, Users, Wallet } from "lucide-react";
 
-export default function DeveloperDashboard() {
-  // Mock data - in real app this would come from Convex
-  const stats = {
-    totalModules: 8,
-    activeModules: 6,
-    totalInstalls: 1247,
-    activeInstalls: 892,
-    monthlyRevenue: 45200,
-    totalRevenue: 284500,
-    conversionRate: 3.2,
-    averageRating: 4.6,
+type DashboardStats = {
+  stats: {
+    totalModules: number;
+    activeModules: number;
+    totalInstalls: number;
+    activeInstalls: number;
+    totalRevenue: number;
+    monthlyRevenue: number;
   };
+  recentInstallations: Array<{
+    _id: string;
+    tenantId: string;
+    moduleId: string;
+    status: string;
+    installedAt?: number;
+  }>;
+  modulePerformance: Array<{
+    moduleId: string;
+    slug: string;
+    name: string;
+    status: string;
+    installs: number;
+    activeInstalls: number;
+    revenue: number;
+    rating: number;
+    reviewCount: number;
+    lastUpdated: number;
+  }>;
+};
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: "install",
-      module: "Attendance Management",
-      school: "Green Valley Academy",
-      time: "2 hours ago",
-      status: "success",
-    },
-    {
-      id: 2,
-      type: "review",
-      module: "Fee Collection",
-      rating: 5,
-      comment: "Excellent module, very reliable!",
-      school: "St. Mary's School",
-      time: "5 hours ago",
-      status: "success",
-    },
-    {
-      id: 3,
-      type: "update",
-      module: "Exam Management",
-      version: "2.1.0",
-      time: "1 day ago",
-      status: "pending",
-    },
-    {
-      id: 4,
-      type: "install",
-      module: "Library Management",
-      school: "Kisumu High School",
-      time: "2 days ago",
-      status: "success",
-    },
-  ];
+type PublisherProfile = {
+  companyName: string;
+  status: "pending" | "approved" | "rejected" | "suspended" | "banned";
+  tier: "indie" | "verified" | "enterprise";
+};
 
-  const topModules = [
-    {
-      name: "Attendance Management",
-      installs: 342,
-      revenue: 18400,
-      rating: 4.8,
-      growth: 12,
-    },
-    {
-      name: "Fee Collection",
-      installs: 289,
-      revenue: 15600,
-      rating: 4.6,
-      growth: 8,
-    },
-    {
-      name: "Exam Management",
-      installs: 198,
-      revenue: 11200,
-      rating: 4.5,
-      growth: -3,
-    },
-  ];
+function money(value: number) {
+  return `KES ${value.toLocaleString()}`;
+}
 
-  const StatCard = ({ title, value, change, icon: Icon, color = "blue" }: any) => (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-semibold text-gray-900 mt-1">
-            {typeof value === "number" && value >= 1000 
-              ? `${(value / 1000).toFixed(1)}k` 
-              : value}
-          </p>
-          {change !== undefined && (
-            <div className={`flex items-center mt-2 text-sm ${
-              change >= 0 ? "text-green-600" : "text-red-600"
-            }`}>
-              {change >= 0 ? (
-                <ArrowUp className="h-4 w-4 mr-1" />
-              ) : (
-                <ArrowDown className="h-4 w-4 mr-1" />
-              )}
-              {Math.abs(change)}% from last month
-            </div>
-          )}
-        </div>
-        <div className={`p-3 rounded-lg bg-${color}-100`}>
-          <Icon className={`h-6 w-6 text-${color}-600`} />
-        </div>
-      </div>
-    </div>
+export default function DeveloperDashboardPage() {
+  const dashboard = useQuery(
+    api.modules.publisher.mutations.analytics.getDashboardStats,
+    {}
+  ) as DashboardStats | undefined;
+  const profile = useQuery(api.modules.publisher.mutations.profile.getMyProfile, {}) as
+    | PublisherProfile
+    | undefined;
+
+  const topModules = useMemo(
+    () =>
+      [...(dashboard?.modulePerformance ?? [])]
+        .sort((a, b) => b.revenue - a.revenue || b.installs - a.installs)
+        .slice(0, 5),
+    [dashboard]
   );
+
+  if (!dashboard || !profile) return <LoadingSkeleton variant="page" />;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Developer Dashboard</h1>
-        <p className="text-gray-600">Welcome back! Here's an overview of your module performance.</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Modules"
-          value={stats.totalModules}
-          change={15}
-          icon={Package}
-          color="blue"
-        />
-        <StatCard
-          title="Active Installs"
-          value={stats.activeInstalls}
-          change={8}
-          icon={Users}
-          color="green"
-        />
-        <StatCard
-          title="Monthly Revenue"
-          value={`KES ${stats.monthlyRevenue.toLocaleString()}`}
-          change={12}
-          icon={DollarSign}
-          color="yellow"
-        />
-        <StatCard
-          title="Average Rating"
-          value={stats.averageRating}
-          change={5}
-          icon={Star}
-          color="purple"
-        />
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#0F4C2A] hover:bg-[#0F4C2A]/5 transition-colors">
-            <Package className="h-6 w-6 text-[#0F4C2A] mr-2" />
-            <span className="text-sm font-medium text-gray-700">Create New Module</span>
-          </button>
-          <button className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#0F4C2A] hover:bg-[#0F4C2A]/5 transition-colors">
-            <FileText className="h-6 w-6 text-[#0F4C2A] mr-2" />
-            <span className="text-sm font-medium text-gray-700">View Analytics</span>
-          </button>
-          <button className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#0F4C2A] hover:bg-[#0F4C2A]/5 transition-colors">
-            <TrendingUp className="h-6 w-6 text-[#0F4C2A] mr-2" />
-            <span className="text-sm font-medium text-gray-700">Request Tier Upgrade</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Performing Modules */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Top Performing Modules</h2>
-            <button className="text-sm text-[#0F4C2A] hover:text-[#061A12]">View All</button>
+      <PageHeader
+        title="Developer Dashboard"
+        description="Live marketplace performance for your publisher account, modules, installs, and earnings."
+        badge={<Badge variant="outline">{profile.tier} tier</Badge>}
+        actions={
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link href="/portal/developer/modules">Manage Modules</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/portal/developer/analytics">Open Analytics</Link>
+            </Button>
           </div>
-          <div className="space-y-4">
-            {topModules.map((module, index) => (
-              <div key={module.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-[#0F4C2A] rounded-lg flex items-center justify-center text-white font-semibold text-sm">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{module.name}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span className="flex items-center">
-                        <Users className="h-3 w-3 mr-1" />
-                        {module.installs}
-                      </span>
-                      <span className="flex items-center">
-                        <Star className="h-3 w-3 mr-1" />
-                        {module.rating}
-                      </span>
+        }
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Package className="h-8 w-8 text-primary" />
+            <div>
+              <p className="text-sm text-muted-foreground">Modules</p>
+              <p className="text-2xl font-semibold">
+                {dashboard.stats.activeModules}/{dashboard.stats.totalModules}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Users className="h-8 w-8 text-emerald-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Active Installs</p>
+              <p className="text-2xl font-semibold">{dashboard.stats.activeInstalls}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Wallet className="h-8 w-8 text-amber-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Monthly Revenue</p>
+              <p className="text-2xl font-semibold">{money(dashboard.stats.monthlyRevenue)}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <BarChart3 className="h-8 w-8 text-sky-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Lifetime Revenue</p>
+              <p className="text-2xl font-semibold">{money(dashboard.stats.totalRevenue)}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1.15fr,0.85fr]">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle>Top Modules</CardTitle>
+            <Button asChild size="sm" variant="ghost">
+              <Link href="/portal/developer/modules">
+                View all
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {topModules.length === 0 ? (
+              <EmptyState
+                icon={Package}
+                title="No modules yet"
+                description="Create your first marketplace module to start tracking installs and revenue."
+              />
+            ) : (
+              <div className="space-y-3">
+                {topModules.map((module) => (
+                  <div
+                    key={module.moduleId}
+                    className="flex items-center justify-between rounded-md border p-3 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium">{module.name}</p>
+                      <p className="text-muted-foreground">
+                        {module.installs} installs · {module.reviewCount} reviews
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">{money(module.revenue)}</p>
+                      <p className="text-muted-foreground">
+                        {module.rating > 0 ? `${module.rating.toFixed(1)} rating` : "No ratings yet"}
+                      </p>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">KES {module.revenue.toLocaleString()}</p>
-                  <div className={`flex items-center text-sm ${
-                    module.growth >= 0 ? "text-green-600" : "text-red-600"
-                  }`}>
-                    {module.growth >= 0 ? (
-                      <ArrowUp className="h-3 w-3 mr-1" />
-                    ) : (
-                      <ArrowDown className="h-3 w-3 mr-1" />
-                    )}
-                    {Math.abs(module.growth)}%
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Installations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {dashboard.recentInstallations.length === 0 ? (
+              <EmptyState
+                icon={Users}
+                title="No recent installs"
+                description="New installations will appear here as schools activate your modules."
+              />
+            ) : (
+              <div className="space-y-3">
+                {dashboard.recentInstallations.map((installation) => (
+                  <div
+                    key={installation._id}
+                    className="rounded-md border p-3 text-sm"
+                  >
+                    <p className="font-medium">{installation.moduleId}</p>
+                    <p className="text-muted-foreground">
+                      Tenant {installation.tenantId} · {installation.status}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {installation.installedAt
+                        ? new Date(installation.installedAt).toLocaleString()
+                        : "Install time unavailable"}
+                    </p>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-            <button className="text-sm text-[#0F4C2A] hover:text-[#061A12]">View All</button>
-          </div>
-          <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-start space-x-3">
-                <div className={`p-2 rounded-full ${
-                  activity.status === "success" 
-                    ? "bg-green-100" 
-                    : activity.status === "pending"
-                    ? "bg-yellow-100"
-                    : "bg-red-100"
-                }`}>
-                  {activity.type === "install" && <Users className="h-4 w-4 text-green-600" />}
-                  {activity.type === "review" && <Star className="h-4 w-4 text-yellow-600" />}
-                  {activity.type === "update" && <Clock className="h-4 w-4 text-blue-600" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900">
-                    {activity.type === "install" && (
-                      <>New installation of <span className="font-medium">{activity.module}</span> by <span className="font-medium">{activity.school}</span></>
-                    )}
-                    {activity.type === "review" && (
-                      <>New {activity.rating}-star review for <span className="font-medium">{activity.module}</span> from <span className="font-medium">{activity.school}</span></>
-                    )}
-                    {activity.type === "update" && (
-                      <>Update <span className="font-medium">{activity.module}</span> to version <span className="font-medium">{activity.version}</span></>
-                    )}
-                  </p>
-                  {activity.comment && (
-                    <p className="text-sm text-gray-600 mt-1 italic">"{activity.comment}"</p>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Revenue Chart */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Revenue Overview</h2>
-          <select className="text-sm border border-gray-300 rounded-md px-3 py-1">
-            <option>Last 30 days</option>
-            <option>Last 3 months</option>
-            <option>Last 6 months</option>
-            <option>Last year</option>
-          </select>
-        </div>
-        <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-          <div className="text-center text-gray-500">
-            <BarChart3 className="h-12 w-12 mx-auto mb-2" />
-            <p>Revenue chart will be displayed here</p>
-            <p className="text-sm">Integration with charting library needed</p>
-          </div>
-        </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

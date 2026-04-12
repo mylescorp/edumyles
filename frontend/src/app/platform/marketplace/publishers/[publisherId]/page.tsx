@@ -57,8 +57,6 @@ export default function PublisherDetailPage() {
   const rejectPublisher = useMutation(api.modules.marketplace.publishers.rejectPublisher);
   const suspendPublisher = useMutation(api.modules.marketplace.publishers.suspendPublisher);
   const banPublisher = useMutation(api.modules.marketplace.publishers.banPublisher);
-  const updateTier = useMutation(api.modules.marketplace.publishers.updatePublisherTier);
-  const updateRevenueShare = useMutation(api.modules.marketplace.publishers.updateRevenueShare);
 
   if (isLoading || detail === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -93,26 +91,12 @@ export default function PublisherDetailPage() {
   };
 
   const handleRevenueShareSave = async () => {
-    if (!sessionToken || !revenueSharePct) return;
-    setSaving(true);
-    try {
-      await updateRevenueShare({
-        sessionToken,
-        publisherId: publisher._id,
-        revenueSharePct: Number(revenueSharePct),
-      });
-      toast({ title: "Revenue share updated" });
-      setRevenueDialogOpen(false);
-      setRevenueSharePct("");
-    } catch (error) {
-      toast({
-        title: "Action failed",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
+    toast({
+      title: "Not available in this branch",
+      description: "Publisher revenue share editing is not wired to a backend mutation yet.",
+    });
+    setRevenueDialogOpen(false);
+    setRevenueSharePct("");
   };
 
   return (
@@ -164,11 +148,11 @@ export default function PublisherDetailPage() {
         <Button variant="destructive" disabled={saving || publisher.status === "banned"} onClick={() => runAction(() => banPublisher({ sessionToken: sessionToken!, publisherId: publisher._id }), "Publisher banned")}>Ban</Button>
         <Select
           defaultValue={publisher.tier}
-          onValueChange={(value) =>
-            runAction(
-              () => updateTier({ sessionToken: sessionToken!, publisherId: publisher._id, tier: value as any }),
-              "Publisher tier updated"
-            )
+          onValueChange={() =>
+            toast({
+              title: "Not available in this branch",
+              description: "Publisher tier editing is not wired to a backend mutation yet.",
+            })
           }
         >
           <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>

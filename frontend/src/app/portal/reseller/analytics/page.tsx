@@ -1,391 +1,330 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  BarChart3,
-  TrendingUp,
-  Users,
-  DollarSign,
-  Download,
-  Calendar,
-  Filter,
-  ArrowUp,
-  ArrowDown,
-  Globe,
-  Target,
-  Eye,
-  Package,
-  ShoppingCart,
-  Store,
-} from "lucide-react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowDown, ArrowUp, Globe2, LineChart, ShoppingCart, Target, Users } from "lucide-react";
 
-export default function ResellerAnalytics() {
-  const [timeRange, setTimeRange] = useState("30d");
-  const [selectedMetric, setSelectedMetric] = useState("revenue");
-
-  // Mock data - in real app this would come from Convex
-  const revenueData = [
-    { date: "2024-01-01", revenue: 12000, orders: 15, customers: 8 },
-    { date: "2024-01-02", revenue: 15000, orders: 18, customers: 10 },
-    { date: "2024-01-03", revenue: 18000, orders: 22, customers: 12 },
-    { date: "2024-01-04", revenue: 14000, orders: 17, customers: 9 },
-    { date: "2024-01-05", revenue: 21000, orders: 25, customers: 14 },
-    { date: "2024-01-06", revenue: 19000, orders: 23, customers: 13 },
-    { date: "2024-01-07", revenue: 23000, orders: 28, customers: 16 },
-  ];
-
-  const productData = [
-    { name: "EduMyles Premium Package", sales: 89, revenue: 1335000, orders: 89, growth: 12 },
-    { name: "EduMyles Standard Package", sales: 156, revenue: 1248000, orders: 156, growth: 8 },
-    { name: "EduMyles Basic Package", sales: 234, revenue: 1170000, orders: 234, growth: -3 },
-    { name: "Teacher Training Package", sales: 45, revenue: 135000, orders: 45, growth: 15 },
-    { name: "Hardware Bundle", sales: 23, revenue: 575000, orders: 23, growth: 5 },
-  ];
-
-  const customerData = [
-    { type: "School", count: 156, revenue: 2890000, growth: 18 },
-    { type: "Business", count: 45, revenue: 1230000, growth: 22 },
-    { type: "Individual", count: 89, revenue: 445000, growth: 5 },
-  ];
-
-  const geographicData = [
-    { region: "Nairobi", customers: 89, revenue: 1560000, orders: 167, growth: 15 },
-    { region: "Mombasa", customers: 34, revenue: 680000, orders: 78, growth: 12 },
-    { region: "Kisumu", customers: 23, revenue: 460000, orders: 45, growth: 8 },
-    { region: "Nakuru", customers: 18, revenue: 360000, orders: 34, growth: 10 },
-    { region: "Others", customers: 26, revenue: 520000, orders: 67, growth: 6 },
-  ];
-
-  const keyMetrics = {
-    totalRevenue: 456000,
-    monthlyGrowth: 22.5,
-    totalOrders: 567,
-    averageOrderValue: 800,
-    totalCustomers: 234,
-    customerGrowth: 18.2,
-    conversionRate: 12.5,
-    customerRetention: 85.3,
+type CommissionSummary = {
+  summary: {
+    totalAmount: number;
+    totalCount: number;
+    byType: Record<string, { count: number; amount: number }>;
   };
+  dailyData: Array<{
+    date: string;
+    earned: number;
+    count: number;
+  }>;
+};
 
-  const MetricCard = ({ title, value, change, icon: Icon, color = "blue", prefix = "" }: any) => (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-semibold text-gray-900 mt-1">
-            {prefix}{typeof value === "number" && value >= 1000 
-              ? `${(value / 1000).toFixed(1)}k` 
-              : value}
-          </p>
-          {change !== undefined && (
-            <div className={`flex items-center mt-2 text-sm ${
-              change >= 0 ? "text-green-600" : "text-red-600"
-            }`}>
-              {change >= 0 ? (
-                <ArrowUp className="h-3 w-3 mr-1" />
-              ) : (
-                <ArrowDown className="h-3 w-3 mr-1" />
-              )}
-              {Math.abs(change)}% from last month
-            </div>
-          )}
-        </div>
-        <div className={`p-3 rounded-lg bg-${color}-100`}>
-          <Icon className={`h-6 w-6 text-${color}-600`} />
-        </div>
-      </div>
-    </div>
-  );
+type ResellerStats = {
+  conversionRate?: number;
+};
+
+type ResellerOrder = {
+  totalCents: number;
+};
+
+type ResellerCustomer = {
+  schoolId: string;
+  schoolName: string;
+  status: string;
+  orderCount: number;
+  totalOrderCents: number;
+  county: string | null;
+  country: string | null;
+  tenantPlan: string | null;
+};
+
+function formatMoney(amount: number) {
+  return `KES ${amount.toLocaleString()}`;
+}
+
+function formatMoneyFromCents(amountCents: number) {
+  return `KES ${(amountCents / 100).toLocaleString()}`;
+}
+
+function changeIndicator(current: number, previous: number) {
+  if (previous === 0) {
+    return { direction: "up" as const, value: current > 0 ? 100 : 0 };
+  }
+  const delta = ((current - previous) / previous) * 100;
+  return { direction: delta >= 0 ? ("up" as const) : ("down" as const), value: Math.abs(delta) };
+}
+
+export default function ResellerAnalyticsPage() {
+  const [period, setPeriod] = useState<"30d" | "90d" | "1y">("30d");
+
+  const summary = useQuery(api.modules.reseller.mutations.commissions.getCommissionSummary, {
+    period,
+  }) as CommissionSummary | undefined;
+  const stats = useQuery(api.modules.reseller.mutations.profile.getStats, {}) as
+    | ResellerStats
+    | undefined;
+  const orders = useQuery(api.modules.reseller.queries.orders.getOrders, {}) as
+    | ResellerOrder[]
+    | undefined;
+  const customers = useQuery((api as any)["modules/reseller/queries/customers"].getCustomers, {}) as
+    | ResellerCustomer[]
+    | undefined;
+
+  const orderMetrics = useMemo(() => {
+    const entries = orders ?? [];
+    const totalValueCents = entries.reduce((sum, order) => sum + order.totalCents, 0);
+    return {
+      totalOrders: entries.length,
+      totalValueCents,
+      averageOrderCents: entries.length > 0 ? Math.round(totalValueCents / entries.length) : 0,
+    };
+  }, [orders]);
+
+  const customerStatusBreakdown = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const customer of customers ?? []) {
+      map.set(customer.status, (map.get(customer.status) ?? 0) + 1);
+    }
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [customers]);
+
+  const regionBreakdown = useMemo(() => {
+    const map = new Map<string, { customers: number; orderCents: number }>();
+    for (const customer of customers ?? []) {
+      const region = [customer.county, customer.country].filter(Boolean).join(", ") || "Unknown region";
+      const entry = map.get(region) ?? { customers: 0, orderCents: 0 };
+      entry.customers += 1;
+      entry.orderCents += customer.totalOrderCents;
+      map.set(region, entry);
+    }
+    return Array.from(map.entries())
+      .map(([region, value]) => ({ region, ...value }))
+      .sort((a, b) => b.orderCents - a.orderCents)
+      .slice(0, 6);
+  }, [customers]);
+
+  const topCustomers = useMemo(() => (customers ?? []).slice(0, 5), [customers]);
+  const topCommissionTypes = useMemo(() => {
+    const entries = Object.entries(summary?.summary.byType ?? {});
+    return entries.sort((a, b) => b[1].amount - a[1].amount);
+  }, [summary]);
+
+  const periodComparison = useMemo(() => {
+    const data = summary?.dailyData ?? [];
+    if (data.length === 0) {
+      return { direction: "up" as const, value: 0 };
+    }
+    const midpoint = Math.floor(data.length / 2);
+    const firstHalf = data.slice(0, midpoint);
+    const secondHalf = data.slice(midpoint);
+    const firstAmount = firstHalf.reduce((sum, item) => sum + item.earned, 0);
+    const secondAmount = secondHalf.reduce((sum, item) => sum + item.earned, 0);
+    return changeIndicator(secondAmount, firstAmount);
+  }, [summary]);
+
+  if (!summary || !stats || !orders || !customers) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  const totalCustomers = customers.length;
+  const convertedCustomers = customers.filter((customer) => customer.status === "converted").length;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-          <p className="text-gray-600">Track your reseller performance and sales metrics</p>
-        </div>
-        <div className="flex items-center space-x-3">
+      <PageHeader
+        title="Analytics"
+        description="Live reseller analytics built from commissions, orders, and assigned school records."
+        actions={
           <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
+            value={period}
+            onChange={(event) => setPeriod(event.target.value as "30d" | "90d" | "1y")}
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm"
           >
-            <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
             <option value="90d">Last 90 days</option>
             <option value="1y">Last year</option>
           </select>
-          <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </button>
-        </div>
+        }
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <LineChart className="h-8 w-8 text-primary" />
+            <div>
+              <p className="text-sm text-muted-foreground">Commission Earned</p>
+              <p className="text-2xl font-semibold">{formatMoney(summary.summary.totalAmount)}</p>
+              <p className="flex items-center text-xs text-muted-foreground">
+                {periodComparison.direction === "up" ? (
+                  <ArrowUp className="mr-1 h-3 w-3 text-emerald-500" />
+                ) : (
+                  <ArrowDown className="mr-1 h-3 w-3 text-red-500" />
+                )}
+                {periodComparison.value.toFixed(1)}% versus previous period slice
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <ShoppingCart className="h-8 w-8 text-sky-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Orders</p>
+              <p className="text-2xl font-semibold">{orderMetrics.totalOrders}</p>
+              <p className="text-xs text-muted-foreground">
+                Avg {formatMoneyFromCents(orderMetrics.averageOrderCents)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Users className="h-8 w-8 text-emerald-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Customers</p>
+              <p className="text-2xl font-semibold">{totalCustomers}</p>
+              <p className="text-xs text-muted-foreground">
+                {convertedCustomers} converted schools
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Target className="h-8 w-8 text-amber-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Conversion Rate</p>
+              <p className="text-2xl font-semibold">{stats.conversionRate ?? 0}%</p>
+              <p className="text-xs text-muted-foreground">
+                {formatMoneyFromCents(orderMetrics.totalValueCents)} total order value
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          title="Total Revenue"
-          value={keyMetrics.totalRevenue}
-          change={22.5}
-          icon={DollarSign}
-          color="green"
-          prefix="KES "
-        />
-        <MetricCard
-          title="Total Orders"
-          value={keyMetrics.totalOrders}
-          change={15.2}
-          icon={ShoppingCart}
-          color="blue"
-        />
-        <MetricCard
-          title="Total Customers"
-          value={keyMetrics.totalCustomers}
-          change={18.2}
-          icon={Users}
-          color="purple"
-        />
-        <MetricCard
-          title="Conversion Rate"
-          value={`${keyMetrics.conversionRate}%`}
-          change={3.1}
-          icon={Target}
-          color="yellow"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Revenue Overview</h2>
-            <select
-              value={selectedMetric}
-              onChange={(e) => setSelectedMetric(e.target.value)}
-              className="text-sm border border-gray-300 rounded-md px-2 py-1"
-            >
-              <option value="revenue">Revenue</option>
-              <option value="orders">Orders</option>
-              <option value="customers">Customers</option>
-            </select>
-          </div>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <div className="text-center text-gray-500">
-              <BarChart3 className="h-12 w-12 mx-auto mb-2" />
-              <p>Revenue chart</p>
-              <p className="text-sm">KES {keyMetrics.totalRevenue.toLocaleString()} total</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Customer Growth */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Customer Growth</h2>
-          <div className="space-y-3">
-            {[
-              { metric: "New Customers", value: 45, change: 22 },
-              { metric: "Returning Customers", value: 189, change: 15 },
-              { metric: "Customer Retention", value: "85.3%", change: 3.2 },
-            ].map((item, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{item.metric}</p>
-                  <p className="text-2xl font-semibold text-gray-900">{item.value}</p>
-                </div>
-                <div className={`flex items-center text-sm ${
-                  item.change >= 0 ? "text-green-600" : "text-red-600"
-                }`}>
-                  {item.change >= 0 ? (
-                    <ArrowUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3 mr-1" />
-                  )}
-                  {Math.abs(item.change)}%
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Product Performance */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Performance</h2>
-          <div className="space-y-3">
-            {productData.map((product) => (
-              <div key={product.name} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Package className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{product.name}</p>
-                    <p className="text-sm text-gray-500">{product.orders} orders</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600">{product.sales} sold</span>
-                  <span className="text-sm font-medium text-gray-900">KES {product.revenue.toLocaleString()}</span>
-                  <span className={`text-sm ${
-                    product.growth >= 0 ? "text-green-600" : "text-red-600"
-                  }`}>
-                    {product.growth >= 0 ? "+" : ""}{product.growth}%
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Customer Types */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Customer Segments</h2>
-          <div className="space-y-3">
-            {customerData.map((segment) => (
-              <div key={segment.type} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Store className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{segment.type}s</p>
-                    <p className="text-sm text-gray-500">{segment.count} customers</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm font-medium text-gray-900">KES {segment.revenue.toLocaleString()}</span>
-                  <span className={`text-sm ${
-                    segment.growth >= 0 ? "text-green-600" : "text-red-600"
-                  }`}>
-                    {segment.growth >= 0 ? "+" : ""}{segment.growth}%
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Geographic Distribution */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Geographic Distribution</h2>
-          <div className="space-y-3">
-            {geographicData.map((region) => (
-              <div key={region.region} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Globe className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{region.region}</p>
-                    <p className="text-sm text-gray-500">{region.customers} customers</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600">{region.orders} orders</span>
-                  <span className="text-sm font-medium text-gray-900">KES {region.revenue.toLocaleString()}</span>
-                  <span className={`text-sm ${
-                    region.growth >= 0 ? "text-green-600" : "text-red-600"
-                  }`}>
-                    {region.growth >= 0 ? "+" : ""}{region.growth}%
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Performance Trends */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Performance Trends</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="font-medium text-green-900">Best Sales Day</p>
-                  <p className="text-sm text-green-700">Saturday - 28 orders, KES 23,000</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Eye className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="font-medium text-blue-900">Peak Activity Time</p>
-                  <p className="text-sm text-blue-700">2:00 PM - 4:00 PM EAT</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Target className="h-5 w-5 text-purple-600" />
-                <div>
-                  <p className="font-medium text-purple-900">Top Product</p>
-                  <p className="text-sm text-purple-700">EduMyles Premium Package</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Users className="h-5 w-5 text-yellow-600" />
-                <div>
-                  <p className="font-medium text-yellow-900">Best Customer Type</p>
-                  <p className="text-sm text-yellow-700">Schools - 156 customers</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Sales Funnel */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Sales Funnel Analysis</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-md font-medium text-gray-900 mb-3">Conversion Funnel</h3>
-            <div className="space-y-3">
-              {[
-                { stage: "Website Visitors", count: 12450, rate: 100 },
-                { stage: "Product Views", count: 5672, rate: 45.6 },
-                { stage: "Add to Cart", count: 1234, rate: 21.8 },
-                { stage: "Checkout Started", count: 789, rate: 63.9 },
-                { stage: "Orders Completed", count: 567, rate: 71.9 },
-              ].map((stage, index) => (
-                <div key={stage.stage} className="flex items-center">
-                  <div className="w-40 text-sm font-medium text-gray-900">{stage.stage}</div>
-                  <div className="flex-1 mx-4">
-                    <div className="bg-gray-200 rounded-full h-6 relative">
-                      <div
-                        className="bg-[#0F4C2A] h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
-                        style={{ width: `${stage.rate}%` }}
-                      >
-                        {stage.count.toLocaleString()}
-                      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Commission By Type</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {topCommissionTypes.length === 0 ? (
+              <EmptyState
+                icon={LineChart}
+                title="No commission activity"
+                description="Commission type analytics will populate as new reseller commissions are earned."
+              />
+            ) : (
+              <div className="space-y-3">
+                {topCommissionTypes.map(([type, entry]) => (
+                  <div key={type} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                    <div>
+                      <p className="font-medium capitalize">{type.replaceAll("_", " ")}</p>
+                      <p className="text-muted-foreground">{entry.count} records</p>
                     </div>
+                    <p className="font-medium">{formatMoney(entry.amount)}</p>
                   </div>
-                  <div className="w-16 text-right text-sm text-gray-600">{stage.rate}%</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h3 className="text-md font-medium text-gray-900 mb-3">Key Insights</h3>
-            <div className="space-y-3">
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm font-medium text-blue-900">View-to-Cart Rate</p>
-                <p className="text-sm text-blue-700">21.8% of product views add to cart</p>
+                ))}
               </div>
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm font-medium text-green-900">Cart Completion Rate</p>
-                <p className="text-sm text-green-700">71.9% of carts result in completed orders</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Customer Lifecycle</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {customerStatusBreakdown.length === 0 ? (
+              <EmptyState
+                icon={Users}
+                title="No customer lifecycle data"
+                description="Assigned schools will populate the lifecycle view."
+              />
+            ) : (
+              <div className="space-y-3">
+                {customerStatusBreakdown.map(([status, count]) => (
+                  <div key={status} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                    <span className="font-medium capitalize">{status.replaceAll("_", " ")}</span>
+                    <Badge variant={status === "converted" ? "default" : "outline"}>{count}</Badge>
+                  </div>
+                ))}
               </div>
-              <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                <p className="text-sm font-medium text-purple-900">Overall Conversion</p>
-                <p className="text-sm text-purple-700">4.6% of visitors complete a purchase</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Customers By Order Value</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {topCustomers.length === 0 ? (
+              <EmptyState
+                icon={ShoppingCart}
+                title="No customer revenue yet"
+                description="Top customer rankings will appear once reseller-linked schools start ordering."
+              />
+            ) : (
+              <div className="space-y-3">
+                {topCustomers.map((customer, index) => (
+                  <div
+                    key={customer.schoolId}
+                    className="flex items-center justify-between rounded-md border p-3 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium">
+                        {index + 1}. {customer.schoolName}
+                      </p>
+                      <p className="text-muted-foreground">
+                        {customer.orderCount} orders
+                        {customer.tenantPlan ? ` · ${customer.tenantPlan} plan` : ""}
+                      </p>
+                    </div>
+                    <p className="font-medium">{formatMoneyFromCents(customer.totalOrderCents)}</p>
+                  </div>
+                ))}
               </div>
-            </div>
-          </div>
-        </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Regional Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {regionBreakdown.length === 0 ? (
+              <EmptyState
+                icon={Globe2}
+                title="No location data yet"
+                description="Regions will appear as soon as reseller-linked schools have tenant details."
+              />
+            ) : (
+              <div className="space-y-3">
+                {regionBreakdown.map((region) => (
+                  <div
+                    key={region.region}
+                    className="flex items-center justify-between rounded-md border p-3 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium">{region.region}</p>
+                      <p className="text-muted-foreground">{region.customers} schools</p>
+                    </div>
+                    <p className="font-medium">{formatMoneyFromCents(region.orderCents)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

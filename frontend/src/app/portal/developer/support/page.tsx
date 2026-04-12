@@ -1,406 +1,292 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  MessageSquare,
-  Plus,
-  Search,
-  Filter,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  XCircle,
-  Reply,
-  Paperclip,
-  Send,
-  HelpCircle,
-  BookOpen,
-  Mail,
-  Phone,
-} from "lucide-react";
+import { useMemo, useState } from "react";
+import { Id } from "@/convex/_generated/dataModel";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { SearchInput } from "@/components/shared/SearchInput";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { MessageSquare, Plus, Search, Send } from "lucide-react";
 
-export default function DeveloperSupport() {
-  const [activeTab, setActiveTab] = useState("tickets");
-  const [showNewTicketModal, setShowNewTicketModal] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState(null);
+type SupportTicketList = {
+  tickets: Array<{
+    _id: Id<"publisher_support_tickets">;
+    subject: string;
+    status: "open" | "in_progress" | "resolved" | "closed";
+    priority: "low" | "medium" | "high" | "critical";
+    updatedAt: number;
+    createdAt: number;
+    thread?: Array<{
+      authorEmail?: string;
+      content: string;
+      createdAt: number;
+    }>;
+  }>;
+  total: number;
+};
 
-  // Mock data - in real app this would come from Convex
-  const tickets = [
-    {
-      id: 1,
-      subject: "Module deployment issue",
-      description: "My latest module update is not deploying correctly",
-      status: "open",
-      priority: "high",
-      category: "technical",
-      createdAt: "2024-01-20T10:30:00Z",
-      updatedAt: "2024-01-20T14:15:00Z",
-      replies: 3,
-      lastReply: "EduMyles Support Team",
-    },
-    {
-      id: 2,
-      subject: "Revenue reporting discrepancy",
-      description: "Revenue numbers don't match my calculations",
-      status: "in_progress",
-      priority: "medium",
-      category: "billing",
-      createdAt: "2024-01-18T09:00:00Z",
-      updatedAt: "2024-01-19T16:45:00Z",
-      replies: 5,
-      lastReply: "John Developer",
-    },
-    {
-      id: 3,
-      subject: "API rate limiting question",
-      description: "Need clarification on API rate limits for my module",
-      status: "resolved",
-      priority: "low",
-      category: "technical",
-      createdAt: "2024-01-15T14:20:00Z",
-      updatedAt: "2024-01-16T11:30:00Z",
-      replies: 2,
-      lastReply: "EduMyles Support Team",
-    },
-  ];
+type SupportTicketDetail = {
+  _id: Id<"publisher_support_tickets">;
+  subject: string;
+  status: "open" | "in_progress" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "critical";
+  thread?: Array<{
+    authorEmail?: string;
+    content: string;
+    createdAt: number;
+    authorRole?: string;
+  }>;
+};
 
-  const faqs = [
-    {
-      question: "How do I update my published module?",
-      answer: "You can update your module through the developer portal. Go to My Modules, select your module, and click 'Edit'. After making changes, submit for review."
-    },
-    {
-      question: "When will I receive my revenue payments?",
-      answer: "Revenue payments are processed monthly. You'll receive payment within 15 days after the end of each month for your earnings."
-    },
-    {
-      question: "What are the commission rates?",
-      answer: "Commission rates vary by tier: Indie (15%), Verified (20%), and Enterprise (25%). Higher tiers also get additional benefits."
-    },
-    {
-      question: "How can I get my module featured?",
-      answer: "Modules with high ratings, regular updates, and good user engagement are more likely to be featured. Focus on quality and user experience."
-    },
-  ];
+export default function DeveloperSupportPage() {
+  const [search, setSearch] = useState("");
+  const [openNew, setOpenNew] = useState(false);
+  const [selectedTicketId, setSelectedTicketId] =
+    useState<Id<"publisher_support_tickets"> | null>(null);
+  const [draft, setDraft] = useState({
+    title: "",
+    body: "",
+    category: "technical" as "technical" | "billing" | "account" | "feature" | "other",
+    priority: "P2" as "P0" | "P1" | "P2" | "P3",
+  });
+  const [reply, setReply] = useState("");
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "open":
-        return "bg-blue-100 text-blue-800";
-      case "in_progress":
-        return "bg-yellow-100 text-yellow-800";
-      case "resolved":
-        return "bg-green-100 text-green-800";
-      case "closed":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const tickets = useQuery(api.modules.publisher.mutations.support.getSupportTickets, {}) as
+    | SupportTicketList
+    | undefined;
+  const detail = useQuery(
+    api.modules.publisher.mutations.support.getSupportTicketDetail,
+    selectedTicketId ? { ticketId: selectedTicketId } : "skip"
+  ) as SupportTicketDetail | undefined;
+  const createTicket = useMutation(
+    api.modules.publisher.mutations.support.createSupportTicket
+  );
+  const addComment = useMutation(api.modules.publisher.mutations.support.addTicketComment);
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "open":
-        return <MessageSquare className="h-4 w-4" />;
-      case "in_progress":
-        return <Clock className="h-4 w-4" />;
-      case "resolved":
-        return <CheckCircle className="h-4 w-4" />;
-      case "closed":
-        return <XCircle className="h-4 w-4" />;
-      default:
-        return <MessageSquare className="h-4 w-4" />;
-    }
-  };
+  const filtered = useMemo(
+    () =>
+      (tickets?.tickets ?? []).filter((ticket) =>
+        [ticket.subject, ticket.status, ticket.priority]
+          .join(" ")
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      ),
+    [tickets, search]
+  );
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "bg-red-100 text-red-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      case "low":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  if (!tickets) return <LoadingSkeleton variant="page" />;
+
+  async function submitTicket() {
+    await createTicket(draft);
+    setDraft({ title: "", body: "", category: "technical", priority: "P2" });
+    setOpenNew(false);
+  }
+
+  async function submitReply() {
+    if (!selectedTicketId || !reply.trim()) return;
+    await addComment({
+      ticketId: selectedTicketId,
+      content: reply,
+      isInternal: false,
+    });
+    setReply("");
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Support</h1>
-          <p className="text-gray-600">Get help with your modules and account</p>
-        </div>
-        {activeTab === "tickets" && (
-          <button
-            onClick={() => setShowNewTicketModal(true)}
-            className="flex items-center px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12] transition-colors"
-          >
-            <Plus className="h-4 w-4 mr-2" />
+      <PageHeader
+        title="Support"
+        description="Live developer support tickets backed by Convex publisher support records."
+        actions={
+          <Button onClick={() => setOpenNew(true)}>
+            <Plus className="mr-2 h-4 w-4" />
             New Ticket
-          </button>
-        )}
+          </Button>
+        }
+      />
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground">Total Tickets</p><p className="text-2xl font-semibold">{tickets.total}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground">Open</p><p className="text-2xl font-semibold">{tickets.tickets.filter((ticket) => ["open", "in_progress"].includes(ticket.status)).length}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground">Resolved</p><p className="text-2xl font-semibold">{tickets.tickets.filter((ticket) => ticket.status === "resolved").length}</p></CardContent></Card>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: "tickets", label: "Support Tickets", icon: MessageSquare },
-            { id: "faq", label: "FAQ", icon: HelpCircle },
-            { id: "contact", label: "Contact", icon: Mail },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                py-2 px-1 border-b-2 font-medium text-sm flex items-center
-                ${activeTab === tab.id
-                  ? "border-[#0F4C2A] text-[#0F4C2A]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }
-              `}
-            >
-              <tab.icon className="h-4 w-4 mr-2" />
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Tickets Tab */}
-      {activeTab === "tickets" && (
-        <div className="space-y-6">
-          {/* Filters */}
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search tickets..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  />
-                </div>
-              </div>
-              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]">
-                <option value="all">All Status</option>
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
-              </select>
-              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]">
-                <option value="all">All Priority</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Tickets List */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="divide-y divide-gray-200">
-              {tickets.map((ticket) => (
-                <div
-                  key={ticket.id}
-                  className="p-6 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setSelectedTicket(ticket)}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tickets</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search support tickets..."
+            className="max-w-xl"
+          />
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={Search}
+              title="No tickets found"
+              description="Create a developer support ticket when you need help."
+            />
+          ) : (
+            <div className="space-y-3">
+              {filtered.map((ticket) => (
+                <button
+                  key={ticket._id}
+                  type="button"
+                  onClick={() => setSelectedTicketId(ticket._id)}
+                  className="w-full rounded-md border p-4 text-left hover:bg-muted/40"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-medium text-gray-900">{ticket.subject}</h3>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
-                          {getStatusIcon(ticket.status)}
-                          <span className="ml-1">
-                            {ticket.status.replace("_", " ").charAt(0).toUpperCase() + ticket.status.slice(1).replace("_", " ")}
-                          </span>
-                        </span>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
-                          {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
-                        </span>
-                      </div>
-                      <p className="text-gray-600 mb-2">{ticket.description}</p>
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span>#{ticket.id}</span>
-                        <span>Created {new Date(ticket.createdAt).toLocaleDateString()}</span>
-                        <span>Updated {new Date(ticket.updatedAt).toLocaleDateString()}</span>
-                        <span>{ticket.replies} replies</span>
-                        <span>Last reply: {ticket.lastReply}</span>
-                      </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{ticket.subject}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Created {new Date(ticket.createdAt).toLocaleString()} · Updated{" "}
+                        {new Date(ticket.updatedAt).toLocaleString()}
+                      </p>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {ticket.thread?.[0]?.content ?? "No conversation preview"}
+                      </p>
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Badge variant="outline">{ticket.priority}</Badge>
+                      <Badge variant={ticket.status === "open" ? "default" : "secondary"}>
+                        {ticket.status.replaceAll("_", " ")}
+                      </Badge>
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
-          </div>
-        </div>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
-      {/* FAQ Tab */}
-      {activeTab === "faq" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Frequently Asked Questions</h2>
-              <div className="space-y-4">
-                {faqs.map((faq, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 mb-2">{faq.question}</h3>
-                    <p className="text-gray-600">{faq.answer}</p>
-                  </div>
-                ))}
-              </div>
+      <Dialog open={openNew} onOpenChange={setOpenNew}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Developer Ticket</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              value={draft.title}
+              onChange={(e) => setDraft((current) => ({ ...current, title: e.target.value }))}
+              placeholder="Ticket title"
+            />
+            <Textarea
+              rows={5}
+              value={draft.body}
+              onChange={(e) => setDraft((current) => ({ ...current, body: e.target.value }))}
+              placeholder="Describe the issue"
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <select
+                value={draft.category}
+                onChange={(e) =>
+                  setDraft((current) => ({
+                    ...current,
+                    category: e.target.value as typeof draft.category,
+                  }))
+                }
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="technical">Technical</option>
+                <option value="billing">Billing</option>
+                <option value="account">Account</option>
+                <option value="feature">Feature</option>
+                <option value="other">Other</option>
+              </select>
+              <select
+                value={draft.priority}
+                onChange={(e) =>
+                  setDraft((current) => ({
+                    ...current,
+                    priority: e.target.value as typeof draft.priority,
+                  }))
+                }
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="P0">P0</option>
+                <option value="P1">P1</option>
+                <option value="P2">P2</option>
+                <option value="P3">P3</option>
+              </select>
             </div>
+            <Button onClick={submitTicket} disabled={!draft.title.trim() || !draft.body.trim()}>
+              <Send className="mr-2 h-4 w-4" />
+              Submit Ticket
+            </Button>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Resources</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <a href="#" className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <BookOpen className="h-6 w-6 text-[#0F4C2A] mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Developer Documentation</p>
-                  <p className="text-sm text-gray-600">Complete API reference and guides</p>
-                </div>
-              </a>
-              <a href="#" className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <HelpCircle className="h-6 w-6 text-[#0F4C2A] mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Module Guidelines</p>
-                  <p className="text-sm text-gray-600">Best practices for module development</p>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Contact Tab */}
-      {activeTab === "contact" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Support</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Mail className="h-6 w-6 text-[#0F4C2A] mt-1" />
-                  <div>
-                    <p className="font-medium text-gray-900">Email Support</p>
-                    <p className="text-gray-600">developers@edumyles.com</p>
-                    <p className="text-sm text-gray-500">Response time: 24-48 hours</p>
+      <Dialog open={!!selectedTicketId} onOpenChange={(open) => !open && setSelectedTicketId(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{detail?.subject ?? "Ticket"}</DialogTitle>
+          </DialogHeader>
+          {!detail ? (
+            <LoadingSkeleton variant="table" />
+          ) : (
+            <div className="space-y-4">
+              <Card>
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{detail.priority}</Badge>
+                    <Badge variant={detail.status === "open" ? "default" : "secondary"}>
+                      {detail.status.replaceAll("_", " ")}
+                    </Badge>
                   </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <Phone className="h-6 w-6 text-[#0F4C2A] mt-1" />
-                  <div>
-                    <p className="font-medium text-gray-900">Phone Support</p>
-                    <p className="text-gray-600">+254 743 993 715</p>
-                    <p className="text-sm text-gray-500">Mon-Fri, 9AM-5PM EAT</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Conversation</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {(detail.thread ?? []).length === 0 ? (
+                    <EmptyState
+                      icon={MessageSquare}
+                      title="No conversation yet"
+                      description="Replies will appear here once the ticket thread starts."
+                    />
+                  ) : (
+                    (detail.thread ?? []).map((entry, index) => (
+                      <div key={`${entry.createdAt}-${index}`} className="rounded-md border p-3 text-sm">
+                        <p className="font-medium">{entry.authorEmail ?? entry.authorRole ?? "Unknown author"}</p>
+                        <p className="mt-1">{entry.content}</p>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {new Date(entry.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                  <div className="space-y-3 border-t pt-3">
+                    <Textarea
+                      rows={4}
+                      value={reply}
+                      onChange={(e) => setReply(e.target.value)}
+                      placeholder="Add a reply"
+                    />
+                    <Button onClick={submitReply} disabled={!reply.trim()}>
+                      <Send className="mr-2 h-4 w-4" />
+                      Send Reply
+                    </Button>
                   </div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                    placeholder="How can we help?"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                  <textarea
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                    placeholder="Describe your issue..."
-                  />
-                </div>
-                <button className="w-full px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12] transition-colors">
-                  Send Message
-                </button>
-              </div>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* New Ticket Modal */}
-      {showNewTicketModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={() => setShowNewTicketModal(false)} />
-            <div className="relative bg-white rounded-lg max-w-2xl w-full p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Create Support Ticket</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                    placeholder="Brief description of your issue"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]">
-                    <option value="technical">Technical Issue</option>
-                    <option value="billing">Billing Question</option>
-                    <option value="account">Account Issue</option>
-                    <option value="feature">Feature Request</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]">
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                    placeholder="Detailed description of your issue"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Attachments (optional)</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                    <Paperclip className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Drop files here or click to upload</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={() => setShowNewTicketModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => setShowNewTicketModal(false)}
-                  className="flex items-center px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12]"
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  Create Ticket
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

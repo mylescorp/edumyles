@@ -1,429 +1,200 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  User,
-  Building2,
-  Mail,
-  Phone,
-  Globe,
-  FileText,
-  Upload,
-  CheckCircle,
-  AlertCircle,
-  Clock,
-  Edit,
-  Save,
-  X,
-  Camera,
-  Shield,
-  CreditCard,
-  Settings,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Award, Globe, Mail, Save, ShieldCheck, Wallet } from "lucide-react";
 
-export default function DeveloperProfile() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
-
-  // Mock data - in real app this would come from Convex
-  const profileData = {
-    businessName: "TechEdu Solutions",
-    businessType: "company",
-    description: "We specialize in developing innovative educational technology solutions for African schools.",
-    website: "https://techedu.example.com",
-    contactPhone: "+254 743 993 715",
-    contactAddress: "123 Innovation Drive, Nairobi, Kenya",
-    country: "Kenya",
-    establishedYear: "2020",
-    teamSize: "11-50",
-    tier: "verified",
-    status: "active",
-    joinedDate: "2023-06-15",
-    totalRevenue: 284500,
-    modulesCount: 8,
-    averageRating: 4.7,
-    totalReviews: 342,
+type PublisherProfile = {
+  companyName: string;
+  email: string;
+  website?: string;
+  status: "pending" | "approved" | "rejected" | "suspended" | "banned";
+  tier: "indie" | "verified" | "enterprise";
+  revenueSharePct: number;
+  webhookUrl?: string;
+  taxId?: string;
+  billingCountry?: string;
+  bankDetails?: {
+    bankName?: string;
+    accountName?: string;
+    accountNumber?: string;
   };
+};
 
-  const [formData, setFormData] = useState(profileData);
+type PublisherStats = {
+  totalModules: number;
+  publishedModules: number;
+  totalInstalls: number;
+  activeInstalls: number;
+  revenueSharePct: number;
+  status: string;
+  tier: string;
+};
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+export default function DeveloperProfilePage() {
+  const profile = useQuery(api.modules.publisher.mutations.profile.getMyProfile, {}) as
+    | PublisherProfile
+    | undefined;
+  const stats = useQuery(api.modules.publisher.mutations.profile.getStats, {}) as
+    | PublisherStats
+    | undefined;
+  const updateProfile = useMutation(api.modules.publisher.mutations.profile.updateProfile);
 
-  const handleSave = () => {
-    // In real app, save to Convex
-    setIsEditing(false);
-  };
+  const [form, setForm] = useState({
+    businessName: "",
+    email: "",
+    website: "",
+    taxId: "",
+    billingCountry: "",
+    webhookUrl: "",
+  });
+  const [saving, setSaving] = useState(false);
 
-  const handleCancel = () => {
-    setFormData(profileData);
-    setIsEditing(false);
-  };
+  useEffect(() => {
+    if (!profile) return;
+    setForm({
+      businessName: profile.companyName,
+      email: profile.email,
+      website: profile.website ?? "",
+      taxId: profile.taxId ?? "",
+      billingCountry: profile.billingCountry ?? "",
+      webhookUrl: profile.webhookUrl ?? "",
+    });
+  }, [profile]);
 
-  const getTierColor = (tier: string) => {
-    switch (tier) {
-      case "indie":
-        return "bg-gray-100 text-gray-800";
-      case "verified":
-        return "bg-blue-100 text-blue-800";
-      case "enterprise":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  if (!profile || !stats) return <LoadingSkeleton variant="page" />;
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await updateProfile({
+        businessName: form.businessName,
+        email: form.email,
+        website: form.website || undefined,
+        taxId: form.taxId || undefined,
+        billingCountry: form.billingCountry || undefined,
+        webhookUrl: form.webhookUrl || undefined,
+      });
+    } finally {
+      setSaving(false);
     }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "suspended":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-        <p className="text-gray-600">Manage your publisher profile and account settings</p>
-      </div>
+      <PageHeader
+        title="Profile"
+        description="Manage the live publisher identity attached to your developer account."
+        badge={<Badge>{profile.tier} tier</Badge>}
+      />
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: "profile", label: "Profile", icon: User },
-            { id: "verification", label: "Verification", icon: Shield },
-            { id: "billing", label: "Billing", icon: CreditCard },
-            { id: "settings", label: "Settings", icon: Settings },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                py-2 px-1 border-b-2 font-medium text-sm flex items-center
-                ${activeTab === tab.id
-                  ? "border-[#0F4C2A] text-[#0F4C2A]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+      <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Publisher Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input
+              value={form.businessName}
+              onChange={(e) => setForm((current) => ({ ...current, businessName: e.target.value }))}
+              placeholder="Business name"
+            />
+            <Input
+              value={form.email}
+              onChange={(e) => setForm((current) => ({ ...current, email: e.target.value }))}
+              placeholder="Account email"
+            />
+            <Input
+              value={form.website}
+              onChange={(e) => setForm((current) => ({ ...current, website: e.target.value }))}
+              placeholder="Website"
+            />
+            <div className="grid gap-4 md:grid-cols-2">
+              <Input
+                value={form.taxId}
+                onChange={(e) => setForm((current) => ({ ...current, taxId: e.target.value }))}
+                placeholder="Tax ID"
+              />
+              <Input
+                value={form.billingCountry}
+                onChange={(e) =>
+                  setForm((current) => ({ ...current, billingCountry: e.target.value }))
                 }
-              `}
-            >
-              <tab.icon className="h-4 w-4 mr-2" />
-              {tab.label}
-            </button>
-          ))}
-        </nav>
+                placeholder="Billing country"
+              />
+            </div>
+            <Input
+              value={form.webhookUrl}
+              onChange={(e) => setForm((current) => ({ ...current, webhookUrl: e.target.value }))}
+              placeholder="Webhook URL"
+            />
+            <Button onClick={handleSave} disabled={saving}>
+              <Save className="mr-2 h-4 w-4" />
+              {saving ? "Saving..." : "Save Profile"}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                {profile.status}
+              </div>
+              <div className="flex items-center gap-2">
+                <Award className="h-4 w-4 text-amber-500" />
+                {profile.tier} tier
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                {profile.email}
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                {profile.website ?? "No website configured"}
+              </div>
+              <div className="flex items-center gap-2">
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+                {profile.revenueSharePct}% revenue share
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Snapshot</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <p>{stats.totalModules} total modules</p>
+              <p>{stats.publishedModules} published modules</p>
+              <p>{stats.totalInstalls} installs</p>
+              <p>{stats.activeInstalls} active installs</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Banking</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <p>{profile.bankDetails?.bankName ?? "No bank name configured"}</p>
+              <p>{profile.bankDetails?.accountName ?? "No account name configured"}</p>
+              <p>{profile.bankDetails?.accountNumber ?? "No account number configured"}</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {/* Profile Tab */}
-      {activeTab === "profile" && (
-        <div className="space-y-6">
-          {/* Profile Header */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <div className="w-20 h-20 bg-[#0F4C2A] rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                    {profileData.businessName.charAt(0)}
-                  </div>
-                  {isEditing && (
-                    <button className="absolute bottom-0 right-0 p-1 bg-[#0F4C2A] text-white rounded-full hover:bg-[#061A12]">
-                      <Camera className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">{profileData.businessName}</h2>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTierColor(profileData.tier)}`}>
-                      {profileData.tier.charAt(0).toUpperCase() + profileData.tier.slice(1)} Tier
-                    </span>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(profileData.status)}`}>
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      {profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Member since {new Date(profileData.joinedDate).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-              >
-                {isEditing ? (
-                  <>
-                    <X className="h-4 w-4 mr-2" />
-                    Cancel
-                  </>
-                ) : (
-                  <>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{profileData.modulesCount}</p>
-                <p className="text-sm text-gray-600">Modules</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">KES {profileData.totalRevenue.toLocaleString()}</p>
-                <p className="text-sm text-gray-600">Total Revenue</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{profileData.averageRating}</p>
-                <p className="text-sm text-gray-600">Avg Rating</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{profileData.totalReviews}</p>
-                <p className="text-sm text-gray-600">Reviews</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Profile Form */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Business Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
-                <input
-                  type="text"
-                  value={formData.businessName}
-                  onChange={(e) => handleInputChange("businessName", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
-                <select
-                  value={formData.businessType}
-                  onChange={(e) => handleInputChange("businessType", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                >
-                  <option value="individual">Individual Developer</option>
-                  <option value="company">Company</option>
-                </select>
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Business Description</label>
-                <textarea
-                  rows={3}
-                  value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
-                <input
-                  type="url"
-                  value={formData.website}
-                  onChange={(e) => handleInputChange("website", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={formData.contactPhone}
-                  onChange={(e) => handleInputChange("contactPhone", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <textarea
-                  rows={2}
-                  value={formData.contactAddress}
-                  onChange={(e) => handleInputChange("contactAddress", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                <select
-                  value={formData.country}
-                  onChange={(e) => handleInputChange("country", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                >
-                  <option value="Kenya">Kenya</option>
-                  <option value="Uganda">Uganda</option>
-                  <option value="Tanzania">Tanzania</option>
-                  <option value="Rwanda">Rwanda</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Team Size</label>
-                <select
-                  value={formData.teamSize}
-                  onChange={(e) => handleInputChange("teamSize", e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A] disabled:bg-gray-50 disabled:text-gray-500"
-                >
-                  <option value="1-10">1-10</option>
-                  <option value="11-50">11-50</option>
-                  <option value="51-200">51-200</option>
-                  <option value="200+">200+</option>
-                </select>
-              </div>
-            </div>
-
-            {isEditing && (
-              <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <button
-                  onClick={handleCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="flex items-center px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12]"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Verification Tab */}
-      {activeTab === "verification" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Verification Status</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">Business Information</p>
-                    <p className="text-sm text-gray-500">Verified on June 15, 2023</p>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Verified</span>
-              </div>
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <Clock className="h-5 w-5 text-yellow-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">Identity Verification</p>
-                    <p className="text-sm text-gray-500">Upload government-issued ID</p>
-                  </div>
-                </div>
-                <button className="px-3 py-1 bg-[#0F4C2A] text-white text-xs font-medium rounded hover:bg-[#061A12]">
-                  Upload
-                </button>
-              </div>
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <AlertCircle className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="font-medium text-gray-900">Tax Documentation</p>
-                    <p className="text-sm text-gray-500">Not required yet</p>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded">Not Started</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tier Information</h3>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h4 className="font-medium text-blue-900">Current Tier: Verified</h4>
-                  <p className="text-sm text-blue-700">You have access to advanced features and priority support</p>
-                </div>
-                <button className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700">
-                  Request Upgrade
-                </button>
-              </div>
-              <div className="space-y-2 text-sm text-blue-800">
-                <p>Benefits:</p>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Up to 20 modules</li>
-                  <li>Advanced analytics</li>
-                  <li>Priority support</li>
-                  <li>Marketing tools</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Billing Tab */}
-      {activeTab === "billing" && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Billing Information</h3>
-          <div className="text-center py-8">
-            <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Billing and payment features coming soon</p>
-          </div>
-        </div>
-      )}
-
-      {/* Settings Tab */}
-      {activeTab === "settings" && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b border-gray-200">
-              <div>
-                <p className="font-medium text-gray-900">Email Notifications</p>
-                <p className="text-sm text-gray-500">Receive updates about your modules</p>
-              </div>
-              <button className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer bg-gray-200 transition-colors">
-                <span className="translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform"></span>
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-gray-200">
-              <div>
-                <p className="font-medium text-gray-900">Marketing Emails</p>
-                <p className="text-sm text-gray-500">Receive promotional emails from EduMyles</p>
-              </div>
-              <button className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer bg-[#0F4C2A] transition-colors">
-                <span className="translate-x-5 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform"></span>
-              </button>
-            </div>
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-                <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
-              </div>
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-                Enable
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

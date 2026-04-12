@@ -13,41 +13,83 @@ export const getDashboardStats = query({
       .withIndex("by_publisherId", q => q.eq("publisherId", publisher.publisherId))
       .collect();
 
-    // Get installed modules
-    const moduleIds = modules.map(m => m.moduleId);
-    const installations = await ctx.db
-      .query("installedModules")
-      .filter(q => 
-        q.or(...moduleIds.map(moduleId => q.eq("moduleId", moduleId)))
-      )
-      .collect();
+    const moduleIds = modules.map((m) => String(m._id));
+    const [installations, reviews, payments, installStats] = await Promise.all([
+      moduleIds.length === 0
+        ? Promise.resolve([])
+        : ctx.db
+            .query("module_installs")
+            .collect()
+            .then((items) => items.filter((install) => moduleIds.includes(install.moduleId))),
+      moduleIds.length === 0
+        ? Promise.resolve([])
+        : ctx.db
+            .query("module_reviews")
+            .collect()
+            .then((items) => items.filter((review) => moduleIds.includes(review.moduleId))),
+      moduleIds.length === 0
+        ? Promise.resolve([])
+        : ctx.db
+            .query("module_payments")
+            .collect()
+            .then((items) => items.filter((payment) => moduleIds.includes(payment.moduleId))),
+      moduleIds.length === 0
+        ? Promise.resolve([])
+        : ctx.db
+            .query("module_install_stats")
+            .collect()
+            .then((items) => items.filter((stat) => moduleIds.includes(stat.moduleId))),
+    ]);
 
     // Calculate stats
     const totalModules = modules.length;
     const activeModules = modules.filter(m => m.status === "published").length;
     const totalInstalls = installations.length;
     const activeInstalls = installations.filter(i => i.status === "active").length;
-    
-    // Calculate revenue (this would come from paymentTransactions)
-    const totalRevenue = 0; // TODO: Calculate from payment transactions
-    const monthlyRevenue = 0; // TODO: Calculate from recent transactions
+    const totalRevenue = payments
+      .filter((payment) => payment.status === "success")
+      .reduce((sum, payment) => sum + payment.amountKes, 0);
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const monthlyRevenue = payments
+      .filter((payment) => payment.status === "success" && payment.createdAt >= thirtyDaysAgo)
+      .reduce((sum, payment) => sum + payment.amountKes, 0);
 
     // Get recent installations
     const recentInstallations = installations
-      .sort((a, b) => b.installedAt - a.installedAt)
+      .sort((a, b) => (b.installedAt ?? 0) - (a.installedAt ?? 0))
       .slice(0, 10);
 
     // Get module performance
-    const modulePerformance = modules.map(module => ({
-      moduleId: module.moduleId,
-      name: module.name,
-      status: module.status,
-      installs: installations.filter(i => i.moduleId === module.moduleId).length,
-      activeInstalls: installations.filter(i => i.moduleId === module.moduleId && i.status === "active").length,
-      revenue: 0, // TODO: Calculate revenue per module
-      rating: 0, // TODO: Calculate from reviews table
-      reviewCount: 0, // TODO: Calculate from reviews table
-    }));
+    const modulePerformance = modules.map((module) => {
+      const moduleId = String(module._id);
+      const stat = installStats.find((item) => item.moduleId === moduleId);
+      const moduleReviews = reviews.filter((review) => review.moduleId === moduleId);
+      const approvedReviews = moduleReviews.filter((review) => review.status === "approved");
+      const modulePayments = payments.filter(
+        (payment) => payment.moduleId === moduleId && payment.status === "success"
+      );
+
+      return {
+        moduleId,
+        slug: module.slug,
+        name: module.name,
+        status: module.status,
+        installs: stat?.totalInstalls ?? installations.filter((i) => i.moduleId === moduleId).length,
+        activeInstalls:
+          stat?.activeInstalls ??
+          installations.filter((i) => i.moduleId === moduleId && i.status === "active").length,
+        revenue:
+          stat?.totalRevenueKes ??
+          modulePayments.reduce((sum, payment) => sum + payment.amountKes, 0),
+        rating:
+          stat?.avgRating ??
+          (approvedReviews.length > 0
+            ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / approvedReviews.length
+            : 0),
+        reviewCount: approvedReviews.length,
+        lastUpdated: module.updatedAt,
+      };
+    });
 
     return {
       stats: {
@@ -71,7 +113,12 @@ export const getRevenueAnalytics = query({
   },
   handler: async (ctx, args) => {
     const publisher = await requirePublisherContext(ctx);
-    
+    const modules = await ctx.db
+      .query("modules")
+      .withIndex("by_publisherId", (q) => q.eq("publisherId", publisher.publisherId))
+      .collect();
+    const moduleIds = new Set(modules.map((module) => String(module._id)));
+
     // Calculate date range
     const now = Date.now();
     let startDate: number;
@@ -91,19 +138,63 @@ export const getRevenueAnalytics = query({
         break;
     }
 
-    // TODO: Get revenue data from paymentTransactions
-    // For now, return mock data
-    const revenueData = [];
+    const [payments, installs] = await Promise.all([
+      moduleIds.size === 0
+        ? Promise.resolve([])
+        : ctx.db
+            .query("module_payments")
+            .collect()
+            .then((items) =>
+              items.filter(
+                (payment) =>
+                  moduleIds.has(payment.moduleId) &&
+                  payment.status === "success" &&
+                  payment.createdAt >= startDate
+              )
+            ),
+      moduleIds.size === 0
+        ? Promise.resolve([])
+        : ctx.db
+            .query("module_installs")
+            .collect()
+            .then((items) =>
+              items.filter(
+                (install) =>
+                  moduleIds.has(install.moduleId) && (install.installedAt ?? 0) >= startDate
+              )
+            ),
+    ]);
+
+    const revenueData: Array<{ date: string; revenue: number; installs: number }> = [];
     const currentDate = new Date(startDate);
-    
+
     while (currentDate.getTime() <= now) {
+      const bucketStart = currentDate.getTime();
+      const bucketEnd = new Date(bucketStart);
+      switch (args.granularity) {
+        case "daily":
+          bucketEnd.setDate(bucketEnd.getDate() + 1);
+          break;
+        case "weekly":
+          bucketEnd.setDate(bucketEnd.getDate() + 7);
+          break;
+        case "monthly":
+          bucketEnd.setMonth(bucketEnd.getMonth() + 1);
+          break;
+      }
+
       revenueData.push({
-        date: currentDate.toISOString().split('T')[0],
-        revenue: Math.floor(Math.random() * 10000), // Mock revenue
-        installs: Math.floor(Math.random() * 10), // Mock installs
+        date: currentDate.toISOString().split("T")[0] ?? "",
+        revenue: payments
+          .filter((payment) => payment.createdAt >= bucketStart && payment.createdAt < bucketEnd.getTime())
+          .reduce((sum, payment) => sum + payment.amountKes, 0),
+        installs: installs.filter(
+          (install) =>
+            (install.installedAt ?? 0) >= bucketStart &&
+            (install.installedAt ?? 0) < bucketEnd.getTime()
+        ).length,
       });
-      
-      // Move to next period
+
       switch (args.granularity) {
         case "daily":
           currentDate.setDate(currentDate.getDate() + 1);
@@ -152,8 +243,13 @@ export const getModuleAnalytics = query({
 
     // Get installations for this module
     const installations = await ctx.db
-      .query("installedModules")
-      .filter(q => q.eq("moduleId", args.moduleId))
+      .query("module_installs")
+      .withIndex("by_moduleId", q => q.eq("moduleId", String(module._id)))
+      .collect();
+
+    const reviews = await ctx.db
+      .query("module_reviews")
+      .withIndex("by_moduleId", q => q.eq("moduleId", String(module._id)))
       .collect();
 
     // Calculate date range
@@ -173,7 +269,7 @@ export const getModuleAnalytics = query({
     }
 
     // Filter installations by period
-    const periodInstallations = installations.filter(i => i.installedAt >= startDate);
+    const periodInstallations = installations.filter(i => (i.installedAt ?? 0) >= startDate);
 
     // Get daily install data
     const dailyData = [];
@@ -184,11 +280,11 @@ export const getModuleAnalytics = query({
       const dayEnd = dayStart + (24 * 60 * 60 * 1000);
       
       const dayInstalls = installations.filter(i => 
-        i.installedAt >= dayStart && i.installedAt < dayEnd
+        (i.installedAt ?? 0) >= dayStart && (i.installedAt ?? 0) < dayEnd
       ).length;
 
       dailyData.push({
-        date: currentDate.toISOString().split('T')[0],
+        date: currentDate.toISOString().split("T")[0] ?? "",
         installs: dayInstalls,
       });
       
@@ -211,14 +307,14 @@ export const getModuleAnalytics = query({
 
     return {
       module: {
-        moduleId: module.moduleId,
+        moduleId: String(module._id),
         name: module.name,
         status: module.status,
         totalInstalls: installations.length,
         activeInstalls: installations.filter(i => i.status === "active").length,
         periodInstalls: periodInstallations.length,
-        rating: module.rating,
-        reviewCount: module.reviewCount,
+        rating: reviews.length > 0 ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0,
+        reviewCount: reviews.length,
       },
       dailyData,
       topTenants,
@@ -236,10 +332,11 @@ export const getGeographicAnalytics = query({
     // Get installations
     let installations;
     if (args.moduleId) {
+      const moduleSlug = args.moduleId;
       // Get installations for specific module
       const module = await ctx.db
         .query("modules")
-        .withIndex("by_slug", q => q.eq("slug", args.moduleId))
+        .withIndex("by_slug", q => q.eq("slug", moduleSlug))
         .unique();
 
       if (!module || module.publisherId !== publisher.publisherId) {
@@ -247,8 +344,8 @@ export const getGeographicAnalytics = query({
       }
 
       installations = await ctx.db
-        .query("installedModules")
-        .filter(q => q.eq("moduleId", args.moduleId))
+        .query("module_installs")
+        .withIndex("by_moduleId", q => q.eq("moduleId", String(module._id)))
         .collect();
     } else {
       // Get installations for all modules by this publisher
@@ -258,13 +355,13 @@ export const getGeographicAnalytics = query({
         .collect();
 
       // Filter installations for all modules by this publisher
-      const moduleIds = modules.map(m => m.moduleId);
-      installations = await ctx.db
-        .query("installedModules")
-        .filter(q => 
-          q.or(...moduleIds.map(moduleId => q.eq("moduleId", moduleId)))
-        )
-        .collect();
+      const moduleIds = modules.map(m => String(m._id));
+      installations = moduleIds.length === 0
+        ? []
+        : await ctx.db
+            .query("module_installs")
+            .collect()
+            .then((items) => items.filter((install) => moduleIds.includes(install.moduleId)));
     }
 
     // Get tenant information for geographic data
@@ -282,7 +379,7 @@ export const getGeographicAnalytics = query({
     // Group by country
     const countryData = tenants.reduce((acc, tenant) => {
       if (tenant) {
-        const country = tenant.country;
+      const country = tenant.country ?? "Unknown";
         if (!acc[country]) {
           acc[country] = { country, count: 0, tenants: [] };
         }

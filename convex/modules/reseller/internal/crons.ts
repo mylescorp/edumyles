@@ -1,5 +1,8 @@
-import { internalMutation } from "../../_generated/server";
+import { internalMutation } from "../../../_generated/server";
 import { COMMISSION_HOLD_DAYS } from "../../../../shared/src/constants";
+
+const TIER_ORDER = ["starter", "silver", "gold", "platinum"] as const;
+type ResellerTier = typeof TIER_ORDER[number];
 
 // Process commission availability - move commissions from "held" to "available"
 export const processCommissionAvailability = internalMutation({
@@ -43,6 +46,7 @@ export const processRenewalCommissions = internalMutation({
     for (const school of activeSchools) {
       // Check if this school has a renewal due (simplified - in reality you'd check actual subscription dates)
       const lastRenewalDate = school.convertedAt; // This would be the actual subscription renewal date
+      if (!lastRenewalDate || school.subscriptionValue === undefined) continue;
       const renewalPeriod = 30 * 24 * 60 * 60 * 1000; // 30 days
       const nextRenewalDate = lastRenewalDate + renewalPeriod;
 
@@ -103,11 +107,11 @@ export const processTierPromotions = internalMutation({
       if (!tierRequirements) continue;
 
       // Check if reseller qualifies for next tier
-      const tierOrder = ["starter", "silver", "gold", "platinum"];
-      const currentIndex = tierOrder.indexOf(reseller.tier);
-      if (currentIndex >= tierOrder.length - 1) continue; // Already at highest tier
+      const currentIndex = TIER_ORDER.indexOf(reseller.tier);
+      if (currentIndex >= TIER_ORDER.length - 1) continue; // Already at highest tier
 
-      const nextTier = tierOrder[currentIndex + 1];
+      const nextTier = TIER_ORDER[currentIndex + 1];
+      if (!nextTier) continue;
       const nextTierRequirements = await ctx.db
         .query("resellerTiers")
         .withIndex("by_tier", q => q.eq("tierName", nextTier))
@@ -180,7 +184,7 @@ export const generateMonthlyReports = internalMutation({
         .collect();
 
       const monthSchools = monthlySchools.filter(s => 
-        s.convertedAt >= monthStart && s.convertedAt < monthEnd
+        s.convertedAt !== undefined && s.convertedAt >= monthStart && s.convertedAt < monthEnd
       );
 
       // Generate report data
@@ -196,9 +200,10 @@ export const generateMonthlyReports = internalMutation({
           total: monthCommissions.length,
           amount: monthCommissions.reduce((sum, c) => sum + c.amount, 0),
           byType: monthCommissions.reduce((acc, c) => {
-            if (!acc[c.type]) acc[c.type] = { count: 0, amount: 0 };
-            acc[c.type].count++;
-            acc[c.type].amount += c.amount;
+            const entry = acc[c.type] ?? { count: 0, amount: 0 };
+            entry.count++;
+            entry.amount += c.amount;
+            acc[c.type] = entry;
             return acc;
           }, {} as Record<string, { count: number; amount: number }>),
         },

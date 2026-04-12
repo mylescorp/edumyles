@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../../_generated/server";
 import { requireResellerContext, requireAffiliateContext } from "../../../helpers/resellerGuard";
-import { internalLogAction } from "../../../helpers/auditLog";
+import { logAction } from "../../../helpers/auditLog";
 import { REFERRAL_COOKIE_NAME, REFERRAL_COOKIE_DAYS } from "../../../../shared/src/constants";
 
 export const getMarketingMaterials = query({
@@ -125,13 +125,13 @@ export const uploadMarketingMaterial = mutation({
     });
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.material_uploaded",
+      action: "file.uploaded" as any,
       entityType: "marketing_material",
-      entityId: materialDocId,
+      entityId: String(materialDocId),
       after: { materialId, name: args.name, type: args.type },
     });
 
@@ -382,14 +382,13 @@ export const getReferralAnalytics = query({
 
     // Get source breakdown
     const bySource = periodClicks.reduce((acc, click) => {
-      if (!acc[click.source]) {
-        acc[click.source] = { clicks: 0, conversions: 0, value: 0 };
-      }
-      acc[click.source].clicks++;
+      const entry = acc[click.source] ?? { clicks: 0, conversions: 0, value: 0 };
+      entry.clicks++;
       if (click.converted) {
-        acc[click.source].conversions++;
-        acc[click.source].value += click.conversionValue || 0;
+        entry.conversions++;
+        entry.value += click.conversionValue || 0;
       }
+      acc[click.source] = entry;
       return acc;
     }, {} as Record<string, { clicks: number; conversions: number; value: number }>);
 
@@ -498,6 +497,7 @@ export const createDirectoryListing = mutation({
       certifications: args.certifications,
       experience: args.experience,
       portfolio: args.portfolio,
+      testimonials: [],
       rating: 0,
       reviewCount: 0,
       verificationStatus: "unverified",
@@ -510,13 +510,13 @@ export const createDirectoryListing = mutation({
     });
 
     // Log the action
-    await ctx.runMutation(internalLogAction, {
+    await logAction(ctx, {
       tenantId: "platform",
       actorId: reseller.userId,
       actorEmail: reseller.email,
-      action: "reseller.listing_created",
+      action: "marketplace.listing_created" as any,
       entityType: "directory_listing",
-      entityId: listingDocId,
+      entityId: String(listingDocId),
       after: { listingId, companyName: args.companyName, category: args.category },
     });
 

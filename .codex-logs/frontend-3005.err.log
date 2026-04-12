@@ -1,0 +1,1302 @@
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] TypeError: studentList.filter is not a function
+    at AdminDashboard (src/app/admin/page.tsx:70:38)
+  68 |
+  69 |   const studentList = (students as any[]) ?? [];
+> 70 |   const activeStudents = studentList.filter((s) => s.status === "active").length;
+     |                                      ^
+  71 |   const totalStudents = studentList.length;
+  72 |
+  73 |   const totalStaff = staffStats?.active ?? 0; (src/app/admin/error.tsx:16:13)
+[browser] TypeError: studentList.filter is not a function
+    at AdminDashboard (src/app/admin/page.tsx:70:38)
+  68 |
+  69 |   const studentList = (students as any[]) ?? [];
+> 70 |   const activeStudents = studentList.filter((s) => s.status === "active").length;
+     |                                      ^
+  71 |   const totalStudents = studentList.length;
+  72 |
+  73 |   const totalStaff = staffStats?.active ?? 0; (src/app/admin/error.tsx:16:13)
+[browser] TypeError: studentList.filter is not a function
+    at AdminDashboard (src/app/admin/page.tsx:70:38)
+  68 |
+  69 |   const studentList = (students as any[]) ?? [];
+> 70 |   const activeStudents = studentList.filter((s) => s.status === "active").length;
+     |                                      ^
+  71 |   const totalStudents = studentList.length;
+  72 |
+  73 |   const totalStaff = staffStats?.active ?? 0; (src/app/admin/error.tsx:16:13)
+[browser] TypeError: studentList.filter is not a function
+    at AdminDashboard (src/app/admin/page.tsx:70:38)
+  68 |
+  69 |   const studentList = (students as any[]) ?? [];
+> 70 |   const activeStudents = studentList.filter((s) => s.status === "active").length;
+     |                                      ^
+  71 |   const totalStudents = studentList.length;
+  72 |
+  73 |   const totalStaff = staffStats?.active ?? 0; (src/app/admin/error.tsx:16:13)
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] ReferenceError: groupedNavItems is not defined
+    at LeftSidebar (src/components/layout/GlobalShell.tsx:703:7)
+    at Set.forEach (<anonymous>)
+  701 |     );
+  702 |     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
+> 703 |   }, [groupedNavItems, pathname]);
+      |       ^
+  704 |
+  705 |   const isExpanded = (section: string) => {
+  706 |     if (collapsed) return true; (src/app/error.tsx:16:13)
+[browser] ReferenceError: groupedNavItems is not defined
+    at LeftSidebar (src/components/layout/GlobalShell.tsx:703:7)
+    at Set.forEach (<anonymous>)
+  701 |     );
+  702 |     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
+> 703 |   }, [groupedNavItems, pathname]);
+      |       ^
+  704 |
+  705 |   const isExpanded = (section: string) => {
+  706 |     if (collapsed) return true; (src/app/error.tsx:16:13)
+[browser] ReferenceError: groupedNavItems is not defined
+    at LeftSidebar (src/components/layout/GlobalShell.tsx:703:7)
+  701 |     );
+  702 |     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
+> 703 |   }, [groupedNavItems, pathname]);
+      |       ^
+  704 |
+  705 |   const isExpanded = (section: string) => {
+  706 |     if (collapsed) return true; (src/app/error.tsx:16:13)
+[browser] ReferenceError: groupedNavItems is not defined
+    at LeftSidebar (src/components/layout/GlobalShell.tsx:703:7)
+  701 |     );
+  702 |     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
+> 703 |   }, [groupedNavItems, pathname]);
+      |       ^
+  704 |
+  705 |   const isExpanded = (section: string) => {
+  706 |     if (collapsed) return true; (src/app/error.tsx:16:13)
+[browser] ReferenceError: groupedNavItems is not defined
+    at LeftSidebar (src/components/layout/GlobalShell.tsx:703:7)
+  701 |     );
+  702 |     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
+> 703 |   }, [groupedNavItems, pathname]);
+      |       ^
+  704 |
+  705 |   const isExpanded = (section: string) => {
+  706 |     if (collapsed) return true; (src/app/error.tsx:16:13)
+[browser] ReferenceError: groupedNavItems is not defined
+    at LeftSidebar (src/components/layout/GlobalShell.tsx:703:7)
+  701 |     );
+  702 |     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
+> 703 |   }, [groupedNavItems, pathname]);
+      |       ^
+  704 |
+  705 |   const isExpanded = (section: string) => {
+  706 |     if (collapsed) return true; (src/app/error.tsx:16:13)
+[browser] ReferenceError: groupedNavItems is not defined
+    at LeftSidebar (src/components/layout/GlobalShell.tsx:703:7)
+  701 |     );
+  702 |     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
+> 703 |   }, [groupedNavItems, pathname]);
+      |       ^
+  704 |
+  705 |   const isExpanded = (section: string) => {
+  706 |     if (collapsed) return true; (src/app/error.tsx:16:13)
+[browser] ReferenceError: groupedNavItems is not defined
+    at LeftSidebar (src/components/layout/GlobalShell.tsx:703:7)
+  701 |     );
+  702 |     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
+> 703 |   }, [groupedNavItems, pathname]);
+      |       ^
+  704 |
+  705 |   const isExpanded = (section: string) => {
+  706 |     if (collapsed) return true; (src/app/error.tsx:16:13)
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] TypeError: allResellers.find is not a function
+    at AdminResellersPage (src/app/admin/resellers/page.tsx:74:41)
+  72 |
+  73 |   const allResellers = resellers ?? [];
+> 74 |   const selectedReseller = allResellers.find((reseller) => reseller._id === selectedResell...
+     |                                         ^
+  75 |
+  76 |   const filteredResellers = useMemo(
+  77 |     () => (src/app/admin/error.tsx:16:13)
+[browser] TypeError: allResellers.find is not a function
+    at AdminResellersPage (src/app/admin/resellers/page.tsx:74:41)
+  72 |
+  73 |   const allResellers = resellers ?? [];
+> 74 |   const selectedReseller = allResellers.find((reseller) => reseller._id === selectedResell...
+     |                                         ^
+  75 |
+  76 |   const filteredResellers = useMemo(
+  77 |     () => (src/app/admin/error.tsx:16:13)
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] TypeError: allResellers.find is not a function
+    at AdminResellersPage (src/app/admin/resellers/page.tsx:74:41)
+  72 |
+  73 |   const allResellers = resellers ?? [];
+> 74 |   const selectedReseller = allResellers.find((reseller) => reseller._id === selectedResell...
+     |                                         ^
+  75 |
+  76 |   const filteredResellers = useMemo(
+  77 |     () => (src/app/admin/error.tsx:16:13)
+[browser] TypeError: allResellers.find is not a function
+    at AdminResellersPage (src/app/admin/resellers/page.tsx:74:41)
+  72 |
+  73 |   const allResellers = resellers ?? [];
+> 74 |   const selectedReseller = allResellers.find((reseller) => reseller._id === selectedResell...
+     |                                         ^
+  75 |
+  76 |   const filteredResellers = useMemo(
+  77 |     () => (src/app/admin/error.tsx:16:13)
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] TypeError: Cannot read properties of undefined (reading 'slice')
+    at AffiliateDashboardPage.useMemo[recentConversions] (src/app/portal/affiliate/page.tsx:55:22)
+    at AffiliateDashboardPage (src/app/portal/affiliate/page.tsx:54:36)
+  53 |
+  54 |   const recentConversions = useMemo(
+> 55 |     () => analytics?.recentConversions.slice(0, 5) ?? [],
+     |                      ^
+  56 |     [analytics]
+  57 |   );
+  58 | (src/app/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'slice')
+    at AffiliateDashboardPage.useMemo[recentConversions] (src/app/portal/affiliate/page.tsx:55:22)
+    at AffiliateDashboardPage (src/app/portal/affiliate/page.tsx:54:36)
+  53 |
+  54 |   const recentConversions = useMemo(
+> 55 |     () => analytics?.recentConversions.slice(0, 5) ?? [],
+     |                      ^
+  56 |     [analytics]
+  57 |   );
+  58 | (src/app/error.tsx:16:13)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Error: [CONVEX Q(modules/platform/users:getPlatformUser)] [Request ID: bc793596340f545e] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .platformUserId
+Value: "permissions"
+Validator: v.id("platform_users")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:24:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at PlatformUserDetailPage (src/app/platform/users/[userId]/page.tsx:62:32)
+  22 |   const shouldSkip = enabled === false;
+  23 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 24 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  25 |
+  26 |   if (shouldSkip) {
+  27 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/users:getPlatformUser)] [Request ID: bc793596340f545e] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .platformUserId
+Value: "permissions"
+Validator: v.id("platform_users")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:24:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at PlatformUserDetailPage (src/app/platform/users/[userId]/page.tsx:62:32)
+  22 |   const shouldSkip = enabled === false;
+  23 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 24 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  25 |
+  26 |   if (shouldSkip) {
+  27 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Error: [CONVEX Q(modules/platform/users:getPlatformUser)] [Request ID: 3fa3c6e5ef0ef87b] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .platformUserId
+Value: "permissions"
+Validator: v.id("platform_users")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:24:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at PlatformUserDetailPage (src/app/platform/users/[userId]/page.tsx:62:32)
+  22 |   const shouldSkip = enabled === false;
+  23 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 24 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  25 |
+  26 |   if (shouldSkip) {
+  27 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/users:getPlatformUser)] [Request ID: 3fa3c6e5ef0ef87b] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .platformUserId
+Value: "permissions"
+Validator: v.id("platform_users")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:24:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at PlatformUserDetailPage (src/app/platform/users/[userId]/page.tsx:62:32)
+  22 |   const shouldSkip = enabled === false;
+  23 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 24 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  25 |
+  26 |   if (shouldSkip) {
+  27 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Error: [CONVEX Q(modules/platform/users:getPlatformUser)] [Request ID: 541dc91dced36cbb] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .platformUserId
+Value: "bulk"
+Validator: v.id("platform_users")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:24:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at PlatformUserDetailPage (src/app/platform/users/[userId]/page.tsx:62:32)
+  22 |   const shouldSkip = enabled === false;
+  23 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 24 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  25 |
+  26 |   if (shouldSkip) {
+  27 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/users:getPlatformUser)] [Request ID: 541dc91dced36cbb] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .platformUserId
+Value: "bulk"
+Validator: v.id("platform_users")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:24:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at PlatformUserDetailPage (src/app/platform/users/[userId]/page.tsx:62:32)
+  22 |   const shouldSkip = enabled === false;
+  23 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 24 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  25 |
+  26 |   if (shouldSkip) {
+  27 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'email')
+    at ResellerProfilePage (src/app/portal/reseller/profile/page.tsx:165:127)
+  163 | ...xt-primary" />{profile.applicantType}</div>
+  164 | ...xt-amber-500" />{profile.tier} tier</div>
+> 165 | ...t-muted-foreground" />{profile.contactInfo.email}</div>
+      |                                               ^
+  166 | ...xt-muted-foreground" />{profile.contactInfo.phone}</div>
+  167 | ...ext-muted-foreground" />{profile.contactInfo.address}</div>
+  168 | ...xt-muted-foreground" />{profile.contactInfo.country}</div> (src/app/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'email')
+    at ResellerProfilePage (src/app/portal/reseller/profile/page.tsx:165:127)
+  163 | ...xt-primary" />{profile.applicantType}</div>
+  164 | ...xt-amber-500" />{profile.tier} tier</div>
+> 165 | ...t-muted-foreground" />{profile.contactInfo.email}</div>
+      |                                               ^
+  166 | ...xt-muted-foreground" />{profile.contactInfo.phone}</div>
+  167 | ...ext-muted-foreground" />{profile.contactInfo.address}</div>
+  168 | ...xt-muted-foreground" />{profile.contactInfo.country}</div> (src/app/error.tsx:16:13)
+[browser] TypeError: (orders ?? []).slice is not a function
+    at ResellerDashboardPage.useMemo[recentOrders] (src/app/portal/reseller/page.tsx:106:53)
+    at ResellerDashboardPage (src/app/portal/reseller/page.tsx:106:31)
+  104 |     | undefined;
+  105 |
+> 106 |   const recentOrders = useMemo(() => (orders ?? []).slice(0, 5), [orders]);
+      |                                                     ^
+  107 |   const topCustomers = useMemo(() => (customers ?? []).slice(0, 5), [customers]);
+  108 |   const customerStageSummary = useMemo(() => {
+  109 |     const summary = new Map<string, number>(); (src/app/error.tsx:16:13)
+[browser] TypeError: (orders ?? []).slice is not a function
+    at ResellerDashboardPage.useMemo[recentOrders] (src/app/portal/reseller/page.tsx:106:53)
+    at ResellerDashboardPage (src/app/portal/reseller/page.tsx:106:31)
+  104 |     | undefined;
+  105 |
+> 106 |   const recentOrders = useMemo(() => (orders ?? []).slice(0, 5), [orders]);
+      |                                                     ^
+  107 |   const topCustomers = useMemo(() => (customers ?? []).slice(0, 5), [customers]);
+  108 |   const customerStageSummary = useMemo(() => {
+  109 |     const summary = new Map<string, number>(); (src/app/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'minPayout')
+    at ResellerSettingsPage (src/app/portal/reseller/settings/page.tsx:123:55)
+  121 |             <p className="text-sm text-muted-foreground">
+  122 |               <Wallet className="mr-2 inline h-4 w-4" />
+> 123 |               Minimum payout: KES {profile.commission.minPayout.toLocaleString()}
+      |                                                       ^
+  124 |             </p>
+  125 |           </CardContent>
+  126 |         </Card> (src/app/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'minPayout')
+    at ResellerSettingsPage (src/app/portal/reseller/settings/page.tsx:123:55)
+  121 |             <p className="text-sm text-muted-foreground">
+  122 |               <Wallet className="mr-2 inline h-4 w-4" />
+> 123 |               Minimum payout: KES {profile.commission.minPayout.toLocaleString()}
+      |                                                       ^
+  124 |             </p>
+  125 |           </CardContent>
+  126 |         </Card> (src/app/error.tsx:16:13)
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./frontend/src/components/layout/shells/ResellerShell.tsx:4:1
+Module not found: Can't resolve '@/components/layout/shellsAppShellBase'
+  [90m2 |[0m
+  [90m3 |[0m [36mimport[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m4 |[0m [36mimport[0m { [33mAppShellBase[0m } [36mfrom[0m [32m"@/components/layout/shells\AppShellBase"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m5 |[0m [36mimport[0m { resellerNavItems } [36mfrom[0m [32m"@/lib/routes"[0m;
+  [90m6 |[0m
+  [90m7 |[0m [36mconst[0m [33mRESELLER_ROLES[0m = [[32m"reseller"[0m, [32m"master_admin"[0m, [32m"super_admin"[0m];
+
+Import map: aliased to relative './src/components/layout/shellsAppShellBase' inside of [project]/frontend
+
+
+Import trace:
+  Server Component:
+    ./frontend/src/components/layout/shells/ResellerShell.tsx
+    ./frontend/src/app/portal/reseller/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior

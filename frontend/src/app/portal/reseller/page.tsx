@@ -1,349 +1,347 @@
 "use client";
 
-import React from "react";
+import Link from "next/link";
+import { useMemo } from "react";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Package,
-  TrendingUp,
-  Users,
-  DollarSign,
-  Store,
+  ArrowRight,
+  Banknote,
+  CheckCircle2,
+  Clock3,
+  LineChart,
   ShoppingCart,
-  Eye,
-  Calendar,
-  Copy,
-  ExternalLink,
-  BarChart3,
-  Target,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  FileText,
+  Store,
+  Users,
 } from "lucide-react";
 
-export default function ResellerDashboard() {
-  // Mock data - in real app this would come from Convex
-  const stats = {
-    totalProducts: 45,
-    activeCustomers: 234,
-    totalRevenue: 456000,
-    pendingOrders: 12,
-    monthlyRevenue: 45000,
-    totalOrders: 567,
-    averageOrderValue: 800,
-    customerGrowth: 18.5,
+type ResellerStats = {
+  schools: {
+    total: number;
+    active: number;
+    leads: number;
+    trials: number;
   };
+  commissions: {
+    total: number;
+    pending: number;
+    available: number;
+    paid: number;
+    totalAmount: number;
+  };
+  payouts: {
+    total: number;
+    pending: number;
+    completed: number;
+    totalAmount: number;
+  };
+  conversionRate?: number;
+};
 
-  const recentOrders = [
-    {
-      id: 1,
-      customer: "Green Valley Academy",
-      product: "EduMyles Premium Package",
-      amount: 15000,
-      status: "completed",
-      date: "2024-01-20",
-      quantity: 50,
-    },
-    {
-      id: 2,
-      customer: "St. Mary's Primary School",
-      product: "EduMyles Standard Package",
-      amount: 8000,
-      status: "processing",
-      date: "2024-01-19",
-      quantity: 20,
-    },
-    {
-      id: 3,
-      customer: "Nairobi High School",
-      product: "EduMyles Premium Package",
-      amount: 12000,
-      status: "pending",
-      date: "2024-01-18",
-      quantity: 40,
-    },
-    {
-      id: 4,
-      customer: "Kisumu Girls Academy",
-      product: "EduMyles Basic Package",
-      amount: 5000,
-      status: "completed",
-      date: "2024-01-17",
-      quantity: 10,
-    },
-  ];
+type CommissionBalance = {
+  availableAmount: number;
+  pendingAmount: number;
+  availableCount: number;
+  pendingCount: number;
+  minPayout: number;
+  canPayout: boolean;
+};
 
-  const topProducts = [
-    {
-      name: "EduMyles Premium Package",
-      sales: 89,
-      revenue: 1335000,
-      growth: 12,
-    },
-    {
-      name: "EduMyles Standard Package",
-      sales: 156,
-      revenue: 1248000,
-      growth: 8,
-    },
-    {
-      name: "EduMyles Basic Package",
-      sales: 234,
-      revenue: 1170000,
-      growth: -3,
-    },
-  ];
+type ResellerOrder = {
+  _id: string;
+  orderNumber: string;
+  totalCents: number;
+  status: string;
+  schoolName: string;
+  itemCount: number;
+};
 
-  const StatCard = ({ title, value, change, icon: Icon, color = "blue", prefix = "" }: any) => (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-semibold text-gray-900 mt-1">
-            {prefix}{typeof value === "number" && value >= 1000 
-              ? `${(value / 1000).toFixed(1)}k` 
-              : value}
-          </p>
-          {change !== undefined && (
-            <div className={`flex items-center mt-2 text-sm ${
-              change >= 0 ? "text-green-600" : "text-red-600"
-            }`}>
-              {change >= 0 ? (
-                <TrendingUp className="h-4 w-4 mr-1" />
-              ) : (
-                <TrendingUp className="h-4 w-4 mr-1 rotate-180" />
-              )}
-              {Math.abs(change)}% from last month
-            </div>
-          )}
-        </div>
-        <div className={`p-3 rounded-lg bg-${color}-100`}>
-          <Icon className={`h-6 w-6 text-${color}-600`} />
-        </div>
-      </div>
-    </div>
+type ResellerCustomer = {
+  schoolId: string;
+  schoolName: string;
+  status: string;
+  orderCount: number;
+  totalOrderCents: number;
+  commissionEarned: number;
+  county: string | null;
+  country: string | null;
+};
+
+function formatMoney(amount: number) {
+  return `KES ${amount.toLocaleString()}`;
+}
+
+function formatMoneyFromCents(amountCents: number) {
+  return `KES ${(amountCents / 100).toLocaleString()}`;
+}
+
+function statusVariant(status: string) {
+  if (["converted", "completed", "delivered", "active"].includes(status)) return "default";
+  if (["trial", "processing", "paid"].includes(status)) return "secondary";
+  if (["lead", "contacted", "pending"].includes(status)) return "outline";
+  return "destructive";
+}
+
+export default function ResellerDashboardPage() {
+  const stats = useQuery(api.modules.reseller.mutations.profile.getStats, {}) as
+    | ResellerStats
+    | undefined;
+  const balance = useQuery(
+    api.modules.reseller.mutations.profile.getCommissionBalance,
+    {}
+  ) as CommissionBalance | undefined;
+  const orders = useQuery(api.modules.reseller.queries.orders.getOrders, {}) as
+    | ResellerOrder[]
+    | undefined;
+  const customers = useQuery((api as any)["modules/reseller/queries/customers"].getCustomers, {}) as
+    | ResellerCustomer[]
+    | undefined;
+
+  const recentOrders = useMemo(() => (orders ?? []).slice(0, 5), [orders]);
+  const topCustomers = useMemo(() => (customers ?? []).slice(0, 5), [customers]);
+  const customerStageSummary = useMemo(() => {
+    const summary = new Map<string, number>();
+    for (const customer of customers ?? []) {
+      summary.set(customer.status, (summary.get(customer.status) ?? 0) + 1);
+    }
+    return Array.from(summary.entries()).sort((a, b) => b[1] - a[1]);
+  }, [customers]);
+
+  const derivedOrderValueCents = useMemo(
+    () => (orders ?? []).reduce((sum, order) => sum + order.totalCents, 0),
+    [orders]
   );
+  const averageOrderValueCents = useMemo(() => {
+    if (!orders || orders.length === 0) return 0;
+    return Math.round(derivedOrderValueCents / orders.length);
+  }, [derivedOrderValueCents, orders]);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    // In real app, show toast notification
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "processing":
-        return "bg-blue-100 text-blue-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4" />;
-      case "processing":
-        return <Clock className="h-4 w-4" />;
-      case "pending":
-        return <AlertCircle className="h-4 w-4" />;
-      case "cancelled":
-        return <AlertCircle className="h-4 w-4" />;
-      default:
-        return <Clock className="h-4 w-4" />;
-    }
-  };
+  if (!stats || !balance || !orders || !customers) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Reseller Dashboard</h1>
-        <p className="text-gray-600">Manage your products, customers, and sales</p>
+      <PageHeader
+        title="Reseller Dashboard"
+        description="Live performance across your assigned schools, order activity, and commission balance."
+        actions={
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link href="/portal/reseller/customers">Manage Customers</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/portal/reseller/analytics">View Analytics</Link>
+            </Button>
+          </div>
+        }
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Store className="h-8 w-8 text-primary" />
+            <div>
+              <p className="text-sm text-muted-foreground">Tracked Schools</p>
+              <p className="text-2xl font-semibold">{stats.schools.total}</p>
+              <p className="text-xs text-muted-foreground">
+                {stats.schools.active} converted, {stats.schools.trials} in trial
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <ShoppingCart className="h-8 w-8 text-sky-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Order Value</p>
+              <p className="text-2xl font-semibold">{formatMoneyFromCents(derivedOrderValueCents)}</p>
+              <p className="text-xs text-muted-foreground">{orders.length} live orders</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Banknote className="h-8 w-8 text-emerald-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Available Commission</p>
+              <p className="text-2xl font-semibold">{formatMoney(balance.availableAmount)}</p>
+              <p className="text-xs text-muted-foreground">
+                {balance.availableCount} commissions ready for payout
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <LineChart className="h-8 w-8 text-amber-500" />
+            <div>
+              <p className="text-sm text-muted-foreground">Conversion Rate</p>
+              <p className="text-2xl font-semibold">{stats.conversionRate ?? 0}%</p>
+              <p className="text-xs text-muted-foreground">
+                Avg order {formatMoneyFromCents(averageOrderValueCents)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Products"
-          value={stats.totalProducts}
-          change={5}
-          icon={Package}
-          color="blue"
-        />
-        <StatCard
-          title="Active Customers"
-          value={stats.activeCustomers}
-          change={12}
-          icon={Users}
-          color="green"
-        />
-        <StatCard
-          title="Total Revenue"
-          value={stats.totalRevenue}
-          change={18}
-          icon={DollarSign}
-          color="green"
-          prefix="KES "
-        />
-        <StatCard
-          title="Pending Orders"
-          value={stats.pendingOrders}
-          change={-8}
-          icon={ShoppingCart}
-          color="yellow"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Orders */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
-            <button className="text-sm text-[#0F4C2A] hover:text-[#061A12]">View All</button>
-          </div>
-          <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2">
-                    <p className="font-medium text-gray-900">{order.customer}</p>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                      {getStatusIcon(order.status)}
-                      <span className="ml-1">
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                      </span>
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                    <span>{order.product}</span>
-                    <span>Qty: {order.quantity}</span>
-                    <span>{new Date(order.date).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">KES {order.amount.toLocaleString()}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Top Products */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Top Products</h2>
-            <button className="text-sm text-[#0F4C2A] hover:text-[#061A12]">View All</button>
-          </div>
-          <div className="space-y-4">
-            {topProducts.map((product, index) => (
-              <div key={product.name} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-[#0F4C2A] rounded-lg flex items-center justify-center text-white font-semibold text-sm">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{product.name}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span>{product.sales} sales</span>
-                      <span>KES {product.revenue.toLocaleString()}</span>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle>Recent Orders</CardTitle>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/portal/reseller/orders">
+                View all
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {recentOrders.length === 0 ? (
+              <EmptyState
+                icon={ShoppingCart}
+                title="No reseller orders yet"
+                description="Orders will appear here as your assigned schools start purchasing."
+              />
+            ) : (
+              <div className="space-y-3">
+                {recentOrders.map((order) => (
+                  <div
+                    key={order._id}
+                    className="flex items-center justify-between rounded-md border p-3 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium">{order.schoolName}</p>
+                      <p className="text-muted-foreground">
+                        {order.orderNumber} · {order.itemCount} items
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">{formatMoneyFromCents(order.totalCents)}</p>
+                      <Badge variant={statusVariant(order.status)}>
+                        {order.status.replaceAll("_", " ")}
+                      </Badge>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className={`flex items-center text-sm ${
-                    product.growth >= 0 ? "text-green-600" : "text-red-600"
-                  }`}>
-                    {product.growth >= 0 ? (
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                    ) : (
-                      <TrendingUp className="h-3 w-3 mr-1 rotate-180" />
-                    )}
-                    {Math.abs(product.growth)}%
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Customer Pipeline</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {customerStageSummary.length === 0 ? (
+              <EmptyState
+                icon={Users}
+                title="No assigned schools yet"
+                description="Lead and customer stage distribution will appear once schools are assigned."
+              />
+            ) : (
+              customerStageSummary.map(([stage, count]) => (
+                <div key={stage} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    {stage === "converted" ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    ) : (
+                      <Clock3 className="h-4 w-4 text-amber-500" />
+                    )}
+                    <span className="font-medium capitalize">{stage.replaceAll("_", " ")}</span>
+                  </div>
+                  <Badge variant={statusVariant(stage)}>{count}</Badge>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <button className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#0F4C2A] hover:bg-[#0F4C2A]/5 transition-colors">
-            <Package className="h-6 w-6 text-[#0F4C2A] mr-2" />
-            <span className="text-sm font-medium text-gray-700">Add New Product</span>
-          </button>
-          <button className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#0F4C2A] hover:bg-[#0F4C2A]/5 transition-colors">
-            <Users className="h-6 w-6 text-[#0F4C2A] mr-2" />
-            <span className="text-sm font-medium text-gray-700">Add Customer</span>
-          </button>
-          <button className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#0F4C2A] hover:bg-[#0F4C2A]/5 transition-colors">
-            <BarChart3 className="h-6 w-6 text-[#0F4C2A] mr-2" />
-            <span className="text-sm font-medium text-gray-700">View Analytics</span>
-          </button>
-          <button className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#0F4C2A] hover:bg-[#0F4C2A]/5 transition-colors">
-            <FileText className="h-6 w-6 text-[#0F4C2A] mr-2" />
-            <span className="text-sm font-medium text-gray-700">Generate Report</span>
-          </button>
-        </div>
-      </div>
+      <div className="grid gap-6 lg:grid-cols-[1.3fr,0.7fr]">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle>Top Customers</CardTitle>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/portal/reseller/customers">
+                Open customers
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {topCustomers.length === 0 ? (
+              <EmptyState
+                icon={Store}
+                title="No customer records yet"
+                description="Assigned schools will appear here once linked to your reseller account."
+              />
+            ) : (
+              <div className="space-y-3">
+                {topCustomers.map((customer) => (
+                  <div
+                    key={customer.schoolId}
+                    className="flex items-center justify-between rounded-md border p-3 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium">{customer.schoolName}</p>
+                      <p className="text-muted-foreground">
+                        {customer.county ?? "Unknown county"}
+                        {customer.country ? `, ${customer.country}` : ""}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {customer.orderCount} orders · {formatMoney(customer.commissionEarned)} earned
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">{formatMoneyFromCents(customer.totalOrderCents)}</p>
+                      <Badge variant={statusVariant(customer.status)}>
+                        {customer.status.replaceAll("_", " ")}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Performance Overview */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Performance Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-3">
-              <ShoppingCart className="h-6 w-6 text-blue-600" />
+        <Card>
+          <CardHeader>
+            <CardTitle>Commission Snapshot</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            <div className="rounded-md border p-3">
+              <p className="text-muted-foreground">Pending commission</p>
+              <p className="mt-1 text-xl font-semibold">{formatMoney(balance.pendingAmount)}</p>
+              <p className="text-xs text-muted-foreground">
+                {balance.pendingCount} records still in hold period
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.totalOrders.toLocaleString()}</p>
-            <p className="text-sm text-gray-600">Total Orders</p>
-            <p className="text-xs text-gray-500 mt-1">All time</p>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mx-auto mb-3">
-              <DollarSign className="h-6 w-6 text-green-600" />
+            <div className="rounded-md border p-3">
+              <p className="text-muted-foreground">Paid out</p>
+              <p className="mt-1 text-xl font-semibold">{formatMoney(stats.payouts.totalAmount)}</p>
+              <p className="text-xs text-muted-foreground">
+                {stats.payouts.completed} completed payouts
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">KES {stats.averageOrderValue.toLocaleString()}</p>
-            <p className="text-sm text-gray-600">Average Order Value</p>
-            <p className="text-xs text-gray-500 mt-1">Per order</p>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mx-auto mb-3">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+            <div className="rounded-md border p-3">
+              <p className="text-muted-foreground">Payout threshold</p>
+              <p className="mt-1 text-xl font-semibold">{formatMoney(balance.minPayout)}</p>
+              <p className="text-xs text-muted-foreground">
+                {balance.canPayout ? "You can request a payout now." : "Keep earning to unlock payout."}
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.customerGrowth}%</p>
-            <p className="text-sm text-gray-600">Customer Growth</p>
-            <p className="text-xs text-gray-500 mt-1">Monthly increase</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Revenue Chart */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Revenue Overview</h2>
-          <select className="text-sm border border-gray-300 rounded-md px-3 py-1">
-            <option>Last 30 days</option>
-            <option>Last 3 months</option>
-            <option>Last 6 months</option>
-            <option>Last year</option>
-          </select>
-        </div>
-        <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-          <div className="text-center text-gray-500">
-            <BarChart3 className="h-12 w-12 mx-auto mb-2" />
-            <p>Revenue chart will be displayed here</p>
-            <p className="text-sm">KES {stats.totalRevenue.toLocaleString()} total revenue</p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

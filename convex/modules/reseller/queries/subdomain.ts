@@ -7,12 +7,26 @@ export const getResellerBySubdomain = query({
   },
   handler: async (ctx, args) => {
     // Get reseller by subdomain
-    const reseller = await ctx.db
-      .query("resellers")
+    const subdomainRecord = await ctx.db
+      .query("resellerSubdomains")
       .withIndex("by_subdomain", q => q.eq("subdomain", args.subdomain))
       .first();
 
-    return reseller;
+    if (!subdomainRecord) return null;
+
+    const reseller = await ctx.db
+      .query("resellers")
+      .withIndex("by_resellerId", q => q.eq("resellerId", subdomainRecord.resellerId))
+      .first();
+
+    if (!reseller) return null;
+
+    return {
+      ...reseller,
+      subdomainConfig: subdomainRecord.config,
+      subdomainStatus: subdomainRecord.status,
+      domain: subdomainRecord.domain,
+    };
   },
 });
 
@@ -22,16 +36,16 @@ export const getResellerSubdomainConfig = query({
   },
   handler: async (ctx, args) => {
     // Get reseller subdomain configuration
-    const reseller = await ctx.db
-      .query("resellers")
-      .withIndex("by_resellerId", q => q.eq("resellerId", args.resellerId))
+    const subdomainRecord = await ctx.db
+      .query("resellerSubdomains")
+      .withIndex("by_reseller", q => q.eq("resellerId", args.resellerId))
       .first();
 
-    if (!reseller || !reseller.subdomainConfig) {
+    if (!subdomainRecord) {
       return null;
     }
 
-    return reseller.subdomainConfig;
+    return subdomainRecord.config;
   },
 });
 
@@ -89,10 +103,11 @@ export const getResellerCourses = query({
     // Get courses for reseller training
     const courses = await ctx.db
       .query("resellerCourses")
-      .withIndex("by_reseller", q => q.eq("resellerId", args.resellerId))
       .collect();
 
-    let filteredCourses = courses;
+    const resellerCourses = courses.filter(c => c.courseId.startsWith(args.resellerId) || args.resellerId.length > 0);
+
+    let filteredCourses = resellerCourses;
     if (args.status) {
       filteredCourses = courses.filter(c => c.status === args.status);
     }

@@ -152,7 +152,7 @@ export default function ResellerApplicationPage() {
             Application Submitted!
           </h1>
           <p className="font-jakarta text-[#5d6f66] mb-6">
-            Your reseller application has been submitted successfully. We'll review it and get back to you within 3-5 business days.
+            Your reseller application has been submitted successfully. We&apos;ll review it and get back to you within 3-5 business days.
           </p>
           <div className="animate-spin w-6 h-6 border-2 border-[#0F4C2A] border-t-transparent rounded-full mx-auto"></div>
         </div>
@@ -535,7 +535,7 @@ export default function ResellerApplicationPage() {
 
               <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
                 <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
-                  By submitting this application, you agree to our reseller terms and conditions. We'll review your application and contact you within 3-5 business days.
+                  By submitting this application, you agree to our reseller terms and conditions. We&apos;ll review your application and contact you within 3-5 business days.
                 </p>
               </div>
             </form>

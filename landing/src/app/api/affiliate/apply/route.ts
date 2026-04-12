@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../../../../../convex/_generated/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,12 +28,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, just return a success response
-    // TODO: Integrate with actual backend when modules are fixed
+    const convexUrl =
+      process.env.CONVEX_URL ||
+      process.env.NEXT_PUBLIC_CONVEX_URL ||
+      "https://insightful-alpaca-351.convex.cloud";
+    const convex = new ConvexHttpClient(convexUrl);
+
+    const result = await convex.mutation(api.publicApplications.submitPublicResellerApplication, {
+      applicantEmail: email,
+      businessName: `${firstName} ${lastName}`.trim(),
+      businessType: "affiliate",
+      businessDescription: [
+        promotionStrategy ? `Promotion strategy: ${promotionStrategy}` : null,
+        targetAudience ? `Target audience: ${targetAudience}` : null,
+        socialMedia ? `Social media presence: ${socialMedia}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
+      website: website || undefined,
+      contactPhone: phone || "Not provided",
+      contactAddress: address || "Not provided",
+      country,
+      targetMarket: targetAudience || "General education audience",
+      experience: experience || "Not provided",
+      marketingChannels: Array.isArray(referralChannels) ? referralChannels : [],
+      expectedVolume: "Affiliate referral partner",
+    });
+
     return NextResponse.json({
       success: true,
-      applicationId: `AFF-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-      message: "Affiliate application submitted successfully",
+      applicationId: result.applicationId,
+      alreadyExists: Boolean(result.duplicate),
+      message: result.duplicate
+        ? "Affiliate application already exists and remains on file"
+        : "Affiliate application submitted successfully",
     });
   } catch (error) {
     console.error("Affiliate application error:", error);

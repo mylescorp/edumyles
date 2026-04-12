@@ -1,486 +1,154 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Settings,
-  Bell,
-  Shield,
-  Key,
-  Globe,
-  CreditCard,
-  Download,
-  Upload,
-  Trash2,
-  AlertTriangle,
-  CheckCircle,
-  Eye,
-  EyeOff,
-  Save,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Save } from "lucide-react";
 
-export default function DeveloperSettings() {
-  const [activeSection, setActiveSection] = useState("general");
-  const [showApiKeys, setShowApiKeys] = useState(false);
-
-  // Mock data - in real app this would come from Convex
-  const settings = {
-    notifications: {
-      emailUpdates: true,
-      marketingEmails: false,
-      moduleNotifications: true,
-      revenueAlerts: true,
-      securityAlerts: true,
-    },
-    api: {
-      webhookUrl: "https://your-app.com/webhook",
-      apiKey: "sk_test_4242424242424242",
-      apiSecret: "sk_secret_4242424242424242",
-    },
-    security: {
-      twoFactorAuth: false,
-      sessionTimeout: "24h",
-      loginNotifications: true,
-      apiAccess: true,
-    },
-    data: {
-      exportFormat: "csv",
-      dataRetention: "2y",
-      analyticsSharing: true,
-    },
+type PublisherProfile = {
+  webhookUrl?: string;
+  apiKey?: string;
+  taxId?: string;
+  billingCountry?: string;
+  bankDetails?: {
+    bankName?: string;
+    accountName?: string;
+    accountNumber?: string;
+    branchCode?: string;
   };
+};
 
-  const [formData, setFormData] = useState(settings);
+export default function DeveloperSettingsPage() {
+  const profile = useQuery(api.modules.publisher.mutations.profile.getMyProfile, {}) as
+    | PublisherProfile
+    | undefined;
+  const updateProfile = useMutation(api.modules.publisher.mutations.profile.updateProfile);
+  const [form, setForm] = useState({
+    webhookUrl: "",
+    taxId: "",
+    billingCountry: "",
+    bankName: "",
+    accountName: "",
+    accountNumber: "",
+    branchCode: "",
+  });
+  const [saving, setSaving] = useState(false);
 
-  const handleToggle = (section: string, field: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section as keyof typeof prev],
-        [field]: !prev[section as keyof typeof prev][field as keyof typeof prev[keyof typeof prev]],
-      },
-    }));
-  };
+  useEffect(() => {
+    if (!profile) return;
+    setForm({
+      webhookUrl: profile.webhookUrl ?? "",
+      taxId: profile.taxId ?? "",
+      billingCountry: profile.billingCountry ?? "",
+      bankName: profile.bankDetails?.bankName ?? "",
+      accountName: profile.bankDetails?.accountName ?? "",
+      accountNumber: profile.bankDetails?.accountNumber ?? "",
+      branchCode: profile.bankDetails?.branchCode ?? "",
+    });
+  }, [profile]);
 
-  const handleChange = (section: string, field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section as keyof typeof prev],
-        [field]: value,
-      },
-    }));
-  };
+  if (!profile) return <LoadingSkeleton variant="page" />;
 
-  const handleSave = () => {
-    // In real app, save to Convex
-    console.log("Saving settings...", formData);
-  };
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await updateProfile({
+        webhookUrl: form.webhookUrl || undefined,
+        taxId: form.taxId || undefined,
+        billingCountry: form.billingCountry || undefined,
+        bankDetails: {
+          bankName: form.bankName || undefined,
+          accountName: form.accountName || undefined,
+          accountNumber: form.accountNumber || undefined,
+          branchCode: form.branchCode || undefined,
+        },
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600">Manage your account settings and preferences</p>
-        </div>
-        <button
-          onClick={handleSave}
-          className="flex items-center px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12] transition-colors"
-        >
-          <Save className="h-4 w-4 mr-2" />
-          Save Changes
-        </button>
+      <PageHeader
+        title="Settings"
+        description="Live developer payout, billing, and webhook settings stored on your publisher record."
+      />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Billing & Compliance</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input
+              placeholder="Tax ID"
+              value={form.taxId}
+              onChange={(e) => setForm((current) => ({ ...current, taxId: e.target.value }))}
+            />
+            <Input
+              placeholder="Billing country"
+              value={form.billingCountry}
+              onChange={(e) =>
+                setForm((current) => ({ ...current, billingCountry: e.target.value }))
+              }
+            />
+            <Input
+              placeholder="Webhook URL"
+              value={form.webhookUrl}
+              onChange={(e) => setForm((current) => ({ ...current, webhookUrl: e.target.value }))}
+            />
+            <div className="rounded-md border p-3 text-sm">
+              <p className="font-medium">API Key</p>
+              <p className="mt-1 break-all text-muted-foreground">
+                {profile.apiKey ?? "No API key provisioned"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Bank Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input
+              placeholder="Bank name"
+              value={form.bankName}
+              onChange={(e) => setForm((current) => ({ ...current, bankName: e.target.value }))}
+            />
+            <Input
+              placeholder="Account name"
+              value={form.accountName}
+              onChange={(e) =>
+                setForm((current) => ({ ...current, accountName: e.target.value }))
+              }
+            />
+            <Input
+              placeholder="Account number"
+              value={form.accountNumber}
+              onChange={(e) =>
+                setForm((current) => ({ ...current, accountNumber: e.target.value }))
+              }
+            />
+            <Input
+              placeholder="Branch code"
+              value={form.branchCode}
+              onChange={(e) => setForm((current) => ({ ...current, branchCode: e.target.value }))}
+            />
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow p-4">
-            <nav className="space-y-1">
-              {[
-                { id: "general", label: "General", icon: Settings },
-                { id: "notifications", label: "Notifications", icon: Bell },
-                { id: "api", label: "API & Webhooks", icon: Key },
-                { id: "security", label: "Security", icon: Shield },
-                { id: "data", label: "Data & Privacy", icon: Download },
-                { id: "billing", label: "Billing", icon: CreditCard },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveSection(item.id)}
-                  className={`
-                    w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200
-                    ${activeSection === item.id
-                      ? 'bg-[#0F4C2A] text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                    }
-                  `}
-                >
-                  <item.icon className="mr-3 h-4 w-4" />
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="lg:col-span-3">
-          {/* General Settings */}
-          {activeSection === "general" && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">General Settings</h2>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Display Language</label>
-                  <select
-                    value="english"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  >
-                    <option value="english">English</option>
-                    <option value="swahili">Swahili</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
-                  <select
-                    value="eastafrica"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  >
-                    <option value="eastafrica">East Africa Time (EAT)</option>
-                    <option value="utc">UTC</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Format</label>
-                  <select
-                    value="ddmmyyyy"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  >
-                    <option value="ddmmyyyy">DD/MM/YYYY</option>
-                    <option value="mmddyyyy">MM/DD/YYYY</option>
-                    <option value="yyyymmdd">YYYY-MM-DD</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Notifications */}
-          {activeSection === "notifications" && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                  <div>
-                    <p className="font-medium text-gray-900">Email Updates</p>
-                    <p className="text-sm text-gray-500">Receive important updates about your account</p>
-                  </div>
-                  <button
-                    onClick={() => handleToggle("notifications", "emailUpdates")}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      formData.notifications.emailUpdates ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      formData.notifications.emailUpdates ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                  <div>
-                    <p className="font-medium text-gray-900">Marketing Emails</p>
-                    <p className="text-sm text-gray-500">Receive promotional emails and newsletters</p>
-                  </div>
-                  <button
-                    onClick={() => handleToggle("notifications", "marketingEmails")}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      formData.notifications.marketingEmails ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      formData.notifications.marketingEmails ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                  <div>
-                    <p className="font-medium text-gray-900">Module Notifications</p>
-                    <p className="text-sm text-gray-500">Get notified about module reviews and updates</p>
-                  </div>
-                  <button
-                    onClick={() => handleToggle("notifications", "moduleNotifications")}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      formData.notifications.moduleNotifications ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      formData.notifications.moduleNotifications ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                  <div>
-                    <p className="font-medium text-gray-900">Revenue Alerts</p>
-                    <p className="text-sm text-gray-500">Receive alerts about revenue milestones</p>
-                  </div>
-                  <button
-                    onClick={() => handleToggle("notifications", "revenueAlerts")}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      formData.notifications.revenueAlerts ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      formData.notifications.revenueAlerts ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-medium text-gray-900">Security Alerts</p>
-                    <p className="text-sm text-gray-500">Get notified about security-related activities</p>
-                  </div>
-                  <button
-                    onClick={() => handleToggle("notifications", "securityAlerts")}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      formData.notifications.securityAlerts ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      formData.notifications.securityAlerts ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* API & Webhooks */}
-          {activeSection === "api" && (
-            <div className="space-y-6">
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">API Keys</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">API Key</label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type={showApiKeys ? "text" : "password"}
-                        value={formData.api.apiKey}
-                        readOnly
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                      />
-                      <button
-                        onClick={() => setShowApiKeys(!showApiKeys)}
-                        className="p-2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showApiKeys ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-gray-600">
-                        <Upload className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">API Secret</label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="password"
-                        value={formData.api.apiSecret}
-                        readOnly
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                      />
-                      <button className="p-2 text-gray-400 hover:text-gray-600">
-                        <Upload className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="pt-4 border-t border-gray-200">
-                    <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                      <Key className="h-4 w-4 mr-2" />
-                      Generate New Keys
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Webhooks</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Webhook URL</label>
-                    <input
-                      type="url"
-                      value={formData.api.webhookUrl}
-                      onChange={(e) => handleChange("api", "webhookUrl", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                      placeholder="https://your-app.com/webhook"
-                    />
-                  </div>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 className="font-medium text-blue-900 mb-2">Webhook Events</h3>
-                    <div className="space-y-2 text-sm text-blue-800">
-                      <label className="flex items-center">
-                        <input type="checkbox" className="mr-2" defaultChecked />
-                        Module installed
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="mr-2" defaultChecked />
-                        Revenue earned
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="mr-2" />
-                        Review received
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Security */}
-          {activeSection === "security" && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Security Settings</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                  <div>
-                    <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-                    <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
-                  </div>
-                  <button className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-                    Enable
-                  </button>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                  <div>
-                    <p className="font-medium text-gray-900">Session Timeout</p>
-                    <p className="text-sm text-gray-500">Automatically log out after period of inactivity</p>
-                  </div>
-                  <select
-                    value={formData.security.sessionTimeout}
-                    onChange={(e) => handleChange("security", "sessionTimeout", e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded text-sm"
-                  >
-                    <option value="1h">1 hour</option>
-                    <option value="8h">8 hours</option>
-                    <option value="24h">24 hours</option>
-                    <option value="1w">1 week</option>
-                  </select>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                  <div>
-                    <p className="font-medium text-gray-900">Login Notifications</p>
-                    <p className="text-sm text-gray-500">Get notified when someone logs into your account</p>
-                  </div>
-                  <button
-                    onClick={() => handleToggle("security", "loginNotifications")}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      formData.security.loginNotifications ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      formData.security.loginNotifications ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-medium text-gray-900">API Access</p>
-                    <p className="text-sm text-gray-500">Allow API access to your account</p>
-                  </div>
-                  <button
-                    onClick={() => handleToggle("security", "apiAccess")}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      formData.security.apiAccess ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      formData.security.apiAccess ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Data & Privacy */}
-          {activeSection === "data" && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Data & Privacy</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Export Format</label>
-                  <select
-                    value={formData.data.exportFormat}
-                    onChange={(e) => handleChange("data", "exportFormat", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  >
-                    <option value="csv">CSV</option>
-                    <option value="json">JSON</option>
-                    <option value="xlsx">Excel</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Data Retention</label>
-                  <select
-                    value={formData.data.dataRetention}
-                    onChange={(e) => handleChange("data", "dataRetention", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  >
-                    <option value="6m">6 months</option>
-                    <option value="1y">1 year</option>
-                    <option value="2y">2 years</option>
-                    <option value="5y">5 years</option>
-                  </select>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-200">
-                  <div>
-                    <p className="font-medium text-gray-900">Analytics Sharing</p>
-                    <p className="text-sm text-gray-500">Share anonymous usage data to improve our services</p>
-                  </div>
-                  <button
-                    onClick={() => handleToggle("data", "analyticsSharing")}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      formData.data.analyticsSharing ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      formData.data.analyticsSharing ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-                <div className="pt-4 border-t border-gray-200">
-                  <h3 className="font-medium text-gray-900 mb-3">Data Management</h3>
-                  <div className="space-y-2">
-                    <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export All Data
-                    </button>
-                    <button className="flex items-center px-4 py-2 border border-red-300 rounded-lg text-red-700 hover:bg-red-50">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Account
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Billing */}
-          {activeSection === "billing" && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Billing Settings</h2>
-              <div className="text-center py-8">
-                <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">Billing settings coming soon</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      <Button onClick={handleSave} disabled={saving}>
+        <Save className="mr-2 h-4 w-4" />
+        {saving ? "Saving..." : "Save Settings"}
+      </Button>
     </div>
   );
 }

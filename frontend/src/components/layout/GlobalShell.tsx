@@ -9,9 +9,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useNotifications } from "@/hooks/useNotifications";
-import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
-import { usePermissionBasedNavItems, getNavItemsBySection } from "@/hooks/usePermissionBasedNav";
+import { usePermissionBasedNavItems } from "@/hooks/usePermissionBasedNav";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,17 +51,10 @@ import {
   CheckCheck,
   ExternalLink,
 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import Image from "next/image";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import type { NavItem } from "@/lib/routes";
-
-// ─── Nav group definitions ────────────────────────────────────────────────────
 
 export interface NavGroup {
   label: string;
@@ -70,157 +62,31 @@ export interface NavGroup {
   items?: { label: string; href: string }[];
 }
 
-export const PLATFORM_NAV_GROUPS: NavGroup[] = [
-  { label: "Home", href: "/platform" },
-  {
-    label: "Tenants",
-    items: [
-      { label: "All Tenants", href: "/platform/tenants" },
-      { label: "CRM Pipeline", href: "/platform/crm" },
-      { label: "Proposals", href: "/platform/crm/proposals" },
-      { label: "Tenant Success", href: "/platform/tenant-success" },
-      { label: "Onboarding", href: "/platform/onboarding" },
-    ],
-  },
-  {
-    label: "Users",
-    items: [
-      { label: "All Users", href: "/platform/users" },
-      { label: "Impersonation", href: "/platform/impersonation" },
-      { label: "Role Builder", href: "/platform/role-builder" },
-      { label: "Staff Performance", href: "/platform/staff-performance" },
-    ],
-  },
-  {
-    label: "Analytics",
-    items: [
-      { label: "Analytics Dashboard", href: "/platform/analytics" },
-      { label: "Scheduled Reports", href: "/platform/scheduled-reports" },
-    ],
-  },
-  {
-    label: "Support",
-    items: [
-      { label: "Tickets", href: "/platform/tickets" },
-      { label: "Knowledge Base", href: "/platform/knowledge-base" },
-      { label: "AI Support", href: "/platform/ai-support" },
-    ],
-  },
-  {
-    label: "Comms",
-    items: [
-      { label: "Communications", href: "/platform/communications" },
-      { label: "Changelog", href: "/platform/changelog" },
-    ],
-  },
-  {
-    label: "Health",
-    items: [
-      { label: "System Health", href: "/platform/health" },
-      { label: "Operations Center", href: "/platform/operations" },
-      { label: "SLA Management", href: "/platform/sla" },
-    ],
-  },
-  {
-    label: "Security",
-    items: [
-      { label: "Security Operations", href: "/platform/security" },
-      { label: "API Keys", href: "/platform/api-keys" },
-      { label: "Webhooks", href: "/platform/webhooks" },
-      { label: "Audit Log", href: "/platform/audit" },
-    ],
-  },
-  {
-    label: "Platform",
-    items: [
-      { label: "Marketplace", href: "/platform/marketplace" },
-      { label: "Billing", href: "/platform/billing" },
-      { label: "Feature Flags", href: "/platform/feature-flags" },
-      { label: "Automation Center", href: "/platform/automation" },
-      { label: "Data Export", href: "/platform/data-export" },
-      { label: "White-Label", href: "/platform/white-label" },
-      { label: "Project Management", href: "/platform/pm" },
-      { label: "Settings", href: "/platform/settings" },
-    ],
-  },
-];
+function getNavGroups(navItems: NavItem[]): NavGroup[] {
+  const groups: NavGroup[] = [];
 
-export const ADMIN_NAV_GROUPS: NavGroup[] = [
-  { label: "Home", href: "/admin" },
-  {
-    label: "Students",
-    items: [
-      { label: "All Students", href: "/admin/students" },
-      { label: "Admissions", href: "/admin/admissions" },
-      { label: "Classes", href: "/admin/classes" },
-      { label: "Academics", href: "/admin/academics" },
-    ],
-  },
-  {
-    label: "Staff",
-    items: [
-      { label: "Staff Directory", href: "/admin/staff" },
-      { label: "HR & Payroll", href: "/admin/hr" },
-    ],
-  },
-  {
-    label: "Finance",
-    items: [
-      { label: "Finance Overview", href: "/admin/finance" },
-      { label: "eWallet", href: "/admin/ewallet" },
-      { label: "eCommerce", href: "/admin/ecommerce" },
-    ],
-  },
-  { label: "Comms", href: "/admin/communications" },
-  {
-    label: "More",
-    items: [
-      { label: "Timetable", href: "/admin/timetable" },
-      { label: "Library", href: "/admin/library" },
-      { label: "Transport", href: "/admin/transport" },
-      { label: "Support Tickets", href: "/admin/tickets" },
-      { label: "Users", href: "/admin/users" },
-      { label: "Modules", href: "/admin/modules" },
-      { label: "Marketplace", href: "/admin/marketplace" },
-      { label: "Audit Log", href: "/admin/audit" },
-      { label: "Settings", href: "/admin/settings" },
-    ],
-  },
-];
+  for (const item of navItems) {
+    if (!item.section) {
+      groups.push({ label: item.label, href: item.href });
+      continue;
+    }
 
-function navItemsToGroups(items: NavItem[]): NavGroup[] {
-  return items.map((item) => ({ label: item.label, href: item.href }));
-}
+    const existingGroup = groups.find(
+      (group) => group.label === item.section && Array.isArray(group.items)
+    );
 
-function filterGroupsByVisibleNavItems(groups: NavGroup[], visibleNavItems: NavItem[]): NavGroup[] {
-  const visibleHrefs = new Set(visibleNavItems.map((item) => item.href));
+    if (existingGroup?.items) {
+      existingGroup.items.push({ label: item.label, href: item.href });
+      continue;
+    }
 
-  return groups
-    .map((group) => {
-      if (group.href) {
-        return visibleHrefs.has(group.href) ? group : null;
-      }
-
-      const items = group.items?.filter((item) => visibleHrefs.has(item.href)) ?? [];
-      return items.length > 0 ? { ...group, items } : null;
-    })
-    .filter((group): group is NavGroup => !!group);
-}
-
-function getNavGroups(role: string, navItems: NavItem[]): NavGroup[] {
-  if (role === "master_admin" || role === "super_admin") {
-    return filterGroupsByVisibleNavItems(PLATFORM_NAV_GROUPS, navItems);
+    groups.push({
+      label: item.section,
+      items: [{ label: item.label, href: item.href }],
+    });
   }
-  if (
-    role === "school_admin" ||
-    role === "principal" ||
-    role === "bursar" ||
-    role === "hr_manager" ||
-    role === "librarian" ||
-    role === "transport_manager"
-  )
-    return filterGroupsByVisibleNavItems(ADMIN_NAV_GROUPS, navItems);
-  return navItemsToGroups(navItems);
+
+  return groups;
 }
 
 // ─── Role label for workspace pill ───────────────────────────────────────────
@@ -233,13 +99,7 @@ function getRoleWorkspaceLabel(role: string, tenantName?: string): string {
 
 // ─── Dropdown nav group ───────────────────────────────────────────────────────
 
-function NavGroupDropdown({
-  group,
-  pathname,
-}: {
-  group: NavGroup;
-  pathname: string;
-}) {
+function NavGroupDropdown({ group, pathname }: { group: NavGroup; pathname: string }) {
   const isGroupActive = group.items?.some(
     (item) => pathname === item.href || pathname.startsWith(item.href + "/")
   );
@@ -267,8 +127,7 @@ function NavGroupDropdown({
         className="w-52 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
       >
         {group.items?.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <DropdownMenuItem key={item.href} asChild>
               <Link
@@ -302,7 +161,6 @@ function MobileDrawer({
   logout,
 }: {
   groups: NavGroup[];
-  role: string;
   user: any;
   tenant: any;
   logout: () => void;
@@ -321,13 +179,27 @@ function MobileDrawer({
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0 flex flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]">
+      <SheetContent
+        side="left"
+        className="w-72 p-0 flex flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]"
+      >
         {/* Drawer header */}
         <div className="flex items-center gap-3 p-4 border-b border-[var(--sidebar-border)]">
-          <Image src="/logo-icon.svg" alt="EduMyles" width={32} height={32} className="flex-shrink-0" priority />
+          <Image
+            src="/logo-icon.svg"
+            alt="EduMyles"
+            width={32}
+            height={32}
+            className="flex-shrink-0"
+            priority
+          />
           <div>
-            <p className="text-sm font-bold" style={{ color: "var(--em-gold)" }}>EduMyles</p>
-            <p className="text-xs" style={{ color: "var(--sidebar-text)" }}>{tenant?.name ?? "School Management"}</p>
+            <p className="text-sm font-bold" style={{ color: "var(--em-gold)" }}>
+              EduMyles
+            </p>
+            <p className="text-xs" style={{ color: "var(--sidebar-text)" }}>
+              {tenant?.name ?? "School Management"}
+            </p>
           </div>
           <Button
             variant="ghost"
@@ -364,8 +236,7 @@ function MobileDrawer({
                 );
               }
               const isGroupActive = group.items?.some(
-                (item) =>
-                  pathname === item.href || pathname.startsWith(item.href + "/")
+                (item) => pathname === item.href || pathname.startsWith(item.href + "/")
               );
               return (
                 <div key={group.label} className="mb-1">
@@ -378,9 +249,7 @@ function MobileDrawer({
                     {group.label}
                   </p>
                   {group.items?.map((item) => {
-                    const isActive =
-                      pathname === item.href ||
-                      pathname.startsWith(item.href + "/");
+                    const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                     return (
                       <Link
                         key={item.href}
@@ -479,8 +348,16 @@ function GlobalSearch({
 
   const quickLinks = useMemo(
     () => [
-      { label: "Notifications", href: notificationsHref, description: "Open your latest alerts and updates." },
-      { label: "Settings", href: settingsHref, description: "Manage workspace and platform preferences." },
+      {
+        label: "Notifications",
+        href: notificationsHref,
+        description: "Open your latest alerts and updates.",
+      },
+      {
+        label: "Settings",
+        href: settingsHref,
+        description: "Manage workspace and platform preferences.",
+      },
       {
         label: isPlatformRoute ? "AI Support" : "Support Center",
         href: isPlatformRoute ? "/platform/ai-support" : "/support",
@@ -521,7 +398,9 @@ function GlobalSearch({
         <button className="flex h-8 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-sm text-white/70 transition-all duration-150 hover:border-[var(--topnav-active-border)] hover:bg-white/[0.09] hover:text-white">
           <Search className="h-3.5 w-3.5" />
           <span className="hidden sm:block text-xs">Search</span>
-          <kbd className="hidden rounded bg-white/10 px-1.5 py-0.5 font-mono text-[9px] sm:block">Ctrl K</kbd>
+          <kbd className="hidden rounded bg-white/10 px-1.5 py-0.5 font-mono text-[9px] sm:block">
+            Ctrl K
+          </kbd>
         </button>
       </PopoverTrigger>
       <PopoverContent
@@ -729,15 +608,24 @@ function HelpMenu({
           <p className="text-xs text-white/45">Get help, documentation, and guided assistance.</p>
         </div>
         <div className="space-y-2">
-          <Link href={helpHref} className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]">
+          <Link
+            href={helpHref}
+            className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]"
+          >
             <p className="text-sm font-medium text-white">Support tickets</p>
             <p className="text-xs text-white/45">Open or review support requests.</p>
           </Link>
-          <Link href={knowledgeHref} className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]">
+          <Link
+            href={knowledgeHref}
+            className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]"
+          >
             <p className="text-sm font-medium text-white">Knowledge base</p>
             <p className="text-xs text-white/45">Browse guides, docs, and platform answers.</p>
           </Link>
-          <Link href={aiSupportHref} className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]">
+          <Link
+            href={aiSupportHref}
+            className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]"
+          >
             <p className="text-sm font-medium text-white">AI support</p>
             <p className="text-xs text-white/45">Launch the guided troubleshooting workspace.</p>
           </Link>
@@ -764,11 +652,10 @@ function TopNavIconBtn({
   badge?: number;
   className?: string;
 }) {
-  const cls =
-    cn(
-      "relative h-8 w-8 flex items-center justify-center rounded-md text-white/60 hover:text-white hover:bg-white/10 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--em-gold)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--topnav-bg)]",
-      className
-    );
+  const cls = cn(
+    "relative h-8 w-8 flex items-center justify-center rounded-md text-white/60 hover:text-white hover:bg-white/10 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--em-gold)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--topnav-bg)]",
+    className
+  );
 
   const inner = (
     <>
@@ -816,18 +703,28 @@ function LeftSidebar({
 }) {
   const pathname = usePathname();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
-  const { can } = usePlatformPermissions();
-
-  // Use permission-based navigation
-  const permissionBasedNavItems = usePermissionBasedNavItems();
   const groupedNavItems = useMemo(() => {
-    return getNavItemsBySection(permissionBasedNavItems);
-  }, [permissionBasedNavItems]);
+    const grouped = navItems.reduce<Array<{ section: string; items: NavItem[] }>>((acc, item) => {
+      const section = item.section ?? "__standalone__";
+      const existingGroup = acc.find((group) => group.section === section);
+
+      if (existingGroup) {
+        existingGroup.items.push(item);
+        return acc;
+      }
+
+      acc.push({ section, items: [item] });
+      return acc;
+    }, []);
+
+    return grouped;
+  }, [navItems]);
 
   const activeSection = useMemo(() => {
     const activeGroup = groupedNavItems.find((group) =>
       group.items.some(
-        (item) => pathname === item.href || (item.href.length > 1 && pathname?.startsWith(item.href + "/"))
+        (item) =>
+          pathname === item.href || (item.href.length > 1 && pathname?.startsWith(item.href + "/"))
       )
     );
     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
@@ -864,10 +761,7 @@ function LeftSidebar({
             {groupedNavItems.map((group, index) => (
               <div
                 key={group.section}
-                className={cn(
-                  "space-y-2",
-                  index > 0 && "border-t pt-4"
-                )}
+                className={cn("space-y-2", index > 0 && "border-t pt-4")}
                 style={index > 0 ? { borderColor: "var(--sidebar-border)" } : undefined}
               >
                 {!collapsed && group.section !== "__standalone__" ? (
@@ -924,7 +818,9 @@ function LeftSidebar({
                         <Icon
                           className={cn(
                             "h-[18px] w-[18px] flex-shrink-0",
-                            isActive ? "text-[var(--em-gold)]" : "text-white/50 group-hover:text-[var(--em-gold)]"
+                            isActive
+                              ? "text-[var(--em-gold)]"
+                              : "text-white/50 group-hover:text-[var(--em-gold)]"
                           )}
                         />
                         {!collapsed && (
@@ -965,10 +861,7 @@ function LeftSidebar({
         </ScrollArea>
 
         {/* Collapse toggle */}
-        <div
-          className="border-t p-2"
-          style={{ borderColor: "var(--sidebar-border)" }}
-        >
+        <div className="border-t p-2" style={{ borderColor: "var(--sidebar-border)" }}>
           <button
             onClick={onToggle}
             className={cn(
@@ -1000,12 +893,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const { user, role, logout, sessionToken } = useAuth();
   const { tenant } = useTenant();
   const { isModuleInstalled } = useInstalledModules();
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-  } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [footerPanel, setFooterPanel] = useState<"chats" | "channels" | "contacts" | null>(null);
   const [healthRefreshNonce, setHealthRefreshNonce] = useState(0);
@@ -1038,17 +926,19 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   );
 
   // For platform routes, use permission-based navigation; for others, use original navItems
-  const visibleNavItems = isPlatformRoute ? permissionBasedNavItems : navItems.filter((item) => {
-    if (!item.module) return true;
-    if (coreModuleIds.includes(item.module)) return true;
-    if (!isModuleInstalled(item.module)) return false;
-    return true;
-  });
+  const visibleNavItems = isPlatformRoute
+    ? permissionBasedNavItems
+    : navItems.filter((item) => {
+        if (!item.module) return true;
+        if (coreModuleIds.includes(item.module)) return true;
+        if (!isModuleInstalled(item.module)) return false;
+        return true;
+      });
 
   const anyUser = user as any;
   const displayName = formatName(anyUser?.firstName, anyUser?.lastName);
   const initials = getInitials(anyUser?.firstName, anyUser?.lastName);
-  const groups = getNavGroups(role ?? "", visibleNavItems);
+  const groups = getNavGroups(visibleNavItems);
   const workspaceLabel = getRoleWorkspaceLabel(role ?? "", tenant?.name);
 
   // Derive notification / profile hrefs from current section
@@ -1064,10 +954,10 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
 
   const notificationsHref = sectionHref("notifications");
   const profileHref = sectionHref("profile");
-  const settingsHref = pathname?.startsWith("/platform")
-    ? "/platform/settings"
-    : "/admin/settings";
-  const supportHref = pathname?.startsWith("/platform") ? "/platform/support" : sectionHref("tickets");
+  const settingsHref = pathname?.startsWith("/platform") ? "/platform/settings" : "/admin/settings";
+  const supportHref = pathname?.startsWith("/platform")
+    ? "/platform/support"
+    : sectionHref("tickets");
   const knowledgeHref = pathname?.startsWith("/platform") ? "/platform/knowledge-base" : "/support";
   const aiSupportHref = pathname?.startsWith("/platform") ? "/platform/ai-support" : "/support";
   const shellHealthTone =
@@ -1090,539 +980,572 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex h-screen flex-col overflow-hidden" style={{ background: "var(--em-off-white)" }}>
-
-      {/* ══ Top navigation bar — platform shell ══════════ */}
-      <header
-        className="flex-shrink-0 z-[2000]"
-        style={{ background: "var(--topnav-bg)", borderBottom: "1px solid var(--topnav-border)" }}
+      <div
+        className="flex h-screen flex-col overflow-hidden"
+        style={{ background: "var(--em-off-white)" }}
       >
-        <div className="flex min-h-[60px] items-center gap-2 px-3 md:px-4">
-
-          {/* Mobile menu */}
-          <div className="flex md:hidden">
-            <MobileDrawer
-              groups={groups}
-              role={role ?? ""}
-              user={anyUser}
-              tenant={tenant}
-              logout={logout}
-            />
-          </div>
-
-          {/* ── Logo mark (Zoho-style: "E" monogram + name) ── */}
-          <Link
-            href={
-              role === "master_admin" || role === "super_admin"
-                ? "/platform"
-                : role === "school_admin" || role === "principal"
-                ? "/admin"
-                : "/"
-            }
-            className="flex items-center gap-2 shrink-0 mr-1"
-          >
-            <Image src="/logo-icon.svg" alt="EduMyles" width={28} height={28} className="flex-shrink-0" priority />
-            <span className="hidden sm:block text-sm font-bold tracking-tight" style={{ color: "var(--em-gold)" }}>
-              EduMyles
-            </span>
-          </Link>
-
-          {/* ── Workspace / school selector pill (like Zoho "Personal ▾") ── */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="hidden md:flex items-center gap-1 rounded-md border border-white/12 bg-white/6 px-2.5 h-[28px] text-xs font-medium text-white/75 hover:text-white hover:bg-white/10 hover:border-[var(--topnav-active-border)] transition-all duration-150 mr-1 max-w-[160px]">
-                <span className="truncate">{workspaceLabel}</span>
-                <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              className="w-56 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
-            >
-              <DropdownMenuLabel className="text-[var(--em-sage-muted)] text-xs font-bold uppercase tracking-wider">
-                Workspace
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
-              <DropdownMenuItem className="text-white/80 hover:text-white hover:bg-white/8 cursor-pointer">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[var(--em-gold)]" />
-                  <span className="font-medium">{workspaceLabel}</span>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {isPlatformRoute ? (
-            <div className="hidden min-w-0 flex-1 items-center justify-between gap-4 px-2 lg:flex">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="truncate text-sm font-semibold text-white">
-                    Master Admin Command Center
-                  </p>
-                  <Badge className="h-5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 text-[10px] font-semibold text-emerald-300 shadow-none">
-                    Live
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                  <div className="flex items-center gap-2 text-[11px] text-white/55">
-                    <span className={cn("h-2.5 w-2.5 rounded-full", shellHealthTone)} />
-                    <span className="uppercase tracking-[0.18em]">Platform status</span>
-                  </div>
-                  <div className="mt-1 flex items-center gap-4 text-xs text-white/85">
-                    <span className="font-semibold">{shellHealthLabel}</span>
-                    <span>{shellHealth?.responseTime ?? 0}ms avg</span>
-                    <span>{shellHealth?.errorRate?.toFixed?.(1) ?? "0.0"}% errors</span>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">Queue</p>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-white/80">
-                    <span>{shellHealth?.pendingReviews ?? 0} reviews</span>
-                    <span>{shellHealth?.activeFlags ?? 0} flags</span>
-                    <span>{unreadCount ?? 0} unread</span>
-                  </div>
-                </div>
-              </div>
+        {/* ══ Top navigation bar — platform shell ══════════ */}
+        <header
+          className="flex-shrink-0 z-[2000]"
+          style={{ background: "var(--topnav-bg)", borderBottom: "1px solid var(--topnav-border)" }}
+        >
+          <div className="flex min-h-[60px] items-center gap-2 px-3 md:px-4">
+            {/* Mobile menu */}
+            <div className="flex md:hidden">
+              <MobileDrawer groups={groups} user={anyUser} tenant={tenant} logout={logout} />
             </div>
-          ) : (
-            <>
-              <div className="hidden md:block w-px h-5 bg-white/10 mx-0.5" />
-              <nav className="hidden md:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-none mx-1">
-                {groups.map((group) => {
-                  if (group.href && !group.items?.length) {
-                    const isActive =
-                      pathname === group.href ||
-                      (group.href.length > 1 &&
-                        pathname.startsWith(group.href + "/"));
-                    return (
-                      <Link
-                        key={group.href}
-                        href={group.href}
-                        className={cn(
-                          "relative px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap",
-                          isActive
-                            ? "text-white bg-[var(--topnav-active-bg)]"
-                            : "text-white/56 hover:text-white/88 hover:bg-white/8"
-                        )}
-                      >
-                        {group.label}
-                        {isActive && (
-                          <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[var(--em-gold)]" />
-                        )}
-                      </Link>
-                    );
-                  }
-                  return (
-                    <NavGroupDropdown
-                      key={group.label}
-                      group={group}
-                      pathname={pathname ?? ""}
-                    />
-                  );
-                })}
-              </nav>
-            </>
-          )}
 
-          {/* ── Right controls ── */}
-          <div className="ml-auto flex items-center gap-1.5">
-            <GlobalSearch
-              navItems={visibleNavItems}
-              pathname={pathname ?? ""}
-              notificationsHref={notificationsHref}
-              settingsHref={settingsHref}
-              isPlatformRoute={!!isPlatformRoute}
-            />
-
-            <TopNavIconBtn
-              onClick={handleRefresh}
-              title="Refresh"
-              className={cn(isPlatformRoute && "border border-white/10 bg-white/[0.04]")}
+            {/* ── Logo mark (Zoho-style: "E" monogram + name) ── */}
+            <Link
+              href={
+                role === "master_admin" || role === "super_admin"
+                  ? "/platform"
+                  : role === "school_admin" || role === "principal"
+                    ? "/admin"
+                    : "/"
+              }
+              className="flex items-center gap-2 shrink-0 mr-1"
             >
-              <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
-            </TopNavIconBtn>
+              <Image
+                src="/logo-icon.svg"
+                alt="EduMyles"
+                width={28}
+                height={28}
+                className="flex-shrink-0"
+                priority
+              />
+              <span
+                className="hidden sm:block text-sm font-bold tracking-tight"
+                style={{ color: "var(--em-gold)" }}
+              >
+                EduMyles
+              </span>
+            </Link>
 
-            <NotificationsMenu
-              notifications={notifications}
-              unreadCount={unreadCount}
-              notificationsHref={notificationsHref}
-              markAsRead={markAsRead}
-              markAllAsRead={markAllAsRead}
-            />
-
-            {isPlatformRoute && (
-              <TopNavIconBtn href={settingsHref} title="Platform settings" className="border border-white/10 bg-white/[0.04]">
-                <Settings className="h-4 w-4" />
-              </TopNavIconBtn>
-            )}
-
-            <HelpMenu
-              helpHref={supportHref}
-              knowledgeHref={knowledgeHref}
-              aiSupportHref={aiSupportHref}
-            />
-
-            {/* Divider */}
-            <div className="mx-0.5 h-6 w-px bg-white/10" />
-
-            {/* ── User dropdown ── */}
+            {/* ── Workspace / school selector pill (like Zoho "Personal ▾") ── */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="ml-0.5 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] pl-1.5 pr-2.5 py-1.5 text-white transition-all duration-150 hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--em-gold)]">
-                  <Avatar className="h-7 w-7">
-                    <AvatarImage
-                      src={anyUser?.avatarUrl ?? undefined}
-                      alt={displayName}
-                    />
-                    <AvatarFallback className="text-[10px] bg-[var(--sidebar-accent)] text-[var(--em-gold)] font-bold border border-[var(--em-gold-35)]">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="hidden sm:flex flex-col items-start leading-tight">
-                    <span className="text-xs font-semibold text-white">
-                      {displayName || anyUser?.email}
-                    </span>
-                    <span className="text-[10px] text-[var(--em-sage-muted)]">
-                      {getRoleLabel(role ?? "")}
-                    </span>
-                  </div>
-                  <ChevronDown className="h-3 w-3 text-white/40 hidden sm:block" />
+                <button className="hidden md:flex items-center gap-1 rounded-md border border-white/12 bg-white/6 px-2.5 h-[28px] text-xs font-medium text-white/75 hover:text-white hover:bg-white/10 hover:border-[var(--topnav-active-border)] transition-all duration-150 mr-1 max-w-[160px]">
+                  <span className="truncate">{workspaceLabel}</span>
+                  <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
                 </button>
               </DropdownMenuTrigger>
-
               <DropdownMenuContent
-                align="end"
-                className="w-60 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
+                align="start"
+                className="w-56 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
               >
-                <DropdownMenuLabel>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold text-white">
-                      {displayName || anyUser?.email}
-                    </span>
-                    <span className="text-xs text-[var(--em-sage-muted)]">
-                      {user?.email}
-                    </span>
-                    <Badge
-                      variant="secondary"
-                      className="mt-0.5 w-fit text-[10px] bg-[var(--sidebar-accent-hover)] text-[var(--em-gold)] border border-[var(--topnav-active-border)] font-semibold"
-                    >
-                      {getRoleLabel(role ?? "")}
-                    </Badge>
-                  </div>
+                <DropdownMenuLabel className="text-[var(--em-sage-muted)] text-xs font-bold uppercase tracking-wider">
+                  Workspace
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={profileHref}
-                    className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
-                  >
-                    <User className="h-4 w-4 text-[var(--em-sage-muted)]" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={settingsHref}
-                    className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
-                  >
-                    <Settings className="h-4 w-4 text-[var(--em-sage-muted)]" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={notificationsHref}
-                    className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
-                  >
-                    <Zap className="h-4 w-4 text-[var(--em-sage-muted)]" />
-                    Notifications
-                    {unreadCount > 0 && (
-                      <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-white border-0 text-[10px] font-bold">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </Badge>
-                    )}
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
-                <DropdownMenuItem
-                  onClick={logout}
-                  className="flex items-center gap-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer py-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign out
+                <DropdownMenuItem className="text-white/80 hover:text-white hover:bg-white/8 cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[var(--em-gold)]" />
+                    <span className="font-medium">{workspaceLabel}</span>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-        </div>
-      </header>
 
-      {/* ── Impersonation banner (below nav) ──────────────────────────── */}
-      <ImpersonationBanner />
+            {isPlatformRoute ? (
+              <div className="hidden min-w-0 flex-1 items-center justify-between gap-4 px-2 lg:flex">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-semibold text-white">
+                      Master Admin Command Center
+                    </p>
+                    <Badge className="h-5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 text-[10px] font-semibold text-emerald-300 shadow-none">
+                      Live
+                    </Badge>
+                  </div>
+                </div>
 
-      {/* ── Body: sidebar + content ───────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left module sidebar */}
-        <LeftSidebar
-          navItems={visibleNavItems}
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed((v) => !v)}
-        />
+                <div className="flex items-center gap-2">
+                  <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
+                    <div className="flex items-center gap-2 text-[11px] text-white/55">
+                      <span className={cn("h-2.5 w-2.5 rounded-full", shellHealthTone)} />
+                      <span className="uppercase tracking-[0.18em]">Platform status</span>
+                    </div>
+                    <div className="mt-1 flex items-center gap-4 text-xs text-white/85">
+                      <span className="font-semibold">{shellHealthLabel}</span>
+                      <span>{shellHealth?.responseTime ?? 0}ms avg</span>
+                      <span>{shellHealth?.errorRate?.toFixed?.(1) ?? "0.0"}% errors</span>
+                    </div>
+                  </div>
 
-        {/* Page content */}
-        <main
-          className={cn(
-            "flex-1 overflow-y-auto",
-            isPlatformRoute && "pb-24"
-          )}
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(240,248,244,0.9) 0%, rgba(245,249,246,1) 220px)",
-          }}
-        >
-          {children}
-        </main>
-      </div>
-
-      {/* ══ Footer popups (legacy non-platform panels) ════════════════════ */}
-      {!isPlatformRoute && footerPanel && (
-        <div
-          className="fixed bottom-[44px] left-0 z-[3000] flex gap-2 px-3 pb-1 pointer-events-none"
-          style={{ width: "auto" }}
-        >
-          {footerPanel === "chats" && (
-            <div
-              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
-              style={{ background: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)", maxHeight: 420 }}
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
-                <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>Chats</span>
-                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
-                  <MessageCircle className="h-8 w-8 text-white/20" />
-                  <p className="text-xs text-white/40">No active chats</p>
-                  <Link
-                    href={sectionHref("communications")}
-                    onClick={() => setFooterPanel(null)}
-                    className="text-xs px-3 py-1.5 rounded-md transition-all"
-                    style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
-                  >
-                    Open Communications
-                  </Link>
+                  <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">Queue</p>
+                    <div className="mt-1 flex items-center gap-3 text-xs text-white/80">
+                      <span>{shellHealth?.pendingReviews ?? 0} reviews</span>
+                      <span>{shellHealth?.activeFlags ?? 0} flags</span>
+                      <span>{unreadCount ?? 0} unread</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <>
+                <div className="hidden md:block w-px h-5 bg-white/10 mx-0.5" />
+                <nav className="hidden md:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-none mx-1">
+                  {groups.map((group) => {
+                    if (group.href && !group.items?.length) {
+                      const isActive =
+                        pathname === group.href ||
+                        (group.href.length > 1 && pathname.startsWith(group.href + "/"));
+                      return (
+                        <Link
+                          key={group.href}
+                          href={group.href}
+                          className={cn(
+                            "relative px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap",
+                            isActive
+                              ? "text-white bg-[var(--topnav-active-bg)]"
+                              : "text-white/56 hover:text-white/88 hover:bg-white/8"
+                          )}
+                        >
+                          {group.label}
+                          {isActive && (
+                            <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[var(--em-gold)]" />
+                          )}
+                        </Link>
+                      );
+                    }
+                    return (
+                      <NavGroupDropdown key={group.label} group={group} pathname={pathname ?? ""} />
+                    );
+                  })}
+                </nav>
+              </>
+            )}
 
-          {footerPanel === "channels" && (
-            <div
-              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
-              style={{ background: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)", maxHeight: 420 }}
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
-                <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>Channels</span>
-                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
-                  <Hash className="h-8 w-8 text-white/20" />
-                  <p className="text-xs text-white/40">No channels yet</p>
-                  <Link
-                    href={sectionHref("communications")}
-                    onClick={() => setFooterPanel(null)}
-                    className="text-xs px-3 py-1.5 rounded-md transition-all"
-                    style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
-                  >
-                    Open Channels
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
+            {/* ── Right controls ── */}
+            <div className="ml-auto flex items-center gap-1.5">
+              <GlobalSearch
+                navItems={visibleNavItems}
+                pathname={pathname ?? ""}
+                notificationsHref={notificationsHref}
+                settingsHref={settingsHref}
+                isPlatformRoute={!!isPlatformRoute}
+              />
 
-          {footerPanel === "contacts" && (
-            <div
-              className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
-              style={{ background: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)", maxHeight: 420 }}
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
-                <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>Contacts</span>
-                <button onClick={() => setFooterPanel(null)} className="text-white/40 hover:text-white transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
-                  <Users2 className="h-8 w-8 text-white/20" />
-                  <p className="text-xs text-white/40">No contacts found</p>
-                  <Link
-                    href={sectionHref("communications")}
-                    onClick={() => setFooterPanel(null)}
-                    className="text-xs px-3 py-1.5 rounded-md transition-all"
-                    style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
-                  >
-                    Manage Contacts
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ══ Footer ══════════════════════════════ */}
-      {isPlatformRoute ? (
-        <footer
-          className="sticky bottom-0 z-40 flex-shrink-0 border-t border-white/12 bg-[var(--topnav-bg)] px-4 py-2.5 shadow-[0_-16px_40px_rgba(3,12,8,0.38)]"
-          style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.09), 0 -16px 40px rgba(3,12,8,0.38)" }}
-        >
-          <div className="flex min-h-[44px] items-center justify-between gap-3 overflow-x-auto whitespace-nowrap">
-            <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
-              <Link
-                href={settingsHref}
-                className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
+              <TopNavIconBtn
+                onClick={handleRefresh}
+                title="Refresh"
+                className={cn(isPlatformRoute && "border border-white/10 bg-white/[0.04]")}
               >
-                <Lock className="h-3.5 w-3.5" />
-                Platform settings
-              </Link>
-            </div>
+                <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+              </TopNavIconBtn>
 
-            <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-[11px] text-white/55">
-              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                Powered by{" "}
-                <a
-                  href="https://mylesoft.vercel.app"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="ml-1 font-semibold text-[var(--em-gold)] hover:underline"
+              <NotificationsMenu
+                notifications={notifications}
+                unreadCount={unreadCount}
+                notificationsHref={notificationsHref}
+                markAsRead={markAsRead}
+                markAllAsRead={markAllAsRead}
+              />
+
+              {isPlatformRoute && (
+                <TopNavIconBtn
+                  href={settingsHref}
+                  title="Platform settings"
+                  className="border border-white/10 bg-white/[0.04]"
                 >
-                  MylesCorp Technologies
-                </a>
-              </span>
+                  <Settings className="h-4 w-4" />
+                </TopNavIconBtn>
+              )}
+
+              <HelpMenu
+                helpHref={supportHref}
+                knowledgeHref={knowledgeHref}
+                aiSupportHref={aiSupportHref}
+              />
+
+              {/* Divider */}
+              <div className="mx-0.5 h-6 w-px bg-white/10" />
+
+              {/* ── User dropdown ── */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="ml-0.5 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] pl-1.5 pr-2.5 py-1.5 text-white transition-all duration-150 hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--em-gold)]">
+                    <Avatar className="h-7 w-7">
+                      <AvatarImage src={anyUser?.avatarUrl ?? undefined} alt={displayName} />
+                      <AvatarFallback className="text-[10px] bg-[var(--sidebar-accent)] text-[var(--em-gold)] font-bold border border-[var(--em-gold-35)]">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="hidden sm:flex flex-col items-start leading-tight">
+                      <span className="text-xs font-semibold text-white">
+                        {displayName || anyUser?.email}
+                      </span>
+                      <span className="text-[10px] text-[var(--em-sage-muted)]">
+                        {getRoleLabel(role ?? "")}
+                      </span>
+                    </div>
+                    <ChevronDown className="h-3 w-3 text-white/40 hidden sm:block" />
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  className="w-60 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
+                >
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-semibold text-white">
+                        {displayName || anyUser?.email}
+                      </span>
+                      <span className="text-xs text-[var(--em-sage-muted)]">{user?.email}</span>
+                      <Badge
+                        variant="secondary"
+                        className="mt-0.5 w-fit text-[10px] bg-[var(--sidebar-accent-hover)] text-[var(--em-gold)] border border-[var(--topnav-active-border)] font-semibold"
+                      >
+                        {getRoleLabel(role ?? "")}
+                      </Badge>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={profileHref}
+                      className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                    >
+                      <User className="h-4 w-4 text-[var(--em-sage-muted)]" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={settingsHref}
+                      className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                    >
+                      <Settings className="h-4 w-4 text-[var(--em-sage-muted)]" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={notificationsHref}
+                      className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                    >
+                      <Zap className="h-4 w-4 text-[var(--em-sage-muted)]" />
+                      Notifications
+                      {unreadCount > 0 && (
+                        <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-white border-0 text-[10px] font-bold">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </Badge>
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="flex items-center gap-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer py-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </header>
+
+        {/* ── Impersonation banner (below nav) ──────────────────────────── */}
+        <ImpersonationBanner />
+
+        {/* ── Body: sidebar + content ───────────────────────────────────── */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left module sidebar */}
+          <LeftSidebar
+            navItems={visibleNavItems}
+            collapsed={sidebarCollapsed}
+            onToggle={() => setSidebarCollapsed((v) => !v)}
+          />
+
+          {/* Page content */}
+          <main
+            className={cn("flex-1 overflow-y-auto", isPlatformRoute && "pb-24")}
+            style={{
+              background: isPlatformRoute
+                ? "radial-gradient(circle at top right, rgba(216, 169, 72, 0.08), transparent 22%), radial-gradient(circle at top left, rgba(15, 76, 42, 0.08), transparent 24%), linear-gradient(180deg, rgba(240,248,244,0.96) 0%, rgba(245,249,246,1) 220px)"
+                : "linear-gradient(180deg, rgba(240,248,244,0.9) 0%, rgba(245,249,246,1) 220px)",
+            }}
+          >
+            {children}
+          </main>
+        </div>
+
+        {/* ══ Footer popups (legacy non-platform panels) ════════════════════ */}
+        {!isPlatformRoute && footerPanel && (
+          <div
+            className="fixed bottom-[44px] left-0 z-[3000] flex gap-2 px-3 pb-1 pointer-events-none"
+            style={{ width: "auto" }}
+          >
+            {footerPanel === "chats" && (
+              <div
+                className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+                style={{
+                  background: "var(--sidebar-bg)",
+                  borderColor: "var(--sidebar-border)",
+                  maxHeight: 420,
+                }}
+              >
+                <div
+                  className="flex items-center justify-between px-4 py-3 border-b"
+                  style={{ borderColor: "var(--sidebar-border)" }}
+                >
+                  <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>
+                    Chats
+                  </span>
+                  <button
+                    onClick={() => setFooterPanel(null)}
+                    className="text-white/40 hover:text-white transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                    <MessageCircle className="h-8 w-8 text-white/20" />
+                    <p className="text-xs text-white/40">No active chats</p>
+                    <Link
+                      href={sectionHref("communications")}
+                      onClick={() => setFooterPanel(null)}
+                      className="text-xs px-3 py-1.5 rounded-md transition-all"
+                      style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
+                    >
+                      Open Communications
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {footerPanel === "channels" && (
+              <div
+                className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+                style={{
+                  background: "var(--sidebar-bg)",
+                  borderColor: "var(--sidebar-border)",
+                  maxHeight: 420,
+                }}
+              >
+                <div
+                  className="flex items-center justify-between px-4 py-3 border-b"
+                  style={{ borderColor: "var(--sidebar-border)" }}
+                >
+                  <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>
+                    Channels
+                  </span>
+                  <button
+                    onClick={() => setFooterPanel(null)}
+                    className="text-white/40 hover:text-white transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                    <Hash className="h-8 w-8 text-white/20" />
+                    <p className="text-xs text-white/40">No channels yet</p>
+                    <Link
+                      href={sectionHref("communications")}
+                      onClick={() => setFooterPanel(null)}
+                      className="text-xs px-3 py-1.5 rounded-md transition-all"
+                      style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
+                    >
+                      Open Channels
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {footerPanel === "contacts" && (
+              <div
+                className="pointer-events-auto w-80 rounded-t-xl shadow-2xl border overflow-hidden flex flex-col"
+                style={{
+                  background: "var(--sidebar-bg)",
+                  borderColor: "var(--sidebar-border)",
+                  maxHeight: 420,
+                }}
+              >
+                <div
+                  className="flex items-center justify-between px-4 py-3 border-b"
+                  style={{ borderColor: "var(--sidebar-border)" }}
+                >
+                  <span className="text-sm font-semibold" style={{ color: "var(--em-gold)" }}>
+                    Contacts
+                  </span>
+                  <button
+                    onClick={() => setFooterPanel(null)}
+                    className="text-white/40 hover:text-white transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
+                    <Users2 className="h-8 w-8 text-white/20" />
+                    <p className="text-xs text-white/40">No contacts found</p>
+                    <Link
+                      href={sectionHref("communications")}
+                      onClick={() => setFooterPanel(null)}
+                      className="text-xs px-3 py-1.5 rounded-md transition-all"
+                      style={{ background: "var(--sidebar-accent-hover)", color: "var(--em-gold)" }}
+                    >
+                      Manage Contacts
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ Footer ══════════════════════════════ */}
+        {isPlatformRoute ? (
+          <footer
+            className="sticky bottom-0 z-40 flex-shrink-0 border-t border-white/12 bg-[var(--topnav-bg)] px-4 py-2.5 shadow-[0_-16px_40px_rgba(3,12,8,0.38)]"
+            style={{
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.09), 0 -16px 40px rgba(3,12,8,0.38)",
+            }}
+          >
+            <div className="flex min-h-[44px] items-center justify-between gap-3 overflow-x-auto whitespace-nowrap">
+              <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
+                <Link
+                  href={settingsHref}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
+                >
+                  <Lock className="h-3.5 w-3.5" />
+                  Platform settings
+                </Link>
+              </div>
+
+              <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-[11px] text-white/55">
+                <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                  Powered by{" "}
+                  <a
+                    href="https://mylesoft.vercel.app"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ml-1 font-semibold text-[var(--em-gold)] hover:underline"
+                  >
+                    MylesCorp Technologies
+                  </a>
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
+                <Link
+                  href={supportHref}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
+                >
+                  <HelpCircle className="h-3.5 w-3.5" />
+                  Support
+                </Link>
+                <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold text-[var(--em-gold)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                  EduMyles 2026
+                </span>
+              </div>
+            </div>
+          </footer>
+        ) : (
+          <footer
+            className="flex-shrink-0 flex items-center justify-between px-3 h-[44px] text-xs border-t gap-2"
+            style={{
+              background: "var(--topnav-bg)",
+              borderColor: "var(--topnav-border)",
+            }}
+          >
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button
+                onClick={() => toggleFooterPanel("chats")}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+                  footerPanel === "chats"
+                    ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
+                    : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
+                )}
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span className="hidden sm:block">Chats</span>
+              </button>
+              <button
+                onClick={() => toggleFooterPanel("channels")}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+                  footerPanel === "channels"
+                    ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
+                    : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
+                )}
+              >
+                <Hash className="h-3.5 w-3.5" />
+                <span className="hidden sm:block">Channels</span>
+              </button>
+              <button
+                onClick={() => toggleFooterPanel("contacts")}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+                  footerPanel === "contacts"
+                    ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
+                    : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
+                )}
+              >
+                <Users2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:block">Contacts</span>
+              </button>
             </div>
 
-            <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
+            <button
+              className="mx-2 flex h-7 max-w-[360px] flex-1 items-center gap-2 rounded-md border border-white/12 bg-white/8 px-3 text-white/40 transition-all duration-150 hover:border-[var(--sidebar-border)] hover:bg-white/10 hover:text-white/70"
+              title="Smart Chat (Ctrl+Space)"
+            >
+              <Zap className="h-3.5 w-3.5 shrink-0 text-[var(--em-gold)]" />
+              <span className="truncate text-left text-[11px]">Here is your Smart Chat</span>
+              <kbd className="ml-auto hidden shrink-0 rounded bg-white/8 px-1 font-mono text-[9px] sm:block">
+                Ctrl+Space
+              </kbd>
+            </button>
+
+            <div className="flex items-center gap-1 shrink-0">
               <Link
-                href={supportHref}
-                className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
+                href={notificationsHref}
+                className="relative flex h-7 w-7 items-center justify-center rounded-md text-white/55 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
+                title="Notifications"
+              >
+                <Bell className="h-3.5 w-3.5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white border border-[var(--topnav-bg)]">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+
+              <div className="h-3.5 w-px bg-white/10" />
+
+              <Link
+                href={sectionHref("tickets")}
+                className="flex items-center gap-1 rounded-md px-2 py-1 text-white/55 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
               >
                 <HelpCircle className="h-3.5 w-3.5" />
-                Support
+                <span className="hidden sm:block">Need Support?</span>
               </Link>
-              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold text-[var(--em-gold)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+
+              <span className="hidden md:flex items-center h-5 px-1.5 rounded text-[9px] font-mono font-semibold bg-[var(--sidebar-accent)] text-[var(--em-gold)] border border-[var(--sidebar-border)]">
                 EduMyles 2026
               </span>
+
+              <Link
+                href={settingsHref}
+                className="flex h-7 w-7 items-center justify-center rounded-md text-white/30 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
+                title="Settings"
+              >
+                <Lock className="h-3.5 w-3.5" />
+              </Link>
             </div>
-          </div>
-        </footer>
-      ) : (
-        <footer
-          className="flex-shrink-0 flex items-center justify-between px-3 h-[44px] text-xs border-t gap-2"
-          style={{
-            background: "var(--topnav-bg)",
-            borderColor: "var(--topnav-border)",
-          }}
-        >
-          <div className="flex items-center gap-0.5 shrink-0">
-            <button
-              onClick={() => toggleFooterPanel("chats")}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
-                footerPanel === "chats"
-                  ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
-                  : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
-              )}
-            >
-              <MessageCircle className="h-3.5 w-3.5" />
-              <span className="hidden sm:block">Chats</span>
-            </button>
-            <button
-              onClick={() => toggleFooterPanel("channels")}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
-                footerPanel === "channels"
-                  ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
-                  : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
-              )}
-            >
-              <Hash className="h-3.5 w-3.5" />
-              <span className="hidden sm:block">Channels</span>
-            </button>
-            <button
-              onClick={() => toggleFooterPanel("contacts")}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
-                footerPanel === "contacts"
-                  ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
-                  : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
-              )}
-            >
-              <Users2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:block">Contacts</span>
-            </button>
-          </div>
-
-          <button
-            className="mx-2 flex h-7 max-w-[360px] flex-1 items-center gap-2 rounded-md border border-white/12 bg-white/8 px-3 text-white/40 transition-all duration-150 hover:border-[var(--sidebar-border)] hover:bg-white/10 hover:text-white/70"
-            title="Smart Chat (Ctrl+Space)"
-          >
-            <Zap className="h-3.5 w-3.5 shrink-0 text-[var(--em-gold)]" />
-            <span className="truncate text-left text-[11px]">
-              Here is your Smart Chat
-            </span>
-            <kbd className="ml-auto hidden shrink-0 rounded bg-white/8 px-1 font-mono text-[9px] sm:block">
-              Ctrl+Space
-            </kbd>
-          </button>
-
-          <div className="flex items-center gap-1 shrink-0">
-            <Link
-              href={notificationsHref}
-              className="relative flex h-7 w-7 items-center justify-center rounded-md text-white/55 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
-              title="Notifications"
-            >
-              <Bell className="h-3.5 w-3.5" />
-              {unreadCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white border border-[var(--topnav-bg)]">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </Link>
-
-            <div className="h-3.5 w-px bg-white/10" />
-
-            <Link
-              href={sectionHref("tickets")}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-white/55 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
-            >
-              <HelpCircle className="h-3.5 w-3.5" />
-              <span className="hidden sm:block">Need Support?</span>
-            </Link>
-
-            <span className="hidden md:flex items-center h-5 px-1.5 rounded text-[9px] font-mono font-semibold bg-[var(--sidebar-accent)] text-[var(--em-gold)] border border-[var(--sidebar-border)]">
-              EduMyles 2026
-            </span>
-
-            <Link
-              href={settingsHref}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-white/30 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
-              title="Settings"
-            >
-              <Lock className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        </footer>
-      )}
+          </footer>
+        )}
       </div>
     </TooltipProvider>
   );
