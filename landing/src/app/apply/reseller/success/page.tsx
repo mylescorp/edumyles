@@ -1,21 +1,17 @@
 "use client";
 
-import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowRight,
   CheckCircle2,
   Mail,
   Phone,
-  Clock,
   FileText,
   TrendingUp,
 } from "lucide-react";
-import Logo from "@/components/shared/Logo";
 
-export default function ResellerApplicationSuccessPage() {
-  const router = useRouter();
+function ResellerApplicationSuccessContent() {
   const searchParams = useSearchParams();
   const applicationId = searchParams.get("id");
 
@@ -41,13 +37,14 @@ export default function ResellerApplicationSuccessPage() {
           <h2 className="font-playfair text-2xl font-bold text-[#061A12] mb-6">
             What Happens Next?
           </h2>
-          
+
           <div className="space-y-6">
             {[
               {
                 icon: FileText,
                 title: "Application Review",
-                description: "Our partnership team will review your application and business credentials.",
+                description:
+                  "Our partnership team will review your application and business credentials.",
                 time: "3-5 business days",
               },
               {
@@ -59,7 +56,8 @@ export default function ResellerApplicationSuccessPage() {
               {
                 icon: CheckCircle2,
                 title: "Partnership Agreement",
-                description: "If approved, we'll send a partnership agreement and commission structure.",
+                description:
+                  "If approved, we'll send a partnership agreement and commission structure.",
                 time: "Within 7 business days",
               },
               {
@@ -93,32 +91,35 @@ export default function ResellerApplicationSuccessPage() {
           <h2 className="font-playfair text-2xl font-bold text-[#061A12] mb-6">
             Prepare for Success
           </h2>
-          
+
           <div className="space-y-4">
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 Research Your Target Market
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Identify schools in your area that could benefit from EduMyles and understand their current challenges.
+                Identify schools in your area that could benefit from EduMyles and understand
+                their current challenges.
               </p>
             </div>
-            
+
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 Prepare Your Marketing Strategy
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Think about how you&apos;ll reach school administrators and decision-makers in your target region.
+                Think about how you&apos;ll reach school administrators and decision-makers in
+                your target region.
               </p>
             </div>
-            
+
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 Understand the Product
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Familiarize yourself with EduMyles features, benefits, and pricing to effectively communicate value to schools.
+                Familiarize yourself with EduMyles features, benefits, and pricing to
+                effectively communicate value to schools.
               </p>
             </div>
           </div>
@@ -139,7 +140,7 @@ export default function ResellerApplicationSuccessPage() {
               Contact Partnerships
             </Link>
           </div>
-          
+
           <div className="flex items-center justify-center gap-6 text-sm text-[#6B9E83]">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
@@ -153,5 +154,13 @@ export default function ResellerApplicationSuccessPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ResellerApplicationSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResellerApplicationSuccessContent />
+    </Suspense>
   );
 }
