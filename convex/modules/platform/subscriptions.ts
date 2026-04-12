@@ -5,6 +5,8 @@ import { logAction } from "../../helpers/auditLog";
 import { requireRole } from "../../helpers/authorize";
 import { requirePlatformRole, requirePlatformSession } from "../../helpers/platformGuard";
 import { requireTenantContext } from "../../helpers/tenantGuard";
+import { CORE_MODULES, OPTIONAL_MODULES } from "../marketplace/moduleDefinitions";
+import { TIER_MODULES } from "../marketplace/tierModules";
 
 type TenantSubscriptionDoc = {
   _id: any;
@@ -84,21 +86,53 @@ async function getLatestUsageStats(ctx: any, tenantId: string) {
   return stats.sort((a: any, b: any) => b.recordedAt - a.recordedAt)[0] ?? null;
 }
 
+const STATIC_MODULE_MAP = new Map(
+  [...CORE_MODULES, ...OPTIONAL_MODULES].map((module) => [
+    module.moduleId,
+    {
+      id: module.moduleId,
+      name: module.name,
+      category: module.category,
+    },
+  ])
+);
+
+function getEffectiveIncludedModuleIds(plan: any) {
+  if (Array.isArray(plan.includedModuleIds) && plan.includedModuleIds.length > 0) {
+    return plan.includedModuleIds;
+  }
+
+  return TIER_MODULES[plan.name] ?? [];
+}
+
 function normalizeSubscriptionPlan(plan: any) {
   return {
     ...plan,
     id: String(plan._id),
+    includedModuleIds: getEffectiveIncludedModuleIds(plan),
   };
 }
 
 export const getSubscriptionPlans = query({
   args: {},
   handler: async (ctx) => {
-    const plans = await ctx.db
+    const activePlans = await ctx.db
       .query("subscription_plans")
       .withIndex("by_isActive", (q) => q.eq("isActive", true))
       .collect();
-    return plans.map(normalizeSubscriptionPlan);
+
+    const plans =
+      activePlans.length > 0
+        ? activePlans
+        : await ctx.db.query("subscription_plans").collect();
+
+    return plans
+      .map(normalizeSubscriptionPlan)
+      .sort((left, right) => {
+        if (left.isDefault && !right.isDefault) return -1;
+        if (!left.isDefault && right.isDefault) return 1;
+        return left.priceMonthlyKes - right.priceMonthlyKes;
+      });
   },
 });
 
@@ -118,21 +152,26 @@ export const getPlatformPlanCatalog = query({
     const moduleMap = new Map<string, any>(modules.map((module) => [String(module._id), module]));
 
     return plans
-      .map((plan) => ({
-        ...normalizeSubscriptionPlan(plan),
-        subscriberCount: subscriptions.filter(
-          (subscription) =>
-            subscription.planId === plan.name && subscription.status !== "cancelled"
-        ).length,
-        includedModules: plan.includedModuleIds.map((moduleId) => {
-          const module = moduleMap.get(moduleId);
-          return {
-            id: moduleId,
-            name: module?.name ?? moduleId,
-            category: module?.category ?? "module",
-          };
-        }),
-      }))
+      .map((plan) => {
+        const includedModuleIds = getEffectiveIncludedModuleIds(plan);
+
+        return {
+          ...normalizeSubscriptionPlan(plan),
+          subscriberCount: subscriptions.filter(
+            (subscription) =>
+              subscription.planId === plan.name && subscription.status !== "cancelled"
+          ).length,
+          includedModules: includedModuleIds.map((moduleId: string) => {
+            const module = moduleMap.get(moduleId);
+            const staticModule = STATIC_MODULE_MAP.get(moduleId);
+            return {
+              id: moduleId,
+              name: module?.name ?? staticModule?.name ?? moduleId,
+              category: module?.category ?? staticModule?.category ?? "module",
+            };
+          }),
+        };
+      })
       .sort((left, right) => left.priceMonthlyKes - right.priceMonthlyKes);
   },
 });
@@ -151,6 +190,51 @@ export const getTenantSubscription = query({
       ...subscription,
       id: String(subscription._id),
       plan,
+    };
+  },
+});
+
+export const previewDowngradePlan = query({
+  args: {
+    planId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await requireTenantContext(ctx);
+    requireRole(tenant, "school_admin");
+
+    const currentSubscription = await getTenantSubscriptionDoc(ctx, tenant.tenantId);
+    if (!currentSubscription) {
+      throw new Error("Subscription record not found");
+    }
+
+    const targetPlan = await getSubscriptionPlanByName(ctx, args.planId);
+    if (!targetPlan || !targetPlan.isActive) {
+      throw new Error("Target subscription plan not found");
+    }
+
+    const installs = await ctx.db
+      .query("module_installs")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+
+    const activeInstalls = installs.filter((install) => install.status === "active");
+    const targetIncludedModules = new Set(getEffectiveIncludedModuleIds(targetPlan));
+    const modulesToSuspend = activeInstalls.filter(
+      (install) => !targetIncludedModules.has(install.moduleId)
+    );
+
+    const modules = await ctx.db.query("modules").collect();
+    const moduleMap = new Map(modules.map((module) => [String(module._id), module]));
+
+    return {
+      currentPlanId: currentSubscription.planId,
+      targetPlanId: args.planId,
+      modulesToSuspend: modulesToSuspend.map((install) => ({
+        moduleId: install.moduleId,
+        name: moduleMap.get(install.moduleId)?.name ?? install.moduleId,
+        category: moduleMap.get(install.moduleId)?.category ?? "module",
+      })),
+      moduleCount: modulesToSuspend.length,
     };
   },
 });
@@ -203,7 +287,7 @@ export const upgradePlan = mutation({
       prorationAmountKes: plan.priceMonthlyKes,
       refundAmountKes: undefined,
       modulesSuspended: [],
-      modulesUnlocked: plan.includedModuleIds,
+      modulesUnlocked: getEffectiveIncludedModuleIds(plan),
       status: "completed",
       createdAt: now,
       updatedAt: now,
@@ -547,6 +631,11 @@ export const updateSubscriptionPlan = mutation({
     }
 
     const now = Date.now();
+    const nextIncludedModuleIds =
+      args.includedModuleIds.length > 0
+        ? args.includedModuleIds
+        : (TIER_MODULES[args.planName] ?? []);
+
     if (args.isDefault) {
       const defaultPlans = await ctx.db
         .query("subscription_plans")
@@ -569,7 +658,7 @@ export const updateSubscriptionPlan = mutation({
       studentLimit: args.studentLimit,
       staffLimit: args.staffLimit,
       storageGb: args.storageGb,
-      includedModuleIds: args.includedModuleIds,
+      includedModuleIds: nextIncludedModuleIds,
       maxAdditionalModules: args.maxAdditionalModules,
       apiAccess: args.apiAccess,
       whiteLabel: args.whiteLabel,
@@ -594,7 +683,7 @@ export const updateSubscriptionPlan = mutation({
         studentLimit: plan.studentLimit,
         staffLimit: plan.staffLimit,
         storageGb: plan.storageGb,
-        includedModuleIds: plan.includedModuleIds,
+        includedModuleIds: getEffectiveIncludedModuleIds(plan),
         maxAdditionalModules: plan.maxAdditionalModules,
         apiAccess: plan.apiAccess,
         whiteLabel: plan.whiteLabel,
@@ -623,6 +712,107 @@ export const updateSubscriptionPlan = mutation({
     });
 
     return { success: true };
+  },
+});
+
+export const createSubscriptionPlan = mutation({
+  args: {
+    sessionToken: v.string(),
+    planName: v.union(
+      v.literal("free"),
+      v.literal("starter"),
+      v.literal("pro"),
+      v.literal("enterprise")
+    ),
+    priceMonthlyKes: v.number(),
+    priceAnnualKes: v.number(),
+    studentLimit: v.optional(v.number()),
+    staffLimit: v.optional(v.number()),
+    storageGb: v.optional(v.number()),
+    includedModuleIds: v.array(v.string()),
+    maxAdditionalModules: v.optional(v.number()),
+    apiAccess: v.union(v.literal("none"), v.literal("read"), v.literal("read_write")),
+    whiteLabel: v.union(v.literal("none"), v.literal("logo"), v.literal("full")),
+    customDomain: v.boolean(),
+    supportTier: v.string(),
+    slaHours: v.optional(v.number()),
+    isActive: v.boolean(),
+    isDefault: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const platform = await requirePlatformRole(ctx, args, ["master_admin"]);
+    const existing = await getSubscriptionPlanByName(ctx, args.planName);
+    if (existing) {
+      throw new Error("A subscription plan with this name already exists");
+    }
+
+    const now = Date.now();
+    const nextIncludedModuleIds =
+      args.includedModuleIds.length > 0
+        ? args.includedModuleIds
+        : (TIER_MODULES[args.planName] ?? []);
+
+    if (args.isDefault) {
+      const defaultPlans = await ctx.db
+        .query("subscription_plans")
+        .withIndex("by_isDefault", (q: any) => q.eq("isDefault", true))
+        .collect();
+
+      for (const defaultPlan of defaultPlans) {
+        await ctx.db.patch(defaultPlan._id, {
+          isDefault: false,
+          updatedAt: now,
+        });
+      }
+    }
+
+    const planId = await ctx.db.insert("subscription_plans", {
+      name: args.planName,
+      priceMonthlyKes: args.priceMonthlyKes,
+      priceAnnualKes: args.priceAnnualKes,
+      studentLimit: args.studentLimit,
+      staffLimit: args.staffLimit,
+      storageGb: args.storageGb,
+      includedModuleIds: nextIncludedModuleIds,
+      maxAdditionalModules: args.maxAdditionalModules,
+      apiAccess: args.apiAccess,
+      whiteLabel: args.whiteLabel,
+      customDomain: args.customDomain,
+      supportTier: args.supportTier,
+      slaHours: args.slaHours,
+      isActive: args.isActive,
+      isDefault: args.isDefault,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "billing.subscription_updated",
+      entityType: "subscription_plan",
+      entityId: String(planId),
+      after: {
+        name: args.planName,
+        priceMonthlyKes: args.priceMonthlyKes,
+        priceAnnualKes: args.priceAnnualKes,
+        studentLimit: args.studentLimit,
+        staffLimit: args.staffLimit,
+        storageGb: args.storageGb,
+        includedModuleIds: nextIncludedModuleIds,
+        maxAdditionalModules: args.maxAdditionalModules,
+        apiAccess: args.apiAccess,
+        whiteLabel: args.whiteLabel,
+        customDomain: args.customDomain,
+        supportTier: args.supportTier,
+        slaHours: args.slaHours,
+        isActive: args.isActive,
+        isDefault: args.isDefault,
+      },
+    });
+
+    return { success: true, planId: String(planId) };
   },
 });
 
@@ -1204,7 +1394,7 @@ export const runModuleAuditForDowngrade = internalMutation({
       .filter((install) => install.status === "active")
       .map((install) => install.moduleId);
 
-    const included = new Set(plan.includedModuleIds);
+    const included = new Set(getEffectiveIncludedModuleIds(plan));
     const modulesToSuspend = activeModuleIds.filter((moduleId) => !included.has(moduleId));
 
     return {

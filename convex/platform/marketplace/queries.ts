@@ -102,6 +102,7 @@ function normalizeMarketplaceModuleRecord(mod: any) {
   return {
     ...(builtinSummary || {}),
     ...mod,
+    documentId: mod?._id,
     name: mod.name || builtinSummary?.name || "Untitled module",
     shortDescription:
       mod.shortDescription ||
@@ -421,10 +422,10 @@ export const browseModules = query({
     limit: v.optional(v.number()),
     offset: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
-    await requirePlatformSession(ctx, args);
+    handler: async (ctx, args) => {
+      await requirePlatformSession(ctx, args);
 
-    let modules: any[];
+      let modules: any[];
     try {
       if (args.category) {
         modules = await ctx.db
@@ -441,11 +442,53 @@ export const browseModules = query({
       }
     } catch {
       modules = [];
-    }
+      }
 
-    modules = mergeWithBuiltinModules(modules);
+      let moduleOverrides = new Map<string, any>();
+      try {
+        const settings = await ctx.db.query("platform_settings").collect();
+        moduleOverrides = new Map(
+          settings
+            .filter((setting: any) => setting.key.startsWith("marketplace_module_override:"))
+            .map((setting: any) => [
+              setting.key.replace("marketplace_module_override:", ""),
+              setting.value,
+            ])
+        );
+      } catch {
+        moduleOverrides = new Map();
+      }
 
-    // Apply filters
+      modules = mergeWithBuiltinModules(modules);
+      modules = modules.map((module) => {
+        const override = moduleOverrides.get(module.moduleId);
+        if (!override || typeof override !== "object") {
+          return {
+            ...module,
+            hasPlatformOverride: false,
+            effectivePriceKes:
+              typeof module.priceCents === "number" ? Math.round(module.priceCents / 100) : 0,
+          };
+        }
+
+        const overridePriceKes =
+          typeof override.priceKes === "number"
+            ? override.priceKes
+            : typeof module.priceCents === "number"
+              ? Math.round(module.priceCents / 100)
+              : 0;
+
+        return {
+          ...module,
+          hasPlatformOverride: true,
+          priceCents: Math.round(overridePriceKes * 100),
+          effectivePriceKes: overridePriceKes,
+          overrideReason: override.reason,
+          overrideUpdatedAt: override.updatedAt,
+        };
+      });
+
+      // Apply filters
     if (args.category) {
       modules = modules.filter((m) => m.category === args.category);
     }
@@ -815,6 +858,41 @@ export const getPendingReviews = query({
   },
 });
 
+export const getAllMarketplaceReviews = query({
+  args: {
+    sessionToken: v.string(),
+    status: v.optional(v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"))),
+    moduleId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    let reviews = await ctx.db.query("marketplaceReviews").collect();
+    if (args.status) {
+      reviews = reviews.filter((review) => review.status === args.status);
+    }
+    if (args.moduleId) {
+      reviews = reviews.filter((review) => review.moduleId === args.moduleId);
+    }
+
+    const enriched = await Promise.all(
+      reviews.map(async (review) => {
+        const mod = await ctx.db
+          .query("marketplaceModules")
+          .withIndex("by_moduleId", (q) => q.eq("moduleId", review.moduleId))
+          .first();
+        return {
+          ...review,
+          moduleName: mod?.name || review.moduleId,
+          publisherName: mod?.publisherName || "Unknown Publisher",
+        };
+      })
+    );
+
+    return enriched.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
 // ── Publisher Queries ─────────────────────────────────────────────────
 
 export const getPublishers = query({
@@ -1151,5 +1229,384 @@ export const getFeaturedPlacements = query({
 
     const placements = await ctx.db.query("marketplaceFeatured").collect();
     return placements.sort((a, b) => a.sortOrder - b.sortOrder);
+  },
+});
+
+const DEFAULT_PUBLISHER_PROGRAM_SETTINGS = {
+  commission: {
+    levels: {
+      basic: {
+        revenueSharePct: 70,
+        featuredPlacement: false,
+        supportHours: 48,
+      },
+      verified: {
+        revenueSharePct: 75,
+        featuredPlacement: true,
+        supportHours: 24,
+      },
+      featured_partner: {
+        revenueSharePct: 80,
+        featuredPlacement: true,
+        supportHours: 8,
+      },
+    },
+    minimumPayoutCents: 250000,
+    payoutSchedule: "monthly",
+    taxWithholdingPct: 5,
+  },
+  applications: {
+    autoApproveLevel: "none",
+    reviewProcess: "manual",
+    probationDays: 90,
+    requiredDocuments: [
+      "business_registration",
+      "technical_portfolio",
+      "code_samples",
+      "business_plan",
+    ],
+    technicalAssessment: true,
+    codeReviewRequired: true,
+    welcomeEmail: true,
+    onboardingMaterials: true,
+  },
+  modules: {
+    approvalProcess: "manual",
+    updateFrequency: "biweekly",
+    checks: {
+      securityReview: true,
+      performanceTesting: true,
+      categoryValidation: true,
+      marketplaceListing: true,
+      versionControl: true,
+    },
+  },
+  support: {
+    responseHours: {
+      basic: 48,
+      verified: 24,
+      featured_partner: 8,
+    },
+    supportChannels: ["email", "chat", "video", "technical_consulting"],
+    escalationPolicy: true,
+  },
+  notifications: {
+    newApplications: true,
+    commissionPayouts: true,
+    tierUpgrades: true,
+    moduleApprovals: true,
+    performanceReports: true,
+    systemMaintenance: true,
+    complianceAlerts: true,
+    codeQualityIssues: true,
+  },
+};
+
+function getPeriodStart(period: "7d" | "30d" | "90d" | "1y") {
+  const now = Date.now();
+  switch (period) {
+    case "7d":
+      return now - 7 * 24 * 60 * 60 * 1000;
+    case "30d":
+      return now - 30 * 24 * 60 * 60 * 1000;
+    case "90d":
+      return now - 90 * 24 * 60 * 60 * 1000;
+    case "1y":
+      return now - 365 * 24 * 60 * 60 * 1000;
+  }
+}
+
+function mergePublisherProgramSettings(overrides: any) {
+  return {
+    ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS,
+    ...overrides,
+    commission: {
+      ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS.commission,
+      ...overrides?.commission,
+      levels: {
+        ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS.commission.levels,
+        ...overrides?.commission?.levels,
+      },
+    },
+    applications: {
+      ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS.applications,
+      ...overrides?.applications,
+    },
+    modules: {
+      ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS.modules,
+      ...overrides?.modules,
+      checks: {
+        ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS.modules.checks,
+        ...overrides?.modules?.checks,
+      },
+    },
+    support: {
+      ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS.support,
+      ...overrides?.support,
+      responseHours: {
+        ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS.support.responseHours,
+        ...overrides?.support?.responseHours,
+      },
+    },
+    notifications: {
+      ...DEFAULT_PUBLISHER_PROGRAM_SETTINGS.notifications,
+      ...overrides?.notifications,
+    },
+  };
+}
+
+export const getPublisherProgramSettings = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+    const record = await ctx.db
+      .query("platform_settings")
+      .withIndex("by_key", (q) => q.eq("key", "publisher_program_settings"))
+      .first();
+
+    return mergePublisherProgramSettings(record?.value);
+  },
+});
+
+export const getPublisherAnalytics = query({
+  args: {
+    sessionToken: v.string(),
+    period: v.union(v.literal("7d"), v.literal("30d"), v.literal("90d"), v.literal("1y")),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const startDate = getPeriodStart(args.period);
+    const [publishers, modules, transactions, installations, reviews, categories, payouts] =
+      await Promise.all([
+        ctx.db.query("marketplacePublishers").collect(),
+        ctx.db.query("marketplaceModules").collect(),
+        ctx.db.query("marketplaceTransactions").collect(),
+        ctx.db.query("marketplaceInstallations").collect(),
+        ctx.db.query("marketplaceReviews").collect(),
+        ctx.db.query("marketplaceCategories").collect(),
+        ctx.db.query("marketplacePayouts").collect(),
+      ]);
+
+    const filteredTransactions = transactions.filter((transaction) => transaction.createdAt >= startDate);
+    const filteredInstallations = installations.filter(
+      (installation) => (installation.installedAt ?? 0) >= startDate
+    );
+
+    const summary = {
+      totalRevenueCents: filteredTransactions
+        .filter((transaction) => transaction.status === "completed")
+        .reduce((sum, transaction) => sum + transaction.grossAmountCents, 0),
+      totalCommissionCents: filteredTransactions
+        .filter((transaction) => transaction.status === "completed")
+        .reduce((sum, transaction) => sum + transaction.commissionCents, 0),
+      totalModules: modules.length,
+      publishedModules: modules.filter((module) => module.status === "published").length,
+      totalPublishers: publishers.length,
+      activePublishers: publishers.filter((publisher) => publisher.isActive).length,
+      totalInstalls: filteredInstallations.length,
+      activeInstalls: filteredInstallations.filter((installation) => installation.status === "active").length,
+      averageRating:
+        publishers.length > 0
+          ? publishers.reduce((sum, publisher) => sum + publisher.averageRating, 0) / publishers.length
+          : 0,
+      totalPendingPayoutCents: publishers.reduce(
+        (sum, publisher) => sum + publisher.pendingPayoutCents,
+        0
+      ),
+    };
+
+    const verificationPerformance = ["basic", "verified", "featured_partner"].map((level) => {
+      const levelPublishers = publishers.filter((publisher) => publisher.verificationLevel === level);
+      const publisherIds = new Set(levelPublishers.map((publisher) => publisher.userId));
+      const levelModules = modules.filter((module) => publisherIds.has(module.publisherId));
+      const levelTransactions = filteredTransactions.filter((transaction) =>
+        publisherIds.has(transaction.publisherId)
+      );
+
+      return {
+        level,
+        publishers: levelPublishers.length,
+        activePublishers: levelPublishers.filter((publisher) => publisher.isActive).length,
+        modules: levelModules.length,
+        revenueCents: levelTransactions
+          .filter((transaction) => transaction.status === "completed")
+          .reduce((sum, transaction) => sum + transaction.grossAmountCents, 0),
+        averageRating:
+          levelPublishers.length > 0
+            ? levelPublishers.reduce((sum, publisher) => sum + publisher.averageRating, 0) /
+              levelPublishers.length
+            : 0,
+      };
+    });
+
+    const topPublishers = publishers
+      .map((publisher) => ({
+        publisherId: String(publisher._id),
+        legalName: publisher.legalName,
+        verificationLevel: publisher.verificationLevel,
+        country: publisher.country,
+        totalModules: publisher.totalModules,
+        totalInstalls: publisher.totalInstalls,
+        totalEarningsCents: publisher.totalEarningsCents,
+        averageRating: publisher.averageRating,
+        pendingPayoutCents: publisher.pendingPayoutCents,
+      }))
+      .sort((a, b) => b.totalEarningsCents - a.totalEarningsCents)
+      .slice(0, 8);
+
+    const geographicPerformance = Object.values(
+      publishers.reduce(
+        (acc, publisher) => {
+          const key = publisher.country || "Unknown";
+          if (!acc[key]) {
+            acc[key] = {
+              country: key,
+              publishers: 0,
+              activePublishers: 0,
+              modules: 0,
+              installs: 0,
+              revenueCents: 0,
+            };
+          }
+          const entry = acc[key];
+          entry.publishers += 1;
+          entry.activePublishers += publisher.isActive ? 1 : 0;
+          entry.modules += publisher.totalModules;
+          entry.installs += publisher.totalInstalls;
+          entry.revenueCents += publisher.totalEarningsCents;
+          return acc;
+        },
+        {} as Record<
+          string,
+          {
+            country: string;
+            publishers: number;
+            activePublishers: number;
+            modules: number;
+            installs: number;
+            revenueCents: number;
+          }
+        >
+      )
+    ).sort((a, b) => b.revenueCents - a.revenueCents);
+
+    const categoryPerformance = categories
+      .map((category) => {
+        const categoryModules = modules.filter((module) => module.category === category.slug);
+        const categoryModuleIds = new Set(categoryModules.map((module) => module.moduleId));
+        const categoryTransactions = filteredTransactions.filter((transaction) =>
+          categoryModuleIds.has(transaction.moduleId)
+        );
+        return {
+          category: category.name,
+          slug: category.slug,
+          moduleCount: categoryModules.length,
+          installs: categoryModules.reduce((sum, module) => sum + module.totalInstalls, 0),
+          revenueCents: categoryTransactions
+            .filter((transaction) => transaction.status === "completed")
+            .reduce((sum, transaction) => sum + transaction.grossAmountCents, 0),
+        };
+      })
+      .sort((a, b) => b.revenueCents - a.revenueCents);
+
+    const topModules = modules
+      .map((module) => {
+        const moduleTransactions = filteredTransactions.filter(
+          (transaction) => transaction.moduleId === module.moduleId && transaction.status === "completed"
+        );
+        return {
+          moduleId: module.moduleId,
+          name: module.name,
+          category: module.category,
+          publisherName: module.publisherName,
+          totalInstalls: module.totalInstalls,
+          activeInstalls: module.activeInstalls,
+          averageRating: module.averageRating,
+          revenueCents: moduleTransactions.reduce(
+            (sum, transaction) => sum + transaction.grossAmountCents,
+            0
+          ),
+        };
+      })
+      .sort((a, b) => b.revenueCents - a.revenueCents || b.totalInstalls - a.totalInstalls)
+      .slice(0, 10);
+
+    const transactionSeries = Object.values(
+      filteredTransactions.reduce(
+        (acc, transaction) => {
+          const date = new Date(transaction.createdAt).toISOString().slice(0, 10);
+          if (!acc[date]) {
+            acc[date] = {
+              date,
+              revenueCents: 0,
+              commissionsCents: 0,
+              transactions: 0,
+              installs: 0,
+            };
+          }
+          acc[date].revenueCents += transaction.status === "completed" ? transaction.grossAmountCents : 0;
+          acc[date].commissionsCents +=
+            transaction.status === "completed" ? transaction.commissionCents : 0;
+          acc[date].transactions += 1;
+          return acc;
+        },
+        {} as Record<
+          string,
+          {
+            date: string;
+            revenueCents: number;
+            commissionsCents: number;
+            transactions: number;
+            installs: number;
+          }
+        >
+      )
+    );
+
+    for (const installation of filteredInstallations) {
+      const date = new Date(installation.installedAt ?? startDate).toISOString().slice(0, 10);
+      const existing = transactionSeries.find((item) => item.date === date);
+      if (existing) {
+        existing.installs += 1;
+      } else {
+        transactionSeries.push({
+          date,
+          revenueCents: 0,
+          commissionsCents: 0,
+          transactions: 0,
+          installs: 1,
+        });
+      }
+    }
+
+    transactionSeries.sort((a, b) => a.date.localeCompare(b.date));
+
+    const payoutSummary = {
+      totalPayoutCents: payouts
+        .filter((payout) => payout.status === "completed")
+        .reduce((sum, payout) => sum + payout.amountCents, 0),
+      pendingPayoutCents: payouts
+        .filter((payout) => payout.status === "pending" || payout.status === "processing")
+        .reduce((sum, payout) => sum + payout.amountCents, 0),
+      completedCount: payouts.filter((payout) => payout.status === "completed").length,
+    };
+
+    return {
+      period: args.period,
+      summary,
+      verificationPerformance,
+      topPublishers,
+      geographicPerformance,
+      categoryPerformance,
+      topModules,
+      transactionSeries,
+      payoutSummary,
+      reviewSummary: {
+        approved: reviews.filter((review) => review.status === "approved").length,
+        pending: reviews.filter((review) => review.status === "pending").length,
+        rejected: reviews.filter((review) => review.status === "rejected").length,
+      },
+    };
   },
 });

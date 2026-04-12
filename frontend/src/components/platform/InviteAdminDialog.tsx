@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -35,7 +33,6 @@ interface Props {
 
 export function InviteAdminDialog({ open, onOpenChange, tenantId, tenantName }: Props) {
   const { sessionToken } = useAuth();
-  const inviteUser = useMutation(api.platform.tenants.mutations.inviteTenantAdmin);
 
   const [form, setForm] = useState({
     email: "",
@@ -51,14 +48,24 @@ export function InviteAdminDialog({ open, onOpenChange, tenantId, tenantName }: 
 
     setLoading(true);
     try {
-      await inviteUser({
-        sessionToken,
-        tenantId,
-        email: form.email.trim().toLowerCase(),
-        firstName: form.firstName.trim(),
-        lastName: form.lastName.trim(),
-        role: form.role,
+      const response = await fetch("/api/tenants/invite-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionToken,
+          tenantId,
+          email: form.email.trim().toLowerCase(),
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          role: form.role,
+        }),
       });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to send invitation");
+      }
+
       toast.success(`Invitation sent to ${form.email}`);
       setForm({ email: "", firstName: "", lastName: "", role: "school_admin" });
       onOpenChange(false);

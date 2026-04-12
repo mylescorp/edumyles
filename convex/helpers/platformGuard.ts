@@ -1,5 +1,6 @@
 import { QueryCtx, MutationCtx } from "../_generated/server";
 import { v } from "convex/values";
+import { requirePermission as requirePlatformPermission } from "../modules/platform/rbac";
 
 export const platformSessionArg = { sessionToken: v.string() };
 
@@ -72,16 +73,72 @@ export async function requirePlatformSession(
   const effectiveRole = isConfiguredMasterAdmin ? "master_admin" : normalizedRole;
   const effectiveTenantId = effectiveRole === "master_admin" ? "PLATFORM" : session.tenantId;
 
-  if (!["master_admin", "super_admin"].includes(effectiveRole)) {
+  const platformUser = await ctx.db
+    .query("platform_users")
+    .withIndex("by_userId", (q) => q.eq("userId", userRow?.workosUserId ?? session.userId))
+    .first();
+
+  const hasPlatformAccess =
+    effectiveRole === "master_admin" ||
+    Boolean(
+      effectiveRole &&
+      [
+        "master_admin",
+        "super_admin",
+        "platform_manager",
+        "support_agent",
+        "billing_admin",
+        "marketplace_reviewer",
+        "content_moderator",
+        "analytics_viewer",
+      ].includes(effectiveRole)
+    ) ||
+    Boolean(platformUser);
+
+  if (!hasPlatformAccess) {
     throw new Error("UNAUTHORIZED: Platform access denied");
   }
 
   return {
     tenantId: effectiveTenantId,
-    userId: session.userId,
-    role: effectiveRole,
+    userId: userRow?.workosUserId ?? session.userId,
+    role: platformUser?.role ?? effectiveRole,
     email: session.email || "",
     workosUserId: userRow?.workosUserId,
+  };
+}
+
+export async function requirePlatformContext(
+  ctx: QueryCtx | MutationCtx,
+  args: { sessionToken: string },
+  permission?: string
+): Promise<PlatformRoleContext> {
+  if (permission) {
+    const result = await requirePlatformPermission(ctx, permission, args.sessionToken);
+    return {
+      tenantId: "PLATFORM",
+      userId: result.userId,
+      role: result.platformUser.role,
+      email: result.email,
+      workosUserId: result.platformUser.userId,
+      platformUserId: result.platformUser._id ? String(result.platformUser._id) : undefined,
+      addedPermissions: result.platformUser.addedPermissions,
+      removedPermissions: result.platformUser.removedPermissions,
+    };
+  }
+
+  const platform = await requirePlatformSession(ctx, args);
+  const platformUser = await ctx.db
+    .query("platform_users")
+    .withIndex("by_userId", (q) => q.eq("userId", platform.userId))
+    .first();
+
+  return {
+    ...platform,
+    role: platformUser?.role ?? platform.role,
+    platformUserId: platformUser ? String(platformUser._id) : undefined,
+    addedPermissions: platformUser?.addedPermissions,
+    removedPermissions: platformUser?.removedPermissions,
   };
 }
 

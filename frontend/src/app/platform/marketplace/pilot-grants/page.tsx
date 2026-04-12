@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -238,6 +239,8 @@ export default function PilotGrantsPage() {
         ]}
         actions={<Button onClick={() => setCreateOpen(true)}>Create Grant</Button>}
       />
+
+      <MarketplaceAdminRail currentHref="/platform/marketplace/pilot-grants" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Total grants</p><p className="text-3xl font-semibold">{stats.total}</p></CardContent></Card>

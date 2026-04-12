@@ -1,18 +1,46 @@
 import { internal } from "../../_generated/api";
-import { query, internalAction, internalMutation } from "../../_generated/server";
+import { query, mutation, internalAction, internalMutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { SUPPORTED_COUNTRIES } from "../../../shared/src/constants/index";
+import { requirePlatformRole } from "../../helpers/platformGuard";
+import { logAction } from "../../helpers/auditLog";
 
 export const getCurrencyRates = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformRole(ctx, args, [
+      "analytics_viewer",
+      "billing_admin",
+      "platform_manager",
+      "marketplace_reviewer",
+      "content_moderator",
+      "support_agent",
+      "super_admin",
+      "master_admin",
+    ]);
     return await ctx.db.query("currency_rates").collect();
   },
 });
 
 export const getSupportedCurrencies = query({
-  args: {},
-  handler: async () => {
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (args.sessionToken) {
+      await requirePlatformRole(ctx, { sessionToken: args.sessionToken }, [
+        "analytics_viewer",
+        "billing_admin",
+        "platform_manager",
+        "marketplace_reviewer",
+        "content_moderator",
+        "support_agent",
+        "super_admin",
+        "master_admin",
+      ]);
+    }
     const unique = new Map(
       SUPPORTED_COUNTRIES.map((country) => [
         country.currency,
@@ -93,5 +121,55 @@ export const updateCurrencyRates = internalAction({
     return await ctx.runMutation((internal as any).modules.platform.currency.persistCurrencyRates, {
       rates: args.rates,
     });
+  },
+});
+
+export const upsertCurrencyRateOverride = mutation({
+  args: {
+    sessionToken: v.string(),
+    fromCurrency: v.string(),
+    toCurrency: v.string(),
+    rate: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const platform = await requirePlatformRole(ctx, args, [
+      "billing_admin",
+      "master_admin",
+    ]);
+
+    const existing = await ctx.db
+      .query("currency_rates")
+      .withIndex("by_pair", (q) =>
+        q.eq("fromCurrency", args.fromCurrency).eq("toCurrency", args.toCurrency)
+      )
+      .first();
+
+    const now = Date.now();
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        rate: args.rate,
+        fetchedAt: now,
+      });
+    } else {
+      await ctx.db.insert("currency_rates", {
+        fromCurrency: args.fromCurrency,
+        toCurrency: args.toCurrency,
+        rate: args.rate,
+        fetchedAt: now,
+        createdAt: now,
+      });
+    }
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "settings.updated",
+      entityType: "currency_rate",
+      entityId: `${args.fromCurrency}_${args.toCurrency}`,
+      after: { fromCurrency: args.fromCurrency, toCurrency: args.toCurrency, rate: args.rate },
+    });
+
+    return { success: true };
   },
 });

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getMarketingSiteUrl } from "@/lib/marketingSite";
 
 function getRoleDashboard(role: string): string {
@@ -24,12 +24,16 @@ function getRoleDashboard(role: string): string {
 
 export default async function RootPage() {
   const cookieStore = await cookies();
+  const headerStore = await headers();
   const sessionCookie = cookieStore.get("edumyles_session");
   const role = cookieStore.get("edumyles_role")?.value;
+  const forwardedProto = headerStore.get("x-forwarded-proto");
+  const host = headerStore.get("host");
+  const origin = host ? `${forwardedProto ?? "http"}://${host}` : undefined;
 
   if (sessionCookie?.value) {
     redirect(getRoleDashboard(role ?? "school_admin"));
   }
 
-  redirect(getMarketingSiteUrl());
+  redirect(getMarketingSiteUrl(origin));
 }

@@ -45,16 +45,17 @@ export default function AdminAcademicReportsPage() {
     sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   );
-  const recentExams = usePlatformQuery(
-    api.modules.academics.queries.getRecentExams,
+  const recentClasses = useQuery(
+    api.modules.sis.queries.listClasses,
     sessionToken ? { sessionToken, limit: 5 } : "skip",
     !!sessionToken
-  ) as any[] | null;
+  );
 
-  const students = useQuery(
+  const studentsResult = useQuery(
     api.modules.sis.queries.listStudents,
     sessionToken ? { sessionToken, status: "active" } : "skip"
-  ) as any[] | undefined;
+  );
+  const students = studentsResult?.data;
 
   const generateReportCard = useMutation(api.modules.academics.mutations.generateReportCard);
 
@@ -112,7 +113,7 @@ export default function AdminAcademicReportsPage() {
                   <SelectValue placeholder="Select student..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {(students ?? []).map((s: any) => (
+                  {(students.data ?? []).map((s: any) => (
                     <SelectItem key={s._id} value={s._id}>
                       {s.firstName} {s.lastName}
                       {s.admissionNumber ? ` — ${s.admissionNumber}` : ""}
@@ -260,32 +261,7 @@ export default function AdminAcademicReportsPage() {
               </div>
             )}
           </CardContent>
-        </Card>
-      )}
-
-      {/* Recent Exams */}
-      {recentExams && recentExams.length > 0 && (
-        <Card className="print:hidden">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Recent Examination Activity</CardTitle>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/admin/academics/exams">Open Exams</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {recentExams.map((exam) => (
-              <div key={exam._id} className="flex items-center justify-between rounded-lg border p-3">
-                <div>
-                  <p className="font-medium">{exam.name}</p>
-                  <p className="text-sm text-muted-foreground">{exam.className} · {exam.date}</p>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {exam.submissions}/{exam.total} submissions
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      </Card>
       )}
     </div>
   );

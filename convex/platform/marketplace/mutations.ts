@@ -1288,6 +1288,49 @@ export const manageFeaturedPlacement = mutation({
   },
 });
 
+export const updatePublisherProgramSettings = mutation({
+  args: {
+    sessionToken: v.string(),
+    settings: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
+    const now = Date.now();
+    const existing = await ctx.db
+      .query("platform_settings")
+      .withIndex("by_key", (q) => q.eq("key", "publisher_program_settings"))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        value: args.settings,
+        updatedBy: session.userId,
+        updatedAt: now,
+      });
+    } else {
+      await ctx.db.insert("platform_settings", {
+        key: "publisher_program_settings",
+        value: args.settings,
+        updatedBy: session.userId,
+        updatedAt: now,
+        createdAt: now,
+      });
+    }
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "settings.updated" as any,
+      entityType: "platform_setting",
+      entityId: "publisher_program_settings",
+      after: args.settings,
+    });
+
+    return { success: true };
+  },
+});
+
 // ── Disputes ──────────────────────────────────────────────────────────
 
 export const fileDispute = mutation({

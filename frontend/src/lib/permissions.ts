@@ -6,6 +6,12 @@
 export type Role =
   | "master_admin"
   | "super_admin"
+  | "platform_manager"
+  | "support_agent"
+  | "billing_admin"
+  | "marketplace_reviewer"
+  | "content_moderator"
+  | "analytics_viewer"
   | "school_admin"
   | "principal"
   | "teacher"
@@ -51,7 +57,18 @@ export type Permission =
   | "communications:templates"
   | "communications:messaging"
   | "communications:analytics"
-  | "communications:platform_broadcast";
+  | "communications:platform_broadcast"
+  | "platform:users:read"
+  | "platform:users:write"
+  | "platform:users:invite"
+  | "platform:users:suspend"
+  | "platform:users:delete"
+  | "platform:billing:read"
+  | "platform:billing:write"
+  | "platform:marketplace:read"
+  | "platform:marketplace:moderate"
+  | "platform:security:read"
+  | "platform:analytics:read";
 
 /**
  * Role-to-permission mapping. Kept in sync with the server-side
@@ -91,6 +108,17 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "communications:messaging",
     "communications:analytics",
     "communications:platform_broadcast",
+    "platform:users:read",
+    "platform:users:write",
+    "platform:users:invite",
+    "platform:users:suspend",
+    "platform:users:delete",
+    "platform:billing:read",
+    "platform:billing:write",
+    "platform:marketplace:read",
+    "platform:marketplace:moderate",
+    "platform:security:read",
+    "platform:analytics:read",
   ],
   super_admin: [
     "platform:admin",
@@ -106,6 +134,56 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "communications:messaging",
     "communications:analytics",
     "communications:platform_broadcast",
+    "platform:users:read",
+    "platform:users:write",
+    "platform:users:invite",
+    "platform:users:suspend",
+    "platform:billing:read",
+    "platform:marketplace:read",
+    "platform:marketplace:moderate",
+    "platform:security:read",
+    "platform:analytics:read",
+  ],
+  platform_manager: [
+    "platform:users:read",
+    "platform:users:invite",
+    "platform:marketplace:read",
+    "platform:analytics:read",
+    "reports:read",
+    "communications:read",
+    "communications:write",
+    "communications:broadcast",
+  ],
+  support_agent: [
+    "platform:users:read",
+    "communications:read",
+    "communications:write",
+    "communications:messaging",
+  ],
+  billing_admin: [
+    "platform:users:read",
+    "platform:billing:read",
+    "platform:billing:write",
+    "reports:read",
+    "finance:read",
+    "finance:write",
+    "finance:approve",
+  ],
+  marketplace_reviewer: [
+    "platform:users:read",
+    "platform:marketplace:read",
+    "platform:marketplace:moderate",
+    "reports:read",
+  ],
+  content_moderator: [
+    "platform:users:read",
+    "platform:marketplace:read",
+    "platform:marketplace:moderate",
+  ],
+  analytics_viewer: [
+    "platform:users:read",
+    "platform:analytics:read",
+    "reports:read",
   ],
   school_admin: [
     "users:manage",

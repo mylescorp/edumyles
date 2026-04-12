@@ -49,8 +49,8 @@ export default function AuditReportsPage() {
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
-  const logList = (logs as any[]) ?? [];
-  const actionTypeList: string[] = (actionTypes as any[]) ?? [];
+  const logList = (logs.data as any[]) ?? [];
+  const actionTypeList: string[] = (actionTypes.data as any[]) ?? [];
 
   // Summary stats
   const stats = useMemo(() => {

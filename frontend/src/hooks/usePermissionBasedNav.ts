@@ -1,0 +1,156 @@
+import { platformNavItems, type NavItem } from "@/lib/routes";
+import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
+const PLATFORM_NAV_ITEMS: NavItem[] = platformNavItems;
+
+export function usePermissionBasedNavItems(): NavItem[] {
+  const { can, isLoaded } = usePlatformPermissions();
+
+  if (!isLoaded) return [];
+
+  return PLATFORM_NAV_ITEMS.filter(item => 
+    !item.permission || can(item.permission)
+  );
+}
+
+export function getNavItemsBySection(navItems: NavItem[]): Array<{section: string, items: NavItem[]}> {
+  const grouped = navItems.reduce((acc, item) => {
+    const section = item.section || "__standalone__";
+    if (!acc[section]) acc[section] = [];
+    acc[section].push(item);
+    return acc;
+  }, {} as Record<string, NavItem[]>);
+
+  // Convert to array of {section, items} objects
+  return Object.entries(grouped).map(([section, items]) => ({
+    section,
+    items
+  }));
+}
+
+export function getPermissionTooltip(permission: string): string {
+  const permissionMap: Record<string, string> = {
+    "tenants.view": "Requires permission to view tenants",
+    "tenants.create": "Requires permission to create tenants",
+    "tenants.edit": "Requires permission to edit tenants",
+    "tenants.suspend": "Requires permission to suspend tenants",
+    "tenants.delete": "Requires permission to delete tenants (master admin only)",
+    "tenants.impersonate": "Requires permission to impersonate users",
+    "tenants.export": "Requires permission to export tenant data",
+    "tenants.view_finance": "Requires permission to view financial data",
+    "tenants.manage_finance": "Requires permission to manage billing",
+    "tenants.manage_subscription": "Requires permission to manage subscriptions",
+    "tenants.manage_modules": "Requires permission to manage modules",
+    "tenants.manage_users": "Requires permission to manage tenant users",
+    "tenants.manage_settings": "Requires permission to manage tenant settings",
+    "tenants.manage_pilot_grants": "Requires permission to manage pilot grants",
+    "tenants.grant_permanent_free": "Requires permission to grant permanent free access",
+    "tenants.set_custom_pricing": "Requires permission to set custom pricing",
+    "tenants.gdpr_export": "Requires permission to trigger GDPR export",
+    "platform_users.view": "Requires permission to view platform users",
+    "platform_users.invite": "Requires permission to invite platform users",
+    "platform_users.edit_role": "Requires permission to edit user roles",
+    "platform_users.edit_permissions": "Requires permission to edit permission overrides",
+    "platform_users.suspend": "Requires permission to suspend platform users",
+    "platform_users.delete": "Requires permission to delete platform users (master admin only)",
+    "platform_users.view_sessions": "Requires permission to view active user sessions",
+    "platform_users.view_activity": "Requires permission to view user activity logs",
+    "marketplace.view": "Requires permission to view marketplace",
+    "marketplace.review_modules": "Requires permission to review modules",
+    "marketplace.suspend_module": "Requires permission to suspend modules",
+    "marketplace.ban_module": "Requires permission to ban modules (master admin only)",
+    "marketplace.feature_module": "Requires permission to feature modules",
+    "marketplace.override_price": "Requires permission to override module prices",
+    "marketplace.manage_flags": "Requires permission to manage module flags",
+    "marketplace.manage_reviews": "Requires permission to manage reviews",
+    "marketplace.manage_pilot_grants": "Requires permission to manage pilot grants",
+    "marketplace.bulk_pilot_grants": "Requires permission to bulk grant pilot access",
+    "marketplace.manage_pricing": "Requires permission to manage pricing",
+    "publishers.view": "Requires permission to view publishers",
+    "publishers.approve": "Requires permission to approve publishers",
+    "publishers.reject": "Requires permission to reject publishers",
+    "publishers.suspend": "Requires permission to suspend publishers",
+    "publishers.ban": "Requires permission to ban publishers (master admin only)",
+    "publishers.manage_revenue_share": "Requires permission to manage revenue share (master admin only)",
+    "publishers.manage_tier": "Requires permission to manage publisher tiers",
+    "publishers.process_payouts": "Requires permission to process payouts",
+    "publishers.view_payouts": "Requires permission to view payout data",
+    "billing.view_dashboard": "Requires permission to view billing dashboard",
+    "billing.view_invoices": "Requires permission to view invoices",
+    "billing.manage_invoices": "Requires permission to manage invoices",
+    "billing.view_subscriptions": "Requires permission to view subscriptions",
+    "billing.manage_subscriptions": "Requires permission to manage subscriptions",
+    "billing.view_reports": "Requires permission to view billing reports",
+    "billing.export_reports": "Requires permission to export billing reports",
+    "billing.manage_plans": "Requires permission to manage plans (master admin only)",
+    "billing.view_publisher_payouts": "Requires permission to view publisher payouts",
+    "billing.process_payouts": "Requires permission to process payouts",
+    "crm.view": "Requires permission to view CRM",
+    "crm.create_lead": "Requires permission to create leads",
+    "crm.edit_lead": "Requires permission to edit leads",
+    "crm.assign_lead": "Requires permission to assign leads",
+    "crm.delete_lead": "Requires permission to delete leads",
+    "crm.create_proposal": "Requires permission to create proposals",
+    "crm.convert_to_tenant": "Requires permission to convert leads to tenants",
+    "communications.view": "Requires permission to view communications",
+    "communications.send_broadcast": "Requires permission to send broadcasts",
+    "communications.send_sms": "Requires permission to send SMS",
+    "communications.manage_templates": "Requires permission to manage templates (master admin only)",
+    "communications.view_logs": "Requires permission to view delivery logs",
+    "communications.manage_announcements": "Requires permission to manage announcements",
+    "knowledge_base.view": "Requires permission to view knowledge base",
+    "knowledge_base.create": "Requires permission to create articles",
+    "knowledge_base.edit": "Requires permission to edit articles",
+    "knowledge_base.publish": "Requires permission to publish articles",
+    "knowledge_base.delete": "Requires permission to delete articles (master admin only)",
+    "analytics.view_platform": "Requires permission to view platform analytics",
+    "analytics.view_business": "Requires permission to view business analytics",
+    "analytics.export": "Requires permission to export analytics",
+    "analytics.manage_reports": "Requires permission to manage reports",
+    "security.view_dashboard": "Requires permission to view security dashboard",
+    "security.view_audit_log": "Requires permission to view audit log",
+    "security.export_audit_log": "Requires permission to export audit log (master admin only)",
+    "security.manage_api_keys": "Requires permission to manage API keys",
+    "security.manage_webhooks": "Requires permission to manage webhooks",
+    "security.flag_audit_entries": "Requires permission to flag audit entries",
+    "settings.view": "Requires permission to view settings",
+    "settings.edit_general": "Requires permission to edit general settings",
+    "settings.edit_email": "Requires permission to edit email settings",
+    "settings.edit_sms": "Requires permission to edit SMS settings",
+    "settings.edit_payments": "Requires permission to edit payment settings (master admin only)",
+    "settings.edit_security": "Requires permission to edit security settings (master admin only)",
+    "settings.edit_integrations": "Requires permission to edit integrations",
+    "settings.maintenance_mode": "Requires permission to toggle maintenance mode (master admin only)",
+    "settings.manage_feature_flags": "Requires permission to manage feature flags",
+    "settings.manage_sla": "Requires permission to manage SLA settings",
+    "support.view": "Requires permission to view support tickets",
+    "support.assign": "Requires permission to assign tickets",
+    "support.reply": "Requires permission to reply to tickets",
+    "support.close": "Requires permission to close tickets",
+    "support.escalate": "Requires permission to escalate tickets",
+    "support.view_internal_notes": "Requires permission to view internal notes",
+    "waitlist.view": "Requires permission to view waitlist",
+    "waitlist.invite": "Requires permission to invite from waitlist",
+    "waitlist.reject": "Requires permission to reject waitlist entries",
+    "onboarding.view": "Requires permission to view onboarding",
+    "onboarding.manage": "Requires permission to manage onboarding",
+    "resellers.view": "Requires permission to view resellers",
+    "resellers.approve": "Requires permission to approve resellers",
+    "resellers.reject": "Requires permission to reject resellers",
+    "resellers.manage_tier": "Requires permission to manage reseller tiers",
+    "resellers.manage_commission": "Requires permission to manage commission (master admin only)",
+    "resellers.suspend": "Requires permission to suspend resellers",
+    "resellers.terminate": "Requires permission to terminate resellers (master admin only)",
+    "resellers.process_payouts": "Requires permission to process reseller payouts",
+    "resellers.manage_materials": "Requires permission to manage marketing materials",
+    "resellers.manage_directory": "Requires permission to manage directory listings",
+    "resellers.manage_tiers_config": "Requires permission to manage tier configuration (master admin only)",
+    "staff_performance.view": "Requires permission to view staff performance",
+    "staff_performance.view_own": "Requires permission to view own performance",
+    "staff_performance.add_notes": "Requires permission to add evaluation notes",
+    "pm.view": "Requires permission to view project management",
+    "pm.create": "Requires permission to create projects",
+    "pm.manage": "Requires permission to manage projects",
+  };
+
+  return permissionMap[permission] || `Requires permission: ${permission}`;
+}

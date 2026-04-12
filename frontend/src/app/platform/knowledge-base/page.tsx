@@ -31,6 +31,7 @@ import {
   ThumbsUp,
   TrendingUp,
 } from "lucide-react";
+import { OperationsAdminRail } from "@/components/platform/OperationsAdminRail";
 
 type KnowledgeBaseArticle = {
   _id: string;
@@ -255,6 +256,8 @@ export default function PlatformKnowledgeBasePage() {
           </Button>
         }
       />
+
+      <OperationsAdminRail currentHref="/platform/knowledge-base" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>

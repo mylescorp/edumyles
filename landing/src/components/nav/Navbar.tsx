@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/shared/Logo";
-import { School, GraduationCap, Globe, Building2, Briefcase } from "lucide-react";
+import { School, GraduationCap, Globe, Building2, Briefcase, Code, Users, Award } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const SIGNUP_URL = "/waitlist";
@@ -15,7 +15,6 @@ const navLinks = [
   { label: "About", href: "/about" },
   { label: "Team", href: "/team" },
   { label: "Careers", href: "/careers" },
-  { label: "Resellers", href: "/resellers" },
   { label: "Pricing",  href: "/pricing" },
   { label: "Blog",     href: "/blog" },
   { label: "Contact",  href: "/contact" },
@@ -61,12 +60,42 @@ const solutionItems: SolutionItem[] = [
   },
 ];
 
+type PartnerItem = {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  subtitle: string;
+};
+
+const partnerItems: PartnerItem[] = [
+  {
+    icon: Code,
+    label: "Developers",
+    href: "/apply/developer",
+    subtitle: "Build and sell educational modules on our marketplace",
+  },
+  {
+    icon: Users,
+    label: "Affiliates",
+    href: "/apply/affiliate",
+    subtitle: "Earn commissions by referring schools to EduMyles",
+  },
+  {
+    icon: Award,
+    label: "Resellers",
+    href: "/apply/reseller",
+    subtitle: "Sell EduMyles solutions and earn recurring revenue",
+  },
+];
+
 
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [solutionsOpen, setSolutionsOpen] = useState(false);
+  const [partnersOpen, setPartnersOpen] = useState(false);
   const solutionsRef = useRef<HTMLDivElement>(null);
+  const partnersRef = useRef<HTMLDivElement>(null);
   const activeLink = pathname.split("/").pop() || "index";
 
   useEffect(() => {
@@ -84,6 +113,12 @@ export default function Navbar() {
         !solutionsRef.current.contains(event.target as Node)
       ) {
         setSolutionsOpen(false);
+      }
+      if (
+        partnersRef.current &&
+        !partnersRef.current.contains(event.target as Node)
+      ) {
+        setPartnersOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -159,6 +194,66 @@ export default function Navbar() {
                         </div>
                         <div className="flex flex-col">
                           <span className="font-jakarta font-semibold text-[14px] text-[#061A12] leading-tight group-hover:text-[#1A7A4A] transition-colors duration-150">
+                            {item.label}
+                          </span>
+                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "#6B9E83" }}>
+                            {item.subtitle}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Partners dropdown */}
+            <div className="relative" ref={partnersRef}>
+              <button
+                type="button"
+                onClick={() => setPartnersOpen((prev) => !prev)}
+                className="flex items-center gap-1 text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020] bg-transparent border-none cursor-pointer p-0"
+                style={
+                  partnersOpen ||
+                  activeLink.startsWith("apply")
+                    ? { color: "#E8A020" }
+                    : {}
+                }
+                aria-haspopup="true"
+                aria-expanded={partnersOpen}
+              >
+                Partners
+                <span
+                  className="text-[10px] transition-transform duration-200 inline-block"
+                  style={{
+                    transform: partnersOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  }}
+                >
+                  &#x25BC;
+                </span>
+              </button>
+
+              {partnersOpen && (
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-xl border border-gray-100 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  style={{ minWidth: "380px" }}
+                >
+                  <div className="col-span-1 grid grid-cols-1 gap-2">
+                    {partnerItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setPartnersOpen(false)}
+                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-[#F3FBF6] group"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
+                          style={{ background: "rgba(232,160,32,0.08)" }}
+                        >
+                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-jakarta font-semibold text-[14px] text-[#061A12] leading-tight group-hover:text-[#E8A020] transition-colors duration-150">
                             {item.label}
                           </span>
                           <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "#6B9E83" }}>
@@ -309,7 +404,28 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Remaining nav links (Pricing, Blog, Contact — skip Features) */}
+          {/* Partners section - expanded list (no dropdown) */}
+          <div className="border-b border-gray-100">
+            <span className="block py-3 text-[#061A12] font-medium text-lg">
+              Partners
+            </span>
+            <div className="flex flex-col pb-2">
+              {partnerItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 pl-5 py-2 text-[#061A12] no-underline text-base transition-colors hover:text-[#E8A020]"
+                >
+                  <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+                  <span className="font-medium">{item.label}</span>
+                  <span className="text-xs text-gray-400 ml-1">- {item.subtitle}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Remaining nav links (Pricing, Blog, Contact - skip Features) */}
           {navLinks
             .filter((link) => link.label !== "Features")
             .map((link) => (

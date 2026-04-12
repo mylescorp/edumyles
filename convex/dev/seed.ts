@@ -2,6 +2,7 @@ import { action, internalMutation } from "../_generated/server";
 import { v } from "convex/values";
 import { CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
 import { generateTenantId } from "../helpers/idGenerator";
+import { SYSTEM_ROLE_SEEDS } from "../modules/platform/rbac";
 
 function requireWebhookSecret(provided: string) {
   const expected = process.env.CONVEX_WEBHOOK_SECRET;
@@ -241,5 +242,92 @@ export const seedDevData = action({
       subdomain: args.subdomain,
       adminEmail: args.adminEmail,
     });
+  },
+});
+
+export const seedPlatformRbacInternal = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    let rolesCreated = 0;
+
+    for (const seed of Object.values(SYSTEM_ROLE_SEEDS)) {
+      const existing = await ctx.db
+        .query("platform_roles")
+        .withIndex("by_slug", (q) => q.eq("slug", seed.slug))
+        .unique();
+
+      if (existing) {
+        await ctx.db.patch(existing._id, {
+          name: seed.name,
+          description: seed.description,
+          isSystem: true,
+          isActive: true,
+          color: seed.color,
+          icon: seed.icon,
+          permissions: seed.permissions,
+          updatedAt: now,
+        });
+        continue;
+      }
+
+      await ctx.db.insert("platform_roles", {
+        name: seed.name,
+        slug: seed.slug,
+        description: seed.description,
+        baseRole: undefined,
+        isSystem: true,
+        isActive: true,
+        color: seed.color,
+        icon: seed.icon,
+        permissions: seed.permissions,
+        createdBy: "system",
+        createdAt: now,
+        updatedAt: now,
+      });
+      rolesCreated += 1;
+    }
+
+    const masterAdminEmail = process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase();
+    if (!masterAdminEmail) {
+      return { rolesCreated, platformUserSeeded: false };
+    }
+
+    const masterAdminProfile = await ctx.db
+      .query("users")
+      .withIndex("by_tenant_email", (q) => q.eq("tenantId", "PLATFORM").eq("email", masterAdminEmail))
+      .first();
+
+    if (!masterAdminProfile?.workosUserId) {
+      return { rolesCreated, platformUserSeeded: false };
+    }
+
+    const existingPlatformUser = await ctx.db
+      .query("platform_users")
+      .withIndex("by_userId", (q) => q.eq("userId", masterAdminProfile.workosUserId))
+      .unique();
+
+    if (!existingPlatformUser) {
+      await ctx.db.insert("platform_users", {
+        userId: masterAdminProfile.workosUserId,
+        role: "master_admin",
+        department: "Platform",
+        addedPermissions: [],
+        removedPermissions: [],
+        scopeCountries: [],
+        scopeTenantIds: [],
+        scopePlans: [],
+        status: "active",
+        accessExpiresAt: undefined,
+        invitedBy: undefined,
+        acceptedAt: now,
+        lastLogin: undefined,
+        notes: "Seeded from MASTER_ADMIN_EMAIL",
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    return { rolesCreated, platformUserSeeded: true };
   },
 });

@@ -134,7 +134,8 @@ export default function SubscriptionInvoiceDetailPage() {
   const { format } = useCurrency();
 
   // Fetch all tenant invoices and filter by ID
-  const invoices = useQuery(api.modules.platform.subscriptions.getSubscriptionInvoices, {}) as any[] | undefined;
+  const invoicesResult = useQuery(api.modules.platform.subscriptions.getSubscriptionInvoices, {});
+  const invoices = invoicesResult?.data;
 
   if (authLoading || invoices === undefined) {
     return <LoadingSkeleton variant="page" />;

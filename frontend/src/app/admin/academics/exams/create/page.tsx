@@ -22,10 +22,11 @@ export default function AdminCreateExamPage() {
   const [classId, setClassId] = useState("");
   const [className, setClassName] = useState("");
 
-  const classes = useQuery(
+  const classesResult = useQuery(
     api.modules.sis.queries.listClasses,
     sessionToken ? { sessionToken } : "skip"
-  ) as any[] | undefined;
+  );
+  const classes = classesResult?.data;
   const createExamination = useMutation(api.modules.academics.mutations.createExamination);
 
   if (isLoading || classes === undefined) {
@@ -84,7 +85,7 @@ export default function AdminCreateExamPage() {
                 value={classId}
                 onValueChange={(value) => {
                   setClassId(value);
-                  const selectedClass = classes.find((entry) => entry._id === value);
+                  const selectedClass = classes.find((entry: any) => entry._id === value);
                   setClassName(selectedClass?.name ?? "");
                 }}
               >
@@ -92,7 +93,7 @@ export default function AdminCreateExamPage() {
                   <SelectValue placeholder="Select a class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {classes.map((entry) => (
+                  {classes.map((entry: any) => (
                     <SelectItem key={entry._id} value={entry._id}>
                       {entry.name}
                     </SelectItem>

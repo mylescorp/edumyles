@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-// ─── Product column (with subtitles, like MylesCorp layout) ──────────────────
+// Product column (with subtitles, like MylesCorp layout)
 
 const PRODUCT_LINKS = [
   { label: "Student Information",  sub: "Admissions & Profiles" },
@@ -39,7 +39,7 @@ const PRODUCT_HREFS = [
   "/roadmap",
 ];
 
-// ─── Solutions column ────────────────────────────────────────────────────────
+// Solutions column
 
 const SOLUTIONS_LINKS = [
   { label: "Primary Schools",        href: "/solutions/primary-schools" },
@@ -49,7 +49,16 @@ const SOLUTIONS_LINKS = [
   { label: "Case Studies",           href: "/case-studies" },
 ];
 
-// ─── Company column ───────────────────────────────────────────────────────────
+// Partners column
+
+const PARTNERS_LINKS = [
+  { label: "Developers", href: "/apply/developer" },
+  { label: "Affiliates", href: "/apply/affiliate" },
+  { label: "Resellers", href: "/apply/reseller" },
+  { label: "Partner Portal", href: "/portal" },
+];
+
+// Company column
 
 const COMPANY_LINKS = [
   { label: "About Us",          href: "/about" },
@@ -62,7 +71,7 @@ const COMPANY_LINKS = [
   { label: "Contact",           href: "/contact" },
 ];
 
-// ─── Trust badges ─────────────────────────────────────────────────────────────
+// Trust badges
 
 type TrustBadge =
   | { icon: LucideIcon; emoji?: never; label: string }
@@ -70,12 +79,12 @@ type TrustBadge =
 
 const TRUST_BADGES: TrustBadge[] = [
   { icon: ShieldCheck, label: "SOC 2 Type I" },
-  { emoji: "🇰🇪",      label: "Kenya DPA Compliant" },
+  { emoji: "??",      label: "Kenya DPA Compliant" },
   { icon: Lock,        label: "256-bit Encrypted" },
   { icon: TrendingUp,  label: "99.9% Uptime" },
 ];
 
-// ─── Social SVG icons ─────────────────────────────────────────────────────────
+// Social SVG icons
 
 function IconLinkedIn() {
   return (
@@ -134,7 +143,7 @@ const SOCIAL_LINKS = [
   { label: "TikTok",      Icon: IconTikTok,     href: "https://www.tiktok.com/@edumyles_",            color: "#ffffff" },
 ];
 
-// ─── Scroll-to-top button ─────────────────────────────────────────────────────
+// Scroll-to-top button
 
 function ScrollToTop() {
   return (
@@ -165,7 +174,7 @@ function ScrollToTop() {
   );
 }
 
-// ─── Newsletter strip ─────────────────────────────────────────────────────────
+// Newsletter strip
 
 function NewsletterStrip() {
   const [email, setEmail]           = useState("");
@@ -318,20 +327,20 @@ function NewsletterStrip() {
   );
 }
 
-// ─── Main Footer ──────────────────────────────────────────────────────────────
+// Main Footer
 
 export default function Footer() {
   return (
     <footer role="contentinfo" className="font-jakarta" style={{ background: "#061A12" }}>
 
-      {/* ── Gold top accent ── */}
+      {/* Gold top accent */}
       <div style={{ height: "3px", background: "linear-gradient(90deg, #1A7A4A 0%, #E8A020 50%, #1A7A4A 100%)" }} />
 
-      {/* ── Main body: 4-column grid ── */}
+      {/* Main body: 5-column grid */}
       <div className="max-w-[1200px] mx-auto px-6 lg:px-16 pt-14 pb-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
 
-          {/* ── Column 1: Brand ── */}
+          {/* Column 1: Brand */}
           <div>
             {/* Logo lockup */}
             <Link href="/" className="inline-flex items-center gap-3 mb-5 no-underline group" aria-label="EduMyles home">
@@ -352,7 +361,7 @@ export default function Footer() {
 
             {/* Description */}
             <p className="font-jakarta text-[12.5px] leading-[1.9] mb-5" style={{ color: "#6B9E83", maxWidth: "260px" }}>
-              East Africa&apos;s leading school management platform — built for African schools, by people who understand African education.
+              East Africa&apos;s leading school management platform &mdash; built for African schools, by people who understand African education.
             </p>
 
             {/* Contact info */}
@@ -360,7 +369,7 @@ export default function Footer() {
               {[
                 { Icon: Mail,   text: "contact@edumyles.com" },
                 { Icon: Phone,  text: "+254 743 993 715" },
-                { Icon: MapPin, text: "Nairobi, Kenya · WesternHeights" },
+                { Icon: MapPin, text: "Nairobi, Kenya &middot; WesternHeights" },
                 { Icon: Globe,  text: "www.edumyles.com",  href: "https://edumyles.com" },
               ].map(({ Icon, text, href }) =>
                 href ? (
@@ -387,7 +396,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* ── Column 2: Products ── */}
+          {/* Column 2: Products */}
           <div>
             <h4
               className="font-jakarta font-bold uppercase tracking-[2.5px] text-[10px] mb-5"
@@ -419,7 +428,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* ── Column 3: Solutions ── */}
+          {/* Column 3: Solutions */}
           <div>
             <h4
               className="font-jakarta font-bold uppercase tracking-[2.5px] text-[10px] mb-5"
@@ -448,7 +457,36 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* ── Column 4: Company ── */}
+          {/* Partners column */}
+          <div>
+            <h4
+              className="font-jakarta font-bold uppercase tracking-[2.5px] text-[10px] mb-5"
+              style={{ color: "#E8A020" }}
+            >
+              Partners
+            </h4>
+            <ul className="list-none p-0 m-0 flex flex-col gap-[11px]">
+              {PARTNERS_LINKS.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="font-jakarta text-[13px] no-underline inline-flex items-center gap-1.5 group transition-colors duration-200"
+                    style={{ color: "#6B9E83" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83"; }}
+                  >
+                    <span
+                      className="inline-block w-0 h-px transition-all duration-200 group-hover:w-3"
+                      style={{ background: "#E8A020" }}
+                    />
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company column */}
           <div>
             <h4
               className="font-jakarta font-bold uppercase tracking-[2.5px] text-[10px] mb-5"
@@ -480,15 +518,15 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ── Divider ── */}
+      {/* Divider */}
       <div className="max-w-[1200px] mx-auto px-6 lg:px-16">
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }} />
       </div>
 
-      {/* ── Newsletter + Social strip ── */}
+      {/* Newsletter + Social strip */}
       <NewsletterStrip />
 
-      {/* ── Trust bar ── */}
+      {/* Trust bar */}
       <div className="max-w-[1200px] mx-auto px-6 lg:px-16 py-4 flex flex-wrap justify-center gap-3">
         {TRUST_BADGES.map((badge) => (
           <span
@@ -522,13 +560,13 @@ export default function Footer() {
         ))}
       </div>
 
-      {/* ── Bottom bar ── */}
+      {/* Bottom bar */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-16 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
 
           {/* Copyright */}
           <p className="font-jakarta text-[11.5px] order-2 sm:order-1" style={{ color: "#4a6b58" }}>
-            © 2026{" "}
+            &copy; 2026{" "}
             <a
               href="https://mylesoft.vercel.app"
               target="_blank"

@@ -15,11 +15,24 @@ interface WaitlistSubmission {
   biggestChallenge?: string;
 }
 
+/** Send a plain notification email via Resend when Convex is unavailable. */
 async function sendFallbackEmail(data: WaitlistSubmission): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) return;
 
-  const notifyEmail = process.env.WAITLIST_NOTIFY_EMAIL ?? "sales@edumyles.com";
+  const notifyTo = process.env.WAITLIST_NOTIFY_EMAIL ?? "sales@edumyles.com";
+  const body = [
+    `New waitlist submission (Convex unavailable — manual follow-up needed):`,
+    ``,
+    `Name:          ${data.fullName}`,
+    `Email:         ${data.email}`,
+    `School:        ${data.schoolName}`,
+    `Country:       ${data.country}`,
+    `Students:      ${data.studentCount ?? "Not specified"}`,
+    `Phone:         ${data.phone ?? "Not provided"}`,
+    `Source:        ${data.referralSource ?? "landing_waitlist"}`,
+    `Challenge:     ${data.biggestChallenge ?? "Not specified"}`,
+  ].join("\n");
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -28,21 +41,10 @@ async function sendFallbackEmail(data: WaitlistSubmission): Promise<void> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "no-reply@edumyles.com",
-      to: [notifyEmail],
-      subject: `New waitlist signup: ${data.schoolName}`,
-      text: [
-        `Name: ${data.fullName}`,
-        `Email: ${data.email}`,
-        `School: ${data.schoolName}`,
-        `Country: ${data.country}`,
-        data.phone ? `Phone: ${data.phone}` : null,
-        data.studentCount != null ? `Students: ${data.studentCount}` : null,
-        data.referralSource ? `Source: ${data.referralSource}` : null,
-        data.biggestChallenge ? `Challenge: ${data.biggestChallenge}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n"),
+      from: "EduMyles Waitlist <no-reply@edumyles.com>",
+      to: [notifyTo],
+      subject: `[Waitlist] ${data.fullName} — ${data.schoolName}`,
+      text: body,
     }),
   });
 }
@@ -109,6 +111,7 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_CONVEX_URL ||
       "https://insightful-alpaca-351.convex.cloud";
 
+    // Primary path — save to Convex
     try {
       const convex = new ConvexHttpClient(convexUrl);
       const result = await convex.mutation(api.modules.platform.waitlist.addToWaitlist, submission);
@@ -118,14 +121,16 @@ export async function POST(request: NextRequest) {
         alreadyExists: Boolean(result.duplicate),
       });
     } catch (convexError) {
-      console.error("[landing/api/waitlist] Convex mutation failed, using fallback:", convexError);
+      // Convex unavailable (not yet deployed, or schema mismatch) —
+      // fall back to email notification so the lead is never lost.
+      console.error("[landing/api/waitlist] Convex call failed, using email fallback:", convexError);
       await sendFallbackEmail(submission).catch((e) =>
         console.error("[landing/api/waitlist] Fallback email failed:", e)
       );
       return NextResponse.json({ success: true });
     }
   } catch (error) {
-    console.error("[landing/api/waitlist] Request parsing failed:", error);
+    console.error("[landing/api/waitlist] Unexpected error:", error);
     return NextResponse.json(
       { error: "We couldn't submit your application right now. Please try again shortly." },
       { status: 500 }

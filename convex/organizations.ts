@@ -68,3 +68,20 @@ export const getOrgBySubdomain = query({
       .first();
   },
 });
+
+export const getOrgByTenantId = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+    tenantId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
+    }
+    return await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+  },
+});

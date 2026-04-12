@@ -9,6 +9,12 @@ import type { LegacyUserRoleAlias, Module, UserRole, TenantTier } from "../types
 export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
   master_admin: { label: "Master Admin", level: 100 },
   super_admin: { label: "Super Admin", level: 95 },
+  platform_manager: { label: "Platform Manager", level: 85 },
+  support_agent: { label: "Support Agent", level: 70 },
+  billing_admin: { label: "Billing Admin", level: 70 },
+  marketplace_reviewer: { label: "Marketplace Reviewer", level: 65 },
+  content_moderator: { label: "Content Moderator", level: 60 },
+  analytics_viewer: { label: "Analytics Viewer", level: 50 },
   school_admin: { label: "School Admin", level: 90 },
   principal: { label: "Principal", level: 80 },
   bursar: { label: "Finance Officer", level: 60 },
@@ -22,13 +28,25 @@ export const USER_ROLES: Record<UserRole, { label: string; level: number }> = {
   parent: { label: "Parent", level: 20 },
   alumni: { label: "Alumni", level: 15 },
   student: { label: "Student", level: 10 },
+  publisher: { label: "Publisher", level: 35 },
+  reseller: { label: "Reseller", level: 30 },
+  affiliate: { label: "Affiliate", level: 25 },
 };
 
 export const LEGACY_ROLE_ALIASES: Record<LegacyUserRoleAlias, UserRole> = {
   platform_admin: "super_admin",
 };
 
-export const CANONICAL_PLATFORM_ROLES: UserRole[] = ["master_admin", "super_admin"];
+export const CANONICAL_PLATFORM_ROLES: UserRole[] = [
+  "master_admin",
+  "super_admin",
+  "platform_manager",
+  "support_agent",
+  "billing_admin",
+  "marketplace_reviewer",
+  "content_moderator",
+  "analytics_viewer",
+];
 
 export function normalizeUserRole(role: string | null | undefined): UserRole | null {
   if (!role) return null;
@@ -227,3 +245,33 @@ export const MAX_PAGE_SIZE = 100;
 export const DATE_FORMAT = "DD/MM/YYYY";
 export const DATETIME_FORMAT = "DD/MM/YYYY HH:mm";
 export const TIME_FORMAT = "HH:mm";
+
+// ----------------------------------------------------------
+// Publisher & Reseller Constants
+// ----------------------------------------------------------
+export const RESELLER_TIERS = ["starter", "silver", "gold", "platinum"] as const;
+export const PUBLISHER_TIERS = ["indie", "verified", "enterprise"] as const;
+
+export type ResellerTier = typeof RESELLER_TIERS[number];
+export type PublisherTier = typeof PUBLISHER_TIERS[number];
+
+export const COMMISSION_HOLD_DAYS = 7;
+export const MIN_PAYOUT_KES = 500;
+export const REFERRAL_COOKIE_NAME = "edumyles_ref";
+export const REFERRAL_COOKIE_DAYS = 30;
+
+export const RESELLER_CREATION_LIMITS = {
+  starter: 5,
+  silver: 15,
+  gold: 30,
+  platinum: null,
+} as const;
+
+export const RESELLER_COMMISSION_RATES = {
+  starter: 20,
+  silver: 25,
+  gold: 30,
+  platinum: 35,
+} as const;
+
+export const AFFILIATE_COMMISSION_RATE = 10;

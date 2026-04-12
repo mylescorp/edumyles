@@ -14,6 +14,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 
+type Class = {
+  _id: string;
+  name: string;
+  grade?: string;
+  streamId?: string;
+};
+
 export default function AdminCreateAssignmentPage() {
   const { isLoading: authLoading, sessionToken } = useAuth();
   const { toast } = useToast();
@@ -84,7 +91,7 @@ export default function AdminCreateAssignmentPage() {
                 <SelectValue placeholder="Select a class" />
               </SelectTrigger>
               <SelectContent>
-                {(classes as any[]).map((cls) => (
+                {classes.data?.map((cls: Class) => (
                   <SelectItem key={cls._id} value={cls._id}>
                     {cls.name}
                   </SelectItem>

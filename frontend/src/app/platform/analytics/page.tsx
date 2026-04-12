@@ -49,6 +49,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { OperationsSuiteRail } from "@/components/platform/OperationsSuiteRail";
 
 type BusinessTimeRange = "7d" | "30d" | "90d" | "1y";
 type ReportTimeRange = "7d" | "30d" | "90d";
@@ -978,6 +979,8 @@ export default function AdvancedAnalyticsPage() {
           { label: "Advanced Analytics", href: "/platform/analytics" },
         ]}
       />
+
+      <OperationsSuiteRail currentHref="/platform/analytics" />
 
       <Tabs defaultValue="business-intelligence">
         <TabsList className="grid w-full grid-cols-3">

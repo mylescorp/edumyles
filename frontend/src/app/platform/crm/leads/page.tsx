@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DataTable, Column } from "@/components/shared/DataTable";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -11,9 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Plus, Users, TrendingUp, Clock, CheckCircle, ArrowRight } from "lucide-react";
-import { formatDate, formatRelativeTime } from "@/lib/formatters";
+import { Plus, Users, TrendingUp, Clock, CheckCircle, ArrowRight, LayoutGrid, Rows3 } from "lucide-react";
+import { formatRelativeTime } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 
 type Deal = {
@@ -46,6 +48,7 @@ export default function CRMLeadsPage() {
   const { isLoading, sessionToken } = useAuth();
   const { toast } = useToast();
   const [stageFilter, setStageFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [movingDeal, setMovingDeal] = useState<string | null>(null);
 
   const deals = useQuery(
@@ -55,17 +58,28 @@ export default function CRMLeadsPage() {
 
   const moveDealStage = useMutation(api.platform.crm.mutations.moveDealStage);
 
-  const allDeals = (deals ?? []) as Deal[];
-
   // Leads = deals in early pipeline stages
   const leads = useMemo(() => {
-    return allDeals.filter((d) => LEAD_STAGES.includes(d.stage));
-  }, [allDeals]);
+    return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
+  }, [deals]);
 
   const filtered = useMemo(() => {
     if (stageFilter === "all") return leads;
     return leads.filter((d) => d.stage === stageFilter);
   }, [leads, stageFilter]);
+
+  const kanbanColumns = useMemo(
+    () =>
+      [
+        { stage: "lead", label: "New Leads" },
+        { stage: "prospecting", label: "Prospecting" },
+        { stage: "qualified", label: "Qualified" },
+      ].map((column) => ({
+        ...column,
+        deals: filtered.filter((deal) => deal.stage === column.stage),
+      })),
+    [filtered]
+  );
 
   const stats = useMemo(() => ({
     total:       leads.length,
@@ -194,6 +208,8 @@ export default function CRMLeadsPage() {
         ]}
       />
 
+      <CrmAdminRail currentHref="/platform/crm/leads" />
+
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -243,7 +259,21 @@ export default function CRMLeadsPage() {
       </div>
 
       {/* Stage filter */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "list" | "kanban")}>
+          <TabsList>
+            <TabsTrigger value="list" className="gap-2">
+              <Rows3 className="h-4 w-4" />
+              List
+            </TabsTrigger>
+            <TabsTrigger value="kanban" className="gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              Kanban
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <div className="flex items-center gap-3">
         <Select value={stageFilter} onValueChange={setStageFilter}>
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Stage" />
@@ -258,14 +288,84 @@ export default function CRMLeadsPage() {
         <p className="text-sm text-muted-foreground">
           {filtered.length} lead{filtered.length !== 1 ? "s" : ""}
         </p>
+        </div>
       </div>
 
-      <DataTable
-        data={filtered}
-        columns={columns}
-        searchPlaceholder="Search leads by name or school…"
-        emptyMessage="No leads found. Add your first lead to start building your pipeline."
-      />
+      {viewMode === "kanban" ? (
+        <div className="grid gap-4 xl:grid-cols-3">
+          {kanbanColumns.map((column) => (
+            <Card key={column.stage} className="border-border/70 bg-muted/15">
+              <CardContent className="space-y-3 pt-5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Badge className={`${STAGE_COLORS[column.stage] ?? STAGE_COLORS.lead} border-0 capitalize`}>
+                      {column.label}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">{column.deals.length}</span>
+                  </div>
+                </div>
+                {column.deals.length === 0 ? (
+                  <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                    No leads in this stage.
+                  </div>
+                ) : (
+                  column.deals.map((deal) => (
+                    <div key={deal._id} className="rounded-lg border bg-background p-4 shadow-sm">
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-medium">{deal.title}</p>
+                            {deal.schoolName ? (
+                              <p className="text-sm text-muted-foreground">{deal.schoolName}</p>
+                            ) : null}
+                          </div>
+                          <Badge className={`${STAGE_COLORS[deal.stage] ?? STAGE_COLORS.lead} border-0 capitalize`}>
+                            {deal.stage}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          <p>{deal.contactName}</p>
+                          {deal.contactEmail ? <p>{deal.contactEmail}</p> : null}
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">
+                            {deal.value ? `${deal.currency ?? "USD"} ${deal.value.toLocaleString()}` : "No value set"}
+                          </span>
+                          <span className="text-muted-foreground">{formatRelativeTime(deal.createdAt)}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <Link href={`/platform/crm/${deal._id}`}>
+                            <Button size="sm" variant="outline">View</Button>
+                          </Link>
+                          {deal.stage !== "qualified" ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1 text-green-700 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-950/30"
+                              disabled={movingDeal === deal._id}
+                              onClick={() => handleQualify(deal)}
+                            >
+                              <CheckCircle className="h-3.5 w-3.5" />
+                              Qualify
+                            </Button>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <DataTable
+          data={filtered}
+          columns={columns}
+          searchPlaceholder="Search leads by name or school…"
+          emptyMessage="No leads found. Add your first lead to start building your pipeline."
+        />
+      )}
     </div>
   );
 }

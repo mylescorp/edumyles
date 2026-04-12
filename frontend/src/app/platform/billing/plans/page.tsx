@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
+import { BillingAdminRail } from "@/components/platform/BillingAdminRail";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -18,7 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
-import { Boxes, Pencil, ShieldCheck, Users } from "lucide-react";
+import { Boxes, Pencil, Plus, ShieldCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 
 type PlanName = "free" | "starter" | "pro" | "enterprise";
@@ -103,6 +104,7 @@ export default function BillingPlansPage() {
   const { sessionToken, isLoading } = useAuth();
   const [search, setSearch] = useState("");
   const [editingPlan, setEditingPlan] = useState<PlanCatalogItem | null>(null);
+  const [creatingPlan, setCreatingPlan] = useState(false);
   const [form, setForm] = useState<EditForm | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -119,6 +121,7 @@ export default function BillingPlansPage() {
   ) as ModuleRow[] | undefined;
 
   const updatePlan = useMutation(api.modules.platform.subscriptions.updateSubscriptionPlan);
+  const createPlan = useMutation(api.modules.platform.subscriptions.createSubscriptionPlan);
 
   const filteredPlans = useMemo(() => {
     const rows = plans ?? [];
@@ -141,6 +144,11 @@ export default function BillingPlansPage() {
     };
   }, [plans]);
 
+  const availablePlanNames = useMemo(() => {
+    const existing = new Set((plans ?? []).map((plan) => plan.name));
+    return (["free", "starter", "pro", "enterprise"] as PlanName[]).filter((name) => !existing.has(name));
+  }, [plans]);
+
   const modulesByCategory = useMemo(() => {
     const rows = publishedModules ?? [];
     return rows.reduce(
@@ -160,6 +168,34 @@ export default function BillingPlansPage() {
   const handleOpenEdit = (plan: PlanCatalogItem) => {
     setEditingPlan(plan);
     setForm(buildForm(plan));
+  };
+
+  const handleOpenCreate = () => {
+    const nextName = availablePlanNames[0];
+    if (!nextName) {
+      toast.error("All standard plan tiers already exist.");
+      return;
+    }
+
+    setCreatingPlan(true);
+    setEditingPlan(null);
+    setForm({
+      planName: nextName,
+      priceMonthlyKes: "0",
+      priceAnnualKes: "0",
+      studentLimit: "",
+      staffLimit: "",
+      storageGb: "",
+      maxAdditionalModules: "",
+      apiAccess: "none",
+      whiteLabel: "none",
+      customDomain: false,
+      supportTier: "standard",
+      slaHours: "",
+      isActive: true,
+      isDefault: false,
+      includedModuleIds: [],
+    });
   };
 
   const handleModuleToggle = (moduleId: string, checked: boolean) => {
@@ -184,7 +220,7 @@ export default function BillingPlansPage() {
 
     setSaving(true);
     try {
-      await updatePlan({
+      const payload = {
         sessionToken,
         planName: form.planName,
         priceMonthlyKes: monthly,
@@ -203,12 +239,20 @@ export default function BillingPlansPage() {
         slaHours: form.slaHours ? Number(form.slaHours) : undefined,
         isActive: form.isActive,
         isDefault: form.isDefault,
-      });
-      toast.success("Subscription plan updated.");
+      } as const;
+
+      if (creatingPlan) {
+        await createPlan(payload);
+        toast.success("Subscription plan created.");
+      } else {
+        await updatePlan(payload);
+        toast.success("Subscription plan updated.");
+      }
       setEditingPlan(null);
+      setCreatingPlan(false);
       setForm(null);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update plan.");
+      toast.error(error instanceof Error ? error.message : `Failed to ${creatingPlan ? "create" : "update"} plan.`);
     } finally {
       setSaving(false);
     }
@@ -226,6 +270,13 @@ export default function BillingPlansPage() {
         ]}
         actions={
           <div className="flex gap-2">
+            <Button
+              onClick={handleOpenCreate}
+              disabled={availablePlanNames.length === 0}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Plan
+            </Button>
             <Button asChild variant="outline">
               <Link href="/platform/billing">Billing overview</Link>
             </Button>
@@ -235,6 +286,8 @@ export default function BillingPlansPage() {
           </div>
         }
       />
+
+      <BillingAdminRail currentHref="/platform/billing/plans" />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -349,10 +402,11 @@ export default function BillingPlansPage() {
       )}
 
       <Dialog
-        open={editingPlan !== null}
+        open={editingPlan !== null || creatingPlan}
         onOpenChange={(open) => {
           if (!open) {
             setEditingPlan(null);
+            setCreatingPlan(false);
             setForm(null);
           }
         }}
@@ -360,13 +414,32 @@ export default function BillingPlansPage() {
         <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="capitalize">
-              Edit {editingPlan?.name} plan
+              {creatingPlan ? `Create ${form?.planName ?? "subscription"} plan` : `Edit ${editingPlan?.name} plan`}
             </DialogTitle>
           </DialogHeader>
 
           {form ? (
             <div className="space-y-6 py-2">
               <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Plan tier</Label>
+                  <Select
+                    value={form.planName}
+                    onValueChange={(value) => setForm({ ...form, planName: value as PlanName })}
+                    disabled={!creatingPlan}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(creatingPlan ? availablePlanNames : [form.planName]).map((name) => (
+                        <SelectItem key={name} value={name}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="monthly-price">Monthly price (KES)</Label>
                   <Input
@@ -532,13 +605,14 @@ export default function BillingPlansPage() {
                   variant="outline"
                   onClick={() => {
                     setEditingPlan(null);
+                    setCreatingPlan(false);
                     setForm(null);
                   }}
                 >
                   Cancel
                 </Button>
                 <Button onClick={handleSave} disabled={saving}>
-                  {saving ? "Saving..." : "Save changes"}
+                  {saving ? "Saving..." : creatingPlan ? "Create plan" : "Save changes"}
                 </Button>
               </div>
             </div>

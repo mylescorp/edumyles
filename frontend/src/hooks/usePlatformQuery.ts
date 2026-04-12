@@ -14,5 +14,6 @@ export function usePlatformQuery<T = any>(
     typeof args?.sessionToken === "string" ? args.sessionToken.trim().length > 0 : true;
   const shouldSkip = !enabled || !hasSessionToken;
 
-  return useQuery(query, shouldSkip ? "skip" : args);
+  const result = useQuery(query, shouldSkip ? "skip" : args);
+  return result?.data;
 }

@@ -21,6 +21,7 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDate, formatRelativeTime } from "@/lib/formatters";
 import { AlertTriangle, CheckCircle2, Clock3, HeartPulse, SearchX, TimerReset, TrendingUp } from "lucide-react";
+import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 
 type TrialTenant = {
   tenantId: string;
@@ -160,6 +161,8 @@ export default function TenantSuccessPage() {
           { label: "Tenant Success" },
         ]}
       />
+
+      <TenantsAdminRail currentHref="/platform/tenant-success" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <MetricCard title="Trial tenants" value={stats.total} icon={Clock3} />

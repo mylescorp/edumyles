@@ -116,7 +116,7 @@ export default function AuditLogPage() {
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
 
-    const currentAuditLogs = (auditLogs as AuditLogEntry[]) || [];
+    const currentAuditLogs = (auditLogs.data as AuditLogEntry[]) || [];
 
     const stats = {
         totalLogs: currentAuditLogs.length,

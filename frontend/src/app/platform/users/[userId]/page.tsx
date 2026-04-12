@@ -7,19 +7,29 @@ import { api } from "@/convex/_generated/api";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { UsersAdminRail } from "@/components/platform/UsersAdminRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime } from "@/lib/formatters";
-import { ArrowLeft, Shield, UserX } from "lucide-react";
+import { ArrowLeft, Shield, Trash2, UserCheck, UserX } from "lucide-react";
+import { toast } from "sonner";
 
 const PLATFORM_ROLES = [
   "master_admin",
@@ -45,8 +55,8 @@ function badgeClass(status: string) {
 export default function PlatformUserDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { toast } = useToast();
   const { isLoading, sessionToken } = useAuth();
+  const { hasPermission, hasRole } = usePermissions();
   const userId = params.userId as string;
 
   const user = usePlatformQuery(
@@ -66,10 +76,15 @@ export default function PlatformUserDetailPage() {
   const updateRole = useMutation(api.modules.platform.users.updatePlatformUserRole);
   const updatePermissions = useMutation(api.modules.platform.users.updatePlatformUserPermissions);
   const suspendUser = useMutation(api.modules.platform.users.suspendPlatformUser);
+  const activateUser = useMutation(api.modules.platform.users.activatePlatformUser);
+  const deleteUser = useMutation(api.modules.platform.users.deletePlatformUser);
 
   const [role, setRole] = useState("super_admin");
   const [addedPermissions, setAddedPermissions] = useState("");
   const [removedPermissions, setRemovedPermissions] = useState("");
+  const [reason, setReason] = useState("");
+  const [showSuspendDialog, setShowSuspendDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -82,6 +97,10 @@ export default function PlatformUserDetailPage() {
   if (isLoading || user === undefined || auditLogs === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
+
+  const canManageUsers = hasPermission("platform:users:write") || hasRole("master_admin");
+  const canSuspendUsers = hasPermission("platform:users:suspend") || hasRole("master_admin", "super_admin");
+  const canDeleteUsers = hasPermission("platform:users:delete") || hasRole("master_admin");
 
   if (!user) {
     return (
@@ -119,16 +138,9 @@ export default function PlatformUserDetailPage() {
           .map((item) => item.trim())
           .filter(Boolean),
       });
-      toast({
-        title: "Platform user updated",
-        description: "Role and permission overrides have been saved.",
-      });
+      toast.success("Platform user updated");
     } catch (error) {
-      toast({
-        title: "Unable to save changes",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Unable to save changes");
     } finally {
       setSaving(false);
     }
@@ -141,17 +153,47 @@ export default function PlatformUserDetailPage() {
       await suspendUser({
         sessionToken,
         platformUserId: userId as any,
+        reason: reason.trim() || undefined,
       });
-      toast({
-        title: "Platform user suspended",
-        description: "The account has been suspended.",
-      });
+      toast.success("Platform user suspended");
+      setShowSuspendDialog(false);
+      setReason("");
     } catch (error) {
-      toast({
-        title: "Unable to suspend user",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
+      toast.error(error instanceof Error ? error.message : "Unable to suspend user");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    if (!sessionToken) return;
+    setSaving(true);
+    try {
+      await activateUser({
+        sessionToken,
+        platformUserId: userId as any,
       });
+      toast.success("Platform user reactivated");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to reactivate user");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!sessionToken) return;
+    setSaving(true);
+    try {
+      await deleteUser({
+        sessionToken,
+        platformUserId: userId as any,
+        reason: reason.trim() || undefined,
+      });
+      toast.success("Platform user deleted");
+      router.push("/platform/users");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to delete user");
     } finally {
       setSaving(false);
     }
@@ -169,6 +211,8 @@ export default function PlatformUserDetailPage() {
         ]}
       />
 
+      <UsersAdminRail />
+
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="ghost" onClick={() => router.push("/platform/users")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -178,11 +222,20 @@ export default function PlatformUserDetailPage() {
           {user.status}
         </Badge>
         {user.status === "active" ? (
-          <Button variant="destructive" onClick={handleSuspend} disabled={saving}>
+          <Button variant="destructive" onClick={() => setShowSuspendDialog(true)} disabled={saving || !canSuspendUsers}>
             <UserX className="mr-2 h-4 w-4" />
             Suspend User
           </Button>
-        ) : null}
+        ) : (
+          <Button variant="outline" onClick={handleActivate} disabled={saving || !canSuspendUsers}>
+            <UserCheck className="mr-2 h-4 w-4" />
+            Reactivate User
+          </Button>
+        )}
+        <Button variant="outline" onClick={() => setShowDeleteDialog(true)} disabled={saving || !canDeleteUsers}>
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete User
+        </Button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
@@ -260,7 +313,7 @@ export default function PlatformUserDetailPage() {
                 />
               </div>
 
-              <Button onClick={handleSave} disabled={saving}>
+              <Button onClick={handleSave} disabled={saving || !canManageUsers}>
                 Save Changes
               </Button>
             </CardContent>
@@ -301,6 +354,74 @@ export default function PlatformUserDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog
+        open={showSuspendDialog}
+        onOpenChange={(open) => {
+          setShowSuspendDialog(open);
+          if (!open) setReason("");
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Suspend Platform User</DialogTitle>
+            <DialogDescription>
+              This will immediately block the user from platform access.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Reason</Label>
+            <Textarea
+              rows={3}
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              placeholder="Why is this account being suspended?"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSuspendDialog(false)} disabled={saving}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleSuspend} disabled={saving}>
+              Suspend User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showDeleteDialog}
+        onOpenChange={(open) => {
+          setShowDeleteDialog(open);
+          if (!open) setReason("");
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Platform User</DialogTitle>
+            <DialogDescription>
+              This permanently removes the user record and should only be used when access should not be restored.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Reason</Label>
+            <Textarea
+              rows={3}
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              placeholder="Why is this account being deleted?"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={saving}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={saving}>
+              Delete User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -46,6 +46,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Tenant routing is not configured" }, { status: 500 });
   }
 
+  // First, check if this is a reseller subdomain
+  const resellerQuery = (api as any)?.modules?.reseller?.getResellerBySubdomain;
+  const reseller = resellerQuery ? await convex.query(resellerQuery, { subdomain }) : null;
+  
+  if (reseller && reseller.status === "active") {
+    // This is a reseller white-label subdomain
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://app.${getRootDomain()}`;
+    const redirect = new URL(appUrl);
+    
+    // Set reseller context
+    redirect.searchParams.set("reseller", reseller.resellerId);
+    redirect.searchParams.set("resellerName", reseller.businessName);
+    redirect.searchParams.set("subdomain", subdomain);
+    
+    // Include reseller branding configuration
+    if (reseller.subdomainConfig) {
+      redirect.searchParams.set("branding", JSON.stringify(reseller.subdomainConfig));
+    }
+    
+    return NextResponse.redirect(redirect.toString());
+  }
+
+  // If not a reseller subdomain, check for regular tenant
   const tenant = await convex.query(api.tenants.getTenantBySubdomain, { subdomain });
   if (!tenant || tenant.status !== "active") {
     const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || `https://${getRootDomain()}`;

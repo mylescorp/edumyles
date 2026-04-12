@@ -48,7 +48,7 @@ export default function ClassDetailPage() {
 
     if (isLoading || classes === undefined) return <LoadingSkeleton variant="page" />;
 
-    const classInfo = (classes as any[])?.find((c) => c._id === classId);
+    const classInfo = (classes.data as any[])?.find((c) => c._id === classId);
 
     if (!classInfo) {
         return (
@@ -184,7 +184,7 @@ export default function ClassDetailPage() {
             <div className="mt-6">
                 <h3 className="mb-4 text-lg font-semibold">Class Roster</h3>
                 <DataTable
-                    data={(students as StudentRow[]) ?? []}
+                    data={(students.data as StudentRow[]) ?? []}
                     columns={studentColumns}
                     searchable
                     searchPlaceholder="Search students in class..."
@@ -229,7 +229,7 @@ export default function ClassDetailPage() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="__none__">Unassigned</SelectItem>
-                                        {((teachers as any[]) ?? []).map((teacher) => (
+                                        {((teachers.data as any[]) ?? []).map((teacher) => (
                                             <SelectItem key={teacher._id} value={teacher._id}>
                                                 {teacher.firstName} {teacher.lastName}
                                             </SelectItem>

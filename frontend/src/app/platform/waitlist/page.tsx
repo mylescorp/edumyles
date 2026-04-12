@@ -21,6 +21,7 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
 import { Building2, CheckCircle2, Clock3, Mail, SearchX, UserPlus2, Users, XCircle } from "lucide-react";
+import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 
 const ROLE_OPTIONS = [
   { value: "school_admin", label: "School Admin" },
@@ -240,6 +241,8 @@ export default function WaitlistPage() {
           { label: "Waitlist" },
         ]}
       />
+
+      <TenantsAdminRail currentHref="/platform/waitlist" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <MetricCard title="Total entries" value={stats.total} icon={Users} />

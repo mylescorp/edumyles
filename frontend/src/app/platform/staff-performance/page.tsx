@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { UsersAdminRail } from "@/components/platform/UsersAdminRail";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -250,6 +251,8 @@ export default function StaffPerformancePage() {
           </Button>
         }
       />
+
+      <UsersAdminRail />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>

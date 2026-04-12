@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
 import { api } from "@/convex/_generated/api";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -333,6 +334,8 @@ export default function PlatformCrmProposalsPage() {
           </div>
         }
       />
+
+      <CrmAdminRail currentHref="/platform/crm/proposals" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Proposals" value={String(summary.total)} />

@@ -211,7 +211,7 @@ function getAvatarFallback(tenantName: string) {
 }
 
 export function ActivityFeed({ events, isLoading, limit = 20, showViewAll = true, className }: ActivityFeedProps) {
-  const displayEvents = events.slice(0, limit);
+  const displayEvents = (events && Array.isArray(events) ? events : []).slice(0, limit);
 
   if (isLoading) {
     return (

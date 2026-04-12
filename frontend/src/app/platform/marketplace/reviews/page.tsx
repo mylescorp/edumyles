@@ -1,22 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Star, CheckCircle, XCircle, Clock,
-} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
-import { api } from "@/convex/_generated/api";
-import { MarketplaceErrorBoundary } from "../MarketplaceErrorBoundary";
-import { toast } from "sonner";
+import { CheckCircle2, Clock3, Search, Star, XCircle } from "lucide-react";
 
 function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" });
@@ -28,162 +29,239 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-4 w-4 ${i <= rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}`}
+          className={`h-4 w-4 ${i <= rating ? "fill-yellow-500 text-yellow-500" : "text-slate-300"}`}
         />
       ))}
     </div>
   );
 }
 
-export default function ReviewModerationPage() {
-  return (
-    <MarketplaceErrorBoundary>
-      <ReviewModerationContent />
-    </MarketplaceErrorBoundary>
-  );
+const STATUSES = ["all", "pending", "approved", "rejected"] as const;
+
+function formatStatusLabel(value: (typeof STATUSES)[number]) {
+  if (value === "all") return "All statuses";
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function ReviewModerationContent() {
-  const { sessionToken } = useAuth();
-  const [isRejectOpen, setIsRejectOpen] = useState(false);
+export default function ReviewModerationPage() {
+  const { sessionToken, isLoading } = useAuth();
+  const [status, setStatus] = useState<(typeof STATUSES)[number]>("pending");
+  const [search, setSearch] = useState("");
   const [selectedReview, setSelectedReview] = useState<any>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
-  const pendingReviews = usePlatformQuery(
-    api.platform.marketplace.queries.getPendingReviews,
-    { sessionToken: sessionToken || "" }
+  const reviews = usePlatformQuery(
+    api.platform.marketplace.queries.getAllMarketplaceReviews,
+    sessionToken
+      ? {
+          sessionToken,
+          ...(status !== "all" ? { status } : {}),
+        }
+      : "skip",
+    !!sessionToken
   ) as any[] | undefined;
 
   const moderateReview = useMutation(api.platform.marketplace.mutations.moderateReview);
 
-  const handleApprove = async (reviewId: string) => {
-    if (!sessionToken) return;
-    try {
-      await moderateReview({ sessionToken, reviewId: reviewId as any, decision: "approved" });
-    } catch (e: any) {
-      toast.error(e.message);
-    }
-  };
+  const filteredReviews = useMemo(() => {
+    const rows = reviews ?? [];
+    if (!search.trim()) return rows;
+    const query = search.toLowerCase();
+    return rows.filter((review) =>
+      [review.moduleName, review.publisherName, review.reviewerEmail ?? "", review.content ?? "", review.title ?? ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(query)
+    );
+  }, [reviews, search]);
 
-  const handleReject = async () => {
-    if (!sessionToken || !selectedReview) return;
+  const stats = useMemo(() => {
+    const rows = reviews ?? [];
+    return {
+      total: rows.length,
+      pending: rows.filter((review) => review.status === "pending").length,
+      approved: rows.filter((review) => review.status === "approved").length,
+      rejected: rows.filter((review) => review.status === "rejected").length,
+    };
+  }, [reviews]);
+
+  async function handleModeration(review: any, decision: "approved" | "rejected") {
+    if (!sessionToken) return;
     try {
       await moderateReview({
         sessionToken,
-        reviewId: selectedReview._id,
-        decision: "rejected",
-        rejectionReason,
+        reviewId: review._id,
+        decision,
+        rejectionReason: decision === "rejected" ? rejectionReason || "Rejected by moderator" : undefined,
       });
-      setIsRejectOpen(false);
+      setSelectedReview(null);
       setRejectionReason("");
-    } catch (e: any) {
-      toast.error(e.message);
+      toast.success(decision === "approved" ? "Review approved" : "Review rejected");
+    } catch (error: any) {
+      toast.error(error.message || "Unable to moderate review");
     }
-  };
+  }
+
+  if (isLoading || reviews === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Review Moderation"
-        description="Moderate user reviews before they are published on module listings"
+        description="Moderate marketplace reviews, approve strong feedback, and reject low-quality submissions."
         breadcrumbs={[
           { label: "Platform", href: "/platform" },
           { label: "Marketplace", href: "/platform/marketplace" },
-          { label: "Reviews", href: "#" },
+          { label: "Reviews", href: "/platform/marketplace/reviews" },
         ]}
       />
 
-      <div className="flex items-center gap-2 mb-4">
-        <Badge variant="secondary">
-          <Clock className="h-3 w-3 mr-1" />{pendingReviews?.length || 0} pending
-        </Badge>
-        <p className="text-sm text-muted-foreground">
-          Reviews are moderated within 3 business days. Rejected reviews receive an explanatory note.
-        </p>
+      <MarketplaceAdminRail currentHref="/platform/marketplace/reviews" />
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Total reviews</p><p className="text-3xl font-semibold">{stats.total}</p></CardContent></Card>
+        <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Pending</p><p className="text-3xl font-semibold">{stats.pending}</p></CardContent></Card>
+        <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Approved</p><p className="text-3xl font-semibold">{stats.approved}</p></CardContent></Card>
+        <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Rejected</p><p className="text-3xl font-semibold">{stats.rejected}</p></CardContent></Card>
       </div>
 
-      {(pendingReviews || []).length > 0 ? (
-        <div className="space-y-3">
-          {(pendingReviews || []).map((review: any) => (
+      <Card>
+        <CardHeader>
+          <CardTitle>Review Queue</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center gap-3">
+          <div className="relative min-w-[260px] flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              className="pl-9"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search module, publisher, reviewer, or text"
+            />
+          </div>
+          <Select value={status} onValueChange={(value) => setStatus(value as (typeof STATUSES)[number])}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+              <SelectContent>
+                {STATUSES.map((entry) => (
+                  <SelectItem key={entry} value={entry}>
+                    {formatStatusLabel(entry)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+          </Select>
+          <Badge variant="secondary">
+            <Clock3 className="mr-1 h-3 w-3" />
+            {filteredReviews.length} visible
+          </Badge>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-3">
+        {filteredReviews.length > 0 ? (
+          filteredReviews.map((review) => (
             <Card key={review._id}>
-              <CardContent className="pt-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <StarRating rating={review.rating} />
-                    <span className="font-medium text-sm">{review.moduleName}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {review.reviewerRole}
-                    </Badge>
+              <CardContent className="space-y-4 pt-5">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold text-slate-950">{review.moduleName}</h3>
+                      <Badge variant="outline">{review.publisherName}</Badge>
+                      <Badge variant="secondary">{review.status}</Badge>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-slate-600">
+                      <StarRating rating={review.rating} />
+                      <span>{review.reviewerEmail || "Anonymous reviewer"}</span>
+                      <span>{formatDate(review.createdAt)}</span>
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground">{formatDate(review.createdAt)}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {review.status !== "approved" ? (
+                      <Button size="sm" onClick={() => handleModeration(review, "approved")}>
+                        <CheckCircle2 className="mr-1 h-4 w-4" />
+                        Approve
+                      </Button>
+                    ) : null}
+                    {review.status !== "rejected" ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedReview(review);
+                          setRejectionReason(review.rejectionReason || "");
+                        }}
+                      >
+                        <XCircle className="mr-1 h-4 w-4" />
+                        Reject
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
 
-                <p className="text-sm">{review.content}</p>
+                {review.title ? <p className="text-sm font-medium text-slate-900">{review.title}</p> : null}
+                <p className="text-sm text-slate-700">{review.content}</p>
 
-                {review.tags?.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {review.tags.map((tag: string) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
-                    ))}
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-sm">
+                    <p className="font-medium text-slate-900">Tenant</p>
+                    <p className="mt-1 text-slate-600">{review.tenantId || "Unknown tenant"}</p>
                   </div>
-                )}
-
-                <div className="text-xs text-muted-foreground">
-                  By {review.reviewerEmail} (Tenant: {review.tenantId})
-                </div>
-
-                <div className="flex items-center gap-2 pt-2 border-t">
-                  <Button size="sm" onClick={() => handleApprove(review._id)}>
-                    <CheckCircle className="h-4 w-4 mr-1" />Approve
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => { setSelectedReview(review); setIsRejectOpen(true); }}
-                  >
-                    <XCircle className="h-4 w-4 mr-1" />Reject
-                  </Button>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-sm">
+                    <p className="font-medium text-slate-900">Moderation</p>
+                    <p className="mt-1 text-slate-600">
+                      {review.rejectionReason || review.publisherResponse || "No moderation notes recorded yet."}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      ) : (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <CheckCircle className="h-10 w-10 text-green-600 mb-3" />
-            <h3 className="font-semibold mb-1">All reviews moderated</h3>
-            <p className="text-sm text-muted-foreground">No pending reviews to moderate.</p>
-          </CardContent>
-        </Card>
-      )}
+          ))
+        ) : (
+          <Card>
+            <CardContent className="flex min-h-56 flex-col items-center justify-center text-center">
+              <CheckCircle2 className="h-10 w-10 text-emerald-700" />
+              <p className="mt-4 text-base font-semibold text-slate-900">No reviews in this queue</p>
+              <p className="mt-1 max-w-sm text-sm text-slate-600">
+                Adjust the status filter or search term to find marketplace reviews to moderate.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
-      {/* Reject Dialog */}
-      <Dialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
-        <DialogContent className="max-w-md">
+      <Dialog open={Boolean(selectedReview)} onOpenChange={(open) => !open && setSelectedReview(null)}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Reject Review</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Provide a reason for rejecting this review. The reviewer will be notified.
-            </p>
-            <div>
-              <Label>Rejection Reason</Label>
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-sm">
+              <p className="font-medium text-slate-900">{selectedReview?.moduleName}</p>
+              <p className="mt-1 text-slate-600">{selectedReview?.reviewerEmail}</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Rejection reason</Label>
               <Textarea
                 value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                rows={3}
-                placeholder="e.g. Contains personal attacks, not relevant to the module..."
+                onChange={(event) => setRejectionReason(event.target.value)}
+                rows={4}
+                placeholder="Explain why this review should not be published."
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsRejectOpen(false)}>Cancel</Button>
-              <Button variant="destructive" onClick={handleReject} disabled={!rejectionReason}>
-                Confirm Rejection
-              </Button>
-            </div>
           </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedReview(null)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              onClick={() => selectedReview && handleModeration(selectedReview, "rejected")}
+              disabled={!rejectionReason.trim()}
+            >
+              Reject Review
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

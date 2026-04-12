@@ -7,9 +7,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
+import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
-import { ChevronDown, ChevronLeft, ChevronRight, LogOut, X, Star } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, LogOut, X, Star, Lock } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -27,15 +28,20 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { user, logout, sessionToken } = useAuth();
+  const { can, isLoaded: platformPermissionsLoaded } = usePlatformPermissions();
   const { isModuleInstalled, isModuleActive } = useInstalledModules();
-  const pendingAdmissions = useQuery(
+  const isPlatformSidebar = navItems.some((item) => item.href.startsWith("/platform"));
+  const pendingAdmissionsResult = useQuery(
     api.modules.admissions.queries.listApplications,
     sessionToken ? { sessionToken, status: "pending" } : "skip"
   );
-  const pendingInvoices = useQuery(
+  const pendingInvoicesResult = useQuery(
     api.modules.finance.queries.listInvoices,
     sessionToken ? { sessionToken, status: "pending" } : "skip"
   );
+
+  const pendingAdmissions = pendingAdmissionsResult?.data;
+  const pendingInvoices = pendingInvoicesResult?.data;
 
   // Core module IDs that should always be visible
   const coreModuleIds = ["sis", "communications", "users"];
@@ -65,7 +71,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
     });
 
   const groupedItems = filteredItems.reduce<Array<{ section: string; items: NavItem[] }>>((groups, item) => {
-    const section = item.section ?? "Navigation";
+    const section = item.section ?? "__standalone__";
     const existingGroup = groups.find((group) => group.section === section);
     if (existingGroup) {
       existingGroup.items.push(item);
@@ -80,7 +86,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
     const activeGroup = groupedItems.find((group) =>
       group.items.some((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
     );
-    return activeGroup?.section ?? groupedItems[0]?.section ?? "Navigation";
+    return activeGroup?.section ?? groupedItems[0]?.section ?? "__standalone__";
   }, [groupedItems, pathname]);
 
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -90,7 +96,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
     if (expandedSections[section] !== undefined) {
       return expandedSections[section];
     }
-    return section === "Overview" || section === activeSection;
+    return section === "__standalone__" || section === activeSection;
   };
 
   const toggleSection = (section: string) => {
@@ -154,7 +160,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                   groupIndex > 0 && "border-t border-sidebar-border/70 pt-3"
                 )}
               >
-                {!collapsed ? (
+                {!collapsed && group.section !== "__standalone__" ? (
                   <button
                     type="button"
                     onClick={() => toggleSection(group.section)}
@@ -167,9 +173,6 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-text/70">
                         {group.section}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-sidebar-text/50">
-                        {group.items.length} items
-                      </p>
                     </div>
                     <ChevronDown
                       className={cn(
@@ -178,9 +181,9 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                       )}
                     />
                   </button>
-                ) : (
+                ) : group.section !== "__standalone__" ? (
                   <div className="mx-auto h-px w-8 bg-sidebar-border/70" />
-                )}
+                ) : null}
                 {isSectionExpanded(group.section) &&
                   group.items.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -200,31 +203,33 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
 
               const badgeCount = getBadgeCount(item.href);
 
-              const link = (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={isMobile ? onClose : undefined}
-                  className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 relative",
-                    "hover:bg-[rgba(232,160,32,0.1)] hover:translate-x-0.5",
-                    isActive
-                      ? "bg-[rgba(232,160,32,0.15)] text-white shadow-sm border-l-2 border-[#E8A020]"
-                      : "text-sidebar-text hover:text-white"
-                  )}
-                >
+              const disabledByPermission =
+                Boolean(isPlatformSidebar && item.permission) &&
+                platformPermissionsLoaded &&
+                !can(item.permission as string);
+
+              const itemContent = (
+                <>
                   <div
                     className={cn(
                       "flex h-4 w-4 items-center justify-center rounded transition-all duration-150",
-                      isActive ? "text-[#E8A020]" : "text-sidebar-icon group-hover:text-[#E8A020]"
+                      disabledByPermission
+                        ? "text-white/25"
+                        : isActive
+                          ? "text-[#E8A020]"
+                          : "text-sidebar-icon group-hover:text-[#E8A020]"
                     )}
                   >
-                    <Icon className="h-4 w-4" />
+                    {disabledByPermission ? <Lock className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                   </div>
-                  {!collapsed && <span className="truncate">{item.label}</span>}
+                  {!collapsed && (
+                    <span className={cn("truncate", disabledByPermission && "text-white/35")}>
+                      {item.label}
+                    </span>
+                  )}
 
                   {/* Module status indicators */}
-                  {!collapsed && item.module && (
+                  {!collapsed && item.module && !disabledByPermission && (
                     <div className="ml-auto flex items-center gap-1">
                       {/* Core module indicator */}
                       {coreModuleIds.includes(item.module) && (
@@ -256,7 +261,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                   )}
 
                   {/* Badge counts for collapsed state */}
-                  {collapsed && badgeCount && (
+                  {collapsed && badgeCount && !disabledByPermission && (
                     <Badge
                       variant="destructive"
                       className="absolute -top-1 -right-1 h-4 w-4 rounded-full p-0 text-[10px]"
@@ -264,6 +269,33 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                       {badgeCount}
                     </Badge>
                   )}
+                </>
+              );
+
+              const sharedClassName = cn(
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                disabledByPermission
+                  ? "cursor-not-allowed opacity-80"
+                  : "hover:bg-[rgba(232,160,32,0.1)] hover:translate-x-0.5",
+                isActive && !disabledByPermission
+                  ? "bg-[rgba(232,160,32,0.15)] text-white shadow-sm border-l-2 border-[#E8A020]"
+                  : disabledByPermission
+                    ? "text-white/40"
+                    : "text-sidebar-text hover:text-white"
+              );
+
+              const link = disabledByPermission ? (
+                <div key={item.href} className={sharedClassName} aria-disabled="true">
+                  {itemContent}
+                </div>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={isMobile ? onClose : undefined}
+                  className={sharedClassName}
+                >
+                  {itemContent}
                 </Link>
               );
 
@@ -278,6 +310,11 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                             </p>
                             <div className="flex items-center gap-2">
                               <span>{item.label}</span>
+                              {disabledByPermission && (
+                                <span className="text-[10px] text-white/60">
+                                  Requires {item.permission}
+                                </span>
+                              )}
                               <div className="flex items-center gap-1">
                                 {item.module && coreModuleIds.includes(item.module) && (
                                   <Star className="h-3 w-3 text-em-amber-500" />
@@ -293,6 +330,17 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                               </div>
                             </div>
                           </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }
+
+                  if (disabledByPermission && !collapsed) {
+                    return (
+                      <Tooltip key={item.href}>
+                        <TooltipTrigger asChild>{link}</TooltipTrigger>
+                        <TooltipContent side="right">
+                          Requires {item.permission}
                         </TooltipContent>
                       </Tooltip>
                     );
