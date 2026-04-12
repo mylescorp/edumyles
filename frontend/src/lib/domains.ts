@@ -1,4 +1,4 @@
-const DEFAULT_ROOT_DOMAIN = "edumyles.com";
+const DEFAULT_ROOT_DOMAIN = "mylescorptech.com";
 
 function normalizeDomain(value?: string | null) {
   const domain = (value?.trim() || DEFAULT_ROOT_DOMAIN).replace(/^https?:\/\//, "").replace(/\/+$/, "");

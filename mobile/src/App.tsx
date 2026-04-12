@@ -216,12 +216,12 @@ const AppShell: React.FC = () => {
 // `edumyles://auth/callback?requestId=<id>&status=approved`.
 
 function parseDeepLink(url: string): { path: string; params: Record<string, string> } | null {
-  if (!url.startsWith('edumyles://') && !url.startsWith('https://app.edumyles.com')) {
+  if (!url.startsWith('edumyles://') && !url.startsWith('https://app.mylescorptech.com')) {
     return null;
   }
   try {
     // Handle edumyles://auth/callback?requestId=xxx
-    const withoutScheme = url.replace(/^edumyles:\/\//, '').replace(/^https:\/\/app\.edumyles\.com\//, '');
+    const withoutScheme = url.replace(/^edumyles:\/\//, '').replace(/^https:\/\/app\.mylescorptech\.com\//, '');
     const [path, query] = withoutScheme.split('?');
     const params: Record<string, string> = {};
     if (query) {

@@ -2,6 +2,20 @@ import { redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
 import { getMarketingSiteUrl } from "@/lib/marketingSite";
 
+function isCanonicalAppHost(origin?: string) {
+  if (!origin) return false;
+
+  try {
+    const currentHost = new URL(origin).host;
+    const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+    const configuredAppHost = configuredAppUrl ? new URL(configuredAppUrl).host : null;
+
+    return currentHost === configuredAppHost || currentHost === "app.mylescorptech.com";
+  } catch {
+    return false;
+  }
+}
+
 function getRoleDashboard(role: string): string {
   switch (role) {
     case "master_admin":
@@ -33,6 +47,10 @@ export default async function RootPage() {
 
   if (sessionCookie?.value) {
     redirect(getRoleDashboard(role ?? "school_admin"));
+  }
+
+  if (isCanonicalAppHost(origin)) {
+    redirect("/auth/login");
   }
 
   redirect(getMarketingSiteUrl(origin));
