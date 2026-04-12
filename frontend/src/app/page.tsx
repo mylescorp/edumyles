@@ -10,7 +10,7 @@ function isCanonicalAppHost(origin?: string) {
     const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
     const configuredAppHost = configuredAppUrl ? new URL(configuredAppUrl).host : null;
 
-    return currentHost === configuredAppHost || currentHost === "app.mylescorptech.com";
+    return currentHost === configuredAppHost || currentHost === "edumyles-frontend.vercel.app";
   } catch {
     return false;
   }

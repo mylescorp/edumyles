@@ -110,7 +110,7 @@ export const submitReview = mutation({
       moduleId: String(module._id),
       tenantId: actor.tenantId,
       rating: args.rating,
-      title: args.title,
+      title: args.title ?? "Module review",
       body: args.body,
       status: "pending",
       publisherReply: undefined,

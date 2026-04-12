@@ -401,10 +401,10 @@ export const DEFAULT_SETTINGS_DRAFT: SettingsDraft = {
     defaultPortalPrimaryColor: "#0F4C2A",
   },
   domain: {
-    primaryDomain: "mylescorptech.com",
+    primaryDomain: "app.mylescorptech.com",
     platformAdminUrl: "app.mylescorptech.com/platform",
     apiBaseUrl: "app.mylescorptech.com/api",
-    subdomainPattern: "{schoolname}.mylescorptech.com",
+    subdomainPattern: "{schoolname}.app.mylescorptech.com",
     subdomainCharacterRules: "lowercase, alphanumeric, hyphens only, min 3 max 50 chars",
     reservedSubdomains: ["platform", "api", "app", "www", "mail", "support", "developer", "reseller", "affiliate", "docs", "status", "help"],
     autoGenerateSubdomain: true,

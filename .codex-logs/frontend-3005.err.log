@@ -1300,3 +1300,48 @@ Learn more: https://react.dev/warnings/version-mismatch
 [browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
 [browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
 [browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: 81defb046baa9d17] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:151:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: 558f7f77d09c1e53] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:151:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3005/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.

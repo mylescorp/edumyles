@@ -1,4 +1,4 @@
-const DEFAULT_ROOT_DOMAIN = "edumyles.com";
+const DEFAULT_MARKETING_SITE_URL = "https://edumyles.vercel.app";
 const LOCAL_MARKETING_PORT = "3001";
 
 function trimTrailingSlash(value: string) {
@@ -6,6 +6,11 @@ function trimTrailingSlash(value: string) {
 }
 
 export function getMarketingSiteUrl(origin?: string) {
+  const configuredLandingUrl = process.env.NEXT_PUBLIC_LANDING_URL?.trim();
+  if (configuredLandingUrl) {
+    return trimTrailingSlash(configuredLandingUrl);
+  }
+
   const configuredUrl = process.env.NEXT_PUBLIC_MARKETING_SITE_URL?.trim();
   if (configuredUrl) {
     return trimTrailingSlash(configuredUrl);
@@ -21,10 +26,7 @@ export function getMarketingSiteUrl(origin?: string) {
     }
   }
 
-  const rootDomain =
-    process.env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || DEFAULT_ROOT_DOMAIN;
-  const normalizedRootDomain = rootDomain.replace(/^https?:\/\//, "");
-  return `https://${normalizedRootDomain}`;
+  return DEFAULT_MARKETING_SITE_URL;
 }
 
 export function getMarketingSitePath(path: string, origin?: string) {
