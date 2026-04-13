@@ -55,6 +55,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import Image from "next/image";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import type { NavItem } from "@/lib/routes";
+import { isCoreModuleSlug } from "@/lib/moduleSlugs";
 
 export interface NavGroup {
   label: string;
@@ -190,7 +191,7 @@ function MobileDrawer({
             alt="EduMyles"
             width={32}
             height={32}
-            className="flex-shrink-0"
+            className="h-auto w-auto flex-shrink-0"
             priority
           />
           <div>
@@ -892,7 +893,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const router = useRouter();
   const { user, role, logout, sessionToken } = useAuth();
   const { tenant } = useTenant();
-  const { isModuleInstalled } = useInstalledModules();
+  const { isModuleInstalled } = useInstalledModules(role ?? undefined);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [footerPanel, setFooterPanel] = useState<"chats" | "channels" | "contacts" | null>(null);
@@ -900,7 +901,6 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const toggleFooterPanel = (panel: "chats" | "channels" | "contacts") =>
     setFooterPanel((prev) => (prev === panel ? null : panel));
-  const coreModuleIds = ["sis", "communications", "users"];
   const isPlatformRoute = pathname?.startsWith("/platform");
 
   // Use permission-based navigation for platform routes
@@ -930,7 +930,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     ? permissionBasedNavItems
     : navItems.filter((item) => {
         if (!item.module) return true;
-        if (coreModuleIds.includes(item.module)) return true;
+        if (isCoreModuleSlug(item.module)) return true;
         if (!isModuleInstalled(item.module)) return false;
         return true;
       });
@@ -1011,7 +1011,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                 alt="EduMyles"
                 width={28}
                 height={28}
-                className="flex-shrink-0"
+                className="h-auto w-auto flex-shrink-0"
                 priority
               />
               <span

@@ -1,0 +1,22 @@
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+⚠ Blocked cross-origin request to Next.js dev resource /_next/webpack-hmr from "127.0.0.1".
+Cross-origin access to Next.js dev resources is blocked by default for safety.
+
+To allow this host in development, add it to "allowedDevOrigins" in next.config.js and restart the dev server:
+
+// next.config.js
+module.exports = {
+  allowedDevOrigins: ['127.0.0.1'],
+}
+
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+npm error Lifecycle script `dev` failed with error:
+npm error code 4294967295
+npm error path C:\Users\Admin\Projects\edumyles\frontend
+npm error workspace frontend@0.1.0
+npm error location C:\Users\Admin\Projects\edumyles\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next dev --port 3005

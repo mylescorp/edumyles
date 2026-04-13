@@ -1,89 +1,141 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "./useAuth";
+import { getModuleAliases, normalizeModuleSlug } from "@/lib/moduleSlugs";
 
-const CORE_MODULE_IDS = ["sis", "communications", "users"];
+type AccessibleNavItem = {
+  href: string;
+  label: string;
+  icon: string;
+  requiredFeature: string;
+  moduleSlug: string;
+};
 
-export interface InstalledModule {
-  _id: string;
-  moduleId: string;
-  status: "active" | "inactive";
-  installedAt: number;
-  installedBy: string;
-  config: Record<string, any>;
-  updatedAt: number;
+function getRoleAccessLevel(install: any, userRole: string | undefined) {
+  if (!userRole) return "full";
+  if (userRole === "school_admin" || userRole === "principal" || userRole === "master_admin" || userRole === "super_admin") {
+    return "full";
+  }
+
+  const roleAccess = install.accessConfig?.roleAccess?.find(
+    (entry: any) => entry.role === userRole
+  );
+  return roleAccess?.accessLevel ?? "none";
 }
 
-export function useInstalledModules() {
+export function useInstalledModules(userRole?: string) {
   const { sessionToken, isLoading, isAuthenticated } = useAuth();
-  const hasLiveTenantSession =
-    !!sessionToken && sessionToken !== "dev_session_token";
-  const canQueryModules = !isLoading && isAuthenticated && hasLiveTenantSession;
-  const [queryTimedOut, setQueryTimedOut] = useState(false);
+  const canQuery = !isLoading && isAuthenticated && !!sessionToken;
 
-  // Single query for full module records — IDs are derived from these, avoiding
-  // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
-  const installedModuleDetailsResult = useQuery(
-    api.modules.marketplace.queries.getInstalledModules,
-    canQueryModules ? { sessionToken } : "skip"
+  const installedModulesResult = useQuery(
+    api.modules.marketplace.settings.getInstalledModulesForTenant,
+    canQuery ? { sessionToken } : "skip"
   );
-
   const availableModulesResult = useQuery(
-    api.modules.marketplace.queries.getAvailableForTier,
-    canQueryModules ? { sessionToken } : "skip"
+    api.modules.marketplace.settings.getMarketplaceModules,
+    canQuery ? { sessionToken } : "skip"
   );
 
-  const installedModuleDetails = installedModuleDetailsResult?.data;
-  const availableModules = availableModulesResult?.data;
+  const installedModules = (installedModulesResult?.data ?? []) as any[];
+  const availableModules = (availableModulesResult?.data ?? []) as any[];
 
-  useEffect(() => {
-    if (!canQueryModules) {
-      setQueryTimedOut(false);
-      return;
-    }
+  const normalizedInstalledModules = useMemo(
+    () =>
+      installedModules.map((install) => ({
+        ...install,
+        moduleSlug: normalizeModuleSlug(
+          install.moduleSlug ?? install.module?.slug ?? install.moduleId
+        ),
+        accessLevel: getRoleAccessLevel(install, userRole),
+        navConfig: install.module?.navConfig ?? null,
+        dashboardWidgets:
+          install.module?.dashboardWidgets ??
+          install.module?.navConfig?.dashboardWidgets ??
+          [],
+      })),
+    [installedModules]
+  );
 
-    if (installedModuleDetails !== undefined && availableModules !== undefined) {
-      setQueryTimedOut(false);
-      return;
-    }
+  const accessibleNavItems = useMemo(() => {
+    return normalizedInstalledModules.flatMap((install) => {
+      const navConfig = install.navConfig;
+      if (!navConfig || install.accessLevel === "none") return [];
 
-    const timeoutId = window.setTimeout(() => {
-      setQueryTimedOut(true);
-    }, 6000);
+      const roleKey =
+        userRole === "teacher"
+          ? "teacherNav"
+          : userRole === "student"
+            ? "studentNav"
+            : userRole === "parent"
+              ? "parentNav"
+              : "adminNav";
 
-    return () => window.clearTimeout(timeoutId);
-  }, [availableModules, canQueryModules, installedModuleDetails]);
+      return ((navConfig[roleKey] ?? []) as any[]).map((item) => ({
+        ...item,
+        moduleSlug: install.moduleSlug,
+      }));
+    }) as AccessibleNavItem[];
+  }, [normalizedInstalledModules, userRole]);
 
-  const resolvedInstalledModuleDetails = queryTimedOut
-    ? (installedModuleDetails ?? [])
-    : installedModuleDetails;
-  const resolvedAvailableModules = queryTimedOut
-    ? (availableModules ?? [])
-    : availableModules;
+  const dashboardWidgets = useMemo(
+    () =>
+      normalizedInstalledModules.flatMap((install) =>
+        (install.dashboardWidgets ?? []).map((widget: any) => ({
+          ...widget,
+          moduleSlug: install.moduleSlug,
+        }))
+      ),
+    [normalizedInstalledModules]
+  );
 
-  // Derive IDs from details; always include core modules
-  const installedModuleIds: string[] = resolvedInstalledModuleDetails && Array.isArray(resolvedInstalledModuleDetails)
-    ? [...new Set([...CORE_MODULE_IDS, ...resolvedInstalledModuleDetails.map((m: any) => m.moduleId)])]
-    : CORE_MODULE_IDS;
+  const installedModuleIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          normalizedInstalledModules.flatMap((module) => getModuleAliases(module.moduleSlug))
+        )
+      ),
+    [normalizedInstalledModules]
+  );
 
   return {
+    installedModules: normalizedInstalledModules,
     installedModuleIds,
-    installedModules: resolvedInstalledModuleDetails ?? [],
-    availableModules: resolvedAvailableModules ?? [],
+    availableModules,
+    accessibleNavItems,
+    dashboardWidgets,
     isLoading:
-      !queryTimedOut &&
-      canQueryModules &&
-      (installedModuleDetails === undefined || availableModules === undefined),
-    isModuleInstalled: (moduleId: string) =>
-      CORE_MODULE_IDS.includes(moduleId) ||
-      (resolvedInstalledModuleDetails?.some((m: any) => m.moduleId === moduleId) ?? false),
-    isModuleActive: (moduleId: string) => {
-      if (CORE_MODULE_IDS.includes(moduleId)) return true;
-      const mod = resolvedInstalledModuleDetails?.find((m: any) => m.moduleId === moduleId);
-      return mod?.status === "active";
+      canQuery && (installedModulesResult === undefined || availableModulesResult === undefined),
+    isModuleInstalled: (moduleSlug: string) => {
+      const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
+      return normalizedInstalledModules.some(
+        (module) => normalizeModuleSlug(module.moduleSlug) === normalizedModuleSlug
+      );
+    },
+    isModuleActive: (moduleSlug: string) => {
+      const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
+      return normalizedInstalledModules.some(
+        (module) =>
+          normalizeModuleSlug(module.moduleSlug) === normalizedModuleSlug &&
+          module.status === "active"
+      );
+    },
+    getModuleAccessLevel: (moduleSlug: string) => {
+      const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
+      const match = normalizedInstalledModules.find(
+        (module) => normalizeModuleSlug(module.moduleSlug) === normalizedModuleSlug
+      );
+      return match?.accessLevel ?? "none";
+    },
+    isModuleAccessible: (moduleSlug: string) => {
+      const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
+      const match = normalizedInstalledModules.find(
+        (module) => normalizeModuleSlug(module.moduleSlug) === normalizedModuleSlug
+      );
+      return Boolean(match && match.accessLevel !== "none" && match.status === "active");
     },
   };
 }

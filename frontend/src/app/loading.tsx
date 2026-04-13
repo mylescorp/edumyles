@@ -11,7 +11,7 @@ export default function Loading() {
           width={96}
           height={96}
           priority
-          className="drop-shadow-[0_0_24px_rgba(212,175,55,0.4)]"
+          className="h-auto w-auto drop-shadow-[0_0_24px_rgba(212,175,55,0.4)]"
         />
       </div>
 

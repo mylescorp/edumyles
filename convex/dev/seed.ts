@@ -1,8 +1,9 @@
-import { action, internalMutation, internalQuery, query } from "../_generated/server";
+import { action, internalMutation, internalQuery, mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 import { CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
 import { generateTenantId } from "../helpers/idGenerator";
 import { SYSTEM_ROLE_SEEDS } from "../modules/platform/rbac";
+import { requirePlatformSession } from "../helpers/platformGuard";
 
 const MARKETPLACE_SEED_ACTOR = "system_seed";
 const MARKETPLACE_VERSION = "1.0.0";
@@ -864,6 +865,34 @@ export const verifyMarketplaceSeed = query({
           status: install.status,
           isFree: install.isFree ?? false,
         })),
+    };
+  },
+});
+
+export const seedMarketplaceCatalogForPlatform = mutation({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const now = Date.now();
+    const moduleIdsBySlug = await ensureMarketplaceCatalog(ctx, now);
+    const tenants = await ctx.db.query("tenants").collect();
+
+    for (const tenant of tenants) {
+      await ensureCoreMarketplaceInstallsForTenant(ctx, {
+        tenantId: tenant.tenantId,
+        installedBy: MARKETPLACE_SEED_ACTOR,
+        now,
+        moduleIdsBySlug,
+      });
+    }
+
+    return {
+      marketplaceModuleCount: moduleIdsBySlug.size,
+      tenantCount: tenants.length,
+      moduleSlugs: [...moduleIdsBySlug.keys()].sort(),
     };
   },
 });

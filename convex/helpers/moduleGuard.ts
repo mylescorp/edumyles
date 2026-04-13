@@ -241,7 +241,7 @@ export async function requireModuleFeatureAccess(
 }
 
 export async function getInstalledModules(ctx: GuardCtx, tenantId: string) {
-  const [marketplaceInstalls, legacyInstalls, marketplaceModules] = await Promise.all([
+  const [marketplaceInstalls, legacyInstalls, marketplaceModules, accessConfigs] = await Promise.all([
     ctx.db
       .query("module_installs")
       .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
@@ -251,9 +251,16 @@ export async function getInstalledModules(ctx: GuardCtx, tenantId: string) {
       .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .collect(),
     ctx.db.query("marketplace_modules").collect(),
+    ctx.db
+      .query("module_access_config")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
+      .collect(),
   ]);
 
   const moduleBySlug = new Map(marketplaceModules.map((module) => [module.slug, module]));
+  const accessConfigBySlug = new Map(
+    accessConfigs.map((config) => [config.moduleSlug, config])
+  );
   const results = new Map<string, any>();
 
   for (const install of marketplaceInstalls.filter((record) => record.status === "active")) {
@@ -262,6 +269,7 @@ export async function getInstalledModules(ctx: GuardCtx, tenantId: string) {
       ...install,
       moduleSlug,
       module: moduleBySlug.get(moduleSlug) ?? null,
+      accessConfig: accessConfigBySlug.get(moduleSlug) ?? null,
     });
   }
 
@@ -275,6 +283,7 @@ export async function getInstalledModules(ctx: GuardCtx, tenantId: string) {
       ...legacyInstall,
       moduleSlug,
       module: moduleBySlug.get(moduleSlug) ?? null,
+      accessConfig: accessConfigBySlug.get(moduleSlug) ?? null,
     });
   }
 

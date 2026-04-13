@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,6 +21,10 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime } from "@/lib/formatters";
 import { AlertTriangle, CheckCircle2, Flag, SearchX } from "lucide-react";
+
+const marketplacePlatformApi =
+  (api as any).modules?.marketplace?.platformDashboard ??
+  (api as any)["modules/marketplace/platformDashboard"];
 
 const FLAG_STATUSES = [
   "all",
@@ -71,7 +75,7 @@ export default function MarketplaceFlagsPage() {
   const [saving, setSaving] = useState(false);
 
   const flags = usePlatformQuery(
-    api.modules.marketplace.flags.getFlags,
+    marketplacePlatformApi.getPlatformMarketplaceFlags,
     sessionToken
       ? {
           sessionToken,
@@ -169,30 +173,10 @@ export default function MarketplaceFlagsPage() {
       <MarketplaceAdminRail currentHref="/platform/marketplace/flags" />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total flags</p>
-            <p className="text-3xl font-semibold">{stats.total}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">New reports</p>
-            <p className="text-3xl font-semibold">{stats.new}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Under investigation</p>
-            <p className="text-3xl font-semibold">{stats.investigating}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Resolved</p>
-            <p className="text-3xl font-semibold">{stats.resolved}</p>
-          </CardContent>
-        </Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Total flags</p><p className="text-3xl font-semibold">{stats.total}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">New reports</p><p className="text-3xl font-semibold">{stats.new}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Under investigation</p><p className="text-3xl font-semibold">{stats.investigating}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Resolved</p><p className="text-3xl font-semibold">{stats.resolved}</p></CardContent></Card>
       </div>
 
       <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as (typeof FLAG_STATUSES)[number])}>
@@ -206,10 +190,7 @@ export default function MarketplaceFlagsPage() {
 
         <TabsContent value={statusFilter} className="mt-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Flag Queue</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {flags.length === 0 ? (
                 <EmptyState
                   icon={statusFilter === "all" ? SearchX : CheckCircle2}
@@ -232,7 +213,7 @@ export default function MarketplaceFlagsPage() {
                   <TableBody>
                     {flags.map((flag) => (
                       <TableRow key={String(flag._id)}>
-                        <TableCell className="font-medium">{flag.moduleId}</TableCell>
+                        <TableCell className="font-medium">{flag.moduleName}</TableCell>
                         <TableCell>{flag.tenantId}</TableCell>
                         <TableCell>{formatReason(flag.reason)}</TableCell>
                         <TableCell>
@@ -289,7 +270,7 @@ export default function MarketplaceFlagsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-lg border bg-muted/30 p-3 text-sm">
-              <p><span className="font-medium">Module:</span> {investigateTarget?.moduleId}</p>
+              <p><span className="font-medium">Module:</span> {investigateTarget?.moduleName}</p>
               <p><span className="font-medium">Tenant:</span> {investigateTarget?.tenantId}</p>
               <p><span className="font-medium">Reason:</span> {investigateTarget ? formatReason(investigateTarget.reason) : "—"}</p>
             </div>

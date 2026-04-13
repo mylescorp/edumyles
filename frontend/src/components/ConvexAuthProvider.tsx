@@ -2,7 +2,7 @@
 
 import { ConvexReactClient } from "convex/react";
 import { ConvexProvider } from "convex/react";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode } from "react";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL ?? "";
 
@@ -22,19 +22,13 @@ function getClient(): ConvexReactClient {
  * We use custom cookie-based sessions (edumyles_session) — auth tokens are
  * passed directly as query/mutation arguments, not via WorkOS JWT sessions.
  * A plain ConvexProvider is all that's needed here.
- *
- * Defers rendering until client-side to avoid SSR issues
- * (Convex requires browser environment).
  */
 export function ConvexAuthProvider({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // During SSR / static generation, render nothing to avoid Convex context errors.
-  if (!mounted) return null;
+  // This component is client-only, so by the time it renders in the browser
+  // we can create the Convex client synchronously without blanking the app.
+  if (typeof window === "undefined") {
+    return <>{children}</>;
+  }
 
   return <ConvexProvider client={getClient()}>{children}</ConvexProvider>;
 }

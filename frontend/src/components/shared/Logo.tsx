@@ -28,7 +28,7 @@ export function Logo({ variant = "full", size = "md", href = "/", className }: L
         alt="EduMyles"
         width={icon}
         height={icon}
-        className="flex-shrink-0"
+        className="h-auto w-auto flex-shrink-0"
         priority
       />
       {variant === "full" && (

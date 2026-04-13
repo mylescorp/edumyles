@@ -119,6 +119,7 @@ export const getDashboardOverview = query({
       waitlistEntries,
       supportTickets,
       modules,
+      marketplaceModules,
       moduleInstalls,
       moduleInstallStats,
       moduleRequests,
@@ -146,6 +147,7 @@ export const getDashboardOverview = query({
       ctx.db.query("waitlist").collect(),
       ctx.db.query("support_tickets").collect(),
       ctx.db.query("modules").collect(),
+      ctx.db.query("marketplace_modules").collect(),
       ctx.db.query("module_installs").collect(),
       ctx.db.query("module_install_stats").collect(),
       ctx.db.query("module_requests").collect(),
@@ -165,6 +167,8 @@ export const getDashboardOverview = query({
         .filter((q) => q.gte(q.field("timestamp"), now - DAY_MS))
         .collect(),
     ]);
+
+    const liveMarketplaceModules = (marketplaceModules.length > 0 ? marketplaceModules : modules) as any[];
 
     const planByName = new Map(plans.map((plan) => [plan.name, plan]));
     const buckets = buildBuckets(now, timeRange);
@@ -330,7 +334,7 @@ export const getDashboardOverview = query({
     }));
 
     const marketplaceStatusMap = new Map<string, number>();
-    for (const module of modules) {
+    for (const module of liveMarketplaceModules) {
       marketplaceStatusMap.set(
         module.status,
         (marketplaceStatusMap.get(module.status) ?? 0) + 1
@@ -348,20 +352,24 @@ export const getDashboardOverview = query({
     const expiringPilotGrants = activePilotGrants.filter(
       (grant) => typeof grant.endDate === "number" && grant.endDate <= now + 7 * DAY_MS
     );
-    const topInstalledModules = [...moduleInstallStats]
-      .sort((left, right) => right.activeInstalls - left.activeInstalls)
-      .slice(0, 5)
-      .map((stat) => {
-        const module = modules.find(
-          (entry) => String(entry._id) === stat.moduleId || entry.slug === stat.moduleId
+    const topInstalledModules = liveMarketplaceModules
+      .map((module) => {
+        const installs = moduleInstalls.filter(
+          (install) =>
+            install.status === "active" &&
+            (String(install.moduleId) === String(module._id) || install.moduleSlug === module.slug)
         );
+
         return {
-          moduleId: stat.moduleId,
-          name: module?.name ?? stat.moduleId,
-          installs: stat.activeInstalls,
-          revenueKes: stat.totalRevenueKes,
+          moduleId: String(module._id),
+          name: module.name,
+          slug: module.slug,
+          installs: installs.length,
+          revenueKes: 0,
         };
-      });
+      })
+      .sort((left, right) => right.installs - left.installs || left.name.localeCompare(right.name))
+      .slice(0, 5);
     const topRevenueModules = [...moduleInstallStats]
       .sort((left, right) => right.totalRevenueKes - left.totalRevenueKes)
       .slice(0, 10)
@@ -376,21 +384,29 @@ export const getDashboardOverview = query({
           installs: stat.activeInstalls,
         };
       });
-    const topRatedModules = [...moduleInstallStats]
-      .filter((stat) => typeof stat.avgRating === "number")
-      .sort((left, right) => (right.avgRating ?? 0) - (left.avgRating ?? 0))
+    const topRatedModules = liveMarketplaceModules
+      .filter((module) => typeof module.averageRating === "number")
+      .sort((left, right) => (right.averageRating ?? 0) - (left.averageRating ?? 0))
       .slice(0, 5)
-      .map((stat) => {
-        const module = modules.find(
-          (entry) => String(entry._id) === stat.moduleId || entry.slug === stat.moduleId
-        );
-        return {
-          moduleId: stat.moduleId,
-          name: module?.name ?? stat.moduleId,
-          rating: Number((stat.avgRating ?? 0).toFixed(1)),
-          installs: stat.activeInstalls,
-        };
-      });
+      .map((module) => ({
+        moduleId: String(module._id),
+        name: module.name,
+        slug: module.slug,
+        rating: Number((module.averageRating ?? 0).toFixed(1)),
+        installs: module.installCount ?? 0,
+      }));
+    const recentPublishedModules = [...liveMarketplaceModules]
+      .filter((module) => module.status === "published")
+      .sort((left, right) => (right.publishedAt ?? right.createdAt ?? 0) - (left.publishedAt ?? left.createdAt ?? 0))
+      .slice(0, 6)
+      .map((module) => ({
+        moduleId: String(module._id),
+        name: module.name,
+        slug: module.slug,
+        category: module.category,
+        status: module.status,
+        installCount: module.installCount ?? 0,
+      }));
     const pendingPublisherPayouts = publisherPayouts.filter((payout) => payout.status === "pending");
     const activeFlags = moduleFlags.filter(
       (flag) => flag.status === "flagged" || flag.status === "under_investigation"
@@ -474,7 +490,11 @@ export const getDashboardOverview = query({
             ).toFixed(1)
           )
         : 0;
-    const modulesPublishedThisMonth = modules.filter((module) => module.createdAt >= new Date(new Date(now).getFullYear(), new Date(now).getMonth(), 1).getTime());
+    const modulesPublishedThisMonth = liveMarketplaceModules.filter(
+      (module) =>
+        (module.publishedAt ?? module.createdAt ?? 0) >=
+        new Date(new Date(now).getFullYear(), new Date(now).getMonth(), 1).getTime()
+    );
     const averageResponseTime =
       activeSessions.length > 0
         ? 140 + Math.min(90, failedAuditActions * 5)
@@ -568,17 +588,18 @@ export const getDashboardOverview = query({
         growth: tenantGrowth,
       },
       marketplace: {
-        publishedModules: modules.filter((module) => module.status === "published").length,
-        pendingReview: modules.filter((module) => module.status === "pending_review").length,
+        publishedModules: liveMarketplaceModules.filter((module) => module.status === "published").length,
+        pendingReview: liveMarketplaceModules.filter((module) => module.status === "pending_review").length,
         activeFlags: activeFlags.length,
         activePublishers: publishers.filter((publisher) => publisher.status === "pending").length,
-        featuredModules: modules.filter((module) => module.isFeatured).length,
+        featuredModules: liveMarketplaceModules.filter((module) => module.isFeatured).length,
         activeInstalls: moduleInstalls.filter((install) => install.status === "active").length,
         activePilotGrants: activePilotGrants.length,
         expiringPilotGrants: expiringPilotGrants.length,
         modulesPublishedThisMonth: modulesPublishedThisMonth.length,
         topInstalledModules,
         topRatedModules,
+        recentPublishedModules,
         pendingRequests: moduleRequests.filter(
           (request) => request.status === "submitted" || request.status === "under_review"
         ).length,
