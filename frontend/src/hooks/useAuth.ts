@@ -142,6 +142,21 @@ function buildFallbackSessionFromCookies(): Session | null {
   }
 }
 
+function getRequestedWorkspace(): "admin" | "platform" | null {
+  if (typeof window === "undefined") return null;
+  const pathname = window.location.pathname;
+
+  if (pathname.startsWith("/platform")) {
+    return "platform";
+  }
+
+  if (pathname.startsWith("/admin") || pathname.startsWith("/portal/admin")) {
+    return "admin";
+  }
+
+  return null;
+}
+
 async function loadAuthSession(force = false) {
   if (authLoadPromise && !force) {
     return authLoadPromise;
@@ -164,7 +179,11 @@ async function loadAuthSession(force = false) {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
-      const res = await fetch("/api/auth/session", {
+      const workspace = getRequestedWorkspace();
+      const endpoint = workspace
+        ? `/api/auth/session?workspace=${encodeURIComponent(workspace)}`
+        : "/api/auth/session";
+      const res = await fetch(endpoint, {
         credentials: "same-origin",
         cache: "no-store",
         signal: controller.signal,

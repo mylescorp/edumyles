@@ -13,6 +13,9 @@ const DEV_BOOTSTRAP_VERSION = "full-access-v2";
 const DEV_PLATFORM_SESSION_TOKEN = "dev-platform-session";
 const DEV_TENANT_SESSION_TOKEN = "dev-tenant-admin-session";
 const DEV_TENANT_ADMIN_EMAIL = "demo-admin@edumyles.local";
+const MASTER_SESSION_BACKUP_COOKIE = "edumyles_master_session";
+const ADMIN_WORKSPACE_MODE_COOKIE = "edumyles_admin_workspace_mode";
+const ADMIN_TENANT_COOKIE = "edumyles_admin_tenant";
 
 function getConvexClient() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -52,7 +55,7 @@ async function getSessionCompat(convex: ConvexHttpClient, sessionToken: string, 
   return await convex.query(getSessionRef, { sessionToken });
 }
 
-async function ensureDevTenantSession(convex: ConvexHttpClient) {
+async function ensureDevTenantSession(convex: ConvexHttpClient, preferredTenantId?: string | null) {
   const serverSecret = process.env.CONVEX_WEBHOOK_SECRET ?? "";
   const platformAdminEmail = process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local";
   const tenantAdminEmail = DEV_TENANT_ADMIN_EMAIL;
@@ -94,7 +97,10 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
   });
 
   let tenant = Array.isArray(existingTenants)
-    ? existingTenants.find((entry: any) => entry.subdomain === tenantSubdomain)
+    ? (
+        existingTenants.find((entry: any) => entry.tenantId === preferredTenantId) ??
+        existingTenants.find((entry: any) => entry.subdomain === tenantSubdomain)
+      )
     : null;
 
   if (!tenant) {
@@ -148,12 +154,26 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
     }
   }
 
+  const tenantUsers = await convex.query((api.platform.tenants.queries as any).getTenantUsers, {
+    sessionToken: platformSessionToken,
+    tenantId: tenant.tenantId,
+  });
+
+  const preferredUser = Array.isArray(tenantUsers)
+    ? (
+        tenantUsers.find((user: any) => user?.role === "school_admin" && user?.isActive) ??
+        tenantUsers.find((user: any) => user?.role === "principal" && user?.isActive) ??
+        tenantUsers.find((user: any) => user?.isActive) ??
+        null
+      )
+    : null;
+
   const tenantSessionBase = {
     sessionToken: tenantSessionToken,
     tenantId: tenant.tenantId,
-    userId: tenantAdminUserId,
-    email: tenantAdminEmail,
-    role: "school_admin",
+    userId: preferredUser?.eduMylesUserId ?? tenantAdminUserId,
+    email: preferredUser?.email ?? tenantAdminEmail,
+    role: preferredUser?.role ?? "school_admin",
     permissions: ["*"],
     expiresAt,
   };
@@ -222,14 +242,14 @@ async function ensureDevTenantSession(convex: ConvexHttpClient) {
   return {
     sessionToken: tenantSessionToken,
     tenantId: tenant.tenantId,
-    userId: tenantAdminUserId,
-    email: tenantAdminEmail,
-    role: "school_admin",
+    userId: preferredUser?.eduMylesUserId ?? tenantAdminUserId,
+    email: preferredUser?.email ?? tenantAdminEmail,
+    role: preferredUser?.role ?? "school_admin",
     expiresAt,
     user: {
-      email: tenantAdminEmail,
-      firstName: "Demo",
-      lastName: "Admin",
+      email: preferredUser?.email ?? tenantAdminEmail,
+      firstName: preferredUser?.firstName ?? "Demo",
+      lastName: preferredUser?.lastName ?? "Admin",
     },
   };
 }
@@ -346,6 +366,101 @@ function setSessionCookies(
   });
 }
 
+function setAuxSessionCookie(response: NextResponse, name: string, value: string) {
+  const isProduction = process.env.NODE_ENV === "production";
+  response.cookies.set(name, value, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    maxAge: 30 * 24 * 60 * 60,
+    path: "/",
+  });
+}
+
+async function buildWorkspaceAdminResponse(
+  convex: ConvexHttpClient,
+  adminSessionToken: string,
+  preferredTenantId?: string | null
+) {
+  const tenantSession = await ensureDevTenantSession(convex, preferredTenantId);
+  const response = NextResponse.json({
+    session: {
+      sessionToken: tenantSession.sessionToken,
+      tenantId: tenantSession.tenantId,
+      userId: tenantSession.userId,
+      email: tenantSession.email,
+      role: tenantSession.role,
+      expiresAt: tenantSession.expiresAt,
+    },
+  });
+
+  setSessionCookies(
+    response,
+    tenantSession.sessionToken,
+    tenantSession.user,
+    tenantSession.role,
+    tenantSession.tenantId
+  );
+  setAuxSessionCookie(response, MASTER_SESSION_BACKUP_COOKIE, adminSessionToken);
+  response.cookies.set(ADMIN_WORKSPACE_MODE_COOKIE, "true", {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 30 * 24 * 60 * 60,
+    path: "/",
+  });
+  response.cookies.set(ADMIN_TENANT_COOKIE, tenantSession.tenantId, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 30 * 24 * 60 * 60,
+    path: "/",
+  });
+  return response;
+}
+
+async function buildWorkspacePlatformResponse(
+  convex: ConvexHttpClient,
+  sessionToken: string,
+  serverSecret?: string
+) {
+  const session = await getSessionCompat(convex, sessionToken, serverSecret);
+  if (!session) {
+    return null;
+  }
+
+  const normalizedRole = isConfiguredMasterAdmin(session.email)
+    ? "master_admin"
+    : normalizeRole(session.role);
+  const normalizedTenantId = normalizedRole === "master_admin" ? "PLATFORM" : session.tenantId;
+  const response = NextResponse.json({
+    session: {
+      sessionToken: session.sessionToken,
+      tenantId: normalizedTenantId,
+      userId: session.userId,
+      email: session.email,
+      role: normalizedRole,
+      expiresAt: session.expiresAt,
+    },
+  });
+
+  setSessionCookies(
+    response,
+    session.sessionToken,
+    {
+      email: session.email,
+      firstName: session.firstName ?? "Platform",
+      lastName: session.lastName ?? "Admin",
+    },
+    normalizedRole,
+    normalizedTenantId
+  );
+  response.cookies.delete(ADMIN_WORKSPACE_MODE_COOKIE);
+  response.cookies.delete(ADMIN_TENANT_COOKIE);
+
+  return response;
+}
+
 /**
  * GET /api/auth/session
  *
@@ -355,9 +470,15 @@ function setSessionCookies(
  */
 export async function GET(req: NextRequest) {
   try {
+    const requestedWorkspace = req.nextUrl.searchParams.get("workspace");
     const currentSessionCookie = req.cookies.get("edumyles_session")?.value;
     const userCookie = req.cookies.get("edumyles_user")?.value;
     const roleCookie = req.cookies.get("edumyles_role")?.value;
+    const masterSessionBackup = req.cookies.get(MASTER_SESSION_BACKUP_COOKIE)?.value;
+    const preferredAdminTenantId =
+      req.nextUrl.searchParams.get("tenantId") ??
+      req.cookies.get(ADMIN_TENANT_COOKIE)?.value ??
+      null;
     const bootstrapVersion = req.cookies.get("edumyles_dev_bootstrap")?.value;
     const isDevBypassEnabled =
       process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
@@ -413,8 +534,16 @@ export async function GET(req: NextRequest) {
       return response;
     }
 
-    const sessionToken = req.cookies.get("edumyles_session")?.value;
     const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
+    let sessionToken = req.cookies.get("edumyles_session")?.value;
+
+    if (
+      requestedWorkspace === "platform" &&
+      sessionToken === DEV_TENANT_SESSION_TOKEN &&
+      masterSessionBackup
+    ) {
+      sessionToken = masterSessionBackup;
+    }
 
     if (!sessionToken) {
       return NextResponse.json({ session: null }, { status: 200 });
@@ -431,6 +560,23 @@ export async function GET(req: NextRequest) {
           : normalizeRole(user.role ?? roleCookie);
         const effectiveTenantId =
           effectiveRole === "master_admin" ? "PLATFORM" : user.tenantId || "PLATFORM";
+
+        if (effectiveRole === "master_admin" && requestedWorkspace === "admin") {
+          const convex = getConvexClient();
+          return await buildWorkspaceAdminResponse(
+            convex,
+            masterSessionBackup ?? sessionToken,
+            preferredAdminTenantId
+          );
+        }
+
+        if (requestedWorkspace === "platform" && masterSessionBackup) {
+          const convex = getConvexClient();
+          const restored = await buildWorkspacePlatformResponse(convex, masterSessionBackup, serverSecret);
+          if (restored) {
+            return restored;
+          }
+        }
 
         return NextResponse.json({
           session: {
@@ -461,6 +607,25 @@ export async function GET(req: NextRequest) {
             ? "master_admin"
             : normalizeRole(session.role);
           const normalizedTenantId = normalizedRole === "master_admin" ? "PLATFORM" : session.tenantId;
+
+          if (normalizedRole === "master_admin" && requestedWorkspace === "admin") {
+            return await buildWorkspaceAdminResponse(
+              convex,
+              masterSessionBackup ?? sessionToken,
+              preferredAdminTenantId
+            );
+          }
+
+          if (
+            requestedWorkspace === "platform" &&
+            masterSessionBackup &&
+            sessionToken !== masterSessionBackup
+          ) {
+            const restored = await buildWorkspacePlatformResponse(convex, masterSessionBackup, serverSecret);
+            if (restored) {
+              return restored;
+            }
+          }
 
           if (isConfiguredMasterAdmin(session.email) && session.role !== "master_admin") {
             try {

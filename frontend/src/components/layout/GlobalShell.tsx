@@ -63,6 +63,14 @@ export interface NavGroup {
   items?: { label: string; href: string }[];
 }
 
+type AdminWorkspaceTenant = {
+  tenantId: string;
+  name: string;
+  subdomain: string;
+  plan: string;
+  status: string;
+};
+
 function getNavGroups(navItems: NavItem[]): NavGroup[] {
   const groups: NavGroup[] = [];
 
@@ -96,6 +104,13 @@ function getRoleWorkspaceLabel(role: string, tenantName?: string): string {
   if (role === "master_admin" || role === "super_admin") return "Platform Admin";
   if (tenantName) return tenantName;
   return "My School";
+}
+
+function readClientCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
+  return match?.[1] ? decodeURIComponent(match[1]) : null;
 }
 
 // ─── Dropdown nav group ───────────────────────────────────────────────────────
@@ -899,9 +914,14 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const [footerPanel, setFooterPanel] = useState<"chats" | "channels" | "contacts" | null>(null);
   const [healthRefreshNonce, setHealthRefreshNonce] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isAdminWorkspaceMode, setIsAdminWorkspaceMode] = useState(false);
+  const [adminWorkspaceTenants, setAdminWorkspaceTenants] = useState<AdminWorkspaceTenant[]>([]);
+  const [adminWorkspaceTenantId, setAdminWorkspaceTenantId] = useState<string | null>(null);
+  const [isSwitchingTenant, setIsSwitchingTenant] = useState(false);
   const toggleFooterPanel = (panel: "chats" | "channels" | "contacts") =>
     setFooterPanel((prev) => (prev === panel ? null : panel));
   const isPlatformRoute = pathname?.startsWith("/platform");
+  const isAdminRoute = pathname?.startsWith("/admin");
 
   // Use permission-based navigation for platform routes
   const permissionBasedNavItems = usePermissionBasedNavItems();
@@ -915,6 +935,49 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
 
     return () => window.clearInterval(interval);
   }, [isPlatformRoute]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setIsAdminWorkspaceMode(readClientCookie("edumyles_admin_workspace_mode") === "true");
+  }, [pathname, sessionToken]);
+
+  useEffect(() => {
+    if (!isAdminRoute || !isAdminWorkspaceMode) {
+      setAdminWorkspaceTenants([]);
+      setAdminWorkspaceTenantId(null);
+      return;
+    }
+
+    let isCancelled = false;
+
+    void (async () => {
+      try {
+        const res = await fetch("/api/auth/admin-tenants", {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          return;
+        }
+
+        const data = await res.json();
+        if (isCancelled) return;
+
+        setAdminWorkspaceTenants(Array.isArray(data.tenants) ? data.tenants : []);
+        setAdminWorkspaceTenantId(data.currentTenantId ?? null);
+      } catch {
+        if (!isCancelled) {
+          setAdminWorkspaceTenants([]);
+          setAdminWorkspaceTenantId(null);
+        }
+      }
+    })();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isAdminRoute, isAdminWorkspaceMode, sessionToken]);
 
   const shellHealth = useQuery(
     api.modules.platform.ops.getPlatformShellStatus,
@@ -976,6 +1039,23 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     setIsRefreshing(true);
     router.refresh();
     window.setTimeout(() => setIsRefreshing(false), 900);
+  };
+
+  const handleAdminWorkspaceTenantSwitch = async (tenantId: string) => {
+    if (!tenantId || tenantId === adminWorkspaceTenantId || isSwitchingTenant) return;
+
+    setIsSwitchingTenant(true);
+
+    try {
+      document.cookie = `edumyles_admin_tenant=${encodeURIComponent(tenantId)}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
+      await fetch(`/api/auth/session?workspace=admin&tenantId=${encodeURIComponent(tenantId)}`, {
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+      window.location.reload();
+    } finally {
+      setIsSwitchingTenant(false);
+    }
   };
 
   return (
@@ -1044,6 +1124,45 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     <span className="font-medium">{workspaceLabel}</span>
                   </div>
                 </DropdownMenuItem>
+                {isAdminWorkspaceMode && adminWorkspaceTenants.length > 0 ? (
+                  <>
+                    <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
+                    <DropdownMenuLabel className="text-[var(--em-sage-muted)] text-[10px] font-bold uppercase tracking-wider">
+                      Master Admin Test Tenant
+                    </DropdownMenuLabel>
+                    {adminWorkspaceTenants.slice(0, 12).map((tenantOption) => {
+                      const isActiveTenant = tenantOption.tenantId === adminWorkspaceTenantId;
+
+                      return (
+                        <DropdownMenuItem
+                          key={tenantOption.tenantId}
+                          onClick={() => handleAdminWorkspaceTenantSwitch(tenantOption.tenantId)}
+                          className="cursor-pointer text-white/80 hover:bg-white/8 hover:text-white"
+                          disabled={isSwitchingTenant}
+                        >
+                          <div className="flex min-w-0 items-center gap-2">
+                            <div
+                              className={cn(
+                                "h-2 w-2 rounded-full",
+                                isActiveTenant ? "bg-[var(--em-gold)]" : "bg-white/20"
+                              )}
+                            />
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-medium">{tenantOption.name}</div>
+                              <div className="truncate text-[11px] text-white/45">
+                                {tenantOption.subdomain || tenantOption.tenantId}
+                              </div>
+                            </div>
+                          </div>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                    <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
+                    <DropdownMenuItem asChild className="cursor-pointer text-white/80 hover:bg-white/8 hover:text-white">
+                      <Link href="/platform/tenants">Open tenant manager</Link>
+                    </DropdownMenuItem>
+                  </>
+                ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
 

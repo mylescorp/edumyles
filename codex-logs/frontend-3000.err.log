@@ -1926,3 +1926,109 @@ Uncaught Error: (r, o) => (globalThis.console.warn(
        please check the style of container, or the props width(100%) and height(100%),
        or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
        height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+⚠ Fast Refresh had to perform a full reload when ./frontend/src/hooks/useAuth.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload when ./frontend/src/hooks/useAuth.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: c96aab37d6adff18] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 2e91f77b3ec6defa] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: 28443d6a3bf3d30d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:151:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: f7bb9dc77998a41d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:151:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 0f2ab807118464b8] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 1df702897ae6f81a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 2116a4af95202e83] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
