@@ -84,12 +84,22 @@ export function useQuery(query: any, args?: any, enabled?: boolean) {
 }
 
 export function useMutation(mutation: any) {
+  if (typeof window === "undefined") {
+    return (async () => {
+      throw new Error("Mutation is unavailable during server prerender. Invoke it after hydration.");
+    }) as any;
+  }
   return useConvexMutation(mutation);
 }
 
 export { useConvexMutation };
 
 export function useAction(action: any) {
+  if (typeof window === "undefined") {
+    return (async () => {
+      throw new Error("Action is unavailable during server prerender. Invoke it after hydration.");
+    }) as any;
+  }
   return useConvexAction(action);
 }
 
