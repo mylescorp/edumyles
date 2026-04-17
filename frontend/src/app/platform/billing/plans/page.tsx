@@ -22,13 +22,12 @@ import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { Boxes, Pencil, Plus, ShieldCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 
-type PlanName = "free" | "starter" | "pro" | "enterprise";
 type ApiAccess = "none" | "read" | "read_write";
 type WhiteLabel = "none" | "logo" | "full";
 
 type PlanCatalogItem = {
   id: string;
-  name: PlanName;
+  name: string;
   priceMonthlyKes: number;
   priceAnnualKes: number;
   studentLimit?: number;
@@ -54,7 +53,7 @@ type ModuleRow = {
 };
 
 type EditForm = {
-  planName: PlanName;
+  planName: string;
   priceMonthlyKes: string;
   priceAnnualKes: string;
   studentLimit: string;
@@ -122,6 +121,7 @@ export default function BillingPlansPage() {
 
   const updatePlan = useMutation(api.modules.platform.subscriptions.updateSubscriptionPlan);
   const createPlan = useMutation(api.modules.platform.subscriptions.createSubscriptionPlan);
+  const ensureTechSpecPlans = useMutation(api.modules.platform.subscriptions.ensureTechSpecPlans);
 
   const filteredPlans = useMemo(() => {
     const rows = plans ?? [];
@@ -142,11 +142,6 @@ export default function BillingPlansPage() {
       activePlans: rows.filter((plan) => plan.isActive).length,
       moduleCoverage: new Set(rows.flatMap((plan) => plan.includedModuleIds)).size,
     };
-  }, [plans]);
-
-  const availablePlanNames = useMemo(() => {
-    const existing = new Set((plans ?? []).map((plan) => plan.name));
-    return (["free", "starter", "pro", "enterprise"] as PlanName[]).filter((name) => !existing.has(name));
   }, [plans]);
 
   const modulesByCategory = useMemo(() => {
@@ -171,16 +166,10 @@ export default function BillingPlansPage() {
   };
 
   const handleOpenCreate = () => {
-    const nextName = availablePlanNames[0];
-    if (!nextName) {
-      toast.error("All standard plan tiers already exist.");
-      return;
-    }
-
     setCreatingPlan(true);
     setEditingPlan(null);
     setForm({
-      planName: nextName,
+      planName: "",
       priceMonthlyKes: "0",
       priceAnnualKes: "0",
       studentLimit: "",
@@ -210,6 +199,10 @@ export default function BillingPlansPage() {
 
   const handleSave = async () => {
     if (!sessionToken || !form) return;
+    if (!form.planName.trim()) {
+      toast.error("Plan name is required.");
+      return;
+    }
 
     const monthly = Number(form.priceMonthlyKes);
     const annual = Number(form.priceAnnualKes);
@@ -222,7 +215,7 @@ export default function BillingPlansPage() {
     try {
       const payload = {
         sessionToken,
-        planName: form.planName,
+        planName: form.planName.trim().toLowerCase(),
         priceMonthlyKes: monthly,
         priceAnnualKes: annual,
         studentLimit: form.studentLimit ? Number(form.studentLimit) : undefined,
@@ -272,10 +265,23 @@ export default function BillingPlansPage() {
           <div className="flex gap-2">
             <Button
               onClick={handleOpenCreate}
-              disabled={availablePlanNames.length === 0}
             >
               <Plus className="mr-2 h-4 w-4" />
               Create Plan
+            </Button>
+            <Button
+              variant="outline"
+              onClick={async () => {
+                if (!sessionToken) return;
+                try {
+                  const result = await ensureTechSpecPlans({ sessionToken });
+                  toast.success(`Tech spec plans synced (${result.created} created, ${result.updated} updated).`);
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Failed to sync tech spec plans.");
+                }
+              }}
+            >
+              Sync Tech Spec Plans
             </Button>
             <Button asChild variant="outline">
               <Link href="/platform/billing">Billing overview</Link>
@@ -422,23 +428,14 @@ export default function BillingPlansPage() {
             <div className="space-y-6 py-2">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Plan tier</Label>
-                  <Select
+                  <Label htmlFor="plan-name">Plan name</Label>
+                  <Input
+                    id="plan-name"
                     value={form.planName}
-                    onValueChange={(value) => setForm({ ...form, planName: value as PlanName })}
                     disabled={!creatingPlan}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(creatingPlan ? availablePlanNames : [form.planName]).map((name) => (
-                        <SelectItem key={name} value={name}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(event) => setForm({ ...form, planName: event.target.value })}
+                    placeholder="e.g. starter, growth, enterprise_plus"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="monthly-price">Monthly price (KES)</Label>

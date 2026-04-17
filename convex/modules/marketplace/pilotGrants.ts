@@ -41,7 +41,9 @@ async function notifyTenantAdmins(ctx: any, tenantId: string, title: string, mes
 export const createPilotGrant = mutation({
   args: {
     sessionToken: v.string(),
-    moduleId: v.union(v.string(), v.id("marketplace_modules")),
+    moduleId: v.optional(v.union(v.string(), v.id("marketplace_modules"))),
+    moduleIds: v.optional(v.array(v.string())),
+    grantScope: v.optional(v.union(v.literal("single"), v.literal("selected"), v.literal("all"))),
     tenantId: v.string(),
     grantType: v.union(
       v.literal("free_trial"),
@@ -66,39 +68,67 @@ export const createPilotGrant = mutation({
       throw new ConvexError({ code: "INVALID_ARGUMENT", message: "endDate is required for this grant type" });
     }
 
-    const activeGrant = await getActiveGrant(ctx, args.moduleId, args.tenantId);
-    if (activeGrant) {
-      throw new ConvexError({ code: "PILOT_EXISTS", message: "An active pilot grant already exists" });
+    const scope = args.grantScope ?? "single";
+    const targetModuleIds =
+      scope === "all"
+        ? (await ctx.db.query("marketplace_modules").collect()).map((moduleRecord: any) => String(moduleRecord._id))
+        : scope === "selected"
+          ? (args.moduleIds ?? []).map((moduleId) => String(moduleId))
+          : args.moduleId
+            ? [String(args.moduleId)]
+            : [];
+
+    const uniqueModuleIds = Array.from(new Set(targetModuleIds));
+    if (uniqueModuleIds.length === 0) {
+      throw new ConvexError({ code: "INVALID_ARGUMENT", message: "Select at least one module to grant." });
     }
 
-    const grantId = await ctx.db.insert("pilot_grants", {
-      moduleId: args.moduleId,
-      tenantId: args.tenantId,
-      grantType: args.grantType,
-      discountPct: args.discountPct,
-      customPriceKes: args.customPriceKes,
-      startDate: args.startDate,
-      endDate: args.endDate,
-      grantedBy: platform.userId,
-      reason: args.reason,
-      stealthMode: args.stealthMode,
-      status: "active",
-      convertedToPaid: false,
-      notificationsSent: [],
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-
+    const grantIds: any[] = [];
     const installs = await ctx.db
       .query("module_installs")
       .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
       .collect();
-    const install = installs.find((entry: any) => entry.moduleId === args.moduleId || entry.moduleId === String(args.moduleId));
-    if (install) {
-      await ctx.db.patch(install._id, {
-        pilotGrantId: grantId,
-        isFree: args.grantType === "free_trial" || args.grantType === "free_permanent",
+    for (const moduleId of uniqueModuleIds) {
+      const activeGrant = await getActiveGrant(ctx, moduleId, args.tenantId);
+      if (activeGrant) {
+        continue;
+      }
+
+      const grantId = await ctx.db.insert("pilot_grants", {
+        moduleId,
+        tenantId: args.tenantId,
+        grantType: args.grantType,
+        discountPct: args.discountPct,
+        customPriceKes: args.customPriceKes,
+        startDate: args.startDate,
+        endDate: args.endDate,
+        grantedBy: platform.userId,
+        reason: args.reason,
+        stealthMode: args.stealthMode,
+        status: "active",
+        convertedToPaid: false,
+        notificationsSent: [],
+        createdAt: Date.now(),
         updatedAt: Date.now(),
+      });
+      grantIds.push(grantId);
+
+      const install = installs.find(
+        (entry: any) => String(entry.moduleId) === moduleId || String(entry.moduleId) === String(moduleId)
+      );
+      if (install) {
+        await ctx.db.patch(install._id, {
+          pilotGrantId: grantId,
+          isFree: args.grantType === "free_trial" || args.grantType === "free_permanent",
+          updatedAt: Date.now(),
+        });
+      }
+    }
+
+    if (grantIds.length === 0) {
+      throw new ConvexError({
+        code: "PILOT_EXISTS",
+        message: "Active pilot grants already exist for all selected modules.",
       });
     }
 
@@ -108,15 +138,22 @@ export const createPilotGrant = mutation({
       actorEmail: platform.email,
       action: "marketplace.module_installed",
       entityType: "pilot_grant",
-      entityId: String(grantId),
-      after: { tenantId: args.tenantId, moduleId: String(args.moduleId), grantType: args.grantType, reason: args.reason },
+      entityId: String(grantIds[0]),
+      after: {
+        tenantId: args.tenantId,
+        moduleIds: uniqueModuleIds,
+        grantType: args.grantType,
+        reason: args.reason,
+        scope,
+        grantCount: grantIds.length,
+      },
     });
 
     if (!args.stealthMode) {
       await notifyTenantAdmins(ctx, args.tenantId, "Pilot grant activated", "A marketplace pilot grant has been activated for your school.");
     }
 
-    return { success: true, grantId };
+    return { success: true, grantIds, createdCount: grantIds.length };
   },
 });
 

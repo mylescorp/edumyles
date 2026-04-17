@@ -4359,12 +4359,7 @@ export default defineSchema({
     .index("by_createdAt", ["createdAt"]),
 
   subscription_plans: defineTable({
-    name: v.union(
-      v.literal("free"),
-      v.literal("starter"),
-      v.literal("pro"),
-      v.literal("enterprise")
-    ),
+    name: v.string(),
     priceMonthlyKes: v.number(),
     priceAnnualKes: v.number(),
     studentLimit: v.optional(v.number()),

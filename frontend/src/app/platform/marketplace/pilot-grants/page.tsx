@@ -9,6 +9,7 @@ import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +27,7 @@ const marketplacePlatformApi =
   (api as any)["modules/marketplace/platformDashboard"];
 
 const GRANT_TYPES = ["free_trial", "free_permanent", "discounted", "plan_upgrade", "beta_access"] as const;
+const GRANT_SCOPES = ["single", "selected", "all"] as const;
 
 function labelize(value: string) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
@@ -41,6 +43,8 @@ export default function PilotGrantsPage() {
   const [form, setForm] = useState({
     tenantId: "",
     moduleId: "",
+    moduleIds: [] as string[],
+    grantScope: "single" as (typeof GRANT_SCOPES)[number],
     grantType: "free_trial" as (typeof GRANT_TYPES)[number],
     discountPct: "",
     customPriceKes: "",
@@ -82,7 +86,9 @@ export default function PilotGrantsPage() {
       await createPilotGrant({
         sessionToken,
         tenantId: form.tenantId,
-        moduleId: form.moduleId as any,
+        moduleId: form.grantScope === "single" ? (form.moduleId as any) : undefined,
+        moduleIds: form.grantScope === "selected" ? form.moduleIds : undefined,
+        grantScope: form.grantScope,
         grantType: form.grantType,
         discountPct: form.discountPct ? Number(form.discountPct) : undefined,
         customPriceKes: form.customPriceKes ? Number(form.customPriceKes) : undefined,
@@ -93,6 +99,12 @@ export default function PilotGrantsPage() {
       });
       toast({ title: "Pilot grant created" });
       setCreateOpen(false);
+      setForm((current) => ({
+        ...current,
+        moduleId: "",
+        moduleIds: [],
+        reason: "",
+      }));
     } catch (error) {
       toast({ title: "Unable to create pilot grant", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
     }
@@ -131,6 +143,12 @@ export default function PilotGrantsPage() {
       toast({ title: "Unable to revoke pilot grant", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
     }
   };
+
+  const canSubmit =
+    !!form.tenantId &&
+    !!form.reason &&
+    (form.grantScope === "all" ||
+      (form.grantScope === "single" ? !!form.moduleId : form.moduleIds.length > 0));
 
   return (
     <div className="space-y-6">
@@ -221,15 +239,64 @@ export default function PilotGrantsPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Module</Label>
-              <Select value={form.moduleId} onValueChange={(value) => setForm((current) => ({ ...current, moduleId: value }))}>
-                <SelectTrigger><SelectValue placeholder="Select module" /></SelectTrigger>
+              <Label>Grant scope</Label>
+              <Select
+                value={form.grantScope}
+                onValueChange={(value) =>
+                  setForm((current) => ({
+                    ...current,
+                    grantScope: value as (typeof GRANT_SCOPES)[number],
+                    moduleId: "",
+                    moduleIds: [],
+                  }))
+                }
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {(data.modules ?? []).map((module: any) => (
-                    <SelectItem key={module.moduleId} value={module.moduleId}>{module.name}</SelectItem>
-                  ))}
+                  <SelectItem value="single">Single module</SelectItem>
+                  <SelectItem value="selected">Selected modules</SelectItem>
+                  <SelectItem value="all">All modules</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Module</Label>
+              {form.grantScope === "single" ? (
+                <Select value={form.moduleId} onValueChange={(value) => setForm((current) => ({ ...current, moduleId: value }))}>
+                  <SelectTrigger><SelectValue placeholder="Select module" /></SelectTrigger>
+                  <SelectContent>
+                    {(data.modules ?? []).map((module: any) => (
+                      <SelectItem key={module.moduleId} value={module.moduleId}>{module.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : form.grantScope === "selected" ? (
+                <div className="max-h-52 space-y-2 overflow-auto rounded-md border p-2">
+                  {(data.modules ?? []).map((module: any) => {
+                    const checked = form.moduleIds.includes(module.moduleId);
+                    return (
+                      <label key={module.moduleId} className="flex items-center gap-2 rounded px-2 py-1 text-sm">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(next) =>
+                            setForm((current) => ({
+                              ...current,
+                              moduleIds: next
+                                ? [...current.moduleIds, module.moduleId]
+                                : current.moduleIds.filter((id) => id !== module.moduleId),
+                            }))
+                          }
+                        />
+                        <span>{module.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
+                  All marketplace modules will be granted to this tenant for the pilot window.
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Grant Type</Label>
@@ -273,7 +340,7 @@ export default function PilotGrantsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={!form.tenantId || !form.moduleId || !form.reason}>
+            <Button onClick={handleCreate} disabled={!canSubmit}>
               Create Grant
             </Button>
           </DialogFooter>

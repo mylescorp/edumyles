@@ -602,12 +602,7 @@ export const setCustomPricing = mutation({
 export const updateSubscriptionPlan = mutation({
   args: {
     sessionToken: v.string(),
-    planName: v.union(
-      v.literal("free"),
-      v.literal("starter"),
-      v.literal("pro"),
-      v.literal("enterprise")
-    ),
+    planName: v.string(),
     priceMonthlyKes: v.number(),
     priceAnnualKes: v.number(),
     studentLimit: v.optional(v.number()),
@@ -718,12 +713,7 @@ export const updateSubscriptionPlan = mutation({
 export const createSubscriptionPlan = mutation({
   args: {
     sessionToken: v.string(),
-    planName: v.union(
-      v.literal("free"),
-      v.literal("starter"),
-      v.literal("pro"),
-      v.literal("enterprise")
-    ),
+    planName: v.string(),
     priceMonthlyKes: v.number(),
     priceAnnualKes: v.number(),
     studentLimit: v.optional(v.number()),
@@ -813,6 +803,140 @@ export const createSubscriptionPlan = mutation({
     });
 
     return { success: true, planId: String(planId) };
+  },
+});
+
+export const ensureTechSpecPlans = mutation({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const platform = await requirePlatformRole(ctx, args, ["billing_admin", "master_admin"]);
+    const now = Date.now();
+
+    const seedPlans = [
+      {
+        name: "free",
+        priceMonthlyKes: 0,
+        priceAnnualKes: 0,
+        studentLimit: 300,
+        staffLimit: 30,
+        storageGb: 20,
+        maxAdditionalModules: 2,
+        apiAccess: "none" as const,
+        whiteLabel: "none" as const,
+        customDomain: false,
+        supportTier: "community",
+        slaHours: undefined,
+        isDefault: true,
+      },
+      {
+        name: "starter",
+        priceMonthlyKes: 12000,
+        priceAnnualKes: 120000,
+        studentLimit: 1200,
+        staffLimit: 120,
+        storageGb: 100,
+        maxAdditionalModules: 6,
+        apiAccess: "read" as const,
+        whiteLabel: "logo" as const,
+        customDomain: false,
+        supportTier: "standard",
+        slaHours: 48,
+        isDefault: false,
+      },
+      {
+        name: "pro",
+        priceMonthlyKes: 32000,
+        priceAnnualKes: 320000,
+        studentLimit: 5000,
+        staffLimit: 500,
+        storageGb: 500,
+        maxAdditionalModules: 20,
+        apiAccess: "read_write" as const,
+        whiteLabel: "full" as const,
+        customDomain: true,
+        supportTier: "priority",
+        slaHours: 24,
+        isDefault: false,
+      },
+      {
+        name: "enterprise",
+        priceMonthlyKes: 85000,
+        priceAnnualKes: 850000,
+        studentLimit: undefined,
+        staffLimit: undefined,
+        storageGb: undefined,
+        maxAdditionalModules: undefined,
+        apiAccess: "read_write" as const,
+        whiteLabel: "full" as const,
+        customDomain: true,
+        supportTier: "enterprise",
+        slaHours: 8,
+        isDefault: false,
+      },
+    ];
+
+    if (seedPlans.some((plan) => plan.isDefault)) {
+      const defaultPlans = await ctx.db
+        .query("subscription_plans")
+        .withIndex("by_isDefault", (q: any) => q.eq("isDefault", true))
+        .collect();
+      for (const defaultPlan of defaultPlans) {
+        await ctx.db.patch(defaultPlan._id, {
+          isDefault: false,
+          updatedAt: now,
+        });
+      }
+    }
+
+    let created = 0;
+    let updated = 0;
+    for (const seed of seedPlans) {
+      const existing = await getSubscriptionPlanByName(ctx, seed.name);
+      const includedModuleIds = TIER_MODULES[seed.name] ?? [];
+      const record = {
+        name: seed.name,
+        priceMonthlyKes: seed.priceMonthlyKes,
+        priceAnnualKes: seed.priceAnnualKes,
+        studentLimit: seed.studentLimit,
+        staffLimit: seed.staffLimit,
+        storageGb: seed.storageGb,
+        includedModuleIds,
+        maxAdditionalModules: seed.maxAdditionalModules,
+        apiAccess: seed.apiAccess,
+        whiteLabel: seed.whiteLabel,
+        customDomain: seed.customDomain,
+        supportTier: seed.supportTier,
+        slaHours: seed.slaHours,
+        isActive: true,
+        isDefault: seed.isDefault,
+        updatedAt: now,
+      };
+
+      if (existing) {
+        await ctx.db.patch(existing._id, record);
+        updated += 1;
+      } else {
+        await ctx.db.insert("subscription_plans", {
+          ...record,
+          createdAt: now,
+        });
+        created += 1;
+      }
+    }
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: platform.userId,
+      actorEmail: platform.email,
+      action: "billing.subscription_updated",
+      entityType: "subscription_plan",
+      entityId: "tech_spec_seed",
+      after: { created, updated, plans: seedPlans.map((plan) => plan.name) },
+    });
+
+    return { success: true, created, updated };
   },
 });
 
