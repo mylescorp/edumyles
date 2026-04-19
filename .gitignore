@@ -78,3 +78,5 @@ docs/**/*.pdf
 opensrc/
 
 .codex-logs/
+
+.codex-logs/
