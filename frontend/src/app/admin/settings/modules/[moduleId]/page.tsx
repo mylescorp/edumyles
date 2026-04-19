@@ -1,43 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { USER_ROLES } from "@shared/constants";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { useTenant } from "@/hooks/useTenant";
+import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
+import { ModuleAccessConfig } from "@/components/modules/ModuleAccessConfig";
+import { ModuleConfigForm } from "@/components/modules/ModuleConfigForm";
+import { ModuleNotificationSettings } from "@/components/modules/ModuleNotificationSettings";
 import { toast } from "sonner";
-import { ExternalLink, Save, Shield, Trash2 } from "lucide-react";
+import { Save, Settings2, Shield, BellRing, CreditCard } from "lucide-react";
 
-const CORE_MODULE_IDS = ["sis", "communications", "users"];
-
-const MODULE_CONFIG_TEMPLATES: Record<string, Record<string, any>> = {
-  sis: { enableBulkImport: true, requireAdmissionNumber: true, defaultCountry: "Kenya" },
-  communications: { smsEnabled: true, emailEnabled: true, pushEnabled: true },
-  users: { inviteOnly: true, enforceTwoFactorForAdmins: false },
-  admissions: { onlineApplications: true, autoAssignAdmissionNumber: true, reviewWorkflow: "standard" },
-  academics: { gradingSystem: "CBC", reportCardTemplate: "default", allowTeacherComments: true },
-  finance: { currency: "KES", allowMpesaPayments: true, autoGenerateInvoices: true },
-  timetable: { conflictDetection: true, allowRoomOverrides: false, schoolWeekStartsOn: "Monday" },
-  hr: { payrollEnabled: true, leaveApprovalFlow: "manager_then_hr" },
-  library: { overdueFineEnabled: true, maxBooksPerStudent: 3 },
-  transport: { gpsTrackingEnabled: false, requireGuardianPickupCode: false },
-  ewallet: { topUpEnabled: true, lowBalanceThreshold: 500 },
-  ecommerce: { storefrontEnabled: true, inventorySync: true },
-  tickets: { slaTracking: true, allowParentTickets: true },
-};
-
-export default function ModuleConfigPage() {
+export default function ModuleSettingsPage() {
   const params = useParams();
   const moduleId = params.moduleId as string;
   const { isLoading: authLoading, isAuthenticated, sessionToken } = useAuth();
@@ -67,8 +52,6 @@ export default function ModuleConfigPage() {
   const [rolePermissions, setRolePermissions] = useState<Record<string, boolean>>({});
   const [featureFlags, setFeatureFlags] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [confirmDisable, setConfirmDisable] = useState(false);
-  const [confirmUninstall, setConfirmUninstall] = useState(false);
 
   const roleOptions = useMemo(() => {
     const platformRoles = new Set(["master_admin", "super_admin"]);
@@ -115,36 +98,29 @@ export default function ModuleConfigPage() {
     return <LoadingSkeleton variant="page" />;
   }
 
-  if (!moduleDetails) {
+  if (!moduleDetail) {
     return (
-      <div className="py-16 text-center">
-        <p className="text-muted-foreground">Module not found.</p>
+      <div className="py-16 text-center text-sm text-muted-foreground">
+        Module settings could not be loaded.
       </div>
     );
   }
 
-  const isCore = CORE_MODULE_IDS.includes(moduleId);
-  const isInstalled = Boolean(moduleDetails.installed);
-  const isActive = moduleDetails.installed?.status !== "inactive";
-
-  const handleToggle = async () => {
-    if (!tenantId || !sessionToken || isCore || !isInstalled) return;
+  async function handleSaveAccess() {
     setIsSaving(true);
     try {
-      await toggleStatus({
+      await updateAccessConfig({
         sessionToken,
-        tenantId,
-        moduleId,
-        status: isActive ? "inactive" : "active",
+        moduleSlug,
+        roleAccess,
       });
-      toast.success(`Module ${isActive ? "disabled" : "enabled"}`);
-      setConfirmDisable(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update module");
+      toast.success("Access settings updated");
+    } catch (error: any) {
+      toast.error(error?.message ?? "Failed to update access settings");
     } finally {
       setIsSaving(false);
     }
-  };
+  }
 
   const handleSaveConfig = async () => {
     if (!tenantId || !sessionToken) return;
@@ -165,134 +141,71 @@ export default function ModuleConfigPage() {
         rolePermissions: normalizedRolePermissions,
         featureFlags,
       });
-      toast.success("Module settings saved");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to save settings");
+      toast.success("Module configuration saved");
+    } catch (error: any) {
+      toast.error(error?.message ?? "Failed to save configuration");
     } finally {
       setIsSaving(false);
     }
-  };
+  }
 
-  const handleUninstall = async () => {
-    if (!tenantId || !sessionToken || isCore) return;
+  async function handleSaveNotifications() {
     setIsSaving(true);
     try {
-      await uninstallModule({ sessionToken, tenantId, moduleId });
-      toast.success("Module uninstalled");
-      setConfirmUninstall(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to uninstall module");
+      await updateNotificationSettings({
+        sessionToken,
+        moduleSlug,
+        notifications: notificationsValue,
+      });
+      toast.success("Notification settings saved");
+    } catch (error: any) {
+      toast.error(error?.message ?? "Failed to save notification settings");
     } finally {
       setIsSaving(false);
     }
-  };
+  }
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
-        title={`${moduleDetails.name} Settings`}
-        description="Manage status, configuration, support, and lifecycle for this module"
+        title={`${moduleDetail.name} Settings`}
+        description="Manage access, configuration, notifications, and billing for this module."
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Settings", href: "/admin/settings" },
-          { label: "Modules", href: "/admin/settings/modules" },
-          { label: moduleDetails.name },
+          { label: "Modules", href: "/admin/modules" },
+          { label: moduleDetail.name },
         ]}
-        actions={
-          <div className="flex items-center gap-2">
-            {moduleDetails.documentation && (
-              <Button variant="outline" asChild>
-                <a href={moduleDetails.documentation} target="_blank" rel="noreferrer">
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Docs
-                </a>
-              </Button>
-            )}
-            {!isCore && isInstalled && (
-              <Button
-                variant="outline"
-                className="text-destructive hover:text-destructive"
-                onClick={() => setConfirmUninstall(true)}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Uninstall
-              </Button>
-            )}
-          </div>
-        }
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card className="md:col-span-1">
           <CardHeader>
-            <CardTitle>Module Information</CardTitle>
+            <CardTitle>Overview</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Module ID</span>
-              <span className="font-mono text-xs">{moduleId}</span>
+          <CardContent className="space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Slug</span>
+              <span className="font-mono text-xs">{moduleSlug}</span>
             </div>
             <Separator />
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Version</span>
-              <span className="font-mono text-xs">{moduleDetails.version}</span>
+              <span>{moduleDetail.version}</span>
             </div>
             <Separator />
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Status</span>
-              <Badge
-                variant={
-                  isActive
-                    ? "default"
-                    : "secondary"
-                }
-              >
-                {isInstalled ? moduleDetails.installed.status : "not installed"}
-              </Badge>
+              <Badge>{moduleDetail.install?.status ?? "not installed"}</Badge>
             </div>
             <Separator />
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Installed On</span>
-              <span>
-                {moduleDetails.installed?.installedAt
-                  ? new Date(moduleDetails.installed.installedAt).toLocaleDateString(
-                      "en-KE",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      }
-                    )
-                  : "Built-in"}
-              </span>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Category</span>
-              <span className="capitalize">{moduleDetails.category}</span>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Required Tier</span>
-              <span className="capitalize">{moduleDetails.tier}</span>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Support</span>
-              <span>{moduleDetails.support?.email ?? "support@edumyles.com"}</span>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Module Type</span>
-              <span className="flex items-center gap-1">
-                {isCore && <Shield className="h-4 w-4 text-primary" />}
-                {isCore ? "Core" : "Optional"}
-              </span>
+              <span className="capitalize">{moduleDetail.category}</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="md:col-span-3">
           <CardHeader>
             <CardTitle>Permissions & Feature Controls</CardTitle>
           </CardHeader>
@@ -399,42 +312,125 @@ export default function ModuleConfigPage() {
             <CardTitle>Included Features</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 md:grid-cols-2">
-              {(moduleDetails.features ?? []).map((feature: string) => (
-                <div key={feature} className="rounded-lg border p-3 text-sm">
-                  {feature}
+            <Tabs defaultValue="access" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="access" className="gap-2">
+                  <Shield className="h-4 w-4" />
+                  Access
+                </TabsTrigger>
+                <TabsTrigger value="config" className="gap-2">
+                  <Settings2 className="h-4 w-4" />
+                  Configuration
+                </TabsTrigger>
+                <TabsTrigger value="notifications" className="gap-2">
+                  <BellRing className="h-4 w-4" />
+                  Notifications
+                </TabsTrigger>
+                <TabsTrigger value="billing" className="gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  Billing
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="access" className="space-y-4">
+                <ModuleAccessConfig
+                  roleAccess={roleAccess}
+                  features={features}
+                  onChange={setDraftRoleAccess}
+                />
+                <div className="flex justify-end">
+                  <Button onClick={handleSaveAccess} disabled={isSaving}>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Access
+                  </Button>
                 </div>
-              ))}
-            </div>
+              </TabsContent>
+
+              <TabsContent value="config" className="space-y-4">
+                <ModuleConfigForm
+                  sections={moduleDetail.configSchema?.sections ?? []}
+                  value={configValue}
+                  onChange={setDraftConfig}
+                />
+                <div className="flex justify-end">
+                  <Button onClick={handleSaveConfig} disabled={isSaving}>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Configuration
+                  </Button>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="notifications" className="space-y-4">
+                <ModuleNotificationSettings
+                  definitions={moduleDetail.notificationsCatalog ?? []}
+                  value={notificationsValue}
+                  onChange={setDraftNotifications}
+                />
+                <div className="flex justify-end">
+                  <Button onClick={handleSaveNotifications} disabled={isSaving}>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Notifications
+                  </Button>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="billing" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Current Billing</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Billing period</span>
+                      <span className="capitalize">
+                        {billingInfo?.install?.billingPeriod ?? "monthly"}
+                      </span>
+                    </div>
+                    <Separator />
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Current price</span>
+                      <span>KES {billingInfo?.install?.currentPriceKes ?? 0}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Invoice History</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {(billingInfo?.invoices ?? []).length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        No billing history is available for this module yet.
+                      </p>
+                    ) : (
+                      (billingInfo.invoices as any[]).map((invoice) => (
+                        <div
+                          key={invoice._id}
+                          className="flex items-center justify-between rounded-lg border p-3 text-sm"
+                        >
+                          <div>
+                            <p className="font-medium">{invoice.status}</p>
+                            <p className="text-muted-foreground">
+                              Due {new Date(invoice.dueDate).toLocaleDateString("en-KE")}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold">KES {invoice.totalAmountKes}</p>
+                            <p className="text-xs text-muted-foreground">
+                              VAT KES {invoice.vatAmountKes}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
-
-      <ConfirmDialog
-        open={confirmDisable}
-        onOpenChange={setConfirmDisable}
-        title={isActive ? "Disable Module" : "Enable Module"}
-        description={
-          isActive
-            ? `Disable "${moduleDetails.name}"? Its features will be hidden until you enable it again.`
-            : `Enable "${moduleDetails.name}" and make its features available again?`
-        }
-        confirmLabel={isActive ? "Disable" : "Enable"}
-        variant={isActive ? "destructive" : "default"}
-        onConfirm={handleToggle}
-        isLoading={isSaving}
-      />
-
-      <ConfirmDialog
-        open={confirmUninstall}
-        onOpenChange={setConfirmUninstall}
-        title="Uninstall Module"
-        description={`Uninstall "${moduleDetails.name}" from your school?`}
-        confirmLabel="Uninstall"
-        variant="destructive"
-        onConfirm={handleUninstall}
-        isLoading={isSaving}
-      />
     </div>
   );
 }

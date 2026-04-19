@@ -1,0 +1,19 @@
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3000
+- PID:          29184
+- Dir:          C:\Users\Admin\Projects\edumyles\frontend
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 29184 /F to stop it.
+npm error Lifecycle script `dev` failed with error:
+npm error code 1
+npm error path C:\Users\Admin\Projects\edumyles\frontend
+npm error workspace frontend@0.1.0
+npm error location C:\Users\Admin\Projects\edumyles\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next dev --port 3005

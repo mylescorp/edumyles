@@ -35,8 +35,30 @@ export const upsertOrganization = mutation({
       .first();
 
     if (existing) {
-      await ctx.db.patch(existing._id, { name: args.name });
+      await ctx.db.patch(existing._id, {
+        tenantId: args.tenantId,
+        name: args.name,
+        subdomain: args.subdomain,
+        tier: args.tier,
+        isActive: true,
+      });
       return existing._id;
+    }
+
+    const existingForTenant = await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+
+    if (existingForTenant) {
+      await ctx.db.patch(existingForTenant._id, {
+        workosOrgId: args.workosOrgId,
+        name: args.name,
+        subdomain: args.subdomain,
+        tier: args.tier,
+        isActive: true,
+      });
+      return existingForTenant._id;
     }
 
     return await ctx.db.insert("organizations", {

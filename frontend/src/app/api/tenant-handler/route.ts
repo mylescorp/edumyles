@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { getRootDomain } from "@/lib/domains";
+import { getMarketingSiteUrl } from "@/lib/marketingSite";
 
 // Extract subdomain from request hostname
 function extractSubdomain(req: NextRequest): string | null {
@@ -31,13 +32,27 @@ function getConvexClient() {
   return new ConvexHttpClient(convexUrl);
 }
 
+function getAppUrl(origin: string) {
+  const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (configuredAppUrl) {
+    return configuredAppUrl.replace(/\/+$/, "");
+  }
+
+  const currentUrl = new URL(origin);
+  if (currentUrl.hostname === "localhost" || currentUrl.hostname === "127.0.0.1") {
+    return `${currentUrl.protocol}//${currentUrl.hostname}:3005`;
+  }
+
+  return "https://edumyles-frontend.vercel.app";
+}
+
 // Handle tenant-specific routing
 export async function GET(req: NextRequest) {
   const subdomain = extractSubdomain(req);
   
   if (!subdomain) {
     // No subdomain - redirect to landing page
-    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || `https://${getRootDomain()}`;
+    const landingUrl = getMarketingSiteUrl(req.nextUrl.origin);
     return NextResponse.redirect(landingUrl);
   }
 
@@ -71,7 +86,7 @@ export async function GET(req: NextRequest) {
   // If not a reseller subdomain, check for regular tenant
   const tenant = await convex.query(api.tenants.getTenantBySubdomain, { subdomain });
   if (!tenant || tenant.status !== "active") {
-    const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || `https://${getRootDomain()}`;
+    const landingUrl = getMarketingSiteUrl(req.nextUrl.origin);
     const redirect = new URL(landingUrl);
     redirect.searchParams.set("tenant", subdomain);
     redirect.searchParams.set("error", tenant ? "tenant_inactive" : "tenant_not_found");
@@ -79,7 +94,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Redirect to the main app with validated tenant context
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://app.${getRootDomain()}`;
+  const appUrl = getAppUrl(req.nextUrl.origin);
   const redirect = new URL(appUrl);
   redirect.searchParams.set("tenant", tenant.subdomain);
   redirect.searchParams.set("tenantId", tenant.tenantId);

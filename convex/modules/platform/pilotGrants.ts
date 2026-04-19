@@ -81,7 +81,7 @@ export const createPilotGrant = mutation({
       endDate: args.endDate,
       grantedBy: platform.userId,
       reason: args.reason,
-      stealthMode: args.stealthMode,
+      stealthMode: args.stealthMode ?? false,
       status: "active",
       convertedToPaid: false,
       notificationsSent: [],

@@ -178,6 +178,7 @@ export default function BillingSettingsPage() {
   const openUpgradeDialog = (plan: any) => {
     setSelectedPlan(plan);
     setPaymentProvider("mpesa");
+    setBillingPeriod("monthly");
     setPaymentReference("");
     setUpgradeDialogOpen(true);
   };
@@ -407,6 +408,22 @@ export default function BillingSettingsPage() {
           <DialogHeader><DialogTitle>{selectedPlan ? `Downgrade to ${selectedPlan.name}` : "Downgrade Plan"}</DialogTitle><DialogDescription>Review which installed modules may lose access before switching.</DialogDescription></DialogHeader>
           {selectedPlan ? <div className="space-y-4"><div className="rounded-lg border bg-muted/30 p-4"><p className="font-semibold capitalize">{selectedPlan.name}</p><p className="text-sm text-muted-foreground">New monthly price: {format(selectedPlan.priceMonthlyKes)}</p></div>{downgradeDialogOpen && downgradePreview === undefined ? <LoadingSkeleton variant="card" /> : downgradePreview && downgradePreview.modulesToSuspend.length > 0 ? <div className="space-y-3"><p className="text-sm font-medium">Modules affected by this downgrade</p><div className="space-y-2 rounded-lg border p-3">{downgradePreview.modulesToSuspend.map((module) => <div key={module.moduleId} className="flex items-center justify-between text-sm"><span className="font-medium">{module.name}</span><Badge variant="outline" className="capitalize">{module.category}</Badge></div>)}</div></div> : <p className="text-sm text-muted-foreground">No installed modules are expected to lose access on this lower tier.</p>}</div> : null}
           <DialogFooter><Button variant="outline" onClick={() => setDowngradeDialogOpen(false)}>Cancel</Button><Button variant="destructive" onClick={handleConfirmDowngrade} disabled={processingAction === "downgrade" || !selectedPlan}>{processingAction === "downgrade" ? "Updating..." : "Confirm Downgrade"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Cancel Subscription</DialogTitle><DialogDescription>Tell us why you are leaving. This is recorded against your billing history.</DialogDescription></DialogHeader>
+          <div className="space-y-2"><Label>Reason</Label><Textarea rows={4} placeholder="Why are you cancelling?" value={cancelReason} onChange={(event) => setCancelReason(event.target.value)} /></div>
+          <DialogFooter><Button variant="outline" onClick={() => setCancelDialogOpen(false)}>Keep Subscription</Button><Button variant="destructive" onClick={handleConfirmCancel} disabled={processingAction === "cancel"}>{processingAction === "cancel" ? "Cancelling..." : "Confirm Cancellation"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={enterpriseDialogOpen} onOpenChange={setEnterpriseDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Request Enterprise Consultation</DialogTitle><DialogDescription>Send your requirements to the EduMyles team and create a CRM follow-up.</DialogDescription></DialogHeader>
+          <div className="space-y-4"><div className="space-y-2"><Label>Contact phone</Label><Input value={enterprisePhone} onChange={(event) => setEnterprisePhone(event.target.value)} placeholder="+254..." /></div><div className="space-y-2"><Label>Decision timeline</Label><Select value={enterpriseTimeline} onValueChange={setEnterpriseTimeline}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="this_week">This week</SelectItem><SelectItem value="this_month">This month</SelectItem><SelectItem value="this_term">This term</SelectItem><SelectItem value="next_term">Next term</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>What do you need?</Label><Textarea rows={5} value={enterpriseNotes} onChange={(event) => setEnterpriseNotes(event.target.value)} placeholder="Tell us about student volume, rollout scope, required modules, or custom pricing needs." /></div></div>
+          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 

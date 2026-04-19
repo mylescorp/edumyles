@@ -97,6 +97,13 @@ function getRoleWorkspaceLabel(role: string, tenantName?: string): string {
   return "My School";
 }
 
+function readClientCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
+  return match?.[1] ? decodeURIComponent(match[1]) : null;
+}
+
 // ─── Dropdown nav group ───────────────────────────────────────────────────────
 
 function NavGroupDropdown({ group, pathname }: { group: NavGroup; pathname: string }) {
@@ -1044,6 +1051,45 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     <span className="font-medium">{workspaceLabel}</span>
                   </div>
                 </DropdownMenuItem>
+                {isAdminWorkspaceMode && adminWorkspaceTenants.length > 0 ? (
+                  <>
+                    <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
+                    <DropdownMenuLabel className="text-[var(--em-sage-muted)] text-[10px] font-bold uppercase tracking-wider">
+                      Master Admin Test Tenant
+                    </DropdownMenuLabel>
+                    {adminWorkspaceTenants.slice(0, 12).map((tenantOption) => {
+                      const isActiveTenant = tenantOption.tenantId === adminWorkspaceTenantId;
+
+                      return (
+                        <DropdownMenuItem
+                          key={tenantOption.tenantId}
+                          onClick={() => handleAdminWorkspaceTenantSwitch(tenantOption.tenantId)}
+                          className="cursor-pointer text-white/80 hover:bg-white/8 hover:text-white"
+                          disabled={isSwitchingTenant}
+                        >
+                          <div className="flex min-w-0 items-center gap-2">
+                            <div
+                              className={cn(
+                                "h-2 w-2 rounded-full",
+                                isActiveTenant ? "bg-[var(--em-gold)]" : "bg-white/20"
+                              )}
+                            />
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-medium">{tenantOption.name}</div>
+                              <div className="truncate text-[11px] text-white/45">
+                                {tenantOption.subdomain || tenantOption.tenantId}
+                              </div>
+                            </div>
+                          </div>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                    <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
+                    <DropdownMenuItem asChild className="cursor-pointer text-white/80 hover:bg-white/8 hover:text-white">
+                      <Link href="/platform/tenants">Open tenant manager</Link>
+                    </DropdownMenuItem>
+                  </>
+                ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
 

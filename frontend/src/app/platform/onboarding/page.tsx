@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -26,14 +26,17 @@ import {
 
 const STEP_LABELS: Record<string, string> = {
   schoolProfile: "School profile",
-  rolesConfigured: "Roles configured",
+  academicYear: "Academic year",
+  gradingSystem: "Grading system",
+  subjects: "Subjects",
+  classes: "Classes",
+  feeStructure: "Fee structure",
   staffAdded: "Staff added",
   studentsAdded: "Students added",
-  classesCreated: "Classes created",
   modulesConfigured: "Modules configured",
   portalCustomized: "Portal customized",
   parentsInvited: "Parents invited",
-  firstPaymentProcessed: "First payment processed",
+  firstAction: "First action",
 };
 
 type PlatformOnboardingRecord = {
@@ -85,10 +88,12 @@ function statusBadge(status: PlatformOnboardingRecord["status"]) {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { sessionToken } = useAuth();
   const [search, setSearch] = useState("");
   const [selectedTenantId, setSelectedTenantId] = useState<string | null>(null);
   const [isRefreshing, startRefreshing] = useTransition();
+  const requestedTenantId = searchParams.get("tenantId");
 
   const records = usePlatformQuery(
     api.modules.platform.onboarding.getPlatformOnboardingRecords,
@@ -126,6 +131,16 @@ export default function OnboardingPage() {
     return { total: records.length, completed, stalled, avgHealth };
   }, [records]);
 
+  useEffect(() => {
+    if (!requestedTenantId || !records || selectedTenantId === requestedTenantId) {
+      return;
+    }
+
+    if (records.some((record) => record.tenantId === requestedTenantId)) {
+      setSelectedTenantId(requestedTenantId);
+    }
+  }, [records, requestedTenantId, selectedTenantId]);
+
   if (records === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
@@ -133,8 +148,8 @@ export default function OnboardingPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tenant Onboarding"
-        description="Monitor real onboarding progress, health score, and trial readiness from Convex."
+        title="Tenant Setup Flow"
+        description="Monitor the live 12-step tenant setup journey for both invited schools and platform-provisioned schools, including health score, activation state, and trial readiness."
         actions={
           <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing}>
             <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
@@ -150,7 +165,7 @@ export default function OnboardingPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Tracked tenants</p>
+                <p className="text-sm text-muted-foreground">Tracked setup records</p>
                 <p className="text-2xl font-bold">{stats.total}</p>
               </div>
               <Rocket className="h-8 w-8 text-muted-foreground" />
@@ -196,8 +211,8 @@ export default function OnboardingPage() {
         <Card>
           <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle>Onboarding queue</CardTitle>
-              <CardDescription>Search and inspect tenant onboarding records without simulated step forms.</CardDescription>
+              <CardTitle>Setup queue</CardTitle>
+              <CardDescription>Search and inspect live tenant setup records aligned with the current 12-step admin onboarding flow. Opening this page from Tenants will focus the selected school automatically.</CardDescription>
             </div>
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -213,8 +228,8 @@ export default function OnboardingPage() {
             {filteredRecords.length === 0 ? (
               <EmptyState
                 icon={Rocket}
-                title="No onboarding records found"
-                description="Try a different search term or start onboarding by provisioning a tenant first."
+                title="No setup records found"
+                description="Try a different search term or create a tenant to start the current onboarding journey."
                 className="py-12"
               />
             ) : (
@@ -262,15 +277,15 @@ export default function OnboardingPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Onboarding detail</CardTitle>
-            <CardDescription>Step completion comes from the real tenant onboarding table.</CardDescription>
+            <CardTitle>Setup detail</CardTitle>
+            <CardDescription>Completion data comes from the real tenant onboarding table and reflects the current admin setup flow.</CardDescription>
           </CardHeader>
           <CardContent>
             {selectedTenantId === null ? (
               <EmptyState
                 icon={Clock3}
                 title="Select a tenant"
-                description="Choose an onboarding record from the queue to inspect its completed steps and trial timing."
+                description="Choose a setup record from the queue to inspect its completed steps, activation state, and trial timing."
                 className="py-12"
               />
             ) : selectedRecord === undefined ? (
@@ -278,8 +293,8 @@ export default function OnboardingPage() {
             ) : selectedRecord === null ? (
               <EmptyState
                 icon={AlertTriangle}
-                title="Onboarding record missing"
-                description="This tenant does not have a matching onboarding record yet."
+                title="Setup record missing"
+                description="This tenant does not have a matching setup record yet."
                 className="py-12"
               />
             ) : (

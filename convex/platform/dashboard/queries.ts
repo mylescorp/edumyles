@@ -119,6 +119,7 @@ export const getDashboardOverview = query({
       waitlistEntries,
       supportTickets,
       modules,
+      marketplaceModules,
       moduleInstalls,
       moduleInstallStats,
       moduleRequests,
@@ -146,6 +147,7 @@ export const getDashboardOverview = query({
       ctx.db.query("waitlist").collect(),
       ctx.db.query("support_tickets").collect(),
       ctx.db.query("modules").collect(),
+      ctx.db.query("marketplace_modules").collect(),
       ctx.db.query("module_installs").collect(),
       ctx.db.query("module_install_stats").collect(),
       ctx.db.query("module_requests").collect(),
@@ -165,6 +167,8 @@ export const getDashboardOverview = query({
         .filter((q) => q.gte(q.field("timestamp"), now - DAY_MS))
         .collect(),
     ]);
+
+    const liveMarketplaceModules = (marketplaceModules.length > 0 ? marketplaceModules : modules) as any[];
 
     const planByName = new Map(plans.map((plan) => [plan.name, plan]));
     const buckets = buildBuckets(now, timeRange);
@@ -330,7 +334,7 @@ export const getDashboardOverview = query({
     }));
 
     const marketplaceStatusMap = new Map<string, number>();
-    for (const module of modules) {
+    for (const module of liveMarketplaceModules) {
       marketplaceStatusMap.set(
         module.status,
         (marketplaceStatusMap.get(module.status) ?? 0) + 1

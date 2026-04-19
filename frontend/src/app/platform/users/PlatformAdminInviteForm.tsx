@@ -58,7 +58,7 @@ export function PlatformAdminInviteForm({
   const [form, setForm] = useState({
     email: "",
     role: "super_admin",
-    department: "",
+    department: "platform_operations",
     personalMessage: "",
   });
   const [submitting, setSubmitting] = useState(false);
@@ -83,7 +83,12 @@ export function PlatformAdminInviteForm({
   const remainingPermissions = Math.max((selectedRole?.permissions?.length ?? 0) - 12, 0);
 
   const resetFlow = () => {
-    setForm({ email: "", role: "super_admin", department: "", personalMessage: "" });
+    setForm({
+      email: "",
+      role: "super_admin",
+      department: "platform_operations",
+      personalMessage: "",
+    });
     setError(null);
     setCopied(false);
     setCopiedUrl(false);

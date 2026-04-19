@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { AdminRecentActivity } from "@/components/admin/AdminRecentActivity";
 import { AdminQuickActions } from "@/components/admin/AdminQuickActions";
+import { OnboardingProgress } from "@/components/admin/OnboardingProgress";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -66,21 +67,33 @@ export default function AdminDashboard() {
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
-  const studentList = (students as any[]) ?? [];
-  const activeStudents = studentList.filter((s) => s.status === "active").length;
+  const studentList = Array.isArray(students)
+    ? students
+    : Array.isArray((students as any)?.page)
+      ? (students as any).page
+      : [];
+  const activeStudents = studentList.filter((s: any) => s.status === "active").length;
   const totalStudents = studentList.length;
 
   const totalStaff = staffStats?.active ?? 0;
   const onLeaveStaff = staffStats?.on_leave ?? 0;
 
-  const paidInvoiceList = (paidInvoices as any[]) ?? [];
-  const pendingInvoiceList = (pendingInvoices as any[]) ?? [];
+  const paidInvoiceList = Array.isArray(paidInvoices)
+    ? paidInvoices
+    : Array.isArray((paidInvoices as any)?.page)
+      ? (paidInvoices as any).page
+      : [];
+  const pendingInvoiceList = Array.isArray(pendingInvoices)
+    ? pendingInvoices
+    : Array.isArray((pendingInvoices as any)?.page)
+      ? (pendingInvoices as any).page
+      : [];
 
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
   const monthlyRevenue = paidInvoiceList
-    .filter((inv) => inv.paidAt && inv.paidAt >= startOfMonth.getTime())
+    .filter((inv: any) => inv.paidAt && inv.paidAt >= startOfMonth.getTime())
     .reduce((sum: number, inv: any) => sum + (inv.amount ?? 0), 0);
   const totalRevenue = paidInvoiceList.reduce(
     (sum: number, inv: any) => sum + (inv.amount ?? 0),
@@ -91,9 +104,19 @@ export default function AdminDashboard() {
     0
   );
 
-  const pendingApplicationCount = (pendingAdmissions as any[])?.length ?? 0;
+  const pendingAdmissionList = Array.isArray(pendingAdmissions)
+    ? pendingAdmissions
+    : Array.isArray((pendingAdmissions as any)?.page)
+      ? (pendingAdmissions as any).page
+      : [];
+  const pendingApplicationCount = pendingAdmissionList.length;
 
-  const recentAppList = ((recentAdmissions as any[]) ?? []).slice(0, 5);
+  const recentAdmissionList = Array.isArray(recentAdmissions)
+    ? recentAdmissions
+    : Array.isArray((recentAdmissions as any)?.page)
+      ? (recentAdmissions as any).page
+      : [];
+  const recentAppList = recentAdmissionList.slice(0, 5);
   const activities = recentAppList.map((app: any) => ({
     id: app._id,
     type: "application_submitted" as const,
@@ -104,10 +127,10 @@ export default function AdminDashboard() {
   }));
 
   const studentBreakdown = [
-    { label: "Active", count: studentList.filter((s) => s.status === "active").length, status: "active" },
-    { label: "Graduated", count: studentList.filter((s) => s.status === "graduated").length, status: "graduated" },
-    { label: "Suspended", count: studentList.filter((s) => s.status === "suspended").length, status: "suspended" },
-    { label: "Transferred", count: studentList.filter((s) => s.status === "transferred").length, status: "transferred" },
+    { label: "Active", count: studentList.filter((s: any) => s.status === "active").length, status: "active" },
+    { label: "Graduated", count: studentList.filter((s: any) => s.status === "graduated").length, status: "graduated" },
+    { label: "Suspended", count: studentList.filter((s: any) => s.status === "suspended").length, status: "suspended" },
+    { label: "Transferred", count: studentList.filter((s: any) => s.status === "transferred").length, status: "transferred" },
   ].filter((row) => row.count > 0);
 
   return (
@@ -130,6 +153,8 @@ export default function AdminDashboard() {
           Live
         </Badge>
       </div>
+
+      <OnboardingProgress />
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

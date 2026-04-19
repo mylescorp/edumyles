@@ -31,7 +31,7 @@ export default function InviteAdminPage() {
     <div className="space-y-6">
       <PageHeader
         title="Invite Platform Admin"
-        description="Create a platform admin account and send the onboarding link through the same flow used in user management."
+        description="Create a platform operator account with role context, department ownership, and a cleaner access review before the invite is sent."
         breadcrumbs={[
           { label: "Platform", href: "/platform" },
           { label: "Users", href: "/platform/users" },

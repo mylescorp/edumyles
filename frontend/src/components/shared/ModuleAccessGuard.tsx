@@ -1,57 +1,70 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package } from "lucide-react";
 import { LoadingSkeleton } from "./LoadingSkeleton";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
-import { useInstalledModules } from "@/hooks/useInstalledModules";
+import { useModuleAccess } from "@/hooks/useModuleAccess";
+import { ModuleUnavailablePage } from "@/components/modules/ModuleUnavailablePage";
+import { ModuleAccessDeniedPage } from "@/components/modules/ModuleAccessDeniedPage";
+import { ModuleSuspendedPage } from "@/components/modules/ModuleSuspendedPage";
 
 type RouteModuleRule = {
   prefix: string;
-  moduleId: string;
+  moduleSlug: string;
 };
 
 const MODULE_ROUTE_RULES: RouteModuleRule[] = [
-  { prefix: "/admin/students", moduleId: "sis" },
-  { prefix: "/admin/classes", moduleId: "sis" },
-  { prefix: "/admin/staff", moduleId: "hr" },
-  { prefix: "/admin/admissions", moduleId: "admissions" },
-  { prefix: "/admin/academics", moduleId: "academics" },
-  { prefix: "/admin/finance", moduleId: "finance" },
-  { prefix: "/admin/timetable", moduleId: "timetable" },
-  { prefix: "/admin/hr", moduleId: "hr" },
-  { prefix: "/admin/library", moduleId: "library" },
-  { prefix: "/admin/transport", moduleId: "transport" },
-  { prefix: "/admin/communications", moduleId: "communications" },
-  { prefix: "/admin/tickets", moduleId: "tickets" },
-  { prefix: "/admin/ewallet", moduleId: "ewallet" },
-  { prefix: "/admin/ecommerce", moduleId: "ecommerce" },
-  { prefix: "/admin/users", moduleId: "users" },
-  { prefix: "/portal/teacher/classes", moduleId: "sis" },
-  { prefix: "/portal/teacher/attendance", moduleId: "sis" },
-  { prefix: "/portal/teacher/assignments", moduleId: "academics" },
-  { prefix: "/portal/teacher/timetable", moduleId: "timetable" },
-  { prefix: "/portal/teacher/communications", moduleId: "communications" },
-  { prefix: "/portal/student/assignments", moduleId: "academics" },
-  { prefix: "/portal/student/communications", moduleId: "communications" },
-  { prefix: "/portal/student/wallet", moduleId: "ewallet" },
-  { prefix: "/portal/parent/children", moduleId: "sis" },
-  { prefix: "/portal/parent/fees", moduleId: "finance" },
-  { prefix: "/portal/parent/payments", moduleId: "finance" },
-  { prefix: "/portal/parent/messages", moduleId: "communications" },
-  { prefix: "/portal/parent/announcements", moduleId: "communications" },
-  { prefix: "/portal/parent/communications", moduleId: "communications" },
-  { prefix: "/portal/partner/students", moduleId: "sis" },
-  { prefix: "/portal/partner/reports", moduleId: "finance" },
-  { prefix: "/portal/partner/payments", moduleId: "finance" },
-  { prefix: "/portal/partner/messages", moduleId: "communications" },
+  { prefix: "/admin/students", moduleSlug: "core_sis" },
+  { prefix: "/admin/classes", moduleSlug: "core_sis" },
+  { prefix: "/admin/users", moduleSlug: "core_users" },
+  { prefix: "/admin/admissions", moduleSlug: "mod_admissions" },
+  { prefix: "/admin/academics", moduleSlug: "mod_academics" },
+  { prefix: "/admin/attendance", moduleSlug: "mod_attendance" },
+  { prefix: "/admin/finance", moduleSlug: "mod_finance" },
+  { prefix: "/admin/timetable", moduleSlug: "mod_timetable" },
+  { prefix: "/admin/hr", moduleSlug: "mod_hr" },
+  { prefix: "/admin/library", moduleSlug: "mod_library" },
+  { prefix: "/admin/transport", moduleSlug: "mod_transport" },
+  { prefix: "/admin/communications", moduleSlug: "mod_communications" },
+  { prefix: "/admin/ewallet", moduleSlug: "mod_ewallet" },
+  { prefix: "/admin/ecommerce", moduleSlug: "mod_ecommerce" },
+  { prefix: "/admin/reports", moduleSlug: "mod_reports" },
+  { prefix: "/portal/teacher/classes", moduleSlug: "core_sis" },
+  { prefix: "/portal/teacher/attendance", moduleSlug: "mod_attendance" },
+  { prefix: "/portal/teacher/gradebook", moduleSlug: "mod_academics" },
+  { prefix: "/portal/teacher/assignments", moduleSlug: "mod_academics" },
+  { prefix: "/portal/teacher/timetable", moduleSlug: "mod_timetable" },
+  { prefix: "/portal/teacher/communications", moduleSlug: "mod_communications" },
+  { prefix: "/portal/student/grades", moduleSlug: "mod_academics" },
+  { prefix: "/portal/student/report-cards", moduleSlug: "mod_academics" },
+  { prefix: "/portal/student/assignments", moduleSlug: "mod_academics" },
+  { prefix: "/portal/student/attendance", moduleSlug: "mod_attendance" },
+  { prefix: "/portal/student/communications", moduleSlug: "mod_communications" },
+  { prefix: "/portal/student/timetable", moduleSlug: "mod_timetable" },
+  { prefix: "/portal/student/wallet", moduleSlug: "mod_ewallet" },
+  { prefix: "/portal/parent/announcements", moduleSlug: "mod_communications" },
+  { prefix: "/portal/parent/fees", moduleSlug: "mod_finance" },
+  { prefix: "/portal/parent/payments", moduleSlug: "mod_finance" },
+  { prefix: "/portal/parent/messages", moduleSlug: "mod_communications" },
+  { prefix: "/portal/parent/communications", moduleSlug: "mod_communications" },
+  { prefix: "/portal/alumni/transcripts", moduleSlug: "mod_alumni" },
+  { prefix: "/portal/alumni/directory", moduleSlug: "mod_alumni" },
+  { prefix: "/portal/alumni/events", moduleSlug: "mod_alumni" },
 ];
 
 function getRequiredModule(pathname: string) {
-  return MODULE_ROUTE_RULES.find((rule) => pathname.startsWith(rule.prefix))?.moduleId ?? null;
+  if (pathname.startsWith("/portal/teacher/classes/") && pathname.includes("/grades")) {
+    return "mod_academics";
+  }
+
+  if (pathname.startsWith("/portal/parent/children/")) {
+    if (pathname.includes("/assignments")) return "mod_academics";
+    if (pathname.includes("/grades")) return "mod_academics";
+    if (pathname.includes("/attendance")) return "mod_attendance";
+    if (pathname.includes("/timetable")) return "mod_timetable";
+    return "core_sis";
+  }
+
+  return MODULE_ROUTE_RULES.find((rule) => pathname.startsWith(rule.prefix))?.moduleSlug ?? null;
 }
 
 interface ModuleAccessGuardProps {
@@ -61,19 +74,12 @@ interface ModuleAccessGuardProps {
 
 export function ModuleAccessGuard({
   children,
-  fallbackHref = "/admin/marketplace",
 }: ModuleAccessGuardProps) {
   const pathname = usePathname();
-  const { sessionToken } = useAuth();
-  const { isLoading, availableModules, isModuleInstalled } = useInstalledModules();
   const requiredModule = getRequiredModule(pathname);
-  const isLocalDemoAdmin =
-    process.env.NODE_ENV !== "production" &&
-    sessionToken === "dev-tenant-admin-session";
-
-  if (isLocalDemoAdmin) {
-    return <>{children}</>;
-  }
+  const { isLoading, isInstalled, hasAccess, installStatus, reason } = useModuleAccess(
+    requiredModule ?? ""
+  );
 
   if (isLoading) {
     return <LoadingSkeleton variant="page" />;
@@ -83,40 +89,22 @@ export function ModuleAccessGuard({
     return <>{children}</>;
   }
 
-  const moduleMeta = availableModules.find((mod: any) => mod.moduleId === requiredModule);
-  const isAvailable = isModuleInstalled(requiredModule);
-
-  if (isAvailable) {
+  if (isInstalled && hasAccess) {
     return <>{children}</>;
   }
 
-  return (
-    <div className="flex min-h-[60vh] items-center justify-center">
-      <Card className="max-w-lg">
-        <CardContent className="pt-6 text-center space-y-4">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <Package className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">Module Not Available</h2>
-            <p className="text-sm text-muted-foreground mt-2">
-              This page depends on the
-              {" "}
-              <span className="font-medium">{moduleMeta?.name ?? requiredModule}</span>
-              {" "}
-              module, which is not active for this tenant.
-            </p>
-          </div>
-          <div className="flex justify-center gap-2">
-            <Button asChild>
-              <Link href={fallbackHref}>Manage Modules</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/admin/marketplace">Open Marketplace</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  if (!isInstalled) {
+    return <ModuleUnavailablePage moduleName={requiredModule} description={reason} />;
+  }
+
+  if (installStatus.includes("suspended")) {
+    return (
+      <ModuleSuspendedPage
+        moduleName={requiredModule}
+        variant={installStatus === "suspended_payment" ? "payment" : "platform"}
+      />
+    );
+  }
+
+  return <ModuleAccessDeniedPage moduleName={requiredModule} reason={reason} />;
 }

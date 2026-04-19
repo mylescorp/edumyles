@@ -35,8 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { api } from "@/convex/_generated/api";
-import { MarketplaceErrorBoundary } from "./MarketplaceErrorBoundary";
+import { useRouter } from "next/navigation";
 
 const CATEGORY_LABELS: Record<string, string> = {
   academic_tools: "Academic",

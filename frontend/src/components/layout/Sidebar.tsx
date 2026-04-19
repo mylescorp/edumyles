@@ -16,6 +16,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { NavItem } from "@/lib/routes";
+import { isCoreModuleSlug } from "@/lib/moduleSlugs";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -46,22 +47,19 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   // Core module IDs that should always be visible
   const coreModuleIds = ["sis", "communications", "users"];
 
+  // Core module IDs that should always be visible
   // Filter and sort navigation items based on module installation status
   const filteredItems = navItems
     .filter((item) => {
       // Always show items without module association (Dashboard, Settings, etc.)
       if (!item.module) return true;
 
-      // Always show core modules
-      if (coreModuleIds.includes(item.module)) return true;
-
-      // Show optional modules only if installed
-      return isModuleInstalled(item.module);
+      return isModuleInstalled(item.module) && isModuleAccessible(item.module);
     })
     .sort((a, b) => {
       // Core modules first
-      const aIsCore = a.module ? coreModuleIds.includes(a.module) : false;
-      const bIsCore = b.module ? coreModuleIds.includes(b.module) : false;
+      const aIsCore = a.module ? isCoreModuleSlug(a.module) : false;
+      const bIsCore = b.module ? isCoreModuleSlug(b.module) : false;
 
       if (aIsCore && !bIsCore) return -1;
       if (!aIsCore && bIsCore) return 1;
@@ -118,7 +116,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
           alt="EduMyles"
           width={28}
           height={28}
-          className="flex-shrink-0"
+          className="h-auto w-auto flex-shrink-0"
           priority
         />
         {!collapsed && (
@@ -232,21 +230,18 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                   {!collapsed && item.module && !disabledByPermission && (
                     <div className="ml-auto flex items-center gap-1">
                       {/* Core module indicator */}
-                      {coreModuleIds.includes(item.module) && (
+                      {isCoreModuleSlug(item.module) && (
                         <div className="flex items-center">
                           <Star className="h-3 w-3 text-em-amber-500" />
                         </div>
                       )}
 
-                      {/* Active/inactive indicator for optional modules */}
-                      {!coreModuleIds.includes(item.module) && (
-                        <div
-                          className={cn(
-                            "w-2 h-2 rounded-full",
-                            isModuleActive(item.module) ? "bg-em-success" : "bg-gray-400"
-                          )}
-                        />
-                      )}
+                      <div
+                        className={cn(
+                          "h-2 w-2 rounded-full",
+                          isModuleActive(item.module) ? "bg-em-success" : "bg-gray-400"
+                        )}
+                      />
 
                       {/* Badge counts */}
                       {badgeCount && (
@@ -316,7 +311,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                                 </span>
                               )}
                               <div className="flex items-center gap-1">
-                                {item.module && coreModuleIds.includes(item.module) && (
+                                {item.module && isCoreModuleSlug(item.module) && (
                                   <Star className="h-3 w-3 text-em-amber-500" />
                                 )}
                                 {badgeCount && (

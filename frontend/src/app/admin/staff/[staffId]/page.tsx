@@ -49,6 +49,8 @@ export default function StaffProfilePage() {
         on_leave: "outline",
         terminated: "destructive",
     };
+    const staffStatus = typeof staff.status === "string" && staff.status.length > 0 ? staff.status : "unknown";
+    const staffRole = typeof staff.role === "string" && staff.role.length > 0 ? staff.role : "staff_member";
 
     const handleEditSubmit = async (formData: FormData) => {
         setSubmitting(true);
@@ -97,8 +99,8 @@ export default function StaffProfilePage() {
                         <InfoRow icon={Phone} label="Phone" value={staff.phone ?? "—"} />
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">Status</span>
-                            <Badge variant={statusColors[staff.status] ?? "outline"}>
-                                {staff.status.replace("_", " ")}
+                            <Badge variant={statusColors[staffStatus] ?? "outline"}>
+                                {staffStatus.replace(/_/g, " ")}
                             </Badge>
                         </div>
                     </CardContent>
@@ -109,7 +111,7 @@ export default function StaffProfilePage() {
                         <CardTitle className="text-base">Employment Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <InfoRow icon={Briefcase} label="Role" value={staff.role.replace("_", " ")} />
+                        <InfoRow icon={Briefcase} label="Role" value={staffRole.replace(/_/g, " ")} />
                         <InfoRow icon={Briefcase} label="Department" value={staff.department ?? "—"} />
                         <InfoRow icon={UserCircle} label="Qualification" value={staff.qualification ?? "—"} />
                         <InfoRow icon={Calendar} label="Join Date" value={staff.joinDate} />
@@ -143,7 +145,7 @@ export default function StaffProfilePage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="role">Role</Label>
-                                <Select name="role" defaultValue={staff.role}>
+                                <Select name="role" defaultValue={staffRole}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select role" />
                                     </SelectTrigger>
@@ -168,7 +170,7 @@ export default function StaffProfilePage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="status">Status</Label>
-                                <Select name="status" defaultValue={staff.status}>
+                                <Select name="status" defaultValue={staffStatus}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>

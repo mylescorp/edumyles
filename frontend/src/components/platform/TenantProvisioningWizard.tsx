@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -30,7 +29,9 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
+  ClipboardCheck,
   Globe,
+  ListChecks,
   Loader2,
   Mail,
   Shield,
@@ -77,9 +78,9 @@ const STEP_TITLES = [
   "School Information",
   "Admin Account",
   "Subscription Setup",
-  "Initial Configuration",
-  "Module Setup",
-  "Invite & Welcome",
+  "Tenant Configuration",
+  "Module Access",
+  "Launch & Handoff",
 ] as const;
 
 const STEP_FIELDS: Array<Array<keyof WizardData>> = [
@@ -168,7 +169,6 @@ function getWebsiteSubdomainValue(websiteUrl?: string) {
 export function TenantProvisioningWizard({ className = "" }: { className?: string }) {
   const router = useRouter();
   const { sessionToken } = useAuth();
-  const provisionTenant = useMutation(api.platform.tenants.mutations.provisionTenant);
 
   const planCatalog = useQuery(
     api.modules.platform.subscriptions.getPlatformPlanCatalog,
@@ -607,31 +607,88 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     <div className={`space-y-6 ${className}`}>
       <Card className="border-border/60 shadow-sm">
         <CardContent className="space-y-4 p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Step {currentStep + 1} of {STEP_TITLES.length}
-              </p>
-              <h2 className="text-xl font-semibold">{STEP_TITLES[currentStep]}</h2>
-            </div>
-            <Badge variant="secondary">{Math.round(progress)}% complete</Badge>
-          </div>
-          <Progress value={progress} />
-          <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
-            {STEP_TITLES.map((step, index) => (
-              <div
-                key={step}
-                className={`rounded-lg border px-3 py-2 text-xs ${
-                  index === currentStep
-                    ? "border-primary bg-primary/5 text-primary"
-                    : index < currentStep
-                      ? "border-[#26A65B]/30 bg-[rgba(38,166,91,0.08)] text-[#26A65B]"
-                      : "border-border/60 text-muted-foreground"
-                }`}
-              >
-                {step}
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="secondary">Platform kickoff section {currentStep + 1} of {STEP_TITLES.length}</Badge>
+                <Badge variant="outline">Shared tenant setup flow</Badge>
               </div>
-            ))}
+              <h2 className="mt-2 text-xl font-semibold">{STEP_TITLES[currentStep]}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                This page collects platform-only kickoff details, then opens the school inside the same 12-step setup flow used by invited tenants.
+              </p>
+            </div>
+            <Card className="w-full max-w-xl border-border/60 bg-muted/20 shadow-none">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <ListChecks className="mt-0.5 h-4 w-4 text-primary" />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Shared 12-step setup after provisioning</p>
+                    <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                      {SHARED_SETUP_FLOW.map((step) => (
+                        <div
+                          key={step}
+                          className="rounded-lg border border-border/60 bg-background px-3 py-2 text-xs text-muted-foreground"
+                        >
+                          {step}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="rounded-2xl border border-border/60 bg-muted/10 p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-semibold">Platform kickoff sections</p>
+                <p className="text-sm text-muted-foreground">
+                  These six platform-only sections prepare the tenant, then hand the school into the shared school-admin setup journey.
+                </p>
+              </div>
+              <Badge variant="outline" className="w-fit">
+                Current section: {currentStep + 1} / {STEP_TITLES.length}
+              </Badge>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {STEP_TITLES.map((step, index) => (
+                <div
+                  key={step}
+                  className={`rounded-xl border px-4 py-3 ${
+                    index === currentStep
+                      ? "border-primary bg-primary/5"
+                      : index < currentStep
+                        ? "border-[#26A65B]/30 bg-[rgba(38,166,91,0.08)]"
+                        : "border-border/60 bg-background"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                        Section {index + 1}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold">{step}</p>
+                    </div>
+                    {index < currentStep ? (
+                      <CheckCircle2 className="h-4 w-4 text-[#26A65B]" />
+                    ) : index === currentStep ? (
+                      <Sparkles className="h-4 w-4 text-primary" />
+                    ) : (
+                      <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {index < currentStep
+                      ? "Kickoff section captured"
+                      : index === currentStep
+                        ? "Current platform kickoff section"
+                        : "Queued for provisioning handoff"}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -1016,7 +1073,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
               <div className="space-y-3">
                 <div>
                   <h3 className="text-sm font-semibold">Additional pilot grants</h3>
-                  <p className="text-sm text-muted-foreground">Choose optional marketplace modules to grant temporarily during onboarding.</p>
+                  <p className="text-sm text-muted-foreground">Choose optional marketplace modules to grant temporarily while the school completes its onboarding.</p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   {pilotCandidates.length === 0 ? (
@@ -1127,7 +1184,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                   ) : (
                     <>
                       <Sparkles className="mr-2 h-4 w-4" />
-                      Provision Tenant
+                      Create Tenant & Open Setup Flow
                     </>
                   )}
                 </Button>

@@ -246,10 +246,16 @@ function ActiveSessionsModal({
 }) {
   const { toast } = useToast();
 
-  const sessions = useQuery(
+  const sessionsResult = useQuery(
     api.sessions.listUserSessions,
     sessionToken ? { sessionToken } : "skip"
   );
+  const sessions = Array.isArray(sessionsResult)
+    ? sessionsResult
+    : Array.isArray((sessionsResult as any)?.data)
+      ? (sessionsResult as any).data
+      : [];
+  const isLoadingSessions = !sessionsResult;
 
   const deleteSessionById = useMutation(api.sessions.deleteSessionById);
   const deleteAllSessions = useMutation(api.sessions.deleteAllUserSessions);
@@ -298,7 +304,7 @@ function ActiveSessionsModal({
         </DialogHeader>
 
         <div className="space-y-3 py-2 max-h-[400px] overflow-y-auto">
-          {!sessions ? (
+          {isLoadingSessions ? (
             <div className="flex justify-center py-6">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
@@ -359,7 +365,7 @@ function ActiveSessionsModal({
           <Button
             variant="destructive"
             onClick={handleTerminateAll}
-            disabled={terminatingAll || !sessions || sessions.length <= 1}
+            disabled={terminatingAll || isLoadingSessions || sessions.length <= 1}
             className="w-full sm:w-auto"
           >
             {terminatingAll ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <LogOut className="h-4 w-4 mr-2" />}

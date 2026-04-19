@@ -76,3 +76,7 @@ docs/**/*.pdf
 
 # opensrc - source code for packages
 opensrc/
+
+.codex-logs/
+
+.codex-logs/

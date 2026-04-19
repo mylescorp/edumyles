@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useMemo, useState, type ComponentType } from "react";
 import { api } from "@/convex/_generated/api";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -16,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
@@ -23,18 +23,24 @@ import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
 import { Building2, CheckCircle2, Clock3, Mail, SearchX, UserPlus2, Users, XCircle } from "lucide-react";
 import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 
-const ROLE_OPTIONS = [
-  { value: "school_admin", label: "School Admin" },
-  { value: "principal", label: "Principal" },
-  { value: "teacher", label: "Teacher" },
-  { value: "bursar", label: "Bursar" },
-  { value: "hr_manager", label: "HR Manager" },
-  { value: "librarian", label: "Librarian" },
-  { value: "transport_manager", label: "Transport Manager" },
-  { value: "board_member", label: "Board Member" },
+const STATUS_FILTERS = ["all", "waiting", "invited", "converted", "rejected", "expired"] as const;
+const SOURCE_FILTERS = ["all", "landing_waitlist", "platform_manual_entry"] as const;
+const CURRENT_SYSTEM_OPTIONS = [
+  "Paper records",
+  "Excel/Spreadsheets",
+  "Nothing",
+  "Another school system",
 ] as const;
-
-const STATUS_FILTERS = ["all", "waiting", "invited", "converted", "rejected"] as const;
+const REFERRAL_OPTIONS = [
+  "Google Search",
+  "Facebook or Instagram",
+  "LinkedIn",
+  "Friend/Colleague",
+  "School conference",
+  "EduMyles ad campaign",
+  "Sales outreach",
+  "Other",
+] as const;
 
 type WaitlistEntry = {
   _id: string;
@@ -42,18 +48,72 @@ type WaitlistEntry = {
   email: string;
   schoolName: string;
   country: string;
+  county?: string;
   studentCount?: number;
   phone?: string;
+  currentSystem?: string;
   referralSource?: string;
+  referralCode?: string;
+  sourceChannel?: string;
   biggestChallenge?: string;
-  status: "waiting" | "invited" | "converted" | "rejected";
-  invitedAt?: number;
-  convertedAt?: number;
+  notes?: string;
+  status: "waiting" | "invited" | "converted" | "rejected" | "expired";
+  qualificationScore?: number;
+  isHighValue?: boolean;
+  assignedTo?: string;
+  assignedUser?: { userId: string; name: string; email?: string; role: string } | null;
   crmLeadId?: string;
+  resellerId?: string;
   inviteToken?: string;
   inviteExpiresAt?: number;
+  invitedAt?: number;
+  convertedAt?: number;
+  tenantId?: string;
   createdAt: number;
   updatedAt: number;
+  crmLead?: { id: string; stage?: string; status?: string; assignedTo?: string } | null;
+  invite?: { id: string; status: string; expiresAt: number; remindersSent: number; lastReminderAt?: number } | null;
+};
+
+type WaitlistOperator = {
+  userId: string;
+  name: string;
+  email?: string;
+  role: string;
+};
+
+type WaitlistFormState = {
+  fullName: string;
+  email: string;
+  schoolName: string;
+  country: string;
+  county: string;
+  phone: string;
+  studentCount: string;
+  currentSystem: string;
+  referralSource: string;
+  referralCode: string;
+  sourceChannel: string;
+  biggestChallenge: string;
+  notes: string;
+  assignedTo: string;
+};
+
+const EMPTY_FORM: WaitlistFormState = {
+  fullName: "",
+  email: "",
+  schoolName: "",
+  country: "Kenya",
+  county: "",
+  phone: "",
+  studentCount: "",
+  currentSystem: "",
+  referralSource: "",
+  referralCode: "",
+  sourceChannel: "platform_manual_entry",
+  biggestChallenge: "",
+  notes: "",
+  assignedTo: "",
 };
 
 function statusClass(status: WaitlistEntry["status"]) {
@@ -66,6 +126,8 @@ function statusClass(status: WaitlistEntry["status"]) {
       return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
     case "rejected":
       return "border-rose-500/20 bg-rose-500/10 text-rose-700";
+    case "expired":
+      return "border-slate-500/20 bg-slate-500/10 text-slate-700";
     default:
       return "";
   }
@@ -75,105 +137,238 @@ function labelize(value: string) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
+function toForm(entry: WaitlistEntry): WaitlistFormState {
+  return {
+    fullName: entry.fullName ?? "",
+    email: entry.email ?? "",
+    schoolName: entry.schoolName ?? "",
+    country: entry.country ?? "Kenya",
+    county: entry.county ?? "",
+    phone: entry.phone ?? "",
+    studentCount: entry.studentCount ? String(entry.studentCount) : "",
+    currentSystem: entry.currentSystem ?? "",
+    referralSource: entry.referralSource ?? "",
+    referralCode: entry.referralCode ?? "",
+    sourceChannel: entry.sourceChannel ?? "platform_manual_entry",
+    biggestChallenge: entry.biggestChallenge ?? "",
+    notes: entry.notes ?? "",
+    assignedTo: entry.assignedTo ?? "",
+  };
+}
+
+function getDisplayStatus(entry: WaitlistEntry): WaitlistEntry["status"] {
+  if (entry.invite?.status === "pending") return "invited";
+  if (entry.invite?.status === "expired") return "expired";
+  if (entry.invite?.status === "revoked") return entry.tenantId ? "converted" : "waiting";
+  if (entry.invite?.status === "accepted") return entry.tenantId ? "converted" : "invited";
+  return entry.status;
+}
+
+function MetricCard({
+  title,
+  value,
+  icon: Icon,
+}: {
+  title: string;
+  value: number;
+  icon: ComponentType<{ className?: string }>;
+}) {
+  return (
+    <Card>
+      <CardContent className="flex items-center justify-between p-5">
+        <div>
+          <div className="text-sm text-muted-foreground">{title}</div>
+          <div className="mt-2 text-3xl font-semibold">{value.toLocaleString()}</div>
+        </div>
+        <div className="rounded-full border bg-muted/40 p-3">
+          <Icon className="h-5 w-5" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function WaitlistPage() {
   const { sessionToken, isLoading } = useAuth();
   const { toast } = useToast();
-
   const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]>("all");
+  const [sourceFilter, setSourceFilter] = useState<(typeof SOURCE_FILTERS)[number]>("all");
   const [search, setSearch] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<WaitlistEntry | null>(null);
+  const [detailTarget, setDetailTarget] = useState<WaitlistEntry | null>(null);
   const [inviteTarget, setInviteTarget] = useState<WaitlistEntry | null>(null);
   const [rejectTarget, setRejectTarget] = useState<WaitlistEntry | null>(null);
   const [convertTarget, setConvertTarget] = useState<WaitlistEntry | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [inviteForm, setInviteForm] = useState({
-    tenantId: "",
-    role: "school_admin",
-    personalMessage: "",
-  });
+  const [deleteTarget, setDeleteTarget] = useState<WaitlistEntry | null>(null);
+  const [inviteMessage, setInviteMessage] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
   const [convertTenantId, setConvertTenantId] = useState("");
+  const [form, setForm] = useState<WaitlistFormState>(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
 
-  const entries = usePlatformQuery(
+  const rawEntries = usePlatformQuery(
     api.modules.platform.waitlist.getWaitlistEntries,
     sessionToken ? { sessionToken } : "skip",
     !!sessionToken
-  ) as WaitlistEntry[] | undefined;
-
+  );
+  const rawOperators = usePlatformQuery(
+    api.modules.platform.waitlist.getWaitlistOperators,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  );
   const tenants = usePlatformQuery(
     api.platform.tenants.queries.listAllTenants,
     sessionToken ? { sessionToken } : "skip",
     !!sessionToken
   ) as Array<{ tenantId: string; name: string; subdomain?: string }> | undefined;
 
-  const inviteFromWaitlist = useMutation(api.modules.platform.waitlist.inviteFromWaitlist);
-  const updateWaitlistStatus = useMutation(api.modules.platform.waitlist.updateWaitlistStatus);
+  const createWaitlistEntry = useMutation(api.modules.platform.waitlist.createPlatformWaitlistEntry);
+  const updateWaitlistEntry = useMutation(api.modules.platform.waitlist.updateWaitlistEntry);
+  const deleteWaitlistEntry = useMutation(api.modules.platform.waitlist.deleteWaitlistEntry);
+  const rejectWaitlistEntry = useMutation(api.modules.platform.waitlist.rejectWaitlistEntry);
   const convertWaitlistEntry = useMutation(api.modules.platform.waitlist.convertWaitlistEntry);
+  const sendTenantInvite = useMutation(api.platform.tenants.mutations.sendTenantInvite);
+  const resendTenantInvite = useMutation(api.platform.tenants.mutations.resendTenantInvite);
+  const revokeTenantInvite = useMutation(api.platform.tenants.mutations.revokeTenantInvite);
 
-  const tenantMap = useMemo(
-    () => new Map((tenants ?? []).map((tenant) => [tenant.tenantId, tenant.name])),
-    [tenants]
+  const entries = useMemo(
+    () =>
+      ((Array.isArray(rawEntries) ? rawEntries : []) as WaitlistEntry[]).map((entry) => ({
+        ...entry,
+        status: getDisplayStatus(entry),
+      })),
+    [rawEntries]
   );
-
-  const sortedEntries = useMemo(
-    () => [...(entries ?? [])].sort((left, right) => right.createdAt - left.createdAt),
-    [entries]
-  );
+  const operators = useMemo(() => (Array.isArray(rawOperators) ? rawOperators : []) as WaitlistOperator[], [rawOperators]);
+  const tenantOptions = useMemo(() => (Array.isArray(tenants) ? tenants : []), [tenants]);
 
   const filteredEntries = useMemo(() => {
     const needle = search.trim().toLowerCase();
-    return sortedEntries.filter((entry) => {
-      const statusMatches = statusFilter === "all" || entry.status === statusFilter;
-      if (!statusMatches) return false;
+    return entries.filter((entry) => {
+      if (statusFilter !== "all" && entry.status !== statusFilter) return false;
+      if (sourceFilter !== "all" && (entry.sourceChannel ?? "landing_waitlist") !== sourceFilter) return false;
       if (!needle) return true;
       return [
         entry.fullName,
         entry.email,
         entry.schoolName,
         entry.country,
+        entry.county ?? "",
+        entry.currentSystem ?? "",
         entry.referralSource ?? "",
       ]
         .join(" ")
         .toLowerCase()
         .includes(needle);
     });
-  }, [search, sortedEntries, statusFilter]);
+  }, [entries, search, sourceFilter, statusFilter]);
 
   const stats = useMemo(() => {
-    const all = sortedEntries;
+    const all = entries;
     return {
       total: all.length,
       waiting: all.filter((entry) => entry.status === "waiting").length,
       invited: all.filter((entry) => entry.status === "invited").length,
       converted: all.filter((entry) => entry.status === "converted").length,
-      rejected: all.filter((entry) => entry.status === "rejected").length,
+      highValue: all.filter((entry) => entry.isHighValue).length,
     };
-  }, [sortedEntries]);
-
-  if (isLoading || entries === undefined || tenants === undefined) {
-    return <LoadingSkeleton variant="page" />;
-  }
+  }, [entries]);
 
   const resetDialogs = () => {
+    setCreateOpen(false);
+    setEditTarget(null);
+    setDetailTarget(null);
     setInviteTarget(null);
     setRejectTarget(null);
     setConvertTarget(null);
-    setInviteForm({ tenantId: "", role: "school_admin", personalMessage: "" });
+    setDeleteTarget(null);
+    setInviteMessage("");
     setRejectionReason("");
+    setDeleteReason("");
     setConvertTenantId("");
+    setForm(EMPTY_FORM);
   };
 
-  const handleInvite = async () => {
-    if (!sessionToken || !inviteTarget || !inviteForm.tenantId || !inviteForm.role) return;
+  if (isLoading || rawEntries === undefined || rawOperators === undefined || tenants === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
+
+  async function handleCreateOrUpdate() {
+    if (!sessionToken) return;
     setSaving(true);
     try {
-      await inviteFromWaitlist({
+      const payload = {
         sessionToken,
-        waitlistId: inviteTarget._id as never,
-        tenantId: inviteForm.tenantId,
-        role: inviteForm.role,
-        personalMessage: inviteForm.personalMessage.trim() || undefined,
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
+        schoolName: form.schoolName.trim(),
+        country: form.country.trim(),
+        county: form.county.trim() || undefined,
+        phone: form.phone.trim() || undefined,
+        studentCount: form.studentCount ? Number(form.studentCount) : undefined,
+        currentSystem: form.currentSystem || undefined,
+        referralSource: form.referralSource || undefined,
+        referralCode: form.referralCode.trim() || undefined,
+        sourceChannel: form.sourceChannel,
+        biggestChallenge: form.biggestChallenge.trim() || undefined,
+        notes: form.notes.trim() || undefined,
+        assignedTo: form.assignedTo || undefined,
+      };
+
+      if (editTarget) {
+        await updateWaitlistEntry({
+          ...payload,
+          waitlistId: editTarget._id as never,
+        });
+        toast({ title: "Waitlist entry updated" });
+      } else {
+        await createWaitlistEntry(payload);
+        toast({ title: "Waitlist entry created" });
+      }
+
+      resetDialogs();
+    } catch (error) {
+      toast({
+        title: editTarget ? "Unable to update waitlist entry" : "Unable to create waitlist entry",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
       });
-      toast({ title: "Invite sent", description: `${inviteTarget.email} has been invited to join EduMyles.` });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleInvite() {
+    if (!sessionToken || !inviteTarget) return;
+    setSaving(true);
+    try {
+      if (inviteTarget.invite?.id && inviteTarget.status === "invited") {
+        await resendTenantInvite({ sessionToken, inviteId: inviteTarget.invite.id as never });
+        toast({ title: "Tenant invite resent" });
+      } else {
+        const parts = inviteTarget.fullName.split(/\s+/).filter(Boolean);
+        await sendTenantInvite({
+          sessionToken,
+          email: inviteTarget.email,
+          schoolName: inviteTarget.schoolName,
+          firstName: parts[0] ?? inviteTarget.fullName,
+          lastName: parts.slice(1).join(" ") || "Admin",
+          country: inviteTarget.country,
+          county: inviteTarget.county,
+          phone: inviteTarget.phone,
+          studentCountEstimate: inviteTarget.studentCount,
+          suggestedPlan: (inviteTarget.studentCount ?? 0) >= 500 ? "pro" : "starter",
+          suggestedModules: ["mod_finance", "mod_attendance", "mod_academics"],
+          personalMessage: inviteMessage.trim() || undefined,
+          referralCode: inviteTarget.referralCode,
+          resellerId: inviteTarget.resellerId,
+          waitlistId: inviteTarget._id as never,
+          crmLeadId: inviteTarget.crmLead?.id,
+        });
+        toast({ title: "Tenant invite sent" });
+      }
       resetDialogs();
     } catch (error) {
       toast({
@@ -184,32 +379,31 @@ export default function WaitlistPage() {
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  const handleReject = async () => {
+  async function handleReject() {
     if (!sessionToken || !rejectTarget || !rejectionReason.trim()) return;
     setSaving(true);
     try {
-      await updateWaitlistStatus({
+      await rejectWaitlistEntry({
         sessionToken,
         waitlistId: rejectTarget._id as never,
-        status: "rejected",
         reason: rejectionReason.trim(),
       });
       toast({ title: "Waitlist entry rejected" });
       resetDialogs();
     } catch (error) {
       toast({
-        title: "Unable to reject entry",
+        title: "Unable to reject waitlist entry",
         description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  const handleConvert = async () => {
+  async function handleConvert() {
     if (!sessionToken || !convertTarget || !convertTenantId) return;
     setSaving(true);
     try {
@@ -218,24 +412,64 @@ export default function WaitlistPage() {
         waitlistId: convertTarget._id as never,
         tenantId: convertTenantId,
       });
-      toast({ title: "Waitlist entry converted" });
+      toast({ title: "Waitlist entry converted to tenant" });
       resetDialogs();
     } catch (error) {
       toast({
-        title: "Unable to convert entry",
+        title: "Unable to convert waitlist entry",
         description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
     } finally {
       setSaving(false);
     }
-  };
+  }
+
+  async function handleDelete() {
+    if (!sessionToken || !deleteTarget || !deleteReason.trim()) return;
+    setSaving(true);
+    try {
+      await deleteWaitlistEntry({
+        sessionToken,
+        waitlistId: deleteTarget._id as never,
+        reason: deleteReason.trim(),
+      });
+      toast({ title: "Waitlist entry deleted" });
+      resetDialogs();
+    } catch (error) {
+      toast({
+        title: "Unable to delete waitlist entry",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleRevokeInvite(entry: WaitlistEntry) {
+    if (!sessionToken || !entry.invite?.id) return;
+    try {
+      await revokeTenantInvite({
+        sessionToken,
+        inviteId: entry.invite.id as never,
+        reason: "Revoked from platform waitlist pipeline",
+      });
+      toast({ title: "Tenant invite revoked" });
+    } catch (error) {
+      toast({
+        title: "Unable to revoke invite",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Waitlist"
-        description="Review inbound school interest, send tenant invites, and convert qualified schools into active tenants."
+        description="Track inbound school demand from the landing page, ads, and manual platform entries. Qualify, assign, invite, reject, and convert schools in real time."
         breadcrumbs={[
           { label: "Platform", href: "/platform" },
           { label: "Waitlist" },
@@ -249,7 +483,7 @@ export default function WaitlistPage() {
         <MetricCard title="Waiting" value={stats.waiting} icon={Clock3} />
         <MetricCard title="Invited" value={stats.invited} icon={Mail} />
         <MetricCard title="Converted" value={stats.converted} icon={CheckCircle2} />
-        <MetricCard title="Rejected" value={stats.rejected} icon={XCircle} />
+        <MetricCard title="High value" value={stats.highValue} icon={BadgeCheck} />
       </div>
 
       <Card>
@@ -260,16 +494,11 @@ export default function WaitlistPage() {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search schools, contacts, and sources"
+                placeholder="Search schools, contacts, current system, source"
                 className="w-full md:w-80"
               />
-              <Select
-                value={statusFilter}
-                onValueChange={(value) => setStatusFilter(value as (typeof STATUS_FILTERS)[number])}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as (typeof STATUS_FILTERS)[number])}>
+                <SelectTrigger className="w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
                 <SelectContent>
                   {STATUS_FILTERS.map((status) => (
                     <SelectItem key={status} value={status}>
@@ -278,15 +507,27 @@ export default function WaitlistPage() {
                   ))}
                 </SelectContent>
               </Select>
+              <Select value={sourceFilter} onValueChange={(value) => setSourceFilter(value as (typeof SOURCE_FILTERS)[number])}>
+                <SelectTrigger className="w-[220px]"><SelectValue placeholder="Source" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All sources</SelectItem>
+                  <SelectItem value="landing_waitlist">Landing waitlist</SelectItem>
+                  <SelectItem value="platform_manual_entry">Manual platform entry</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={() => { setForm(EMPTY_FORM); setCreateOpen(true); }}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Waitlist
+              </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {filteredEntries.length === 0 ? (
             <EmptyState
-              icon={search || statusFilter !== "all" ? SearchX : Building2}
-              title={search || statusFilter !== "all" ? "No waitlist entries match these filters" : "No waitlist entries yet"}
-              description="New school interest from the landing page will appear here as soon as prospects join the EduMyles waitlist."
+              icon={search || statusFilter !== "all" || sourceFilter !== "all" ? SearchX : Building2}
+              title={search || statusFilter !== "all" || sourceFilter !== "all" ? "No waitlist entries match these filters" : "No waitlist entries yet"}
+              description="Landing-page applications, ad-driven demand, and manual platform-created entries will all appear here in real time."
             />
           ) : (
             <Table>
@@ -294,23 +535,24 @@ export default function WaitlistPage() {
                 <TableRow>
                   <TableHead>School</TableHead>
                   <TableHead>Contact</TableHead>
+                  <TableHead>Qualification</TableHead>
+                  <TableHead>Assigned</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>CRM</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Last update</TableHead>
-                  <TableHead className="w-[250px]">Actions</TableHead>
+                  <TableHead>Activity</TableHead>
+                  <TableHead className="w-[320px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredEntries.map((entry) => (
-                  <TableRow key={String(entry._id)}>
+                  <TableRow key={entry._id}>
                     <TableCell>
                       <div>
                         <div className="font-medium">{entry.schoolName}</div>
-                        <div className="text-sm text-muted-foreground">{entry.country}</div>
-                        {entry.studentCount ? (
-                          <div className="text-xs text-muted-foreground">{entry.studentCount.toLocaleString()} students</div>
-                        ) : null}
+                        <div className="text-sm text-muted-foreground">{entry.country}{entry.county ? ` · ${entry.county}` : ""}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {entry.studentCount ? `${entry.studentCount.toLocaleString()} students` : "Student count pending"}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -321,74 +563,63 @@ export default function WaitlistPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={statusClass(entry.status)}>
-                        {labelize(entry.status)}
-                      </Badge>
+                      <div className="space-y-1">
+                        <div className="font-medium">{entry.qualificationScore ?? 0}/100</div>
+                        <div className="flex flex-wrap gap-1">
+                          {entry.isHighValue ? (
+                            <Badge variant="outline" className="border-amber-500/20 bg-amber-500/10 text-amber-700">High value</Badge>
+                          ) : null}
+                          {entry.sourceChannel ? <Badge variant="outline">{labelize(entry.sourceChannel)}</Badge> : null}
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      {entry.crmLeadId ? (
-                        <Link href="/platform/crm" className="text-sm text-primary hover:underline">
-                          Lead linked
-                        </Link>
+                      {entry.assignedUser ? (
+                        <div>
+                          <div className="font-medium">{entry.assignedUser.name}</div>
+                          <div className="text-xs text-muted-foreground">{labelize(entry.assignedUser.role)}</div>
+                        </div>
                       ) : (
-                        <span className="text-sm text-muted-foreground">Not linked</span>
+                        <span className="text-sm text-muted-foreground">Unassigned</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">{formatDateTime(entry.createdAt)}</div>
-                      <div className="text-xs text-muted-foreground">{formatRelativeTime(entry.createdAt)}</div>
+                      <div className="space-y-1">
+                        <Badge variant="outline" className={statusClass(entry.status)}>{labelize(entry.status)}</Badge>
+                        {entry.invite?.expiresAt ? (
+                          <div className="text-xs text-muted-foreground">Invite expires {formatDateTime(entry.invite.expiresAt)}</div>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">{formatDateTime(entry.updatedAt)}</div>
-                      {entry.inviteExpiresAt ? (
-                        <div className="text-xs text-muted-foreground">
-                          Invite expires {formatDateTime(entry.inviteExpiresAt)}
+                      {entry.crmLead ? (
+                        <div>
+                          <div className="font-medium">{labelize(entry.crmLead.stage ?? "open")}</div>
+                          <div className="text-xs text-muted-foreground">{labelize(entry.crmLead.status ?? "open")}</div>
                         </div>
-                      ) : null}
+                      ) : (
+                        <span className="text-sm text-muted-foreground">No lead yet</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">{formatRelativeTime(entry.updatedAt)}</div>
+                      <div className="text-xs text-muted-foreground">{formatDateTime(entry.createdAt)}</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-2">
-                        {entry.status === "waiting" ? (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                setInviteTarget(entry);
-                                setInviteForm({ tenantId: "", role: "school_admin", personalMessage: "" });
-                              }}
-                            >
-                              Invite
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => setRejectTarget(entry)}>
-                              Reject
-                            </Button>
-                          </>
-                        ) : null}
-                        {entry.status === "invited" ? (
-                          <>
-                            <Button size="sm" variant="outline" onClick={() => {
-                              setInviteTarget(entry);
-                              setInviteForm({ tenantId: "", role: "school_admin", personalMessage: "" });
-                            }}>
-                              Resend invite
-                            </Button>
-                            <Button size="sm" onClick={() => {
-                              setConvertTarget(entry);
-                              setConvertTenantId("");
-                            }}>
-                              Convert
-                            </Button>
-                          </>
-                        ) : null}
-                        {entry.status === "converted" ? (
-                          <Button asChild size="sm" variant="outline">
-                            <Link href="/platform/tenants">View tenants</Link>
+                        <Button size="sm" variant="outline" onClick={() => setDetailTarget(entry)}><Eye className="mr-2 h-4 w-4" />View</Button>
+                        <Button size="sm" variant="outline" onClick={() => { setEditTarget(entry); setForm(toForm(entry)); }}><Pencil className="mr-2 h-4 w-4" />Edit</Button>
+                        {entry.status !== "converted" ? (
+                          <Button size="sm" onClick={() => { setInviteTarget(entry); setInviteMessage(""); }}>
+                            <UserPlus2 className="mr-2 h-4 w-4" />
+                            {entry.status === "invited" ? "Resend" : "Invite"}
                           </Button>
                         ) : null}
+                        {entry.status === "invited" && entry.invite?.id ? <Button size="sm" variant="outline" onClick={() => handleRevokeInvite(entry)}>Revoke</Button> : null}
+                        {entry.status !== "converted" ? <Button size="sm" variant="outline" onClick={() => setRejectTarget(entry)}>Reject</Button> : null}
+                        {(entry.status === "invited" || entry.status === "waiting") ? <Button size="sm" variant="outline" onClick={() => { setConvertTarget(entry); setConvertTenantId(""); }}>Convert</Button> : null}
+                        {entry.status !== "converted" ? <Button size="sm" variant="ghost" onClick={() => setDeleteTarget(entry)}><Trash2 className="h-4 w-4" /></Button> : null}
                       </div>
-                      {entry.biggestChallenge ? (
-                        <p className="mt-2 max-w-xs text-xs text-muted-foreground">{entry.biggestChallenge}</p>
-                      ) : null}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -397,162 +628,153 @@ export default function WaitlistPage() {
           )}
         </CardContent>
       </Card>
+      <Dialog open={createOpen || !!editTarget} onOpenChange={(open) => !open && resetDialogs()}>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogHeader><DialogTitle>{editTarget ? "Edit waitlist entry" : "Create waitlist entry"}</DialogTitle></DialogHeader>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2"><Label>Full name</Label><Input value={form.fullName} onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))} /></div>
+            <div className="space-y-2"><Label>Email</Label><Input type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} /></div>
+            <div className="space-y-2"><Label>School name</Label><Input value={form.schoolName} onChange={(event) => setForm((current) => ({ ...current, schoolName: event.target.value }))} /></div>
+            <div className="space-y-2"><Label>Phone</Label><Input value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} /></div>
+            <div className="space-y-2"><Label>Country</Label><Input value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} /></div>
+            <div className="space-y-2"><Label>County</Label><Input value={form.county} onChange={(event) => setForm((current) => ({ ...current, county: event.target.value }))} /></div>
+            <div className="space-y-2"><Label>Student count</Label><Input type="number" min="0" value={form.studentCount} onChange={(event) => setForm((current) => ({ ...current, studentCount: event.target.value }))} /></div>
+            <div className="space-y-2">
+              <Label>Current system</Label>
+              <Select value={form.currentSystem || "__none"} onValueChange={(value) => setForm((current) => ({ ...current, currentSystem: value === "__none" ? "" : value }))}>
+                <SelectTrigger><SelectValue placeholder="Select current system" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">Not specified</SelectItem>
+                  {CURRENT_SYSTEM_OPTIONS.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Referral source</Label>
+              <Select value={form.referralSource || "__none"} onValueChange={(value) => setForm((current) => ({ ...current, referralSource: value === "__none" ? "" : value }))}>
+                <SelectTrigger><SelectValue placeholder="Select source" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">Not specified</SelectItem>
+                  {REFERRAL_OPTIONS.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2"><Label>Referral code</Label><Input value={form.referralCode} onChange={(event) => setForm((current) => ({ ...current, referralCode: event.target.value }))} /></div>
+            <div className="space-y-2">
+              <Label>Assigned owner</Label>
+              <Select value={form.assignedTo || "__none"} onValueChange={(value) => setForm((current) => ({ ...current, assignedTo: value === "__none" ? "" : value }))}>
+                <SelectTrigger><SelectValue placeholder="Select owner" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">Unassigned</SelectItem>
+                  {operators.map((operator) => <SelectItem key={operator.userId} value={operator.userId}>{operator.name} · {labelize(operator.role)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Source channel</Label>
+              <Select value={form.sourceChannel} onValueChange={(value) => setForm((current) => ({ ...current, sourceChannel: value }))}>
+                <SelectTrigger><SelectValue placeholder="Select source channel" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="platform_manual_entry">Manual platform entry</SelectItem>
+                  <SelectItem value="landing_waitlist">Landing waitlist</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 md:col-span-2"><Label>Biggest challenge</Label><Textarea rows={4} value={form.biggestChallenge} onChange={(event) => setForm((current) => ({ ...current, biggestChallenge: event.target.value }))} /></div>
+            <div className="space-y-2 md:col-span-2"><Label>Internal notes</Label><Textarea rows={4} value={form.notes} onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))} /></div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={resetDialogs}>Cancel</Button><Button onClick={handleCreateOrUpdate} disabled={saving}>{editTarget ? "Save changes" : "Create waitlist entry"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
 
+      <Dialog open={!!detailTarget} onOpenChange={(open) => !open && resetDialogs()}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader><DialogTitle>{detailTarget?.schoolName}</DialogTitle></DialogHeader>
+          {detailTarget ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card><CardHeader><CardTitle className="text-base">Lead profile</CardTitle></CardHeader><CardContent className="space-y-2 text-sm">
+                <div><span className="font-medium">Contact:</span> {detailTarget.fullName}</div>
+                <div><span className="font-medium">Email:</span> {detailTarget.email}</div>
+                <div><span className="font-medium">Phone:</span> {detailTarget.phone ?? "Not provided"}</div>
+                <div><span className="font-medium">Location:</span> {detailTarget.country}{detailTarget.county ? `, ${detailTarget.county}` : ""}</div>
+                <div><span className="font-medium">Student count:</span> {detailTarget.studentCount?.toLocaleString() ?? "Not provided"}</div>
+                <div><span className="font-medium">Current system:</span> {detailTarget.currentSystem ?? "Not provided"}</div>
+              </CardContent></Card>
+              <Card><CardHeader><CardTitle className="text-base">Pipeline</CardTitle></CardHeader><CardContent className="space-y-2 text-sm">
+                <div><span className="font-medium">Status:</span> {labelize(detailTarget.status)}</div>
+                <div><span className="font-medium">Qualification:</span> {detailTarget.qualificationScore ?? 0}/100</div>
+                <div><span className="font-medium">Assigned:</span> {detailTarget.assignedUser?.name ?? "Unassigned"}</div>
+                <div><span className="font-medium">CRM stage:</span> {detailTarget.crmLead ? labelize(detailTarget.crmLead.stage ?? "open") : "No lead"}</div>
+                <div><span className="font-medium">Referral source:</span> {detailTarget.referralSource ?? "Not specified"}</div>
+                <div><span className="font-medium">Referral code:</span> {detailTarget.referralCode ?? "Not provided"}</div>
+              </CardContent></Card>
+              <Card className="md:col-span-2"><CardHeader><CardTitle className="text-base">Challenge and notes</CardTitle></CardHeader><CardContent className="space-y-3 text-sm">
+                <div><div className="font-medium">Biggest challenge</div><div className="text-muted-foreground">{detailTarget.biggestChallenge ?? "No challenge supplied yet."}</div></div>
+                <div><div className="font-medium">Internal notes</div><div className="text-muted-foreground">{detailTarget.notes ?? "No notes yet."}</div></div>
+              </CardContent></Card>
+            </div>
+          ) : null}
+          <DialogFooter><Button variant="outline" onClick={resetDialogs}>Close</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={!!inviteTarget} onOpenChange={(open) => !open && resetDialogs()}>
         <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>{inviteTarget?.status === "invited" ? "Resend tenant invite" : "Invite school from waitlist"}</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>{inviteTarget?.status === "invited" ? "Resend tenant invite" : "Send tenant invite"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="rounded-lg border bg-muted/40 p-4 text-sm">
               <div className="font-medium">{inviteTarget?.schoolName}</div>
               <div className="text-muted-foreground">{inviteTarget?.fullName} · {inviteTarget?.email}</div>
+              {inviteTarget?.crmLead ? <div className="mt-2 text-xs text-muted-foreground">CRM stage: {labelize(inviteTarget.crmLead.stage ?? "open")}</div> : null}
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Tenant</Label>
-                <Select
-                  value={inviteForm.tenantId}
-                  onValueChange={(value) => setInviteForm((current) => ({ ...current, tenantId: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select tenant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tenants.map((tenant) => (
-                      <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
-                        {tenant.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Role</Label>
-                <Select
-                  value={inviteForm.role}
-                  onValueChange={(value) => setInviteForm((current) => ({ ...current, role: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLE_OPTIONS.map((role) => (
-                      <SelectItem key={role.value} value={role.value}>
-                        {role.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Personal message</Label>
-              <Textarea
-                value={inviteForm.personalMessage}
-                onChange={(event) => setInviteForm((current) => ({ ...current, personalMessage: event.target.value }))}
-                rows={4}
-                placeholder="Share rollout notes, onboarding context, or next steps for the school contact."
-              />
-            </div>
+            <div className="space-y-2"><Label>Personal message</Label><Textarea value={inviteMessage} onChange={(event) => setInviteMessage(event.target.value)} rows={4} placeholder="Share rollout context, onboarding notes, or a warm handoff message." /></div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={resetDialogs}>Cancel</Button>
-            <Button onClick={handleInvite} disabled={saving || !inviteForm.tenantId || !inviteForm.role}>
-              <UserPlus2 className="mr-2 h-4 w-4" />
-              {inviteTarget?.status === "invited" ? "Resend invite" : "Send invite"}
-            </Button>
-          </DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={resetDialogs}>Cancel</Button><Button onClick={handleInvite} disabled={saving}><UserPlus2 className="mr-2 h-4 w-4" />{inviteTarget?.status === "invited" ? "Resend invite" : "Send invite"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog open={!!rejectTarget} onOpenChange={(open) => !open && resetDialogs()}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject waitlist entry</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label>Reason</Label>
-            <Textarea
-              value={rejectionReason}
-              onChange={(event) => setRejectionReason(event.target.value)}
-              rows={4}
-              placeholder="Capture why this school is not moving forward right now."
-            />
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Reject waitlist entry</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Add a clear reason so the school gets a polite rejection email and the CRM record stays accurate.</p>
+            <div className="space-y-2"><Label>Reason</Label><Textarea rows={5} value={rejectionReason} onChange={(event) => setRejectionReason(event.target.value)} /></div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={resetDialogs}>Cancel</Button>
-            <Button variant="destructive" onClick={handleReject} disabled={saving || !rejectionReason.trim()}>
-              Reject entry
-            </Button>
-          </DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={resetDialogs}>Cancel</Button><Button variant="destructive" onClick={handleReject} disabled={saving || !rejectionReason.trim()}>Reject entry</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog open={!!convertTarget} onOpenChange={(open) => !open && resetDialogs()}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Convert invited school</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Convert to tenant</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="rounded-lg border bg-muted/40 p-4 text-sm">
-              Mark this waitlist record as converted after the school has been provisioned into a live tenant.
-            </div>
+            <p className="text-sm text-muted-foreground">Link this waitlist entry to an already-created tenant record after onboarding or manual provisioning.</p>
             <div className="space-y-2">
-              <Label>Tenant</Label>
+              <Label>Select tenant</Label>
               <Select value={convertTenantId} onValueChange={setConvertTenantId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select tenant" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select tenant" /></SelectTrigger>
                 <SelectContent>
-                  {tenants.map((tenant) => (
-                    <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
-                      {tenant.name}
-                    </SelectItem>
-                  ))}
+                  {tenantOptions.map((tenant) => <SelectItem key={tenant.tenantId} value={tenant.tenantId}>{tenant.name} · {tenant.tenantId}</SelectItem>)}
                 </SelectContent>
               </Select>
-              {convertTenantId ? (
-                <p className="text-xs text-muted-foreground">
-                  This will link the waitlist entry to {tenantMap.get(convertTenantId) ?? convertTenantId}.
-                </p>
-              ) : null}
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={resetDialogs}>Cancel</Button>
-            <Button onClick={handleConvert} disabled={saving || !convertTenantId}>
-              Convert entry
-            </Button>
-          </DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={resetDialogs}>Cancel</Button><Button onClick={handleConvert} disabled={saving || !convertTenantId}>Convert entry</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && resetDialogs()}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Delete waitlist entry</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-800">
+              <ShieldAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <p>This removes the waitlist entry from the live pipeline. Converted entries cannot be deleted.</p>
+            </div>
+            <div className="space-y-2"><Label>Reason</Label><Textarea rows={4} value={deleteReason} onChange={(event) => setDeleteReason(event.target.value)} /></div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={resetDialogs}>Cancel</Button><Button variant="destructive" onClick={handleDelete} disabled={saving || !deleteReason.trim()}>Delete entry</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-function MetricCard({
-  title,
-  value,
-  icon: Icon,
-}: {
-  title: string;
-  value: number;
-  icon: typeof Users;
-}) {
-  return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-3xl font-semibold">{value}</p>
-          </div>
-          <div className="rounded-xl border bg-muted/40 p-2">
-            <Icon className="h-4 w-4" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

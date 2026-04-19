@@ -39,7 +39,7 @@
             },
             {
               "scheme": "https",
-              "host": "app.edumyles.com",
+              "host": "app.mylescorptech.com",
               "pathPrefix": "/auth/callback"
             }
           ],

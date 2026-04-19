@@ -1,0 +1,140 @@
+{
+  "results": [
+    {
+      "route": "/api/auth/session",
+      "status": 200,
+      "title": "",
+      "hasContent": true,
+      "overlay": false,
+      "currentUrl": "http://localhost:3000/api/auth/session",
+      "textPreview": "{\"session\":{\"sessionToken\":\"dev-platform-session\",\"tenantId\":\"PLATFORM\",\"userId\":\"dev-platform-admin\",\"email\":\"ayany004@gmail.com\",\"role\":\"master_admin\",\"expiresAt\":1778653891655}}"
+    },
+    {
+      "route": "/platform/marketplace",
+      "status": 200,
+      "title": "EduMyles",
+      "hasContent": true,
+      "overlay": false,
+      "currentUrl": "http://localhost:3000/platform/marketplace",
+      "textPreview": "EduMyles\nPlatform Admin\n\nMaster Admin Command Center\n\nLive\nPLATFORM STATUS\nPlatform healthy\n145ms avg\n0.0% errors\n\nQUEUE\n\n0 reviews\n0 flags\n0 unread\nSearch\nCtrl K\nJonathan Myles\nMaster Admin\nDashboard\n\nTENANTS\n\nAll Tenants\nCreate Tenant\nTenant Success\nWaitlist\nOnboarding\n\nUSERS & STAFF\n\nAll Users\nInvite Staff\nRoles\nImpersonation\nStaff Performance\nSessions\nActivity Logs\n\nMARKETPLACE\n\nMarketplace Ov"
+    },
+    {
+      "route": "/platform/marketplace/admin",
+      "status": 200,
+      "title": "EduMyles",
+      "hasContent": true,
+      "overlay": false,
+      "currentUrl": "http://localhost:3000/platform/marketplace/admin",
+      "textPreview": "EduMyles\nPlatform Admin\n\nMaster Admin Command Center\n\nLive\nPLATFORM STATUS\nPlatform healthy\n145ms avg\n0.0% errors\n\nQUEUE\n\n0 reviews\n0 flags\n0 unread\nSearch\nCtrl K\nJonathan Myles\nMaster Admin\nDashboard\n\nTENANTS\n\nAll Tenants\nCreate Tenant\nTenant Success\nWaitlist\nOnboarding\n\nUSERS & STAFF\n\nAll Users\nInvite Staff\nRoles\nImpersonation\nStaff Performance\nSessions\nActivity Logs\n\nMARKETPLACE\n\nMarketplace Ov"
+    },
+    {
+      "route": "/platform/marketplace/pricing",
+      "status": 200,
+      "title": "EduMyles",
+      "hasContent": true,
+      "overlay": false,
+      "currentUrl": "http://localhost:3000/platform/marketplace/pricing",
+      "textPreview": "EduMyles\nPlatform Admin\n\nMaster Admin Command Center\n\nLive\nPLATFORM STATUS\nPlatform healthy\n145ms avg\n0.0% errors\n\nQUEUE\n\n0 reviews\n0 flags\n0 unread\nSearch\nCtrl K\nJonathan Myles\nMaster Admin\nDashboard\n\nTENANTS\n\nAll Tenants\nCreate Tenant\nTenant Success\nWaitlist\nOnboarding\n\nUSERS & STAFF\n\nAll Users\nInvite Staff\nRoles\nImpersonation\nStaff Performance\nSessions\nActivity Logs\n\nMARKETPLACE\n\nMarketplace Ov"
+    },
+    {
+      "route": "/platform/marketplace/billing",
+      "status": 200,
+      "title": "EduMyles",
+      "hasContent": true,
+      "overlay": false,
+      "currentUrl": "http://localhost:3000/platform/marketplace/billing",
+      "textPreview": "EduMyles\nPlatform Admin\n\nMaster Admin Command Center\n\nLive\nPLATFORM STATUS\nPlatform healthy\n145ms avg\n0.0% errors\n\nQUEUE\n\n0 reviews\n0 flags\n0 unread\nSearch\nCtrl K\nJonathan Myles\nMaster Admin\nDashboard\n\nTENANTS\n\nAll Tenants\nCreate Tenant\nTenant Success\nWaitlist\nOnboarding\n\nUSERS & STAFF\n\nAll Users\nInvite Staff\nRoles\nImpersonation\nStaff Performance\nSessions\nActivity Logs\n\nMARKETPLACE\n\nMarketplace Ov"
+    },
+    {
+      "route": "/platform/marketplace/reviews",
+      "status": 200,
+      "title": "EduMyles",
+      "hasContent": true,
+      "overlay": false,
+      "currentUrl": "http://localhost:3000/platform/marketplace/reviews",
+      "textPreview": "EduMyles\nPlatform Admin\n\nMaster Admin Command Center\n\nLive\nPLATFORM STATUS\nPlatform healthy\n145ms avg\n0.0% errors\n\nQUEUE\n\n0 reviews\n0 flags\n0 unread\nSearch\nCtrl K\nJonathan Myles\nMaster Admin\nDashboard\n\nTENANTS\n\nAll Tenants\nCreate Tenant\nTenant Success\nWaitlist\nOnboarding\n\nUSERS & STAFF\n\nAll Users\nInvite Staff\nRoles\nImpersonation\nStaff Performance\nSessions\nActivity Logs\n\nMARKETPLACE\n\nMarketplace Ov"
+    },
+    {
+      "route": "/platform/marketplace/flags",
+      "status": 200,
+      "title": "EduMyles",
+      "hasContent": true,
+      "overlay": false,
+      "currentUrl": "http://localhost:3000/platform/marketplace/flags",
+      "textPreview": "EduMyles\nPlatform Admin\n\nMaster Admin Command Center\n\nLive\nPLATFORM STATUS\nPlatform healthy\n145ms avg\n0.0% errors\n\nQUEUE\n\n0 reviews\n0 flags\n0 unread\nSearch\nCtrl K\nJonathan Myles\nMaster Admin\nDashboard\n\nTENANTS\n\nAll Tenants\nCreate Tenant\nTenant Success\nWaitlist\nOnboarding\n\nUSERS & STAFF\n\nAll Users\nInvite Staff\nRoles\nImpersonation\nStaff Performance\nSessions\nActivity Logs\n\nMARKETPLACE\n\nMarketplace Ov"
+    }
+  ],
+  "consoleMessages": [
+    {
+      "type": "warning",
+      "text": "Image with src \"http://localhost:3000/logo-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:3000/platform/marketplace"
+    },
+    {
+      "type": "warning",
+      "text": "Image with src \"http://localhost:3000/logo-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.",
+      "url": "http://localhost:3000/platform/marketplace/admin"
+    },
+    {
+      "type": "warning",
+      "text": "Image with src \"http://localhost:3000/logo-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.",
+      "url": "http://localhost:3000/platform/marketplace/pricing"
+    },
+    {
+      "type": "warning",
+      "text": "Image with src \"http://localhost:3000/logo-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.",
+      "url": "http://localhost:3000/platform/marketplace/billing"
+    },
+    {
+      "type": "warning",
+      "text": "Image with src \"http://localhost:3000/logo-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.",
+      "url": "http://localhost:3000/platform/marketplace/reviews"
+    },
+    {
+      "type": "warning",
+      "text": "Image with src \"http://localhost:3000/logo-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.",
+      "url": "http://localhost:3000/platform/marketplace/flags"
+    }
+  ],
+  "pageErrors": []
+}

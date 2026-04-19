@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, internalMutation } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
@@ -235,6 +236,13 @@ export const generateInvoice = mutation({
       after: { studentId: args.studentId, amount: (feeStructure as any).amount },
     });
 
+    await ctx.scheduler.runAfter(0, internal.modules.platform.onboarding.completeFirstActionForTenant, {
+      tenantId: tenant.tenantId,
+      userId: tenant.userId,
+      source: "invoice",
+      count: 1,
+    });
+
     return invoiceId;
   },
 });
@@ -287,6 +295,16 @@ export const bulkGenerateInvoices = mutation({
       entityId: ids[0] ?? "",
       after: { count: ids.length, ids },
     });
+
+    if (ids.length > 0) {
+      await ctx.scheduler.runAfter(0, internal.modules.platform.onboarding.completeFirstActionForTenant, {
+        tenantId: tenant.tenantId,
+        userId: tenant.userId,
+        source: "invoice",
+        count: ids.length,
+      });
+    }
+
     return { success: true, count: ids.length, invoiceIds: ids };
   },
 });

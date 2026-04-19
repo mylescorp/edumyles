@@ -22,13 +22,12 @@ import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { Boxes, Pencil, Plus, ShieldCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 
-type PlanName = "free" | "starter" | "pro" | "enterprise";
 type ApiAccess = "none" | "read" | "read_write";
 type WhiteLabel = "none" | "logo" | "full";
 
 type PlanCatalogItem = {
   id: string;
-  name: PlanName;
+  name: string;
   priceMonthlyKes: number;
   priceAnnualKes: number;
   studentLimit?: number;
@@ -48,13 +47,14 @@ type PlanCatalogItem = {
 };
 
 type ModuleRow = {
-  _id: string;
+  moduleId: string;
   name: string;
   category?: string;
+  slug?: string;
 };
 
 type EditForm = {
-  planName: PlanName;
+  planName: string;
   priceMonthlyKes: string;
   priceAnnualKes: string;
   studentLimit: string;
@@ -115,9 +115,9 @@ export default function BillingPlansPage() {
   ) as PlanCatalogItem[] | undefined;
 
   const publishedModules = usePlatformQuery(
-    api.modules.marketplace.modules.getPublishedModules,
-    {},
-    true
+    api.modules.marketplace.platformDashboard.getPlatformMarketplaceModules,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
   ) as ModuleRow[] | undefined;
 
   const updatePlan = useMutation(api.modules.platform.subscriptions.updateSubscriptionPlan);
@@ -210,6 +210,10 @@ export default function BillingPlansPage() {
 
   const handleSave = async () => {
     if (!sessionToken || !form) return;
+    if (!form.planName.trim()) {
+      toast.error("Plan name is required.");
+      return;
+    }
 
     const monthly = Number(form.priceMonthlyKes);
     const annual = Number(form.priceAnnualKes);
@@ -222,7 +226,7 @@ export default function BillingPlansPage() {
     try {
       const payload = {
         sessionToken,
-        planName: form.planName,
+        planName: form.planName.trim().toLowerCase(),
         priceMonthlyKes: monthly,
         priceAnnualKes: annual,
         studentLimit: form.studentLimit ? Number(form.studentLimit) : undefined,
@@ -579,11 +583,11 @@ export default function BillingPlansPage() {
                       <div className="mb-3 text-sm font-medium capitalize">{category}</div>
                       <div className="grid gap-3 md:grid-cols-2">
                         {modules.map((module) => (
-                          <label key={module._id} className="flex items-center gap-3 rounded-md border p-3">
+                          <label key={module.moduleId} className="flex items-center gap-3 rounded-md border p-3">
                             <Checkbox
-                              checked={form.includedModuleIds.includes(module._id)}
+                              checked={form.includedModuleIds.includes(module.moduleId)}
                               onCheckedChange={(checked) =>
-                                handleModuleToggle(module._id, Boolean(checked))
+                                handleModuleToggle(module.moduleId, Boolean(checked))
                               }
                             />
                             <div>

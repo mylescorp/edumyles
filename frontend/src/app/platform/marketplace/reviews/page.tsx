@@ -19,6 +19,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { CheckCircle2, Clock3, Search, Star, XCircle } from "lucide-react";
 
+const marketplacePlatformApi =
+  (api as any).modules?.marketplace?.platformDashboard ??
+  (api as any)["modules/marketplace/platformDashboard"];
+
+const STATUSES = ["all", "pending", "approved", "flagged", "deleted"] as const;
+
 function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" });
 }
@@ -48,7 +54,7 @@ export default function ReviewModerationPage() {
   const [status, setStatus] = useState<(typeof STATUSES)[number]>("pending");
   const [search, setSearch] = useState("");
   const [selectedReview, setSelectedReview] = useState<any>(null);
-  const [rejectionReason, setRejectionReason] = useState("");
+  const [moderationStatus, setModerationStatus] = useState<"approved" | "flagged" | "deleted">("deleted");
 
   const reviews = usePlatformQuery(
     api.platform.marketplace.queries.getAllMarketplaceReviews,
@@ -61,7 +67,7 @@ export default function ReviewModerationPage() {
     !!sessionToken
   ) as any[] | undefined;
 
-  const moderateReview = useMutation(api.platform.marketplace.mutations.moderateReview);
+  const moderateReview = useMutation(api.modules.marketplace.reviews.moderateReview);
 
   const filteredReviews = useMemo(() => {
     const rows = reviews ?? [];
@@ -235,7 +241,7 @@ export default function ReviewModerationPage() {
       <Dialog open={Boolean(selectedReview)} onOpenChange={(open) => !open && setSelectedReview(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject Review</DialogTitle>
+            <DialogTitle>Moderate Review</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-sm">

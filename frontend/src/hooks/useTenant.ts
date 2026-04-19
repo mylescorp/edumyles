@@ -125,7 +125,7 @@ export function useTenant() {
   return {
     tenantId: resolvedTenantId,
     tenant: hasTenantContext
-      ? {
+        ? {
           _id: resolvedTenantId!,
           name: resolvedTenantContext?.tenant?.name ?? "My School",
           plan: resolvedTenantContext?.tenant?.plan ?? resolvedTier ?? "starter",
@@ -135,6 +135,9 @@ export function useTenant() {
           phone: resolvedTenantContext?.tenant?.phone ?? "",
           country: resolvedTenantContext?.tenant?.country ?? "KE",
           county: resolvedTenantContext?.tenant?.county ?? "",
+          trialStartedAt: resolvedTenantContext?.tenant?.trialStartedAt ?? null,
+          trialEndsAt: resolvedTenantContext?.tenant?.trialEndsAt ?? null,
+          activatedAt: resolvedTenantContext?.tenant?.activatedAt ?? null,
         }
       : null,
     organization: resolvedTenantContext?.organization && resolvedTier

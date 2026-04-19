@@ -32,7 +32,7 @@ export function MobileNav({ navItems, installedModules }: MobileNavProps) {
       <SheetContent side="left" className="w-72 p-0">
         <SheetTitle className="sr-only">Navigation menu</SheetTitle>
         <div className="flex h-16 items-center gap-2.5 border-b px-4" style={{ background: "linear-gradient(135deg,#061A12,#0C3020)" }}>
-          <Image src="/logo-icon.svg" alt="EduMyles" width={32} height={32} className="flex-shrink-0" priority />
+          <Image src="/logo-icon.svg" alt="EduMyles" width={32} height={32} className="h-auto w-auto flex-shrink-0" priority />
           <span className="text-sm font-bold" style={{ color: "#D4AF37" }}>EduMyles</span>
         </div>
         <ScrollArea className="h-[calc(100vh-4rem)]">

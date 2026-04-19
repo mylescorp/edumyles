@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
-import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { TierBadge } from "../components/TierBadge";
 import { ModuleStatusBadge } from "../components/ModuleStatusBadge";
 import { useAuth } from "@/hooks/useAuth";
-import { useTenant } from "@/hooks/useTenant";
+import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -62,14 +61,16 @@ type AccessStatus = "allowed" | "plan_upgrade_required" | "rbac_escalation_requi
 
 export default function ModuleDetailPage() {
   const params = useParams();
-  const moduleId = params.moduleId as string;
-  const { isLoading: authLoading, sessionToken } = useAuth();
-  const { tenantId, isLoading: tenantLoading } = useTenant();
+  const moduleSlug = params.moduleId as string;
+  const { sessionToken, isAuthenticated, isLoading: authLoading } = useAuth();
+  const canQuery = !authLoading && isAuthenticated && !!sessionToken;
 
-  const moduleDetails = useQuery(
-    api.modules.marketplace.queries.getModuleDetails,
-    sessionToken ? { sessionToken, moduleId } : "skip"
-  );
+  const moduleDetail = useQuery(
+    api.modules.marketplace.settings.getModuleDetail,
+    canQuery ? { sessionToken, moduleSlug } : "skip"
+  )?.data as any;
+  const shouldQueryPricing =
+    canQuery && moduleDetail !== undefined && moduleDetail !== null && !moduleDetail.isCore;
 
   // Access check — only run when user clicks Install
   const [checkingAccess, setCheckingAccess] = useState(false);
@@ -114,14 +115,18 @@ export default function ModuleDetailPage() {
     });
   }, [checkingAccess, accessStatus]);
 
-  if (authLoading || tenantLoading || moduleDetails === undefined) {
+  if (
+    authLoading ||
+    (canQuery && moduleDetail === undefined) ||
+    (shouldQueryPricing && (pricingMonthly === undefined || pricingAnnual === undefined))
+  ) {
     return <LoadingSkeleton variant="page" />;
   }
 
-  if (!moduleDetails) {
+  if (!moduleDetail) {
     return (
-      <div className="py-16 text-center">
-        <p className="text-muted-foreground">Module not found.</p>
+      <div className="py-16 text-center text-sm text-muted-foreground">
+        Module details could not be loaded.
       </div>
     );
   }
@@ -187,17 +192,30 @@ export default function ModuleDetailPage() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }
+
+  async function handleCoreInstall() {
+    try {
+      await installModule({
+        sessionToken,
+        moduleSlug,
+        billingPeriod: "monthly",
+      });
+      toast.success("Core module activated successfully");
+    } catch (error: any) {
+      toast.error(error?.message ?? "Failed to activate core module");
+    }
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={moduleDetails.name}
-        description={moduleDetails.description}
+        title={moduleDetail.name}
+        description={moduleDetail.description}
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
           { label: "Marketplace", href: "/admin/marketplace" },
-          { label: moduleDetails.name },
+          { label: moduleDetail.name },
         ]}
         actions={
           isInstalled && !isCore ? (
@@ -254,7 +272,7 @@ export default function ModuleDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Features</CardTitle>
+              <CardTitle>About this module</CardTitle>
             </CardHeader>
             <CardContent>
               {features.length === 0 ? (
@@ -295,12 +313,7 @@ export default function ModuleDetailPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Icon className="h-5 w-5 text-primary" />
-                </div>
-                Module Info
-              </CardTitle>
+              <CardTitle>Module Snapshot</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {[

@@ -67,6 +67,12 @@ function readCookie(name: string): string | null {
   return value ? decodeURIComponent(value) : null;
 }
 
+function getAdminWorkspaceTenantId() {
+  const requestedWorkspace = getRequestedWorkspace();
+  if (requestedWorkspace !== "admin") return null;
+  return readCookie("edumyles_admin_tenant");
+}
+
 function readStoredSession(): Session | null {
   if (typeof window === "undefined") return null;
 
@@ -103,6 +109,7 @@ function buildFallbackSessionFromCookies(): Session | null {
   const userCookie = readCookie("edumyles_user");
   const roleCookie = normalizeRole(readCookie("edumyles_role"));
   const storedSession = readStoredSession();
+  const adminWorkspaceTenantId = getAdminWorkspaceTenantId();
 
   if (!userCookie) return storedSession;
 
@@ -117,7 +124,9 @@ function buildFallbackSessionFromCookies(): Session | null {
     if (!user.email) return null;
 
     const role = normalizeRole(user.role) ?? roleCookie ?? "school_admin";
-    const tenantId = role === "master_admin" ? "PLATFORM" : (user.tenantId ?? "PLATFORM");
+    const tenantId =
+      adminWorkspaceTenantId ||
+      (role === "master_admin" ? "PLATFORM" : (user.tenantId ?? "PLATFORM"));
 
     return {
       sessionToken:
@@ -142,6 +151,21 @@ function buildFallbackSessionFromCookies(): Session | null {
   }
 }
 
+function getRequestedWorkspace(): "admin" | "platform" | null {
+  if (typeof window === "undefined") return null;
+  const pathname = window.location.pathname;
+
+  if (pathname.startsWith("/platform")) {
+    return "platform";
+  }
+
+  if (pathname.startsWith("/admin") || pathname.startsWith("/portal/admin")) {
+    return "admin";
+  }
+
+  return null;
+}
+
 async function loadAuthSession(force = false) {
   if (authLoadPromise && !force) {
     return authLoadPromise;
@@ -164,7 +188,11 @@ async function loadAuthSession(force = false) {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
-      const res = await fetch("/api/auth/session", {
+      const workspace = getRequestedWorkspace();
+      const endpoint = workspace
+        ? `/api/auth/session?workspace=${encodeURIComponent(workspace)}`
+        : "/api/auth/session";
+      const res = await fetch(endpoint, {
         credentials: "same-origin",
         cache: "no-store",
         signal: controller.signal,
@@ -186,7 +214,13 @@ async function loadAuthSession(force = false) {
             role: normalizeRole((data.session as Session).role) ?? "",
           }
         : null;
-      const resolvedSession = nextSession ?? buildFallbackSessionFromCookies();
+      const adminWorkspaceTenantId = getAdminWorkspaceTenantId();
+      const resolvedSession = nextSession
+        ? {
+            ...nextSession,
+            tenantId: adminWorkspaceTenantId || nextSession.tenantId,
+          }
+        : buildFallbackSessionFromCookies();
 
       writeStoredSession(resolvedSession);
 
@@ -247,13 +281,13 @@ export function useAuth() {
 
   const studentProfile = useQuery(
     api.modules.portal.student.queries.getMyProfile,
-    {},
+    { sessionToken: session?.sessionToken ?? undefined },
     !!session?.sessionToken && session.role === "student"
   );
 
   const parentProfile = useQuery(
     api.modules.portal.parent.queries.getParentProfile,
-    {},
+    { sessionToken: session?.sessionToken ?? undefined },
     !!session?.sessionToken && session.role === "parent"
   );
 

@@ -1,4 +1,4 @@
-import { action, internalMutation } from "../_generated/server";
+import { action, internalMutation, internalQuery, mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 import { CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
 import { generateTenantId } from "../helpers/idGenerator";
@@ -18,12 +18,32 @@ export const seedDevDataInternal = internalMutation({
     adminEmail: v.string(),
   },
   handler: async (ctx, args) => {
+    const now = Date.now();
+    const moduleIdsBySlug = await ensureMarketplaceCatalog(ctx, now);
+
     const existingTenant = await ctx.db
       .query("tenants")
       .withIndex("by_subdomain", (q) => q.eq("subdomain", args.subdomain))
       .first();
 
     if (existingTenant) {
+      await ensureCoreMarketplaceInstallsForTenant(ctx, {
+        tenantId: existingTenant.tenantId,
+        installedBy: MARKETPLACE_SEED_ACTOR,
+        now,
+        moduleIdsBySlug,
+      });
+
+      const allTenants = await ctx.db.query("tenants").collect();
+      for (const tenant of allTenants) {
+        await ensureCoreMarketplaceInstallsForTenant(ctx, {
+          tenantId: tenant.tenantId,
+          installedBy: MARKETPLACE_SEED_ACTOR,
+          now,
+          moduleIdsBySlug,
+        });
+      }
+
       const existingSession = await ctx.db
         .query("sessions")
         .withIndex("by_token", (q) => q.eq("sessionToken", `seed-admin-${args.subdomain}`))
@@ -38,7 +58,6 @@ export const seedDevDataInternal = internalMutation({
       };
     }
 
-    const now = Date.now();
     const tenantId = generateTenantId();
     const adminUserId = `seed-admin-${args.subdomain}`;
     const adminSessionToken = `seed-admin-${args.subdomain}`;
@@ -86,6 +105,16 @@ export const seedDevDataInternal = internalMutation({
           updatedAt: now,
         });
       }
+    }
+
+    const allTenants = await ctx.db.query("tenants").collect();
+    for (const tenant of allTenants) {
+      await ensureCoreMarketplaceInstallsForTenant(ctx, {
+        tenantId: tenant.tenantId,
+        installedBy: adminUserId,
+        now,
+        moduleIdsBySlug,
+      });
     }
 
     await ctx.db.insert("users", {

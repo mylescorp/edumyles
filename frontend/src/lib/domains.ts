@@ -1,4 +1,4 @@
-const DEFAULT_ROOT_DOMAIN = "edumyles.com";
+const DEFAULT_APP_HOST = "edumyles-frontend.vercel.app";
 
 function normalizeDomain(value?: string | null) {
   const domain = (value?.trim() || DEFAULT_ROOT_DOMAIN).replace(/^https?:\/\//, "").replace(/\/+$/, "");

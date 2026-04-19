@@ -1,0 +1,2029 @@
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: cca613844389a793] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: 7612277126ac6da0] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: 17e87104e508c2d5] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: d75b733ebde6cc74] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: cdf422b04d349dfa] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: 4390f3927c6c203a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: c0e3a2e365be11a9] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 56e0f51ca5dfa3b1] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 439334e10f237ea7] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: e2a4c3c8b528939c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: c5916f6e644654eb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 8c46f21aa46a0c94] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: c86d1a1a6adc473c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 68538bd31ad147bd] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 8a8790b38c14d10d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 36f0ca2b232f5f15] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: a64558d99103f018] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: f9c8605e53630253] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: c5d95238f9b1aad9] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ebc5000ad9ed0b05] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: baba2debf4357127] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 925b375f7f65b1e6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+⨯ Error: Module [project]/frontend/src/components/layout/shells/AdminShell.tsx [app-ssr] (ecmascript) was instantiated because it was required from module [project]/node_modules/next/dist/esm/build/templates/app-page.js?page=/admin/settings/modules/[moduleId]/page { METADATA_0 => "[project]/frontend/src/app/icon.svg.mjs { IMAGE => \"[project]/frontend/src/app/icon.svg (static in ecmascript, tag client)\" } [app-rsc] (structured image object, ecmascript)", MODULE_1 => "[project]/frontend/src/app/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_2 => "[project]/frontend/src/app/error.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_3 => "[project]/frontend/src/app/loading.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_4 => "[project]/frontend/src/app/not-found.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_5 => "[project]/node_modules/next/dist/client/components/builtin/forbidden.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_6 => "[project]/node_modules/next/dist/client/components/builtin/unauthorized.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_7 => "[project]/node_modules/next/dist/client/components/builtin/global-error.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_8 => "[project]/frontend/src/app/admin/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_9 => "[project]/frontend/src/app/admin/error.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_10 => "[project]/frontend/src/app/admin/loading.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_11 => "[project]/frontend/src/app/admin/not-found.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_12 => "[project]/frontend/src/app/admin/settings/modules/[moduleId]/page.tsx [app-rsc] (ecmascript, Next.js Server Component)" } [app-rsc] (ecmascript) <locals>, but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+    at ignore-listed frames {
+  digest: '3316599933'
+}
+[browser] Uncaught Error: Switched to client rendering because the server rendering errored:
+
+Module [project]/frontend/src/components/layout/shells/AdminShell.tsx [app-ssr] (ecmascript) was instantiated because it was required from module [project]/node_modules/next/dist/esm/build/templates/app-page.js?page=/admin/settings/modules/[moduleId]/page { METADATA_0 => "[project]/frontend/src/app/icon.svg.mjs { IMAGE => \"[project]/frontend/src/app/icon.svg (static in ecmascript, tag client)\" } [app-rsc] (structured image object, ecmascript)", MODULE_1 => "[project]/frontend/src/app/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_2 => "[project]/frontend/src/app/error.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_3 => "[project]/frontend/src/app/loading.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_4 => "[project]/frontend/src/app/not-found.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_5 => "[project]/node_modules/next/dist/client/components/builtin/forbidden.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_6 => "[project]/node_modules/next/dist/client/components/builtin/unauthorized.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_7 => "[project]/node_modules/next/dist/client/components/builtin/global-error.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_8 => "[project]/frontend/src/app/admin/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_9 => "[project]/frontend/src/app/admin/error.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_10 => "[project]/frontend/src/app/admin/loading.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_11 => "[project]/frontend/src/app/admin/not-found.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_12 => "[project]/frontend/src/app/admin/settings/modules/[moduleId]/page.tsx [app-rsc] (ecmascript, Next.js Server Component)" } [app-rsc] (ecmascript) <locals>, but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 1278d3c7ba1b5ab4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 55188bd2759b65be] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: da4d1fc2b800bf64] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 5c252e08e55cae3e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 995c116cee9836a7] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ae7577f65ad3bf4c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e551934a1a3a8564] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 4f1e2297804b9c36] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: fea69cac9d1d77b2] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e5c34d396c434781] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 620245239eeaa1b9] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: fc6cb896fda835a4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 52b564b58d8e0112] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 240ee3797e31014a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 9f62901b20c8b572] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 1eb6d74f35870ee9] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e80f1d20c6d39636] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 71b5510eb5f977f8] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 527659a832d1f8fb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e9d1efeb74252abb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: d0906445307c90bf] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 19085c9dbf654801] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 4f22f4ab90474e72] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 0a8883765edd8961] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 80ad77a55caaffd8] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e68834ac8a06d9f1] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 341dc9c4f31485ae] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: edbfbfc07111af04] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 2a16d7571efac5a9] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 3e3e31288dcb633b] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ReferenceError: progress is not defined
+    at TenantProvisioningWizard (file://C:/Users/Admin/Projects/edumyles/frontend/.next/dev/static/chunks/_0yn2l~t._.js?id=%255Bproject%255D%252Ffrontend%252Fsrc%252Fcomponents%252Fplatform%252FTenantProvisioningWizard.tsx+%255Bapp-client%255D+%2528ecmascript%2529:710:52)
+    at Set.forEach (<anonymous>) (src/app/platform/error.tsx:16:13)
+[browser] ReferenceError: progress is not defined
+    at TenantProvisioningWizard (file://C:/Users/Admin/Projects/edumyles/frontend/.next/dev/static/chunks/_0yn2l~t._.js?id=%255Bproject%255D%252Ffrontend%252Fsrc%252Fcomponents%252Fplatform%252FTenantProvisioningWizard.tsx+%255Bapp-client%255D+%2528ecmascript%2529:710:52)
+    at Set.forEach (<anonymous>) (src/app/platform/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e8deae898807f69e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 461602c3102229f3] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: dff918ef7920d96c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: a26d0e548bece52f] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+⨯ ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/platform/tenant-success/page.tsx:272:1)
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+⨯ ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/platform/tenant-success/page.tsx:272:1)
+Error [ModuleBuildError]: ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/platform/tenant-success/page.tsx:272:1)
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/platform/tenant-success/page.tsx:272:1)
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/platform/tenant-success/page.tsx:272:1)
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/platform/tenant-success/page.tsx:272:1
+Expected '}', got '<eof>'
+  [90m270 |[0m     setSortDirection(key === [32m"tenant"[0m || key === [32m"country"[0m ? [32m"asc"[0m : [32m"desc"[0m);
+  [90m271 |[0m   };
+[31m[1m>[0m [90m272 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/platform/tenant-success/page.tsx:272:1)
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ ./frontend/src/app/platform/tenant-success/page.tsx:604:1
+Expected '</', got '<eof>'
+  [90m602 |[0m           </[33mCardContent[0m>
+  [90m603 |[0m         </[33mCard[0m>
+[31m[1m>[0m [90m604 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/platform/tenant-success/page.tsx:604:1
+Expected '</', got '<eof>'
+  [90m602 |[0m           </[33mCardContent[0m>
+  [90m603 |[0m         </[33mCard[0m>
+[31m[1m>[0m [90m604 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/tenant-success/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/tenant-success/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/platform/tenant-success/page.tsx:604:1)
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: f4cc0a36296fef1e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 932f7722775e63f4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 163c4c72f80d2f8e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 7f765aac46c214bb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 200c8212d5b5380c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 006ba394c80f199a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: dc2a5382cccecd7e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ca582302c0e544f8] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e8148b598ed7c912] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ab5b916296f464ff] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: fe254229344e0d4c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: c560379346069248] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 2598dde0a9e32e57] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 1f37537053e04511] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 5446495e82352539] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 69a1f1db26394886] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 6bb07726a245cf29] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ae523d39fe5c435c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 04e37f36fcbd85e4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: af88ffd4f44569de] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: fb51800f83b56f64] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Uncaught Error: React has blocked a javascript: URL as a security precaution.
+    at <unknown> (<anonymous>:1:7)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 95c76b54aa24a6c6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e9a476a2b505e00c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 2e0960e7fe3df1ed] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e9a5177d665cb98a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: f36e41fb058b1553] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 7b99f25947fb7d6f] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 38c699dd2ad7cb40] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 95cfdd9cd136879a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: fc4450a616e3d57a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 8abf4e58f75e9016] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: c9d2ca08bd51d6b6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] TypeError: teacherClasses.reduce is not a function
+    at TeacherDashboardPage (src/app/portal/teacher/page.tsx:66:40)
+  64 |
+  65 |   const teacherClasses = classes ?? [];
+> 66 |   const totalStudents = teacherClasses.reduce((sum: number, cls: any) => sum + (cls.studen...
+     |                                        ^
+  67 |   const activeAssignments = academicsEnabled ? (activeAssignmentsCount ?? 0) : 0;
+  68 |
+  69 |   const availableActions = QUICK_ACTIONS.filter((a) => { (src/app/portal/teacher/error.tsx:16:13)
+[browser] TypeError: teacherClasses.reduce is not a function
+    at TeacherDashboardPage (src/app/portal/teacher/page.tsx:66:40)
+  64 |
+  65 |   const teacherClasses = classes ?? [];
+> 66 |   const totalStudents = teacherClasses.reduce((sum: number, cls: any) => sum + (cls.studen...
+     |                                        ^
+  67 |   const activeAssignments = academicsEnabled ? (activeAssignmentsCount ?? 0) : 0;
+  68 |
+  69 |   const availableActions = QUICK_ACTIONS.filter((a) => { (src/app/portal/teacher/error.tsx:16:13)
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: bbada1b192b26740] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 6615c704635f72e4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+npm error Lifecycle script `dev` failed with error:
+npm error code 4294967295
+npm error path C:\Users\Admin\Projects\edumyles\frontend
+npm error workspace frontend@0.1.0
+npm error location C:\Users\Admin\Projects\edumyles\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next dev --port 3005 --port 3000

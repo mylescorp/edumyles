@@ -8,14 +8,17 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
@@ -27,16 +30,19 @@ import {
   ArrowLeft,
   Archive,
   Building2,
+  CheckCircle2,
   CreditCard,
   ExternalLink,
   FileText,
   Flag,
   Mail,
+  MessageSquareMore,
   Package,
   Settings,
   Shield,
   Ticket,
   Trash2,
+  TrendingUp,
   Users,
   Wallet,
 } from "lucide-react";
@@ -135,6 +141,16 @@ export default function TenantDetailPage() {
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [submittingArchive, setSubmittingArchive] = useState(false);
   const [submittingDelete, setSubmittingDelete] = useState(false);
+  const [repairingOrg, setRepairingOrg] = useState(false);
+  const [resendingInvite, setResendingInvite] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("stalled_step_auto");
+  const [nudgeOpen, setNudgeOpen] = useState(false);
+  const [nudgeMessage, setNudgeMessage] = useState("");
+  const [nudgeChannel, setNudgeChannel] = useState("email_sms");
+  const [savingNudge, setSavingNudge] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [platformNote, setPlatformNote] = useState("");
+  const [savingNote, setSavingNote] = useState(false);
 
   const tenantDetail = usePlatformQuery(
     api.platform.tenants.queries.getTenantDetailBundle,
@@ -144,11 +160,23 @@ export default function TenantDetailPage() {
     api.platform.tenants.queries.getTenantDependencySummary,
     { sessionToken: sessionToken || "", tenantId }
   );
+  const onboardingRecord = usePlatformQuery(
+    api.modules.platform.onboarding.getPlatformOnboardingRecord,
+    { sessionToken: sessionToken || "", tenantId }
+  ) as any;
+  const platformAdmins = usePlatformQuery(
+    api.platform.users.queries.listPlatformAdmins,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as Array<{ eduMylesUserId: string; firstName?: string; lastName?: string; email: string }> | undefined;
 
   const archiveTenant = useMutation(api.platform.tenants.mutations.archiveTenant);
   const deleteTenant = useMutation(api.platform.tenants.mutations.deleteTenant);
+  const assignAccountManager = useMutation(api.modules.platform.onboarding.assignAccountManager);
+  const sendOnboardingNudge = useMutation(api.modules.platform.onboarding.sendOnboardingNudge);
+  const addPlatformOnboardingNote = useMutation(api.modules.platform.onboarding.addPlatformOnboardingNote);
 
-  if (isLoading || tenantDetail === undefined || dependencySummary === undefined) {
+  if (isLoading || tenantDetail === undefined || dependencySummary === undefined || onboardingRecord === undefined || platformAdmins === undefined) {
     return <LoadingSkeleton variant="page" />;
   }
 
@@ -181,6 +209,7 @@ export default function TenantDetailPage() {
     schoolProfile,
     health,
     overview,
+    adminAccess,
     users,
     primaryAdmin,
     pendingInvites,
@@ -191,6 +220,79 @@ export default function TenantDetailPage() {
     auditLogs,
     settings,
   } = tenantDetail;
+
+  const pendingSchoolAdmin =
+    pendingInvites.find((invite: any) => invite.role === "school_admin") ?? null;
+  const adminInviteTarget = pendingSchoolAdmin ?? primaryAdmin ?? null;
+  const activeNudgeTemplate =
+    onboardingRecord?.nudgeTemplates?.find((template: any) => template.key === selectedTemplate) ??
+    onboardingRecord?.nudgeTemplates?.[0] ??
+    null;
+
+  const handleProvisionOrg = async () => {
+    if (!sessionToken) return;
+    setRepairingOrg(true);
+    try {
+      const response = await fetch("/api/tenants/provision-org", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionToken, tenantId }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to provision WorkOS organization");
+      }
+      toast({
+        title: payload.alreadyExists ? "WorkOS organization already linked" : "WorkOS organization provisioned",
+        description: payload.warning ?? payload.workosOrgId ?? "The tenant organization is ready for invitations.",
+      });
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: "Unable to provision organization",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setRepairingOrg(false);
+    }
+  };
+
+  const handleResendAdminInvite = async () => {
+    if (!sessionToken || !adminInviteTarget?.email) return;
+    setResendingInvite(true);
+    try {
+      const response = await fetch("/api/tenants/invite-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionToken,
+          tenantId,
+          email: adminInviteTarget.email,
+          firstName: adminInviteTarget.firstName ?? "",
+          lastName: adminInviteTarget.lastName ?? "",
+          role: "school_admin",
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to send tenant admin invite");
+      }
+      toast({
+        title: "Admin invite sent",
+        description: payload.warning ?? `Invitation sent to ${adminInviteTarget.email}.`,
+      });
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: "Unable to send admin invite",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setResendingInvite(false);
+    }
+  };
 
   const handleArchive = async () => {
     if (!sessionToken) return;
@@ -243,6 +345,87 @@ export default function TenantDetailPage() {
     }
   };
 
+  const handleAssignAccountManager = async (accountManagerUserId: string) => {
+    if (!sessionToken || !accountManagerUserId) return;
+    try {
+      await assignAccountManager({
+        sessionToken,
+        tenantId,
+        accountManagerUserId,
+      });
+      toast({
+        title: "Account manager assigned",
+        description: "The tenant onboarding owner has been updated.",
+      });
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: "Unable to assign account manager",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSendNudge = async () => {
+    if (!sessionToken || !onboardingRecord) return;
+    setSavingNudge(true);
+    try {
+      await sendOnboardingNudge({
+        sessionToken,
+        tenantId,
+        template: selectedTemplate,
+        message: nudgeMessage.trim() || undefined,
+        sendEmail: nudgeChannel !== "sms_only",
+        sendSms: nudgeChannel !== "email_only",
+      });
+      toast({
+        title: "Intervention sent",
+        description: `A platform nudge was sent to ${tenant.name}.`,
+      });
+      setNudgeOpen(false);
+      setSelectedTemplate("stalled_step_auto");
+      setNudgeMessage("");
+      setNudgeChannel("email_sms");
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: "Unable to send intervention",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingNudge(false);
+    }
+  };
+
+  const handleAddNote = async () => {
+    if (!sessionToken || !platformNote.trim()) return;
+    setSavingNote(true);
+    try {
+      await addPlatformOnboardingNote({
+        sessionToken,
+        tenantId,
+        note: platformNote.trim(),
+      });
+      toast({
+        title: "Note added",
+        description: "The onboarding note was saved to this tenant.",
+      });
+      setNoteOpen(false);
+      setPlatformNote("");
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: "Unable to add note",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -264,6 +447,20 @@ export default function TenantDetailPage() {
           <Link href={`https://${formatTenantHostname(tenant.subdomain)}`} target="_blank">
             <ExternalLink className="mr-2 h-4 w-4" />
             Visit Site
+          </Link>
+        </Button>
+        <Button variant="outline" onClick={handleProvisionOrg} disabled={repairingOrg}>
+          <Building2 className="mr-2 h-4 w-4" />
+          {repairingOrg ? "Provisioning Org..." : adminAccess.organizationReady ? "Repair WorkOS Org" : "Provision WorkOS Org"}
+        </Button>
+        <Button variant="outline" onClick={handleResendAdminInvite} disabled={resendingInvite || !adminInviteTarget?.email}>
+          <Mail className="mr-2 h-4 w-4" />
+          {resendingInvite ? "Sending Invite..." : "Send Admin Invite"}
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href={`/platform/onboarding?tenantId=${tenantId}`}>
+            <Shield className="mr-2 h-4 w-4" />
+            View Setup Flow
           </Link>
         </Button>
         <Button
@@ -369,6 +566,7 @@ export default function TenantDetailPage() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="h-auto w-full justify-start overflow-x-auto rounded-xl border bg-muted/30 p-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
           <TabsTrigger value="subscription">Subscription</TabsTrigger>
           <TabsTrigger value="pilot-grants">Pilot Grants</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
@@ -404,6 +602,8 @@ export default function TenantDetailPage() {
                   { label: "Created", value: formatDateTime(tenant.createdAt) },
                   { label: "Updated", value: formatDateTime(tenant.updatedAt) },
                   { label: "Organization", value: organization?.name ?? "Pending WorkOS org sync" },
+                  { label: "WorkOS Org", value: adminAccess.workosOrgId ?? "Not provisioned" },
+                  { label: "Admin Invite Status", value: adminAccess.primaryAdminInvite?.status ?? "not_sent" },
                 ]}
               />
             </CardContent>
@@ -474,6 +674,229 @@ export default function TenantDetailPage() {
               </CardContent>
             </Card>
           </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Access Readiness</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <InfoGrid
+                  items={[
+                    { label: "WorkOS Organization", value: adminAccess.organizationReady ? "Ready" : "Pending" },
+                    { label: "WorkOS Org ID", value: adminAccess.workosOrgId ?? "—" },
+                    { label: "Primary Invite Status", value: adminAccess.primaryAdminInvite?.status ?? "not_sent" },
+                    { label: "Invite Email", value: adminAccess.primaryAdminInvite?.email ?? pendingSchoolAdmin?.email ?? primaryAdmin?.email ?? "—" },
+                    { label: "Invite Expires", value: adminAccess.primaryAdminInvite?.expiresAt ? formatDateTime(adminAccess.primaryAdminInvite.expiresAt) : "—" },
+                    { label: "Accepted At", value: adminAccess.primaryAdminInvite?.acceptedAt ? formatDateTime(adminAccess.primaryAdminInvite.acceptedAt) : "—" },
+                  ]}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="onboarding" className="space-y-4">
+          {!onboardingRecord ? (
+            <EmptyState
+              icon={TrendingUp}
+              title="No onboarding record"
+              description="This tenant has not started the shared onboarding flow yet."
+            />
+          ) : (
+            <>
+              <div className="grid gap-4 lg:grid-cols-3">
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle>Onboarding Health</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-3xl font-semibold">{onboardingRecord.healthScore}/100</p>
+                        <p className="text-sm text-muted-foreground">
+                          {onboardingRecord.completedCount}/{onboardingRecord.totalSteps} steps complete
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline" className={statusBadgeClass(onboardingRecord.status)}>
+                          {onboardingRecord.status}
+                        </Badge>
+                        {onboardingRecord.stalled ? (
+                          <Badge variant="outline" className={statusBadgeClass("suspended")}>
+                            stalled
+                          </Badge>
+                        ) : null}
+                      </div>
+                    </div>
+                    <Progress value={onboardingRecord.progressPct} className="h-3" />
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      <div className="rounded-lg border bg-muted/20 p-4">
+                        <p className="text-sm text-muted-foreground">Current step</p>
+                        <p className="mt-1 font-medium">{onboardingRecord.currentStepLabel}</p>
+                      </div>
+                      <div className="rounded-lg border bg-muted/20 p-4">
+                        <p className="text-sm text-muted-foreground">Last activity</p>
+                        <p className="mt-1 font-medium">{formatDateTime(onboardingRecord.lastActivityAt)}</p>
+                      </div>
+                      <div className="rounded-lg border bg-muted/20 p-4">
+                        <p className="text-sm text-muted-foreground">Plan</p>
+                        <p className="mt-1 font-medium">{onboardingRecord.planId ?? "Not assigned"}</p>
+                      </div>
+                      <div className="rounded-lg border bg-muted/20 p-4">
+                        <p className="text-sm text-muted-foreground">Trial ends</p>
+                        <p className="mt-1 font-medium">{onboardingRecord.trialEndsAt ? formatDate(onboardingRecord.trialEndsAt) : "Not active"}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Account Manager</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {onboardingRecord.assignedAccountManagerName ? (
+                      <div className="flex items-center gap-3 rounded-lg border bg-muted/20 p-4">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback>{onboardingRecord.assignedAccountManagerInitials ?? "AM"}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{onboardingRecord.assignedAccountManagerName}</p>
+                          <p className="text-sm text-muted-foreground">Assigned owner</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No account manager assigned yet.</p>
+                    )}
+                    <div className="space-y-2">
+                      <Label>Assign / reassign</Label>
+                      <Select
+                        value={onboardingRecord.assignedAccountManager ?? ""}
+                        onValueChange={handleAssignAccountManager}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select account manager" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {platformAdmins.map((admin) => (
+                            <SelectItem key={admin.eduMylesUserId} value={admin.eduMylesUserId}>
+                              {[admin.firstName, admin.lastName].filter(Boolean).join(" ") || admin.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" onClick={() => setNudgeOpen(true)}>
+                        Send Intervention
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setNoteOpen(true)}>
+                        Add Note
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Step Breakdown</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Step</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Points</TableHead>
+                          <TableHead>Completed</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {Object.entries(onboardingRecord.steps ?? {}).map(([stepKey, stepValue]: [string, any]) => (
+                          <TableRow key={stepKey}>
+                            <TableCell>{stepKey}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={stepValue?.completed ? statusBadgeClass("active") : statusBadgeClass("trialing")}>
+                                {stepValue?.completed ? "completed" : "pending"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{stepValue?.pointsAwarded ?? 0}</TableCell>
+                            <TableCell>{stepValue?.completedAt ? formatDateTime(stepValue.completedAt) : "—"}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Intervention Timeline</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {onboardingRecord.interventionsSent?.length ? (
+                      <ScrollArea className="h-[360px] pr-4">
+                        <div className="space-y-3">
+                          {onboardingRecord.interventionsSent
+                            .slice()
+                            .sort((a: any, b: any) => b.sentAt - a.sentAt)
+                            .map((entry: any, index: number) => (
+                              <div key={`${entry.type}-${entry.channel}-${index}`} className="rounded-lg border bg-muted/20 p-3">
+                                <div className="flex items-center justify-between gap-3">
+                                  <p className="font-medium">{entry.type}</p>
+                                  <Badge variant="outline">{entry.channel}</Badge>
+                                </div>
+                                <p className="mt-1 text-sm text-muted-foreground">{formatDateTime(entry.sentAt)}</p>
+                              </div>
+                            ))}
+                        </div>
+                      </ScrollArea>
+                    ) : (
+                      <EmptyState
+                        icon={CheckCircle2}
+                        title="No interventions yet"
+                        description="Platform nudges and scheduled interventions will appear here."
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Platform Notes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {onboardingRecord.notes?.length ? (
+                    <ScrollArea className="h-[240px] pr-4">
+                      <div className="space-y-3">
+                        {onboardingRecord.notes
+                          .slice()
+                          .reverse()
+                          .map((note: any) => (
+                            <div key={note.id} className="rounded-lg border bg-muted/20 p-4">
+                              <p>{note.note}</p>
+                              <p className="mt-2 text-xs text-muted-foreground">
+                                {note.authorEmail} · {formatDateTime(note.createdAt)}
+                              </p>
+                            </div>
+                          ))}
+                      </div>
+                    </ScrollArea>
+                  ) : (
+                    <EmptyState
+                      icon={Settings}
+                      title="No notes yet"
+                      description="Add internal onboarding notes for account managers and platform operations."
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </>
+          )}
         </TabsContent>
 
         <TabsContent value="subscription" className="space-y-4">
@@ -1085,6 +1508,135 @@ export default function TenantDetailPage() {
           </CardContent>
         </Card>
       ) : null}
+
+      <Dialog
+        open={nudgeOpen}
+        onOpenChange={(open) => {
+          setNudgeOpen(open);
+          if (!open) {
+            setSelectedTemplate("stalled_step_auto");
+            setNudgeMessage("");
+            setNudgeChannel("email_sms");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send onboarding intervention</DialogTitle>
+            <DialogDescription>
+              Send a platform intervention to help {tenant.name} continue the shared onboarding flow.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Template</Label>
+              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(onboardingRecord?.nudgeTemplates ?? []).map((template: any) => (
+                    <SelectItem key={template.key} value={template.key}>
+                      {template.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {activeNudgeTemplate ? (
+                <p className="text-xs text-muted-foreground">{activeNudgeTemplate.description}</p>
+              ) : null}
+            </div>
+            <div className="space-y-2">
+              <Label>Channel</Label>
+              <Select value={nudgeChannel} onValueChange={setNudgeChannel}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="email_sms">Email + SMS</SelectItem>
+                  <SelectItem value="email_only">Email only</SelectItem>
+                  <SelectItem value="sms_only">SMS only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Message preview / override</Label>
+              <Textarea
+                value={nudgeMessage || activeNudgeTemplate?.message || ""}
+                onChange={(event) => setNudgeMessage(event.target.value)}
+                rows={5}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNudgeOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSendNudge} disabled={savingNudge}>
+              Send Intervention
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={noteOpen}
+        onOpenChange={(open) => {
+          setNoteOpen(open);
+          if (!open) {
+            setPlatformNote("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add platform onboarding note</DialogTitle>
+            <DialogDescription>
+              Capture platform-only context for {tenant.name}. These notes stay with the onboarding record.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Note</Label>
+              <Textarea
+                value={platformNote}
+                onChange={(event) => setPlatformNote(event.target.value)}
+                rows={5}
+                placeholder="Record blockers, AM follow-up, promises made to the school, or intervention context."
+              />
+            </div>
+            {onboardingRecord?.notes?.length ? (
+              <div className="space-y-2">
+                <Label>Recent notes</Label>
+                <ScrollArea className="h-40 rounded-lg border p-3">
+                  <div className="space-y-3">
+                    {onboardingRecord.notes
+                      .slice()
+                      .reverse()
+                      .map((note: any) => (
+                        <div key={note.id} className="text-sm">
+                          <p>{note.note}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {note.authorEmail} · {formatDateTime(note.createdAt)}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            ) : null}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNoteOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddNote} disabled={savingNote || !platformNote.trim()}>
+              <MessageSquareMore className="mr-2 h-4 w-4" />
+              Save Note
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

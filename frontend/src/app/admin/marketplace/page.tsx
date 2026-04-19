@@ -16,7 +16,14 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchInput } from "@/components/shared/SearchInput";
+import { useAuth } from "@/hooks/useAuth";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckCircle2, Package, Puzzle, Settings2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import {
   ArrowUpCircle,
@@ -69,10 +76,12 @@ export default function MarketplacePage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("all");
 
-  const availableModules = useQuery(
-    api.modules.marketplace.queries.getAvailableForTier,
-    { sessionToken: sessionToken ?? "" },
-    canQueryMarketplace
+  const modules = useQuery(
+    api.modules.marketplace.settings.getMarketplaceModules,
+    canQuery ? { sessionToken } : "skip"
+  )?.data as any[] | undefined;
+  const installAllFreeCoreModules = useMutation(
+    api.modules.marketplace.installation.installAllFreeCoreModules
   );
   const resolvedAvailableModules = useMemo(
     () => (availableModules as any[]) ?? [],
@@ -226,24 +235,32 @@ export default function MarketplacePage() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader
-        title="Module Marketplace"
-        description={`Manage your school's modules. Current plan: ${tier ?? "Free"}`}
+        title="Marketplace"
+        description="Browse, evaluate, and install marketplace modules for your school."
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
           { label: "Marketplace" },
         ]}
         actions={
-          <Link href="/admin/marketplace/requests">
-            <Button variant="outline">
-              <ClipboardList className="mr-2 h-4 w-4" />
-              Access Requests
+          <div className="flex gap-2">
+            {missingCoreModules.length > 0 ? (
+              <Button onClick={() => void handleInstallCoreModules()}>
+                <Package className="mr-2 h-4 w-4" />
+                Activate Free Core Modules
+              </Button>
+            ) : null}
+            <Button asChild variant="outline">
+              <Link href="/admin/modules">
+                <Settings2 className="mr-2 h-4 w-4" />
+                Manage Installed Modules
+              </Link>
             </Button>
-          </Link>
+          </div>
         }
       />
 

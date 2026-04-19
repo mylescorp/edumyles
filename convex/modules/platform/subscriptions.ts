@@ -22,13 +22,135 @@ type TenantSubscriptionDoc = {
   customPriceMonthlyKes?: number;
   customPriceAnnualKes?: number;
   customPricingNotes?: string;
+  billingPeriod?: "monthly" | "termly" | "quarterly" | "annual";
   nextPaymentDue?: number;
   trialEndsAt?: number;
+  graceEndsAt?: number;
   cancelledAt?: number;
   cancellationReason?: string;
   createdAt: number;
   updatedAt: number;
 };
+
+type OfficialPlanName = "free" | "starter" | "pro" | "enterprise";
+
+type PlanBlueprint = {
+  name: OfficialPlanName;
+  priceMonthlyKes: number;
+  priceAnnualKes: number;
+  studentLimit?: number;
+  staffLimit?: number;
+  storageGb?: number;
+  maxAdditionalModules?: number;
+  apiAccess: "none" | "read" | "read_write";
+  whiteLabel: "none" | "logo" | "full";
+  customDomain: boolean;
+  supportTier: string;
+  slaHours?: number;
+  isDefault: boolean;
+  moduleSlugs: string[];
+};
+
+const OFFICIAL_PLAN_NAMES: OfficialPlanName[] = ["free", "starter", "pro", "enterprise"];
+const BILLING_PERIOD_DAYS = {
+  monthly: 30,
+  termly: 90,
+  quarterly: 90,
+  annual: 365,
+} as const;
+const BILLING_PERIOD_MULTIPLIER = {
+  monthly: 1,
+  termly: 2.85,
+  quarterly: 2.85,
+  annual: 10,
+} as const;
+
+const TECH_SPEC_PLAN_BLUEPRINTS: PlanBlueprint[] = [
+  {
+    name: "free",
+    priceMonthlyKes: 0,
+    priceAnnualKes: 0,
+    studentLimit: 100,
+    staffLimit: 10,
+    storageGb: 1,
+    maxAdditionalModules: 0,
+    apiAccess: "none",
+    whiteLabel: "none",
+    customDomain: false,
+    supportTier: "community",
+    isDefault: true,
+    moduleSlugs: ["core_sis", "core_users", "core_notifications", "mod_attendance", "mod_academics"],
+  },
+  {
+    name: "starter",
+    priceMonthlyKes: 2500,
+    priceAnnualKes: 25000,
+    studentLimit: 500,
+    staffLimit: 50,
+    storageGb: 10,
+    maxAdditionalModules: 4,
+    apiAccess: "none",
+    whiteLabel: "none",
+    customDomain: false,
+    supportTier: "email_48h",
+    slaHours: 48,
+    isDefault: false,
+    moduleSlugs: [
+      "core_sis",
+      "core_users",
+      "core_notifications",
+      "mod_attendance",
+      "mod_academics",
+      "mod_finance",
+      "mod_library",
+      "mod_communications",
+    ],
+  },
+  {
+    name: "pro",
+    priceMonthlyKes: 8000,
+    priceAnnualKes: 80000,
+    studentLimit: 2000,
+    staffLimit: 200,
+    storageGb: 50,
+    maxAdditionalModules: 12,
+    apiAccess: "read",
+    whiteLabel: "logo",
+    customDomain: true,
+    supportTier: "priority_24h",
+    slaHours: 24,
+    isDefault: false,
+    moduleSlugs: [
+      "core_sis",
+      "core_users",
+      "core_notifications",
+      "mod_attendance",
+      "mod_academics",
+      "mod_finance",
+      "mod_library",
+      "mod_communications",
+      "mod_hr",
+      "mod_transport",
+      "mod_timetable",
+      "mod_ewallet",
+      "mod_admissions",
+      "mod_reports",
+    ],
+  },
+  {
+    name: "enterprise",
+    priceMonthlyKes: 0,
+    priceAnnualKes: 0,
+    apiAccess: "read_write",
+    whiteLabel: "full",
+    customDomain: true,
+    supportTier: "dedicated_sla",
+    slaHours: 8,
+    isDefault: false,
+    maxAdditionalModules: undefined,
+    moduleSlugs: [],
+  },
+];
 
 async function getSubscriptionPlanByName(ctx: any, name: string) {
   return await ctx.db
@@ -113,6 +235,18 @@ function normalizeSubscriptionPlan(plan: any) {
   };
 }
 
+function sortPlans(left: any, right: any) {
+  const leftOfficialIndex = OFFICIAL_PLAN_NAMES.indexOf(left.name as OfficialPlanName);
+  const rightOfficialIndex = OFFICIAL_PLAN_NAMES.indexOf(right.name as OfficialPlanName);
+
+  if (leftOfficialIndex >= 0 && rightOfficialIndex >= 0) {
+    return leftOfficialIndex - rightOfficialIndex;
+  }
+  if (leftOfficialIndex >= 0) return -1;
+  if (rightOfficialIndex >= 0) return 1;
+  return left.priceMonthlyKes - right.priceMonthlyKes;
+}
+
 export const getSubscriptionPlans = query({
   args: {},
   handler: async (ctx) => {
@@ -146,7 +280,7 @@ export const getPlatformPlanCatalog = query({
     const [plans, subscriptions, modules] = await Promise.all([
       ctx.db.query("subscription_plans").collect(),
       ctx.db.query("tenant_subscriptions").collect(),
-      ctx.db.query("modules").collect(),
+      ctx.db.query("marketplace_modules").collect(),
     ]);
 
     const moduleMap = new Map<string, any>(modules.map((module) => [String(module._id), module]));
@@ -463,6 +597,129 @@ export const cancelSubscription = mutation({
   },
 });
 
+export const convertTrialToPaid = mutation({
+  args: {
+    planId: v.string(),
+    sessionToken: v.optional(v.string()),
+    tenantId: v.optional(v.string()),
+    billingPeriod: v.union(
+      v.literal("monthly"),
+      v.literal("termly"),
+      v.literal("quarterly"),
+      v.literal("annual")
+    ),
+    paymentProvider: v.union(
+      v.literal("mpesa"),
+      v.literal("airtel"),
+      v.literal("stripe"),
+      v.literal("bank_transfer")
+    ),
+    paymentReference: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant =
+      args.sessionToken
+        ? await requireTenantSession(ctx, {
+            sessionToken: args.sessionToken,
+            tenantId: args.tenantId,
+          })
+        : await requireTenantContext(ctx);
+    requireRole(tenant, "school_admin", "principal", "master_admin", "super_admin");
+
+    const [subscription, plan] = await Promise.all([
+      getTenantSubscriptionDoc(ctx, tenant.tenantId),
+      getSubscriptionPlanByName(ctx, args.planId),
+    ]);
+
+    if (!subscription) {
+      throw new Error("Subscription record not found");
+    }
+
+    if (!plan || !plan.isActive) {
+      throw new Error("Selected subscription plan not found");
+    }
+
+    const now = Date.now();
+    const amountKes = calculatePlanChargeKes(plan, args.billingPeriod);
+    const invoiceId = await ctx.db.insert("subscription_invoices", {
+      tenantId: tenant.tenantId,
+      subscriptionId: String(subscription._id),
+      amountKes,
+      displayCurrency: "KES",
+      displayAmount: amountKes,
+      exchangeRate: 1,
+      vatAmountKes: 0,
+      totalAmountKes: amountKes,
+      status: "sent",
+      billingPeriod: args.billingPeriod,
+      dueDate: now,
+      paidAt: undefined,
+      paymentProvider: args.paymentProvider,
+      paymentReference: args.paymentReference,
+      lineItems: [
+        {
+          description: `Convert trial to ${args.planId} (${args.billingPeriod})`,
+          quantity: 1,
+          amountKes,
+        },
+      ],
+      pdfUrl: undefined,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const result = await applySubscriptionPaymentSuccess(ctx, {
+      tenantId: tenant.tenantId,
+      planId: args.planId,
+      invoiceId,
+      paidAt: now,
+      paymentProvider: args.paymentProvider,
+      paymentReference: args.paymentReference,
+      billingPeriod: args.billingPeriod,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+    });
+
+    return {
+      success: true,
+      status: "active",
+      invoiceId: String(invoiceId),
+      amountKes,
+      billingPeriod: args.billingPeriod,
+      nextPaymentDue: result.nextPaymentDue,
+    };
+  },
+});
+
+export const onSubscriptionPaymentSuccess = internalMutation({
+  args: {
+    tenantId: v.string(),
+    planId: v.string(),
+    invoiceId: v.id("subscription_invoices"),
+    paidAt: v.number(),
+    billingPeriod: v.union(
+      v.literal("monthly"),
+      v.literal("termly"),
+      v.literal("quarterly"),
+      v.literal("annual")
+    ),
+    paymentProvider: v.optional(
+      v.union(
+        v.literal("mpesa"),
+        v.literal("airtel"),
+        v.literal("stripe"),
+        v.literal("bank_transfer")
+      )
+    ),
+    paymentReference: v.optional(v.string()),
+    actorId: v.string(),
+    actorEmail: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await applySubscriptionPaymentSuccess(ctx, args);
+  },
+});
+
 export const extendTrial = mutation({
   args: {
     sessionToken: v.string(),
@@ -602,12 +859,7 @@ export const setCustomPricing = mutation({
 export const updateSubscriptionPlan = mutation({
   args: {
     sessionToken: v.string(),
-    planName: v.union(
-      v.literal("free"),
-      v.literal("starter"),
-      v.literal("pro"),
-      v.literal("enterprise")
-    ),
+    planName: v.string(),
     priceMonthlyKes: v.number(),
     priceAnnualKes: v.number(),
     studentLimit: v.optional(v.number()),
@@ -625,6 +877,9 @@ export const updateSubscriptionPlan = mutation({
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformRole(ctx, args, ["billing_admin", "master_admin"]);
+    if (!isOfficialPlanName(args.planName)) {
+      throw new Error("Only Free, Starter, Pro, and Enterprise plans are supported.");
+    }
     const plan = await getSubscriptionPlanByName(ctx, args.planName);
     if (!plan) {
       throw new Error("Subscription plan not found");
@@ -670,6 +925,12 @@ export const updateSubscriptionPlan = mutation({
       updatedAt: now,
     });
 
+    await syncModulePlanInclusions(ctx, {
+      planName: args.planName,
+      includedModuleIds: nextIncludedModuleIds,
+      updatedBy: platform.userId,
+    });
+
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: platform.userId,
@@ -699,7 +960,7 @@ export const updateSubscriptionPlan = mutation({
         studentLimit: args.studentLimit,
         staffLimit: args.staffLimit,
         storageGb: args.storageGb,
-        includedModuleIds: args.includedModuleIds,
+        includedModuleIds: nextIncludedModuleIds,
         maxAdditionalModules: args.maxAdditionalModules,
         apiAccess: args.apiAccess,
         whiteLabel: args.whiteLabel,
@@ -1392,7 +1653,7 @@ export const runModuleAuditForDowngrade = internalMutation({
 
     const activeModuleIds = installs
       .filter((install) => install.status === "active")
-      .map((install) => install.moduleId);
+      .map((install) => String(install.moduleId));
 
     const included = new Set(getEffectiveIncludedModuleIds(plan));
     const modulesToSuspend = activeModuleIds.filter((moduleId) => !included.has(moduleId));
