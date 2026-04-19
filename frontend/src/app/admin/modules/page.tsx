@@ -1,17 +1,16 @@
 "use client";
 
-import Link from "next/link";
-import { PageHeader } from "@/components/shared/PageHeader";
-import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
-import { useAuth } from "@/hooks/useAuth";
-import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
-import { api } from "@/convex/_generated/api";
+import { ModuleInstallationPanel } from "@/components/admin/ModuleInstallationPanel";
+import { ModuleDependencyVisualizer } from "@/components/admin/ModuleDependencyVisualizer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Package, Settings, Download, Star, GitBranch } from "lucide-react";
+import { useInstalledModules } from "@/hooks/useInstalledModules";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/hooks/useAuth";
+import { useTenant } from "@/hooks/useTenant";
 import { toast } from "sonner";
-import { Settings2, Power, Trash2, Store } from "lucide-react";
 
 export default function AdminModulesPage() {
   const { sessionToken, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -32,10 +31,29 @@ export default function AdminModulesPage() {
 
   async function handleDisable(moduleSlug: string) {
     try {
-      await disableModule({ sessionToken, moduleSlug });
-      toast.success("Module disabled");
+      switch (action) {
+        case 'install':
+          await installModule({ sessionToken, tenantId, moduleId });
+          toast.success("Module installed successfully.");
+          break;
+
+        case 'uninstall':
+          await uninstallModule({ sessionToken, tenantId, moduleId });
+          toast.success("Module removed from your system.");
+          break;
+
+        case 'activate':
+          await toggleModuleStatus({ sessionToken, tenantId, moduleId, status: "active" });
+          toast.success("Module activated.");
+          break;
+
+        case 'deactivate':
+          await toggleModuleStatus({ sessionToken, tenantId, moduleId, status: "inactive" });
+          toast.success("Module deactivated.");
+          break;
+      }
     } catch (error: any) {
-      toast.error(error?.message ?? "Failed to disable module");
+      toast.error(error?.message ?? "Failed to perform module action.");
     }
   }
 

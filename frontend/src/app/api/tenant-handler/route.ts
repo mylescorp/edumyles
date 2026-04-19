@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
   
   if (reseller && reseller.status === "active") {
     // This is a reseller white-label subdomain
-    const appUrl = getAppUrl(req.nextUrl.origin);
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://app.${getRootDomain()}`;
     const redirect = new URL(appUrl);
     
     // Set reseller context

@@ -49,9 +49,5 @@ export default async function RootPage() {
     redirect(getRoleDashboard(role ?? "school_admin"));
   }
 
-  if (isCanonicalAppHost(origin)) {
-    redirect("/auth/login");
-  }
-
   redirect(getMarketingSiteUrl(origin));
 }

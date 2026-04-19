@@ -13,6 +13,7 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
+import { useMutation } from "convex/react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
 import { Badge } from "@/components/ui/badge";
@@ -26,13 +27,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { MarketplaceErrorBoundary } from "../MarketplaceErrorBoundary";
-
-const marketplacePlatformApi =
-  (api as any).modules?.marketplace?.platformDashboard ??
-  (api as any)["modules/marketplace/platformDashboard"];
 
 function formatDate(timestamp: number) {
   return new Date(timestamp).toLocaleDateString("en-KE", {
@@ -92,12 +88,13 @@ function MarketplaceAdminContent() {
   const [reviewNotes, setReviewNotes] = useState("");
 
   const pendingModules = usePlatformQuery(
-    marketplacePlatformApi.getPlatformMarketplaceSubmissionQueue,
-    sessionToken ? { sessionToken } : "skip",
+    api.platform.marketplace.queries.getPendingModules,
+    { sessionToken: sessionToken || "" },
     !!sessionToken
   ) as any[] | undefined;
 
-  const reviewSubmission = useMutation(marketplacePlatformApi.reviewPlatformMarketplaceSubmission);
+  const reviewModule = useMutation(api.platform.marketplace.mutations.reviewModule);
+  const publishModule = useMutation(api.platform.marketplace.mutations.publishModule);
 
   const categories = useMemo(() => {
     const values = new Set<string>();
@@ -113,12 +110,12 @@ function MarketplaceAdminContent() {
       const matchesSearch =
         !query ||
         module.name.toLowerCase().includes(query) ||
-        module.slug.toLowerCase().includes(query) ||
-        module.description?.toLowerCase().includes(query);
+        module.publisherName.toLowerCase().includes(query) ||
+        module.shortDescription?.toLowerCase().includes(query);
 
       const matchesCategory = category === "all" || module.category === category;
 
-      const waitDays = daysWaiting(module.submittedAt);
+      const waitDays = daysWaiting(module.createdAt);
       const matchesDays =
         daysFilter === "all" ||
         (daysFilter === "gt5" && waitDays > 5) ||
@@ -128,16 +125,16 @@ function MarketplaceAdminContent() {
     });
 
     base.sort((a, b) => {
-      if (sort === "newest") return b.submittedAt - a.submittedAt;
-      if (sort === "name") return a.name.localeCompare(b.name);
-      return a.submittedAt - b.submittedAt;
+      if (sort === "newest") return b.createdAt - a.createdAt;
+      if (sort === "publisher") return a.publisherName.localeCompare(b.publisherName);
+      return a.createdAt - b.createdAt;
     });
 
     return base;
   }, [pendingModules, search, category, sort, daysFilter]);
 
-  const selectedModules = filteredModules.filter((module) => selectedIds.includes(module.moduleId));
-  const overSla = filteredModules.filter((module) => daysWaiting(module.submittedAt) > 5).length;
+  const selectedModules = filteredModules.filter((module) => selectedIds.includes(module._id));
+  const overSla = filteredModules.filter((module) => daysWaiting(module.createdAt) > 5).length;
 
   async function handleDecision(
     decision: "approved" | "rejected" | "requires_changes",
@@ -147,12 +144,16 @@ function MarketplaceAdminContent() {
 
     try {
       for (const queueItem of targetModules) {
-        await reviewSubmission({
+        await reviewModule({
           sessionToken,
           moduleId: queueItem.moduleId,
           decision,
           notes: reviewNotes || undefined,
         });
+
+        if (decision === "approved") {
+          await publishModule({ sessionToken, moduleId: queueItem.moduleId });
+        }
       }
 
       setSelectedIds([]);
@@ -181,7 +182,7 @@ function MarketplaceAdminContent() {
       <div className="space-y-6">
         <PageHeader
           title="Review Queue"
-          description="Draft marketplace submissions waiting on platform review."
+          description="Oldest-first submission review, moderation actions, and queue triage."
           breadcrumbs={[
             { label: "Platform", href: "/platform" },
             { label: "Marketplace", href: "/platform/marketplace" },
@@ -203,7 +204,7 @@ function MarketplaceAdminContent() {
     <div className="space-y-6">
       <PageHeader
         title="Review Queue"
-        description="Draft marketplace submissions waiting on platform review."
+        description="Oldest-first submission review, moderation actions, and queue triage."
         breadcrumbs={[
           { label: "Platform", href: "/platform" },
           { label: "Marketplace", href: "/platform/marketplace" },
@@ -224,20 +225,20 @@ function MarketplaceAdminContent() {
         <QueueMetric label="Pending Submissions" value={filteredModules.length.toLocaleString()} />
         <QueueMetric label="Waiting > 5 Days" value={overSla.toLocaleString()} tone={overSla > 0 ? "danger" : "default"} />
         <QueueMetric label="Selected" value={selectedIds.length.toLocaleString()} tone={selectedIds.length > 0 ? "warning" : "default"} />
-        <QueueMetric label="Oldest Queue Age" value={`${filteredModules[0] ? daysWaiting(filteredModules[0].submittedAt) : 0}d`} />
+        <QueueMetric label="Oldest Queue Age" value={`${filteredModules[0] ? daysWaiting(filteredModules[0].createdAt) : 0}d`} />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Queue Filters</CardTitle>
-          <CardDescription>Filter by category, waiting time, name, slug, or search terms.</CardDescription>
+          <CardDescription>Filter by category, waiting time, publisher name, or search terms.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
               className="pl-9"
-              placeholder="Search module name, slug, or description"
+              placeholder="Search module, publisher, or description"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -272,7 +273,7 @@ function MarketplaceAdminContent() {
             <SelectContent>
               <SelectItem value="oldest">Oldest first</SelectItem>
               <SelectItem value="newest">Newest first</SelectItem>
-              <SelectItem value="name">Module name</SelectItem>
+              <SelectItem value="publisher">Publisher name</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -286,16 +287,12 @@ function MarketplaceAdminContent() {
                 {selectedModules.length} submission{selectedModules.length === 1 ? "" : "s"} selected
               </p>
               <p className="text-sm text-slate-600">
-                Bulk approve, request changes, or reject the current selection from the queue.
+                Bulk approve or bulk reject the current selection from the queue.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="outline" onClick={() => setSelectedIds([])}>
                 Clear selection
-              </Button>
-              <Button variant="outline" onClick={() => void handleDecision("requires_changes", selectedModules)}>
-                <AlertTriangle className="mr-2 h-4 w-4" />
-                Request Changes
               </Button>
               <Button variant="outline" onClick={() => void handleDecision("rejected", selectedModules)}>
                 <XCircle className="mr-2 h-4 w-4" />
@@ -313,25 +310,25 @@ function MarketplaceAdminContent() {
       <Card>
         <CardHeader>
           <CardTitle>Pending Submissions</CardTitle>
-          <CardDescription>Each row includes queue age, pricing context, and direct review actions.</CardDescription>
+          <CardDescription>Each row includes queue age, publisher context, and direct moderation actions.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {filteredModules.length > 0 ? (
             filteredModules.map((module) => {
-              const waitDays = daysWaiting(module.submittedAt);
+              const waitDays = daysWaiting(module.createdAt);
               const urgent = waitDays > 5;
 
               return (
                 <div
-                  key={module.moduleId}
+                  key={module._id}
                   className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm"
                 >
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
-                        checked={selectedIds.includes(module.moduleId)}
-                        onChange={() => toggleModule(module.moduleId)}
+                        checked={selectedIds.includes(module._id)}
+                        onChange={() => toggleModule(module._id)}
                         className="mt-1 h-4 w-4 rounded border-slate-300"
                       />
                       <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-2.5 text-emerald-700">
@@ -346,15 +343,14 @@ function MarketplaceAdminContent() {
                           <Badge variant="secondary">{module.status.replace(/_/g, " ")}</Badge>
                           {urgent && <Badge className="bg-red-100 text-red-700 hover:bg-red-100">Over 5 days</Badge>}
                         </div>
-                        <p className="mt-1 text-sm text-slate-600">{module.description}</p>
+                        <p className="mt-1 text-sm text-slate-600">{module.shortDescription}</p>
                         <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                          <span className="font-medium text-slate-700">{module.slug}</span>
-                          <span>Submitted {formatDate(module.submittedAt)}</span>
+                          <span className="font-medium text-slate-700">{module.publisherName}</span>
+                          <span>Submitted {formatDate(module.createdAt)}</span>
                           <span className={urgent ? "font-semibold text-red-700" : ""}>
                             {waitDays} day{waitDays === 1 ? "" : "s"} waiting
                           </span>
                           <span>v{module.version}</span>
-                          <span>{module.pricing ? `Base ${module.pricing.baseRateKes} KES` : "Pricing not set"}</span>
                         </div>
                       </div>
                     </div>
@@ -390,7 +386,7 @@ function MarketplaceAdminContent() {
               <CheckCircle2 className="h-10 w-10 text-emerald-700" />
               <p className="mt-4 text-base font-semibold text-slate-900">No pending submissions</p>
               <p className="mt-1 max-w-sm text-sm text-slate-600">
-                The review queue is clear right now. New draft marketplace modules will appear here automatically.
+                The review queue is clear right now. New publisher submissions will appear here automatically.
               </p>
             </div>
           )}
@@ -412,16 +408,16 @@ function MarketplaceAdminContent() {
                   </Badge>
                   <Badge variant="secondary">{selectedModule.status.replace(/_/g, " ")}</Badge>
                 </div>
-                <p className="mt-2 text-sm text-slate-600">{selectedModule.description}</p>
+                <p className="mt-2 text-sm text-slate-600">{selectedModule.shortDescription}</p>
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Slug</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">{selectedModule.slug}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Publisher</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">{selectedModule.publisherName}</p>
                   </div>
                   <div className="rounded-xl border border-slate-200 bg-white p-3">
                     <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Queue Age</p>
                     <p className="mt-2 text-sm font-semibold text-slate-900">
-                      {daysWaiting(selectedModule.submittedAt)} day{daysWaiting(selectedModule.submittedAt) === 1 ? "" : "s"}
+                      {daysWaiting(selectedModule.createdAt)} day{daysWaiting(selectedModule.createdAt) === 1 ? "" : "s"}
                     </p>
                   </div>
                   <div className="rounded-xl border border-slate-200 bg-white p-3">
@@ -429,10 +425,8 @@ function MarketplaceAdminContent() {
                     <p className="mt-2 text-sm font-semibold text-slate-900">v{selectedModule.version}</p>
                   </div>
                   <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Pricing</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">
-                      {selectedModule.pricing ? `${selectedModule.pricing.baseRateKes} KES base` : "Not configured"}
-                    </p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Submitted</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">{formatDate(selectedModule.createdAt)}</p>
                   </div>
                 </div>
               </div>
@@ -455,10 +449,10 @@ function MarketplaceAdminContent() {
                     Queue guidance
                   </div>
                   <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                    <li>Approve when the module is ready for publication.</li>
-                    <li>Request changes when metadata, pricing, or docs need work.</li>
-                    <li>Reject when the listing should not proceed to marketplace publication.</li>
-                    <li>Draft modules older than 5 days should be reviewed first.</li>
+                    <li>Approve when listing data is complete and ready for publish.</li>
+                    <li>Request changes for fixable issues like metadata or screenshots.</li>
+                    <li>Reject only when policy or quality issues block publication.</li>
+                    <li>Modules older than 5 days should be reviewed first.</li>
                   </ul>
                 </div>
               </div>

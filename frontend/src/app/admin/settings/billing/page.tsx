@@ -124,7 +124,7 @@ function PlanCard({
 }
 
 export default function BillingSettingsPage() {
-  const { isLoading: authLoading, isAuthenticated, sessionToken, tenantId: authTenantId } = useAuth();
+  const { isLoading: authLoading, isAuthenticated, sessionToken } = useAuth();
   const { tenant } = useTenant();
   const { format } = useCurrency();
   const hasLiveTenantSession = !!sessionToken && sessionToken !== "dev_session_token";
@@ -133,17 +133,15 @@ export default function BillingSettingsPage() {
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [downgradeDialogOpen, setDowngradeDialogOpen] = useState(false);
-  const [trialDialogOpen, setTrialDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [enterpriseDialogOpen, setEnterpriseDialogOpen] = useState(false);
   const [paymentProvider, setPaymentProvider] = useState("mpesa");
-  const [billingPeriod, setBillingPeriod] = useState("monthly");
   const [paymentReference, setPaymentReference] = useState("");
   const [cancelReason, setCancelReason] = useState("");
   const [enterprisePhone, setEnterprisePhone] = useState(tenant?.phone ?? "");
   const [enterpriseTimeline, setEnterpriseTimeline] = useState("this_term");
   const [enterpriseNotes, setEnterpriseNotes] = useState("");
-  const [processingAction, setProcessingAction] = useState<"upgrade" | "downgrade" | "trial" | "cancel" | "enterprise" | null>(null);
+  const [processingAction, setProcessingAction] = useState<"upgrade" | "downgrade" | "cancel" | "enterprise" | null>(null);
 
   const subscriptionResult = useQuery(api.modules.platform.subscriptions.getTenantSubscription, sessionToken ? { sessionToken } : "skip", canQueryBilling);
   const plansResult = useQuery(api.modules.platform.subscriptions.getSubscriptionPlans, {}, true);
@@ -162,7 +160,6 @@ export default function BillingSettingsPage() {
 
   const upgradePlan = useMutation(api.modules.platform.subscriptions.upgradePlan);
   const downgradePlan = useMutation(api.modules.platform.subscriptions.downgradePlan);
-  const convertTrialToPaid = useMutation(api.modules.platform.subscriptions.convertTrialToPaid);
   const cancelSubscription = useMutation(api.modules.platform.subscriptions.cancelSubscription);
   const requestEnterpriseConsultation = useMutation(api.modules.platform.crm.requestEnterpriseConsultation);
 
@@ -173,7 +170,6 @@ export default function BillingSettingsPage() {
   }
 
   const currentPlan = subscription?.plan ?? null;
-  const isTrialTenant = subscription?.status === "trialing" || tenant?.status === "trial" || tenant?.status === "trial_expired";
   const latestUsage = usageHistory?.[0] ?? null;
   const currentPriceKes = subscription?.customPriceMonthlyKes ?? currentPlan?.priceMonthlyKes ?? 0;
   const sortedPlans = [...(plans ?? [])].sort((a, b) => a.priceMonthlyKes - b.priceMonthlyKes);
@@ -190,14 +186,6 @@ export default function BillingSettingsPage() {
   const openDowngradeDialog = (plan: any) => {
     setSelectedPlan(plan);
     setDowngradeDialogOpen(true);
-  };
-
-  const openTrialDialog = (plan: any) => {
-    setSelectedPlan(plan);
-    setPaymentProvider("mpesa");
-    setBillingPeriod("monthly");
-    setPaymentReference("");
-    setTrialDialogOpen(true);
   };
 
   const handleConfirmUpgrade = async () => {
@@ -233,29 +221,6 @@ export default function BillingSettingsPage() {
       setSelectedPlan(null);
     } catch (error: any) {
       toast.error(error?.message ?? "Failed to downgrade plan.");
-    } finally {
-      setProcessingAction(null);
-    }
-  };
-
-  const handleConfirmTrialConversion = async () => {
-    if (!selectedPlan) return;
-    setProcessingAction("trial");
-    try {
-      await convertTrialToPaid({
-        planId: selectedPlan.name,
-        sessionToken: sessionToken || undefined,
-        tenantId: authTenantId || undefined,
-        billingPeriod: billingPeriod as "monthly" | "termly" | "quarterly" | "annual",
-        paymentProvider: paymentProvider as "mpesa" | "airtel" | "stripe" | "bank_transfer",
-        paymentReference: paymentReference || undefined,
-      });
-      toast.success(`Your ${selectedPlan.name} plan is now active.`);
-      setTrialDialogOpen(false);
-      setSelectedPlan(null);
-      setPaymentReference("");
-    } catch (error: any) {
-      toast.error(error?.message ?? "Failed to convert trial to a paid subscription.");
     } finally {
       setProcessingAction(null);
     }
@@ -396,20 +361,8 @@ export default function BillingSettingsPage() {
               key={plan._id}
               plan={plan}
               isCurrent={subscription?.planId === plan.name}
-              actionLabel={
-                isTrialTenant
-                  ? "Choose this plan"
-                  : index > currentPlanIndex
-                    ? "Upgrade to this plan"
-                    : "Downgrade to this plan"
-              }
-              onSelect={
-                isTrialTenant
-                  ? openTrialDialog
-                  : index > currentPlanIndex
-                    ? openUpgradeDialog
-                    : openDowngradeDialog
-              }
+              actionLabel={index > currentPlanIndex ? "Upgrade to this plan" : "Downgrade to this plan"}
+              onSelect={index > currentPlanIndex ? openUpgradeDialog : openDowngradeDialog}
             />
           ))}
         </div>
@@ -458,58 +411,19 @@ export default function BillingSettingsPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={trialDialogOpen} onOpenChange={setTrialDialogOpen}>
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Cancel Subscription</DialogTitle><DialogDescription>Tell us why you are leaving. This is recorded against your billing history.</DialogDescription></DialogHeader>
+          <div className="space-y-2"><Label>Reason</Label><Textarea rows={4} placeholder="Why are you cancelling?" value={cancelReason} onChange={(event) => setCancelReason(event.target.value)} /></div>
+          <DialogFooter><Button variant="outline" onClick={() => setCancelDialogOpen(false)}>Keep Subscription</Button><Button variant="destructive" onClick={handleConfirmCancel} disabled={processingAction === "cancel"}>{processingAction === "cancel" ? "Cancelling..." : "Confirm Cancellation"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={enterpriseDialogOpen} onOpenChange={setEnterpriseDialogOpen}>
         <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{selectedPlan ? `Choose ${selectedPlan.name}` : "Choose a Plan"}</DialogTitle>
-            <DialogDescription>Pick your plan, billing period, and payment method to convert your trial.</DialogDescription>
-          </DialogHeader>
-          {selectedPlan ? (
-            <div className="space-y-4">
-              <div className="rounded-lg border bg-muted/30 p-4">
-                <p className="font-semibold capitalize">{selectedPlan.name}</p>
-                <p className="text-sm text-muted-foreground">Monthly base price: {format(selectedPlan.priceMonthlyKes)}</p>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Billing Period</Label>
-                  <Select value={billingPeriod} onValueChange={setBillingPeriod}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="termly">Termly</SelectItem>
-                      <SelectItem value="annual">Annual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Payment Method</Label>
-                  <Select value={paymentProvider} onValueChange={setPaymentProvider}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="mpesa">M-Pesa</SelectItem>
-                      <SelectItem value="airtel">Airtel Money</SelectItem>
-                      <SelectItem value="stripe">Card (Stripe)</SelectItem>
-                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Payment Reference</Label>
-                <Input placeholder="Optional transaction or receipt number" value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} />
-              </div>
-              <div className="rounded-lg border border-[#0F4C2A]/20 bg-[#0F4C2A]/5 p-4 text-sm text-muted-foreground">
-                Choosing a plan will activate your subscription, record an invoice in KES, and restore plan-included modules for your school.
-              </div>
-            </div>
-          ) : null}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setTrialDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]" onClick={handleConfirmTrialConversion} disabled={processingAction === "trial" || !selectedPlan}>
-              {processingAction === "trial" ? "Activating..." : "Activate Plan"}
-            </Button>
-          </DialogFooter>
+          <DialogHeader><DialogTitle>Request Enterprise Consultation</DialogTitle><DialogDescription>Send your requirements to the EduMyles team and create a CRM follow-up.</DialogDescription></DialogHeader>
+          <div className="space-y-4"><div className="space-y-2"><Label>Contact phone</Label><Input value={enterprisePhone} onChange={(event) => setEnterprisePhone(event.target.value)} placeholder="+254..." /></div><div className="space-y-2"><Label>Decision timeline</Label><Select value={enterpriseTimeline} onValueChange={setEnterpriseTimeline}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="this_week">This week</SelectItem><SelectItem value="this_month">This month</SelectItem><SelectItem value="this_term">This term</SelectItem><SelectItem value="next_term">Next term</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>What do you need?</Label><Textarea rows={5} value={enterpriseNotes} onChange={(event) => setEnterpriseNotes(event.target.value)} placeholder="Tell us about student volume, rollout scope, required modules, or custom pricing needs." /></div></div>
+          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 

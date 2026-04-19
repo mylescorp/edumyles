@@ -24,18 +24,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDate, formatRelativeTime } from "@/lib/formatters";
-import {
-  ArrowUpDown,
-  CheckCircle2,
-  Clock3,
-  HeartPulse,
-  MessageSquareMore,
-  SearchX,
-  ShieldCheck,
-  Sparkles,
-  TimerReset,
-  TrendingUp,
-} from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock3, HeartPulse, SearchX, TimerReset, TrendingUp } from "lucide-react";
 import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 
 type TenantSuccessRow = {
@@ -395,17 +384,6 @@ export default function TenantSuccessPage() {
       />
 
       <TenantsAdminRail currentHref="/platform/tenant-success" />
-
-      <Tabs value={filter} onValueChange={(value) => setFilter(value as FilterKey)}>
-        <TabsList className="h-auto w-full justify-start overflow-x-auto rounded-xl border bg-muted/30 p-1">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="at_risk">At Risk</TabsTrigger>
-          <TabsTrigger value="stalled">Stalled</TabsTrigger>
-          <TabsTrigger value="almost">Almost</TabsTrigger>
-          <TabsTrigger value="activated">Activated</TabsTrigger>
-          <TabsTrigger value="converted">Converted</TabsTrigger>
-        </TabsList>
-      </Tabs>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <MetricCard

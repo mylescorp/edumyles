@@ -6,10 +6,9 @@ import { cn } from "@/lib/utils";
 
 const MARKETPLACE_LINKS = [
   { label: "Overview", href: "/platform/marketplace" },
-  { label: "Modules", href: "/platform/marketplace/modules" },
+  { label: "Modules", href: "/platform/marketplace/module" },
   { label: "Review Queue", href: "/platform/marketplace/admin" },
   { label: "Pricing Controls", href: "/platform/marketplace/pricing" },
-  { label: "Billing", href: "/platform/marketplace/billing" },
   { label: "Flags", href: "/platform/marketplace/flags" },
   { label: "Reviews", href: "/platform/marketplace/reviews" },
   { label: "Pilot Grants", href: "/platform/marketplace/pilot-grants" },

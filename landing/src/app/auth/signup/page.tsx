@@ -71,8 +71,7 @@ function SignUpPageContent() {
     county: "",
     schoolName: "",
     studentCount: "",
-    currentSystem: "",
-    referralSource: referralCode ? "Friend/Colleague" : "Google Search",
+    referralSource: referralCode ? "Referral" : "Search engine",
     biggestChallenge: "",
     referralCode: referralCode || "", // Include referral code in form data
   });

@@ -342,27 +342,3 @@
  GET /platform/users 200 in 521ms (next.js: 157ms, proxy.ts: 98ms, application-code: 266ms)
  GET /platform/users 200 in 171ms (next.js: 12ms, proxy.ts: 13ms, application-code: 146ms)
  GET /platform/users 200 in 85ms (next.js: 8ms, proxy.ts: 10ms, application-code: 68ms)
-○ Compiling /auth/logout ...
- GET /platform 200 in 6.4s (next.js: 693ms, proxy.ts: 266ms, application-code: 5.5s)
- POST /auth/logout 200 in 21.5s (next.js: 21.3s, application-code: 217ms)
- POST /auth/logout 200 in 21.7s (next.js: 21.3s, application-code: 398ms)
- GET /api/auth/session 200 in 146ms (next.js: 112ms, application-code: 34ms)
- GET /api/auth/session 200 in 22ms (next.js: 10ms, application-code: 12ms)
-✓ Compiled in 3.8s
-✓ Finished filesystem cache database compaction in 10.7s
-✓ Compiled in 1600ms
- GET /platform/users/invite 200 in 574ms (next.js: 218ms, proxy.ts: 100ms, application-code: 255ms)
- GET /api/auth/session 200 in 113ms (next.js: 28ms, application-code: 85ms)
- GET /platform/users/invite 200 in 288ms (next.js: 5ms, proxy.ts: 10ms, application-code: 273ms)
- GET /api/auth/session 200 in 16ms (next.js: 5ms, application-code: 11ms)
-✓ Compiled in 4.8s
- GET /platform/users/invite 200 in 6.9s (next.js: 5.6s, proxy.ts: 823ms, application-code: 482ms)
- GET /platform/users/invite 200 in 317ms (next.js: 9ms, proxy.ts: 172ms, application-code: 136ms)
- GET /platform/users/invite 200 in 1196ms (next.js: 11ms, proxy.ts: 10ms, application-code: 1176ms)
- GET /api/auth/session 200 in 470ms (next.js: 456ms, application-code: 14ms)
-✓ Compiled in 1794ms
- GET /platform/users/invite 200 in 457ms (next.js: 168ms, proxy.ts: 123ms, application-code: 167ms)
- GET /platform/users/invite 200 in 79ms (next.js: 7ms, proxy.ts: 6ms, application-code: 65ms)
-✓ Compiled in 1169ms
-✓ Compiled in 964ms
-✓ Compiled in 1110ms

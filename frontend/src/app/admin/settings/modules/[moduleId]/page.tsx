@@ -2,6 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
+import { USER_ROLES } from "@shared/constants";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ModuleAccessConfig } from "@/components/modules/ModuleAccessConfig";
 import { ModuleConfigForm } from "@/components/modules/ModuleConfigForm";
@@ -20,65 +24,76 @@ import { Save, Settings2, Shield, BellRing, CreditCard } from "lucide-react";
 
 export default function ModuleSettingsPage() {
   const params = useParams();
-  const moduleSlug = params.moduleId as string;
-  const { sessionToken, isAuthenticated, isLoading: authLoading } = useAuth();
-  const canQuery = !authLoading && isAuthenticated && !!sessionToken;
+  const moduleId = params.moduleId as string;
+  const { isLoading: authLoading, isAuthenticated, sessionToken } = useAuth();
+  const { tenantId, isLoading: tenantLoading } = useTenant();
+  const hasLiveTenantSession =
+    !!sessionToken && sessionToken !== "dev_session_token";
+  const canQueryModule =
+    !authLoading && isAuthenticated && hasLiveTenantSession;
 
-  const moduleDetail = useQuery(
-    api.modules.marketplace.settings.getModuleDetail,
-    canQuery ? { sessionToken, moduleSlug } : "skip"
-  )?.data as any;
-  const accessConfig = useQuery(
-    api.modules.marketplace.settings.getModuleAccessConfig,
-    canQuery ? { sessionToken, moduleSlug } : "skip"
-  )?.data as any;
-  const moduleConfig = useQuery(
-    api.modules.marketplace.settings.getModuleConfig,
-    canQuery ? { sessionToken, moduleSlug } : "skip"
-  )?.data as Record<string, any> | undefined;
-  const notificationSettings = useQuery(
-    api.modules.marketplace.settings.getModuleNotificationSettings,
-    canQuery ? { sessionToken, moduleSlug } : "skip"
-  )?.data as any;
-  const billingInfo = useQuery(
-    api.modules.marketplace.settings.getModuleBillingInfo,
-    canQuery ? { sessionToken, moduleSlug } : "skip"
-  )?.data as any;
-
-  const updateAccessConfig = useMutation(api.modules.marketplace.settings.updateModuleAccessConfig);
-  const updateModuleConfig = useMutation(api.modules.marketplace.settings.updateModuleConfig);
-  const updateNotificationSettings = useMutation(
-    api.modules.marketplace.settings.updateModuleNotificationSettings
+  const moduleDetails = useQuery(
+    api.modules.marketplace.queries.getModuleDetails,
+    canQueryModule ? { sessionToken, moduleId } : "skip"
   );
-
-  const [draftRoleAccess, setDraftRoleAccess] = useState<any[] | null>(null);
-  const [draftConfig, setDraftConfig] = useState<Record<string, any> | null>(null);
-  const [draftNotifications, setDraftNotifications] = useState<any[] | null>(null);
+  const moduleConfig = useQuery(
+    api.modules.marketplace.modules.getModuleConfig,
+    canQueryModule ? { moduleId } : "skip",
+    canQueryModule
+  ) as
+    | {
+        rolePermissions?: Record<string, string[]>;
+        featureFlags?: Record<string, boolean>;
+      }
+    | undefined;
+  const toggleStatus = useMutation(api.modules.marketplace.mutations.toggleModuleStatus);
+  const updateModuleConfig = useMutation(api.modules.marketplace.modules.updateModuleConfig);
+  const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
+  const [rolePermissions, setRolePermissions] = useState<Record<string, boolean>>({});
+  const [featureFlags, setFeatureFlags] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const roleAccess = draftRoleAccess ?? accessConfig?.roleAccess ?? [];
-  const configValue = draftConfig ?? moduleConfig ?? {};
-  const notificationsValue =
-    draftNotifications ?? notificationSettings?.notifications ?? [];
+  const roleOptions = useMemo(() => {
+    const platformRoles = new Set(["master_admin", "super_admin"]);
+    const moduleSupportedRoles = moduleDetails?.supportedRoles as string[] | undefined;
+    const fallbackRoles = Object.keys(USER_ROLES).filter((role) => !platformRoles.has(role));
+    return (moduleSupportedRoles?.length ? moduleSupportedRoles : fallbackRoles).map((role) => ({
+      value: role,
+      label: USER_ROLES[role as keyof typeof USER_ROLES]?.label ?? role,
+    }));
+  }, [moduleDetails?.supportedRoles]);
 
-  const features = useMemo(
-    () =>
-      (moduleDetail?.features ?? []).map((feature: any) => ({
-        key: feature.key,
-        label: feature.label,
-        description: feature.description,
-      })),
-    [moduleDetail]
-  );
+  useEffect(() => {
+    if (!moduleDetails) return;
+
+    const configuredPermissions = moduleConfig?.rolePermissions ?? {};
+    const nextRolePermissions = roleOptions.reduce<Record<string, boolean>>((acc, role) => {
+      acc[role.value] = (configuredPermissions[role.value]?.length ?? 0) > 0;
+      return acc;
+    }, {});
+
+    const configuredFeatureFlags = moduleConfig?.featureFlags ?? {};
+    const templateFlags = Object.entries(MODULE_CONFIG_TEMPLATES[moduleId] ?? {}).reduce<Record<string, boolean>>(
+      (acc, [key, value]) => {
+        if (typeof value === "boolean") {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {}
+    );
+
+    setRolePermissions(nextRolePermissions);
+    setFeatureFlags({
+      ...templateFlags,
+      ...configuredFeatureFlags,
+    });
+  }, [moduleConfig, moduleDetails, moduleId, roleOptions]);
 
   if (
     authLoading ||
-    (canQuery &&
-      (moduleDetail === undefined ||
-        accessConfig === undefined ||
-        moduleConfig === undefined ||
-        notificationSettings === undefined ||
-        billingInfo === undefined))
+    tenantLoading ||
+    (canQueryModule && (moduleDetails === undefined || moduleConfig === undefined))
   ) {
     return <LoadingSkeleton variant="page" />;
   }
@@ -107,13 +122,24 @@ export default function ModuleSettingsPage() {
     }
   }
 
-  async function handleSaveConfig() {
+  const handleSaveConfig = async () => {
+    if (!tenantId || !sessionToken) return;
     setIsSaving(true);
     try {
+      const normalizedRolePermissions = Object.entries(rolePermissions).reduce<Record<string, string[]>>(
+        (acc, [role, enabled]) => {
+          if (enabled) {
+            acc[role] = ["access"];
+          }
+          return acc;
+        },
+        {}
+      );
+
       await updateModuleConfig({
-        sessionToken,
-        moduleSlug,
-        config: configValue,
+        moduleId,
+        rolePermissions: normalizedRolePermissions,
+        featureFlags,
       });
       toast.success("Module configuration saved");
     } catch (error: any) {
@@ -181,7 +207,109 @@ export default function ModuleSettingsPage() {
 
         <Card className="md:col-span-3">
           <CardHeader>
-            <CardTitle>Module Workspace</CardTitle>
+            <CardTitle>Permissions & Feature Controls</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div>
+                <p className="font-medium">Module status</p>
+                <p className="text-sm text-muted-foreground">
+                  {isCore
+                    ? "Core modules stay active for every tenant."
+                    : "Disable the module temporarily without uninstalling it."}
+                </p>
+              </div>
+              <Switch
+                checked={isActive}
+                disabled={isCore || !isInstalled || isSaving}
+                onCheckedChange={() => setConfirmDisable(true)}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium">Role Permissions</Label>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Choose which school roles should be allowed to access this module.
+                </p>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                {roleOptions.map((role) => (
+                  <div
+                    key={role.value}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{role.label}</p>
+                      <p className="text-xs text-muted-foreground">{role.value}</p>
+                    </div>
+                    <Switch
+                      checked={rolePermissions[role.value] ?? false}
+                      onCheckedChange={(checked) =>
+                        setRolePermissions((current) => ({
+                          ...current,
+                          [role.value]: checked,
+                        }))
+                      }
+                      disabled={isSaving}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium">Feature Flags</Label>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Enable or disable optional module behaviors for your school.
+                </p>
+              </div>
+              {Object.keys(featureFlags).length === 0 ? (
+                <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                  No feature toggles defined for this module yet.
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {Object.entries(featureFlags).map(([flag, enabled]) => (
+                    <div
+                      key={flag}
+                      className="flex items-center justify-between rounded-lg border p-3"
+                    >
+                      <div>
+                        <p className="font-medium">{flag}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Toggle module-specific behavior for this tenant.
+                        </p>
+                      </div>
+                      <Switch
+                        checked={enabled}
+                        onCheckedChange={(checked) =>
+                          setFeatureFlags((current) => ({
+                            ...current,
+                            [flag]: checked,
+                          }))
+                        }
+                        disabled={isSaving}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={handleSaveConfig} disabled={isSaving}>
+                <Save className="mr-2 h-4 w-4" />
+                Save Settings
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Included Features</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="access" className="space-y-6">

@@ -101,18 +101,9 @@ export const getOrgByTenantId = query({
     if (!isTrustedServerCall(args.serverSecret)) {
       await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
     }
-    const organizations = await ctx.db
+    return await ctx.db
       .query("organizations")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect();
-
-    return organizations
-      .slice()
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .sort((a, b) => {
-        const aReal = !a.workosOrgId.startsWith("edumyles-") && !a.workosOrgId.startsWith("platform-");
-        const bReal = !b.workosOrgId.startsWith("edumyles-") && !b.workosOrgId.startsWith("platform-");
-        return Number(bReal) - Number(aReal);
-      })[0] ?? null;
+      .first();
   },
 });

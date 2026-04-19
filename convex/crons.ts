@@ -55,42 +55,7 @@ crons.interval(
 crons.daily(
   "process pilot grant expiry",
   { hourUTC: 21, minuteUTC: 0 },
-  (internal as any).modules.marketplace.pilotGrants.processPilotExpiry,
-  {}
-);
-
-crons.daily(
-  "monthly module billing",
-  { hourUTC: 21, minuteUTC: 1 },
-  (internal as any).modules.marketplace.billing.runMonthlyModuleBilling,
-  {}
-);
-
-crons.daily(
-  "module data purge",
-  { hourUTC: 0, minuteUTC: 0 },
-  (internal as any).modules.marketplace.installation.purgeExpiredModuleData,
-  {}
-);
-
-crons.daily(
-  "payment grace period check",
-  { hourUTC: 5, minuteUTC: 0 },
-  (internal as any).modules.marketplace.billing.checkPaymentGracePeriods,
-  {}
-);
-
-crons.interval(
-  "event bus dead letter retry",
-  { minutes: 15 },
-  internal.eventBus.retryFailedEvents,
-  {}
-);
-
-crons.daily(
-  "library overdue check",
-  { hourUTC: 5, minuteUTC: 30 },
-  (internal as any).modules.marketplace.billing.checkLibraryOverdues,
+  (internal as any).modules.platform.pilotGrants.processExpiredGrants,
   {}
 );
 
@@ -105,13 +70,6 @@ crons.daily(
   "send trial interventions",
   { hourUTC: 22, minuteUTC: 0 },
   (internal as any).modules.platform.onboarding.sendTrialInterventions,
-  {}
-);
-
-crons.daily(
-  "process trial expirations",
-  { hourUTC: 22, minuteUTC: 15 },
-  (internal as any).modules.platform.onboarding.processAllTrialExpirations,
   {}
 );
 

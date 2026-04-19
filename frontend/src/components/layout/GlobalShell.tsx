@@ -55,21 +55,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import Image from "next/image";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import type { NavItem } from "@/lib/routes";
-import { isCoreModuleSlug } from "@/lib/moduleSlugs";
 
 export interface NavGroup {
   label: string;
   href?: string;
   items?: { label: string; href: string }[];
 }
-
-type AdminWorkspaceTenant = {
-  tenantId: string;
-  name: string;
-  subdomain: string;
-  plan: string;
-  status: string;
-};
 
 function getNavGroups(navItems: NavItem[]): NavGroup[] {
   const groups: NavGroup[] = [];
@@ -206,7 +197,7 @@ function MobileDrawer({
             alt="EduMyles"
             width={32}
             height={32}
-            className="h-auto w-auto flex-shrink-0"
+            className="flex-shrink-0"
             priority
           />
           <div>
@@ -908,20 +899,16 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const router = useRouter();
   const { user, role, logout, sessionToken } = useAuth();
   const { tenant } = useTenant();
-  const { isModuleInstalled } = useInstalledModules(role ?? undefined);
+  const { isModuleInstalled } = useInstalledModules();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [footerPanel, setFooterPanel] = useState<"chats" | "channels" | "contacts" | null>(null);
   const [healthRefreshNonce, setHealthRefreshNonce] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isAdminWorkspaceMode, setIsAdminWorkspaceMode] = useState(false);
-  const [adminWorkspaceTenants, setAdminWorkspaceTenants] = useState<AdminWorkspaceTenant[]>([]);
-  const [adminWorkspaceTenantId, setAdminWorkspaceTenantId] = useState<string | null>(null);
-  const [isSwitchingTenant, setIsSwitchingTenant] = useState(false);
   const toggleFooterPanel = (panel: "chats" | "channels" | "contacts") =>
     setFooterPanel((prev) => (prev === panel ? null : panel));
+  const coreModuleIds = ["sis", "communications", "users"];
   const isPlatformRoute = pathname?.startsWith("/platform");
-  const isAdminRoute = pathname?.startsWith("/admin");
 
   // Use permission-based navigation for platform routes
   const permissionBasedNavItems = usePermissionBasedNavItems();
@@ -935,49 +922,6 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
 
     return () => window.clearInterval(interval);
   }, [isPlatformRoute]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    setIsAdminWorkspaceMode(readClientCookie("edumyles_admin_workspace_mode") === "true");
-  }, [pathname, sessionToken]);
-
-  useEffect(() => {
-    if (!isAdminRoute || !isAdminWorkspaceMode) {
-      setAdminWorkspaceTenants([]);
-      setAdminWorkspaceTenantId(null);
-      return;
-    }
-
-    let isCancelled = false;
-
-    void (async () => {
-      try {
-        const res = await fetch("/api/auth/admin-tenants", {
-          credentials: "same-origin",
-          cache: "no-store",
-        });
-
-        if (!res.ok) {
-          return;
-        }
-
-        const data = await res.json();
-        if (isCancelled) return;
-
-        setAdminWorkspaceTenants(Array.isArray(data.tenants) ? data.tenants : []);
-        setAdminWorkspaceTenantId(data.currentTenantId ?? null);
-      } catch {
-        if (!isCancelled) {
-          setAdminWorkspaceTenants([]);
-          setAdminWorkspaceTenantId(null);
-        }
-      }
-    })();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [isAdminRoute, isAdminWorkspaceMode, sessionToken]);
 
   const shellHealth = useQuery(
     api.modules.platform.ops.getPlatformShellStatus,
@@ -993,7 +937,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     ? permissionBasedNavItems
     : navItems.filter((item) => {
         if (!item.module) return true;
-        if (isCoreModuleSlug(item.module)) return true;
+        if (coreModuleIds.includes(item.module)) return true;
         if (!isModuleInstalled(item.module)) return false;
         return true;
       });
@@ -1041,23 +985,6 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     window.setTimeout(() => setIsRefreshing(false), 900);
   };
 
-  const handleAdminWorkspaceTenantSwitch = async (tenantId: string) => {
-    if (!tenantId || tenantId === adminWorkspaceTenantId || isSwitchingTenant) return;
-
-    setIsSwitchingTenant(true);
-
-    try {
-      document.cookie = `edumyles_admin_tenant=${encodeURIComponent(tenantId)}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
-      await fetch(`/api/auth/session?workspace=admin&tenantId=${encodeURIComponent(tenantId)}`, {
-        credentials: "same-origin",
-        cache: "no-store",
-      });
-      window.location.reload();
-    } finally {
-      setIsSwitchingTenant(false);
-    }
-  };
-
   return (
     <TooltipProvider delayDuration={200}>
       <div
@@ -1091,7 +1018,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                 alt="EduMyles"
                 width={28}
                 height={28}
-                className="h-auto w-auto flex-shrink-0"
+                className="flex-shrink-0"
                 priority
               />
               <span
@@ -1166,15 +1093,12 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Separator for platform routes */}
-            <div className="hidden lg:block w-px h-5 bg-white/10 mx-2" />
-
             {isPlatformRoute ? (
-              <div className="hidden min-w-[200px] flex-1 items-center justify-between gap-4 px-2 lg:flex">
+              <div className="hidden min-w-0 flex-1 items-center justify-between gap-4 px-2 lg:flex">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="truncate text-sm font-semibold text-white">
-                      <span className="hidden xl:inline">Master Admin </span>Command Center
+                      Master Admin Command Center
                     </p>
                     <Badge className="h-5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 text-[10px] font-semibold text-emerald-300 shadow-none">
                       Live

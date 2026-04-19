@@ -30,39 +30,26 @@ export function useInstalledModules(userRole?: string) {
   const { sessionToken, isLoading, isAuthenticated } = useAuth();
   const canQuery = !isLoading && isAuthenticated && !!sessionToken;
 
-  const installedModulesResult = useQuery(
-    api.modules.marketplace.settings.getInstalledModulesForTenant,
-    canQuery ? { sessionToken } : "skip"
+  // Single query for full module records — IDs are derived from these, avoiding
+  // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
+  const installedModuleDetailsResult = useQuery(
+    api.modules.marketplace.queries.getInstalledModules,
+    canQueryModules ? { sessionToken } : "skip"
   );
+
   const availableModulesResult = useQuery(
-    api.modules.marketplace.settings.getMarketplaceModules,
-    canQuery ? { sessionToken } : "skip"
+    api.modules.marketplace.queries.getAvailableForTier,
+    canQueryModules ? { sessionToken } : "skip"
   );
 
-  const installedModules = (installedModulesResult?.data ?? []) as any[];
-  const availableModules = (availableModulesResult?.data ?? []) as any[];
+  const installedModuleDetails = installedModuleDetailsResult?.data;
+  const availableModules = availableModulesResult?.data;
 
-  const normalizedInstalledModules = useMemo(
-    () =>
-      installedModules.map((install) => ({
-        ...install,
-        moduleSlug: normalizeModuleSlug(
-          install.moduleSlug ?? install.module?.slug ?? install.moduleId
-        ),
-        accessLevel: getRoleAccessLevel(install, userRole),
-        navConfig: install.module?.navConfig ?? null,
-        dashboardWidgets:
-          install.module?.dashboardWidgets ??
-          install.module?.navConfig?.dashboardWidgets ??
-          [],
-      })),
-    [installedModules]
-  );
-
-  const accessibleNavItems = useMemo(() => {
-    return normalizedInstalledModules.flatMap((install) => {
-      const navConfig = install.navConfig;
-      if (!navConfig || install.accessLevel === "none") return [];
+  useEffect(() => {
+    if (!canQueryModules) {
+      setQueryTimedOut(false);
+      return;
+    }
 
       const roleKey =
         userRole === "teacher"
@@ -91,15 +78,17 @@ export function useInstalledModules(userRole?: string) {
     [normalizedInstalledModules]
   );
 
-  const installedModuleIds = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          normalizedInstalledModules.flatMap((module) => getModuleAliases(module.moduleSlug))
-        )
-      ),
-    [normalizedInstalledModules]
-  );
+  const resolvedInstalledModuleDetails = queryTimedOut
+    ? (installedModuleDetails ?? [])
+    : installedModuleDetails;
+  const resolvedAvailableModules = queryTimedOut
+    ? (availableModules ?? [])
+    : availableModules;
+
+  // Derive IDs from details; always include core modules
+  const installedModuleIds: string[] = resolvedInstalledModuleDetails && Array.isArray(resolvedInstalledModuleDetails)
+    ? [...new Set([...CORE_MODULE_IDS, ...resolvedInstalledModuleDetails.map((m: any) => m.moduleId)])]
+    : CORE_MODULE_IDS;
 
   return {
     installedModules: normalizedInstalledModules,

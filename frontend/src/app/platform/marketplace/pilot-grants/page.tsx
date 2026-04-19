@@ -173,6 +173,27 @@ export default function PilotGrantsPage() {
 
       <MarketplaceAdminRail currentHref="/platform/marketplace/pilot-grants" />
 
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Total grants</p><p className="text-3xl font-semibold">{stats.total}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Active</p><p className="text-3xl font-semibold">{stats.active}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Expiring soon</p><p className="text-3xl font-semibold">{stats.expiringSoon}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Converted to paid</p><p className="text-3xl font-semibold">{stats.converted}</p></CardContent></Card>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by tenant, module, or reason" className="max-w-sm" />
+        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as (typeof STATUSES)[number])}>
+          <SelectTrigger className="w-[220px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            {STATUSES.map((status) => (
+              <SelectItem key={status} value={status}>
+                {status === "all" ? "All statuses" : labelize(status)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <Card>
         <CardContent className="space-y-4 pt-6">
           <Input

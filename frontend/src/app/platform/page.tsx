@@ -65,14 +65,6 @@ type RevenueModuleEntry = { moduleId: string; name: string; revenueKes: number; 
 type LimitTenantEntry = { tenantId: string; name: string; usage: number; studentLimit: number; usagePct: number };
 type FailedPaymentTenantEntry = { tenantId: string; name: string; updatedAt: number };
 type MarketplaceModuleEntry = { moduleId: string; name: string; installs?: number; rating?: number };
-type MarketplaceCatalogEntry = {
-  moduleId: string;
-  name: string;
-  slug: string;
-  category: string;
-  status: string;
-  installCount?: number;
-};
 
 const ACTIVITY_FILTERS: Array<{ value: ActivityFilter; label: string }> = [
   { value: "all", label: "All" },
@@ -251,7 +243,6 @@ export default function PlatformDashboardPage() {
     modulesPublishedThisMonth: asNumber(dashboard?.marketplace?.modulesPublishedThisMonth),
     topInstalledModules: Array.isArray(dashboard?.marketplace?.topInstalledModules) ? dashboard.marketplace.topInstalledModules : [],
     topRatedModules: Array.isArray(dashboard?.marketplace?.topRatedModules) ? dashboard.marketplace.topRatedModules : [],
-    recentPublishedModules: Array.isArray(dashboard?.marketplace?.recentPublishedModules) ? dashboard.marketplace.recentPublishedModules : [],
     pendingRequests: asNumber(dashboard?.marketplace?.pendingRequests),
     statusBreakdown: Array.isArray(dashboard?.marketplace?.statusBreakdown) ? dashboard.marketplace.statusBreakdown : [],
   };
@@ -776,36 +767,10 @@ export default function PlatformDashboardPage() {
             )}
             <div className="space-y-3 lg:col-span-2">
               <div className="rounded-xl border border-border/60 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Live module catalog</p>
-                  <Link href="/platform/marketplace/modules">
-                    <Button size="sm" variant="outline">Open modules</Button>
-                  </Link>
-                </div>
-                <div className="mt-3 space-y-2">
-                  {marketplace.recentPublishedModules.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No published marketplace modules are available yet.</p>
-                  ) : (
-                    marketplace.recentPublishedModules.map((module: MarketplaceCatalogEntry) => (
-                      <div key={module.moduleId} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm">
-                        <div>
-                          <p className="font-medium">{module.name}</p>
-                          <p className="text-xs text-muted-foreground">{module.category} · {module.slug}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium capitalize">{module.status.replace(/_/g, " ")}</p>
-                          <p className="text-xs text-muted-foreground">{(module.installCount ?? 0).toLocaleString()} installs</p>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-              <div className="rounded-xl border border-border/60 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Top installed modules</p>
                 <div className="mt-3 space-y-2">
                   {marketplace.topInstalledModules.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Install rankings will appear as schools activate more modules.</p>
+                    <p className="text-sm text-muted-foreground">No module install data yet.</p>
                   ) : (
                     marketplace.topInstalledModules.map((module: MarketplaceModuleEntry) => (
                       <div key={module.moduleId} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm">

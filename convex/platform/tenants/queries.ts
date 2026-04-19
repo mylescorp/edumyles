@@ -3,19 +3,6 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
-function normalizeTenantModuleKey(moduleId?: string) {
-  switch (moduleId) {
-    case "sis":
-      return "core_sis";
-    case "users":
-      return "core_users";
-    case "communications":
-      return "core_notifications";
-    default:
-      return moduleId ?? "";
-  }
-}
-
 function parseSubscriptionNotes(notes?: string) {
   if (!notes) {
     return {};
@@ -296,35 +283,6 @@ export const getPlatformStats = query({
       totalMonthlyRecurringKes,
       planCounts,
       countryCounts,
-    };
-  },
-});
-
-export const getTenantInviteByToken = query({
-  args: {
-    token: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const invite = await ctx.db
-      .query("tenant_invites")
-      .withIndex("by_token", (q) => q.eq("token", args.token))
-      .first();
-
-    if (!invite) {
-      return null;
-    }
-
-    const now = Date.now();
-    const isExpired = invite.expiresAt < now;
-    const isUsed = invite.status === "accepted";
-    const isRevoked = invite.status === "revoked";
-
-    return {
-      ...invite,
-      isExpired,
-      isUsed,
-      isRevoked,
-      isValid: invite.status === "pending" && !isExpired,
     };
   },
 });
@@ -625,10 +583,6 @@ export const getTenantDetailBundle = query({
     const activeUsers = users.filter((user: any) => user.isActive);
     const pendingUsers = users.filter((user: any) => user.workosUserId?.startsWith("pending-"));
     const schoolAdmin = users.find((user: any) => user.role === "school_admin") ?? users[0] ?? null;
-    const adminInvite = tenantInvites
-      .slice()
-      .sort((a: any, b: any) => b.updatedAt - a.updatedAt)
-      .find((invite: any) => invite.role === "school_admin") ?? null;
     const openTickets = supportTickets.filter((ticket: any) =>
       ["open", "in_progress"].includes(ticket.status)
     );

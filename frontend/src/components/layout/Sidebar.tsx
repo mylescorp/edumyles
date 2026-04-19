@@ -30,7 +30,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout, sessionToken } = useAuth();
   const { can, isLoaded: platformPermissionsLoaded } = usePlatformPermissions();
-  const { isModuleInstalled, isModuleActive, isModuleAccessible } = useInstalledModules(user?.role);
+  const { isModuleInstalled, isModuleActive } = useInstalledModules();
   const isPlatformSidebar = navItems.some((item) => item.href.startsWith("/platform"));
   const pendingAdmissionsResult = useQuery(
     api.modules.admissions.queries.listApplications,
@@ -43,6 +43,9 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
 
   const pendingAdmissions = pendingAdmissionsResult?.data;
   const pendingInvoices = pendingInvoicesResult?.data;
+
+  // Core module IDs that should always be visible
+  const coreModuleIds = ["sis", "communications", "users"];
 
   // Core module IDs that should always be visible
   // Filter and sort navigation items based on module installation status

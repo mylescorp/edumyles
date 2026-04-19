@@ -122,7 +122,6 @@ export default function BillingPlansPage() {
 
   const updatePlan = useMutation(api.modules.platform.subscriptions.updateSubscriptionPlan);
   const createPlan = useMutation(api.modules.platform.subscriptions.createSubscriptionPlan);
-  const ensureTechSpecPlans = useMutation(api.modules.platform.subscriptions.ensureTechSpecPlans);
 
   const filteredPlans = useMemo(() => {
     const rows = plans ?? [];
@@ -143,6 +142,11 @@ export default function BillingPlansPage() {
       activePlans: rows.filter((plan) => plan.isActive).length,
       moduleCoverage: new Set(rows.flatMap((plan) => plan.includedModuleIds)).size,
     };
+  }, [plans]);
+
+  const availablePlanNames = useMemo(() => {
+    const existing = new Set((plans ?? []).map((plan) => plan.name));
+    return (["free", "starter", "pro", "enterprise"] as PlanName[]).filter((name) => !existing.has(name));
   }, [plans]);
 
   const modulesByCategory = useMemo(() => {
@@ -167,10 +171,16 @@ export default function BillingPlansPage() {
   };
 
   const handleOpenCreate = () => {
+    const nextName = availablePlanNames[0];
+    if (!nextName) {
+      toast.error("All standard plan tiers already exist.");
+      return;
+    }
+
     setCreatingPlan(true);
     setEditingPlan(null);
     setForm({
-      planName: "",
+      planName: nextName,
       priceMonthlyKes: "0",
       priceAnnualKes: "0",
       studentLimit: "",
@@ -266,23 +276,10 @@ export default function BillingPlansPage() {
           <div className="flex gap-2">
             <Button
               onClick={handleOpenCreate}
+              disabled={availablePlanNames.length === 0}
             >
               <Plus className="mr-2 h-4 w-4" />
               Create Plan
-            </Button>
-            <Button
-              variant="outline"
-              onClick={async () => {
-                if (!sessionToken) return;
-                try {
-                  const result = await ensureTechSpecPlans({ sessionToken });
-                  toast.success(`Tech spec plans synced (${result.created} created, ${result.updated} updated).`);
-                } catch (error) {
-                  toast.error(error instanceof Error ? error.message : "Failed to sync tech spec plans.");
-                }
-              }}
-            >
-              Sync Tech Spec Plans
             </Button>
             <Button asChild variant="outline">
               <Link href="/platform/billing">Billing overview</Link>
@@ -429,26 +426,23 @@ export default function BillingPlansPage() {
             <div className="space-y-6 py-2">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="plan-name">Plan name</Label>
-                  {creatingPlan ? (
-                    <Select
-                      value={form.planName}
-                      onValueChange={(value) => setForm({ ...form, planName: value })}
-                    >
-                      <SelectTrigger id="plan-name">
-                        <SelectValue placeholder="Select official plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["free", "starter", "pro", "enterprise"].map((planName) => (
-                          <SelectItem key={planName} value={planName}>
-                            {planName.charAt(0).toUpperCase() + planName.slice(1)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Input id="plan-name" value={form.planName} disabled />
-                  )}
+                  <Label>Plan tier</Label>
+                  <Select
+                    value={form.planName}
+                    onValueChange={(value) => setForm({ ...form, planName: value as PlanName })}
+                    disabled={!creatingPlan}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(creatingPlan ? availablePlanNames : [form.planName]).map((name) => (
+                        <SelectItem key={name} value={name}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="monthly-price">Monthly price (KES)</Label>

@@ -170,7 +170,7 @@ export function BulkInviteUpload() {
 
       setUploadResults(results);
       
-      const successCount = results.filter((r: { success: boolean }) => r.success).length;
+      const successCount = results.filter(r => r.success).length;
       const failureCount = results.length - successCount;
       
       toast.success(`Upload complete: ${successCount} successful, ${failureCount} failed`);

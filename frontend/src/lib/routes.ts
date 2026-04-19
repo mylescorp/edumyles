@@ -66,10 +66,9 @@ export const platformNavItems: NavItem[] = [
   { label: "Activity Logs", href: "/platform/users/activity", icon: Activity, section: "Users & Staff", permission: "platform_users.view_activity" },
 
   { label: "Marketplace Overview", href: "/platform/marketplace", icon: ShoppingCart, section: "Marketplace", permission: "marketplace.view" },
-  { label: "Modules", href: "/platform/marketplace/modules", icon: Package, section: "Marketplace", permission: "marketplace.view" },
+  { label: "Modules", href: "/platform/marketplace/module", icon: Package, section: "Marketplace", permission: "marketplace.view" },
   { label: "Review Queue", href: "/platform/marketplace/admin", icon: ClipboardList, section: "Marketplace", permission: "marketplace.review_modules" },
   { label: "Pricing", href: "/platform/marketplace/pricing", icon: DollarSign, section: "Marketplace", permission: "marketplace.manage_pricing" },
-  { label: "Billing", href: "/platform/marketplace/billing", icon: Wallet, section: "Marketplace", permission: "marketplace.view" },
   { label: "Flags", href: "/platform/marketplace/flags", icon: Flag, section: "Marketplace", permission: "marketplace.manage_flags" },
   { label: "Reviews", href: "/platform/marketplace/reviews", icon: ClipboardCheck, section: "Marketplace", permission: "marketplace.manage_reviews" },
   { label: "Pilot Grants", href: "/platform/marketplace/pilot-grants", icon: Sparkles, section: "Marketplace", permission: "marketplace.manage_pilot_grants" },

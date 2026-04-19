@@ -83,21 +83,6 @@ const STEP_TITLES = [
   "Launch & Handoff",
 ] as const;
 
-const SHARED_SETUP_FLOW = [
-  "School profile",
-  "Academic year",
-  "Grading system",
-  "Subjects",
-  "Classes",
-  "Fee structure",
-  "Staff",
-  "Students",
-  "Modules",
-  "Portal customization",
-  "Parents",
-  "First action",
-] as const;
-
 const STEP_FIELDS: Array<Array<keyof WizardData>> = [
   ["schoolName", "schoolType", "country", "county", "websiteUrl", "logoUrl"],
   ["adminFirstName", "adminLastName", "adminEmail", "adminPhone", "adminJobTitle"],
@@ -248,15 +233,11 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   );
 
   const planList = useMemo(
-    () => {
-      const catalog = Array.isArray(planCatalog) ? planCatalog : [];
-      const planData = Array.isArray(plans) ? plans : [];
-      return catalog.length > 0 ? catalog : planData;
-    },
+    () => ((planCatalog as Array<any> | undefined) ?? (plans as Array<any> | undefined) ?? []),
     [planCatalog, plans]
   );
-  const publishedModules = useMemo(() => Array.isArray(modules) ? modules : [], [modules]);
-  const currencyOptions = useMemo(() => Array.isArray(currencies) ? currencies : [], [currencies]);
+  const publishedModules = useMemo(() => (modules as Array<any> | undefined) ?? [], [modules]);
+  const currencyOptions = useMemo(() => (currencies as Array<any> | undefined) ?? [], [currencies]);
 
   const selectedPlan = useMemo(
     () => planList.find((plan) => plan.name === formData.planId),
@@ -296,6 +277,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     return publishedModules.filter((module) => !included.has(String(module._id)) && !included.has(module.slug));
   }, [formData.selectedModuleIds, publishedModules]);
 
+  const progress = ((currentStep + 1) / STEP_TITLES.length) * 100;
   const websiteSubdomainValue = getWebsiteSubdomainValue(formData.websiteUrl);
   const subdomainStatusTone =
     formData.subdomain.trim().length < 3
@@ -534,54 +516,73 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
 
     setIsSubmitting(true);
     try {
-      setSubmitStage("Provisioning tenant workspace");
-      const response = await fetch("/api/tenants/onboard", {
+      setSubmitStage("Creating tenant workspace");
+      const result = await provisionTenant({
+        sessionToken,
+        schoolName: formData.schoolName,
+        schoolType: formData.schoolType,
+        country: formData.country,
+        county: formData.county,
+        address: formData.address || undefined,
+        websiteUrl: formData.websiteUrl || undefined,
+        logoUrl: formData.logoUrl || undefined,
+        adminFirstName: formData.adminFirstName,
+        adminLastName: formData.adminLastName,
+        adminEmail: formData.adminEmail,
+        adminPhone: formData.adminPhone || undefined,
+        adminJobTitle: formData.adminJobTitle,
+        sendMagicLink: formData.sendMagicLink,
+        planId: formData.planId,
+        billingCycle: formData.billingCycle,
+        customPriceMonthlyKes: toNumber(formData.customPriceMonthlyKes),
+        customPriceAnnualKes: toNumber(formData.customPriceAnnualKes),
+        trialDays: Number(formData.trialDays),
+        studentCountEstimate: toNumber(formData.studentCountEstimate),
+        paymentCollectionMode: formData.paymentCollectionMode,
+        subdomain: formData.subdomain,
+        customDomain: formData.customDomain || undefined,
+        timezone: formData.timezone,
+        displayCurrency: formData.displayCurrency,
+        academicYearStartMonth: Number(formData.academicYearStartMonth),
+        termStructure: formData.termStructure,
+        selectedModuleIds: formData.selectedModuleIds,
+        pilotGrantModuleIds: formData.pilotGrantModuleIds,
+        welcomeTemplate: formData.welcomeTemplate,
+        welcomeMessage: formData.welcomeMessage || undefined,
+        sendWelcomeImmediately: formData.sendWelcomeImmediately,
+      });
+
+      setSubmitStage("Provisioning organization");
+      const orgResponse = await fetch("/api/tenants/provision-org", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionToken, tenantId: result.tenantId }),
+      });
+      const orgPayload = await orgResponse.json().catch(() => ({}));
+      if (!orgResponse.ok) {
+        throw new Error(orgPayload.error ?? "Failed to provision WorkOS organization");
+      }
+
+      setSubmitStage("Sending WorkOS invitation");
+      const inviteResponse = await fetch("/api/tenants/invite-admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionToken,
-          schoolName: formData.schoolName,
-          schoolType: formData.schoolType,
-          country: formData.country,
-          county: formData.county,
-          address: formData.address || undefined,
-          websiteUrl: formData.websiteUrl || undefined,
-          logoUrl: formData.logoUrl || undefined,
-          adminFirstName: formData.adminFirstName,
-          adminLastName: formData.adminLastName,
-          adminEmail: formData.adminEmail,
-          adminPhone: formData.adminPhone || undefined,
-          adminJobTitle: formData.adminJobTitle,
-          sendMagicLink: formData.sendMagicLink,
-          planId: formData.planId,
-          billingCycle: formData.billingCycle,
-          customPriceMonthlyKes: toNumber(formData.customPriceMonthlyKes),
-          customPriceAnnualKes: toNumber(formData.customPriceAnnualKes),
-          trialDays: Number(formData.trialDays),
-          studentCountEstimate: toNumber(formData.studentCountEstimate),
-          paymentCollectionMode: formData.paymentCollectionMode,
-          subdomain: formData.subdomain,
-          customDomain: formData.customDomain || undefined,
-          timezone: formData.timezone,
-          displayCurrency: formData.displayCurrency,
-          academicYearStartMonth: Number(formData.academicYearStartMonth),
-          termStructure: formData.termStructure,
-          selectedModuleIds: formData.selectedModuleIds,
-          pilotGrantModuleIds: formData.pilotGrantModuleIds,
-          welcomeTemplate: formData.welcomeTemplate,
-          welcomeMessage: formData.welcomeMessage || undefined,
-          sendWelcomeImmediately: formData.sendWelcomeImmediately,
+          tenantId: result.tenantId,
+          email: formData.adminEmail,
+          firstName: formData.adminFirstName,
+          lastName: formData.adminLastName,
+          role: "school_admin",
         }),
       });
-
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        const stagePrefix = result?.stage ? `${String(result.stage).replace(/_/g, " ")}: ` : "";
-        throw new Error(`${stagePrefix}${result?.error ?? "Failed to provision tenant"}`);
+      const invitePayload = await inviteResponse.json().catch(() => ({}));
+      if (!inviteResponse.ok) {
+        throw new Error(invitePayload.error ?? "Failed to send WorkOS invitation");
       }
 
-      setSubmitStage("Opening setup flow");
-      router.push(`/platform/onboarding?tenantId=${result.tenantId}`);
+      setSubmitStage("Redirecting to tenant profile");
+      router.push(`/platform/tenants/${result.tenantId}`);
     } catch (submitError: any) {
       setError(submitError?.message ?? "Failed to provision tenant");
     } finally {
@@ -1156,14 +1157,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
               <Alert>
                 <Mail className="h-4 w-4" />
                 <AlertDescription>
-                  This platform kickoff creates the tenant shell, WorkOS organization, subscription shell, onboarding record, selected installed modules, pilot grants, and a school-admin invitation into the same live onboarding flow used by invited schools.
-                </AlertDescription>
-              </Alert>
-
-              <Alert>
-                <ClipboardCheck className="h-4 w-4" />
-                <AlertDescription>
-                  After submission, EduMyles opens the tenant in the shared setup-flow workspace instead of leaving you in an old onboarding detail screen.
+                  The current provisioning flow creates the tenant, WorkOS organization, subscription, onboarding record, selected installed modules, pilot grants, and a WorkOS-backed school-admin invitation.
                 </AlertDescription>
               </Alert>
             </div>
@@ -1224,7 +1218,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
             <Mail className="mt-0.5 h-4 w-4 text-primary" />
             <div>
               <p className="font-medium">Invite-ready admin account</p>
-              <p className="text-sm text-muted-foreground">The school admin is staged for first login and receives a WorkOS invitation that lands them in the same tenant onboarding journey as every new school.</p>
+              <p className="text-sm text-muted-foreground">The school admin is staged for first login and receives a WorkOS invitation linked to the tenant organization.</p>
             </div>
           </CardContent>
         </Card>

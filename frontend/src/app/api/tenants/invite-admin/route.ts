@@ -52,43 +52,27 @@ export async function POST(req: NextRequest) {
       role,
     });
 
-    let emailSent = false;
-    let invitationId: string | null = null;
-    let signUpUrl: string | null = null;
-    let warning: string | null = null;
+    const { workos } = getWorkOSClientFromEnv();
+    const org = await ensureTenantWorkOSOrganization({
+      convex,
+      tenantId,
+      sessionToken,
+    });
 
-    try {
-      const { workos } = getWorkOSClientFromEnv();
-      const org = await ensureTenantWorkOSOrganization({
-        convex,
-        tenantId,
-        sessionToken,
-      });
+    const invitation = await workos.userManagement.sendInvitation({
+      email: email.trim().toLowerCase(),
+      organizationId: org.workosOrgId,
+      expiresInDays: 7,
+    });
 
-      const invitation = await workos.userManagement.sendInvitation({
-        email: email.trim().toLowerCase(),
-        organizationId: org.workosOrgId,
-        expiresInDays: 7,
-      });
-
-      invitationId = invitation.id;
-      emailSent = true;
-      signUpUrl = buildWorkOSSignUpUrl(req, email.trim().toLowerCase());
-    } catch (error: any) {
-      if (error?.message?.includes("WORKOS_NOT_CONFIGURED")) {
-        warning = "WorkOS is not configured yet. The invite record was created, but the email invitation was not sent.";
-      } else {
-        throw error;
-      }
-    }
+    const signUpUrl = buildWorkOSSignUpUrl(req, email.trim().toLowerCase());
 
     return NextResponse.json({
       success: true,
-      invitationId,
-      emailSent,
+      invitationId: invitation.id,
+      emailSent: true,
       signUpUrl,
       tenantName: inviteResult.tenantName,
-      warning,
     });
   } catch (error: any) {
     const message = error?.message ?? "Failed to send tenant invite";

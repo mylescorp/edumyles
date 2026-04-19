@@ -20,7 +20,6 @@ const onboardingStepNames = [
   "firstAction",
 ] as const;
 
-const skippableSteps = ["feeStructure", "staffAdded", "parentsInvited"] as const;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TRIAL_INTERVENTION_TRIGGERS = [
   { day: 1, trigger: "day_1" as const },
@@ -2223,7 +2222,7 @@ export const checkStalledOnboardings = internalMutation({
   args: {},
   handler: async (ctx) => {
     const now = Date.now();
-    const cutoff = now - 2 * DAY_MS;
+    const cutoff = now - 3 * DAY_MS;
     const records = await ctx.db.query("tenant_onboarding").collect();
     let stalledCount = 0;
 
@@ -2234,9 +2233,6 @@ export const checkStalledOnboardings = internalMutation({
 
       await ctx.db.patch(record._id, {
         stalled: true,
-        isStalled: true,
-        stalledSince: now,
-        stalledAtStep: record.currentStep,
         updatedAt: now,
       });
       stalledCount += 1;
@@ -2249,42 +2245,13 @@ export const checkStalledOnboardings = internalMutation({
           message: `Tenant ${record.tenantId} has stalled onboarding progress and needs intervention.`,
           type: "platform_alert",
           isRead: false,
-          link: `/platform/tenant-success?tenantId=${record.tenantId}`,
+          link: `/platform/onboarding?tenantId=${record.tenantId}`,
           createdAt: now,
         });
       }
     }
 
     return { stalledCount };
-  },
-});
-
-export const scheduleTrialInterventions = internalMutation({
-  args: {
-    tenantId: v.string(),
-    trialStartedAt: v.number(),
-  },
-  handler: async (ctx, args) => {
-    await scheduleTrialInterventionsHelper(ctx, args);
-    return { success: true };
-  },
-});
-
-export const sendTrialIntervention = internalMutation({
-  args: {
-    tenantId: v.string(),
-    trigger: v.union(
-      v.literal("day_1"),
-      v.literal("day_3"),
-      v.literal("day_7"),
-      v.literal("day_10"),
-      v.literal("day_12"),
-      v.literal("day_13"),
-      v.literal("day_14")
-    ),
-  },
-  handler: async (ctx, args) => {
-    return await sendTrialInterventionHelper(ctx, args);
   },
 });
 
@@ -2303,57 +2270,55 @@ export const sendTrialInterventions = internalMutation({
         1,
         Math.floor((now - subscription.currentPeriodStart) / DAY_MS) + 1
       );
-      const matchingTrigger = TRIAL_INTERVENTION_TRIGGERS.find((entry) => entry.day === elapsedDays);
+      const matchingTrigger = TRIAL_INTERVENTION_TRIGGERS.find(
+        (entry) => entry.day === elapsedDays
+      );
+
       if (!matchingTrigger) continue;
 
-      const result = await sendTrialInterventionHelper(ctx, {
+      const existing = await ctx.db
+        .query("trial_interventions")
+        .withIndex("by_tenant_trigger", (q) =>
+          q.eq("tenantId", subscription.tenantId).eq("trigger", matchingTrigger.trigger)
+        )
+        .first();
+
+      if (existing) continue;
+
+      await ctx.db.insert("trial_interventions", {
         tenantId: subscription.tenantId,
+        interventionType: "in_app",
         trigger: matchingTrigger.trigger,
+        sentAt: now,
+        opened: false,
+        clicked: false,
+        createdAt: now,
       });
-      if (result.success) {
-        sent += 1;
+
+      const schoolAdmins = await ctx.db
+        .query("users")
+        .withIndex("by_tenant_role", (q) =>
+          q.eq("tenantId", subscription.tenantId).eq("role", "school_admin")
+        )
+        .collect();
+
+      for (const admin of schoolAdmins) {
+        await ctx.db.insert("notifications", {
+          tenantId: subscription.tenantId,
+          userId: admin.eduMylesUserId,
+          title: "Trial success tip",
+          message: `Your EduMyles trial is on ${matchingTrigger.day === 14 ? "its final day" : `day ${matchingTrigger.day}`}. Complete onboarding tasks to maximize setup success.`,
+          type: "trial_intervention",
+          isRead: false,
+          link: "/admin",
+          createdAt: now,
+        });
       }
+
+      sent += 1;
     }
 
     return { sent };
-  },
-});
-
-export const processTrialExpiry = internalMutation({
-  args: {
-    tenantId: v.string(),
-  },
-  handler: async (ctx, args) => {
-    return await processTrialExpiryHelper(ctx, args.tenantId);
-  },
-});
-
-export const processAllTrialExpirations = internalMutation({
-  args: {},
-  handler: async (ctx) => {
-    const now = Date.now();
-    const tenants = await ctx.db.query("tenants").collect();
-
-    let expiredCount = 0;
-    for (const tenantRecord of tenants) {
-      if (tenantRecord.status !== "trial") continue;
-      if (!tenantRecord.trialEndsAt || tenantRecord.trialEndsAt > now) continue;
-      const result = await processTrialExpiryHelper(ctx, tenantRecord.tenantId);
-      if (result.success) {
-        expiredCount += 1;
-      }
-    }
-
-    return { expiredCount };
-  },
-});
-
-export const hardSuspendExpiredTrial = internalMutation({
-  args: {
-    tenantId: v.string(),
-  },
-  handler: async (ctx, args) => {
-    return await hardSuspendExpiredTrialHelper(ctx, args.tenantId);
   },
 });
 

@@ -63,13 +63,7 @@ export default function RootLayout({
              */}
             <body
                 suppressHydrationWarning
-                className="font-sans antialiased"
-                style={{
-                    ["--font-plus-jakarta" as any]: '"Segoe UI", "Helvetica Neue", Arial, sans-serif',
-                    ["--font-playfair" as any]: '"Georgia", "Times New Roman", serif',
-                    ["--font-dm-mono" as any]: '"Consolas", "Courier New", monospace',
-                    ["--font-inter" as any]: '"Segoe UI", "Helvetica Neue", Arial, sans-serif',
-                }}
+                className={`${plusJakartaSans.variable} ${playfairDisplay.variable} ${dmMono.variable} ${inter.variable} font-sans antialiased`}
             >
                 <ErrorBoundary>
                     <PostHogProvider>

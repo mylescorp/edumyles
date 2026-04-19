@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "@/convex/_generated/api";
 
-function getWorkOSClient() {
-  const apiKey = process.env.WORKOS_API_KEY;
-  if (!apiKey) {
-    return null;
-  }
-
-  return new WorkOS(apiKey);
-}
+const workos = new WorkOS(process.env.WORKOS_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    const workos = getWorkOSClient();
-    if (!workos) {
-      return NextResponse.json({ error: "WORKOS_NOT_CONFIGURED" }, { status: 503 });
-    }
-
+    // Create WorkOS user
     const user = await workos.userManagement.createUser({
       email,
       firstName,

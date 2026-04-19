@@ -53,40 +53,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
     }
 
-    let org;
-    let warning: string | null = null;
-
-    try {
-      org = await ensureTenantWorkOSOrganization({
-        convex,
-        tenantId,
-        sessionToken,
-      });
-    } catch (err: any) {
-      if (err?.message?.includes("WORKOS_NOT_CONFIGURED")) {
-        warning = "WorkOS is not configured yet. The tenant is still using its placeholder organization.";
-        const existingOrg = await convex.query(api.organizations.getOrgByTenantId, {
-          tenantId,
-          sessionToken,
-        });
-        if (!existingOrg) {
-          throw err;
-        }
-        org = {
-          workosOrgId: existingOrg.workosOrgId,
-          organizationId: existingOrg._id,
-          alreadyExists: true,
-        };
-      } else {
-        throw err;
-      }
-    }
+    const org = await ensureTenantWorkOSOrganization({
+      convex,
+      tenantId,
+      sessionToken,
+    });
 
     return NextResponse.json({
       workosOrgId: org.workosOrgId,
       organizationId: org.organizationId,
       alreadyExists: org.alreadyExists,
-      warning,
     });
   } catch (err: any) {
     console.error("[provision-org] Error:", err);

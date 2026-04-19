@@ -32,12 +32,9 @@ async function sendFallbackEmail(data: WaitlistSubmission): Promise<void> {
     `Email:         ${data.email}`,
     `School:        ${data.schoolName}`,
     `Country:       ${data.country}`,
-    `County:        ${data.county ?? "Not provided"}`,
     `Students:      ${data.studentCount ?? "Not specified"}`,
     `Phone:         ${data.phone ?? "Not provided"}`,
-    `System:        ${data.currentSystem ?? "Not provided"}`,
     `Source:        ${data.referralSource ?? "landing_waitlist"}`,
-    `Referral code: ${data.referralCode ?? "Not provided"}`,
     `Challenge:     ${data.biggestChallenge ?? "Not specified"}`,
   ].join("\n");
 
