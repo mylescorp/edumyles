@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { AdminRecentActivity } from "@/components/admin/AdminRecentActivity";
 import { AdminQuickActions } from "@/components/admin/AdminQuickActions";
+import { OnboardingProgress } from "@/components/admin/OnboardingProgress";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -152,6 +153,8 @@ export default function AdminDashboard() {
           Live
         </Badge>
       </div>
+
+      <OnboardingProgress />
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

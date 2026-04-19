@@ -5,6 +5,7 @@ import { v } from "convex/values";
 import { internal } from "../../_generated/api";
 import { requireActionTenantContext } from "../../helpers/tenantGuard";
 import { requirePermission } from "../../helpers/authorize";
+import { renderManagedEmailTemplate } from "../../emails/registry";
 const { createEmailService, EmailService } = require("../../../shared/src/lib/email");
 
 async function sendEmailViaResend(args: {
@@ -26,8 +27,19 @@ async function sendEmailViaResend(args: {
   }
 
   let body = args.body ?? args.text ?? "";
+  let subject = args.subject;
+  let html = args.html;
+  let text = args.text ?? body;
 
   if (args.template && args.data) {
+    const rendered = renderManagedEmailTemplate(args.template, args.data as Record<string, any>);
+    if (rendered) {
+      subject = subject || rendered.subject;
+      html = html ?? rendered.html;
+      text = args.text ?? rendered.text;
+      body = text;
+    }
+
     switch (args.template) {
       case "fee_reminder":
         body = `Dear Parent, This is a reminder that fee payment of KES ${(args.data as { amount?: number })?.amount ?? "—"} is due. Please pay at your earliest convenience.`;
@@ -48,9 +60,9 @@ async function sendEmailViaResend(args: {
 
   const result = await emailService.sendEmail({
     to: valid,
-    subject: args.subject,
-    html: args.html ?? body.replace(/\n/g, "<br/>"),
-    text: args.text ?? body,
+    subject,
+    html: html ?? body.replace(/\n/g, "<br/>"),
+    text: text ?? body,
   });
   if (!result.success) {
     throw new Error(result.error ?? "Resend API error");

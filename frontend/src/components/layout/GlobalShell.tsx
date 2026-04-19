@@ -1166,12 +1166,15 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Separator for platform routes */}
+            <div className="hidden lg:block w-px h-5 bg-white/10 mx-2" />
+
             {isPlatformRoute ? (
-              <div className="hidden min-w-0 flex-1 items-center justify-between gap-4 px-2 lg:flex">
+              <div className="hidden min-w-[200px] flex-1 items-center justify-between gap-4 px-2 lg:flex">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="truncate text-sm font-semibold text-white">
-                      Master Admin Command Center
+                      <span className="hidden xl:inline">Master Admin </span>Command Center
                     </p>
                     <Badge className="h-5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 text-[10px] font-semibold text-emerald-300 shadow-none">
                       Live

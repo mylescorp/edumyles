@@ -9,10 +9,14 @@ interface WaitlistSubmission {
   email: string;
   schoolName: string;
   country: string;
+  county?: string;
   phone?: string;
   studentCount?: number;
+  currentSystem?: string;
+  referralCode?: string;
   referralSource?: string;
   biggestChallenge?: string;
+  sourceChannel?: string;
 }
 
 /** Send a plain notification email via Resend when Convex is unavailable. */
@@ -28,9 +32,12 @@ async function sendFallbackEmail(data: WaitlistSubmission): Promise<void> {
     `Email:         ${data.email}`,
     `School:        ${data.schoolName}`,
     `Country:       ${data.country}`,
+    `County:        ${data.county ?? "Not provided"}`,
     `Students:      ${data.studentCount ?? "Not specified"}`,
     `Phone:         ${data.phone ?? "Not provided"}`,
+    `System:        ${data.currentSystem ?? "Not provided"}`,
     `Source:        ${data.referralSource ?? "landing_waitlist"}`,
+    `Referral code: ${data.referralCode ?? "Not provided"}`,
     `Challenge:     ${data.biggestChallenge ?? "Not specified"}`,
   ].join("\n");
 
@@ -57,9 +64,12 @@ export async function POST(request: NextRequest) {
       email?: string;
       phone?: string;
       country?: string;
+      county?: string;
       schoolName?: string;
       studentCount?: number | string;
+      currentSystem?: string;
       referralSource?: string;
+      referralCode?: string;
       biggestChallenge?: string;
     };
 
@@ -69,9 +79,12 @@ export async function POST(request: NextRequest) {
     const email = body.email?.trim().toLowerCase() ?? "";
     const phone = body.phone?.trim() || undefined;
     const country = body.country?.trim() ?? "";
+    const county = body.county?.trim() || undefined;
     const schoolName = body.schoolName?.trim() ?? "";
+    const currentSystem = body.currentSystem?.trim() || undefined;
     const biggestChallenge = body.biggestChallenge?.trim() || undefined;
     const referralSource = body.referralSource?.trim() || "landing_waitlist";
+    const referralCode = body.referralCode?.trim() || undefined;
     const parsedStudentCount =
       typeof body.studentCount === "string"
         ? Number(body.studentCount)
@@ -100,10 +113,14 @@ export async function POST(request: NextRequest) {
       email,
       phone,
       country,
+      county,
       schoolName,
       studentCount,
+      currentSystem,
       referralSource,
+      referralCode,
       biggestChallenge,
+      sourceChannel: "landing_waitlist",
     };
 
     const convexUrl =
@@ -118,7 +135,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         waitlistId: result.waitlistId,
-        alreadyExists: Boolean(result.duplicate),
+        alreadyExists:
+          result.status === "updated" || result.status === "already_registered",
       });
     } catch (convexError) {
       // Convex unavailable (not yet deployed, or schema mismatch) —

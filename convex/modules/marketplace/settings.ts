@@ -49,6 +49,7 @@ function parseStoredConfig(config: string | undefined) {
 export const getMarketplaceModules = query({
   args: {
     sessionToken: v.string(),
+    tenantId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, args);
@@ -93,13 +94,8 @@ export const getModuleDetail = query({
     const tenant = await requireTenantSession(ctx, args);
     const moduleRecord = await getMarketplaceModule(ctx, args.moduleSlug);
     const moduleSpec = MODULE_SPECS[args.moduleSlug as keyof typeof MODULE_SPECS];
-    const [install, pricing, reviews, versions] = await Promise.all([
-      ctx.db
-        .query("module_installs")
-        .withIndex("by_tenantId_moduleSlug", (q: any) =>
-          q.eq("tenantId", tenant.tenantId).eq("moduleSlug", args.moduleSlug)
-        )
-        .unique(),
+    const [installs, pricing, reviews, versions] = await Promise.all([
+      getGuardInstalledModules(ctx, tenant.tenantId),
       ctx.db
         .query("module_pricing")
         .withIndex("by_moduleId", (q: any) => q.eq("moduleId", moduleRecord._id))
@@ -118,7 +114,8 @@ export const getModuleDetail = query({
 
     return {
       ...moduleRecord,
-      install,
+      install:
+        installs.find((entry: any) => entry.moduleSlug === args.moduleSlug) ?? null,
       pricing,
       reviews,
       versions,
@@ -327,12 +324,8 @@ export const getModuleBillingInfo = query({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, args);
-    const install = await ctx.db
-      .query("module_installs")
-      .withIndex("by_tenantId_moduleSlug", (q: any) =>
-        q.eq("tenantId", tenant.tenantId).eq("moduleSlug", args.moduleSlug)
-      )
-      .unique();
+    const installs = await getGuardInstalledModules(ctx, tenant.tenantId);
+    const install = installs.find((entry: any) => entry.moduleSlug === args.moduleSlug) ?? null;
 
     if (!install) {
       return null;
@@ -363,12 +356,8 @@ export const getModuleAccessStatus = query({
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, args);
     const moduleRecord = await getMarketplaceModule(ctx, args.moduleSlug);
-    const install = await ctx.db
-      .query("module_installs")
-      .withIndex("by_tenantId_moduleSlug", (q: any) =>
-        q.eq("tenantId", tenant.tenantId).eq("moduleSlug", args.moduleSlug)
-      )
-      .unique();
+    const installs = await getGuardInstalledModules(ctx, tenant.tenantId);
+    const install = installs.find((entry: any) => entry.moduleSlug === args.moduleSlug) ?? null;
 
     if (!install) {
       return {
@@ -390,15 +379,8 @@ export const getModuleAccessStatus = query({
       };
     }
 
-    const config = await ctx.db
-      .query("module_access_config")
-      .withIndex("by_tenantId_moduleId", (q: any) =>
-        q.eq("tenantId", tenant.tenantId).eq("moduleId", moduleRecord._id)
-      )
-      .unique();
-
     const userRole = args.userRole ?? tenant.role;
-    const roleAccess = config?.roleAccess?.find((entry: any) => entry.role === userRole);
+    const roleAccess = install.accessConfig?.roleAccess?.find((entry: any) => entry.role === userRole);
     const accessLevel = roleAccess?.accessLevel ?? (userRole === "school_admin" ? "full" : "none");
 
     return {

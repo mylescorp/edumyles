@@ -67,6 +67,53 @@ export const upsertUser = mutation({
         permissions: args.permissions,
         isActive: true,
       });
+
+      const matchingInvite = (
+        await ctx.db
+          .query("tenant_invites")
+          .withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", "pending"))
+          .collect()
+      ).find((invite) => invite.email.trim().toLowerCase() === args.email.trim().toLowerCase());
+
+      if (matchingInvite) {
+        await ctx.db.patch(matchingInvite._id, {
+          status: "accepted",
+          acceptedAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+      }
+
+      const onboarding = await ctx.db
+        .query("tenant_onboarding")
+        .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
+        .first();
+
+      if (onboarding) {
+        const shouldCountAsStaff = pendingByEmail.role !== "school_admin";
+        const existingStaffAdded = onboarding.steps.staffAdded ?? {
+          completed: false,
+          completedAt: undefined,
+          count: 0,
+          pointsAwarded: 0,
+        };
+        await ctx.db.patch(onboarding._id, {
+          steps: {
+            ...onboarding.steps,
+            staffAdded: {
+              ...existingStaffAdded,
+              completed: shouldCountAsStaff || existingStaffAdded.completed,
+              completedAt: shouldCountAsStaff ? Date.now() : existingStaffAdded.completedAt,
+              count: shouldCountAsStaff
+                ? Math.max(existingStaffAdded.count ?? 0, 1)
+                : existingStaffAdded.count,
+            },
+          },
+          lastActivityAt: Date.now(),
+          healthScore: Math.min(100, Math.max(onboarding.healthScore, 15)),
+          updatedAt: Date.now(),
+        });
+      }
+
       return pendingByEmail._id;
     }
 

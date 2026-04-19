@@ -17,15 +17,18 @@ const tenantPlanValidator = v.union(
 
 function buildDefaultOnboardingSteps() {
   return {
-    schoolProfile: { completed: true, completedAt: Date.now(), count: 1 },
-    rolesConfigured: { completed: false, completedAt: undefined, count: undefined },
-    staffAdded: { completed: false, completedAt: undefined, count: undefined },
-    studentsAdded: { completed: false, completedAt: undefined, count: undefined },
-    classesCreated: { completed: false, completedAt: undefined, count: undefined },
-    modulesConfigured: { completed: false, completedAt: undefined, count: undefined },
-    portalCustomized: { completed: false, completedAt: undefined, count: undefined },
-    parentsInvited: { completed: false, completedAt: undefined, count: undefined },
-    firstPaymentProcessed: { completed: false, completedAt: undefined, count: undefined },
+    schoolProfile: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    academicYear: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    gradingSystem: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    subjects: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    classes: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    feeStructure: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    staffAdded: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    studentsAdded: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    modulesConfigured: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    portalCustomized: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    parentsInvited: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
+    firstAction: { completed: false, completedAt: undefined, count: undefined, pointsAwarded: 0 },
   };
 }
 
@@ -808,6 +811,8 @@ export const convertDealToTenant = mutation({
       tenantId,
       wizardCompleted: false,
       wizardCompletedAt: undefined,
+      currentStep: 1,
+      isActivated: false,
       steps: buildDefaultOnboardingSteps(),
       healthScore: 6,
       lastActivityAt: now,

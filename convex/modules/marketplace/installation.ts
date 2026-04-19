@@ -77,22 +77,21 @@ async function isIncludedInPlan(ctx: any, tenantId: string, moduleId: any) {
 }
 
 async function getActivePilotGrant(ctx: any, tenantId: string, moduleId: any) {
-  const grant = await ctx.db
+  const grants = await ctx.db
     .query("pilot_grants")
     .withIndex("by_moduleId_tenantId", (q: any) =>
       q.eq("moduleId", moduleId).eq("tenantId", tenantId)
     )
-    .unique();
+    .collect();
 
-  if (!grant || grant.status === "revoked" || grant.status === "expired") {
-    return null;
-  }
-
-  if (grant.endDate && grant.endDate < Date.now()) {
-    return null;
-  }
-
-  return grant;
+  return (
+    grants.find(
+      (grant: any) =>
+        (grant.status === "active" || grant.status === "extended") &&
+        grant.startDate <= Date.now() &&
+        (!grant.endDate || grant.endDate >= Date.now())
+    ) ?? null
+  );
 }
 
 async function createAdminNotification(ctx: any, args: { tenantId: string; userId: string; title: string; message: string; link?: string; }) {
@@ -246,7 +245,9 @@ async function computeInstallRequirements(
     moduleRecord.isCore ||
     includedInPlan ||
     activePilotGrant?.grantType === "free_trial" ||
-    activePilotGrant?.grantType === "free_permanent"
+    activePilotGrant?.grantType === "free_permanent" ||
+    activePilotGrant?.grantType === "plan_upgrade" ||
+    activePilotGrant?.grantType === "beta_access"
   ) {
     return {
       canInstall: true,

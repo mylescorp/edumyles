@@ -2,20 +2,68 @@ import { ConvexError, v } from "convex/values";
 import { internalMutation, mutation, query } from "../../_generated/server";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
+import { runModuleOnInstallSetup } from "../moduleRuntime";
+import { ModuleSlug } from "../moduleCatalog";
+
+const FREE_ACCESS_GRANT_TYPES = new Set([
+  "free_trial",
+  "free_permanent",
+  "plan_upgrade",
+  "beta_access",
+]);
+
+function isGrantActive(grant: any) {
+  return (
+    grant &&
+    (grant.status === "active" || grant.status === "extended") &&
+    grant.startDate <= Date.now() &&
+    (!grant.endDate || grant.endDate >= Date.now())
+  );
+}
+
+function isGrantFreeAccess(grantType: string) {
+  return FREE_ACCESS_GRANT_TYPES.has(grantType);
+}
+
+async function getModuleRecordById(ctx: any, moduleId: string) {
+  const marketplaceModules = await ctx.db.query("marketplace_modules").collect();
+  return (
+    marketplaceModules.find((moduleRecord: any) => String(moduleRecord._id) === String(moduleId)) ?? null
+  );
+}
+
+async function getTargetModules(
+  ctx: any,
+  args: {
+    moduleId?: string;
+    moduleIds?: string[];
+    grantScope: "single" | "selected" | "all";
+  }
+) {
+  const modules = await ctx.db.query("marketplace_modules").collect();
+
+  if (args.grantScope === "all") {
+    return modules;
+  }
+
+  const requestedIds =
+    args.grantScope === "selected"
+      ? args.moduleIds ?? []
+      : args.moduleId
+        ? [args.moduleId]
+        : [];
+
+  const requestedSet = new Set(requestedIds.map(String));
+  return modules.filter((moduleRecord: any) => requestedSet.has(String(moduleRecord._id)));
+}
 
 async function getActiveGrant(ctx: any, moduleId: any, tenantId: string) {
   const grants = await ctx.db
     .query("pilot_grants")
     .withIndex("by_moduleId_tenantId", (q: any) => q.eq("moduleId", moduleId).eq("tenantId", tenantId))
     .collect();
-  return (
-    grants.find(
-      (grant: any) =>
-        grant.status !== "revoked" &&
-        grant.status !== "expired" &&
-        (!grant.endDate || grant.endDate >= Date.now())
-    ) ?? null
-  );
+
+  return grants.find((grant: any) => isGrantActive(grant)) ?? null;
 }
 
 async function notifyTenantAdmins(ctx: any, tenantId: string, title: string, message: string) {
@@ -36,6 +84,108 @@ async function notifyTenantAdmins(ctx: any, tenantId: string, title: string, mes
       createdAt: Date.now(),
     });
   }
+}
+
+async function getTenantInstall(ctx: any, tenantId: string, moduleSlug: string) {
+  return await ctx.db
+    .query("module_installs")
+    .withIndex("by_tenantId_moduleSlug", (q: any) =>
+      q.eq("tenantId", tenantId).eq("moduleSlug", moduleSlug)
+    )
+    .unique();
+}
+
+async function provisionInstallFromPilot(
+  ctx: any,
+  args: {
+    grantId: any;
+    tenantId: string;
+    grantedBy: string;
+    moduleRecord: any;
+    grantType: string;
+  }
+) {
+  const now = Date.now();
+  const isFree = isGrantFreeAccess(args.grantType);
+  const existingInstall = await getTenantInstall(ctx, args.tenantId, args.moduleRecord.slug);
+
+  if (existingInstall) {
+    await ctx.db.patch(existingInstall._id, {
+      moduleId: args.moduleRecord._id,
+      moduleSlug: args.moduleRecord.slug,
+      pilotGrantId: args.grantId,
+      isFree,
+      status:
+        existingInstall.status === "uninstalled" ||
+        existingInstall.status === "data_purged" ||
+        existingInstall.status === "suspended_platform"
+          ? "active"
+          : existingInstall.status,
+      updatedAt: now,
+    });
+
+    return existingInstall._id;
+  }
+
+  const installId = await ctx.db.insert("module_installs", {
+    moduleId: args.moduleRecord._id,
+    moduleSlug: args.moduleRecord.slug,
+    tenantId: args.tenantId,
+    status: "active",
+    billingPeriod: "monthly",
+    currentPriceKes: 0,
+    hasPriceOverride: false,
+    pilotGrantId: args.grantId,
+    provisionedByPilotGrantId: args.grantId,
+    isFree,
+    firstInstalledAt: now,
+    installedAt: now,
+    installedBy: args.grantedBy,
+    version: args.moduleRecord.version,
+    paymentFailureCount: 0,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  if (!args.moduleRecord.slug.startsWith("core_")) {
+    await runModuleOnInstallSetup(ctx, {
+      moduleSlug: args.moduleRecord.slug as ModuleSlug,
+      tenantId: args.tenantId,
+      updatedBy: args.grantedBy,
+    });
+  }
+
+  return installId;
+}
+
+async function detachGrantFromInstall(
+  ctx: any,
+  args: {
+    grantId: any;
+    tenantId: string;
+    moduleSlug: string;
+    suspendProvisionedAccess: boolean;
+  }
+) {
+  const install = await getTenantInstall(ctx, args.tenantId, args.moduleSlug);
+  if (!install) {
+    return;
+  }
+
+  const basePatch: Record<string, unknown> = {
+    pilotGrantId: undefined,
+    isFree: false,
+    updatedAt: Date.now(),
+  };
+
+  if (String(install.provisionedByPilotGrantId ?? "") === String(args.grantId)) {
+    basePatch.provisionedByPilotGrantId = undefined;
+    if (args.suspendProvisionedAccess) {
+      basePatch.status = "suspended_platform";
+    }
+  }
+
+  await ctx.db.patch(install._id, basePatch);
 }
 
 export const createPilotGrant = mutation({
@@ -68,34 +218,27 @@ export const createPilotGrant = mutation({
       throw new ConvexError({ code: "INVALID_ARGUMENT", message: "endDate is required for this grant type" });
     }
 
-    const scope = args.grantScope ?? "single";
-    const targetModuleIds =
-      scope === "all"
-        ? (await ctx.db.query("marketplace_modules").collect()).map((moduleRecord: any) => String(moduleRecord._id))
-        : scope === "selected"
-          ? (args.moduleIds ?? []).map((moduleId) => String(moduleId))
-          : args.moduleId
-            ? [String(args.moduleId)]
-            : [];
+    const grantScope = args.grantScope ?? "single";
+    const targetModules = await getTargetModules(ctx, {
+      moduleId: args.moduleId ? String(args.moduleId) : undefined,
+      moduleIds: args.moduleIds,
+      grantScope,
+    });
 
-    const uniqueModuleIds = Array.from(new Set(targetModuleIds));
-    if (uniqueModuleIds.length === 0) {
+    if (targetModules.length === 0) {
       throw new ConvexError({ code: "INVALID_ARGUMENT", message: "Select at least one module to grant." });
     }
 
     const grantIds: any[] = [];
-    const installs = await ctx.db
-      .query("module_installs")
-      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
-      .collect();
-    for (const moduleId of uniqueModuleIds) {
-      const activeGrant = await getActiveGrant(ctx, moduleId, args.tenantId);
+    for (const moduleRecord of targetModules) {
+      const activeGrant = await getActiveGrant(ctx, moduleRecord._id, args.tenantId);
       if (activeGrant) {
         continue;
       }
 
+      const now = Date.now();
       const grantId = await ctx.db.insert("pilot_grants", {
-        moduleId,
+        moduleId: moduleRecord._id,
         tenantId: args.tenantId,
         grantType: args.grantType,
         discountPct: args.discountPct,
@@ -104,25 +247,23 @@ export const createPilotGrant = mutation({
         endDate: args.endDate,
         grantedBy: platform.userId,
         reason: args.reason,
+        grantScope,
         stealthMode: args.stealthMode,
         status: "active",
         convertedToPaid: false,
         notificationsSent: [],
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: now,
+        updatedAt: now,
       });
       grantIds.push(grantId);
 
-      const install = installs.find(
-        (entry: any) => String(entry.moduleId) === moduleId || String(entry.moduleId) === String(moduleId)
-      );
-      if (install) {
-        await ctx.db.patch(install._id, {
-          pilotGrantId: grantId,
-          isFree: args.grantType === "free_trial" || args.grantType === "free_permanent",
-          updatedAt: Date.now(),
-        });
-      }
+      await provisionInstallFromPilot(ctx, {
+        grantId,
+        tenantId: args.tenantId,
+        grantedBy: platform.userId,
+        moduleRecord,
+        grantType: args.grantType,
+      });
     }
 
     if (grantIds.length === 0) {
@@ -136,21 +277,31 @@ export const createPilotGrant = mutation({
       tenantId: "PLATFORM",
       actorId: platform.userId,
       actorEmail: platform.email,
-      action: "marketplace.module_installed",
+      action: "marketplace.listing_updated",
       entityType: "pilot_grant",
       entityId: String(grantIds[0]),
       after: {
         tenantId: args.tenantId,
-        moduleIds: uniqueModuleIds,
         grantType: args.grantType,
         reason: args.reason,
-        scope,
-        grantCount: grantIds.length,
+        grantScope,
+        moduleCount: grantIds.length,
       },
     });
 
     if (!args.stealthMode) {
-      await notifyTenantAdmins(ctx, args.tenantId, "Pilot grant activated", "A marketplace pilot grant has been activated for your school.");
+      const scopeLabel =
+        grantScope === "all"
+          ? "full marketplace access"
+          : grantIds.length === 1
+            ? "a marketplace module"
+            : `${grantIds.length} marketplace modules`;
+      await notifyTenantAdmins(
+        ctx,
+        args.tenantId,
+        "Pilot grant activated",
+        `The platform team granted ${scopeLabel} to your school.`
+      );
     }
 
     return { success: true, grantIds, createdCount: grantIds.length };
@@ -168,6 +319,11 @@ export const revokePilotGrant = mutation({
     const grant = await ctx.db.get(args.grantId);
     if (!grant) throw new ConvexError({ code: "NOT_FOUND", message: "Pilot grant not found" });
 
+    const moduleRecord = await getModuleRecordById(ctx, String(grant.moduleId));
+    if (!moduleRecord) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "Marketplace module not found for pilot grant" });
+    }
+
     await ctx.db.patch(args.grantId, {
       status: "revoked",
       revokedAt: Date.now(),
@@ -176,20 +332,19 @@ export const revokePilotGrant = mutation({
       updatedAt: Date.now(),
     });
 
-    const installs = await ctx.db
-      .query("module_installs")
-      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", grant.tenantId))
-      .collect();
-    const install = installs.find((entry: any) => String(entry.moduleId) === String(grant.moduleId));
-    if (install) {
-      await ctx.db.patch(install._id, {
-        pilotGrantId: undefined,
-        isFree: false,
-        updatedAt: Date.now(),
-      });
-    }
+    await detachGrantFromInstall(ctx, {
+      grantId: args.grantId,
+      tenantId: grant.tenantId,
+      moduleSlug: moduleRecord.slug,
+      suspendProvisionedAccess: true,
+    });
 
-    await notifyTenantAdmins(ctx, grant.tenantId, "Pilot grant revoked", "A marketplace pilot grant has been revoked and billing will resume.");
+    await notifyTenantAdmins(
+      ctx,
+      grant.tenantId,
+      "Pilot grant revoked",
+      "A marketplace pilot grant was revoked and any access it provisioned has been withdrawn."
+    );
 
     return { success: true };
   },
@@ -221,13 +376,10 @@ export const extendPilotGrant = mutation({
 export const processPilotExpiry = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const grants = await ctx.db
-      .query("pilot_grants")
-      .withIndex("by_status", (q) => q.eq("status", "active"))
-      .collect();
+    const grants = await ctx.db.query("pilot_grants").collect();
 
     let expired = 0;
-    for (const grant of grants) {
+    for (const grant of grants.filter((entry: any) => entry.status === "active" || entry.status === "extended")) {
       if (grant.grantType === "free_permanent") continue;
       if (!grant.endDate) continue;
 
@@ -250,15 +402,13 @@ export const processPilotExpiry = internalMutation({
           updatedAt: Date.now(),
         });
 
-        const installs = await ctx.db
-          .query("module_installs")
-          .withIndex("by_tenantId", (q: any) => q.eq("tenantId", grant.tenantId))
-          .collect();
-        const install = installs.find((entry: any) => String(entry.moduleId) === String(grant.moduleId));
-        if (install && install.isFree) {
-          await ctx.db.patch(install._id, {
-            status: "suspended_platform",
-            updatedAt: Date.now(),
+        const moduleRecord = await getModuleRecordById(ctx, String(grant.moduleId));
+        if (moduleRecord) {
+          await detachGrantFromInstall(ctx, {
+            grantId: grant._id,
+            tenantId: grant.tenantId,
+            moduleSlug: moduleRecord.slug,
+            suspendProvisionedAccess: isGrantFreeAccess(grant.grantType),
           });
         }
 

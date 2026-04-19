@@ -35,8 +35,30 @@ export const upsertOrganization = mutation({
       .first();
 
     if (existing) {
-      await ctx.db.patch(existing._id, { name: args.name });
+      await ctx.db.patch(existing._id, {
+        tenantId: args.tenantId,
+        name: args.name,
+        subdomain: args.subdomain,
+        tier: args.tier,
+        isActive: true,
+      });
       return existing._id;
+    }
+
+    const existingForTenant = await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .first();
+
+    if (existingForTenant) {
+      await ctx.db.patch(existingForTenant._id, {
+        workosOrgId: args.workosOrgId,
+        name: args.name,
+        subdomain: args.subdomain,
+        tier: args.tier,
+        isActive: true,
+      });
+      return existingForTenant._id;
     }
 
     return await ctx.db.insert("organizations", {
@@ -79,9 +101,18 @@ export const getOrgByTenantId = query({
     if (!isTrustedServerCall(args.serverSecret)) {
       await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
     }
-    return await ctx.db
+    const organizations = await ctx.db
       .query("organizations")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .first();
+      .collect();
+
+    return organizations
+      .slice()
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .sort((a, b) => {
+        const aReal = !a.workosOrgId.startsWith("edumyles-") && !a.workosOrgId.startsWith("platform-");
+        const bReal = !b.workosOrgId.startsWith("edumyles-") && !b.workosOrgId.startsWith("platform-");
+        return Number(bReal) - Number(aReal);
+      })[0] ?? null;
   },
 });

@@ -471,13 +471,17 @@ export const getPlatformPilotGrantsData = query({
         .map((grant: any) => ({
           ...grant,
           grantId: String(grant._id),
-          moduleName: moduleMap.get(toModuleKey(grant.moduleId))?.name ?? String(grant.moduleId),
+          moduleName:
+            grant.grantScope === "all"
+              ? "All marketplace modules"
+              : moduleMap.get(toModuleKey(grant.moduleId))?.name ?? String(grant.moduleId),
           tenantName: tenantMap.get(grant.tenantId)?.name ?? grant.tenantId,
         })),
       modules: modules.map((moduleRecord: any) => ({
         moduleId: String(moduleRecord._id),
         slug: moduleRecord.slug,
         name: moduleRecord.name,
+        category: moduleRecord.category,
       })),
       tenants: tenants.map((tenant: any) => ({
         tenantId: tenant.tenantId,

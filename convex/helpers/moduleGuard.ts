@@ -10,7 +10,7 @@ const LEGACY_MODULE_IDS_BY_SLUG: Record<string, string> = {
   core_users: "users",
   core_notifications: "communications",
   mod_academics: "academics",
-  mod_attendance: "academics",
+  mod_attendance: "attendance",
   mod_admissions: "admissions",
   mod_finance: "finance",
   mod_timetable: "timetable",
@@ -27,9 +27,31 @@ const LEGACY_MODULE_IDS_BY_SLUG: Record<string, string> = {
   mod_partner: "portal_partner",
 };
 
-const SPEC_MODULE_SLUG_BY_LEGACY_ID = Object.fromEntries(
-  Object.entries(LEGACY_MODULE_IDS_BY_SLUG).map(([slug, legacyId]) => [legacyId, slug])
-) as Record<string, string>;
+const SPEC_MODULE_SLUG_BY_LEGACY_ID: Record<string, string> = {
+  sis: "core_sis",
+  users: "core_users",
+  notifications: "core_notifications",
+  communications: "mod_communications",
+  academics: "mod_academics",
+  attendance: "mod_attendance",
+  admissions: "mod_admissions",
+  finance: "mod_finance",
+  timetable: "mod_timetable",
+  library: "mod_library",
+  transport: "mod_transport",
+  hr: "mod_hr",
+  ewallet: "mod_ewallet",
+  ecommerce: "mod_ecommerce",
+  reports: "mod_reports",
+  advanced_analytics: "mod_advanced_analytics",
+  analytics: "mod_advanced_analytics",
+  parent_portal: "mod_parent_portal",
+  alumni: "mod_alumni",
+  partner: "mod_partner",
+  portal_parent: "mod_parent_portal",
+  portal_alumni: "mod_alumni",
+  portal_partner: "mod_partner",
+};
 
 function normalizeModuleSlug(moduleSlugOrId: string): string {
   return SPEC_MODULE_SLUG_BY_LEGACY_ID[moduleSlugOrId] ?? moduleSlugOrId;
@@ -312,26 +334,7 @@ export async function requireModule(
   tenantId: string,
   moduleId: string
 ): Promise<void> {
-  if (CORE_MODULE_IDS.includes(moduleId)) {
-    return;
-  }
-
-  const installed = await getInstalledModule(ctx, tenantId, moduleId);
-
-  if (!installed) {
-    throw new Error(
-      `MODULE_NOT_INSTALLED: Module '${moduleId}' is not installed for tenant '${tenantId}'`
-    );
-  }
-
-  if (installed.status !== "active") {
-    throw new Error(
-      `MODULE_INACTIVE: Module '${moduleId}' is installed but status is '${installed.status}'`
-    );
-  }
-
-  await validateModuleTier(ctx, tenantId, moduleId);
-  await validateModuleDependencies(ctx, tenantId, moduleId);
+  await requireModuleAccess(ctx, normalizeModuleSlug(moduleId), tenantId);
 }
 
 export async function getInstalledModule(
@@ -339,12 +342,8 @@ export async function getInstalledModule(
   tenantId: string,
   moduleId: string
 ) {
-  return await ctx.db
-    .query("installedModules")
-    .withIndex("by_tenant_module", (q) =>
-      q.eq("tenantId", tenantId).eq("moduleId", moduleId)
-    )
-    .first();
+  const installRecord = await getModuleInstallRecord(ctx, tenantId, moduleId);
+  return installRecord?.install ?? null;
 }
 
 async function validateModuleTier(
@@ -425,7 +424,7 @@ export async function getModuleConfig(
     );
   }
 
-  return installed.config || {};
+  return ("config" in (installed as any) ? (installed as any).config : undefined) || {};
 }
 
 export async function activateModule(

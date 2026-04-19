@@ -47,9 +47,10 @@ type PlanCatalogItem = {
 };
 
 type ModuleRow = {
-  _id: string;
+  moduleId: string;
   name: string;
   category?: string;
+  slug?: string;
 };
 
 type EditForm = {
@@ -114,9 +115,9 @@ export default function BillingPlansPage() {
   ) as PlanCatalogItem[] | undefined;
 
   const publishedModules = usePlatformQuery(
-    api.modules.marketplace.modules.getPublishedModules,
-    {},
-    true
+    api.modules.marketplace.platformDashboard.getPlatformMarketplaceModules,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
   ) as ModuleRow[] | undefined;
 
   const updatePlan = useMutation(api.modules.platform.subscriptions.updateSubscriptionPlan);
@@ -429,13 +430,25 @@ export default function BillingPlansPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="plan-name">Plan name</Label>
-                  <Input
-                    id="plan-name"
-                    value={form.planName}
-                    disabled={!creatingPlan}
-                    onChange={(event) => setForm({ ...form, planName: event.target.value })}
-                    placeholder="e.g. starter, growth, enterprise_plus"
-                  />
+                  {creatingPlan ? (
+                    <Select
+                      value={form.planName}
+                      onValueChange={(value) => setForm({ ...form, planName: value })}
+                    >
+                      <SelectTrigger id="plan-name">
+                        <SelectValue placeholder="Select official plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["free", "starter", "pro", "enterprise"].map((planName) => (
+                          <SelectItem key={planName} value={planName}>
+                            {planName.charAt(0).toUpperCase() + planName.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input id="plan-name" value={form.planName} disabled />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="monthly-price">Monthly price (KES)</Label>
@@ -576,11 +589,11 @@ export default function BillingPlansPage() {
                       <div className="mb-3 text-sm font-medium capitalize">{category}</div>
                       <div className="grid gap-3 md:grid-cols-2">
                         {modules.map((module) => (
-                          <label key={module._id} className="flex items-center gap-3 rounded-md border p-3">
+                          <label key={module.moduleId} className="flex items-center gap-3 rounded-md border p-3">
                             <Checkbox
-                              checked={form.includedModuleIds.includes(module._id)}
+                              checked={form.includedModuleIds.includes(module.moduleId)}
                               onCheckedChange={(checked) =>
-                                handleModuleToggle(module._id, Boolean(checked))
+                                handleModuleToggle(module.moduleId, Boolean(checked))
                               }
                             />
                             <div>

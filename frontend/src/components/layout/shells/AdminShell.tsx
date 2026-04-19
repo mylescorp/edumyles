@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
 import { GlobalShell } from "@/components/layout/GlobalShell";
+import { TrialBanner } from "@/components/admin/TrialBanner";
 import { RoleGuard } from "@/components/shared/RoleGuard";
 import { ModuleAccessGuard } from "@/components/shared/ModuleAccessGuard";
 import { adminNavItems } from "@/lib/routes";
@@ -25,7 +26,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <GlobalShell navItems={adminNavItems}>
           <ModuleAccessGuard fallbackHref="/admin/modules">
             <div className="p-4 md:p-6">
-              <div className="mx-auto max-w-[1400px]">{children}</div>
+              <div className="mx-auto max-w-[1400px] space-y-4">
+                <TrialBanner />
+                {children}
+              </div>
             </div>
           </ModuleAccessGuard>
         </GlobalShell>

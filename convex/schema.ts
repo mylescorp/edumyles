@@ -61,11 +61,15 @@ export default defineSchema({
     .index("by_entity", ["entityType", "entityId", "timestamp"]),
 
   tenants: defineTable({
-    tenantId: v.string(),
-    name: v.string(),
-    subdomain: v.string(),
-    email: v.string(),
-    phone: v.string(),
+      tenantId: v.string(),
+      name: v.string(),
+      subdomain: v.string(),
+      workosOrgId: v.optional(v.string()),
+      email: v.string(),
+      phone: v.string(),
+      website: v.optional(v.string()),
+      registrationNumber: v.optional(v.string()),
+      logoUrl: v.optional(v.string()),
     plan: v.union(
       v.literal("free"),
       v.literal("starter"),
@@ -74,17 +78,28 @@ export default defineSchema({
       v.literal("pro"),
       v.literal("enterprise")
     ),
-    status: v.string(),
-    county: v.string(),
-    country: v.string(),
-    suspendedAt: v.optional(v.number()),
-    suspendReason: v.optional(v.string()),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_tenantId", ["tenantId"])
-    .index("by_subdomain", ["subdomain"])
-    .index("by_status", ["status"]),
+      status: v.string(),
+      schoolType: v.optional(v.string()),
+      levels: v.optional(v.array(v.string())),
+      boardingType: v.optional(v.string()),
+      county: v.string(),
+      country: v.string(),
+      trialStartedAt: v.optional(v.number()),
+      trialEndsAt: v.optional(v.number()),
+      activatedAt: v.optional(v.number()),
+      engagementScore: v.optional(v.number()),
+      isVatExempt: v.optional(v.boolean()),
+      resellerId: v.optional(v.string()),
+      inviteId: v.optional(v.id("tenant_invites")),
+      suspendedAt: v.optional(v.number()),
+      suspendReason: v.optional(v.string()),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("by_tenantId", ["tenantId"])
+      .index("by_subdomain", ["subdomain"])
+      .index("by_workosOrgId", ["workosOrgId"])
+      .index("by_status", ["status"]),
 
   impersonationSessions: defineTable({
     adminId: v.string(),
@@ -101,17 +116,25 @@ export default defineSchema({
     .index("by_target", ["targetUserId"]),
 
   users: defineTable({
-    tenantId: v.string(),
-    eduMylesUserId: v.string(),
-    workosUserId: v.string(),
-    email: v.string(),
+      tenantId: v.string(),
+      eduMylesUserId: v.string(),
+      workosUserId: v.string(),
+      inviteToken: v.optional(v.string()),
+      email: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
     role: v.string(),
     permissions: v.array(v.string()),
-    organizationId: v.optional(v.id("organizations")),
-    isActive: v.boolean(),
-    avatarUrl: v.optional(v.string()),
+      organizationId: v.optional(v.id("organizations")),
+      isActive: v.boolean(),
+      status: v.optional(v.union(
+        v.literal("active"),
+        v.literal("inactive"),
+        v.literal("pending_invite"),
+        v.literal("pending_activation"),
+        v.literal("suspended")
+      )),
+      avatarUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
     bio: v.optional(v.string()),
     location: v.optional(v.string()),
@@ -122,13 +145,14 @@ export default defineSchema({
     recoveryCodes: v.optional(v.array(v.string())),
     lastPasswordChangeAt: v.optional(v.number()),
     createdAt: v.number(),
-  })
-    .index("by_tenant", ["tenantId"])
-    .index("by_user_id", ["eduMylesUserId"])
-    .index("by_email", ["email"])
-    .index("by_workos_user", ["workosUserId"])
-    .index("by_tenant_email", ["tenantId", "email"])
-    .index("by_tenant_role", ["tenantId", "role"]),
+    })
+      .index("by_tenant", ["tenantId"])
+      .index("by_user_id", ["eduMylesUserId"])
+      .index("by_email", ["email"])
+      .index("by_inviteToken", ["inviteToken"])
+      .index("by_workos_user", ["workosUserId"])
+      .index("by_tenant_email", ["tenantId", "email"])
+      .index("by_tenant_role", ["tenantId", "role"]),
 
   mobileDeviceTokens: defineTable({
     tenantId: v.string(),
@@ -4238,81 +4262,258 @@ export default defineSchema({
     .index("by_createdAt", ["createdAt"]),
 
   waitlist: defineTable({
-    fullName: v.string(),
-    email: v.string(),
-    schoolName: v.string(),
-    country: v.string(),
-    studentCount: v.optional(v.number()),
-    phone: v.optional(v.string()),
-    referralSource: v.optional(v.string()),
-    biggestChallenge: v.optional(v.string()),
-    status: v.union(
-      v.literal("waiting"),
-      v.literal("invited"),
-      v.literal("converted"),
-      v.literal("rejected")
-    ),
-    invitedAt: v.optional(v.number()),
-    convertedAt: v.optional(v.number()),
-    crmLeadId: v.optional(v.string()),
-    inviteToken: v.optional(v.string()),
-    inviteExpiresAt: v.optional(v.number()),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_email", ["email"])
-    .index("by_status", ["status"])
-    .index("by_createdAt", ["createdAt"]),
+      fullName: v.string(),
+      email: v.string(),
+      schoolName: v.string(),
+      country: v.string(),
+      county: v.optional(v.string()),
+      studentCount: v.optional(v.number()),
+      phone: v.optional(v.string()),
+      currentSystem: v.optional(v.string()),
+      referralSource: v.optional(v.string()),
+      referralCode: v.optional(v.string()),
+      biggestChallenge: v.optional(v.string()),
+      status: v.union(
+        v.literal("waiting"),
+        v.literal("invited"),
+        v.literal("converted"),
+        v.literal("rejected"),
+        v.literal("expired")
+      ),
+      isHighValue: v.optional(v.boolean()),
+      qualificationScore: v.optional(v.number()),
+      assignedTo: v.optional(v.string()),
+      resellerId: v.optional(v.string()),
+      sourceChannel: v.optional(v.string()),
+      invitedAt: v.optional(v.number()),
+      inviteEmailSentAt: v.optional(v.number()),
+      convertedAt: v.optional(v.number()),
+      crmLeadId: v.optional(v.string()),
+      inviteToken: v.optional(v.string()),
+      inviteExpiresAt: v.optional(v.number()),
+      tenantId: v.optional(v.string()),
+      notes: v.optional(v.string()),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("by_email", ["email"])
+      .index("by_status", ["status"])
+      .index("by_inviteToken", ["inviteToken"])
+      .index("by_isHighValue", ["isHighValue"])
+      .index("by_assignedTo", ["assignedTo"])
+      .index("by_resellerId", ["resellerId"])
+      .index("by_createdAt", ["createdAt"]),
 
   tenant_invites: defineTable({
-    email: v.string(),
-    tenantId: v.string(),
-    role: v.string(),
-    invitedBy: v.string(),
-    token: v.string(),
-    status: v.union(
-      v.literal("pending"),
+      email: v.string(),
+      schoolName: v.optional(v.string()),
+      firstName: v.optional(v.string()),
+      lastName: v.optional(v.string()),
+      country: v.optional(v.string()),
+      county: v.optional(v.string()),
+      phone: v.optional(v.string()),
+      studentCountEstimate: v.optional(v.number()),
+      suggestedPlan: v.optional(v.string()),
+      suggestedModules: v.optional(v.array(v.string())),
+      referralCode: v.optional(v.string()),
+      resellerId: v.optional(v.string()),
+      tenantId: v.string(),
+      role: v.string(),
+      invitedBy: v.string(),
+      waitlistId: v.optional(v.id("waitlist")),
+      crmLeadId: v.optional(v.string()),
+      token: v.string(),
+      status: v.union(
+        v.literal("pending"),
       v.literal("accepted"),
       v.literal("expired"),
       v.literal("revoked")
     ),
     expiresAt: v.number(),
-    acceptedAt: v.optional(v.number()),
-    personalMessage: v.optional(v.string()),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_tenantId", ["tenantId"])
-    .index("by_status", ["status"])
-    .index("by_tenant_status", ["tenantId", "status"])
-    .index("by_token", ["token"])
-    .index("by_createdAt", ["createdAt"]),
+      acceptedAt: v.optional(v.number()),
+      personalMessage: v.optional(v.string()),
+      emailSentAt: v.optional(v.number()),
+      remindersSent: v.optional(v.number()),
+      lastReminderAt: v.optional(v.number()),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("by_tenantId", ["tenantId"])
+      .index("by_email", ["email"])
+      .index("by_status", ["status"])
+      .index("by_tenant_status", ["tenantId", "status"])
+      .index("by_token", ["token"])
+      .index("by_resellerId", ["resellerId"])
+      .index("by_createdAt", ["createdAt"]),
 
   tenant_onboarding: defineTable({
-    tenantId: v.string(),
-    wizardCompleted: v.boolean(),
-    wizardCompletedAt: v.optional(v.number()),
-    steps: v.object({
-      schoolProfile: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-      rolesConfigured: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-      staffAdded: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-      studentsAdded: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-      classesCreated: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-      modulesConfigured: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-      portalCustomized: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-      parentsInvited: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-      firstPaymentProcessed: v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) }),
-    }),
-    healthScore: v.number(),
-    lastActivityAt: v.number(),
-    stalled: v.boolean(),
-    assignedAccountManager: v.optional(v.string()),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_tenantId", ["tenantId"])
-    .index("by_stalled", ["stalled"])
-    .index("by_lastActivityAt", ["lastActivityAt"]),
+      tenantId: v.string(),
+      wizardCompleted: v.boolean(),
+      wizardCompletedAt: v.optional(v.number()),
+      currentStep: v.optional(v.number()),
+      isActivated: v.optional(v.boolean()),
+      steps: v.object({
+      schoolProfile: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      academicYear: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      gradingSystem: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      subjects: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      classes: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      feeStructure: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      staffAdded: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      studentsAdded: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      modulesConfigured: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      portalCustomized: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      parentsInvited: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      firstAction: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()), pointsAwarded: v.optional(v.number()) })),
+      rolesConfigured: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) })),
+      classesCreated: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) })),
+      firstPaymentProcessed: v.optional(v.object({ completed: v.boolean(), completedAt: v.optional(v.number()), count: v.optional(v.number()) })),
+      }),
+      stepPayloads: v.optional(v.object({
+        schoolProfile: v.optional(v.object({
+          schoolType: v.optional(v.string()),
+          levels: v.optional(v.array(v.string())),
+          boardingType: v.optional(v.string()),
+          officialEmail: v.optional(v.string()),
+          phone: v.optional(v.string()),
+          website: v.optional(v.string()),
+          county: v.optional(v.string()),
+          registrationNumber: v.optional(v.string()),
+          logoUrl: v.optional(v.string()),
+        })),
+        academicYear: v.optional(v.object({
+          yearName: v.string(),
+          startDate: v.string(),
+          endDate: v.string(),
+          structure: v.string(),
+        })),
+        gradingSystem: v.optional(v.object({
+          preset: v.string(),
+          passMark: v.number(),
+          scaleLabel: v.optional(v.string()),
+        })),
+        subjects: v.optional(v.array(v.object({
+          name: v.string(),
+          code: v.string(),
+          department: v.optional(v.string()),
+        }))),
+        classes: v.optional(v.array(v.object({
+          name: v.string(),
+          level: v.optional(v.string()),
+          stream: v.optional(v.string()),
+          capacity: v.optional(v.number()),
+          academicYear: v.optional(v.string()),
+        }))),
+        feeStructure: v.optional(v.object({
+          name: v.string(),
+          amount: v.number(),
+          academicYear: v.string(),
+          grade: v.string(),
+          frequency: v.string(),
+        })),
+        staffAdded: v.optional(v.array(v.object({
+          email: v.string(),
+          firstName: v.optional(v.string()),
+          lastName: v.optional(v.string()),
+          role: v.string(),
+          department: v.optional(v.string()),
+        }))),
+        studentsAdded: v.optional(v.array(v.object({
+          admissionNumber: v.optional(v.string()),
+          firstName: v.string(),
+          lastName: v.string(),
+          dateOfBirth: v.string(),
+          gender: v.string(),
+          className: v.optional(v.string()),
+          guardianName: v.optional(v.string()),
+          guardianEmail: v.optional(v.string()),
+          guardianPhone: v.optional(v.string()),
+        }))),
+        portalCustomized: v.optional(v.object({
+          brandName: v.optional(v.string()),
+          logoUrl: v.optional(v.string()),
+          primaryColor: v.optional(v.string()),
+          secondaryColor: v.optional(v.string()),
+          accentColor: v.optional(v.string()),
+          footerText: v.optional(v.string()),
+        })),
+      })),
+      healthScore: v.number(),
+      lastActivityAt: v.number(),
+      stalled: v.boolean(),
+      isStalled: v.optional(v.boolean()),
+      stalledSince: v.optional(v.number()),
+      stalledAtStep: v.optional(v.number()),
+      assignedAccountManager: v.optional(v.string()),
+      platformNotes: v.optional(v.array(v.object({
+        id: v.string(),
+        note: v.string(),
+        authorId: v.string(),
+        authorEmail: v.string(),
+        createdAt: v.number(),
+      }))),
+      interventionsSent: v.optional(v.array(v.object({
+        type: v.string(),
+        sentAt: v.number(),
+        channel: v.string(),
+      }))),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("by_tenantId", ["tenantId"])
+      .index("by_stalled", ["stalled"])
+      .index("by_lastActivityAt", ["lastActivityAt"]),
+
+  staff_invites: defineTable({
+      tenantId: v.string(),
+      email: v.string(),
+      firstName: v.optional(v.string()),
+      lastName: v.optional(v.string()),
+      role: v.string(),
+      department: v.optional(v.string()),
+      phone: v.optional(v.string()),
+      staffNumber: v.optional(v.string()),
+      jobTitle: v.optional(v.string()),
+      token: v.string(),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("accepted"),
+        v.literal("expired"),
+        v.literal("revoked")
+      ),
+      invitedBy: v.string(),
+      expiresAt: v.number(),
+      acceptedAt: v.optional(v.number()),
+      workosUserId: v.optional(v.string()),
+      createdAt: v.number(),
+      updatedAt: v.optional(v.number()),
+    })
+      .index("by_token", ["token"])
+      .index("by_tenantId", ["tenantId"])
+      .index("by_status", ["status"]),
+
+  parent_invites: defineTable({
+      tenantId: v.string(),
+      studentId: v.optional(v.string()),
+      email: v.optional(v.string()),
+      phone: v.optional(v.string()),
+      token: v.string(),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("accepted"),
+        v.literal("expired"),
+        v.literal("revoked")
+      ),
+      invitedBy: v.string(),
+      expiresAt: v.number(),
+      acceptedAt: v.optional(v.number()),
+      workosUserId: v.optional(v.string()),
+      createdAt: v.number(),
+      updatedAt: v.optional(v.number()),
+    })
+      .index("by_token", ["token"])
+      .index("by_tenantId", ["tenantId"])
+      .index("by_status", ["status"]),
 
   trial_interventions: defineTable({
     tenantId: v.string(),
@@ -4408,8 +4609,17 @@ export default defineSchema({
     customPriceMonthlyKes: v.optional(v.number()),
     customPriceAnnualKes: v.optional(v.number()),
     customPricingNotes: v.optional(v.string()),
+    billingPeriod: v.optional(
+      v.union(
+        v.literal("monthly"),
+        v.literal("termly"),
+        v.literal("quarterly"),
+        v.literal("annual")
+      )
+    ),
     nextPaymentDue: v.optional(v.number()),
     trialEndsAt: v.optional(v.number()),
+    graceEndsAt: v.optional(v.number()),
     cancelledAt: v.optional(v.number()),
     cancellationReason: v.optional(v.string()),
     createdAt: v.number(),
@@ -4436,6 +4646,14 @@ export default defineSchema({
       v.literal("paid"),
       v.literal("void"),
       v.literal("refunded")
+    ),
+    billingPeriod: v.optional(
+      v.union(
+        v.literal("monthly"),
+        v.literal("termly"),
+        v.literal("quarterly"),
+        v.literal("annual")
+      )
     ),
     dueDate: v.number(),
     paidAt: v.optional(v.number()),
@@ -4684,6 +4902,7 @@ export default defineSchema({
     hasPriceOverride: v.optional(v.boolean()),
     priceOverrideId: v.optional(v.id("module_price_overrides")),
     pilotGrantId: v.optional(v.id("pilot_grants")),
+    provisionedByPilotGrantId: v.optional(v.id("pilot_grants")),
     isFree: v.optional(v.boolean()),
     firstInstalledAt: v.optional(v.number()),
     trialEndsAt: v.optional(v.number()),
@@ -4929,6 +5148,9 @@ export default defineSchema({
     endDate: v.optional(v.number()),
     grantedBy: v.string(),
     reason: v.string(),
+    grantScope: v.optional(
+      v.union(v.literal("single"), v.literal("selected"), v.literal("all"))
+    ),
     stealthMode: v.boolean(),
     status: v.union(
       v.literal("active"),

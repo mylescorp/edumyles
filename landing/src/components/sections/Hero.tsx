@@ -118,13 +118,13 @@ export default function Hero() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-10">
               <a
-                href="#demo"
+                href="/waitlist"
                 className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-colors duration-300 no-underline"
                 style={{ background: "#E8A020", color: "#061A12" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#F5C453")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "#E8A020")}
               >
-                Book a Free Demo →
+                Join the School Waitlist →
               </a>
               <a
                 href="#pricing"

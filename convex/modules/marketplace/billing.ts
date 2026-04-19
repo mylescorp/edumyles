@@ -72,8 +72,7 @@ async function getActivePilotGrantValue(ctx: any, moduleId: any, tenantId: strin
   return (
     grants.find(
       (grant: any) =>
-        grant.status !== "revoked" &&
-        grant.status !== "expired" &&
+        (grant.status === "active" || grant.status === "extended") &&
         grant.startDate <= Date.now() &&
         (!grant.endDate || grant.endDate >= Date.now())
     ) ?? null
@@ -138,7 +137,12 @@ export const runMonthlyModuleBilling = internalMutation({
       if (includedInPlan) {
         continue;
       }
-      if (pilotGrant && (pilotGrant.grantType === "free_trial" || pilotGrant.grantType === "free_permanent")) {
+      if (
+        pilotGrant &&
+        ["free_trial", "free_permanent", "plan_upgrade", "beta_access"].includes(
+          pilotGrant.grantType
+        )
+      ) {
         continue;
       }
 

@@ -327,7 +327,7 @@ export default function Navbar() {
                 e.currentTarget.style.borderColor = "#0F4C2A";
               }}
             >
-              Get Started
+                  Join Waitlist
             </a>
           </div>
 
@@ -455,7 +455,7 @@ export default function Navbar() {
               className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
               style={{ background: "#0F4C2A", color: "#ffffff", border: "1.5px solid #0F4C2A" }}
             >
-              Get Started
+                Join Waitlist
             </a>
           </div>
 

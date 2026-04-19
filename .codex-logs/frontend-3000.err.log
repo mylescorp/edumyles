@@ -1,0 +1,1368 @@
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 7f7384cc9683341d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: b2975a3748a5ed7d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[tenants/onboard] Error: Error: WORKOS_NOT_CONFIGURED
+    at getWorkOSClientFromEnv (src\lib\workos-invitations.ts:23:11)
+    at ensureTenantWorkOSOrganization (src\lib\workos-invitations.ts:58:22)
+    at POST (src\app\api\tenants\onboard\route.ts:74:62)
+  21 |
+  22 |   if (!apiKey || !clientId) {
+> 23 |     throw new Error("WORKOS_NOT_CONFIGURED");
+     |           ^
+  24 |   }
+  25 |
+  26 |   return {
+[api/tenants/invite/accept] Failed: Error [ConvexError]: [Request ID: 0a19f0233c7a9626] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/tenants/invite/accept] Failed: Error: [Request ID: 5d0652bfaad31af9] Server Error
+Uncaught Error: This invitation has already been used
+
+    at async POST (src\app\api\tenants\invite\accept\route.ts:68:20)
+  66 |
+  67 |     const convex = getConvexClient();
+> 68 |     const result = await convex.action(api.platform.tenants.actions.acceptTenantInvite, {
+     |                    ^
+  69 |       token,
+  70 |       firstName,
+  71 |       lastName,
+[api/tenants/invite/accept] Session bootstrap failed, falling back to cookie-only local session: Error [ConvexError]: [Request ID: a82c4e1ffcf779dd] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/tenants/invite/accept] Session bootstrap failed, falling back to cookie-only local session: Error [ConvexError]: [Request ID: fec08483aadb7430] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/tenants/invite/accept] Session bootstrap failed, falling back to cookie-only local session: Error [ConvexError]: [Request ID: a761dab5880760c1] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 5540c87062db01e3] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: b787b400fccaa51e] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:42:32)
+    at AdminSetupPage (src/app/admin/setup/page.tsx:31:30)
+  40 |
+  41 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 42 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  43 |
+  44 |   if (shouldSkip) {
+  45 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: b787b400fccaa51e] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:42:32)
+    at AdminSetupPage (src/app/admin/setup/page.tsx:31:30)
+  40 |
+  41 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 42 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  43 |
+  44 |   if (shouldSkip) {
+  45 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 9bc8b9d0e7061ef0] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/tenants/invite/accept] Session bootstrap failed, falling back to cookie-only local session: Error [ConvexError]: [Request ID: 19195a3c5d88c395] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/tenants/invite/accept] Session bootstrap failed, falling back to cookie-only local session: Error [ConvexError]: [Request ID: 8502f02db4ab12be] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: db532c670aa1c363] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: db532c670aa1c363] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 14a3ad11fc4f117d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: 7bf6afe160395c86] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: 7bf6afe160395c86] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[api/tenants/invite/accept] Session bootstrap failed, falling back to cookie-only local session: Error [ConvexError]: [Request ID: a80ff57156fc7e61] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/tenants/invite/accept] Session bootstrap failed, falling back to cookie-only local session: Error [ConvexError]: [Request ID: 7c0b1e9326f4194d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 3a3c78aca1ef5f87] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: f189dedcba7da19f] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: f189dedcba7da19f] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: cbdf9ce9f5921f22] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: 25f5238f1bcbf257] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: 25f5238f1bcbf257] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[browser] Failed to fetch RSC payload for http://localhost:3000/admin/setup. Falling back to browser navigation. TypeError: Failed to fetch
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 4e3ec77ca88a9209] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] TypeError: Cannot read properties of undefined (reading 'replace')
+    at StaffProfilePage (src/app/admin/staff/[staffId]/page.tsx:101:47)
+   99 |                             <span className="text-sm text-muted-foreground">Status</span>
+  100 |                             <Badge variant={statusColors[staff.status] ?? "outline"}>
+> 101 |                                 {staff.status.replace("_", " ")}
+      |                                               ^
+  102 |                             </Badge>
+  103 |                         </div>
+  104 |                     </CardContent> (src/app/admin/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'replace')
+    at StaffProfilePage (src/app/admin/staff/[staffId]/page.tsx:101:47)
+   99 |                             <span className="text-sm text-muted-foreground">Status</span>
+  100 |                             <Badge variant={statusColors[staff.status] ?? "outline"}>
+> 101 |                                 {staff.status.replace("_", " ")}
+      |                                               ^
+  102 |                             </Badge>
+  103 |                         </div>
+  104 |                     </CardContent> (src/app/admin/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'replace')
+    at StaffProfilePage (src/app/admin/staff/[staffId]/page.tsx:101:47)
+   99 |                             <span className="text-sm text-muted-foreground">Status</span>
+  100 |                             <Badge variant={statusColors[staff.status] ?? "outline"}>
+> 101 |                                 {staff.status.replace("_", " ")}
+      |                                               ^
+  102 |                             </Badge>
+  103 |                         </div>
+  104 |                     </CardContent> (src/app/admin/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'replace')
+    at StaffProfilePage (src/app/admin/staff/[staffId]/page.tsx:101:47)
+   99 |                             <span className="text-sm text-muted-foreground">Status</span>
+  100 |                             <Badge variant={statusColors[staff.status] ?? "outline"}>
+> 101 |                                 {staff.status.replace("_", " ")}
+      |                                               ^
+  102 |                             </Badge>
+  103 |                         </div>
+  104 |                     </CardContent> (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 433d55283919e4ed] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 3ee761dbb0f39cdc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: 53e203ba41516300] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: 53e203ba41516300] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: e301e0c35b368ea5] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: a19af384071372c5] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: a19af384071372c5] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 53296b84baf3fe44] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getSetupWizardContext)] [Request ID: 317f448da81b7d1c] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:42:32)
+    at AdminSetupCompletePage (src/app/admin/setup/complete/page.tsx:11:33)
+  40 |
+  41 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 42 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  43 |
+  44 |   if (shouldSkip) {
+  45 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[browser] ConvexError: [CONVEX Q(modules/platform/onboarding:getSetupWizardContext)] [Request ID: 317f448da81b7d1c] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"No active session"}
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:42:32)
+    at AdminSetupCompletePage (src/app/admin/setup/complete/page.tsx:11:33)
+  40 |
+  41 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 42 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  43 |
+  44 |   if (shouldSkip) {
+  45 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'replace')
+    at StaffProfilePage (src/app/admin/staff/[staffId]/page.tsx:101:47)
+   99 |                             <span className="text-sm text-muted-foreground">Status</span>
+  100 |                             <Badge variant={statusColors[staff.status] ?? "outline"}>
+> 101 |                                 {staff.status.replace("_", " ")}
+      |                                               ^
+  102 |                             </Badge>
+  103 |                         </div>
+  104 |                     </CardContent> (src/app/admin/error.tsx:16:13)
+[browser] TypeError: Cannot read properties of undefined (reading 'replace')
+    at StaffProfilePage (src/app/admin/staff/[staffId]/page.tsx:101:47)
+   99 |                             <span className="text-sm text-muted-foreground">Status</span>
+  100 |                             <Badge variant={statusColors[staff.status] ?? "outline"}>
+> 101 |                                 {staff.status.replace("_", " ")}
+      |                                               ^
+  102 |                             </Badge>
+  103 |                         </div>
+  104 |                     </CardContent> (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 66321db4b52a9a7d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 59132e1caf43b60d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Error: [CONVEX Q(modules/hr/queries:getStaffMember)] [Request ID: 52e84e2b0b037925] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .staffId
+Value: "accept"
+Validator: v.id("staff")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:42:32)
+    at StaffProfilePage (src/app/admin/staff/[staffId]/page.tsx:27:27)
+  40 |
+  41 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 42 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  43 |
+  44 |   if (shouldSkip) {
+  45 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/hr/queries:getStaffMember)] [Request ID: 52e84e2b0b037925] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .staffId
+Value: "accept"
+Validator: v.id("staff")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:42:32)
+    at StaffProfilePage (src/app/admin/staff/[staffId]/page.tsx:27:27)
+  40 |
+  41 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 42 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  43 |
+  44 |   if (shouldSkip) {
+  45 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 8697ccbcc2d85cb3] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Error: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: d4c5ecdbea31f32d] Server Error
+ArgumentValidationError: Object is missing the required field `sessionToken`. Consider wrapping the field validator in `v.optional(...)` if this is expected.
+
+Object: {}
+Validator: v.object({sessionToken: v.string()})
+
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/onboarding:getTenantOnboarding)] [Request ID: d4c5ecdbea31f32d] Server Error
+ArgumentValidationError: Object is missing the required field `sessionToken`. Consider wrapping the field validator in `v.optional(...)` if this is expected.
+
+Object: {}
+Validator: v.object({sessionToken: v.string()})
+
+
+  Called by client (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: df09234eff6f4a47] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] [CONVEX M(modules/platform/onboarding:saveSchoolProfileStep)] [Request ID: 199d141db0574769] Server Error
+Uncaught Error: Tenant record not found
+ 
+[browser] [CONVEX M(modules/platform/onboarding:saveSchoolProfileStep)] [Request ID: 868c5413cb41811d] Server Error
+Uncaught Error: Tenant record not found
+ 
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Uncaught Error: React has blocked a javascript: URL as a security precaution.
+    at <unknown> (<anonymous>:1:7)
+⨯ ./frontend/src/app/admin/setup/page.tsx:307:1
+Expected '}', got '<eof>'
+  [90m305 |[0m   [36mconst[0m [students, setStudents] = useState<[33mStudentRow[0m[]>([createStudentRow()]);
+  [90m306 |[0m   [36mconst[0m [branding, setBranding] = useState<[33mBrandingForm[0m>(createBrandingForm());
+[31m[1m>[0m [90m307 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/admin/setup/page.tsx:307:1
+Expected '}', got '<eof>'
+  [90m305 |[0m   [36mconst[0m [students, setStudents] = useState<[33mStudentRow[0m[]>([createStudentRow()]);
+  [90m306 |[0m   [36mconst[0m [branding, setBranding] = useState<[33mBrandingForm[0m>(createBrandingForm());
+[31m[1m>[0m [90m307 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/admin/setup/page.tsx:307:1)
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ ./frontend/src/app/admin/setup/page.tsx:307:1
+Expected '}', got '<eof>'
+  [90m305 |[0m   [36mconst[0m [students, setStudents] = useState<[33mStudentRow[0m[]>([createStudentRow()]);
+  [90m306 |[0m   [36mconst[0m [branding, setBranding] = useState<[33mBrandingForm[0m>(createBrandingForm());
+[31m[1m>[0m [90m307 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/admin/setup/page.tsx:307:1
+Expected '}', got '<eof>'
+  [90m305 |[0m   [36mconst[0m [students, setStudents] = useState<[33mStudentRow[0m[]>([createStudentRow()]);
+  [90m306 |[0m   [36mconst[0m [branding, setBranding] = useState<[33mBrandingForm[0m>(createBrandingForm());
+[31m[1m>[0m [90m307 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/admin/setup/page.tsx:307:1)
+⨯ ./frontend/src/app/admin/setup/page.tsx:307:1
+Expected '}', got '<eof>'
+  [90m305 |[0m   [36mconst[0m [students, setStudents] = useState<[33mStudentRow[0m[]>([createStudentRow()]);
+  [90m306 |[0m   [36mconst[0m [branding, setBranding] = useState<[33mBrandingForm[0m>(createBrandingForm());
+[31m[1m>[0m [90m307 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error [ModuleBuildError]: ./frontend/src/app/admin/setup/page.tsx:307:1
+Expected '}', got '<eof>'
+  [90m305 |[0m   [36mconst[0m [students, setStudents] = useState<[33mStudentRow[0m[]>([createStudentRow()]);
+  [90m306 |[0m   [36mconst[0m [branding, setBranding] = useState<[33mBrandingForm[0m>(createBrandingForm());
+[31m[1m>[0m [90m307 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/admin/setup/page.tsx:307:1)
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ ./frontend/src/app/admin/setup/page.tsx:307:1
+Expected '}', got '<eof>'
+  [90m305 |[0m   [36mconst[0m [students, setStudents] = useState<[33mStudentRow[0m[]>([createStudentRow()]);
+  [90m306 |[0m   [36mconst[0m [branding, setBranding] = useState<[33mBrandingForm[0m>(createBrandingForm());
+[31m[1m>[0m [90m307 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+
+Error [ModuleBuildError]: ./frontend/src/app/admin/setup/page.tsx:307:1
+Expected '}', got '<eof>'
+  [90m305 |[0m   [36mconst[0m [students, setStudents] = useState<[33mStudentRow[0m[]>([createStudentRow()]);
+  [90m306 |[0m   [36mconst[0m [branding, setBranding] = useState<[33mBrandingForm[0m>(createBrandingForm());
+[31m[1m>[0m [90m307 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component Browser]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/admin/setup/page.tsx [Client Component SSR]
+    ./frontend/src/app/admin/setup/page.tsx [Server Component]
+
+
+    at <unknown> (ModuleBuildError: ./frontend/src/app/admin/setup/page.tsx:307:1)
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+[browser] TypeError: marketplaceModules.filter is not a function
+    at AdminSetupPage.useMemo[recommendedModules] (src/app/admin/setup/page.tsx:390:8)
+    at AdminSetupPage (src/app/admin/setup/page.tsx:386:37)
+  388 |     const schoolType = schoolProfile.schoolType;
+  389 |     return marketplaceModules
+> 390 |       .filter((moduleRecord: any) => !moduleRecord.isCore)
+      |        ^
+  391 |       .filter((moduleRecord: any) => {
+  392 |         if (!schoolType) return true;
+  393 |         if (schoolType === "primary") return moduleRecord.category !== "Portals" || modul... (src/app/admin/error.tsx:16:13)
+[browser] TypeError: marketplaceModules.filter is not a function
+    at AdminSetupPage.useMemo[recommendedModules] (src/app/admin/setup/page.tsx:390:8)
+    at AdminSetupPage (src/app/admin/setup/page.tsx:386:37)
+  388 |     const schoolType = schoolProfile.schoolType;
+  389 |     return marketplaceModules
+> 390 |       .filter((moduleRecord: any) => !moduleRecord.isCore)
+      |        ^
+  391 |       .filter((moduleRecord: any) => {
+  392 |         if (!schoolType) return true;
+  393 |         if (schoolType === "primary") return moduleRecord.category !== "Portals" || modul... (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: bda44ba4fa0134dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] TypeError: marketplaceModules.filter is not a function
+    at AdminSetupPage.useMemo[recommendedModules] (src/app/admin/setup/page.tsx:390:8)
+    at AdminSetupPage (src/app/admin/setup/page.tsx:386:37)
+  388 |     const schoolType = schoolProfile.schoolType;
+  389 |     return marketplaceModules
+> 390 |       .filter((moduleRecord: any) => !moduleRecord.isCore)
+      |        ^
+  391 |       .filter((moduleRecord: any) => {
+  392 |         if (!schoolType) return true;
+  393 |         if (schoolType === "primary") return moduleRecord.category !== "Portals" || modul... (src/app/admin/error.tsx:16:13)
+[browser] TypeError: marketplaceModules.filter is not a function
+    at AdminSetupPage.useMemo[recommendedModules] (src/app/admin/setup/page.tsx:390:8)
+    at AdminSetupPage (src/app/admin/setup/page.tsx:386:37)
+  388 |     const schoolType = schoolProfile.schoolType;
+  389 |     return marketplaceModules
+> 390 |       .filter((moduleRecord: any) => !moduleRecord.isCore)
+      |        ^
+  391 |       .filter((moduleRecord: any) => {
+  392 |         if (!schoolType) return true;
+  393 |         if (schoolType === "primary") return moduleRecord.category !== "Portals" || modul... (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 8e622fcfcfae2186] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: cfd7896f9139748a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+    at Array.map (<anonymous>)
+    at Array.map (<anonymous>) (src/app/admin/error.tsx:16:13)
+[browser] Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+    at Array.map (<anonymous>)
+    at Array.map (<anonymous>) (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: bbfe76631df32577] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+    at Array.map (<anonymous>)
+    at Array.map (<anonymous>) (src/app/admin/error.tsx:16:13)
+[browser] Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+    at Array.map (<anonymous>)
+    at Array.map (<anonymous>) (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: c33272319a5212a3] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+    at Array.map (<anonymous>)
+    at Array.map (<anonymous>) (src/app/admin/error.tsx:16:13)
+[browser] Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+    at Array.map (<anonymous>)
+    at Array.map (<anonymous>) (src/app/admin/error.tsx:16:13)
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: bbf3d4d9fdd814ed] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: b4f7ce1417cd0db6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] [CONVEX M(modules/platform/onboarding:saveSchoolProfileStep)] [Request ID: bfd37d30e71de735] Server Error
+Uncaught Error: Tenant record not found
+ 
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: a5c95ad9b3ebd6d8] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 64818580e356572f] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 66f5d1fef5842de6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 8b112d559451ccfa] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: b8d3e9d0798d091c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 632a840ad1d4dc20] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 0aa4a4cbcb827394] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: a817e5b471078034] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 31b61c91cc24e00a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 7e8118871a15a5cb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 4d169e9b23d25e32] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ab0c7ff8e2f2e08e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 5930a8b7e2c0955f] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 605a5b297928cbaf] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ef22ca3fb211a81b] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 611516e8b8d1f9c7] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ede017e44a1c4c35] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: ff8c0197bbe6b071] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: bbfd67a0fba58fba] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 1b4d66864659bf7e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 2690f63bd3c3d954] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: eefb85a50047a9d8] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 580770509b547c90] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 523ae589cc6bf0fe] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: 85872c041c2fcb94] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: eee122b755f0f413] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: b804c5ee6dd9bf1e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: 4101a150672776b1] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Session validation failed: Error [ConvexError]: [Request ID: 6282dab68fea212c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+n o d e . e x e   :     E R R O R     u n e x p e c t e d   a r g u m e n t   ' - - p o r t '   f o u n d  
+ A t   l i n e : 1   c h a r : 1  
+ +   &   " C : \ P r o g r a m   F i l e s \ n o d e j s / n o d e . e x e "   " C : \ P r o g r a m   F i l e s \ n o d e j s / n o d e _ m o   . . .  
+ +   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  
+         +   C a t e g o r y I n f o                     :   N o t S p e c i f i e d :   (   E R R O R     u n e x p e c . . .   ' - - p o r t '   f o u n d : S t r i n g )   [ ] ,   R e m o t e E x c e p t i o n  
+         +   F u l l y Q u a l i f i e d E r r o r I d   :   N a t i v e C o m m a n d E r r o r  
+    
+  
+     t i p :   t o   p a s s   ' - - p o r t '   a s   a   v a l u e ,   u s e   ' - -   - - p o r t '  
+  
+ U s a g e :   t u r b o . e x e   r u n   [ O P T I O N S ]   [ T A S K S ] . . .   [ - -   < P A S S _ T H R O U G H _ A R G S > . . . ]  
+  
+ O p t i o n s :  
+         - - c a c h e - d i r   < C A C H E _ D I R >  
+         - - c o n c u r r e n c y   < C O N C U R R E N C Y >  
+         - - c o n t i n u e [ = < C O N T I N U E > ]  
+         - - s i n g l e - p a c k a g e  
+         - - f r a m e w o r k - i n f e r e n c e   [ < B O O L > ]  
+         - - g l o b a l - d e p s   < G L O B A L _ D E P S >  
+         - - e n v - m o d e   [ < E N V _ M O D E > ]  
+         - - f i l t e r   < F I L T E R >  
+         - - a f f e c t e d  
+         - - o u t p u t - l o g s   < O U T P U T _ L O G S >  
+         - - l o g - o r d e r   < L O G _ O R D E R >  
+         - - o n l y  
+         - - p k g - i n f e r e n c e - r o o t   < P K G _ I N F E R E N C E _ R O O T >  
+         - - l o g - p r e f i x   < L O G _ P R E F I X >  
+         T A S K S  
+         P A S S _ T H R O U G H _ A R G S >   < - - c a c h e   < C A C H E >  
+         - - f o r c e   [ < F O R C E > ]  
+         - - r e m o t e - o n l y   [ < R E M O T E _ O N L Y > ]  
+         - - r e m o t e - c a c h e - r e a d - o n l y   [ < R E M O T E _ C A C H E _ R E A D _ O N L Y > ]  
+         - - n o - c a c h e  
+         - - c a c h e - w o r k e r s   < C A C H E _ W O R K E R S >  
+         - - d r y - r u n   [ < D R Y _ R U N > ]  
+         - - g r a p h   [ < G R A P H > ]  
+         - - d a e m o n  
+         - - n o - d a e m o n  
+         - - p r o f i l e   [ < P R O F I L E > ]  
+         - - a n o n - p r o f i l e   [ < A N O N _ P R O F I L E > ]  
+         - - s u m m a r i z e   [ < S U M M A R I Z E > ]  
+         - - p a r a l l e l  
+         - - c a c h e   < C A C H E >  
+         - - f o r c e   [ < F O R C E > ]  
+         - - r e m o t e - o n l y   [ < R E M O T E _ O N L Y > ]  
+         - - r e m o t e - c a c h e - r e a d - o n l y   [ < R E M O T E _ C A C H E _ R E A D _ O N L Y > ]  
+         - - n o - c a c h e   < N O _ C A C H E >  
+         - - c a c h e - w o r k e r s   < C A C H E _ W O R K E R S >  
+         - - d r y - r u n   [ < D R Y _ R U N > ]  
+         - - g r a p h   [ < G R A P H > ]  
+         - - d a e m o n   < D A E M O N >  
+         - - n o - d a e m o n   < N O _ D A E M O N >  
+         - - p r o f i l e   [ < P R O F I L E > ]  
+         - - a n o n - p r o f i l e   [ < A N O N _ P R O F I L E > ]  
+         - - s u m m a r i z e   [ < S U M M A R I Z E > ]  
+         - - p a r a l l e l   < P A R A L L E L >  
+  
+ F o r   m o r e   i n f o r m a t i o n ,   t r y   ' - - h e l p ' .  
+  
+ n o d e   :   W a r n i n g :   C u s t o m   C a c h e - C o n t r o l   h e a d e r s   d e t e c t e d   f o r   t h e   f o l l o w i n g   r o u t e s :  
+ A t   l i n e : 1   c h a r : 5 9  
+ +   . . .   \ f r o n t e n d ' ;   n o d e   . . \ n o d e _ m o d u l e s \ n e x t \ d i s t \ b i n \ n e x t   d e v   - - p o r t   3 0 0 0   *   . . .  
+ +                                   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  
+         +   C a t e g o r y I n f o                     :   N o t S p e c i f i e d :   ( W a r n i n g :   C u s t o m . . . l l o w i n g   r o u t e s : : S t r i n g )   [ ] ,   R e m o t e E x c e p t i o n  
+         +   F u l l y Q u a l i f i e d E r r o r I d   :   N a t i v e C o m m a n d E r r o r  
+    
+     -   / _ n e x t / s t a t i c / ( . * )  
+  
+ S e t t i n g   a   c u s t o m   C a c h e - C o n t r o l   h e a d e r   c a n   b r e a k   N e x t . j s   d e v e l o p m e n t   b e h a v i o r .  
+ [ b r o w s e r ]   T y p e E r r o r :   s e s s i o n s . m a p   i s   n o t   a   f u n c t i o n  
+         a t   A c t i v e S e s s i o n s M o d a l   ( s r c / a p p / p l a t f o r m / p r o f i l e / p a g e . t s x : 3 1 3 : 2 2 )  
+     3 1 1   |                           / >  
+     3 1 2   |                       )   :   (  
+ >   3 1 3   |                           s e s s i o n s . m a p ( ( s :   a n y )   = >   (  
+             |                                             ^  
+     3 1 4   |                               < d i v  
+     3 1 5   |                                   k e y = { s . _ i d }  
+     3 1 6   |                                   c l a s s N a m e = { ` f l e x   i t e m s - c e n t e r   j u s t i f y - b e t w e e n   p - 3   r o u n d e d - l g   b o r d e r   $ {    
+ ( s r c / a p p / p l a t f o r m / e r r o r . t s x : 1 6 : 1 3 )  
+ [ b r o w s e r ]   T y p e E r r o r :   s e s s i o n s . m a p   i s   n o t   a   f u n c t i o n  
+         a t   A c t i v e S e s s i o n s M o d a l   ( s r c / a p p / p l a t f o r m / p r o f i l e / p a g e . t s x : 3 1 3 : 2 2 )  
+     3 1 1   |                           / >  
+     3 1 2   |                       )   :   (  
+ >   3 1 3   |                           s e s s i o n s . m a p ( ( s :   a n y )   = >   (  
+             |                                             ^  
+     3 1 4   |                               < d i v  
+     3 1 5   |                                   k e y = { s . _ i d }  
+     3 1 6   |                                   c l a s s N a m e = { ` f l e x   i t e m s - c e n t e r   j u s t i f y - b e t w e e n   p - 3   r o u n d e d - l g   b o r d e r   $ {    
+ ( s r c / a p p / p l a t f o r m / e r r o r . t s x : 1 6 : 1 3 )  
+ [ a p i / a u t h / s e s s i o n ]   F a l l i n g   b a c k   t o   s y n t h e t i c   a d m i n   w o r k s p a c e   s e s s i o n :   E r r o r   [ C o n v e x E r r o r ] :   [ R e q u e s t   I D :    
+ b 1 7 4 a 3 b 9 a b 0 e 5 9 f a ]   S e r v e r   E r r o r  
+ U n c a u g h t   C o n v e x E r r o r :   { " c o d e " : " F O R B I D D E N " , " m e s s a g e " : " T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d " }  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 4 8 : 4 )  
+  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 4 8 : 4 )   {  
+     d a t a :   {   c o d e :   ' F O R B I D D E N ' ,   m e s s a g e :   ' T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d '   }  
+ }  
+ [ a p i / a u t h / s e s s i o n ]   F a i l e d   t o   p a r s e   f a s t - p a t h   u s e r   c o o k i e :   E r r o r   [ C o n v e x E r r o r ] :   [ R e q u e s t   I D :   3 8 2 3 0 e 8 7 6 f 4 0 4 4 8 8 ]   S e r v e r    
+ E r r o r  
+ U n c a u g h t   C o n v e x E r r o r :   { " c o d e " : " F O R B I D D E N " , " m e s s a g e " : " T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d " }  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+         a t   a s y n c   g e t S e s s i o n C o m p a t   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 3 : 1 4 )  
+         a t   a s y n c   b u i l d W o r k s p a c e P l a t f o r m R e s p o n s e   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 5 1 : 1 9 )  
+         a t   a s y n c   G E T   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 6 4 2 : 2 8 )  
+     4 1   |       i f   ( s e r v e r S e c r e t )   {  
+     4 2   |           t r y   {  
+ >   4 3   |               r e t u r n   a w a i t   c o n v e x . q u e r y ( g e t S e s s i o n R e f ,   {  
+           |                             ^  
+     4 4   |                   s e s s i o n T o k e n ,  
+     4 5   |                   s e r v e r S e c r e t ,  
+     4 6   |               } ) ;   {  
+     d a t a :   {   c o d e :   ' F O R B I D D E N ' ,   m e s s a g e :   ' T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d '   }  
+ }  
+ [ b r o w s e r ]   T y p e E r r o r :   s e s s i o n s . m a p   i s   n o t   a   f u n c t i o n  
+         a t   A c t i v e S e s s i o n s M o d a l   ( s r c / a p p / p l a t f o r m / p r o f i l e / p a g e . t s x : 3 1 3 : 2 2 )  
+     3 1 1   |                           / >  
+     3 1 2   |                       )   :   (  
+ >   3 1 3   |                           s e s s i o n s . m a p ( ( s :   a n y )   = >   (  
+             |                                             ^  
+     3 1 4   |                               < d i v  
+     3 1 5   |                                   k e y = { s . _ i d }  
+     3 1 6   |                                   c l a s s N a m e = { ` f l e x   i t e m s - c e n t e r   j u s t i f y - b e t w e e n   p - 3   r o u n d e d - l g   b o r d e r   $ {    
+ ( s r c / a p p / p l a t f o r m / e r r o r . t s x : 1 6 : 1 3 )  
+ [ b r o w s e r ]   T y p e E r r o r :   s e s s i o n s . m a p   i s   n o t   a   f u n c t i o n  
+         a t   A c t i v e S e s s i o n s M o d a l   ( s r c / a p p / p l a t f o r m / p r o f i l e / p a g e . t s x : 3 1 3 : 2 2 )  
+     3 1 1   |                           / >  
+     3 1 2   |                       )   :   (  
+ >   3 1 3   |                           s e s s i o n s . m a p ( ( s :   a n y )   = >   (  
+             |                                             ^  
+     3 1 4   |                               < d i v  
+     3 1 5   |                                   k e y = { s . _ i d }  
+     3 1 6   |                                   c l a s s N a m e = { ` f l e x   i t e m s - c e n t e r   j u s t i f y - b e t w e e n   p - 3   r o u n d e d - l g   b o r d e r   $ {    
+ ( s r c / a p p / p l a t f o r m / e r r o r . t s x : 1 6 : 1 3 )  
+ [ b r o w s e r ]   D e t e c t e d   ` s c r o l l - b e h a v i o r :   s m o o t h `   o n   t h e   ` < h t m l > `   e l e m e n t .   T o   d i s a b l e   s m o o t h   s c r o l l i n g   d u r i n g   r o u t e    
+ t r a n s i t i o n s ,   a d d   ` d a t a - s c r o l l - b e h a v i o r = " s m o o t h " `   t o   y o u r   < h t m l >   e l e m e n t .   L e a r n   m o r e :    
+ h t t p s : / / n e x t j s . o r g / d o c s / m e s s a g e s / m i s s i n g - d a t a - s c r o l l - b e h a v i o r  
+ [ a p i / a u t h / s e s s i o n ]   F a i l e d   t o   p a r s e   f a s t - p a t h   u s e r   c o o k i e :   E r r o r   [ C o n v e x E r r o r ] :   [ R e q u e s t   I D :   7 b a c c 7 9 6 3 0 b d a c 3 a ]   S e r v e r    
+ E r r o r  
+ U n c a u g h t   C o n v e x E r r o r :   { " c o d e " : " F O R B I D D E N " , " m e s s a g e " : " T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d " }  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+         a t   a s y n c   g e t S e s s i o n C o m p a t   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 3 : 1 4 )  
+         a t   a s y n c   b u i l d W o r k s p a c e P l a t f o r m R e s p o n s e   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 5 1 : 1 9 )  
+         a t   a s y n c   G E T   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 6 4 2 : 2 8 )  
+     4 1   |       i f   ( s e r v e r S e c r e t )   {  
+     4 2   |           t r y   {  
+ >   4 3   |               r e t u r n   a w a i t   c o n v e x . q u e r y ( g e t S e s s i o n R e f ,   {  
+           |                             ^  
+     4 4   |                   s e s s i o n T o k e n ,  
+     4 5   |                   s e r v e r S e c r e t ,  
+     4 6   |               } ) ;   {  
+     d a t a :   {   c o d e :   ' F O R B I D D E N ' ,   m e s s a g e :   ' T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d '   }  
+ }  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ b r o w s e r ]   T h e   w i d t h ( - 1 )   a n d   h e i g h t ( - 1 )   o f   c h a r t   s h o u l d   b e   g r e a t e r   t h a n   0 ,  
+               p l e a s e   c h e c k   t h e   s t y l e   o f   c o n t a i n e r ,   o r   t h e   p r o p s   w i d t h ( 1 0 0 % )   a n d   h e i g h t ( 1 0 0 % ) ,  
+               o r   a d d   a   m i n W i d t h ( 0 )   o r   m i n H e i g h t ( u n d e f i n e d )   o r   u s e   a s p e c t ( u n d e f i n e d )   t o   c o n t r o l   t h e  
+               h e i g h t   a n d   w i d t h .  
+ [ a p i / a u t h / s e s s i o n ]   F a i l e d   t o   p a r s e   f a s t - p a t h   u s e r   c o o k i e :   E r r o r   [ C o n v e x E r r o r ] :   [ R e q u e s t   I D :   c d 4 5 e c 1 e e 6 1 9 2 0 5 d ]   S e r v e r    
+ E r r o r  
+ U n c a u g h t   C o n v e x E r r o r :   { " c o d e " : " F O R B I D D E N " , " m e s s a g e " : " T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d " }  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+         a t   a s y n c   g e t S e s s i o n C o m p a t   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 3 : 1 4 )  
+         a t   a s y n c   b u i l d W o r k s p a c e P l a t f o r m R e s p o n s e   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 5 1 : 1 9 )  
+         a t   a s y n c   G E T   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 6 4 2 : 2 8 )  
+     4 1   |       i f   ( s e r v e r S e c r e t )   {  
+     4 2   |           t r y   {  
+ >   4 3   |               r e t u r n   a w a i t   c o n v e x . q u e r y ( g e t S e s s i o n R e f ,   {  
+           |                             ^  
+     4 4   |                   s e s s i o n T o k e n ,  
+     4 5   |                   s e r v e r S e c r e t ,  
+     4 6   |               } ) ;   {  
+     d a t a :   {   c o d e :   ' F O R B I D D E N ' ,   m e s s a g e :   ' T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d '   }  
+ }  
+ [ a p i / a u t h / s e s s i o n ]   F a i l e d   t o   p a r s e   f a s t - p a t h   u s e r   c o o k i e :   E r r o r   [ C o n v e x E r r o r ] :   [ R e q u e s t   I D :   b 4 9 6 9 c 5 1 2 a 2 5 e 4 1 4 ]   S e r v e r    
+ E r r o r  
+ U n c a u g h t   C o n v e x E r r o r :   { " c o d e " : " F O R B I D D E N " , " m e s s a g e " : " T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d " }  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+         a t   a s y n c   g e t S e s s i o n C o m p a t   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 3 : 1 4 )  
+         a t   a s y n c   b u i l d W o r k s p a c e P l a t f o r m R e s p o n s e   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 5 1 : 1 9 )  
+         a t   a s y n c   G E T   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 6 4 2 : 2 8 )  
+     4 1   |       i f   ( s e r v e r S e c r e t )   {  
+     4 2   |           t r y   {  
+ >   4 3   |               r e t u r n   a w a i t   c o n v e x . q u e r y ( g e t S e s s i o n R e f ,   {  
+           |                             ^  
+     4 4   |                   s e s s i o n T o k e n ,  
+     4 5   |                   s e r v e r S e c r e t ,  
+     4 6   |               } ) ;   {  
+     d a t a :   {   c o d e :   ' F O R B I D D E N ' ,   m e s s a g e :   ' T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d '   }  
+ }  
+ [ a p i / a u t h / s e s s i o n ]   F a i l e d   t o   p a r s e   f a s t - p a t h   u s e r   c o o k i e :   E r r o r   [ C o n v e x E r r o r ] :   [ R e q u e s t   I D :   e f 2 9 c f 0 d 1 c f 7 b b 2 a ]   S e r v e r    
+ E r r o r  
+ U n c a u g h t   C o n v e x E r r o r :   { " c o d e " : " F O R B I D D E N " , " m e s s a g e " : " T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d " }  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+  
+         a t   a s s e r t T r u s t e d S e r v e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 : 6 )  
+         a t   h a n d l e r   ( . . / c o n v e x / s e s s i o n s . t s : 8 4 : 4 )  
+         a t   a s y n c   g e t S e s s i o n C o m p a t   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 3 : 1 4 )  
+         a t   a s y n c   b u i l d W o r k s p a c e P l a t f o r m R e s p o n s e   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 4 5 1 : 1 9 )  
+         a t   a s y n c   G E T   ( s r c \ a p p \ a p i \ a u t h \ s e s s i o n \ r o u t e . t s : 6 4 2 : 2 8 )  
+     4 1   |       i f   ( s e r v e r S e c r e t )   {  
+     4 2   |           t r y   {  
+ >   4 3   |               r e t u r n   a w a i t   c o n v e x . q u e r y ( g e t S e s s i o n R e f ,   {  
+           |                             ^  
+     4 4   |                   s e s s i o n T o k e n ,  
+     4 5   |                   s e r v e r S e c r e t ,  
+     4 6   |               } ) ;   {  
+     d a t a :   {   c o d e :   ' F O R B I D D E N ' ,   m e s s a g e :   ' T r u s t e d   s e r v e r   c r e d e n t i a l s   r e q u i r e d '   }  
+ }  
+ 

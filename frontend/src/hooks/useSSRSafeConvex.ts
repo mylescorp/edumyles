@@ -20,12 +20,13 @@ export const ConvexProvider = ReactConvexProvider;
  */
 export function useQuery(query: any, args?: any, enabled?: boolean) {
   const shouldSkip = enabled === false;
+  const isExplicitSkip = args === "skip";
 
   // Client components are still pre-rendered on the server in Next.js App Router.
   // During that pass the Convex provider is not mounted yet, so we must not call
   // Convex hooks or React will throw before hydration can recover.
   if (typeof window === "undefined") {
-    if (shouldSkip) {
+    if (shouldSkip || isExplicitSkip) {
       return undefined as any;
     }
 
@@ -38,10 +39,10 @@ export function useQuery(query: any, args?: any, enabled?: boolean) {
     } as any;
   }
 
-  const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+  const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
   const result = useConvexQuery(query, queryArgs);
 
-  if (shouldSkip) {
+  if (shouldSkip || isExplicitSkip) {
     return undefined as any;
   }
 

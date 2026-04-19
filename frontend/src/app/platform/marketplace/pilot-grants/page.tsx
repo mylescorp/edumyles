@@ -97,7 +97,15 @@ export default function PilotGrantsPage() {
         stealthMode: form.stealthMode === "true",
         reason: form.reason,
       });
-      toast({ title: "Pilot grant created" });
+      toast({
+        title: "Pilot grant created",
+        description:
+          form.grantScope === "all"
+            ? "The tenant now has pilot access across the full marketplace catalog."
+            : form.grantScope === "selected"
+              ? `${form.moduleIds.length} modules were granted to the tenant.`
+              : "The module pilot grant is active.",
+      });
       setCreateOpen(false);
       setForm((current) => ({
         ...current,
@@ -186,6 +194,7 @@ export default function PilotGrantsPage() {
                 <TableRow>
                   <TableHead>Tenant</TableHead>
                   <TableHead>Module</TableHead>
+                  <TableHead>Scope</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Window</TableHead>
@@ -197,6 +206,7 @@ export default function PilotGrantsPage() {
                   <TableRow key={grant.grantId}>
                     <TableCell>{grant.tenantName}</TableCell>
                     <TableCell>{grant.moduleName}</TableCell>
+                    <TableCell>{labelize(grant.grantScope ?? "single")}</TableCell>
                     <TableCell>{labelize(grant.grantType)}</TableCell>
                     <TableCell><Badge variant="outline">{labelize(grant.status)}</Badge></TableCell>
                     <TableCell>

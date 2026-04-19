@@ -21,12 +21,13 @@ import Logo from "@/components/shared/Logo";
 type FormState = "idle" | "loading" | "error";
 
 const REFERRAL_SOURCES = [
-  "Search engine",
-  "Social media",
-  "Referral",
-  "Conference or event",
+  "Google Search",
+  "Facebook or Instagram",
+  "LinkedIn",
+  "Friend/Colleague",
+  "School conference",
+  "EduMyles ad campaign",
   "Sales outreach",
-  "Returning visitor",
   "Other",
 ] as const;
 
@@ -67,9 +68,11 @@ function SignUpPageContent() {
     email: searchParams.get("email") ?? "",
     phone: "",
     country: "Kenya",
+    county: "",
     schoolName: "",
     studentCount: "",
-    referralSource: referralCode ? "Referral" : "Search engine",
+    currentSystem: "",
+    referralSource: referralCode ? "Friend/Colleague" : "Google Search",
     biggestChallenge: "",
     referralCode: referralCode || "", // Include referral code in form data
   });
@@ -399,13 +402,18 @@ function SignUpPageContent() {
                     </select>
                   </div>
                 </div>
-                <div className="rounded-[18px] border border-[#e5efe9] bg-white px-4 py-3">
-                  <p className="font-jakarta text-[11px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
-                    Waitlist quality tip
-                  </p>
-                  <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#5d6f66]">
-                    Work emails and accurate school size help us prioritize outreach faster.
-                  </p>
+                <div>
+                  <label htmlFor="county" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    County / State / Region
+                  </label>
+                  <input
+                    id="county"
+                    name="county"
+                    value={fields.county}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="Nairobi"
+                  />
                 </div>
               </div>
             </div>
@@ -453,6 +461,26 @@ function SignUpPageContent() {
                   />
                   </div>
                 </div>
+                <div>
+                  <label htmlFor="currentSystem" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    Current school system
+                  </label>
+                  <select
+                    id="currentSystem"
+                    name="currentSystem"
+                    value={fields.currentSystem}
+                    onChange={handleChange}
+                    className={inputClass}
+                  >
+                    <option value="">Select current system</option>
+                    <option value="Paper records">Paper records</option>
+                    <option value="Excel/Spreadsheets">Excel/Spreadsheets</option>
+                    <option value="Nothing">Nothing</option>
+                    <option value="Another school system">Another school system</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="referralSource" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
                     How did you hear about EduMyles?

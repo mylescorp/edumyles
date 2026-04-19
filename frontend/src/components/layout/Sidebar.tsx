@@ -51,10 +51,6 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
       // Always show items without module association (Dashboard, Settings, etc.)
       if (!item.module) return true;
 
-      // Always show core modules
-      if (isCoreModuleSlug(item.module)) return true;
-
-      // Show optional modules only if installed
       return isModuleInstalled(item.module) && isModuleAccessible(item.module);
     })
     .sort((a, b) => {
@@ -237,15 +233,12 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                         </div>
                       )}
 
-                      {/* Active/inactive indicator for optional modules */}
-                      {!isCoreModuleSlug(item.module) && (
-                        <div
-                          className={cn(
-                            "w-2 h-2 rounded-full",
-                            isModuleActive(item.module) ? "bg-em-success" : "bg-gray-400"
-                          )}
-                        />
-                      )}
+                      <div
+                        className={cn(
+                          "h-2 w-2 rounded-full",
+                          isModuleActive(item.module) ? "bg-em-success" : "bg-gray-400"
+                        )}
+                      />
 
                       {/* Badge counts */}
                       {badgeCount && (

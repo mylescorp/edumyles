@@ -1,0 +1,1080 @@
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+⚠ Blocked cross-origin request to Next.js dev resource /_next/webpack-hmr from "127.0.0.1".
+Cross-origin access to Next.js dev resources is blocked by default for safety.
+
+To allow this host in development, add it to "allowedDevOrigins" in next.config.js and restart the dev server:
+
+// next.config.js
+module.exports = {
+  allowedDevOrigins: ['127.0.0.1'],
+}
+
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 44b760ff847f469e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[api/tenants/invite/accept] Failed: Error: [Request ID: a188fcc3acfa1c50] Server Error
+Uncaught Error: Uncaught BadRequestException: Password does not meet strength requirements.
+
+
+    at async POST (src\app\api\tenants\invite\accept\route.ts:71:20)
+  69 |
+  70 |     const convex = getConvexClient();
+> 71 |     const result = await convex.action(api.platform.tenants.actions.acceptTenantInvite, {
+     |                    ^
+  72 |       token,
+  73 |       firstName,
+  74 |       lastName,
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 7ab51307e609c500] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 2d92a138d69de6b2] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/tenants/invite/accept] Session bootstrap failed, falling back to cookie-only local session: Error [ConvexError]: [Request ID: d7d32f98413ebdca] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: b1e539456e357ac1] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 0b6aa5e1edfd19f4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: eaf59b3b7f6f3cdd] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+
+    at assertTrustedServer (../convex/sessions.ts:8:6)
+    at handler (../convex/sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:43:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:451:19)
+    at async GET (src\app\api\auth\session\route.ts:642:28)
+  41 |   if (serverSecret) {
+  42 |     try {
+> 43 |       return await convex.query(getSessionRef, {
+     |              ^
+  44 |         sessionToken,
+  45 |         serverSecret,
+  46 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] TypeError: sessions.map is not a function
+    at ActiveSessionsModal (src/app/platform/profile/page.tsx:313:22)
+  311 |             />
+  312 |           ) : (
+> 313 |             sessions.map((s: any) => (
+      |                      ^
+  314 |               <div
+  315 |                 key={s._id}
+  316 |                 className={`flex items-center justify-between p-3 rounded-lg border ${ (src/app/platform/error.tsx:16:13)
+[browser] TypeError: sessions.map is not a function
+    at ActiveSessionsModal (src/app/platform/profile/page.tsx:313:22)
+  311 |             />
+  312 |           ) : (
+> 313 |             sessions.map((s: any) => (
+      |                      ^
+  314 |               <div
+  315 |                 key={s._id}
+  316 |                 className={`flex items-center justify-between p-3 rounded-lg border ${ (src/app/platform/error.tsx:16:13)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Error: [CONVEX Q(modules/platform/subscriptions:getTenantSubscription)] [Request ID: 956ce59eac8bb440] Server Error
+ArgumentValidationError: Object contains extra field `sessionToken` that is not in the validator.
+
+Object: {sessionToken: "dev-platform-session"}
+Validator: v.object({})
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at BillingSettingsPage (src/app/admin/settings/billing/page.tsx:148:38)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/subscriptions:getTenantSubscription)] [Request ID: 956ce59eac8bb440] Server Error
+ArgumentValidationError: Object contains extra field `sessionToken` that is not in the validator.
+
+Object: {sessionToken: "dev-platform-session"}
+Validator: v.object({})
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at BillingSettingsPage (src/app/admin/settings/billing/page.tsx:148:38)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+⨯ Error: Module [project]/frontend/src/components/layout/shells/PlatformShell.tsx [app-ssr] (ecmascript) was instantiated because it was required from module [project]/node_modules/next/dist/esm/build/templates/app-page.js?page=/admin/settings/billing/page { METADATA_0 => "[project]/frontend/src/app/icon.svg.mjs { IMAGE => \"[project]/frontend/src/app/icon.svg (static in ecmascript, tag client)\" } [app-rsc] (structured image object, ecmascript)", MODULE_1 => "[project]/frontend/src/app/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_2 => "[project]/frontend/src/app/error.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_3 => "[project]/frontend/src/app/loading.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_4 => "[project]/frontend/src/app/not-found.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_5 => "[project]/node_modules/next/dist/client/components/builtin/forbidden.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_6 => "[project]/node_modules/next/dist/client/components/builtin/unauthorized.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_7 => "[project]/node_modules/next/dist/client/components/builtin/global-error.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_8 => "[project]/frontend/src/app/admin/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_9 => "[project]/frontend/src/app/admin/error.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_10 => "[project]/frontend/src/app/admin/loading.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_11 => "[project]/frontend/src/app/admin/not-found.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_12 => "[project]/frontend/src/app/admin/settings/billing/page.tsx [app-rsc] (ecmascript, Next.js Server Component)" } [app-rsc] (ecmascript) <locals>, but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+    at ignore-listed frames {
+  digest: '543765677'
+}
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+⨯ Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.2.0
+  - react-dom:  19.2.4
+Learn more: https://react.dev/warnings/version-mismatch
+    at ignore-listed frames
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:295:1
+Expected '}', got '<eof>'
+  293 |     return <LoadingSkeleton variant="page" />;
+  294 |   }
+> 295 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:295:1
+Expected '}', got '<eof>'
+  293 |     return <LoadingSkeleton variant="page" />;
+  294 |   }
+> 295 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:295:1
+Expected '}', got '<eof>'
+  293 |     return <LoadingSkeleton variant="page" />;
+  294 |   }
+> 295 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] Uncaught Error: Switched to client rendering because the server rendering errored:
+
+Module [project]/frontend/src/components/layout/shells/PlatformShell.tsx [app-ssr] (ecmascript) was instantiated because it was required from module [project]/node_modules/next/dist/esm/build/templates/app-page.js?page=/admin/settings/billing/page { METADATA_0 => "[project]/frontend/src/app/icon.svg.mjs { IMAGE => \"[project]/frontend/src/app/icon.svg (static in ecmascript, tag client)\" } [app-rsc] (structured image object, ecmascript)", MODULE_1 => "[project]/frontend/src/app/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_2 => "[project]/frontend/src/app/error.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_3 => "[project]/frontend/src/app/loading.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_4 => "[project]/frontend/src/app/not-found.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_5 => "[project]/node_modules/next/dist/client/components/builtin/forbidden.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_6 => "[project]/node_modules/next/dist/client/components/builtin/unauthorized.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_7 => "[project]/node_modules/next/dist/client/components/builtin/global-error.js [app-rsc] (ecmascript, Next.js Server Component)", MODULE_8 => "[project]/frontend/src/app/admin/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_9 => "[project]/frontend/src/app/admin/error.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_10 => "[project]/frontend/src/app/admin/loading.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_11 => "[project]/frontend/src/app/admin/not-found.tsx [app-rsc] (ecmascript, Next.js Server Component)", MODULE_12 => "[project]/frontend/src/app/admin/settings/billing/page.tsx [app-rsc] (ecmascript, Next.js Server Component)" } [app-rsc] (ecmascript) <locals>, but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+[browser] Error: Could not parse module '[project]/frontend/src/app/platform/waitlist/page.tsx'
+
+Expected '}', got '<eof>'
+    at module evaluation (.next\dev\static\chunks\frontend_src_app_platform_waitlist_page_tsx_0dkcfm0._.js:4:11) (src/app/platform/error.tsx:16:13)
+[browser] Error: Could not parse module '[project]/frontend/src/app/platform/waitlist/page.tsx'
+
+Expected '}', got '<eof>'
+    at module evaluation (.next\dev\static\chunks\frontend_src_app_platform_waitlist_page_tsx_0dkcfm0._.js:4:11) (src/app/platform/error.tsx:16:13)
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:295:1
+Expected '}', got '<eof>'
+  293 |     return <LoadingSkeleton variant="page" />;
+  294 |   }
+> 295 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:295:1
+Expected '}', got '<eof>'
+  293 |     return <LoadingSkeleton variant="page" />;
+  294 |   }
+> 295 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:295:1
+Expected '}', got '<eof>'
+  293 |     return <LoadingSkeleton variant="page" />;
+  294 |   }
+> 295 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:295:1
+Expected '}', got '<eof>'
+  293 |     return <LoadingSkeleton variant="page" />;
+  294 |   }
+> 295 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:295:1
+Expected '}', got '<eof>'
+  293 |     return <LoadingSkeleton variant="page" />;
+  294 |   }
+> 295 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:465:1
+Expected '}', got '<eof>'
+  463 |     }
+  464 |   }
+> 465 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:465:1
+Expected '}', got '<eof>'
+  463 |     }
+  464 |   }
+> 465 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:629:1
+Expected '</', got '<eof>'
+  627 |         </CardContent>
+  628 |       </Card>
+> 629 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:629:1
+Expected '</', got '<eof>'
+  627 |         </CardContent>
+  628 |       </Card>
+> 629 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:718:1
+Expected '</', got '<eof>'
+  716 |         </DialogContent>
+  717 |       </Dialog>
+> 718 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+[browser] ./frontend/src/app/platform/waitlist/page.tsx:718:1
+Expected '</', got '<eof>'
+  716 |         </DialogContent>
+  717 |       </Dialog>
+> 718 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component Browser]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/app/platform/waitlist/page.tsx [Client Component SSR]
+    ./frontend/src/app/platform/waitlist/page.tsx [Server Component] 
+⚠ Fast Refresh had to perform a full reload when ./frontend/src/app/platform/waitlist/page.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[browser] Error: Module [project]/node_modules/lucide-react/dist/esm/icons/circle-x.js [app-client] (ecmascript) <export default as XCircle> was instantiated because it was required from module [project]/frontend/src/app/platform/waitlist/page.tsx [app-client] (ecmascript), but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+    at module evaluation (src/app/platform/waitlist/page.tsx:23:1)
+  21 | import { useMutation } from "@/hooks/useSSRSafeConvex";
+  22 | import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
+> 23 | import {
+     | ^
+  24 |   BadgeCheck,
+  25 |   Building2,
+  26 |   CheckCircle2, (src/app/platform/error.tsx:16:13)
+[browser] Error: Module [project]/node_modules/lucide-react/dist/esm/icons/circle-x.js [app-client] (ecmascript) <export default as XCircle> was instantiated because it was required from module [project]/frontend/src/app/platform/waitlist/page.tsx [app-client] (ecmascript), but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+    at module evaluation (src/app/platform/waitlist/page.tsx:23:1)
+  21 | import { useMutation } from "@/hooks/useSSRSafeConvex";
+  22 | import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
+> 23 | import {
+     | ^
+  24 |   BadgeCheck,
+  25 |   Building2,
+  26 |   CheckCircle2, (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/waitlist:getWaitlistOperators)] [Request ID: dbf45f5b82c05ed8] Server Error
+Could not find public function for 'modules/platform/waitlist:getWaitlistOperators'. Did you forget to run `npx convex dev`?
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at WaitlistPage (src/app/platform/waitlist/page.tsx:221:40)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/waitlist:getWaitlistOperators)] [Request ID: dbf45f5b82c05ed8] Server Error
+Could not find public function for 'modules/platform/waitlist:getWaitlistOperators'. Did you forget to run `npx convex dev`?
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at WaitlistPage (src/app/platform/waitlist/page.tsx:221:40)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/waitlist:getWaitlistOperators)] [Request ID: 5d61ace333f98c5b] Server Error
+Could not find public function for 'modules/platform/waitlist:getWaitlistOperators'. Did you forget to run `npx convex dev`?
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at WaitlistPage (src/app/platform/waitlist/page.tsx:221:40)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/waitlist:getWaitlistOperators)] [Request ID: 5d61ace333f98c5b] Server Error
+Could not find public function for 'modules/platform/waitlist:getWaitlistOperators'. Did you forget to run `npx convex dev`?
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at WaitlistPage (src/app/platform/waitlist/page.tsx:221:40)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/waitlist:getWaitlistOperators)] [Request ID: 373ca8bcd983b3d4] Server Error
+Could not find public function for 'modules/platform/waitlist:getWaitlistOperators'. Did you forget to run `npx convex dev`?
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at WaitlistPage (src/app/platform/waitlist/page.tsx:221:40)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/waitlist:getWaitlistOperators)] [Request ID: 373ca8bcd983b3d4] Server Error
+Could not find public function for 'modules/platform/waitlist:getWaitlistOperators'. Did you forget to run `npx convex dev`?
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at WaitlistPage (src/app/platform/waitlist/page.tsx:221:40)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] TypeError: (deals ?? []).filter is not a function
+    at CRMLeadsPage.useMemo[leads] (src/app/platform/crm/leads/page.tsx:63:38)
+    at CRMLeadsPage (src/app/platform/crm/leads/page.tsx:62:24)
+  61 |   // Leads = deals in early pipeline stages
+  62 |   const leads = useMemo(() => {
+> 63 |     return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
+     |                                      ^
+  64 |   }, [deals]);
+  65 |
+  66 |   const filtered = useMemo(() => { (src/app/platform/error.tsx:16:13)
+[browser] TypeError: (deals ?? []).filter is not a function
+    at CRMLeadsPage.useMemo[leads] (src/app/platform/crm/leads/page.tsx:63:38)
+    at CRMLeadsPage (src/app/platform/crm/leads/page.tsx:62:24)
+  61 |   // Leads = deals in early pipeline stages
+  62 |   const leads = useMemo(() => {
+> 63 |     return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
+     |                                      ^
+  64 |   }, [deals]);
+  65 |
+  66 |   const filtered = useMemo(() => { (src/app/platform/error.tsx:16:13)
+[browser] TypeError: (deals ?? []).filter is not a function
+    at CRMLeadsPage.useMemo[leads] (src/app/platform/crm/leads/page.tsx:63:38)
+    at CRMLeadsPage (src/app/platform/crm/leads/page.tsx:62:24)
+  61 |   // Leads = deals in early pipeline stages
+  62 |   const leads = useMemo(() => {
+> 63 |     return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
+     |                                      ^
+  64 |   }, [deals]);
+  65 |
+  66 |   const filtered = useMemo(() => { (src/app/platform/error.tsx:16:13)
+[browser] TypeError: (deals ?? []).filter is not a function
+    at CRMLeadsPage.useMemo[leads] (src/app/platform/crm/leads/page.tsx:63:38)
+    at CRMLeadsPage (src/app/platform/crm/leads/page.tsx:62:24)
+  61 |   // Leads = deals in early pipeline stages
+  62 |   const leads = useMemo(() => {
+> 63 |     return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
+     |                                      ^
+  64 |   }, [deals]);
+  65 |
+  66 |   const filtered = useMemo(() => { (src/app/platform/error.tsx:16:13)
+Compaction failed: Failed to compact database
+
+Caused by:
+    0: Failed to merge database files for family 1
+    1: Failed to write key block
+    2: Failed to write block data
+    3: There is not enough space on the disk. (os error 112)
+[browser] TypeError: (deals ?? []).filter is not a function
+    at CRMLeadsPage.useMemo[leads] (src/app/platform/crm/leads/page.tsx:63:38)
+    at CRMLeadsPage (src/app/platform/crm/leads/page.tsx:62:24)
+  61 |   // Leads = deals in early pipeline stages
+  62 |   const leads = useMemo(() => {
+> 63 |     return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
+     |                                      ^
+  64 |   }, [deals]);
+  65 |
+  66 |   const filtered = useMemo(() => { (src/app/platform/error.tsx:16:13)
+[browser] TypeError: (deals ?? []).filter is not a function
+    at CRMLeadsPage.useMemo[leads] (src/app/platform/crm/leads/page.tsx:63:38)
+    at CRMLeadsPage (src/app/platform/crm/leads/page.tsx:62:24)
+  61 |   // Leads = deals in early pipeline stages
+  62 |   const leads = useMemo(() => {
+> 63 |     return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
+     |                                      ^
+  64 |   }, [deals]);
+  65 |
+  66 |   const filtered = useMemo(() => { (src/app/platform/error.tsx:16:13)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+[browser] Error: [CONVEX Q(modules/platform/subscriptions:getTenantSubscription)] [Request ID: 342575a015b55989] Server Error
+ArgumentValidationError: Object contains extra field `sessionToken` that is not in the validator.
+
+Object: {sessionToken: "dev-platform-session"}
+Validator: v.object({})
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at BillingSettingsPage (src/app/admin/settings/billing/page.tsx:148:38)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/subscriptions:getTenantSubscription)] [Request ID: 342575a015b55989] Server Error
+ArgumentValidationError: Object contains extra field `sessionToken` that is not in the validator.
+
+Object: {sessionToken: "dev-platform-session"}
+Validator: v.object({})
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at BillingSettingsPage (src/app/admin/settings/billing/page.tsx:148:38)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+[browser] Error: [CONVEX Q(modules/platform/subscriptions:getTenantSubscription)] [Request ID: 3d908aa852b98687] Server Error
+ArgumentValidationError: Object contains extra field `sessionToken` that is not in the validator.
+
+Object: {sessionToken: "dev-tenant-admin-session"}
+Validator: v.object({})
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at BillingSettingsPage (src/app/admin/settings/billing/page.tsx:148:38)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/subscriptions:getTenantSubscription)] [Request ID: 3d908aa852b98687] Server Error
+ArgumentValidationError: Object contains extra field `sessionToken` that is not in the validator.
+
+Object: {sessionToken: "dev-tenant-admin-session"}
+Validator: v.object({})
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:43:32)
+    at BillingSettingsPage (src/app/admin/settings/billing/page.tsx:148:38)
+  41 |
+  42 |   const queryArgs = shouldSkip ? "skip" : (isExplicitSkip ? "skip" : (args ?? {}));
+> 43 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  44 |
+  45 |   if (shouldSkip || isExplicitSkip) {
+  46 |     return undefined as any; (src/app/admin/error.tsx:16:13)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+[browser] TypeError: activeBorrows?.map is not a function
+    at LibraryDashboardPage (src/app/admin/library/page.tsx:52:51)
+  50 | ...st stats = {
+  51 | ... totalBooks: allBooks?.length ?? 0,
+> 52 | ... totalBorrowers: (activeBorrows as any[])?.map((b: any) => b.borrowerId).filter((v: any...
+     |                                               ^
+  53 | ... monthlyCirculation: activeBorrows?.length ?? 0,
+  54 | ... averageRating: 0,
+  55 | ... (src/app/admin/error.tsx:16:13)
+[browser] TypeError: activeBorrows?.map is not a function
+    at LibraryDashboardPage (src/app/admin/library/page.tsx:52:51)
+  50 | ...st stats = {
+  51 | ... totalBooks: allBooks?.length ?? 0,
+> 52 | ... totalBorrowers: (activeBorrows as any[])?.map((b: any) => b.borrowerId).filter((v: any...
+     |                                               ^
+  53 | ... monthlyCirculation: activeBorrows?.length ?? 0,
+  54 | ... averageRating: 0,
+  55 | ... (src/app/admin/error.tsx:16:13)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+[browser] TypeError: staff?.map is not a function
+    at LeaveRequestsPage (src/app/admin/hr/leave/page.tsx:54:48)
+  52 | ...if (isLoading) return <LoadingSkeleton variant="page" />;
+  53 | ...
+> 54 | ...const staffMap = new Map((staff as any[])?.map((s) => [s._id, `${s.firstName} ${s.lastN...
+     |                                               ^
+  55 | ...
+  56 | ...const handleDecision = async (leaveId: Id<"staffLeave">, approved: boolean) => {
+  57 | ...    try { (src/app/admin/error.tsx:16:13)
+[browser] TypeError: staff?.map is not a function
+    at LeaveRequestsPage (src/app/admin/hr/leave/page.tsx:54:48)
+  52 | ...if (isLoading) return <LoadingSkeleton variant="page" />;
+  53 | ...
+> 54 | ...const staffMap = new Map((staff as any[])?.map((s) => [s._id, `${s.firstName} ${s.lastN...
+     |                                               ^
+  55 | ...
+  56 | ...const handleDecision = async (leaveId: Id<"staffLeave">, approved: boolean) => {
+  57 | ...    try { (src/app/admin/error.tsx:16:13)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+[browser] TypeError: sorted.slice is not a function
+    at DataTable (src/components/shared/DataTable.tsx:91:56)
+  89 | ...rver pagination is active, skip client-side slicing — data grows via loadMore.
+  90 | ...lPages = serverPagination ? 1 : Math.ceil(sorted.length / pageSize);
+> 91 | ...nated = serverPagination ? sorted : sorted.slice((page - 1) * pageSize, page * pageSize);
+     |                                               ^
+  92 | ...
+  93 | ...andleSort(key: string) {
+  94 | ...Key === key) { (src/app/admin/error.tsx:16:13)
+[browser] TypeError: sorted.slice is not a function
+    at DataTable (src/components/shared/DataTable.tsx:91:56)
+  89 | ...rver pagination is active, skip client-side slicing — data grows via loadMore.
+  90 | ...lPages = serverPagination ? 1 : Math.ceil(sorted.length / pageSize);
+> 91 | ...nated = serverPagination ? sorted : sorted.slice((page - 1) * pageSize, page * pageSize);
+     |                                               ^
+  92 | ...
+  93 | ...andleSort(key: string) {
+  94 | ...Key === key) { (src/app/admin/error.tsx:16:13)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+[browser] TypeError: workspaces?.reduce is not a function
+    at PMPage.useMemo[totalProjects] (src/app/platform/pm/page.tsx:114:23)
+    at PMPage (src/app/platform/pm/page.tsx:113:32)
+  112 |
+  113 |   const totalProjects = useMemo(
+> 114 |     () => workspaces?.reduce((sum: number, ws: WorkspaceSummary) => sum + ws.projectCount...
+      |                       ^
+  115 |     [workspaces]
+  116 |   );
+  117 | (src/app/platform/error.tsx:16:13)
+[browser] TypeError: workspaces?.reduce is not a function
+    at PMPage.useMemo[totalProjects] (src/app/platform/pm/page.tsx:114:23)
+    at PMPage (src/app/platform/pm/page.tsx:113:32)
+  112 |
+  113 |   const totalProjects = useMemo(
+> 114 |     () => workspaces?.reduce((sum: number, ws: WorkspaceSummary) => sum + ws.projectCount...
+      |                       ^
+  115 |     [workspaces]
+  116 |   );
+  117 | (src/app/platform/error.tsx:16:13)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)

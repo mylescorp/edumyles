@@ -4,9 +4,9 @@ import { v } from "convex/values";
 import { logAction } from "../../helpers/auditLog";
 import { requireRole } from "../../helpers/authorize";
 import { requirePlatformRole, requirePlatformSession } from "../../helpers/platformGuard";
-import { requireTenantContext } from "../../helpers/tenantGuard";
-import { CORE_MODULES, OPTIONAL_MODULES } from "../marketplace/moduleDefinitions";
-import { TIER_MODULES } from "../marketplace/tierModules";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
+import { runModuleOnInstallSetup } from "../moduleRuntime";
+import { ModuleSlug } from "../moduleCatalog";
 
 type TenantSubscriptionDoc = {
   _id: any;
@@ -22,13 +22,135 @@ type TenantSubscriptionDoc = {
   customPriceMonthlyKes?: number;
   customPriceAnnualKes?: number;
   customPricingNotes?: string;
+  billingPeriod?: "monthly" | "termly" | "quarterly" | "annual";
   nextPaymentDue?: number;
   trialEndsAt?: number;
+  graceEndsAt?: number;
   cancelledAt?: number;
   cancellationReason?: string;
   createdAt: number;
   updatedAt: number;
 };
+
+type OfficialPlanName = "free" | "starter" | "pro" | "enterprise";
+
+type PlanBlueprint = {
+  name: OfficialPlanName;
+  priceMonthlyKes: number;
+  priceAnnualKes: number;
+  studentLimit?: number;
+  staffLimit?: number;
+  storageGb?: number;
+  maxAdditionalModules?: number;
+  apiAccess: "none" | "read" | "read_write";
+  whiteLabel: "none" | "logo" | "full";
+  customDomain: boolean;
+  supportTier: string;
+  slaHours?: number;
+  isDefault: boolean;
+  moduleSlugs: string[];
+};
+
+const OFFICIAL_PLAN_NAMES: OfficialPlanName[] = ["free", "starter", "pro", "enterprise"];
+const BILLING_PERIOD_DAYS = {
+  monthly: 30,
+  termly: 90,
+  quarterly: 90,
+  annual: 365,
+} as const;
+const BILLING_PERIOD_MULTIPLIER = {
+  monthly: 1,
+  termly: 2.85,
+  quarterly: 2.85,
+  annual: 10,
+} as const;
+
+const TECH_SPEC_PLAN_BLUEPRINTS: PlanBlueprint[] = [
+  {
+    name: "free",
+    priceMonthlyKes: 0,
+    priceAnnualKes: 0,
+    studentLimit: 100,
+    staffLimit: 10,
+    storageGb: 1,
+    maxAdditionalModules: 0,
+    apiAccess: "none",
+    whiteLabel: "none",
+    customDomain: false,
+    supportTier: "community",
+    isDefault: true,
+    moduleSlugs: ["core_sis", "core_users", "core_notifications", "mod_attendance", "mod_academics"],
+  },
+  {
+    name: "starter",
+    priceMonthlyKes: 2500,
+    priceAnnualKes: 25000,
+    studentLimit: 500,
+    staffLimit: 50,
+    storageGb: 10,
+    maxAdditionalModules: 4,
+    apiAccess: "none",
+    whiteLabel: "none",
+    customDomain: false,
+    supportTier: "email_48h",
+    slaHours: 48,
+    isDefault: false,
+    moduleSlugs: [
+      "core_sis",
+      "core_users",
+      "core_notifications",
+      "mod_attendance",
+      "mod_academics",
+      "mod_finance",
+      "mod_library",
+      "mod_communications",
+    ],
+  },
+  {
+    name: "pro",
+    priceMonthlyKes: 8000,
+    priceAnnualKes: 80000,
+    studentLimit: 2000,
+    staffLimit: 200,
+    storageGb: 50,
+    maxAdditionalModules: 12,
+    apiAccess: "read",
+    whiteLabel: "logo",
+    customDomain: true,
+    supportTier: "priority_24h",
+    slaHours: 24,
+    isDefault: false,
+    moduleSlugs: [
+      "core_sis",
+      "core_users",
+      "core_notifications",
+      "mod_attendance",
+      "mod_academics",
+      "mod_finance",
+      "mod_library",
+      "mod_communications",
+      "mod_hr",
+      "mod_transport",
+      "mod_timetable",
+      "mod_ewallet",
+      "mod_admissions",
+      "mod_reports",
+    ],
+  },
+  {
+    name: "enterprise",
+    priceMonthlyKes: 0,
+    priceAnnualKes: 0,
+    apiAccess: "read_write",
+    whiteLabel: "full",
+    customDomain: true,
+    supportTier: "dedicated_sla",
+    slaHours: 8,
+    isDefault: false,
+    maxAdditionalModules: undefined,
+    moduleSlugs: [],
+  },
+];
 
 async function getSubscriptionPlanByName(ctx: any, name: string) {
   return await ctx.db
@@ -86,23 +208,305 @@ async function getLatestUsageStats(ctx: any, tenantId: string) {
   return stats.sort((a: any, b: any) => b.recordedAt - a.recordedAt)[0] ?? null;
 }
 
-const STATIC_MODULE_MAP = new Map(
-  [...CORE_MODULES, ...OPTIONAL_MODULES].map((module) => [
-    module.moduleId,
-    {
-      id: module.moduleId,
-      name: module.name,
-      category: module.category,
+function calculatePlanChargeKes(
+  plan: any,
+  billingPeriod: "monthly" | "termly" | "quarterly" | "annual"
+) {
+  if (billingPeriod === "annual") {
+    return plan.priceAnnualKes > 0 ? plan.priceAnnualKes : plan.priceMonthlyKes * 12;
+  }
+
+  return Math.round(plan.priceMonthlyKes * BILLING_PERIOD_MULTIPLIER[billingPeriod]);
+}
+
+async function syncIncludedModuleInstalls(
+  ctx: any,
+  args: {
+    tenantId: string;
+    includedModuleIds: string[];
+    updatedBy: string;
+    markFree?: boolean;
+  }
+) {
+  const now = Date.now();
+  const moduleIdSet = new Set(args.includedModuleIds.map(String));
+  if (moduleIdSet.size === 0) {
+    return;
+  }
+
+  const [modules, installs] = await Promise.all([
+    ctx.db.query("marketplace_modules").collect(),
+    ctx.db
+      .query("module_installs")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
+      .collect(),
+  ]);
+
+  for (const moduleRecord of modules) {
+    if (!moduleIdSet.has(String(moduleRecord._id))) continue;
+
+    const existingInstall = installs.find(
+      (install: any) => String(install.moduleId) === String(moduleRecord._id)
+    );
+
+    if (existingInstall) {
+      await ctx.db.patch(existingInstall._id, {
+        moduleSlug: moduleRecord.slug,
+        status: "active",
+        isFree: args.markFree ?? existingInstall.isFree,
+        updatedAt: now,
+      });
+    } else {
+      await ctx.db.insert("module_installs", {
+        moduleId: moduleRecord._id,
+        moduleSlug: moduleRecord.slug,
+        tenantId: args.tenantId,
+        status: "active",
+        billingPeriod: "monthly",
+        currentPriceKes: 0,
+        hasPriceOverride: false,
+        isFree: args.markFree ?? false,
+        firstInstalledAt: now,
+        installedAt: now,
+        installedBy: args.updatedBy,
+        version: moduleRecord.version,
+        paymentFailureCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    if (!moduleRecord.slug.startsWith("core_")) {
+      await runModuleOnInstallSetup(ctx, {
+        moduleSlug: moduleRecord.slug as ModuleSlug,
+        tenantId: args.tenantId,
+        updatedBy: args.updatedBy,
+      });
+    }
+  }
+}
+
+async function applySubscriptionPaymentSuccess(
+  ctx: any,
+  args: {
+    tenantId: string;
+    planId: string;
+    invoiceId: any;
+    paidAt: number;
+    paymentProvider?: "mpesa" | "airtel" | "stripe" | "bank_transfer";
+    paymentReference?: string;
+    billingPeriod: "monthly" | "termly" | "quarterly" | "annual";
+    actorId: string;
+    actorEmail: string;
+  }
+) {
+  const [subscription, plan, tenantRecord, invoice] = await Promise.all([
+    getTenantSubscriptionDoc(ctx, args.tenantId),
+    getSubscriptionPlanByName(ctx, args.planId),
+    getTenantDoc(ctx, args.tenantId),
+    ctx.db.get(args.invoiceId),
+  ]);
+
+  if (!subscription || !plan || !tenantRecord || !invoice) {
+    throw new Error("Unable to finalize subscription payment.");
+  }
+
+  const nextPaymentDue = args.paidAt + BILLING_PERIOD_DAYS[args.billingPeriod] * 24 * 60 * 60 * 1000;
+  await ctx.db.patch(subscription._id, {
+    planId: args.planId,
+    status: "active",
+    billingPeriod: args.billingPeriod,
+    paymentProvider: args.paymentProvider ?? subscription.paymentProvider,
+    paymentReference: args.paymentReference ?? subscription.paymentReference,
+    currentPeriodStart: args.paidAt,
+    currentPeriodEnd: nextPaymentDue,
+    nextPaymentDue,
+    trialEndsAt: undefined,
+    graceEndsAt: undefined,
+    cancelAtPeriodEnd: false,
+    updatedAt: args.paidAt,
+  });
+
+  await ctx.db.patch(tenantRecord._id, {
+    plan: isOfficialPlanName(args.planId) ? args.planId : tenantRecord.plan,
+    status: "active",
+    suspendedAt: undefined,
+    suspendReason: undefined,
+    updatedAt: args.paidAt,
+  });
+
+  await ctx.db.patch(args.invoiceId, {
+    status: "paid",
+    paidAt: args.paidAt,
+    paymentProvider: args.paymentProvider,
+    paymentReference: args.paymentReference,
+    updatedAt: args.paidAt,
+  });
+
+  await syncIncludedModuleInstalls(ctx, {
+    tenantId: args.tenantId,
+    includedModuleIds: getEffectiveIncludedModuleIds(plan),
+    updatedBy: args.actorId,
+    markFree: false,
+  });
+
+  const installs = await ctx.db
+    .query("module_installs")
+    .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
+    .collect();
+  for (const install of installs) {
+    if (install.status !== "suspended_platform") continue;
+    await ctx.db.patch(install._id, {
+      status: "active",
+      updatedAt: args.paidAt,
+    });
+  }
+
+  await createTenantAdminNotifications(
+    ctx,
+    args.tenantId,
+    "Subscription activated",
+    `Your ${args.planId} plan is active and your module access has been restored.`
+  );
+
+  const schoolAdmins = await ctx.db
+    .query("users")
+    .withIndex("by_tenant_role", (q: any) => q.eq("tenantId", args.tenantId).eq("role", "school_admin"))
+    .collect();
+
+  for (const admin of schoolAdmins) {
+    if (!admin.email) continue;
+    await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
+      tenantId: args.tenantId,
+      actorId: args.actorId,
+      actorEmail: args.actorEmail,
+      to: [admin.email],
+      subject: "Payment confirmed",
+      template: "subscription_confirmed",
+      data: {
+        schoolName: tenantRecord.name,
+        planName: args.planId,
+        amountKes: `KES ${invoice.totalAmountKes.toLocaleString()}`,
+        nextPaymentDate: new Date(nextPaymentDue).toUTCString(),
+        dashboardUrl: `${(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/admin`,
+      },
+    });
+  }
+
+  await logAction(ctx, {
+    tenantId: args.tenantId,
+    actorId: args.actorId,
+    actorEmail: args.actorEmail,
+    action: "subscription.updated",
+    entityType: "tenant_subscription",
+    entityId: String(subscription._id),
+    after: {
+      planId: args.planId,
+      status: "active",
+      billingPeriod: args.billingPeriod,
+      invoiceId: String(args.invoiceId),
     },
-  ])
-);
+  });
+
+  return {
+    success: true,
+    invoiceId: String(args.invoiceId),
+    nextPaymentDue,
+  };
+}
+
+function isOfficialPlanName(value: string): value is OfficialPlanName {
+  return OFFICIAL_PLAN_NAMES.includes(value as OfficialPlanName);
+}
+
+function getPlanBlueprint(name: string) {
+  return TECH_SPEC_PLAN_BLUEPRINTS.find((plan) => plan.name === name);
+}
+
+async function getMarketplaceModules(ctx: any) {
+  return await ctx.db.query("marketplace_modules").collect();
+}
 
 function getEffectiveIncludedModuleIds(plan: any) {
   if (Array.isArray(plan.includedModuleIds) && plan.includedModuleIds.length > 0) {
     return plan.includedModuleIds;
   }
 
-  return TIER_MODULES[plan.name] ?? [];
+  return [];
+}
+
+async function resolveIncludedModuleIds(
+  ctx: any,
+  planName: string,
+  selectedModuleIds: string[]
+) {
+  const marketplaceModules = await getMarketplaceModules(ctx);
+  const moduleIdSet = new Set(marketplaceModules.map((moduleRecord: any) => String(moduleRecord._id)));
+
+  if (selectedModuleIds.length > 0) {
+    return Array.from(new Set(selectedModuleIds.filter((moduleId) => moduleIdSet.has(String(moduleId)))));
+  }
+
+  const blueprint = getPlanBlueprint(planName);
+  if (!blueprint) {
+    return [];
+  }
+
+  if (blueprint.name === "enterprise") {
+    return marketplaceModules.map((moduleRecord: any) => String(moduleRecord._id));
+  }
+
+  const slugToId = new Map(
+    marketplaceModules.map((moduleRecord: any) => [moduleRecord.slug, String(moduleRecord._id)])
+  );
+
+  return blueprint.moduleSlugs
+    .map((slug) => slugToId.get(slug))
+    .filter((moduleId): moduleId is string => Boolean(moduleId));
+}
+
+async function syncModulePlanInclusions(
+  ctx: any,
+  args: {
+    planName: string;
+    includedModuleIds: string[];
+    updatedBy: string;
+  }
+) {
+  if (!isOfficialPlanName(args.planName)) {
+    return;
+  }
+
+  const now = Date.now();
+  const modules = await getMarketplaceModules(ctx);
+  const includedSet = new Set(args.includedModuleIds.map(String));
+
+  for (const moduleRecord of modules) {
+    const existing = await ctx.db
+      .query("module_plan_inclusions")
+      .withIndex("by_moduleId_plan", (q: any) =>
+        q.eq("moduleId", moduleRecord._id).eq("plan", args.planName)
+      )
+      .unique();
+
+    const payload = {
+      moduleId: moduleRecord._id,
+      moduleSlug: moduleRecord.slug,
+      plan: args.planName,
+      isIncluded: includedSet.has(String(moduleRecord._id)),
+      includedStudentLimit: undefined,
+      discountedRateKes: undefined,
+      updatedBy: args.updatedBy,
+      updatedAt: now,
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, payload);
+      continue;
+    }
+
+    await ctx.db.insert("module_plan_inclusions", payload);
+  }
 }
 
 function normalizeSubscriptionPlan(plan: any) {
@@ -111,6 +515,18 @@ function normalizeSubscriptionPlan(plan: any) {
     id: String(plan._id),
     includedModuleIds: getEffectiveIncludedModuleIds(plan),
   };
+}
+
+function sortPlans(left: any, right: any) {
+  const leftOfficialIndex = OFFICIAL_PLAN_NAMES.indexOf(left.name as OfficialPlanName);
+  const rightOfficialIndex = OFFICIAL_PLAN_NAMES.indexOf(right.name as OfficialPlanName);
+
+  if (leftOfficialIndex >= 0 && rightOfficialIndex >= 0) {
+    return leftOfficialIndex - rightOfficialIndex;
+  }
+  if (leftOfficialIndex >= 0) return -1;
+  if (rightOfficialIndex >= 0) return 1;
+  return left.priceMonthlyKes - right.priceMonthlyKes;
 }
 
 export const getSubscriptionPlans = query({
@@ -131,7 +547,7 @@ export const getSubscriptionPlans = query({
       .sort((left, right) => {
         if (left.isDefault && !right.isDefault) return -1;
         if (!left.isDefault && right.isDefault) return 1;
-        return left.priceMonthlyKes - right.priceMonthlyKes;
+        return sortPlans(left, right);
       });
   },
 });
@@ -146,7 +562,7 @@ export const getPlatformPlanCatalog = query({
     const [plans, subscriptions, modules] = await Promise.all([
       ctx.db.query("subscription_plans").collect(),
       ctx.db.query("tenant_subscriptions").collect(),
-      ctx.db.query("modules").collect(),
+      ctx.db.query("marketplace_modules").collect(),
     ]);
 
     const moduleMap = new Map<string, any>(modules.map((module) => [String(module._id), module]));
@@ -163,16 +579,15 @@ export const getPlatformPlanCatalog = query({
           ).length,
           includedModules: includedModuleIds.map((moduleId: string) => {
             const module = moduleMap.get(moduleId);
-            const staticModule = STATIC_MODULE_MAP.get(moduleId);
             return {
               id: moduleId,
-              name: module?.name ?? staticModule?.name ?? moduleId,
-              category: module?.category ?? staticModule?.category ?? "module",
+              name: module?.name ?? moduleId,
+              category: module?.category ?? "module",
             };
           }),
         };
       })
-      .sort((left, right) => left.priceMonthlyKes - right.priceMonthlyKes);
+      .sort(sortPlans);
   },
 });
 
@@ -218,21 +633,21 @@ export const previewDowngradePlan = query({
       .collect();
 
     const activeInstalls = installs.filter((install) => install.status === "active");
-    const targetIncludedModules = new Set(getEffectiveIncludedModuleIds(targetPlan));
+    const targetIncludedModules = new Set(getEffectiveIncludedModuleIds(targetPlan).map(String));
     const modulesToSuspend = activeInstalls.filter(
-      (install) => !targetIncludedModules.has(install.moduleId)
+      (install) => !targetIncludedModules.has(String(install.moduleId))
     );
 
-    const modules = await ctx.db.query("modules").collect();
+    const modules = await ctx.db.query("marketplace_modules").collect();
     const moduleMap = new Map(modules.map((module) => [String(module._id), module]));
 
     return {
       currentPlanId: currentSubscription.planId,
       targetPlanId: args.planId,
       modulesToSuspend: modulesToSuspend.map((install) => ({
-        moduleId: install.moduleId,
-        name: moduleMap.get(install.moduleId)?.name ?? install.moduleId,
-        category: moduleMap.get(install.moduleId)?.category ?? "module",
+        moduleId: String(install.moduleId),
+        name: moduleMap.get(String(install.moduleId))?.name ?? install.moduleSlug ?? String(install.moduleId),
+        category: moduleMap.get(String(install.moduleId))?.category ?? "module",
       })),
       moduleCount: modulesToSuspend.length,
     };
@@ -463,6 +878,129 @@ export const cancelSubscription = mutation({
   },
 });
 
+export const convertTrialToPaid = mutation({
+  args: {
+    planId: v.string(),
+    sessionToken: v.optional(v.string()),
+    tenantId: v.optional(v.string()),
+    billingPeriod: v.union(
+      v.literal("monthly"),
+      v.literal("termly"),
+      v.literal("quarterly"),
+      v.literal("annual")
+    ),
+    paymentProvider: v.union(
+      v.literal("mpesa"),
+      v.literal("airtel"),
+      v.literal("stripe"),
+      v.literal("bank_transfer")
+    ),
+    paymentReference: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant =
+      args.sessionToken
+        ? await requireTenantSession(ctx, {
+            sessionToken: args.sessionToken,
+            tenantId: args.tenantId,
+          })
+        : await requireTenantContext(ctx);
+    requireRole(tenant, "school_admin", "principal", "master_admin", "super_admin");
+
+    const [subscription, plan] = await Promise.all([
+      getTenantSubscriptionDoc(ctx, tenant.tenantId),
+      getSubscriptionPlanByName(ctx, args.planId),
+    ]);
+
+    if (!subscription) {
+      throw new Error("Subscription record not found");
+    }
+
+    if (!plan || !plan.isActive) {
+      throw new Error("Selected subscription plan not found");
+    }
+
+    const now = Date.now();
+    const amountKes = calculatePlanChargeKes(plan, args.billingPeriod);
+    const invoiceId = await ctx.db.insert("subscription_invoices", {
+      tenantId: tenant.tenantId,
+      subscriptionId: String(subscription._id),
+      amountKes,
+      displayCurrency: "KES",
+      displayAmount: amountKes,
+      exchangeRate: 1,
+      vatAmountKes: 0,
+      totalAmountKes: amountKes,
+      status: "sent",
+      billingPeriod: args.billingPeriod,
+      dueDate: now,
+      paidAt: undefined,
+      paymentProvider: args.paymentProvider,
+      paymentReference: args.paymentReference,
+      lineItems: [
+        {
+          description: `Convert trial to ${args.planId} (${args.billingPeriod})`,
+          quantity: 1,
+          amountKes,
+        },
+      ],
+      pdfUrl: undefined,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const result = await applySubscriptionPaymentSuccess(ctx, {
+      tenantId: tenant.tenantId,
+      planId: args.planId,
+      invoiceId,
+      paidAt: now,
+      paymentProvider: args.paymentProvider,
+      paymentReference: args.paymentReference,
+      billingPeriod: args.billingPeriod,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+    });
+
+    return {
+      success: true,
+      status: "active",
+      invoiceId: String(invoiceId),
+      amountKes,
+      billingPeriod: args.billingPeriod,
+      nextPaymentDue: result.nextPaymentDue,
+    };
+  },
+});
+
+export const onSubscriptionPaymentSuccess = internalMutation({
+  args: {
+    tenantId: v.string(),
+    planId: v.string(),
+    invoiceId: v.id("subscription_invoices"),
+    paidAt: v.number(),
+    billingPeriod: v.union(
+      v.literal("monthly"),
+      v.literal("termly"),
+      v.literal("quarterly"),
+      v.literal("annual")
+    ),
+    paymentProvider: v.optional(
+      v.union(
+        v.literal("mpesa"),
+        v.literal("airtel"),
+        v.literal("stripe"),
+        v.literal("bank_transfer")
+      )
+    ),
+    paymentReference: v.optional(v.string()),
+    actorId: v.string(),
+    actorEmail: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await applySubscriptionPaymentSuccess(ctx, args);
+  },
+});
+
 export const extendTrial = mutation({
   args: {
     sessionToken: v.string(),
@@ -620,16 +1158,16 @@ export const updateSubscriptionPlan = mutation({
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformRole(ctx, args, ["billing_admin", "master_admin"]);
+    if (!isOfficialPlanName(args.planName)) {
+      throw new Error("Only Free, Starter, Pro, and Enterprise plans are supported.");
+    }
     const plan = await getSubscriptionPlanByName(ctx, args.planName);
     if (!plan) {
       throw new Error("Subscription plan not found");
     }
 
     const now = Date.now();
-    const nextIncludedModuleIds =
-      args.includedModuleIds.length > 0
-        ? args.includedModuleIds
-        : (TIER_MODULES[args.planName] ?? []);
+    const nextIncludedModuleIds = await resolveIncludedModuleIds(ctx, args.planName, args.includedModuleIds);
 
     if (args.isDefault) {
       const defaultPlans = await ctx.db
@@ -665,6 +1203,12 @@ export const updateSubscriptionPlan = mutation({
       updatedAt: now,
     });
 
+    await syncModulePlanInclusions(ctx, {
+      planName: args.planName,
+      includedModuleIds: nextIncludedModuleIds,
+      updatedBy: platform.userId,
+    });
+
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: platform.userId,
@@ -694,7 +1238,7 @@ export const updateSubscriptionPlan = mutation({
         studentLimit: args.studentLimit,
         staffLimit: args.staffLimit,
         storageGb: args.storageGb,
-        includedModuleIds: args.includedModuleIds,
+        includedModuleIds: nextIncludedModuleIds,
         maxAdditionalModules: args.maxAdditionalModules,
         apiAccess: args.apiAccess,
         whiteLabel: args.whiteLabel,
@@ -731,16 +1275,16 @@ export const createSubscriptionPlan = mutation({
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformRole(ctx, args, ["master_admin"]);
+    if (!isOfficialPlanName(args.planName)) {
+      throw new Error("Only Free, Starter, Pro, and Enterprise plans are supported.");
+    }
     const existing = await getSubscriptionPlanByName(ctx, args.planName);
     if (existing) {
       throw new Error("A subscription plan with this name already exists");
     }
 
     const now = Date.now();
-    const nextIncludedModuleIds =
-      args.includedModuleIds.length > 0
-        ? args.includedModuleIds
-        : (TIER_MODULES[args.planName] ?? []);
+    const nextIncludedModuleIds = await resolveIncludedModuleIds(ctx, args.planName, args.includedModuleIds);
 
     if (args.isDefault) {
       const defaultPlans = await ctx.db
@@ -774,6 +1318,12 @@ export const createSubscriptionPlan = mutation({
       isDefault: args.isDefault,
       createdAt: now,
       updatedAt: now,
+    });
+
+    await syncModulePlanInclusions(ctx, {
+      planName: args.planName,
+      includedModuleIds: nextIncludedModuleIds,
+      updatedBy: platform.userId,
     });
 
     await logAction(ctx, {
@@ -814,70 +1364,7 @@ export const ensureTechSpecPlans = mutation({
     const platform = await requirePlatformRole(ctx, args, ["billing_admin", "master_admin"]);
     const now = Date.now();
 
-    const seedPlans = [
-      {
-        name: "free",
-        priceMonthlyKes: 0,
-        priceAnnualKes: 0,
-        studentLimit: 300,
-        staffLimit: 30,
-        storageGb: 20,
-        maxAdditionalModules: 2,
-        apiAccess: "none" as const,
-        whiteLabel: "none" as const,
-        customDomain: false,
-        supportTier: "community",
-        slaHours: undefined,
-        isDefault: true,
-      },
-      {
-        name: "starter",
-        priceMonthlyKes: 12000,
-        priceAnnualKes: 120000,
-        studentLimit: 1200,
-        staffLimit: 120,
-        storageGb: 100,
-        maxAdditionalModules: 6,
-        apiAccess: "read" as const,
-        whiteLabel: "logo" as const,
-        customDomain: false,
-        supportTier: "standard",
-        slaHours: 48,
-        isDefault: false,
-      },
-      {
-        name: "pro",
-        priceMonthlyKes: 32000,
-        priceAnnualKes: 320000,
-        studentLimit: 5000,
-        staffLimit: 500,
-        storageGb: 500,
-        maxAdditionalModules: 20,
-        apiAccess: "read_write" as const,
-        whiteLabel: "full" as const,
-        customDomain: true,
-        supportTier: "priority",
-        slaHours: 24,
-        isDefault: false,
-      },
-      {
-        name: "enterprise",
-        priceMonthlyKes: 85000,
-        priceAnnualKes: 850000,
-        studentLimit: undefined,
-        staffLimit: undefined,
-        storageGb: undefined,
-        maxAdditionalModules: undefined,
-        apiAccess: "read_write" as const,
-        whiteLabel: "full" as const,
-        customDomain: true,
-        supportTier: "enterprise",
-        slaHours: 8,
-        isDefault: false,
-      },
-    ];
-
-    if (seedPlans.some((plan) => plan.isDefault)) {
+    if (TECH_SPEC_PLAN_BLUEPRINTS.some((plan) => plan.isDefault)) {
       const defaultPlans = await ctx.db
         .query("subscription_plans")
         .withIndex("by_isDefault", (q: any) => q.eq("isDefault", true))
@@ -892,9 +1379,9 @@ export const ensureTechSpecPlans = mutation({
 
     let created = 0;
     let updated = 0;
-    for (const seed of seedPlans) {
+    for (const seed of TECH_SPEC_PLAN_BLUEPRINTS) {
       const existing = await getSubscriptionPlanByName(ctx, seed.name);
-      const includedModuleIds = TIER_MODULES[seed.name] ?? [];
+      const includedModuleIds = await resolveIncludedModuleIds(ctx, seed.name, []);
       const record = {
         name: seed.name,
         priceMonthlyKes: seed.priceMonthlyKes,
@@ -916,11 +1403,21 @@ export const ensureTechSpecPlans = mutation({
 
       if (existing) {
         await ctx.db.patch(existing._id, record);
+        await syncModulePlanInclusions(ctx, {
+          planName: seed.name,
+          includedModuleIds,
+          updatedBy: platform.userId,
+        });
         updated += 1;
       } else {
         await ctx.db.insert("subscription_plans", {
           ...record,
           createdAt: now,
+        });
+        await syncModulePlanInclusions(ctx, {
+          planName: seed.name,
+          includedModuleIds,
+          updatedBy: platform.userId,
         });
         created += 1;
       }
@@ -933,7 +1430,7 @@ export const ensureTechSpecPlans = mutation({
       action: "billing.subscription_updated",
       entityType: "subscription_plan",
       entityId: "tech_spec_seed",
-      after: { created, updated, plans: seedPlans.map((plan) => plan.name) },
+      after: { created, updated, plans: TECH_SPEC_PLAN_BLUEPRINTS.map((plan) => plan.name) },
     });
 
     return { success: true, created, updated };
@@ -1516,7 +2013,7 @@ export const runModuleAuditForDowngrade = internalMutation({
 
     const activeModuleIds = installs
       .filter((install) => install.status === "active")
-      .map((install) => install.moduleId);
+      .map((install) => String(install.moduleId));
 
     const included = new Set(getEffectiveIncludedModuleIds(plan));
     const modulesToSuspend = activeModuleIds.filter((moduleId) => !included.has(moduleId));

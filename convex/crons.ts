@@ -109,6 +109,13 @@ crons.daily(
 );
 
 crons.daily(
+  "process trial expirations",
+  { hourUTC: 22, minuteUTC: 15 },
+  (internal as any).modules.platform.onboarding.processAllTrialExpirations,
+  {}
+);
+
+crons.daily(
   "refresh currency rates daily",
   { hourUTC: 6, minuteUTC: 0 },
   (internal as any).modules.platform.currency.updateCurrencyRates,

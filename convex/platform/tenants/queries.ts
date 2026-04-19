@@ -3,6 +3,19 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
+function normalizeTenantModuleKey(moduleId?: string) {
+  switch (moduleId) {
+    case "sis":
+      return "core_sis";
+    case "users":
+      return "core_users";
+    case "communications":
+      return "core_notifications";
+    default:
+      return moduleId ?? "";
+  }
+}
+
 function parseSubscriptionNotes(notes?: string) {
   if (!notes) {
     return {};
@@ -287,6 +300,35 @@ export const getPlatformStats = query({
   },
 });
 
+export const getTenantInviteByToken = query({
+  args: {
+    token: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const invite = await ctx.db
+      .query("tenant_invites")
+      .withIndex("by_token", (q) => q.eq("token", args.token))
+      .first();
+
+    if (!invite) {
+      return null;
+    }
+
+    const now = Date.now();
+    const isExpired = invite.expiresAt < now;
+    const isUsed = invite.status === "accepted";
+    const isRevoked = invite.status === "revoked";
+
+    return {
+      ...invite,
+      isExpired,
+      isUsed,
+      isRevoked,
+      isValid: invite.status === "pending" && !isExpired,
+    };
+  },
+});
+
 export const checkSubdomainAvailability = query({
   args: {
     sessionToken: v.string(),
@@ -379,10 +421,44 @@ export const getTenantModules = query({
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    return await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect();
+    const [legacyInstalls, marketplaceInstalls, marketplaceModules] = await Promise.all([
+      ctx.db.query("installedModules").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("module_installs").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("marketplace_modules").collect(),
+    ]);
+
+    const marketplaceById = new Map(
+      marketplaceModules.map((module: any) => [String(module._id), module])
+    );
+    const rows = new Map<string, any>();
+
+    for (const install of legacyInstalls) {
+      const normalizedKey = normalizeTenantModuleKey(String(install.moduleId));
+      rows.set(normalizedKey, {
+        ...install,
+        moduleId: normalizedKey,
+        moduleSlug: normalizedKey,
+      });
+    }
+
+    for (const install of marketplaceInstalls) {
+      const lookupKey = normalizeTenantModuleKey(install.moduleSlug || String(install.moduleId));
+      const moduleMeta = marketplaceById.get(String(install.moduleId));
+      rows.set(lookupKey, {
+        moduleId: lookupKey,
+        moduleSlug: lookupKey,
+        status: install.status,
+        installedAt: install.installedAt,
+        updatedAt: install.updatedAt,
+        currentPriceKes: install.currentPriceKes,
+        billingPeriod: install.billingPeriod,
+        isFree: install.isFree,
+        name: moduleMeta?.name,
+        category: moduleMeta?.category,
+      });
+    }
+
+    return Array.from(rows.values()).sort((a: any, b: any) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
   },
 });
 
@@ -409,12 +485,14 @@ export const getTenantDetailBundle = query({
       usageStats,
       users,
       installedModules,
+      marketplaceInstalledModules,
       moduleConfigs,
       pilotGrants,
       subscriptionInvoices,
       invoices,
       payments,
       supportTickets,
+      tenantInvites,
       auditLogs,
       platformAnnouncements,
       featureFlags,
@@ -431,6 +509,7 @@ export const getTenantDetailBundle = query({
         .collect(),
       ctx.db.query("users").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("installedModules").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("module_installs").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("module_configs").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("pilot_grants").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db
@@ -440,6 +519,7 @@ export const getTenantDetailBundle = query({
       ctx.db.query("invoices").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("payments").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("support_tickets").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("tenant_invites").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("auditLogs").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("platform_announcements").collect(),
       ctx.db.query("feature_flags").collect(),
@@ -456,12 +536,19 @@ export const getTenantDetailBundle = query({
 
     const moduleRegistryEntries = await ctx.db.query("moduleRegistry").collect();
     const marketplaceEntries = await ctx.db.query("modules").collect();
+    const marketplaceCatalog = await ctx.db.query("marketplace_modules").collect();
 
     const moduleRegistryById = new Map(
       moduleRegistryEntries.map((entry: any) => [entry.moduleId, entry])
     );
     const marketplaceBySlug = new Map(
       marketplaceEntries.map((entry: any) => [entry.slug, entry])
+    );
+    const marketplaceCatalogBySlug = new Map(
+      marketplaceCatalog.map((entry: any) => [entry.slug, entry])
+    );
+    const marketplaceCatalogById = new Map(
+      marketplaceCatalog.map((entry: any) => [String(entry._id), entry])
     );
     const configByModuleId = new Map(
       moduleConfigs.map((entry: any) => [entry.moduleId, entry])
@@ -470,34 +557,78 @@ export const getTenantDetailBundle = query({
     const latestUsage =
       usageStats.sort((a: any, b: any) => b.recordedAt - a.recordedAt)[0] ?? null;
 
-    const moduleRows = installedModules
-      .slice()
-      .sort((a: any, b: any) => b.updatedAt - a.updatedAt)
-      .map((module: any) => {
-        const registry = moduleRegistryById.get(module.moduleId);
-        const marketplace = marketplaceBySlug.get(module.moduleId);
-        const config = configByModuleId.get(module.moduleId);
-        const relatedGrant = pilotGrants.find((grant: any) => grant.moduleId === module.moduleId);
+    const moduleRowsByKey = new Map<string, any>();
 
-        return {
-          moduleId: module.moduleId,
-          name: registry?.name ?? marketplace?.name ?? module.moduleId,
-          category: registry?.category ?? marketplace?.category ?? "general",
-          status: module.status,
-          installedAt: module.installedAt,
-          updatedAt: module.updatedAt,
-          configUpdatedAt: config?.updatedAt,
-          rolePermissions: config?.rolePermissions ?? {},
-          featureFlags: config?.featureFlags ?? {},
-          pilotGrantStatus: relatedGrant?.status ?? null,
-          pricingModel: marketplace?.pricingModel ?? null,
-          minimumPlan: marketplace?.minimumPlan ?? registry?.tier ?? null,
-        };
+    for (const module of installedModules.slice().sort((a: any, b: any) => b.updatedAt - a.updatedAt)) {
+      const normalizedKey = normalizeTenantModuleKey(module.moduleId);
+      const registry = moduleRegistryById.get(module.moduleId);
+      const marketplace =
+        marketplaceCatalogBySlug.get(normalizedKey) ??
+        marketplaceBySlug.get(module.moduleId);
+      const config = configByModuleId.get(module.moduleId);
+      const relatedGrant = pilotGrants.find((grant: any) => grant.moduleId === module.moduleId);
+
+      moduleRowsByKey.set(normalizedKey, {
+        moduleId: normalizedKey,
+        moduleSlug: normalizedKey,
+        name: registry?.name ?? marketplace?.name ?? normalizedKey,
+        category: registry?.category ?? marketplace?.category ?? "general",
+        status: module.status,
+        installedAt: module.installedAt,
+        updatedAt: module.updatedAt,
+        configUpdatedAt: config?.updatedAt,
+        rolePermissions: config?.rolePermissions ?? {},
+        featureFlags: config?.featureFlags ?? {},
+        pilotGrantStatus: relatedGrant?.status ?? null,
+        pricingModel: marketplace?.pricingModel ?? null,
+        minimumPlan: marketplace?.minimumPlan ?? registry?.tier ?? null,
       });
+    }
+
+    for (const install of marketplaceInstalledModules.slice().sort((a: any, b: any) => b.updatedAt - a.updatedAt)) {
+      const key = normalizeTenantModuleKey(String(install.moduleSlug ?? install.moduleId));
+      const marketplace =
+        marketplaceCatalogBySlug.get(install.moduleSlug) ??
+        marketplaceCatalogById.get(String(install.moduleId));
+      const legacyMarketplace = install.moduleSlug ? marketplaceBySlug.get(install.moduleSlug) : null;
+      const config = configByModuleId.get(install.moduleSlug ?? String(install.moduleId));
+      const relatedGrant = pilotGrants.find(
+        (grant: any) =>
+          String(grant.moduleId) === String(install.moduleId) ||
+          grant.moduleSlug === install.moduleSlug
+      );
+
+      moduleRowsByKey.set(key, {
+        moduleId: key,
+        moduleSlug: install.moduleSlug ?? key,
+        name: marketplace?.name ?? legacyMarketplace?.name ?? key,
+        category: marketplace?.category ?? legacyMarketplace?.category ?? "general",
+        status: install.status,
+        installedAt: install.installedAt,
+        updatedAt: install.updatedAt,
+        configUpdatedAt: config?.updatedAt,
+        rolePermissions: config?.rolePermissions ?? {},
+        featureFlags: config?.featureFlags ?? {},
+        pilotGrantStatus: relatedGrant?.status ?? null,
+        pricingModel: marketplace?.pricingModel ?? legacyMarketplace?.pricingModel ?? null,
+        minimumPlan: marketplace?.minimumPlan ?? legacyMarketplace?.minimumPlan ?? null,
+        billingPeriod: install.billingPeriod,
+        currentPriceKes: install.currentPriceKes,
+        isFree: install.isFree,
+      });
+    }
+
+    const moduleRows = Array.from(moduleRowsByKey.values()).sort(
+      (a: any, b: any) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)
+    );
 
     const activeUsers = users.filter((user: any) => user.isActive);
     const pendingUsers = users.filter((user: any) => user.workosUserId?.startsWith("pending-"));
     const schoolAdmin = users.find((user: any) => user.role === "school_admin") ?? users[0] ?? null;
+    const adminInvite = tenantInvites
+      .slice()
+      .sort((a: any, b: any) => b.updatedAt - a.updatedAt)
+      .find((invite: any) => invite.role === "school_admin") ?? null;
     const openTickets = supportTickets.filter((ticket: any) =>
       ["open", "in_progress"].includes(ticket.status)
     );
@@ -610,6 +741,16 @@ export const getTenantDetailBundle = query({
         pilotGrantCount: pilotGrants.length,
         openTicketCount: openTickets.length,
         auditEventCount: auditLogs.length,
+      },
+      adminAccess: {
+        organizationReady: Boolean(
+          organization?.workosOrgId &&
+          !organization.workosOrgId.startsWith("edumyles-") &&
+          !organization.workosOrgId.startsWith("platform-")
+        ),
+        organizationId: organization?._id ?? null,
+        workosOrgId: organization?.workosOrgId ?? null,
+        primaryAdminInvite: adminInvite,
       },
       users: activeUsers
         .slice()

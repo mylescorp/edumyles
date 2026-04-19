@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, type MutationCtx } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
@@ -102,6 +103,13 @@ export const createAssignment = mutation({
       type: args.type ?? "homework",
       createdAt: now,
       updatedAt: now,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.modules.platform.onboarding.completeFirstActionForTenant, {
+      tenantId: tenant.tenantId,
+      userId: tenant.userId,
+      source: "assignment",
+      count: 1,
     });
 
     return assignmentId;
@@ -255,6 +263,14 @@ export const markAttendance = mutation({
         });
       }
     }
+
+    await ctx.scheduler.runAfter(0, internal.modules.platform.onboarding.completeFirstActionForTenant, {
+      tenantId: tenant.tenantId,
+      userId: tenant.userId,
+      source: "attendance",
+      count: args.records.length,
+    });
+
     return { success: true, count: args.records.length };
   },
 });
