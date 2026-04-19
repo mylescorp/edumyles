@@ -7,6 +7,11 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { WebVitalsReporter } from "@/components/providers/WebVitalsReporter";
 
+const plusJakartaSans = { variable: "" };
+const playfairDisplay = { variable: "" };
+const dmMono = { variable: "" };
+const inter = { variable: "" };
+
 export const metadata: Metadata = {
     title: {
         default: "EduMyles",

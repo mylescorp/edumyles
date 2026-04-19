@@ -1,8 +1,78 @@
 import { action, internalMutation, internalQuery, mutation, query } from "../_generated/server";
 import { v } from "convex/values";
-import { CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
+import { ALL_MODULES, CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
 import { generateTenantId } from "../helpers/idGenerator";
 import { SYSTEM_ROLE_SEEDS } from "../modules/platform/rbac";
+
+const MARKETPLACE_SEED_ACTOR = "seed-marketplace-bootstrap";
+
+async function ensureMarketplaceCatalog(ctx: any, now: number) {
+  const existingModules = await ctx.db.query("marketplace_modules").collect();
+  const idsBySlug = new Map<string, string>();
+
+  for (const moduleRecord of existingModules) {
+    idsBySlug.set(moduleRecord.slug, String(moduleRecord._id));
+  }
+
+  for (const moduleDef of ALL_MODULES) {
+    if (idsBySlug.has(moduleDef.moduleId)) continue;
+
+    const moduleId = await ctx.db.insert("marketplace_modules", {
+      slug: moduleDef.moduleId,
+      name: moduleDef.name,
+      description: moduleDef.description,
+      shortDescription: moduleDef.description,
+      category: moduleDef.category,
+      status: "published",
+      version: moduleDef.version,
+      isCore: CORE_MODULE_IDS.includes(moduleDef.moduleId),
+      pricingModel: "included",
+      priceCents: 0,
+      platformPriceKes: 0,
+      featureHighlights: moduleDef.features.slice(0, 5),
+      supportedRoles: [],
+      createdAt: now,
+      updatedAt: now,
+    } as any);
+
+    idsBySlug.set(moduleDef.moduleId, String(moduleId));
+  }
+
+  return idsBySlug;
+}
+
+async function ensureCoreMarketplaceInstallsForTenant(
+  ctx: any,
+  args: {
+    tenantId: string;
+    installedBy: string;
+    now: number;
+    moduleIdsBySlug: Map<string, string>;
+  }
+) {
+  for (const moduleSlug of CORE_MODULE_IDS) {
+    const moduleId = args.moduleIdsBySlug.get(moduleSlug) ?? moduleSlug;
+    const existingInstall = await ctx.db
+      .query("module_installs")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
+      .collect()
+      .then((rows: any[]) =>
+        rows.find((row: any) => String(row.moduleId) === String(moduleId))
+      );
+
+    if (existingInstall) continue;
+
+    await ctx.db.insert("module_installs", {
+      moduleId,
+      tenantId: args.tenantId,
+      status: "active",
+      installedAt: args.now,
+      installedBy: args.installedBy,
+      createdAt: args.now,
+      updatedAt: args.now,
+    } as any);
+  }
+}
 
 function requireWebhookSecret(provided: string) {
   const expected = process.env.CONVEX_WEBHOOK_SECRET;

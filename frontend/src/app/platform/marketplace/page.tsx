@@ -1,7 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "@/convex/_generated/api";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { MarketplaceErrorBoundary } from "./MarketplaceErrorBoundary";
 import {
   Area,
   AreaChart,
@@ -27,14 +43,6 @@ import {
   Sparkles,
   Wallet,
 } from "lucide-react";
-import { PageHeader } from "@/components/shared/PageHeader";
-import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/useAuth";
-import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 
 const CATEGORY_LABELS: Record<string, string> = {
   academic_tools: "Academic",
@@ -56,7 +64,10 @@ function formatKes(value: number) {
 }
 
 function formatDateLabel(timestamp: number) {
-  return new Date(timestamp).toLocaleDateString("en-KE", { month: "short", day: "numeric" });
+  return new Date(timestamp).toLocaleDateString("en-KE", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function formatRelativeTime(timestamp: number) {
@@ -86,7 +97,7 @@ function StatsCard({
   title: string;
   value: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }) {
   return (
     <Card className="border-slate-200/80 shadow-sm">
@@ -121,7 +132,11 @@ function MarketplaceTooltip({
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-lg backdrop-blur">
-      {label ? <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p> : null}
+      {label ? (
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+          {label}
+        </p>
+      ) : null}
       <div className="space-y-1.5">
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-4 text-sm">
@@ -133,7 +148,9 @@ function MarketplaceTooltip({
               <span>{entry.name}</span>
             </div>
             <span className="font-semibold text-slate-950">
-              {currency ? formatKes(entry.value || 0) : (entry.value || 0).toLocaleString()}
+              {currency
+                ? formatKes(entry.value || 0)
+                : (entry.value || 0).toLocaleString()}
             </span>
           </div>
         ))}
@@ -216,7 +233,9 @@ function MarketplaceDashboardContent() {
 
     const installs = recentActivity.filter(
       (item: any) =>
-        item.type === "install" && item.createdAt >= start.getTime() && item.createdAt < end.getTime()
+        item.type === "install" &&
+        item.createdAt >= start.getTime() &&
+        item.createdAt < end.getTime()
     ).length;
 
     return {
@@ -257,7 +276,10 @@ function MarketplaceDashboardContent() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => router.push("/platform/marketplace/publishers")}>
+            <Button
+              variant="outline"
+              onClick={() => router.push("/platform/marketplace/publishers")}
+            >
               Publishers
             </Button>
             <Button onClick={() => router.push("/platform/marketplace/admin")}>
@@ -318,7 +340,9 @@ function MarketplaceDashboardContent() {
         <Card>
           <CardHeader>
             <CardTitle>Installs Over Time</CardTitle>
-            <CardDescription>Last 7 days of recorded marketplace install activity.</CardDescription>
+            <CardDescription>
+              Last 7 days of recorded marketplace install activity.
+            </CardDescription>
           </CardHeader>
           <CardContent className="h-[240px]">
             {installsOverTime.some((point) => point.installs > 0) ? (
@@ -364,7 +388,11 @@ function MarketplaceDashboardContent() {
               <CardTitle>Review Queue Preview</CardTitle>
               <CardDescription>Oldest pending submissions first.</CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={() => router.push("/platform/marketplace/admin")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/platform/marketplace/admin")}
+            >
               See all
             </Button>
           </CardHeader>
@@ -378,19 +406,29 @@ function MarketplaceDashboardContent() {
                   type="button"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-900">{module.name}</p>
-                    <p className="truncate text-xs text-slate-600">{module.publisherName}</p>
+                    <p className="truncate text-sm font-semibold text-slate-900">
+                      {module.name}
+                    </p>
+                    <p className="truncate text-xs text-slate-600">
+                      {module.publisherName}
+                    </p>
                     <div className="mt-2 flex items-center gap-2">
                       <Badge variant="outline" className="capitalize">
                         {(module.category || "module").replace(/_/g, " ")}
                       </Badge>
-                      <Badge variant="secondary">{module.status.replace(/_/g, " ")}</Badge>
+                      <Badge variant="secondary">
+                        {String(module.status || "pending").replace(/_/g, " ")}
+                      </Badge>
                     </div>
                   </div>
                   <div className="ml-4 shrink-0 text-right text-xs text-slate-500">
                     <p>{formatRelativeTime(module.createdAt)}</p>
                     <p className="mt-1 font-medium text-amber-700">
-                      {Math.max(0, Math.floor((renderTimestamp - module.createdAt) / 86400000))}d waiting
+                      {Math.max(
+                        0,
+                        Math.floor((renderTimestamp - module.createdAt) / 86400000)
+                      )}
+                      d waiting
                     </p>
                   </div>
                 </button>
@@ -409,7 +447,9 @@ function MarketplaceDashboardContent() {
         <Card>
           <CardHeader>
             <CardTitle>Revenue by Category</CardTitle>
-            <CardDescription>Live category performance derived from current install demand.</CardDescription>
+            <CardDescription>
+              Live category performance derived from current install demand.
+            </CardDescription>
           </CardHeader>
           <CardContent className="h-[260px]">
             {revenueByCategory.length > 0 ? (
@@ -417,13 +457,7 @@ function MarketplaceDashboardContent() {
                 <BarChart data={revenueByCategory} layout="vertical" margin={{ left: 16, right: 8 }}>
                   <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" horizontal={false} />
                   <XAxis type="number" tickLine={false} axisLine={false} />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tickLine={false}
-                    axisLine={false}
-                    width={100}
-                  />
+                  <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} width={100} />
                   <Tooltip content={<MarketplaceTooltip currency />} />
                   <Bar dataKey="revenueKes" radius={[8, 8, 8, 8]}>
                     {revenueByCategory.map((_: any, index: number) => (
@@ -444,7 +478,9 @@ function MarketplaceDashboardContent() {
         <Card>
           <CardHeader>
             <CardTitle>Most Installed Modules</CardTitle>
-            <CardDescription>Top tenant-adopted modules across the marketplace.</CardDescription>
+            <CardDescription>
+              Top tenant-adopted modules across the marketplace.
+            </CardDescription>
           </CardHeader>
           <CardContent className="h-[260px]">
             {installedModules.length > 0 ? (
@@ -473,9 +509,15 @@ function MarketplaceDashboardContent() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle>Flags Requiring Attention</CardTitle>
-              <CardDescription>Open disputes and issue reports waiting on platform follow-up.</CardDescription>
+              <CardDescription>
+                Open disputes and issue reports waiting on platform follow-up.
+              </CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={() => router.push("/platform/marketplace/flags")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/platform/marketplace/flags")}
+            >
               Open Flags
             </Button>
           </CardHeader>
@@ -489,12 +531,14 @@ function MarketplaceDashboardContent() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="h-4 w-4 text-amber-600" />
-                      <p className="truncate text-sm font-semibold text-slate-900">{flag.moduleName}</p>
+                      <p className="truncate text-sm font-semibold text-slate-900">
+                        {flag.moduleName}
+                      </p>
                     </div>
                     <p className="mt-1 text-sm text-slate-600">{flag.description}</p>
                     <div className="mt-2 flex items-center gap-2">
                       <Badge variant="outline" className="capitalize">
-                        {flag.type.replace(/_/g, " ")}
+                        {String(flag.type || "flag").replace(/_/g, " ")}
                       </Badge>
                       <Badge variant="secondary">{flag.status}</Badge>
                     </div>
@@ -520,7 +564,11 @@ function MarketplaceDashboardContent() {
               <CardTitle>Top Installed Modules</CardTitle>
               <CardDescription>Quick view of adoption and review strength.</CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={() => router.push("/platform/marketplace/publishers")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/platform/marketplace/publishers")}
+            >
               Publisher View
             </Button>
           </CardHeader>
@@ -543,8 +591,12 @@ function MarketplaceDashboardContent() {
                     </div>
                   </div>
                   <div className="text-right text-sm">
-                    <p className="font-semibold text-slate-950">{(module.totalInstalls || 0).toLocaleString()}</p>
-                    <p className="text-xs text-slate-500">{(module.totalReviews || 0).toLocaleString()} reviews</p>
+                    <p className="font-semibold text-slate-950">
+                      {(module.totalInstalls || 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {(module.totalReviews || 0).toLocaleString()} reviews
+                    </p>
                   </div>
                 </button>
               ))
@@ -557,7 +609,6 @@ function MarketplaceDashboardContent() {
           </CardContent>
         </Card>
       </div>
-
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,21 @@ const STEP_TITLES = [
   "Tenant Configuration",
   "Module Access",
   "Launch & Handoff",
+] as const;
+
+const SHARED_SETUP_FLOW = [
+  "School Profile",
+  "Academic Year",
+  "Grading System",
+  "Subjects",
+  "Classes",
+  "Fee Structure",
+  "Staff",
+  "Students",
+  "Modules",
+  "Customize",
+  "Parents",
+  "First Action",
 ] as const;
 
 const STEP_FIELDS: Array<Array<keyof WizardData>> = [
@@ -180,6 +195,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     api.modules.platform.currency.getSupportedCurrencies,
     sessionToken ? { sessionToken } : "skip"
   );
+  const provisionTenant = useMutation(api.platform.tenants.mutations.provisionTenant);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);

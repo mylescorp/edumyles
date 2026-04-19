@@ -19,6 +19,10 @@ export const ConvexProvider = ReactConvexProvider;
  * exceptions during render can change hook bookkeeping between renders.
  */
 export function useQuery(query: any, args?: any, enabled?: boolean) {
+  if (typeof window === "undefined") {
+    return undefined as any;
+  }
+
   const shouldSkip = enabled === false;
   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
   const result = useConvexQuery(query, queryArgs);

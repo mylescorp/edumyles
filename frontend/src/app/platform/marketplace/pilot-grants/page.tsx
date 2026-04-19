@@ -28,6 +28,7 @@ const marketplacePlatformApi =
 
 const GRANT_TYPES = ["free_trial", "free_permanent", "discounted", "plan_upgrade", "beta_access"] as const;
 const GRANT_SCOPES = ["single", "selected", "all"] as const;
+const STATUSES = ["all", "active", "scheduled", "expired", "revoked", "extended", "converted"] as const;
 
 function labelize(value: string) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
@@ -37,6 +38,7 @@ export default function PilotGrantsPage() {
   const { sessionToken, isLoading } = useAuth();
   const { toast } = useToast();
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<(typeof STATUSES)[number]>("all");
   const [createOpen, setCreateOpen] = useState(false);
   const [extendTarget, setExtendTarget] = useState<any>(null);
   const [revokeTarget, setRevokeTarget] = useState<any>(null);
@@ -69,12 +71,24 @@ export default function PilotGrantsPage() {
 
   const grants = useMemo(() => {
     const rows = data?.grants ?? [];
-    if (!search.trim()) return rows;
+    const filteredByStatus =
+      statusFilter === "all" ? rows : rows.filter((grant: any) => grant.status === statusFilter);
+    if (!search.trim()) return filteredByStatus;
     const needle = search.toLowerCase();
-    return rows.filter((grant: any) =>
+    return filteredByStatus.filter((grant: any) =>
       [grant.tenantName, grant.moduleName, grant.reason, grant.status].join(" ").toLowerCase().includes(needle)
     );
-  }, [data, search]);
+  }, [data, search, statusFilter]);
+
+  const stats = useMemo(() => {
+    const rows = data?.grants ?? [];
+    return {
+      total: rows.length,
+      active: rows.filter((grant: any) => grant.status === "active" || grant.status === "extended").length,
+      expiringSoon: rows.filter((grant: any) => grant.endDate && grant.endDate < Date.now() + 7 * 24 * 60 * 60 * 1000).length,
+      converted: rows.filter((grant: any) => grant.status === "converted").length,
+    };
+  }, [data]);
 
   if (isLoading || data === undefined) {
     return <LoadingSkeleton variant="page" />;

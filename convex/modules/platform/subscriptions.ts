@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import { logAction } from "../../helpers/auditLog";
 import { requireRole } from "../../helpers/authorize";
 import { requirePlatformRole, requirePlatformSession } from "../../helpers/platformGuard";
-import { requireTenantContext } from "../../helpers/tenantGuard";
+import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { CORE_MODULES, OPTIONAL_MODULES } from "../marketplace/moduleDefinitions";
 import { TIER_MODULES } from "../marketplace/tierModules";
 
@@ -218,6 +218,110 @@ const STATIC_MODULE_MAP = new Map(
     },
   ])
 );
+
+function isOfficialPlanName(value: string): value is OfficialPlanName {
+  return OFFICIAL_PLAN_NAMES.includes(value as OfficialPlanName);
+}
+
+function calculatePlanChargeKes(plan: any, billingPeriod: keyof typeof BILLING_PERIOD_MULTIPLIER) {
+  if (billingPeriod === "annual") {
+    return plan.priceAnnualKes ?? Math.round((plan.priceMonthlyKes ?? 0) * BILLING_PERIOD_MULTIPLIER.annual);
+  }
+  if (billingPeriod === "monthly") {
+    return plan.priceMonthlyKes ?? 0;
+  }
+  return Math.round((plan.priceMonthlyKes ?? 0) * BILLING_PERIOD_MULTIPLIER[billingPeriod]);
+}
+
+async function syncModulePlanInclusions(
+  _ctx: any,
+  _args: {
+    planName: string;
+    includedModuleIds: string[];
+    updatedBy: string;
+  }
+) {
+  return { success: true };
+}
+
+async function applySubscriptionPaymentSuccess(
+  ctx: any,
+  args: {
+    tenantId: string;
+    planId: string;
+    invoiceId: any;
+    paidAt: number;
+    billingPeriod: keyof typeof BILLING_PERIOD_DAYS;
+    paymentProvider?: "mpesa" | "airtel" | "stripe" | "bank_transfer";
+    paymentReference?: string;
+    actorId: string;
+    actorEmail: string;
+  }
+) {
+  const [subscription, tenant] = await Promise.all([
+    getTenantSubscriptionDoc(ctx, args.tenantId),
+    getTenantDoc(ctx, args.tenantId),
+  ]);
+
+  if (!subscription || !tenant) {
+    throw new Error("Subscription record not found");
+  }
+
+  const currentPeriodStart = args.paidAt;
+  const nextPaymentDue =
+    currentPeriodStart + BILLING_PERIOD_DAYS[args.billingPeriod] * 24 * 60 * 60 * 1000;
+
+  await ctx.db.patch(subscription._id, {
+    planId: args.planId,
+    status: "active",
+    billingPeriod: args.billingPeriod,
+    paymentProvider: args.paymentProvider,
+    paymentReference: args.paymentReference,
+    currentPeriodStart,
+    currentPeriodEnd: nextPaymentDue,
+    nextPaymentDue,
+    trialEndsAt: undefined,
+    graceEndsAt: undefined,
+    updatedAt: args.paidAt,
+  });
+
+  await ctx.db.patch(args.invoiceId, {
+    status: "paid",
+    paidAt: args.paidAt,
+    paymentProvider: args.paymentProvider,
+    paymentReference: args.paymentReference,
+    updatedAt: args.paidAt,
+  });
+
+  await ctx.db.patch(tenant._id, {
+    status: "active",
+    updatedAt: args.paidAt,
+  });
+
+  await createTenantAdminNotifications(
+    ctx,
+    args.tenantId,
+    "Subscription activated",
+    `Your EduMyles subscription is now active on the ${args.planId} plan.`
+  );
+
+  await logAction(ctx, {
+    tenantId: args.tenantId,
+    actorId: args.actorId,
+    actorEmail: args.actorEmail,
+    action: "subscription.updated",
+    entityType: "tenant_subscription",
+    entityId: String(subscription._id),
+    after: {
+      planId: args.planId,
+      status: "active",
+      billingPeriod: args.billingPeriod,
+      nextPaymentDue,
+    },
+  });
+
+  return { success: true, nextPaymentDue };
+}
 
 function getEffectiveIncludedModuleIds(plan: any) {
   if (Array.isArray(plan.includedModuleIds) && plan.includedModuleIds.length > 0) {

@@ -24,7 +24,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDate, formatRelativeTime } from "@/lib/formatters";
-import { AlertTriangle, CheckCircle2, Clock3, HeartPulse, SearchX, TimerReset, TrendingUp } from "lucide-react";
+import { AlertTriangle, ArrowUpDown, CheckCircle2, Clock3, HeartPulse, MessageSquareMore, SearchX, ShieldCheck, Sparkles, TimerReset, TrendingUp } from "lucide-react";
 import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 
 type TenantSuccessRow = {

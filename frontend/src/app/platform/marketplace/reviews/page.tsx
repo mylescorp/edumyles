@@ -10,23 +10,35 @@ import { MarketplaceAdminRail } from "@/components/platform/MarketplaceAdminRail
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { CheckCircle2, Clock3, Search, Star, XCircle } from "lucide-react";
 
-const marketplacePlatformApi =
-  (api as any).modules?.marketplace?.platformDashboard ??
-  (api as any)["modules/marketplace/platformDashboard"];
-
-const STATUSES = ["all", "pending", "approved", "flagged", "deleted"] as const;
+const STATUSES = ["all", "pending", "approved", "rejected"] as const;
 
 function formatDate(ts: number) {
-  return new Date(ts).toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(ts).toLocaleDateString("en-KE", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -35,13 +47,14 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-4 w-4 ${i <= rating ? "fill-yellow-500 text-yellow-500" : "text-slate-300"}`}
+          className={`h-4 w-4 ${
+            i <= rating ? "fill-yellow-500 text-yellow-500" : "text-slate-300"
+          }`}
         />
       ))}
     </div>
   );
 }
-
 
 function formatStatusLabel(value: (typeof STATUSES)[number]) {
   if (value === "all") return "All statuses";
@@ -53,7 +66,7 @@ export default function ReviewModerationPage() {
   const [status, setStatus] = useState<(typeof STATUSES)[number]>("pending");
   const [search, setSearch] = useState("");
   const [selectedReview, setSelectedReview] = useState<any>(null);
-  const [moderationStatus, setModerationStatus] = useState<"approved" | "flagged" | "deleted">("deleted");
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const reviews = usePlatformQuery(
     api.platform.marketplace.queries.getAllMarketplaceReviews,
@@ -66,14 +79,22 @@ export default function ReviewModerationPage() {
     !!sessionToken
   ) as any[] | undefined;
 
-  const moderateReview = useMutation(api.modules.marketplace.reviews.moderateReview);
+  const moderateReview = useMutation(
+    api.platform.marketplace.mutations.moderateReview
+  );
 
   const filteredReviews = useMemo(() => {
     const rows = reviews ?? [];
     if (!search.trim()) return rows;
     const query = search.toLowerCase();
     return rows.filter((review) =>
-      [review.moduleName, review.publisherName, review.reviewerEmail ?? "", review.content ?? "", review.title ?? ""]
+      [
+        review.moduleName,
+        review.publisherName,
+        review.reviewerEmail ?? "",
+        review.content ?? "",
+        review.title ?? "",
+      ]
         .join(" ")
         .toLowerCase()
         .includes(query)
@@ -97,7 +118,10 @@ export default function ReviewModerationPage() {
         sessionToken,
         reviewId: review._id,
         decision,
-        rejectionReason: decision === "rejected" ? rejectionReason || "Rejected by moderator" : undefined,
+        rejectionReason:
+          decision === "rejected"
+            ? rejectionReason || "Rejected by moderator"
+            : undefined,
       });
       setSelectedReview(null);
       setRejectionReason("");
@@ -126,10 +150,30 @@ export default function ReviewModerationPage() {
       <MarketplaceAdminRail currentHref="/platform/marketplace/reviews" />
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Total reviews</p><p className="text-3xl font-semibold">{stats.total}</p></CardContent></Card>
-        <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Pending</p><p className="text-3xl font-semibold">{stats.pending}</p></CardContent></Card>
-        <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Approved</p><p className="text-3xl font-semibold">{stats.approved}</p></CardContent></Card>
-        <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Rejected</p><p className="text-3xl font-semibold">{stats.rejected}</p></CardContent></Card>
+        <Card>
+          <CardContent className="pt-5">
+            <p className="text-sm text-muted-foreground">Total reviews</p>
+            <p className="text-3xl font-semibold">{stats.total}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-5">
+            <p className="text-sm text-muted-foreground">Pending</p>
+            <p className="text-3xl font-semibold">{stats.pending}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-5">
+            <p className="text-sm text-muted-foreground">Approved</p>
+            <p className="text-3xl font-semibold">{stats.approved}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-5">
+            <p className="text-sm text-muted-foreground">Rejected</p>
+            <p className="text-3xl font-semibold">{stats.rejected}</p>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
@@ -146,17 +190,20 @@ export default function ReviewModerationPage() {
               placeholder="Search module, publisher, reviewer, or text"
             />
           </div>
-          <Select value={status} onValueChange={(value) => setStatus(value as (typeof STATUSES)[number])}>
+          <Select
+            value={status}
+            onValueChange={(value) => setStatus(value as (typeof STATUSES)[number])}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
             </SelectTrigger>
-              <SelectContent>
-                {STATUSES.map((entry) => (
-                  <SelectItem key={entry} value={entry}>
-                    {formatStatusLabel(entry)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+            <SelectContent>
+              {STATUSES.map((entry) => (
+                <SelectItem key={entry} value={entry}>
+                  {formatStatusLabel(entry)}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
           <Badge variant="secondary">
             <Clock3 className="mr-1 h-3 w-3" />
@@ -173,7 +220,9 @@ export default function ReviewModerationPage() {
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-semibold text-slate-950">{review.moduleName}</h3>
+                      <h3 className="font-semibold text-slate-950">
+                        {review.moduleName}
+                      </h3>
                       <Badge variant="outline">{review.publisherName}</Badge>
                       <Badge variant="secondary">{review.status}</Badge>
                     </div>
@@ -206,21 +255,10 @@ export default function ReviewModerationPage() {
                   </div>
                 </div>
 
-                {review.title ? <p className="text-sm font-medium text-slate-900">{review.title}</p> : null}
+                {review.title ? (
+                  <p className="text-sm font-medium text-slate-900">{review.title}</p>
+                ) : null}
                 <p className="text-sm text-slate-700">{review.content}</p>
-
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-sm">
-                    <p className="font-medium text-slate-900">Tenant</p>
-                    <p className="mt-1 text-slate-600">{review.tenantId || "Unknown tenant"}</p>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-sm">
-                    <p className="font-medium text-slate-900">Moderation</p>
-                    <p className="mt-1 text-slate-600">
-                      {review.rejectionReason || review.publisherResponse || "No moderation notes recorded yet."}
-                    </p>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           ))
@@ -228,7 +266,9 @@ export default function ReviewModerationPage() {
           <Card>
             <CardContent className="flex min-h-56 flex-col items-center justify-center text-center">
               <CheckCircle2 className="h-10 w-10 text-emerald-700" />
-              <p className="mt-4 text-base font-semibold text-slate-900">No reviews in this queue</p>
+              <p className="mt-4 text-base font-semibold text-slate-900">
+                No reviews in this queue
+              </p>
               <p className="mt-1 max-w-sm text-sm text-slate-600">
                 Adjust the status filter or search term to find marketplace reviews to moderate.
               </p>
@@ -237,7 +277,10 @@ export default function ReviewModerationPage() {
         )}
       </div>
 
-      <Dialog open={Boolean(selectedReview)} onOpenChange={(open) => !open && setSelectedReview(null)}>
+      <Dialog
+        open={Boolean(selectedReview)}
+        onOpenChange={(open) => !open && setSelectedReview(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Moderate Review</DialogTitle>
@@ -258,7 +301,9 @@ export default function ReviewModerationPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedReview(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setSelectedReview(null)}>
+              Cancel
+            </Button>
             <Button
               variant="destructive"
               onClick={() => selectedReview && handleModeration(selectedReview, "rejected")}

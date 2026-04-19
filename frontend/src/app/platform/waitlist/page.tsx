@@ -20,7 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
-import { Building2, CheckCircle2, Clock3, Mail, SearchX, UserPlus2, Users, XCircle } from "lucide-react";
+import { BadgeCheck, Building2, CheckCircle2, Clock3, Eye, Mail, Pencil, Plus, SearchX, ShieldAlert, Trash2, UserPlus2, Users, XCircle } from "lucide-react";
 
 const STATUS_FILTERS = ["all", "waiting", "invited", "converted", "rejected", "expired"] as const;
 const SOURCE_FILTERS = ["all", "landing_waitlist", "platform_manual_entry"] as const;
@@ -228,9 +228,8 @@ export default function WaitlistPage() {
   const deleteWaitlistEntry = useMutation(api.modules.platform.waitlist.deleteWaitlistEntry);
   const rejectWaitlistEntry = useMutation(api.modules.platform.waitlist.rejectWaitlistEntry);
   const convertWaitlistEntry = useMutation(api.modules.platform.waitlist.convertWaitlistEntry);
-  const sendTenantInvite = useMutation(api.platform.tenants.mutations.sendTenantInvite);
-  const resendTenantInvite = useMutation(api.platform.tenants.mutations.resendTenantInvite);
-  const revokeTenantInvite = useMutation(api.platform.tenants.mutations.revokeTenantInvite);
+  const inviteTenantAdmin = useMutation(api.platform.tenants.mutations.inviteTenantAdmin);
+  const revokeTenantInvite = useMutation(api.platform.tenants.mutations.revokeInvite);
 
   const entries = useMemo(
     () =>
@@ -343,28 +342,32 @@ export default function WaitlistPage() {
     if (!sessionToken || !inviteTarget) return;
     setSaving(true);
     try {
+      const parts = inviteTarget.fullName.split(/\s+/).filter(Boolean);
       if (inviteTarget.invite?.id && inviteTarget.status === "invited") {
-        await resendTenantInvite({ sessionToken, inviteId: inviteTarget.invite.id as never });
-        toast({ title: "Tenant invite resent" });
-      } else {
-        const parts = inviteTarget.fullName.split(/\s+/).filter(Boolean);
-        await sendTenantInvite({
+        await inviteTenantAdmin({
           sessionToken,
+          tenantId: inviteTarget.tenantId,
           email: inviteTarget.email,
-          schoolName: inviteTarget.schoolName,
           firstName: parts[0] ?? inviteTarget.fullName,
           lastName: parts.slice(1).join(" ") || "Admin",
-          country: inviteTarget.country,
-          county: inviteTarget.county,
-          phone: inviteTarget.phone,
-          studentCountEstimate: inviteTarget.studentCount,
-          suggestedPlan: (inviteTarget.studentCount ?? 0) >= 500 ? "pro" : "starter",
-          suggestedModules: ["mod_finance", "mod_attendance", "mod_academics"],
+          role: "school_admin",
           personalMessage: inviteMessage.trim() || undefined,
-          referralCode: inviteTarget.referralCode,
-          resellerId: inviteTarget.resellerId,
-          waitlistId: inviteTarget._id as never,
-          crmLeadId: inviteTarget.crmLead?.id,
+          expiresInDays: 7,
+        });
+        toast({ title: "Tenant invite resent" });
+      } else {
+        if (!inviteTarget.tenantId) {
+          throw new Error("Create or convert a tenant before sending a direct tenant admin invite.");
+        }
+        await inviteTenantAdmin({
+          sessionToken,
+          tenantId: inviteTarget.tenantId,
+          email: inviteTarget.email,
+          firstName: parts[0] ?? inviteTarget.fullName,
+          lastName: parts.slice(1).join(" ") || "Admin",
+          role: "school_admin",
+          personalMessage: inviteMessage.trim() || undefined,
+          expiresInDays: 7,
         });
         toast({ title: "Tenant invite sent" });
       }
@@ -451,8 +454,8 @@ export default function WaitlistPage() {
     try {
       await revokeTenantInvite({
         sessionToken,
-        inviteId: entry.invite.id as never,
-        reason: "Revoked from platform waitlist pipeline",
+        tenantId: entry.tenantId,
+        email: entry.email,
       });
       toast({ title: "Tenant invite revoked" });
     } catch (error) {

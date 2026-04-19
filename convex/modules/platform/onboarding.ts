@@ -2322,6 +2322,28 @@ export const sendTrialInterventions = internalMutation({
   },
 });
 
+export const sendTrialIntervention = internalMutation({
+  args: {
+    tenantId: v.string(),
+    trigger: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await sendTrialInterventionHelper(ctx, {
+      tenantId: args.tenantId,
+      trigger: args.trigger as any,
+    });
+  },
+});
+
+export const hardSuspendExpiredTrial = internalMutation({
+  args: {
+    tenantId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await hardSuspendExpiredTrialHelper(ctx, args.tenantId);
+  },
+});
+
 export const getPlatformOnboardingRecord = query({
   args: {
     sessionToken: v.string(),

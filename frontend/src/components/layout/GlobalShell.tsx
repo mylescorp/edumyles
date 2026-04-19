@@ -947,6 +947,11 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const initials = getInitials(anyUser?.firstName, anyUser?.lastName);
   const groups = getNavGroups(visibleNavItems);
   const workspaceLabel = getRoleWorkspaceLabel(role ?? "", tenant?.name);
+  const isAdminWorkspaceMode = false;
+  const adminWorkspaceTenants: Array<{ tenantId: string; name: string; subdomain?: string }> = [];
+  const adminWorkspaceTenantId = "";
+  const isSwitchingTenant = false;
+  const handleAdminWorkspaceTenantSwitch = (_tenantId: string) => {};
 
   // Derive notification / profile hrefs from current section
   const sectionHref = (suffix: string) => {

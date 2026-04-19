@@ -24,6 +24,7 @@ import { toast } from "sonner";
 
 type ApiAccess = "none" | "read" | "read_write";
 type WhiteLabel = "none" | "logo" | "full";
+type PlanName = "free" | "starter" | "pro" | "enterprise";
 
 type PlanCatalogItem = {
   id: string;
