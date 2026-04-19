@@ -21,7 +21,6 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
 import { Building2, CheckCircle2, Clock3, Mail, SearchX, UserPlus2, Users, XCircle } from "lucide-react";
-import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 
 const STATUS_FILTERS = ["all", "waiting", "invited", "converted", "rejected", "expired"] as const;
 const SOURCE_FILTERS = ["all", "landing_waitlist", "platform_manual_entry"] as const;

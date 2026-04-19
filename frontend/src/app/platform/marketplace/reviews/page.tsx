@@ -42,7 +42,6 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-const STATUSES = ["all", "pending", "approved", "rejected"] as const;
 
 function formatStatusLabel(value: (typeof STATUSES)[number]) {
   if (value === "all") return "All statuses";

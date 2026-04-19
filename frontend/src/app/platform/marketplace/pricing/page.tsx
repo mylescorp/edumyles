@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
@@ -181,7 +180,7 @@ export default function MarketplacePricingPage() {
     }
   };
 
-  const handleDeleteRule = async () => {
+  const handleDeleteSelectedRule = async () => {
     if (!sessionToken || !selectedRule) return;
     setSaving(true);
     try {
@@ -738,7 +737,7 @@ export default function MarketplacePricingPage() {
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteRule} disabled={saving}>Delete Rule</Button>
+            <Button variant="destructive" onClick={handleDeleteSelectedRule} disabled={saving}>Delete Rule</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

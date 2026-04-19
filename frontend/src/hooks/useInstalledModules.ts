@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "./useAuth";
 import { getModuleAliases, normalizeModuleSlug } from "@/lib/moduleSlugs";
+
+const CORE_MODULE_IDS = ["core"]; // Define core module IDs constant
 
 type AccessibleNavItem = {
   href: string;
@@ -29,27 +31,35 @@ function getRoleAccessLevel(install: any, userRole: string | undefined) {
 export function useInstalledModules(userRole?: string) {
   const { sessionToken, isLoading, isAuthenticated } = useAuth();
   const canQuery = !isLoading && isAuthenticated && !!sessionToken;
+  const [queryTimedOut, setQueryTimedOut] = useState(false);
 
   // Single query for full module records — IDs are derived from these, avoiding
   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
   const installedModuleDetailsResult = useQuery(
     api.modules.marketplace.queries.getInstalledModules,
-    canQueryModules ? { sessionToken } : "skip"
+    canQuery ? { sessionToken } : "skip"
   );
 
   const availableModulesResult = useQuery(
     api.modules.marketplace.queries.getAvailableForTier,
-    canQueryModules ? { sessionToken } : "skip"
+    canQuery ? { sessionToken } : "skip"
   );
 
   const installedModuleDetails = installedModuleDetailsResult?.data;
   const availableModules = availableModulesResult?.data;
 
-  useEffect(() => {
-    if (!canQueryModules) {
-      setQueryTimedOut(false);
-      return;
-    }
+  const normalizedInstalledModules = useMemo(
+    () =>
+      (installedModuleDetails ?? []).map((install: any) => ({
+        ...install,
+        accessLevel: getRoleAccessLevel(install, userRole),
+      })),
+    [installedModuleDetails, userRole]
+  );
+
+  const accessibleNavItems = useMemo(() => {
+    return normalizedInstalledModules.flatMap((install) => {
+      if (!install.accessibleNavConfig) return [];
 
       const roleKey =
         userRole === "teacher"
@@ -60,7 +70,7 @@ export function useInstalledModules(userRole?: string) {
               ? "parentNav"
               : "adminNav";
 
-      return ((navConfig[roleKey] ?? []) as any[]).map((item) => ({
+      return ((install.accessibleNavConfig[roleKey] ?? []) as any[]).map((item) => ({
         ...item,
         moduleSlug: install.moduleSlug,
       }));
@@ -97,7 +107,7 @@ export function useInstalledModules(userRole?: string) {
     accessibleNavItems,
     dashboardWidgets,
     isLoading:
-      canQuery && (installedModulesResult === undefined || availableModulesResult === undefined),
+      canQuery && (installedModuleDetailsResult === undefined || availableModulesResult === undefined),
     isModuleInstalled: (moduleSlug: string) => {
       const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
       return normalizedInstalledModules.some(
