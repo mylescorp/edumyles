@@ -15,7 +15,6 @@ type AccessibleNavItem = {
   requiredFeature: string;
   moduleSlug: string;
 };
-
 function getRoleAccessLevel(install: any, userRole: string | undefined) {
   if (!userRole) return "full";
   if (userRole === "school_admin" || userRole === "principal" || userRole === "master_admin" || userRole === "super_admin") {
@@ -31,7 +30,7 @@ function getRoleAccessLevel(install: any, userRole: string | undefined) {
 export function useInstalledModules(userRole?: string) {
   const { sessionToken, isLoading, isAuthenticated } = useAuth();
   const canQuery = !isLoading && isAuthenticated && !!sessionToken;
-  const [queryTimedOut, setQueryTimedOut] = useState(false);
+const [queryTimedOut, setQueryTimedOut] = useState(false);
 
   // Single query for full module records — IDs are derived from these, avoiding
   // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
@@ -107,7 +106,11 @@ export function useInstalledModules(userRole?: string) {
     accessibleNavItems,
     dashboardWidgets,
     isLoading:
+<<<<<<< HEAD
       canQuery && (installedModuleDetailsResult === undefined || availableModulesResult === undefined),
+=======
+      canQuery && (installedModulesResult === undefined || availableModulesResult === undefined),
+>>>>>>> 7235cb73bf58b1c48c243a172b0f097d9b9fdba6
     isModuleInstalled: (moduleSlug: string) => {
       const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
       return normalizedInstalledModules.some(

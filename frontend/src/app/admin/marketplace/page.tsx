@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Puzzle, Settings2, ShoppingBag } from "lucide-react";
+import { CheckCircle2, Package, Puzzle, Settings2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import {
   ArrowUpCircle,

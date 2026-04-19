@@ -167,6 +167,19 @@ export default function MarketplacePricingPage() {
       setRuleForm({ category: "", minPriceKes: "", maxPriceKes: "", defaultRevenueSharePct: "" });
     } catch (error) {
       toast({ title: "Unable to save rule", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
+<<<<<<< HEAD
+=======
+    }
+  };
+
+  const handleDeleteRule = async (ruleId: string) => {
+    if (!sessionToken) return;
+    try {
+      await deleteRule({ sessionToken, ruleId: ruleId as any });
+      toast({ title: "Pricing rule deleted" });
+    } catch (error) {
+      toast({ title: "Unable to delete rule", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
+>>>>>>> 7235cb73bf58b1c48c243a172b0f097d9b9fdba6
     }
   };
 
