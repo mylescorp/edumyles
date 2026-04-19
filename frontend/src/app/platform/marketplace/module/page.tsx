@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { normalizeArray } from "@/lib/normalizeData";
 import { Package, SearchX } from "lucide-react";
 
 function formatKes(amount?: number) {
@@ -36,7 +37,7 @@ export default function MarketplaceModulesPage() {
   ) as { modules?: Array<any> } | undefined;
 
   const modules = useMemo(() => {
-    const rows = browseResult?.modules ?? [];
+    const rows = normalizeArray<any>(browseResult?.modules);
     if (!search.trim()) return rows;
     const needle = search.toLowerCase();
     return rows.filter((module) =>
@@ -57,6 +58,8 @@ export default function MarketplaceModulesPage() {
     return <LoadingSkeleton variant="page" />;
   }
 
+  const moduleRows = normalizeArray<any>(browseResult?.modules);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -72,10 +75,10 @@ export default function MarketplaceModulesPage() {
       <MarketplaceAdminRail currentHref="/platform/marketplace/module" />
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Total modules</p><p className="text-3xl font-semibold">{(browseResult.modules ?? []).length}</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Published</p><p className="text-3xl font-semibold">{(browseResult.modules ?? []).filter((module) => (module.status ?? "published") === "published").length}</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Overrides active</p><p className="text-3xl font-semibold">{(browseResult.modules ?? []).filter((module) => module.hasPlatformOverride).length}</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Built-in</p><p className="text-3xl font-semibold">{(browseResult.modules ?? []).filter((module) => module.publisherName === "EduMyles").length}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Total modules</p><p className="text-3xl font-semibold">{moduleRows.length}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Published</p><p className="text-3xl font-semibold">{moduleRows.filter((module) => (module.status ?? "published") === "published").length}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Overrides active</p><p className="text-3xl font-semibold">{moduleRows.filter((module) => module.hasPlatformOverride).length}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><p className="text-sm text-muted-foreground">Built-in</p><p className="text-3xl font-semibold">{moduleRows.filter((module) => module.publisherName === "EduMyles").length}</p></CardContent></Card>
       </div>
 
       <Card>

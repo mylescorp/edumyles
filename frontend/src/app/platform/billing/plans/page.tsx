@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { normalizeArray } from "@/lib/normalizeData";
 import { Boxes, Pencil, Plus, ShieldCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 
@@ -123,9 +124,11 @@ export default function BillingPlansPage() {
 
   const updatePlan = useMutation(api.modules.platform.subscriptions.updateSubscriptionPlan);
   const createPlan = useMutation(api.modules.platform.subscriptions.createSubscriptionPlan);
+  const planRows = useMemo(() => normalizeArray<PlanCatalogItem>(plans), [plans]);
+  const publishedModuleRows = useMemo(() => normalizeArray<ModuleRow>(publishedModules), [publishedModules]);
 
   const filteredPlans = useMemo(() => {
-    const rows = plans ?? [];
+    const rows = planRows;
     const needle = search.trim().toLowerCase();
     if (!needle) return rows;
     return rows.filter((plan) =>
@@ -134,24 +137,24 @@ export default function BillingPlansPage() {
         .toLowerCase()
         .includes(needle)
     );
-  }, [plans, search]);
+  }, [planRows, search]);
 
   const totals = useMemo(() => {
-    const rows = plans ?? [];
+    const rows = planRows;
     return {
       totalSubscribers: rows.reduce((sum, plan) => sum + plan.subscriberCount, 0),
       activePlans: rows.filter((plan) => plan.isActive).length,
       moduleCoverage: new Set(rows.flatMap((plan) => plan.includedModuleIds)).size,
     };
-  }, [plans]);
+  }, [planRows]);
 
   const availablePlanNames = useMemo(() => {
-    const existing = new Set((plans ?? []).map((plan) => plan.name));
+    const existing = new Set(planRows.map((plan) => plan.name));
     return (["free", "starter", "pro", "enterprise"] as PlanName[]).filter((name) => !existing.has(name));
-  }, [plans]);
+  }, [planRows]);
 
   const modulesByCategory = useMemo(() => {
-    const rows = publishedModules ?? [];
+    const rows = publishedModuleRows;
     return rows.reduce(
       (acc, module) => {
         const category = module.category || "general";
@@ -160,7 +163,7 @@ export default function BillingPlansPage() {
       },
       {} as Record<string, ModuleRow[]>
     );
-  }, [publishedModules]);
+  }, [publishedModuleRows]);
 
   if (isLoading || plans === undefined || publishedModules === undefined) {
     return <LoadingSkeleton variant="page" />;

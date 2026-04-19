@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDate, formatDateTime } from "@/lib/formatters";
+import { normalizeArray } from "@/lib/normalizeData";
 import {
   CheckCircle,
   Clock,
@@ -119,24 +120,26 @@ export default function BillingInvoicesPage() {
   const updateInvoiceStatus = useMutation(
     api.modules.platform.subscriptions.updateSubscriptionInvoiceStatus
   );
+  const invoiceList = useMemo(() => normalizeArray<InvoiceRow>(invoices), [invoices]);
+  const subscriptionList = useMemo(() => normalizeArray<SubscriptionRow>(subscriptions), [subscriptions]);
 
   const invoiceRows = useMemo(
     () =>
-      (invoices ?? []).filter((invoice) =>
+      invoiceList.filter((invoice) =>
         statusFilter === "overdue" ? invoice.status === "overdue" : true
       ),
-    [invoices, statusFilter]
+    [invoiceList, statusFilter]
   );
 
   const tenantOptions = useMemo(() => {
     const seen = new Map<string, string>();
-    for (const subscription of subscriptions ?? []) {
+    for (const subscription of subscriptionList) {
       if (!seen.has(subscription.tenantId)) {
         seen.set(subscription.tenantId, subscription.tenantName);
       }
     }
     return Array.from(seen.entries()).map(([tenantId, tenantName]) => ({ tenantId, tenantName }));
-  }, [subscriptions]);
+  }, [subscriptionList]);
 
   const stats = useMemo(() => {
     const paid = invoiceRows.filter((invoice) => invoice.status === "paid");

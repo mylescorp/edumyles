@@ -25,6 +25,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDate, formatRelativeTime } from "@/lib/formatters";
+import { normalizeArray } from "@/lib/normalizeData";
 import { FileText, Plus, RefreshCw, Search, Send } from "lucide-react";
 import { toast } from "sonner";
 
@@ -129,15 +130,19 @@ export default function PlatformCrmProposalsPage() {
 
   const createProposal = useMutation(api.modules.platform.crm.createProposal);
   const sendProposal = useMutation(api.modules.platform.crm.sendProposal);
+  const proposalList = useMemo(() => normalizeArray<ProposalRow>(proposals), [proposals]);
+  const dealList = useMemo(() => normalizeArray<DealRow>(deals), [deals]);
+  const leadList = useMemo(() => normalizeArray<LeadRow>(leads), [leads]);
+  const planList = useMemo(() => normalizeArray<PlanRow>(plans), [plans]);
 
   const leadById = useMemo(
-    () => new Map((leads ?? []).map((lead) => [String(lead._id), lead])),
-    [leads]
+    () => new Map(leadList.map((lead) => [String(lead._id), lead])),
+    [leadList]
   );
 
   const proposalRows = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    return (proposals ?? []).filter((proposal) => {
+    return proposalList.filter((proposal) => {
       if (!query) return true;
       return (
         proposal.lead.schoolName.toLowerCase().includes(query) ||
@@ -146,23 +151,23 @@ export default function PlatformCrmProposalsPage() {
         proposal.status.toLowerCase().includes(query)
       );
     });
-  }, [proposals, searchQuery]);
+  }, [proposalList, searchQuery]);
 
   const dealOptions = useMemo(
     () =>
-      (deals ?? [])
+      dealList
         .filter((deal) => !deal.proposalId)
         .map((deal) => ({
           ...deal,
           lead: leadById.get(String(deal.leadId)),
         }))
         .filter((deal) => deal.lead),
-    [deals, leadById]
+    [dealList, leadById]
   );
 
   const selectedPlan = useMemo(
-    () => (plans ?? []).find((plan) => plan.name === selectedPlanId),
-    [plans, selectedPlanId]
+    () => planList.find((plan) => plan.name === selectedPlanId),
+    [planList, selectedPlanId]
   );
 
   const summary = useMemo(
@@ -289,7 +294,7 @@ export default function PlatformCrmProposalsPage() {
                         <SelectValue placeholder="Choose plan" />
                       </SelectTrigger>
                       <SelectContent>
-                        {(plans ?? []).map((plan) => (
+                        {planList.map((plan) => (
                           <SelectItem key={plan.name} value={plan.name}>
                             {plan.name} · {formatKes(plan.priceMonthlyKes)}
                           </SelectItem>

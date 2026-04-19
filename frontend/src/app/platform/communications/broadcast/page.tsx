@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { normalizeArray } from "@/lib/normalizeData";
 import { ComposeDialog } from "../ComposeDialog";
 import {
   Bell,
@@ -77,31 +78,33 @@ export default function BroadcastPage() {
 
   const sendNowMutation = useMutation(api.platform.communications.mutations.sendPlatformMessageNow);
   const deleteMutation = useMutation(api.platform.communications.mutations.deletePlatformMessage);
+  const messageList = useMemo(() => normalizeArray<any>(allMessages), [allMessages]);
+  const recipientListRows = useMemo(() => normalizeArray<any>(recipientLists), [recipientLists]);
 
   const isLoading =
     allMessages === undefined || deliveryAnalytics === undefined || recipientLists === undefined;
 
   const broadcastMessages = useMemo(() => {
-    const messages = (allMessages ?? []).filter((message: any) => message.type === "broadcast");
+    const messages = messageList.filter((message: any) => message.type === "broadcast");
     const query = search.trim().toLowerCase();
     return messages.filter((message: any) => {
       const matchesStatus = statusFilter === "all" || message.status === statusFilter;
       const haystack = [message.subject, ...(message.channels ?? [])].join(" ").toLowerCase();
       return matchesStatus && (query.length === 0 || haystack.includes(query));
     });
-  }, [allMessages, search, statusFilter]);
+  }, [messageList, search, statusFilter]);
 
   const broadcastStats = useMemo(() => {
-    const messages = (allMessages ?? []).filter((message: any) => message.type === "broadcast");
+    const messages = messageList.filter((message: any) => message.type === "broadcast");
     return {
       total: messages.length,
       sent: messages.filter((message: any) => message.status === "sent").length,
       scheduled: messages.filter((message: any) => message.status === "scheduled").length,
       reachable:
-        (recipientLists ?? []).find((list: any) => list._id === "list_all_users")?.count ??
-        (recipientLists ?? []).reduce((max: number, list: any) => Math.max(max, list.count ?? 0), 0),
+        recipientListRows.find((list: any) => list._id === "list_all_users")?.count ??
+        recipientListRows.reduce((max: number, list: any) => Math.max(max, list.count ?? 0), 0),
     };
-  }, [allMessages, recipientLists]);
+  }, [messageList, recipientListRows]);
 
   const handleSendNow = async (messageId: string) => {
     if (!sessionToken) return;
@@ -128,7 +131,7 @@ export default function BroadcastPage() {
   }
 
   const analyticsOverview = deliveryAnalytics?.overview;
-  const lists = recipientLists ?? [];
+  const lists = recipientListRows;
 
   return (
     <div className="space-y-6">
@@ -208,9 +211,9 @@ export default function BroadcastPage() {
             {broadcastMessages.length === 0 ? (
               <EmptyState
                 icon={MessageSquare}
-                title={(allMessages ?? []).some((message: any) => message.type === "broadcast") ? "No broadcasts match this view" : "No broadcasts yet"}
+                title={messageList.some((message: any) => message.type === "broadcast") ? "No broadcasts match this view" : "No broadcasts yet"}
                 description={
-                  (allMessages ?? []).some((message: any) => message.type === "broadcast")
+                  messageList.some((message: any) => message.type === "broadcast")
                     ? "Adjust your search or status filter to find a broadcast."
                     : "Create a broadcast to reach schools across the platform."
                 }

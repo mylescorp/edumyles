@@ -8,6 +8,7 @@ import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { normalizeArray } from "@/lib/normalizeData";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,11 +58,12 @@ export default function CRMLeadsPage() {
   );
 
   const moveDealStage = useMutation(api.platform.crm.mutations.moveDealStage);
+  const dealRows = useMemo(() => normalizeArray<Deal>(deals), [deals]);
 
   // Leads = deals in early pipeline stages
   const leads = useMemo(() => {
-    return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
-  }, [deals]);
+    return dealRows.filter((d) => LEAD_STAGES.includes(d.stage));
+  }, [dealRows]);
 
   const filtered = useMemo(() => {
     if (stageFilter === "all") return leads;

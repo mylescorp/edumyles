@@ -18,6 +18,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { normalizeArray } from "@/lib/normalizeData";
 import { BarChart3, Clock, FolderKanban, Pencil, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
@@ -109,10 +110,11 @@ export default function PMPage() {
   const createWorkspace = useMutation(api.modules.pm.workspaces.createWorkspace);
   const updateWorkspace = useMutation(api.modules.pm.workspaces.updateWorkspace);
   const deleteWorkspace = useMutation(api.modules.pm.workspaces.deleteWorkspace);
+  const workspaceRows = useMemo(() => normalizeArray<WorkspaceSummary>(workspaces), [workspaces]);
 
   const totalProjects = useMemo(
-    () => workspaces?.reduce((sum: number, ws: WorkspaceSummary) => sum + ws.projectCount, 0) || 0,
-    [workspaces]
+    () => workspaceRows.reduce((sum: number, ws: WorkspaceSummary) => sum + ws.projectCount, 0),
+    [workspaceRows]
   );
 
   const resetForm = () => {
@@ -339,7 +341,7 @@ export default function PMPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {workspaces?.map((workspace: WorkspaceSummary) => (
+        {workspaceRows.map((workspace: WorkspaceSummary) => (
           <Card key={workspace._id} className="transition-all duration-200 hover:shadow-lg">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-3">
@@ -385,7 +387,7 @@ export default function PMPage() {
         ))}
       </div>
 
-      {(!workspaces || workspaces.length === 0) && (
+      {workspaceRows.length === 0 && (
         <Card>
           <CardContent>
             <EmptyState

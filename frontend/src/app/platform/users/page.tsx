@@ -43,6 +43,7 @@ import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime } from "@/lib/formatters";
+import { normalizeArray } from "@/lib/normalizeData";
 import {
   Building2,
   Clock3,
@@ -154,8 +155,12 @@ export default function PlatformUsersPage() {
   ) as Array<any> | undefined;
   const [tenantFilter, setTenantFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("staff");
+  const userRows = useMemo(() => normalizeArray<any>(users), [users]);
+  const inviteRows = useMemo(() => normalizeArray<any>(invites), [invites]);
+  const tenantUserRows = useMemo(() => normalizeArray<any>(tenantUsers), [tenantUsers]);
+  const tenantOptionRows = useMemo(() => normalizeArray<any>(tenantOptions), [tenantOptions]);
 
-  const filteredInvites = (invites ?? []).filter((invite) => {
+  const filteredInvites = inviteRows.filter((invite) => {
     const matchesSearch =
       search.trim().length === 0 ||
       invite.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -167,13 +172,13 @@ export default function PlatformUsersPage() {
 
   const stats = useMemo(
     () => ({
-      totalUsers: (users ?? []).length,
-      activeUsers: (users ?? []).filter((user) => user.status === "active").length,
-      suspendedUsers: (users ?? []).filter((user) => user.status === "suspended").length,
-      pendingInvites: (invites ?? []).filter((invite) => invite.status === "pending").length,
-      totalTenantUsers: (tenantUsers ?? []).filter((user) => user.tenantId !== "PLATFORM").length,
+      totalUsers: userRows.length,
+      activeUsers: userRows.filter((user) => user.status === "active").length,
+      suspendedUsers: userRows.filter((user) => user.status === "suspended").length,
+      pendingInvites: inviteRows.filter((invite) => invite.status === "pending").length,
+      totalTenantUsers: tenantUserRows.filter((user) => user.tenantId !== "PLATFORM").length,
     }),
-    [invites, users, tenantUsers]
+    [inviteRows, userRows, tenantUserRows]
   );
 
   const highlights = [
@@ -210,8 +215,8 @@ export default function PlatformUsersPage() {
 
   const roleOptions = Array.from(
     new Set([
-      ...(users ?? []).map((user) => user.role),
-      ...(invites ?? []).map((invite) => invite.role),
+      ...userRows.map((user) => user.role),
+      ...inviteRows.map((invite) => invite.role),
     ])
   ).sort();
 
@@ -358,7 +363,7 @@ export default function PlatformUsersPage() {
     }
   };
 
-  const filteredTenantUsers = (tenantUsers ?? []).filter((user) => {
+  const filteredTenantUsers = tenantUserRows.filter((user) => {
     if (tenantFilter !== "all" && user.tenantId !== tenantFilter) {
       return false;
     }
@@ -551,7 +556,7 @@ export default function PlatformUsersPage() {
               </Badge>
             </CardHeader>
             <CardContent className="p-0">
-              {users.length === 0 ? (
+              {userRows.length === 0 ? (
                 <EmptyState
                   icon={Shield}
                   title="No platform users yet"
@@ -584,7 +589,7 @@ export default function PlatformUsersPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {users.map((user) => (
+                      {userRows.map((user) => (
                         <TableRow key={user.id} className="border-border/60">
                           <TableCell className="pl-6">
                             <div className="space-y-1">
@@ -680,7 +685,7 @@ export default function PlatformUsersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All tenants</SelectItem>
-                  {tenantOptions.map((tenant) => (
+                  {tenantOptionRows.map((tenant) => (
                     <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
                       {tenant.name}
                     </SelectItem>

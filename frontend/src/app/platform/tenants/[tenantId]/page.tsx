@@ -1130,7 +1130,7 @@ export default function TenantDetailPage() {
               <CardTitle>Pending Invites</CardTitle>
             </CardHeader>
             <CardContent>
-              {pendingInvites.length === 0 ? (
+              {pendingInviteRows.length === 0 ? (
                 <EmptyState
                   icon={Mail}
                   title="No pending invites"
@@ -1147,7 +1147,7 @@ export default function TenantDetailPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pendingInvites.map((invite: any) => (
+                    {pendingInviteRows.map((invite: any) => (
                       <TableRow key={String(invite._id)}>
                         <TableCell>{formatName(invite.firstName, invite.lastName)}</TableCell>
                         <TableCell>{invite.email}</TableCell>
@@ -1549,7 +1549,7 @@ export default function TenantDetailPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(onboardingRecord?.nudgeTemplates ?? []).map((template: any) => (
+                  {nudgeTemplateRows.map((template: any) => (
                     <SelectItem key={template.key} value={template.key}>
                       {template.label}
                     </SelectItem>
