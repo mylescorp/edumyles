@@ -16,6 +16,14 @@ type AccessibleNavItem = {
   moduleSlug: string;
 };
 
+function normalizeArray<T>(value: any): T[] {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.page)) return value.page;
+  return [];
+}
+
 function getRoleAccessLevel(install: any, userRole: string | undefined) {
   if (!userRole) return "full";
   if (
@@ -69,12 +77,12 @@ export function useInstalledModules(userRole?: string) {
     return () => window.clearTimeout(timeoutId);
   }, [availableModulesResult, canQuery, installedModuleDetailsResult]);
 
-  const installedModuleDetails = installedModuleDetailsResult?.data ?? [];
-  const availableModules = availableModulesResult?.data ?? [];
+  const installedModuleDetails = normalizeArray<any>(installedModuleDetailsResult);
+  const availableModules = normalizeArray<any>(availableModulesResult);
 
   const normalizedInstalledModules = useMemo(
     () =>
-      (installedModuleDetails ?? []).map((install: any) => ({
+      installedModuleDetails.map((install: any) => ({
         ...install,
         accessLevel: getRoleAccessLevel(install, userRole),
       })),
@@ -94,7 +102,7 @@ export function useInstalledModules(userRole?: string) {
               ? "parentNav"
               : "adminNav";
 
-      return ((install.accessibleNavConfig[roleKey] ?? []) as any[]).map((item) => ({
+      return normalizeArray<any>(install.accessibleNavConfig[roleKey]).map((item) => ({
         ...item,
         moduleSlug: install.moduleSlug,
       }));
@@ -104,7 +112,7 @@ export function useInstalledModules(userRole?: string) {
   const dashboardWidgets = useMemo(
     () =>
       normalizedInstalledModules.flatMap((install: any) =>
-        (install.dashboardWidgets ?? []).map((widget: any) => ({
+        normalizeArray<any>(install.dashboardWidgets).map((widget: any) => ({
           ...widget,
           moduleSlug: install.moduleSlug,
         }))

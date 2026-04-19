@@ -49,6 +49,14 @@ import {
   Wallet,
 } from "lucide-react";
 
+function normalizeArray<T>(value: any): T[] {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.rows)) return value.rows;
+  return [];
+}
+
 function formatKes(amount?: number) {
   return `KES ${(amount ?? 0).toLocaleString()}`;
 }
@@ -223,12 +231,16 @@ export default function TenantDetailPage() {
     settings,
   } = tenantDetail;
 
+  const pendingInviteRows = normalizeArray<any>(pendingInvites);
+  const nudgeTemplateRows = normalizeArray<any>(onboardingRecord?.nudgeTemplates);
+  const onboardingNoteRows = normalizeArray<any>(onboardingRecord?.notes);
+
   const pendingSchoolAdmin =
-    pendingInvites.find((invite: any) => invite.role === "school_admin") ?? null;
+    pendingInviteRows.find((invite: any) => invite.role === "school_admin") ?? null;
   const adminInviteTarget = pendingSchoolAdmin ?? primaryAdmin ?? null;
   const activeNudgeTemplate =
-    onboardingRecord?.nudgeTemplates?.find((template: any) => template.key === selectedTemplate) ??
-    onboardingRecord?.nudgeTemplates?.[0] ??
+    nudgeTemplateRows.find((template: any) => template.key === selectedTemplate) ??
+    nudgeTemplateRows[0] ??
     null;
 
   const handleProvisionOrg = async () => {

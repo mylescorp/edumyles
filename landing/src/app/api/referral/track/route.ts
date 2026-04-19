@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../../convex/_generated/api";
+import { getLandingConvexClient } from "@/lib/server/convex";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +18,7 @@ export async function POST(request: NextRequest) {
       ? (forwarded.split(",")[0]?.trim() || "unknown")
       : realIp || "unknown";
 
-    const convexUrl =
-      process.env.CONVEX_URL ||
-      process.env.NEXT_PUBLIC_CONVEX_URL ||
-      "https://insightful-alpaca-351.convex.cloud";
-    const convex = new ConvexHttpClient(convexUrl);
+    const convex = getLandingConvexClient();
 
     await convex.mutation(api.publicApplications.trackPublicReferralClick, {
       referralCode,
