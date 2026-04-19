@@ -126,7 +126,7 @@ const organizationSchema = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -137,7 +137,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
-      <body className={`${playfair.variable} ${jakarta.variable} ${dmMono.variable} font-jakarta antialiased bg-white text-dark-grey`}>
+      <body
+        suppressHydrationWarning
+        className={`${playfair.variable} ${jakarta.variable} ${dmMono.variable} font-jakarta antialiased bg-white text-dark-grey`}
+      >
         <PerformanceTracker />
         <ConditionalLayout>{children}</ConditionalLayout>
         <SpeedInsights />

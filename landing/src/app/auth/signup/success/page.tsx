@@ -30,20 +30,29 @@ function SignUpSuccessContent() {
             Waitlist confirmed
           </p>
           <h1 className="mt-3 font-playfair text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.1] text-[#061A12]">
-            {duplicate ? "Your school is already on the waitlist." : "Your school is now on the waitlist."}
+            {duplicate ? "Your existing waitlist entry was updated." : "Your school is now on the waitlist."}
           </h1>
           <p className="mt-5 font-jakarta text-[16px] leading-8 text-[#5b6b63]">
-            {school ? `${school} has been added to the EduMyles waitlist.` : "Your organisation has been added to the EduMyles waitlist."} Our team will review your school profile and follow up with the next steps for onboarding and rollout timing.
+            {duplicate
+              ? school
+                ? `${school} was already on the EduMyles waitlist, so we updated the existing record for the submitted contact details.`
+                : "Your organisation was already on the EduMyles waitlist, so we updated the existing record for the submitted contact details."
+              : school
+                ? `${school} has been added to the EduMyles waitlist.`
+                : "Your organisation has been added to the EduMyles waitlist."}{" "}
+            Our team will review your school profile and follow up with the next steps for onboarding and rollout timing.
           </p>
 
           <div className="mt-8 grid gap-4 text-left sm:grid-cols-2">
             <div className="rounded-2xl border border-[#e5efe9] bg-[#F9FCFA] p-5">
               <div className="flex items-center gap-2 font-jakarta text-sm font-bold text-[#061A12]">
                 <Clock3 className="h-4 w-4 text-[#E8A020]" />
-                What happens next
+                {duplicate ? "What changed" : "What happens next"}
               </div>
               <p className="mt-3 font-jakarta text-[14px] leading-7 text-[#5d6f66]">
-                We’ll review your waitlist entry, assess your onboarding needs, and contact you soon with the next steps. If we need anything clarified, we’ll reach out directly.
+                {duplicate
+                  ? "We refreshed your existing waitlist record with the latest details from this submission. On the platform side, your team should look for the same school or contact email rather than expecting a second duplicate row."
+                  : "We’ll review your waitlist entry, assess your onboarding needs, and contact you soon with the next steps. If we need anything clarified, we’ll reach out directly."}
               </p>
             </div>
             <div className="rounded-2xl border border-[#e5efe9] bg-[#F9FCFA] p-5">
