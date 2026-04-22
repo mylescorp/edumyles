@@ -1,7 +1,5 @@
 ▲ Next.js 16.2.2 (Turbopack)
 - Local:         http://localhost:3001
-- Network:       http://192.168.1.128:3001
-✓ Ready in 1670ms
-
- HEAD / 200 in 3.7s (next.js: 790ms, application-code: 2.9s)
- GET /book-demo 200 in 1858ms (next.js: 497ms, application-code: 1361ms)
+- Network:       http://10.90.97.247:3001
+✓ Ready in 1474ms
+○ Compiling proxy ...
