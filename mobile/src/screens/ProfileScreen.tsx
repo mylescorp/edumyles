@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -6,13 +6,13 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useMutation, useQuery } from 'convex/react';
+} from "react-native";
+import { useMutation, useQuery } from "convex/react";
 
-import { useAuth } from '../hooks/useAuth';
-import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
-import { api } from '../lib/convexApi';
-import { theme } from '../theme';
+import { useAuth } from "../hooks/useAuth";
+import { useCachedQueryValue, useOfflineSync } from "../hooks/useOfflineSync";
+import { api } from "../lib/convexApi";
+import { theme } from "../theme";
 
 const ProfileScreen: React.FC = () => {
   const { sessionToken, user } = useAuth();
@@ -20,65 +20,74 @@ const ProfileScreen: React.FC = () => {
 
   const studentProfile = useQuery(
     api.modules.portal.student.queries.getMyProfile,
-    sessionToken && user?.role === 'student' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken } : "skip"
   );
   const studentNotifications = useQuery(
     api.modules.portal.student.queries.getMyNotifications,
-    sessionToken && user?.role === 'student' ? { sessionToken, limit: 5 } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken, limit: 5 } : "skip"
   );
   const parentProfile = useQuery(
     api.modules.portal.parent.queries.getParentProfile,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const parentAnnouncements = useQuery(
     api.modules.portal.parent.queries.getAnnouncements,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const teacherClasses = useQuery(
     api.modules.academics.queries.getTeacherClasses,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const teacherProfile = useQuery(
     api.modules.hr.queries.getCurrentStaffProfile,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const teacherNotifications = useQuery(
     api.modules.communications.queries.listMyNotifications,
-    sessionToken && user?.role === 'teacher' ? { sessionToken, limit: 5 } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken, limit: 5 } : "skip"
   );
 
   // Shared notifications with mark-as-read support (all roles)
   const allNotifications = useQuery(
     api.notifications.getNotifications,
-    sessionToken ? { sessionToken, limit: 5 } : 'skip',
+    sessionToken ? { sessionToken, limit: 5 } : "skip"
   );
   const unreadCount = useQuery(
     api.notifications.getUnreadCount,
-    sessionToken ? { sessionToken } : 'skip',
+    sessionToken ? { sessionToken } : "skip"
   );
   const markAsRead = useMutation(api.notifications.markAsRead);
   const markAllAsRead = useMutation(api.notifications.markAllAsRead);
 
-  const resolvedStudentProfile = useCachedQueryValue<any>('student.profile.summary', studentProfile);
+  const resolvedStudentProfile = useCachedQueryValue<any>(
+    "student.profile.summary",
+    studentProfile
+  );
   const resolvedStudentNotifications = useCachedQueryValue<any[]>(
-    'student.profile.notifications',
-    studentNotifications,
+    "student.profile.notifications",
+    studentNotifications
   );
-  const resolvedParentProfile = useCachedQueryValue<any>('parent.profile.summary', parentProfile);
+  const resolvedParentProfile = useCachedQueryValue<any>("parent.profile.summary", parentProfile);
   const resolvedParentAnnouncements = useCachedQueryValue<any[]>(
-    'parent.profile.announcements',
-    parentAnnouncements,
+    "parent.profile.announcements",
+    parentAnnouncements
   );
-  const resolvedTeacherClasses = useCachedQueryValue<any[]>('teacher.profile.classes', teacherClasses);
-  const resolvedTeacherProfile = useCachedQueryValue<any>('teacher.profile.staffRecord', teacherProfile);
+  const resolvedTeacherClasses = useCachedQueryValue<any[]>(
+    "teacher.profile.classes",
+    teacherClasses
+  );
+  const resolvedTeacherProfile = useCachedQueryValue<any>(
+    "teacher.profile.staffRecord",
+    teacherProfile
+  );
   const resolvedTeacherNotifications = useCachedQueryValue<any[]>(
-    'teacher.profile.notifications',
-    teacherNotifications,
+    "teacher.profile.notifications",
+    teacherNotifications
   );
 
   const resolvedAllNotifications = useCachedQueryValue<any[]>(
-    'profile.notifications.shared',
-    allNotifications,
+    "profile.notifications.shared",
+    allNotifications
   );
 
   if (!sessionToken) {
@@ -109,19 +118,19 @@ const ProfileScreen: React.FC = () => {
         }}
       >
         <View style={styles.notificationRow}>
-          <Text style={[styles.notificationTitle, n.isRead === false && styles.notificationTitleUnread]}>
+          <Text
+            style={[styles.notificationTitle, n.isRead === false && styles.notificationTitleUnread]}
+          >
             {n.title}
           </Text>
           {n.isRead === false && <View style={styles.unreadDot} />}
         </View>
-        {n.message && (
-          <Text style={styles.notificationBody}>{n.message}</Text>
-        )}
+        {n.message && <Text style={styles.notificationBody}>{n.message}</Text>}
       </TouchableOpacity>
     ));
   };
 
-  if (user?.role === 'parent') {
+  if (user?.role === "parent") {
     if (!resolvedParentAnnouncements) {
       return (
         <View style={styles.center}>
@@ -140,7 +149,8 @@ const ProfileScreen: React.FC = () => {
           <Text style={styles.meta}>{user.email}</Text>
           <Text style={styles.meta}>Role: parent</Text>
           <Text style={styles.meta}>
-            Contact: {resolvedParentProfile?.phone ?? resolvedParentProfile?.contactPhone ?? 'Not set'}
+            Contact:{" "}
+            {resolvedParentProfile?.phone ?? resolvedParentProfile?.contactPhone ?? "Not set"}
           </Text>
         </View>
 
@@ -162,7 +172,7 @@ const ProfileScreen: React.FC = () => {
           <>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
-                Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ''}
+                Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ""}
               </Text>
               {(unreadCount ?? 0) > 0 && !isOffline && (
                 <TouchableOpacity onPress={handleMarkAllAsRead}>
@@ -170,14 +180,14 @@ const ProfileScreen: React.FC = () => {
                 </TouchableOpacity>
               )}
             </View>
-            {renderNotifications(resolvedAllNotifications, 'No notifications.')}
+            {renderNotifications(resolvedAllNotifications, "No notifications.")}
           </>
         )}
       </ScrollView>
     );
   }
 
-  if (user?.role === 'teacher') {
+  if (user?.role === "teacher") {
     if (!resolvedTeacherClasses || !resolvedTeacherNotifications) {
       return (
         <View style={styles.center}>
@@ -192,32 +202,30 @@ const ProfileScreen: React.FC = () => {
         <View style={styles.profileCard}>
           <Text style={styles.name}>
             {resolvedTeacherProfile
-              ? [resolvedTeacherProfile.firstName, resolvedTeacherProfile.lastName].filter(Boolean).join(' ')
+              ? [resolvedTeacherProfile.firstName, resolvedTeacherProfile.lastName]
+                  .filter(Boolean)
+                  .join(" ")
               : user.email}
           </Text>
           <Text style={styles.meta}>{user.email}</Text>
           <Text style={styles.meta}>Role: teacher</Text>
           <Text style={styles.meta}>Classes assigned: {resolvedTeacherClasses.length}</Text>
           <Text style={styles.meta}>
-            Staff ID: {resolvedTeacherProfile?.employeeId ?? 'Not set'}
+            Staff ID: {resolvedTeacherProfile?.employeeId ?? "Not set"}
           </Text>
           <Text style={styles.meta}>
-            Department: {resolvedTeacherProfile?.department ?? 'Not set'}
+            Department: {resolvedTeacherProfile?.department ?? "Not set"}
           </Text>
           <Text style={styles.meta}>
-            Qualification: {resolvedTeacherProfile?.qualification ?? 'Not set'}
+            Qualification: {resolvedTeacherProfile?.qualification ?? "Not set"}
           </Text>
-          <Text style={styles.meta}>
-            Phone: {resolvedTeacherProfile?.phone ?? 'Not set'}
-          </Text>
-          <Text style={styles.meta}>
-            Status: {resolvedTeacherProfile?.status ?? 'active'}
-          </Text>
+          <Text style={styles.meta}>Phone: {resolvedTeacherProfile?.phone ?? "Not set"}</Text>
+          <Text style={styles.meta}>Status: {resolvedTeacherProfile?.status ?? "active"}</Text>
         </View>
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
-            Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ''}
+            Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ""}
           </Text>
           {(unreadCount ?? 0) > 0 && !isOffline && (
             <TouchableOpacity onPress={handleMarkAllAsRead}>
@@ -227,7 +235,7 @@ const ProfileScreen: React.FC = () => {
         </View>
         {renderNotifications(
           resolvedAllNotifications ?? resolvedTeacherNotifications,
-          'No notifications yet.',
+          "No notifications yet."
         )}
       </ScrollView>
     );
@@ -246,16 +254,20 @@ const ProfileScreen: React.FC = () => {
       {isOffline && <Text style={styles.banner}>Showing cached profile details.</Text>}
       <View style={styles.profileCard}>
         <Text style={styles.name}>
-          {[resolvedStudentProfile.firstName, resolvedStudentProfile.lastName].filter(Boolean).join(' ') || user?.email}
+          {[resolvedStudentProfile.firstName, resolvedStudentProfile.lastName]
+            .filter(Boolean)
+            .join(" ") || user?.email}
         </Text>
         <Text style={styles.meta}>{user?.email}</Text>
         <Text style={styles.meta}>Role: {user?.role}</Text>
-        <Text style={styles.meta}>Admission No: {resolvedStudentProfile.admissionNumber ?? 'Not set'}</Text>
+        <Text style={styles.meta}>
+          Admission No: {resolvedStudentProfile.admissionNumber ?? "Not set"}
+        </Text>
       </View>
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>
-          Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ''}
+          Notifications{(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ""}
         </Text>
         {(unreadCount ?? 0) > 0 && !isOffline && (
           <TouchableOpacity onPress={handleMarkAllAsRead}>
@@ -265,7 +277,7 @@ const ProfileScreen: React.FC = () => {
       </View>
       {renderNotifications(
         resolvedAllNotifications ?? resolvedStudentNotifications,
-        'No notifications yet.',
+        "No notifications yet."
       )}
     </ScrollView>
   );
@@ -282,13 +294,14 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   stateText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.base,
     paddingVertical: theme.spacing.sm,
+    fontFamily: theme.fonts.regular,
   },
   profileCard: {
     backgroundColor: theme.colors.white,
@@ -300,48 +313,49 @@ const styles = StyleSheet.create({
   name: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.xxl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
   },
   meta: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.regular,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   sectionTitle: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.lg,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   markAllText: {
     color: theme.colors.primary,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
   },
   banner: {
     color: theme.colors.warning,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   notificationCard: {
-    backgroundColor: '#fff7ed',
+    backgroundColor: "#fff7ed",
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: '#fed7aa',
+    borderColor: "#fed7aa",
   },
   notificationCardUnread: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
+    backgroundColor: "#eff6ff",
+    borderColor: "#bfdbfe",
   },
   notificationRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
     gap: theme.spacing.sm,
     marginBottom: theme.spacing.xs,
   },
@@ -349,21 +363,22 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
-    fontWeight: '600',
+    fontFamily: theme.fonts.displayMedium,
   },
   notificationTitleUnread: {
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   notificationBody: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     lineHeight: 20,
+    fontFamily: theme.fonts.regular,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#3b82f6',
+    backgroundColor: "#3b82f6",
     marginTop: 6,
     flexShrink: 0,
   },

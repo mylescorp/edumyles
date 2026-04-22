@@ -11,9 +11,8 @@ export async function POST(request: NextRequest) {
     }
 
     const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-    
-    // Validate the invite token
-    const invite = await convex.query(api.modules.platform.rbac.validateInviteToken, { token });
+
+    const invite = await convex.query(api.modules.platform.rbac.getInviteByToken, { token });
 
     if (!invite) {
       return NextResponse.json({ error: "invalid" }, { status: 404 });
@@ -28,15 +27,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Get role details
-    const role = await convex.query(api.modules.platform.rbac.getRoleBySlug, { 
-      slug: invite.role 
+    const role = await convex.query(api.modules.platform.rbac.getRoleBySlug, {
+      slug: invite.roleSlug,
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       invite: {
         ...invite,
-        roleName: role?.name || invite.role,
-      }
+        roleName: role?.name || invite.roleSlug,
+      },
     });
   } catch (error) {
     console.error("Error validating invite:", error);

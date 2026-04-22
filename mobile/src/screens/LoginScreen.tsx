@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -11,13 +11,14 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native";
 
-import { useAuth } from '../hooks/useAuth';
-import { theme } from '../theme';
+import { useAuth } from "../hooks/useAuth";
+import { theme } from "../theme";
 
 const LoginScreen: React.FC = () => {
-  const { signIn, checkSignInStatus, clearPendingSignIn, pendingAuthRequest, isLoading } = useAuth();
+  const { signIn, checkSignInStatus, clearPendingSignIn, pendingAuthRequest, isLoading } =
+    useAuth();
   const [email, setEmail] = useState("");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
@@ -33,7 +34,9 @@ const LoginScreen: React.FC = () => {
   const handleLogin = async () => {
     try {
       const request = await signIn(email);
-      setStatusMessage("Open the browser window, finish sign-in, then return here. We’ll keep checking for approval.");
+      setStatusMessage(
+        "Open the browser window, finish sign-in, then return here. We’ll keep checking for approval."
+      );
       await Linking.openURL(request.approvalUrl);
     } catch (error) {
       Alert.alert("Sign-in failed", error instanceof Error ? error.message : "Try again.");
@@ -50,7 +53,9 @@ const LoginScreen: React.FC = () => {
       const status = await checkSignInStatus(pendingAuthRequest.requestId);
 
       if (status.status === "pending") {
-        setStatusMessage("Approval is still pending. Finish sign-in in the browser, then check again.");
+        setStatusMessage(
+          "Approval is still pending. Finish sign-in in the browser, then check again."
+        );
         return;
       }
 
@@ -65,7 +70,9 @@ const LoginScreen: React.FC = () => {
           : "That mobile sign-in request is no longer active. Start a new one to continue.";
       setStatusMessage(message);
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "We could not confirm the sign-in yet.");
+      setStatusMessage(
+        error instanceof Error ? error.message : "We could not confirm the sign-in yet."
+      );
     } finally {
       setIsPolling(false);
     }
@@ -101,7 +108,7 @@ const LoginScreen: React.FC = () => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.hero}>
@@ -194,55 +201,56 @@ const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eff6ff',
+    backgroundColor: "#eff6ff",
   },
   content: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.xxl,
   },
   hero: {
     marginBottom: theme.spacing.xl,
-    alignItems: 'center',
+    alignItems: "center",
   },
   logo: {
     width: 88,
     height: 88,
     borderRadius: 28,
     backgroundColor: theme.colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: theme.spacing.lg,
   },
   logoText: {
     color: theme.colors.white,
     fontSize: theme.fontSizes.xxxl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
   },
   title: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.xxxl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
     marginBottom: theme.spacing.sm,
   },
   subtitle: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.base,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 24,
+    fontFamily: theme.fonts.regular,
   },
   form: {
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: '#dbeafe',
+    borderColor: "#dbeafe",
   },
   label: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
     marginBottom: theme.spacing.sm,
     marginTop: theme.spacing.md,
   },
@@ -255,13 +263,14 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.md,
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
+    fontFamily: theme.fonts.regular,
   },
   button: {
     marginTop: theme.spacing.xl,
     backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.md,
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonDisabled: {
     opacity: 0.75,
@@ -269,46 +278,47 @@ const styles = StyleSheet.create({
   buttonText: {
     color: theme.colors.white,
     fontSize: theme.fontSizes.base,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   approvalCard: {
     marginTop: theme.spacing.lg,
     borderRadius: theme.borderRadius.lg,
-    backgroundColor: '#eff6ff',
+    backgroundColor: "#eff6ff",
     borderWidth: 1,
-    borderColor: '#bfdbfe',
+    borderColor: "#bfdbfe",
     padding: theme.spacing.md,
     gap: theme.spacing.sm,
   },
   approvalTitle: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   approvalText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     lineHeight: 20,
+    fontFamily: theme.fonts.regular,
   },
   statusMessage: {
     color: theme.colors.primary,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
     lineHeight: 20,
   },
   secondaryButton: {
     marginTop: theme.spacing.sm,
     borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: '#93c5fd',
+    borderColor: "#93c5fd",
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: theme.colors.white,
   },
   secondaryButtonText: {
     color: theme.colors.primary,
     fontSize: theme.fontSizes.base,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   checkButton: {
     borderColor: theme.colors.primary,
@@ -317,13 +327,13 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
   },
   tertiaryButton: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: theme.spacing.xs,
   },
   tertiaryButtonText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
   },
 });
 

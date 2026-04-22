@@ -31,6 +31,8 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   const { user, logout, sessionToken } = useAuth();
   const { can, isLoaded: platformPermissionsLoaded } = usePlatformPermissions();
   const { isModuleInstalled, isModuleActive } = useInstalledModules();
+  const isModuleAccessible = (moduleSlug: string) =>
+    isModuleInstalled(moduleSlug) && isModuleActive(moduleSlug);
   const isPlatformSidebar = navItems.some((item) => item.href.startsWith("/platform"));
   const pendingAdmissionsResult = useQuery(
     api.modules.admissions.queries.listApplications,

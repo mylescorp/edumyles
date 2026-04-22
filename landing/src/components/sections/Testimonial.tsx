@@ -78,7 +78,7 @@ export default function Testimonial() {
       {/* Section heading */}
       <div className="text-center mb-10 sm:mb-12">
         <h2
-          className="font-playfair font-bold leading-[1.2] mb-2"
+          className="font-display font-bold leading-[1.2] mb-2"
           style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
         >
           What Schools Say
@@ -91,8 +91,12 @@ export default function Testimonial() {
       {/* Carousel */}
       <div
         className="max-w-[780px] mx-auto"
-        onMouseEnter={() => { hoverRef.current = true; }}
-        onMouseLeave={() => { hoverRef.current = false; }}
+        onMouseEnter={() => {
+          hoverRef.current = true;
+        }}
+        onMouseLeave={() => {
+          hoverRef.current = false;
+        }}
       >
         <div className="flex items-center gap-4">
           {/* Prev button */}
@@ -131,7 +135,7 @@ export default function Testimonial() {
           >
             {/* Open-quote decoration */}
             <div
-              className="font-playfair leading-none select-none"
+              className="font-display leading-none select-none"
               style={{ fontSize: "80px", color: "#E8A020", lineHeight: "0.5", marginBottom: "8px" }}
               aria-hidden="true"
             >
@@ -140,7 +144,7 @@ export default function Testimonial() {
 
             {/* Quote text */}
             <p
-              className="font-playfair font-normal italic leading-[1.65]"
+              className="font-display font-normal italic leading-[1.65]"
               style={{ fontSize: "clamp(1rem,2vw,1.35rem)", color: "#061A12" }}
             >
               {t.quote}

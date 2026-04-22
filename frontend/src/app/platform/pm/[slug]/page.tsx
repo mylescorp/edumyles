@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PmAdminRail } from "@/components/platform/PmAdminRail";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -184,6 +185,11 @@ export default function WorkspacePage() {
       <PageHeader
         title={workspace.name}
         description={`Workspace type: ${workspace.type}. Browse projects and open the detailed PM views that are already backed by Convex.`}
+        breadcrumbs={[
+          { label: "Platform", href: "/platform" },
+          { label: "PM", href: "/platform/pm" },
+          { label: workspace.name },
+        ]}
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing || isCreating}>
@@ -198,56 +204,37 @@ export default function WorkspacePage() {
         }
       />
 
-      <div className="flex items-center gap-4">
-        <div className="text-2xl">{workspace.icon || "📁"}</div>
-        <div>
-          <div className="flex items-center gap-2 mt-1">
-            <Badge variant="secondary">{workspace.type}</Badge>
-            <span className="text-sm text-muted-foreground">
-              {projects?.length || 0} projects
-            </span>
-          </div>
-        </div>
-      </div>
+      <PmAdminRail currentHref="/platform/pm/workspaces" />
 
-      <div className="flex items-center gap-4 border-b border-border">
-          <button
-            className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              true
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Kanban Board
-          </button>
-          <button
-            className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              false
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            List View
-          </button>
-          <button
-            className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              false
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Timeline
-          </button>
-          <button
-            className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              false
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Calendar
-          </button>
-      </div>
+      <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.08),transparent_30%),linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,0.98))]">
+        <CardContent className="grid gap-6 p-6 md:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-3">
+            <div className="text-3xl">{workspace.icon || "📁"}</div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Workspace posture</p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-950">{workspace.name}</h2>
+            </div>
+            <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+              This workspace centralizes delivery lanes for {workspace.type} work. Open any project below to jump into board, list, backlog,
+              timeline, calendar, or settings views without losing context.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-1 xl:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Type</p>
+              <Badge variant="secondary" className="mt-3">{workspace.type}</Badge>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Projects</p>
+              <p className="mt-3 text-2xl font-semibold text-slate-950">{projects?.length || 0}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Navigation</p>
+              <p className="mt-3 text-sm text-muted-foreground">Board, list, timeline, backlog, calendar, settings</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {projects?.map((project: ProjectSummary) => (

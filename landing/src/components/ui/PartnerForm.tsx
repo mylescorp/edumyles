@@ -60,7 +60,7 @@ export default function PartnerForm() {
         >
           ✓
         </div>
-        <h3 className="font-playfair font-bold text-[22px]" style={{ color: "#061A12" }}>
+        <h3 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
           Application received!
         </h3>
         <p className="font-jakarta text-[16px]" style={{ color: "#5a5a5a" }}>
@@ -192,7 +192,10 @@ export default function PartnerForm() {
       {formState === "error" && (
         <p className="font-jakarta text-[14px]" style={{ color: "#dc2626" }}>
           Something went wrong. Please try again or email us at{" "}
-          <a href="mailto:partners@edumyles.com" style={{ color: "#dc2626", textDecoration: "underline" }}>
+          <a
+            href="mailto:partners@edumyles.com"
+            style={{ color: "#dc2626", textDecoration: "underline" }}
+          >
             partners@edumyles.com
           </a>
           .

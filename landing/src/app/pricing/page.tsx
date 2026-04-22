@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -31,16 +30,22 @@ export default function PricingPage() {
         <div className="relative max-w-[1200px] mx-auto w-full text-center">
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+            style={{
+              background: "rgba(232,160,32,0.12)",
+              border: "1px solid #E8A020",
+              color: "#E8A020",
+            }}
           >
             Transparent Pricing
           </div>
           <h1
-            className="font-playfair font-bold leading-[1.15] mb-5"
+            className="font-display font-bold leading-[1.15] mb-5"
             style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
           >
             Simple pricing.{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>No surprises.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              No surprises.
+            </em>
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto"

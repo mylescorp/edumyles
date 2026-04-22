@@ -72,24 +72,24 @@ export async function POST(req: NextRequest) {
     tenantId = provisionResult.tenantId;
 
     stage = "provisioning_workos_organization";
-    let organization:
-      | {
-          tenant: any;
-          organizationId: string;
-          workosOrgId: string;
-          alreadyExists: boolean;
-        }
-      | null = null;
+    let organization: {
+      tenant: any;
+      organizationId: string;
+      workosOrgId: string;
+      alreadyExists: boolean;
+    } | null = null;
 
     try {
       organization = await ensureTenantWorkOSOrganization({
         convex,
-        tenantId,
+        tenantId: tenantId!,
         sessionToken,
       });
     } catch (error: any) {
       if (error?.message?.includes("WORKOS_NOT_CONFIGURED")) {
-        warnings.push("WorkOS is not configured yet. The tenant was provisioned with a placeholder organization and the admin invite email was not sent.");
+        warnings.push(
+          "WorkOS is not configured yet. The tenant was provisioned with a placeholder organization and the admin invite email was not sent."
+        );
         const existingOrganization = await convex.query(api.organizations.getOrgByTenantId, {
           tenantId,
           sessionToken,
@@ -116,9 +116,10 @@ export async function POST(req: NextRequest) {
       firstName: String(adminFirstName).trim(),
       lastName: String(adminLastName).trim(),
       role: "school_admin",
-      personalMessage: typeof welcomeMessage === "string" && welcomeMessage.trim().length > 0
-        ? welcomeMessage.trim()
-        : undefined,
+      personalMessage:
+        typeof welcomeMessage === "string" && welcomeMessage.trim().length > 0
+          ? welcomeMessage.trim()
+          : undefined,
       expiresInDays: 7,
     });
 
@@ -129,7 +130,9 @@ export async function POST(req: NextRequest) {
       signUpUrl = buildWorkOSSignUpUrl(req, String(adminEmail).trim().toLowerCase());
     } catch (error: any) {
       if (error?.message?.includes("WORKOS_NOT_CONFIGURED")) {
-        warnings.push("WorkOS sign-up links are unavailable until WorkOS environment variables are configured.");
+        warnings.push(
+          "WorkOS sign-up links are unavailable until WorkOS environment variables are configured."
+        );
       } else {
         throw error;
       }
@@ -147,7 +150,9 @@ export async function POST(req: NextRequest) {
         invitationId = invitation.id;
       } catch (error: any) {
         if (error?.message?.includes("WORKOS_NOT_CONFIGURED")) {
-          warnings.push("The tenant admin invite record was created, but the WorkOS email invitation could not be sent because WorkOS is not configured.");
+          warnings.push(
+            "The tenant admin invite record was created, but the WorkOS email invitation could not be sent because WorkOS is not configured."
+          );
         } else {
           throw error;
         }
@@ -161,8 +166,8 @@ export async function POST(req: NextRequest) {
       organizationId: organization?.organizationId ?? null,
       workosOrgId: organization?.workosOrgId ?? null,
       invitationId,
-      inviteToken: inviteRecord.inviteToken,
-      inviteRecordId: inviteRecord.tenantInviteId,
+      inviteToken: (inviteRecord as any).inviteToken ?? null,
+      inviteRecordId: (inviteRecord as any).tenantInviteId ?? null,
       signUpUrl,
       invitationQueued: Boolean(invitationId),
       warnings,
@@ -171,10 +176,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("[tenants/onboard] Error:", error);
     const message = error?.message ?? "Failed to complete tenant onboarding";
-    const status =
-      message.includes("CONFLICT") ? 409 :
-      message.includes("NOT_FOUND") ? 404 :
-      500;
+    const status = message.includes("CONFLICT") ? 409 : message.includes("NOT_FOUND") ? 404 : 500;
 
     return NextResponse.json(
       {

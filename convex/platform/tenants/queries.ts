@@ -3,6 +3,15 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
+function normalizeTenantModuleKey(value?: string) {
+  const raw = (value ?? "").trim().toLowerCase();
+  if (!raw) return "unknown";
+  if (raw === "sis") return "core_sis";
+  if (raw === "users") return "core_users";
+  if (raw === "communications" || raw === "notifications") return "core_notifications";
+  return raw;
+}
+
 function parseSubscriptionNotes(notes?: string) {
   if (!notes) {
     return {};
@@ -626,6 +635,9 @@ export const getTenantDetailBundle = query({
       .slice()
       .sort((a: any, b: any) => b.createdAt - a.createdAt)
       .slice(0, 10);
+    const adminInvite = tenantInvites
+      .slice()
+      .sort((a: any, b: any) => (b.updatedAt ?? b.createdAt ?? 0) - (a.updatedAt ?? a.createdAt ?? 0))[0] ?? null;
     const totalSubscriptionInvoiceAmountKes = subscriptionInvoices.reduce(
       (sum: number, invoice: any) => sum + invoice.totalAmountKes,
       0
@@ -743,6 +755,37 @@ export const getTenantDetailBundle = query({
           .sort((a: any, b: any) => b.startAt - a.startAt)
           .slice(0, 10),
       },
+    };
+  },
+});
+
+export const getTenantInviteByToken = query({
+  args: {
+    token: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const invite = await ctx.db
+      .query("tenant_invites")
+      .withIndex("by_token", (q: any) => q.eq("token", args.token))
+      .unique();
+
+    if (!invite) {
+      return null;
+    }
+
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", invite.tenantId))
+      .first();
+
+    const now = Date.now();
+    return {
+      ...invite,
+      schoolName: tenant?.name ?? "EduMyles School",
+      isUsed: invite.status === "accepted",
+      isRevoked: invite.status === "revoked",
+      isExpired: invite.status === "expired" || invite.expiresAt < now,
+      isValid: invite.status === "pending" && invite.expiresAt >= now,
     };
   },
 });

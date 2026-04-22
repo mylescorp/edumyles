@@ -8,7 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
@@ -34,114 +40,122 @@ export function BulkInviteUpload() {
   const [defaultMessage, setDefaultMessage] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadResults, setUploadResults] = useState<Array<{ email: string; success: boolean; error?: string }>>([]);
+  const [uploadResults, setUploadResults] = useState<
+    Array<{ email: string; success: boolean; error?: string }>
+  >([]);
 
   const bulkInviteUsers = useMutation(api.modules.platform.rbac.bulkInvitePlatformUsers);
 
-  const parseCSV = useCallback((text: string): ParsedInvite[] => {
-    const lines = text.split('\n').filter(line => line.trim());
-    if (lines.length < 2) return [];
+  const parseCSV = useCallback(
+    (text: string): ParsedInvite[] => {
+      const lines = text.split("\n").filter((line) => line.trim());
+      if (lines.length < 2) return [];
 
-    const headers = lines[0]?.split(',').map(h => h.trim().toLowerCase()) || [];
-    const invites: ParsedInvite[] = [];
+      const headers = lines[0]?.split(",").map((h) => h.trim().toLowerCase()) || [];
+      const invites: ParsedInvite[] = [];
 
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i]?.split(',').map(v => v.trim()) || [];
-      const invite: ParsedInvite = {
-        email: "",
-        role: "",
-        department: "",
-        personalMessage: "",
-        row: i + 1,
-        errors: []
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i]?.split(",").map((v) => v.trim()) || [];
+        const invite: ParsedInvite = {
+          email: "",
+          role: "",
+          department: "",
+          personalMessage: "",
+          row: i + 1,
+          errors: [],
+        };
+
+        // Parse each column
+        headers.forEach((header, index) => {
+          const value = values[index] || "";
+
+          switch (header) {
+            case "email":
+            case "e-mail":
+              invite.email = value.toLowerCase();
+              if (!value || !value.includes("@")) {
+                invite.errors.push("Invalid email address");
+              }
+              break;
+            case "role":
+              invite.role = value;
+              if (!value) {
+                invite.errors.push("Role is required");
+              }
+              break;
+            case "department":
+              invite.department = value;
+              break;
+            case "message":
+            case "personal message":
+            case "personal_message":
+              invite.personalMessage = value;
+              break;
+          }
+        });
+
+        // Apply defaults if not provided
+        if (!invite.role && defaultRole) {
+          invite.role = defaultRole;
+        }
+        if (!invite.department && defaultDepartment) {
+          invite.department = defaultDepartment;
+        }
+        if (!invite.personalMessage && defaultMessage) {
+          invite.personalMessage = defaultMessage;
+        }
+
+        // Validate required fields
+        if (!invite.email) {
+          invite.errors.push("Email is required");
+        }
+        if (!invite.role) {
+          invite.errors.push("Role is required");
+        }
+
+        invites.push(invite);
+      }
+
+      return invites;
+    },
+    [defaultRole, defaultDepartment, defaultMessage]
+  );
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0];
+      if (!selectedFile) return;
+
+      if (!selectedFile.name.endsWith(".csv")) {
+        toast.error("Please select a CSV file");
+        return;
+      }
+
+      setFile(selectedFile);
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        const parsed = parseCSV(text);
+        setParsedInvites(parsed);
+
+        const validCount = parsed.filter((invite) => invite.errors.length === 0).length;
+        toast.success(`Parsed ${parsed.length} invitations. ${validCount} are valid.`);
       };
 
-      // Parse each column
-      headers.forEach((header, index) => {
-        const value = values[index] || "";
-        
-        switch (header) {
-          case 'email':
-          case 'e-mail':
-            invite.email = value.toLowerCase();
-            if (!value || !value.includes('@')) {
-              invite.errors.push("Invalid email address");
-            }
-            break;
-          case 'role':
-            invite.role = value;
-            if (!value) {
-              invite.errors.push("Role is required");
-            }
-            break;
-          case 'department':
-            invite.department = value;
-            break;
-          case 'message':
-          case 'personal message':
-          case 'personal_message':
-            invite.personalMessage = value;
-            break;
-        }
-      });
+      reader.onerror = () => {
+        toast.error("Failed to read file");
+      };
 
-      // Apply defaults if not provided
-      if (!invite.role && defaultRole) {
-        invite.role = defaultRole;
-      }
-      if (!invite.department && defaultDepartment) {
-        invite.department = defaultDepartment;
-      }
-      if (!invite.personalMessage && defaultMessage) {
-        invite.personalMessage = defaultMessage;
-      }
-
-      // Validate required fields
-      if (!invite.email) {
-        invite.errors.push("Email is required");
-      }
-      if (!invite.role) {
-        invite.errors.push("Role is required");
-      }
-
-      invites.push(invite);
-    }
-
-    return invites;
-  }, [defaultRole, defaultDepartment, defaultMessage]);
-
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
-
-    if (!selectedFile.name.endsWith('.csv')) {
-      toast.error("Please select a CSV file");
-      return;
-    }
-
-    setFile(selectedFile);
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const parsed = parseCSV(text);
-      setParsedInvites(parsed);
-      
-      const validCount = parsed.filter(invite => invite.errors.length === 0).length;
-      toast.success(`Parsed ${parsed.length} invitations. ${validCount} are valid.`);
-    };
-
-    reader.onerror = () => {
-      toast.error("Failed to read file");
-    };
-
-    reader.readAsText(selectedFile);
-  }, [parseCSV]);
+      reader.readAsText(selectedFile);
+    },
+    [parseCSV]
+  );
 
   const handleUpload = useCallback(async () => {
     if (!sessionToken || parsedInvites.length === 0) return;
 
-    const validInvites = parsedInvites.filter(invite => invite.errors.length === 0);
+    const validInvites = parsedInvites.filter((invite) => invite.errors.length === 0);
     if (validInvites.length === 0) {
       toast.error("No valid invitations to upload");
       return;
@@ -154,7 +168,7 @@ export function BulkInviteUpload() {
     try {
       const results = await bulkInviteUsers({
         sessionToken,
-        invites: validInvites.map(invite => ({
+        invites: validInvites.map((invite) => ({
           email: invite.email,
           role: invite.role,
           department: invite.department,
@@ -169,10 +183,10 @@ export function BulkInviteUpload() {
       });
 
       setUploadResults(results);
-      
-      const successCount = results.filter(r => r.success).length;
+
+      const successCount = results.filter((r: { success: boolean }) => r.success).length;
       const failureCount = results.length - successCount;
-      
+
       toast.success(`Upload complete: ${successCount} successful, ${failureCount} failed`);
     } catch (error) {
       console.error("Bulk upload failed:", error);
@@ -188,22 +202,22 @@ export function BulkInviteUpload() {
 john.doe@example.com,support_agent,Support,Welcome to our team!
 jane.smith@example.com,billing_admin,Billing,Looking forward to working with you
 bob.wilson@example.com,content_moderator,Content,Help us maintain quality`;
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'bulk_invite_template.csv';
+    a.download = "bulk_invite_template.csv";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-    
+
     toast.success("Template downloaded");
   }, []);
 
-  const validInvites = parsedInvites.filter(invite => invite.errors.length === 0);
-  const invalidInvites = parsedInvites.filter(invite => invite.errors.length > 0);
+  const validInvites = parsedInvites.filter((invite) => invite.errors.length === 0);
+  const invalidInvites = parsedInvites.filter((invite) => invite.errors.length > 0);
 
   return (
     <div className="space-y-6">
@@ -214,7 +228,8 @@ bob.wilson@example.com,content_moderator,Content,Help us maintain quality`;
             Bulk Invite Upload
           </CardTitle>
           <CardDescription>
-            Upload a CSV file to invite multiple users at once. Each row should contain email, role, and optional department/message.
+            Upload a CSV file to invite multiple users at once. Each row should contain email, role,
+            and optional department/message.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -283,9 +298,7 @@ bob.wilson@example.com,content_moderator,Content,Help us maintain quality`;
           {parsedInvites.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <Badge variant="outline">
-                  {parsedInvites.length} total
-                </Badge>
+                <Badge variant="outline">{parsedInvites.length} total</Badge>
                 <Badge variant="default" className="bg-green-100 text-green-800">
                   {validInvites.length} valid
                 </Badge>
@@ -304,7 +317,7 @@ bob.wilson@example.com,content_moderator,Content,Help us maintain quality`;
                       <ul className="text-sm space-y-1">
                         {invalidInvites.slice(0, 5).map((invite, index) => (
                           <li key={index}>
-                            Row {invite.row}: {invite.email} - {invite.errors.join(', ')}
+                            Row {invite.row}: {invite.email} - {invite.errors.join(", ")}
                           </li>
                         ))}
                         {invalidInvites.length > 5 && (

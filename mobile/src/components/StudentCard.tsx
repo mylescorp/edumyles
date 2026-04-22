@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { theme } from '../theme';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { theme } from "../theme";
 
 export type StudentCardProps = {
   _id: string;
@@ -21,11 +21,9 @@ const StudentCard = React.memo(function StudentCard({
   return (
     <View style={styles.card}>
       <Text style={styles.name}>
-        {[firstName, lastName].filter(Boolean).join(' ') || 'Unknown Student'}
+        {[firstName, lastName].filter(Boolean).join(" ") || "Unknown Student"}
       </Text>
-      {admissionNumber ? (
-        <Text style={styles.meta}>Admission: {admissionNumber}</Text>
-      ) : null}
+      {admissionNumber ? <Text style={styles.meta}>Admission: {admissionNumber}</Text> : null}
       {classId ? (
         <Text style={styles.meta}>Class: {classId}</Text>
       ) : (
@@ -44,7 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 14,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 3,
@@ -52,7 +50,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: theme.fonts.displayMedium,
     color: theme.colors.text,
     marginBottom: 4,
   },
@@ -60,5 +58,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: theme.colors.textSecondary,
     marginTop: 2,
+    fontFamily: theme.fonts.regular,
   },
 });

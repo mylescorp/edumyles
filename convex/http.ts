@@ -22,6 +22,14 @@ function getWorkOSWebhookSecret() {
   return secret;
 }
 
+function getGitHubWebhookSecret() {
+  const secret = process.env.GITHUB_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error("GITHUB_WEBHOOK_SECRET is not configured");
+  }
+  return secret;
+}
+
 function hexFromBuffer(buffer: ArrayBuffer) {
   return Array.from(new Uint8Array(buffer))
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -163,6 +171,59 @@ async function verifyStripeSignature(rawBody: string, signatureHeader: string | 
 
   return signatures.includes(expected);
 }
+
+async function verifyGitHubSignature(rawBody: string, signatureHeader: string | null) {
+  if (!signatureHeader) {
+    return false;
+  }
+  const provided = signatureHeader.replace(/^sha256=/, "");
+  const expected = await computeHmacHex(getGitHubWebhookSecret(), rawBody);
+  return secureCompareHex(expected, provided);
+}
+
+http.route({
+  path: "/webhooks/github",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const rawBody = await req.text();
+    const signature = req.headers.get("x-hub-signature-256");
+    const isValid = await verifyGitHubSignature(rawBody, signature);
+    if (!isValid) {
+      return new Response("Invalid GitHub signature", { status: 401 });
+    }
+
+    const eventType = req.headers.get("x-github-event");
+    const deliveryId = req.headers.get("x-github-delivery") ?? undefined;
+    const payload = JSON.parse(rawBody) as any;
+    const repository = payload?.repository?.full_name;
+
+    if (!eventType || !repository) {
+      return new Response("Invalid GitHub payload", { status: 400 });
+    }
+
+    if (eventType === "pull_request" && payload.pull_request?.number) {
+      await ctx.runMutation(internal.modules.pm.github.processPullRequest, {
+        repository,
+        deliveryId,
+        action: payload.action,
+        pullRequestNumber: payload.pull_request.number,
+        branch: payload.pull_request.head?.ref,
+        merged: payload.pull_request.merged,
+        payload,
+      });
+    } else if (eventType === "issues" && payload.issue?.number) {
+      await ctx.runMutation(internal.modules.pm.github.processIssueEvent, {
+        repository,
+        deliveryId,
+        action: payload.action,
+        issueNumber: payload.issue.number,
+        payload,
+      });
+    }
+
+    return Response.json({ received: true, eventType });
+  }),
+});
 
 http.route({
   path: "/workos/webhook",

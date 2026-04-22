@@ -3,13 +3,7 @@
 import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  CheckCircle2,
-  Mail,
-  Phone,
-  FileText,
-  TrendingUp,
-} from "lucide-react";
+import { CheckCircle2, Mail, Phone, FileText, TrendingUp } from "lucide-react";
 
 function ResellerApplicationSuccessContent() {
   const searchParams = useSearchParams();
@@ -22,7 +16,7 @@ function ResellerApplicationSuccessContent() {
           <div className="w-20 h-20 bg-[#0F4C2A] rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="font-playfair text-4xl font-bold text-[#061A12] mb-4">
+          <h1 className="font-display text-4xl font-bold text-[#061A12] mb-4">
             Application Submitted!
           </h1>
           <p className="font-jakarta text-[18px] leading-7 text-[#5d6f66] mb-2">
@@ -34,7 +28,7 @@ function ResellerApplicationSuccessContent() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="font-playfair text-2xl font-bold text-[#061A12] mb-6">
+          <h2 className="font-display text-2xl font-bold text-[#061A12] mb-6">
             What Happens Next?
           </h2>
 
@@ -75,12 +69,8 @@ function ResellerApplicationSuccessContent() {
                   <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-1">
                     {step.title}
                   </h3>
-                  <p className="font-jakarta text-[14px] text-[#5d6f66] mb-2">
-                    {step.description}
-                  </p>
-                  <p className="font-jakarta text-[12px] text-[#1A7A4A] font-medium">
-                    {step.time}
-                  </p>
+                  <p className="font-jakarta text-[14px] text-[#5d6f66] mb-2">{step.description}</p>
+                  <p className="font-jakarta text-[12px] text-[#1A7A4A] font-medium">{step.time}</p>
                 </div>
               </div>
             ))}
@@ -88,7 +78,7 @@ function ResellerApplicationSuccessContent() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="font-playfair text-2xl font-bold text-[#061A12] mb-6">
+          <h2 className="font-display text-2xl font-bold text-[#061A12] mb-6">
             Prepare for Success
           </h2>
 
@@ -98,8 +88,8 @@ function ResellerApplicationSuccessContent() {
                 Research Your Target Market
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Identify schools in your area that could benefit from EduMyles and understand
-                their current challenges.
+                Identify schools in your area that could benefit from EduMyles and understand their
+                current challenges.
               </p>
             </div>
 
@@ -108,8 +98,8 @@ function ResellerApplicationSuccessContent() {
                 Prepare Your Marketing Strategy
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Think about how you&apos;ll reach school administrators and decision-makers in
-                your target region.
+                Think about how you&apos;ll reach school administrators and decision-makers in your
+                target region.
               </p>
             </div>
 
@@ -118,8 +108,8 @@ function ResellerApplicationSuccessContent() {
                 Understand the Product
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Familiarize yourself with EduMyles features, benefits, and pricing to
-                effectively communicate value to schools.
+                Familiarize yourself with EduMyles features, benefits, and pricing to effectively
+                communicate value to schools.
               </p>
             </div>
           </div>

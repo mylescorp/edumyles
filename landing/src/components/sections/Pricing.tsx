@@ -84,10 +84,13 @@ export default function Pricing() {
         <div className="text-center mb-12">
           <div className="section-eyebrow justify-center mb-2">Pricing</div>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
           >
-            Simple, <em className="italic" style={{ color: "#E8A020" }}>Transparent Pricing</em>
+            Simple,{" "}
+            <em className="italic" style={{ color: "#E8A020" }}>
+              Transparent Pricing
+            </em>
           </h2>
           <p className="font-jakarta text-lg text-mid-grey max-w-2xl mx-auto mb-8">
             No hidden fees. Pay per school per month. Cancel anytime. Start free for 30 days.

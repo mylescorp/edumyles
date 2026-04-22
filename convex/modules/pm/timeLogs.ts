@@ -1,39 +1,74 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../_generated/server";
-import { requirePmRole } from "./roles";
+import { logAction } from "../../helpers/auditLog";
+import { hasPermission } from "../platform/rbac";
+import {
+  getProjectsForUser,
+  recalculateTaskActualHours,
+  requirePmPermission,
+  requireProjectAccess,
+  sanitizeRichText,
+} from "./helpers";
 
-// SECURITY: PM functions use requirePmRole(), which internally validates the
-// tenant session before applying PM-specific authorization.
-import { updateEpicProgress } from "./epics";
+function toDateString(timestamp: number) {
+  return new Date(timestamp).toISOString().slice(0, 10);
+}
 
-// Queries
+async function getTimeLogRows(
+  ctx: any,
+  args: {
+    sessionToken: string;
+    projectId?: any;
+    userId?: string;
+    dateFrom?: number;
+    dateTo?: number;
+  }
+) {
+  const actor = await requirePmPermission(ctx, args, "pm.view_time_logs");
+  const projects = await getProjectsForUser(ctx, actor.userId, actor.permissions);
+  const projectIds = new Set(projects.map((project) => String(project._id)));
+
+  let logs = await ctx.db.query("pmTimeLogs").collect();
+  logs = logs.filter((log: any) => {
+    if (args.userId && hasPermission(actor.permissions, "pm.view_all") && log.userId !== args.userId) {
+      return false;
+    }
+    if (!hasPermission(actor.permissions, "pm.view_all") && log.userId !== actor.userId) {
+      return false;
+    }
+    if (args.dateFrom && log.loggedAt < args.dateFrom) return false;
+    if (args.dateTo && log.loggedAt > args.dateTo) return false;
+    return true;
+  });
+
+  const rows = [];
+  for (const log of logs) {
+    const task = await ctx.db.get(log.taskId);
+    if (!task || task.isDeleted) continue;
+    if (!projectIds.has(String(task.projectId))) continue;
+    if (args.projectId && String(task.projectId) !== String(args.projectId)) continue;
+    const project = await ctx.db.get(task.projectId);
+    if (!project) continue;
+    rows.push({ ...log, task, project });
+  }
+
+  return {
+    actor,
+    rows: rows.sort((a, b) => b.loggedAt - a.loggedAt),
+  };
+}
+
 export const getTimeLogs = query({
   args: {
     sessionToken: v.string(),
-    taskId: v.id("pmTasks"),
+    projectId: v.optional(v.id("pmProjects")),
+    userId: v.optional(v.string()),
+    dateFrom: v.optional(v.number()),
+    dateTo: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const task = await ctx.db.get(args.taskId);
-    if (!task) {
-      throw new Error("TASK_NOT_FOUND");
-    }
-
-    const project = await ctx.db.get(task.projectId);
-    if (!project) {
-      throw new Error("PROJECT_NOT_FOUND");
-    }
-
-    await requirePmRole(ctx, args, "viewer", project.workspaceId);
-
-    const timeLogs = await ctx.db
-      .query("pmTimeLogs")
-      .withIndex("by_task", (q) => q.eq("taskId", args.taskId))
-      .collect();
-
-    // Sort by loggedAt (newest first)
-    timeLogs.sort((a, b) => b.loggedAt - a.loggedAt);
-
-    return timeLogs;
+    const result = await getTimeLogRows(ctx, args);
+    return result.rows;
   },
 });
 
@@ -44,39 +79,14 @@ export const getUserTimeLogs = query({
     endDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requirePmRole(ctx, args, "viewer");
-
-    let timeLogs = await ctx.db
-      .query("pmTimeLogs")
-      .withIndex("by_user", (q) => q.eq("userId", tenantCtx.userId))
-      .collect();
-
-    // Apply date filters
-    if (args.startDate) {
-      timeLogs = timeLogs.filter(log => log.loggedAt >= args.startDate!);
-    }
-    if (args.endDate) {
-      timeLogs = timeLogs.filter(log => log.loggedAt <= args.endDate!);
-    }
-
-    // Sort by loggedAt (newest first)
-    timeLogs.sort((a, b) => b.loggedAt - a.loggedAt);
-
-    // Get task details for each time log
-    const timeLogsWithTask = await Promise.all(
-      timeLogs.map(async (timeLog) => {
-        const task = await ctx.db.get(timeLog.taskId);
-        const project = task ? await ctx.db.get(task.projectId) : null;
-        
-        return {
-          ...timeLog,
-          task,
-          project,
-        };
-      })
-    );
-
-    return timeLogsWithTask;
+    const result = await getTimeLogRows(ctx, {
+      sessionToken: args.sessionToken,
+      dateFrom: args.startDate,
+      dateTo: args.endDate,
+      projectId: undefined,
+      userId: undefined,
+    });
+    return result.rows;
   },
 });
 
@@ -90,128 +100,70 @@ export const getTimeLogStats = query({
     endDate: v.number(),
   },
   handler: async (ctx, args) => {
-    let timeLogs: any[] = [];
+    const result = await getTimeLogRows(ctx, {
+      sessionToken: args.sessionToken,
+      projectId: args.projectId,
+      userId: args.userId,
+      dateFrom: args.startDate,
+      dateTo: args.endDate,
+    });
+    const actor = result.actor;
+    let logs = result.rows;
 
     if (args.taskId) {
-      // Get time logs for specific task
-      const task = await ctx.db.get(args.taskId);
-      if (!task) {
-        throw new Error("TASK_NOT_FOUND");
-      }
-
-      const project = await ctx.db.get(task.projectId);
-      if (!project) {
-        throw new Error("PROJECT_NOT_FOUND");
-      }
-
-      await requirePmRole(ctx, args, "viewer", project.workspaceId);
-
-      timeLogs = await ctx.db
-        .query("pmTimeLogs")
-        .withIndex("by_task", (q) => q.eq("taskId", args.taskId!))
-        .collect();
-    } else if (args.userId) {
-      // Get time logs for specific user
-      await requirePmRole(ctx, args, "viewer");
-
-      timeLogs = await ctx.db
-        .query("pmTimeLogs")
-        .withIndex("by_user", (q) => q.eq("userId", args.userId!))
-        .collect();
-    } else {
-      // Get all time logs the user has access to
-      const tenantCtx = await requirePmRole(ctx, args, "viewer");
-      timeLogs = await ctx.db
-        .query("pmTimeLogs")
-        .withIndex("by_user", (q) => q.eq("userId", tenantCtx.userId))
-        .collect();
+      logs = logs.filter((log: any) => String(log.taskId) === String(args.taskId));
     }
 
-    // Apply date filters
-    if (args.startDate) {
-      timeLogs = timeLogs.filter(log => log.loggedAt >= args.startDate);
-    }
-    if (args.endDate) {
-      timeLogs = timeLogs.filter(log => log.loggedAt <= args.endDate);
-    }
-
-    // Filter by project if specified
-    if (args.projectId) {
-      const projectId = args.projectId;
-      const taskIds = await ctx.db
-        .query("pmTasks")
-        .withIndex("by_project", (q) => q.eq("projectId", projectId))
-        .collect()
-        .then(tasks => tasks.map(t => t._id));
-
-      timeLogs = timeLogs.filter(log => taskIds.includes(log.taskId));
-    }
-
-    // Calculate statistics
-    const totalMinutes = timeLogs.reduce((sum, log) => sum + log.minutes, 0);
-    const totalHours = totalMinutes / 60;
-    const daysWorked = new Set(timeLogs.map(log => new Date(log.loggedAt).toDateString())).size;
-
+    const totalMinutes = logs.reduce((sum: number, log: any) => sum + log.minutes, 0);
     return {
       totalMinutes,
-      totalHours: Math.round(totalHours * 100) / 100,
-      daysWorked,
-      entryCount: timeLogs.length,
-      averageMinutesPerEntry: timeLogs.length > 0 ? Math.round((totalMinutes / timeLogs.length) * 100) / 100 : 0,
+      totalHours: Math.round((totalMinutes / 60) * 100) / 100,
+      entryCount: logs.length,
+      daysWorked: new Set(logs.map((log: any) => toDateString(log.loggedAt))).size,
+      canViewAll: hasPermission(actor.permissions, "pm.view_all"),
     };
   },
 });
 
-// Mutations
 export const logTime = mutation({
   args: {
     sessionToken: v.string(),
     taskId: v.id("pmTasks"),
-    minutes: v.number(),
+    durationMinutes: v.number(),
     description: v.optional(v.string()),
-    loggedAt: v.number(), // Unix timestamp of the work date
+    date: v.string(),
+    billable: v.boolean(),
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
-    if (!task) {
-      throw new Error("TASK_NOT_FOUND");
-    }
+    if (!task || task.isDeleted) throw new Error("TASK_NOT_FOUND");
+    const { actor } = await requireProjectAccess(ctx, args, task.projectId, "pm.log_time");
 
-    const project = await ctx.db.get(task.projectId);
-    if (!project) {
-      throw new Error("PROJECT_NOT_FOUND");
-    }
-
-    const tenantCtx = await requirePmRole(ctx, args, "member", project.workspaceId);
-
+    const parsedTimestamp = new Date(`${args.date}T12:00:00.000Z`).getTime();
     const timeLogId = await ctx.db.insert("pmTimeLogs", {
-      taskId: args.taskId,
-      userId: tenantCtx.userId,
-      minutes: args.minutes,
-      description: args.description,
-      loggedAt: args.loggedAt,
+      taskId: task._id,
+      userId: actor.userId,
+      minutes: args.durationMinutes,
+      description: sanitizeRichText(args.description),
+      loggedAt: parsedTimestamp,
+      billable: args.billable,
+      date: args.date,
       createdAt: Date.now(),
     });
 
-    // Update task's logged minutes
-    const currentTimeLogs = await ctx.db
-      .query("pmTimeLogs")
-      .withIndex("by_task", (q) => q.eq("taskId", args.taskId))
-      .collect();
+    await recalculateTaskActualHours(ctx, task._id);
 
-    const totalLoggedMinutes = currentTimeLogs.reduce((sum, log) => sum + log.minutes, 0);
-
-    await ctx.db.patch(args.taskId, {
-      loggedMinutes: totalLoggedMinutes,
-      updatedAt: Date.now(),
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
+      action: "pm.task.updated",
+      entityType: "pmTimeLog",
+      entityId: String(timeLogId),
+      after: { taskId: String(task._id), durationMinutes: args.durationMinutes, billable: args.billable },
     });
 
-    // Update epic progress if task is part of an epic
-    if (task.epicId) {
-      await updateEpicProgress(ctx, task.epicId);
-    }
-
-    return timeLogId;
+    return { success: true, timeLogId };
   },
 });
 
@@ -222,57 +174,29 @@ export const updateTimeLog = mutation({
     minutes: v.optional(v.number()),
     description: v.optional(v.string()),
     loggedAt: v.optional(v.number()),
+    billable: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const timeLog = await ctx.db.get(args.timeLogId);
-    if (!timeLog) {
-      throw new Error("TIME_LOG_NOT_FOUND");
+    const actor = await requirePmPermission(ctx, args, "pm.log_time");
+    const log = await ctx.db.get(args.timeLogId);
+    if (!log) throw new Error("TIME_LOG_NOT_FOUND");
+    if (!hasPermission(actor.permissions, "pm.view_all") && log.userId !== actor.userId) {
+      throw new Error("UNAUTHORIZED");
     }
 
-    const task = await ctx.db.get(timeLog.taskId);
-    if (!task) {
-      throw new Error("TASK_NOT_FOUND");
+    const patch: Record<string, unknown> = {};
+    if (args.minutes !== undefined) patch.minutes = args.minutes;
+    if (args.description !== undefined) patch.description = sanitizeRichText(args.description);
+    if (args.loggedAt !== undefined) {
+      patch.loggedAt = args.loggedAt;
+      patch.date = toDateString(args.loggedAt);
     }
+    if (args.billable !== undefined) patch.billable = args.billable;
 
-    const project = await ctx.db.get(task.projectId);
-    if (!project) {
-      throw new Error("PROJECT_NOT_FOUND");
-    }
+    await ctx.db.patch(args.timeLogId, patch);
+    await recalculateTaskActualHours(ctx, log.taskId);
 
-    await requirePmRole(ctx, args, "member", project.workspaceId);
-
-    // Only allow users to edit their own time logs
-    const tenantCtx = await requirePmRole(ctx, args, "member");
-    if (timeLog.userId !== tenantCtx.userId) {
-      throw new Error("CANNOT_EDIT_OTHERS_TIME_LOGS");
-    }
-
-    const updateData: any = {};
-    if (args.minutes !== undefined) updateData.minutes = args.minutes;
-    if (args.description !== undefined) updateData.description = args.description;
-    if (args.loggedAt !== undefined) updateData.loggedAt = args.loggedAt;
-
-    await ctx.db.patch(args.timeLogId, updateData);
-
-    // Recalculate task's logged minutes
-    const updatedTimeLogs = await ctx.db
-      .query("pmTimeLogs")
-      .withIndex("by_task", (q) => q.eq("taskId", timeLog.taskId))
-      .collect();
-
-    const totalLoggedMinutes = updatedTimeLogs.reduce((sum, log) => sum + log.minutes, 0);
-
-    await ctx.db.patch(timeLog.taskId, {
-      loggedMinutes: totalLoggedMinutes,
-      updatedAt: Date.now(),
-    });
-
-    // Update epic progress if task is part of an epic
-    if (task.epicId) {
-      await updateEpicProgress(ctx, task.epicId);
-    }
-
-    return true;
+    return { success: true };
   },
 });
 
@@ -282,49 +206,15 @@ export const deleteTimeLog = mutation({
     timeLogId: v.id("pmTimeLogs"),
   },
   handler: async (ctx, args) => {
-    const timeLog = await ctx.db.get(args.timeLogId);
-    if (!timeLog) {
-      throw new Error("TIME_LOG_NOT_FOUND");
-    }
-
-    const task = await ctx.db.get(timeLog.taskId);
-    if (!task) {
-      throw new Error("TASK_NOT_FOUND");
-    }
-
-    const project = await ctx.db.get(task.projectId);
-    if (!project) {
-      throw new Error("PROJECT_NOT_FOUND");
-    }
-
-    await requirePmRole(ctx, args, "member", project.workspaceId);
-
-    // Only allow users to delete their own time logs
-    const tenantCtx = await requirePmRole(ctx, args, "member");
-    if (timeLog.userId !== tenantCtx.userId) {
-      throw new Error("CANNOT_DELETE_OTHERS_TIME_LOGS");
+    const actor = await requirePmPermission(ctx, args, "pm.log_time");
+    const log = await ctx.db.get(args.timeLogId);
+    if (!log) throw new Error("TIME_LOG_NOT_FOUND");
+    if (!hasPermission(actor.permissions, "pm.view_all") && log.userId !== actor.userId) {
+      throw new Error("UNAUTHORIZED");
     }
 
     await ctx.db.delete(args.timeLogId);
-
-    // Recalculate task's logged minutes
-    const remainingTimeLogs = await ctx.db
-      .query("pmTimeLogs")
-      .withIndex("by_task", (q) => q.eq("taskId", timeLog.taskId))
-      .collect();
-
-    const totalLoggedMinutes = remainingTimeLogs.reduce((sum, log) => sum + log.minutes, 0);
-
-    await ctx.db.patch(timeLog.taskId, {
-      loggedMinutes: totalLoggedMinutes,
-      updatedAt: Date.now(),
-    });
-
-    // Update epic progress if task is part of an epic
-    if (task.epicId) {
-      await updateEpicProgress(ctx, task.epicId);
-    }
-
-    return true;
+    await recalculateTaskActualHours(ctx, log.taskId);
+    return { success: true };
   },
 });

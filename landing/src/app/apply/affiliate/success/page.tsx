@@ -3,15 +3,7 @@
 import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Mail,
-  Phone,
-  Clock,
-  FileText,
-  Share2,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, Mail, Phone, Clock, FileText, Share2 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
 
 function AffiliateApplicationSuccessContent() {
@@ -26,7 +18,7 @@ function AffiliateApplicationSuccessContent() {
           <div className="w-20 h-20 bg-[#0F4C2A] rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="font-playfair text-4xl font-bold text-[#061A12] mb-4">
+          <h1 className="font-display text-4xl font-bold text-[#061A12] mb-4">
             Application Submitted!
           </h1>
           <p className="font-jakarta text-[18px] leading-7 text-[#5d6f66] mb-2">
@@ -38,34 +30,38 @@ function AffiliateApplicationSuccessContent() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="font-playfair text-2xl font-bold text-[#061A12] mb-6">
+          <h2 className="font-display text-2xl font-bold text-[#061A12] mb-6">
             What Happens Next?
           </h2>
-          
+
           <div className="space-y-6">
             {[
               {
                 icon: FileText,
                 title: "Application Review",
-                description: "Our affiliate team will review your application and promotional strategy.",
+                description:
+                  "Our affiliate team will review your application and promotional strategy.",
                 time: "3-5 business days",
               },
               {
                 icon: Mail,
                 title: "Email Notification",
-                description: "You'll receive an email with your affiliate account details and referral link.",
+                description:
+                  "You'll receive an email with your affiliate account details and referral link.",
                 time: "Within 5 business days",
               },
               {
                 icon: Share2,
                 title: "Get Your Referral Link",
-                description: "Access your affiliate dashboard with tracking links and marketing materials.",
+                description:
+                  "Access your affiliate dashboard with tracking links and marketing materials.",
                 time: "Within 7 business days",
               },
               {
                 icon: Clock,
                 title: "Start Earning",
-                description: "Begin sharing your referral link and earning commissions on school subscriptions.",
+                description:
+                  "Begin sharing your referral link and earning commissions on school subscriptions.",
                 time: "Immediately after approval",
               },
             ].map((step, index) => (
@@ -77,12 +73,8 @@ function AffiliateApplicationSuccessContent() {
                   <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-1">
                     {step.title}
                   </h3>
-                  <p className="font-jakarta text-[14px] text-[#5d6f66] mb-2">
-                    {step.description}
-                  </p>
-                  <p className="font-jakarta text-[12px] text-[#1A7A4A] font-medium">
-                    {step.time}
-                  </p>
+                  <p className="font-jakarta text-[14px] text-[#5d6f66] mb-2">{step.description}</p>
+                  <p className="font-jakarta text-[12px] text-[#1A7A4A] font-medium">{step.time}</p>
                 </div>
               </div>
             ))}
@@ -90,20 +82,21 @@ function AffiliateApplicationSuccessContent() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="font-playfair text-2xl font-bold text-[#061A12] mb-6">
+          <h2 className="font-display text-2xl font-bold text-[#061A12] mb-6">
             Affiliate Program Benefits
           </h2>
-          
+
           <div className="space-y-4">
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 15% Commission Rate
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Earn 15% commission on every school subscription that comes through your referral link.
+                Earn 15% commission on every school subscription that comes through your referral
+                link.
               </p>
             </div>
-            
+
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 30-Day Cookie Tracking
@@ -112,22 +105,24 @@ function AffiliateApplicationSuccessContent() {
                 Get credit for schools that sign up within 30 days of clicking your referral link.
               </p>
             </div>
-            
+
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 Marketing Materials
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Access ready-to-use marketing materials, banners, and content to help you promote EduMyles.
+                Access ready-to-use marketing materials, banners, and content to help you promote
+                EduMyles.
               </p>
             </div>
-            
+
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 Real-Time Dashboard
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Track clicks, conversions, and earnings in real-time through your affiliate dashboard.
+                Track clicks, conversions, and earnings in real-time through your affiliate
+                dashboard.
               </p>
             </div>
           </div>
@@ -148,7 +143,7 @@ function AffiliateApplicationSuccessContent() {
               Contact Affiliate Team
             </Link>
           </div>
-          
+
           <div className="flex items-center justify-center gap-6 text-sm text-[#6B9E83]">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4" />

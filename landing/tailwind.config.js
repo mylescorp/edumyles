@@ -1,8 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   darkMode: "class",
   theme: {
     extend: {
@@ -10,10 +8,10 @@ module.exports = {
         // ── Forest Green Family (primary brand) ──
         "forest-deep": "#061A12",
         "forest-dark": "#0C3020",
-        "forest": "#0F4C2A",
+        forest: "#0F4C2A",
         "emerald-green": "#1A7A4A",
-        "leaf": "#26A65B",
-        "mint": "#A8E6C3",
+        leaf: "#26A65B",
+        mint: "#A8E6C3",
         // ── Gold Family ──
         gold: {
           DEFAULT: "#E8A020",
@@ -47,13 +45,13 @@ module.exports = {
         "dark-grey": "#212121",
       },
       fontFamily: {
-        playfair: ["var(--font-playfair)", "Georgia", "Times New Roman", "serif"],
-        jakarta: ["var(--font-jakarta)", "ui-sans-serif", "Segoe UI", "Helvetica", "Arial", "sans-serif"],
-        inter: ["var(--font-jakarta)", "ui-sans-serif", "Segoe UI", "Helvetica", "Arial", "sans-serif"],
-        mono: ["var(--font-mono)", "'Cascadia Code'", "'Fira Code'", "monospace"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-jakarta)", "system-ui", "sans-serif"],
+        jakarta: ["var(--font-jakarta)", "system-ui", "sans-serif"],
+        inter: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       animation: {
-        "float": "float 3s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
         "float-delay": "float 3.5s ease-in-out 0.5s infinite",
         "float-slow": "float 4s ease-in-out 1s infinite",
         "pulse-ring": "pulseRing 3s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite",
@@ -82,7 +80,7 @@ module.exports = {
       boxShadow: {
         "gold-glow": "0 0 30px rgba(232, 160, 32, 0.3)",
         "navy-glow": "0 0 30px rgba(26, 57, 91, 0.3)",
-        "card": "0 2px 12px rgba(0,0,0,0.08)",
+        card: "0 2px 12px rgba(0,0,0,0.08)",
         "card-dark": "0 8px 32px rgba(0,0,0,0.3)",
       },
       borderRadius: {

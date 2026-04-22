@@ -1,371 +1,230 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
-import { PageHeader } from "@/components/shared/PageHeader";
-import { DataTable, Column } from "@/components/shared/DataTable";
-import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
-import { useAuth } from "@/hooks/useAuth";
-import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import { api } from "@/convex/_generated/api";
+import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
+import { PermissionGate } from "@/components/platform/PermissionGate";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Link from "next/link";
-import { Plus, Users, TrendingUp, Clock, CheckCircle, ArrowRight, LayoutGrid, Rows3 } from "lucide-react";
-import { formatRelativeTime } from "@/lib/formatters";
-import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlatformQuery } from "@/hooks/usePlatformQuery";
+import { normalizeArray } from "@/lib/normalizeData";
+import { ArrowRight, CalendarClock, Plus, Search, Target, TrendingUp, Users } from "lucide-react";
 
-type Deal = {
+type LeadRow = {
   _id: string;
-  title: string;
+  schoolName: string;
   contactName: string;
-  contactEmail?: string;
-  schoolName?: string;
+  email: string;
+  country: string;
   stage: string;
-  value?: number;
-  currency?: string;
-  assignedTo?: string;
-  createdAt: number;
-  updatedAt: number;
+  qualificationScore?: number;
+  dealValueKes?: number;
+  nextFollowUpAt?: number;
+  ownerName?: string;
+  assignedToName?: string;
 };
 
-const STAGE_COLORS: Record<string, string> = {
-  lead:        "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
-  prospecting: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  qualified:   "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
-  proposal:    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  negotiation: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  won:         "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  lost:        "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-};
-
-const LEAD_STAGES = ["lead", "prospecting", "qualified"];
+function formatKes(amount?: number) {
+  return amount
+    ? new Intl.NumberFormat("en-KE", {
+        style: "currency",
+        currency: "KES",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(amount)
+    : "—";
+}
 
 export default function CRMLeadsPage() {
-  const { isLoading, sessionToken } = useAuth();
-  const { toast } = useToast();
+  const { sessionToken } = useAuth();
   const [stageFilter, setStageFilter] = useState("all");
-  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
-  const [movingDeal, setMovingDeal] = useState<string | null>(null);
+  const [countryFilter, setCountryFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
-  const deals = useQuery(
-    api.platform.crm.queries.listDeals,
-    sessionToken ? { sessionToken } : "skip"
+  const leads = usePlatformQuery(
+    api.modules.platform.crm.getLeads,
+    sessionToken
+      ? {
+          sessionToken,
+          stage: stageFilter === "all" ? undefined : stageFilter,
+          country: countryFilter === "all" ? undefined : countryFilter,
+          search: search || undefined,
+          sortBy: "updated_desc" as const,
+        }
+      : "skip",
+    !!sessionToken
+  ) as LeadRow[] | undefined;
+
+  const leadRows = useMemo(() => normalizeArray<LeadRow>(leads), [leads]);
+  const countries = useMemo(
+    () => [...new Set(leadRows.map((lead) => lead.country).filter(Boolean))].sort(),
+    [leadRows]
+  );
+  const stats = useMemo(
+    () => ({
+      total: leadRows.length,
+      qualified: leadRows.filter((lead) => (lead.qualificationScore ?? 0) >= 60).length,
+      followUps: leadRows.filter((lead) => Boolean(lead.nextFollowUpAt)).length,
+      value: leadRows.reduce((sum, lead) => sum + (lead.dealValueKes ?? 0), 0),
+    }),
+    [leadRows]
   );
 
-  const moveDealStage = useMutation(api.platform.crm.mutations.moveDealStage);
-
-  // Leads = deals in early pipeline stages
-  const leads = useMemo(() => {
-    return ((deals ?? []) as Deal[]).filter((d) => LEAD_STAGES.includes(d.stage));
-  }, [deals]);
-
-  const filtered = useMemo(() => {
-    if (stageFilter === "all") return leads;
-    return leads.filter((d) => d.stage === stageFilter);
-  }, [leads, stageFilter]);
-
-  const kanbanColumns = useMemo(
-    () =>
-      [
-        { stage: "lead", label: "New Leads" },
-        { stage: "prospecting", label: "Prospecting" },
-        { stage: "qualified", label: "Qualified" },
-      ].map((column) => ({
-        ...column,
-        deals: filtered.filter((deal) => deal.stage === column.stage),
-      })),
-    [filtered]
-  );
-
-  const stats = useMemo(() => ({
-    total:       leads.length,
-    lead:        leads.filter((d) => d.stage === "lead").length,
-    prospecting: leads.filter((d) => d.stage === "prospecting").length,
-    qualified:   leads.filter((d) => d.stage === "qualified").length,
-  }), [leads]);
-
-  const handleQualify = async (deal: Deal) => {
-    setMovingDeal(deal._id);
-    try {
-      await moveDealStage({ sessionToken, dealId: deal._id, stage: "qualified" });
-      toast({ title: "Lead qualified", description: `${deal.title} moved to Qualified.` });
-    } catch (err) {
-      toast({ title: "Failed", description: String(err), variant: "destructive" });
-    } finally {
-      setMovingDeal(null);
-    }
-  };
-
-  const columns: Column<Deal>[] = [
-    {
-      key: "title",
-      header: "Lead",
-      sortable: true,
-      cell: (row) => (
-        <div>
-          <Link href={`/platform/crm/${row._id}`} className="font-medium text-primary hover:underline">
-            {row.title}
-          </Link>
-          {row.schoolName && (
-            <p className="text-xs text-muted-foreground mt-0.5">{row.schoolName}</p>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: "contactName",
-      header: "Contact",
-      sortable: true,
-      cell: (row) => (
-        <div>
-          <p className="text-sm font-medium">{row.contactName}</p>
-          {row.contactEmail && (
-            <p className="text-xs text-muted-foreground">{row.contactEmail}</p>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: "stage",
-      header: "Stage",
-      sortable: true,
-      cell: (row) => (
-        <Badge className={`${STAGE_COLORS[row.stage] ?? STAGE_COLORS.lead} border-0 capitalize`}>
-          {row.stage}
-        </Badge>
-      ),
-    },
-    {
-      key: "value",
-      header: "Est. Value",
-      sortable: true,
-      cell: (row) =>
-        row.value
-          ? <span className="font-medium">{row.currency ?? "USD"} {row.value.toLocaleString()}</span>
-          : <span className="text-muted-foreground text-xs">—</span>,
-    },
-    {
-      key: "createdAt",
-      header: "Created",
-      sortable: true,
-      cell: (row) => <span className="text-sm">{formatRelativeTime(row.createdAt)}</span>,
-    },
-    {
-      key: "actions",
-      header: "",
-      cell: (row) => (
-        <div className="flex items-center gap-2">
-          <Link href={`/platform/crm/${row._id}`}>
-            <Button size="sm" variant="outline">View</Button>
-          </Link>
-          {row.stage !== "qualified" && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1 text-green-700 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-950/30"
-              disabled={movingDeal === row._id}
-              onClick={() => handleQualify(row)}
-            >
-              <CheckCircle className="h-3.5 w-3.5" />
-              Qualify
-            </Button>
-          )}
-        </div>
-      ),
-    },
-  ];
-
-  if (isLoading || deals === undefined) return <LoadingSkeleton variant="page" />;
+  if (!sessionToken || leads === undefined) {
+    return <LoadingSkeleton variant="page" />;
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Leads"
-        description="Manage inbound leads and early-stage pipeline prospects"
-        actions={
-          <div className="flex items-center gap-2">
-            <Link href="/platform/crm">
-              <Button variant="outline" className="gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Full Pipeline
-              </Button>
-            </Link>
-            <Link href="/platform/crm/leads/create">
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add Lead
-              </Button>
-            </Link>
-          </div>
-        }
+        title="Lead Registry"
+        description="Work live school demand from qualification through conversion without leaving the platform."
         breadcrumbs={[
+          { label: "Platform", href: "/platform" },
           { label: "CRM", href: "/platform/crm" },
           { label: "Leads" },
         ]}
+        actions={
+          <PermissionGate permission="crm.create_lead">
+            <Button asChild className="gap-2">
+              <Link href="/platform/crm/leads/create">
+                <Plus className="h-4 w-4" />
+                New lead
+              </Link>
+            </Button>
+          </PermissionGate>
+        }
       />
 
       <CrmAdminRail currentHref="/platform/crm/leads" />
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-              <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{stats.total}</p>
-              <p className="text-sm text-muted-foreground">Total Leads</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-              <Clock className="h-5 w-5 text-gray-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{stats.lead}</p>
-              <p className="text-sm text-muted-foreground">New Leads</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-100 dark:bg-cyan-900/30">
-              <ArrowRight className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{stats.prospecting}</p>
-              <p className="text-sm text-muted-foreground">Prospecting</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{stats.qualified}</p>
-              <p className="text-sm text-muted-foreground">Qualified</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Metric label="Accessible leads" value={stats.total} icon={Users} />
+        <Metric label="Qualified leads" value={stats.qualified} icon={TrendingUp} />
+        <Metric label="With follow-up" value={stats.followUps} icon={CalendarClock} />
+        <Metric label="Visible value" value={formatKes(stats.value)} icon={Target} />
       </div>
 
-      {/* Stage filter */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "list" | "kanban")}>
-          <TabsList>
-            <TabsTrigger value="list" className="gap-2">
-              <Rows3 className="h-4 w-4" />
-              List
-            </TabsTrigger>
-            <TabsTrigger value="kanban" className="gap-2">
-              <LayoutGrid className="h-4 w-4" />
-              Kanban
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+      <Card>
+        <CardContent className="flex flex-col gap-3 pt-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative w-full lg:max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search school, contact, email, stage..." className="pl-9" />
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Select value={stageFilter} onValueChange={setStageFilter}>
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="Stage" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All stages</SelectItem>
+                {["new", "contacted", "qualified", "demo_booked", "demo_done", "proposal_sent", "negotiation", "won", "lost"].map((stage) => (
+                  <SelectItem key={stage} value={stage}>
+                    {stage}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={countryFilter} onValueChange={setCountryFilter}>
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="Country" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All countries</SelectItem>
+                {countries.map((country) => (
+                  <SelectItem key={country} value={country}>
+                    {country}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="flex items-center gap-3">
-        <Select value={stageFilter} onValueChange={setStageFilter}>
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="Stage" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Stages</SelectItem>
-            <SelectItem value="lead">Lead</SelectItem>
-            <SelectItem value="prospecting">Prospecting</SelectItem>
-            <SelectItem value="qualified">Qualified</SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="text-sm text-muted-foreground">
-          {filtered.length} lead{filtered.length !== 1 ? "s" : ""}
-        </p>
-        </div>
-      </div>
-
-      {viewMode === "kanban" ? (
-        <div className="grid gap-4 xl:grid-cols-3">
-          {kanbanColumns.map((column) => (
-            <Card key={column.stage} className="border-border/70 bg-muted/15">
-              <CardContent className="space-y-3 pt-5">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Badge className={`${STAGE_COLORS[column.stage] ?? STAGE_COLORS.lead} border-0 capitalize`}>
-                      {column.label}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">{column.deals.length}</span>
-                  </div>
+      {leadRows.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6">
+            <EmptyState
+              icon={Users}
+              title="No CRM leads found"
+              description="Adjust the filters or add a new lead to begin building the pipeline."
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {leadRows.map((lead) => (
+            <Card key={lead._id} className="overflow-hidden border-slate-200/80">
+              <CardContent className="grid gap-4 p-5 lg:grid-cols-[1.4fr_0.7fr_0.7fr_0.7fr_auto] lg:items-center">
+                <div className="min-w-0">
+                  <Link href={`/platform/crm/${lead._id}`} className="truncate text-lg font-semibold hover:text-emerald-700">
+                    {lead.schoolName}
+                  </Link>
+                  <p className="truncate text-sm text-muted-foreground">
+                    {lead.contactName} · {lead.email}
+                  </p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">{lead.country}</p>
                 </div>
-                {column.deals.length === 0 ? (
-                  <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-                    No leads in this stage.
-                  </div>
-                ) : (
-                  column.deals.map((deal) => (
-                    <div key={deal._id} className="rounded-lg border bg-background p-4 shadow-sm">
-                      <div className="space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className="font-medium">{deal.title}</p>
-                            {deal.schoolName ? (
-                              <p className="text-sm text-muted-foreground">{deal.schoolName}</p>
-                            ) : null}
-                          </div>
-                          <Badge className={`${STAGE_COLORS[deal.stage] ?? STAGE_COLORS.lead} border-0 capitalize`}>
-                            {deal.stage}
-                          </Badge>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          <p>{deal.contactName}</p>
-                          {deal.contactEmail ? <p>{deal.contactEmail}</p> : null}
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium">
-                            {deal.value ? `${deal.currency ?? "USD"} ${deal.value.toLocaleString()}` : "No value set"}
-                          </span>
-                          <span className="text-muted-foreground">{formatRelativeTime(deal.createdAt)}</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          <Link href={`/platform/crm/${deal._id}`}>
-                            <Button size="sm" variant="outline">View</Button>
-                          </Link>
-                          {deal.stage !== "qualified" ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="gap-1 text-green-700 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-950/30"
-                              disabled={movingDeal === deal._id}
-                              onClick={() => handleQualify(deal)}
-                            >
-                              <CheckCircle className="h-3.5 w-3.5" />
-                              Qualify
-                            </Button>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Stage</p>
+                  <Badge variant="outline" className="mt-2">
+                    {lead.stage}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Lead score</p>
+                  <p className="mt-2 text-lg font-semibold">{lead.qualificationScore ?? 0}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Value</p>
+                  <p className="mt-2 text-lg font-semibold">{formatKes(lead.dealValueKes)}</p>
+                </div>
+                <div className="flex justify-start lg:justify-end">
+                  <Button asChild variant="outline" className="gap-2">
+                    <Link href={`/platform/crm/${lead._id}`}>
+                      Open
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
-      ) : (
-        <DataTable
-          data={filtered}
-          columns={columns}
-          searchPlaceholder="Search leads by name or school…"
-          emptyMessage="No leads found. Add your first lead to start building your pipeline."
-        />
       )}
     </div>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: number | string;
+  icon: typeof Users;
+}) {
+  return (
+    <Card>
+      <CardContent className="flex items-center gap-4 pt-6">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm text-muted-foreground">{label}</p>
+          <p className="text-2xl font-semibold">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

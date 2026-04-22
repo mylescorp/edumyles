@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { normalizeModuleSlug } from "@/lib/moduleSlugs";
 import { useAuth } from "./useAuth";
-import { getModuleAliases, normalizeModuleSlug } from "@/lib/moduleSlugs";
 
-const CORE_MODULE_IDS = ["core"]; // Define core module IDs constant
+const CORE_MODULE_IDS = ["core"];
 
 type AccessibleNavItem = {
   href: string;
@@ -15,9 +15,23 @@ type AccessibleNavItem = {
   requiredFeature: string;
   moduleSlug: string;
 };
+
+function normalizeArray<T>(value: any): T[] {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.page)) return value.page;
+  return [];
+}
+
 function getRoleAccessLevel(install: any, userRole: string | undefined) {
   if (!userRole) return "full";
-  if (userRole === "school_admin" || userRole === "principal" || userRole === "master_admin" || userRole === "super_admin") {
+  if (
+    userRole === "school_admin" ||
+    userRole === "principal" ||
+    userRole === "master_admin" ||
+    userRole === "super_admin"
+  ) {
     return "full";
   }
 
@@ -30,10 +44,8 @@ function getRoleAccessLevel(install: any, userRole: string | undefined) {
 export function useInstalledModules(userRole?: string) {
   const { sessionToken, isLoading, isAuthenticated } = useAuth();
   const canQuery = !isLoading && isAuthenticated && !!sessionToken;
-const [queryTimedOut, setQueryTimedOut] = useState(false);
+  const [queryTimedOut, setQueryTimedOut] = useState(false);
 
-  // Single query for full module records — IDs are derived from these, avoiding
-  // the previous triple-query pattern (getInstalledModuleIds + getInstalledModules).
   const installedModuleDetailsResult = useQuery(
     api.modules.marketplace.queries.getInstalledModules,
     canQuery ? { sessionToken } : "skip"
@@ -44,12 +56,33 @@ const [queryTimedOut, setQueryTimedOut] = useState(false);
     canQuery ? { sessionToken } : "skip"
   );
 
-  const installedModuleDetails = installedModuleDetailsResult?.data;
-  const availableModules = availableModulesResult?.data;
+  useEffect(() => {
+    if (!canQuery) {
+      setQueryTimedOut(false);
+      return;
+    }
+
+    if (
+      installedModuleDetailsResult !== undefined &&
+      availableModulesResult !== undefined
+    ) {
+      setQueryTimedOut(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setQueryTimedOut(true);
+    }, 6000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [availableModulesResult, canQuery, installedModuleDetailsResult]);
+
+  const installedModuleDetails = normalizeArray<any>(installedModuleDetailsResult);
+  const availableModules = normalizeArray<any>(availableModulesResult);
 
   const normalizedInstalledModules = useMemo(
     () =>
-      (installedModuleDetails ?? []).map((install: any) => ({
+      installedModuleDetails.map((install: any) => ({
         ...install,
         accessLevel: getRoleAccessLevel(install, userRole),
       })),
@@ -57,7 +90,7 @@ const [queryTimedOut, setQueryTimedOut] = useState(false);
   );
 
   const accessibleNavItems = useMemo(() => {
-    return normalizedInstalledModules.flatMap((install) => {
+    return normalizedInstalledModules.flatMap((install: any) => {
       if (!install.accessibleNavConfig) return [];
 
       const roleKey =
@@ -69,7 +102,7 @@ const [queryTimedOut, setQueryTimedOut] = useState(false);
               ? "parentNav"
               : "adminNav";
 
-      return ((install.accessibleNavConfig[roleKey] ?? []) as any[]).map((item) => ({
+      return normalizeArray<any>(install.accessibleNavConfig[roleKey]).map((item) => ({
         ...item,
         moduleSlug: install.moduleSlug,
       }));
@@ -78,8 +111,8 @@ const [queryTimedOut, setQueryTimedOut] = useState(false);
 
   const dashboardWidgets = useMemo(
     () =>
-      normalizedInstalledModules.flatMap((install) =>
-        (install.dashboardWidgets ?? []).map((widget: any) => ({
+      normalizedInstalledModules.flatMap((install: any) =>
+        normalizeArray<any>(install.dashboardWidgets).map((widget: any) => ({
           ...widget,
           moduleSlug: install.moduleSlug,
         }))
@@ -88,56 +121,64 @@ const [queryTimedOut, setQueryTimedOut] = useState(false);
   );
 
   const resolvedInstalledModuleDetails = queryTimedOut
-    ? (installedModuleDetails ?? [])
+    ? installedModuleDetails
     : installedModuleDetails;
-  const resolvedAvailableModules = queryTimedOut
-    ? (availableModules ?? [])
-    : availableModules;
+  const resolvedAvailableModules = queryTimedOut ? availableModules : availableModules;
 
-  // Derive IDs from details; always include core modules
-  const installedModuleIds: string[] = resolvedInstalledModuleDetails && Array.isArray(resolvedInstalledModuleDetails)
-    ? [...new Set([...CORE_MODULE_IDS, ...resolvedInstalledModuleDetails.map((m: any) => m.moduleId)])]
-    : CORE_MODULE_IDS;
+  const installedModuleIds: string[] =
+    resolvedInstalledModuleDetails &&
+    Array.isArray(resolvedInstalledModuleDetails)
+      ? [
+          ...new Set([
+            ...CORE_MODULE_IDS,
+            ...resolvedInstalledModuleDetails.map((moduleRecord: any) => moduleRecord.moduleId),
+          ]),
+        ]
+      : CORE_MODULE_IDS;
 
   return {
     installedModules: normalizedInstalledModules,
     installedModuleIds,
-    availableModules,
+    availableModules: resolvedAvailableModules,
     accessibleNavItems,
     dashboardWidgets,
     isLoading:
-<<<<<<< HEAD
-      canQuery && (installedModuleDetailsResult === undefined || availableModulesResult === undefined),
-=======
-      canQuery && (installedModulesResult === undefined || availableModulesResult === undefined),
->>>>>>> 7235cb73bf58b1c48c243a172b0f097d9b9fdba6
+      canQuery &&
+      !queryTimedOut &&
+      (installedModuleDetailsResult === undefined ||
+        availableModulesResult === undefined),
     isModuleInstalled: (moduleSlug: string) => {
       const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
       return normalizedInstalledModules.some(
-        (module) => normalizeModuleSlug(module.moduleSlug) === normalizedModuleSlug
+        (moduleRecord: any) =>
+          normalizeModuleSlug(moduleRecord.moduleSlug) === normalizedModuleSlug
       );
     },
     isModuleActive: (moduleSlug: string) => {
       const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
       return normalizedInstalledModules.some(
-        (module) =>
-          normalizeModuleSlug(module.moduleSlug) === normalizedModuleSlug &&
-          module.status === "active"
+        (moduleRecord: any) =>
+          normalizeModuleSlug(moduleRecord.moduleSlug) === normalizedModuleSlug &&
+          moduleRecord.status === "active"
       );
     },
     getModuleAccessLevel: (moduleSlug: string) => {
       const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
       const match = normalizedInstalledModules.find(
-        (module) => normalizeModuleSlug(module.moduleSlug) === normalizedModuleSlug
+        (moduleRecord: any) =>
+          normalizeModuleSlug(moduleRecord.moduleSlug) === normalizedModuleSlug
       );
       return match?.accessLevel ?? "none";
     },
     isModuleAccessible: (moduleSlug: string) => {
       const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
       const match = normalizedInstalledModules.find(
-        (module) => normalizeModuleSlug(module.moduleSlug) === normalizedModuleSlug
+        (moduleRecord: any) =>
+          normalizeModuleSlug(moduleRecord.moduleSlug) === normalizedModuleSlug
       );
-      return Boolean(match && match.accessLevel !== "none" && match.status === "active");
+      return Boolean(
+        match && match.accessLevel !== "none" && match.status === "active"
+      );
     },
   };
 }

@@ -1,14 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, GraduationCap, DollarSign, Users, Calendar, Shield, BarChart3 } from "lucide-react";
+import {
+  ArrowRight,
+  GraduationCap,
+  DollarSign,
+  Users,
+  Calendar,
+  Shield,
+  BarChart3,
+} from "lucide-react";
 
 const FEATURES = [
   { icon: GraduationCap, text: "Student & class management" },
-  { icon: DollarSign,    text: "Fees, invoices & eWallet" },
-  { icon: Users,         text: "HR, staff & payroll" },
-  { icon: Calendar,      text: "Timetable & attendance" },
-  { icon: BarChart3,     text: "Reports & analytics" },
-  { icon: Shield,        text: "Role-based access control" },
+  { icon: DollarSign, text: "Fees, invoices & eWallet" },
+  { icon: Users, text: "HR, staff & payroll" },
+  { icon: Calendar, text: "Timetable & attendance" },
+  { icon: BarChart3, text: "Reports & analytics" },
+  { icon: Shield, text: "Role-based access control" },
 ];
 
 export default async function LoginPage({
@@ -38,13 +46,13 @@ export default async function LoginPage({
           <div className="space-y-4">
             <h1
               className="text-4xl xl:text-5xl font-bold leading-tight"
-              style={{ color: "#F3FBF6", fontFamily: "var(--font-playfair)" }}
+              style={{ color: "#F3FBF6", fontFamily: "var(--font-jakarta)" }}
             >
               The all-in-one platform for East African schools.
             </h1>
             <p className="text-lg" style={{ color: "#A8E6C3" }}>
-              Replace disconnected spreadsheets and WhatsApp groups with one
-              unified system — from admissions to graduation.
+              Replace disconnected spreadsheets and WhatsApp groups with one unified system — from
+              admissions to graduation.
             </p>
           </div>
 
@@ -58,7 +66,9 @@ export default async function LoginPage({
                 >
                   <Icon className="h-4 w-4" style={{ color: "#E8A020" }} />
                 </span>
-                <span className="text-sm" style={{ color: "#A8E6C3" }}>{text}</span>
+                <span className="text-sm" style={{ color: "#A8E6C3" }}>
+                  {text}
+                </span>
               </li>
             ))}
           </ul>
@@ -82,7 +92,7 @@ export default async function LoginPage({
           <div className="space-y-2">
             <h2
               className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white"
-              style={{ fontFamily: "var(--font-playfair)" }}
+              style={{ fontFamily: "var(--font-jakarta)" }}
             >
               Welcome back
             </h2>
@@ -123,15 +133,24 @@ export default async function LoginPage({
             </p>
             <ul className="space-y-1.5 text-sm text-gray-600 dark:text-gray-400">
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: "#26A65B" }} />
+                <span
+                  className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                  style={{ background: "#26A65B" }}
+                />
                 Access your school dashboard and modules
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: "#26A65B" }} />
+                <span
+                  className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                  style={{ background: "#26A65B" }}
+                />
                 Manage students, staff, fees and more
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: "#26A65B" }} />
+                <span
+                  className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                  style={{ background: "#26A65B" }}
+                />
                 View reports, timetables and communications
               </li>
             </ul>

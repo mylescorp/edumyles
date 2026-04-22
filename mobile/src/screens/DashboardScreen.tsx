@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -7,15 +7,15 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useQuery } from 'convex/react';
+} from "react-native";
+import { useQuery } from "convex/react";
 
-import { useAuth } from '../hooks/useAuth';
-import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
-import { api } from '../lib/convexApi';
-import { theme } from '../theme';
+import { useAuth } from "../hooks/useAuth";
+import { useCachedQueryValue, useOfflineSync } from "../hooks/useOfflineSync";
+import { api } from "../lib/convexApi";
+import { theme } from "../theme";
 
-type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' | 'profile';
+type ScreenKey = "dashboard" | "grades" | "assignments" | "attendance" | "fees" | "profile";
 
 const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = ({ onNavigate }) => {
   const { sessionToken, user } = useAuth();
@@ -31,87 +31,96 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
 
   const studentProfile = useQuery(
     api.modules.portal.student.queries.getMyProfile,
-    sessionToken && user?.role === 'student' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken } : "skip"
   );
   const studentGrades = useQuery(
     api.modules.portal.student.queries.getMyGrades,
-    sessionToken && user?.role === 'student' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken } : "skip"
   );
   const studentAssignments = useQuery(
     api.modules.portal.student.queries.getMyAssignments,
-    sessionToken && user?.role === 'student' ? { sessionToken, limit: 5 } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken, limit: 5 } : "skip"
   );
   const studentAttendance = useQuery(
     api.modules.portal.student.queries.getMyAttendance,
-    sessionToken && user?.role === 'student' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken } : "skip"
   );
   const studentWallet = useQuery(
     api.modules.ewallet.queries.getMyWalletBalance,
-    sessionToken && user?.role === 'student' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken } : "skip"
   );
 
   const parentProfile = useQuery(
     api.modules.portal.parent.queries.getParentProfile,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const parentChildren = useQuery(
     api.modules.portal.parent.queries.getChildren,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const parentFeeOverview = useQuery(
     api.modules.portal.parent.queries.getChildrenFeeOverview,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
 
   const teacherClasses = useQuery(
     api.modules.academics.queries.getTeacherClasses,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const teacherProfile = useQuery(
     api.modules.hr.queries.getCurrentStaffProfile,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const teacherAssignmentsCount = useQuery(
     api.modules.academics.queries.getTeacherActiveAssignmentsCount,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const teacherTodayClasses = useQuery(
     api.modules.academics.queries.getTeacherTodayClassesCount,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
 
-  const resolvedStudentProfile = useCachedQueryValue<any>('student.dashboard.profile', studentProfile);
-  const resolvedStudentGrades = useCachedQueryValue<any[]>('student.dashboard.grades', studentGrades);
+  const resolvedStudentProfile = useCachedQueryValue<any>(
+    "student.dashboard.profile",
+    studentProfile
+  );
+  const resolvedStudentGrades = useCachedQueryValue<any[]>(
+    "student.dashboard.grades",
+    studentGrades
+  );
   const resolvedStudentAssignments = useCachedQueryValue<any[]>(
-    'student.dashboard.assignments',
-    studentAssignments,
+    "student.dashboard.assignments",
+    studentAssignments
   );
   const resolvedStudentAttendance = useCachedQueryValue<any[]>(
-    'student.dashboard.attendance',
-    studentAttendance,
+    "student.dashboard.attendance",
+    studentAttendance
   );
-  const resolvedStudentWallet = useCachedQueryValue<any>('student.dashboard.wallet', studentWallet);
-  const resolvedParentProfile = useCachedQueryValue<any>('parent.dashboard.profile', parentProfile);
-  const resolvedParentChildren = useCachedQueryValue<any[]>('parent.dashboard.children', parentChildren);
+  const resolvedStudentWallet = useCachedQueryValue<any>("student.dashboard.wallet", studentWallet);
+  const resolvedParentProfile = useCachedQueryValue<any>("parent.dashboard.profile", parentProfile);
+  const resolvedParentChildren = useCachedQueryValue<any[]>(
+    "parent.dashboard.children",
+    parentChildren
+  );
   const resolvedParentFeeOverview = useCachedQueryValue<any[]>(
-    'parent.dashboard.feeOverview',
-    parentFeeOverview,
+    "parent.dashboard.feeOverview",
+    parentFeeOverview
   );
   const resolvedTeacherClasses = useCachedQueryValue<any[]>(
-    'teacher.dashboard.classes',
-    teacherClasses,
+    "teacher.dashboard.classes",
+    teacherClasses
   );
   const resolvedTeacherProfile = useCachedQueryValue<any>(
-    'teacher.dashboard.profile',
-    teacherProfile,
+    "teacher.dashboard.profile",
+    teacherProfile
   );
   const resolvedTeacherAssignmentsCount = useCachedQueryValue<number>(
-    'teacher.dashboard.activeAssignments',
-    teacherAssignmentsCount,
+    "teacher.dashboard.activeAssignments",
+    teacherAssignmentsCount
   );
   const resolvedTeacherTodayClasses = useCachedQueryValue<number>(
-    'teacher.dashboard.todayClasses',
-    teacherTodayClasses,
+    "teacher.dashboard.todayClasses",
+    teacherTodayClasses
   );
 
   if (!sessionToken) {
@@ -123,13 +132,13 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
     );
   }
 
-  if (user?.role === 'parent') {
+  if (user?.role === "parent") {
     if (!resolvedParentChildren || !resolvedParentFeeOverview) {
       return (
         <View style={styles.centerState}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
           <Text style={styles.stateText}>
-            {isOffline ? 'Loading cached parent dashboard...' : 'Loading your family overview...'}
+            {isOffline ? "Loading cached parent dashboard..." : "Loading your family overview..."}
           </Text>
         </View>
       );
@@ -137,7 +146,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
 
     const totalBalance = resolvedParentFeeOverview.reduce(
       (sum: number, child: any) => sum + (child.balance ?? 0),
-      0,
+      0
     );
 
     return (
@@ -146,17 +155,20 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
-        {isOffline && <Text style={styles.offlineNotice}>Showing the latest cached parent data.</Text>}
+        {isOffline && (
+          <Text style={styles.offlineNotice}>Showing the latest cached parent data.</Text>
+        )}
         <View style={styles.hero}>
           <Text style={styles.eyebrow}>Parent Portal</Text>
           <Text style={styles.heroTitle}>
             {resolvedParentProfile?.fullName ??
               resolvedParentProfile?.name ??
-              user?.email?.split('@')[0] ??
-              'Parent'}
+              user?.email?.split("@")[0] ??
+              "Parent"}
           </Text>
           <Text style={styles.heroSubtitle}>
-            {resolvedParentChildren.length} child{resolvedParentChildren.length === 1 ? '' : 'ren'} linked
+            {resolvedParentChildren.length} child{resolvedParentChildren.length === 1 ? "" : "ren"}{" "}
+            linked
           </Text>
         </View>
 
@@ -179,7 +191,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
             <Text style={styles.metricValue}>
               {resolvedParentFeeOverview.reduce(
                 (sum: number, child: any) => sum + (child.paidInvoiceCount ?? 0),
-                0,
+                0
               )}
             </Text>
             <Text style={styles.metricLabel}>Invoices settled</Text>
@@ -190,15 +202,15 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
         <View style={styles.list}>
           {resolvedParentChildren.slice(0, 4).map((child: any) => {
             const feeOverview = resolvedParentFeeOverview.find(
-              (entry: any) => entry.studentId === child._id,
+              (entry: any) => entry.studentId === child._id
             );
             return (
               <View key={child._id} style={styles.listCard}>
                 <Text style={styles.listTitle}>
-                  {[child.firstName, child.lastName].filter(Boolean).join(' ')}
+                  {[child.firstName, child.lastName].filter(Boolean).join(" ")}
                 </Text>
                 <Text style={styles.listMeta}>
-                  {child.admissionNumber ?? 'No admission number'} • {child.status ?? 'active'}
+                  {child.admissionNumber ?? "No admission number"} • {child.status ?? "active"}
                 </Text>
                 <Text style={styles.listMeta}>
                   Balance: {((feeOverview?.balance ?? 0) / 100).toLocaleString()}
@@ -210,13 +222,13 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
 
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('grades')}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("grades")}>
             <Text style={styles.actionButtonText}>Children</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('assignments')}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("assignments")}>
             <Text style={styles.actionButtonText}>Messages</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('fees')}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("fees")}>
             <Text style={styles.actionButtonText}>Payments</Text>
           </TouchableOpacity>
         </View>
@@ -224,7 +236,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
     );
   }
 
-  if (user?.role === 'teacher') {
+  if (user?.role === "teacher") {
     if (
       !resolvedTeacherClasses ||
       resolvedTeacherAssignmentsCount === undefined ||
@@ -234,7 +246,9 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
         <View style={styles.centerState}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
           <Text style={styles.stateText}>
-            {isOffline ? 'Loading cached teacher dashboard...' : 'Loading your teaching overview...'}
+            {isOffline
+              ? "Loading cached teacher dashboard..."
+              : "Loading your teaching overview..."}
           </Text>
         </View>
       );
@@ -242,7 +256,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
 
     const totalStudents = resolvedTeacherClasses.reduce(
       (sum: number, cls: any) => sum + (cls.studentCount ?? 0),
-      0,
+      0
     );
 
     return (
@@ -251,18 +265,22 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
-        {isOffline && <Text style={styles.offlineNotice}>Showing the latest cached teacher data.</Text>}
+        {isOffline && (
+          <Text style={styles.offlineNotice}>Showing the latest cached teacher data.</Text>
+        )}
         <View style={styles.hero}>
           <Text style={styles.eyebrow}>Teacher Portal</Text>
           <Text style={styles.heroTitle}>
             {resolvedTeacherProfile
-              ? [resolvedTeacherProfile.firstName, resolvedTeacherProfile.lastName].filter(Boolean).join(' ')
-              : user?.email?.split('@')[0] ?? 'Teacher'}
+              ? [resolvedTeacherProfile.firstName, resolvedTeacherProfile.lastName]
+                  .filter(Boolean)
+                  .join(" ")
+              : (user?.email?.split("@")[0] ?? "Teacher")}
           </Text>
           <Text style={styles.heroSubtitle}>
             {resolvedTeacherProfile?.department
               ? `${resolvedTeacherProfile.department} department`
-              : 'Your class and assignment snapshot for today'}
+              : "Your class and assignment snapshot for today"}
           </Text>
         </View>
 
@@ -291,7 +309,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
             <View key={cls._id} style={styles.listCard}>
               <Text style={styles.listTitle}>{cls.name}</Text>
               <Text style={styles.listMeta}>
-                Grade {cls.grade ?? '—'} • {cls.studentCount ?? 0} students
+                Grade {cls.grade ?? "—"} • {cls.studentCount ?? 0} students
               </Text>
               {resolvedTeacherProfile?.employeeId ? (
                 <Text style={styles.listMeta}>Staff ID: {resolvedTeacherProfile.employeeId}</Text>
@@ -302,13 +320,13 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
 
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('grades')}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("grades")}>
             <Text style={styles.actionButtonText}>Classes</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('assignments')}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("assignments")}>
             <Text style={styles.actionButtonText}>Assignments</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('attendance')}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("attendance")}>
             <Text style={styles.actionButtonText}>Timetable</Text>
           </TouchableOpacity>
         </View>
@@ -327,20 +345,23 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
       <View style={styles.centerState}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
         <Text style={styles.stateText}>
-          {isOffline ? 'Loading cached dashboard...' : 'Loading your dashboard...'}
+          {isOffline ? "Loading cached dashboard..." : "Loading your dashboard..."}
         </Text>
       </View>
     );
   }
 
   const completedAttendance = resolvedStudentAttendance.length;
-  const presentCount = resolvedStudentAttendance.filter((item: any) => item.status === 'present').length;
-  const attendanceRate = completedAttendance > 0 ? Math.round((presentCount / completedAttendance) * 100) : 0;
+  const presentCount = resolvedStudentAttendance.filter(
+    (item: any) => item.status === "present"
+  ).length;
+  const attendanceRate =
+    completedAttendance > 0 ? Math.round((presentCount / completedAttendance) * 100) : 0;
   const averageScore =
     resolvedStudentGrades.length > 0
       ? Math.round(
           resolvedStudentGrades.reduce((sum: number, grade: any) => sum + grade.score, 0) /
-            resolvedStudentGrades.length,
+            resolvedStudentGrades.length
         )
       : 0;
 
@@ -350,11 +371,13 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
     >
-      {isOffline && <Text style={styles.offlineNotice}>Showing the latest cached student data.</Text>}
+      {isOffline && (
+        <Text style={styles.offlineNotice}>Showing the latest cached student data.</Text>
+      )}
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>Student Portal</Text>
         <Text style={styles.heroTitle}>
-          {resolvedStudentProfile?.firstName ?? user?.email?.split('@')[0] ?? 'Student'}
+          {resolvedStudentProfile?.firstName ?? user?.email?.split("@")[0] ?? "Student"}
         </Text>
         <Text style={styles.heroSubtitle}>
           {resolvedStudentProfile?.admissionNumber
@@ -385,19 +408,20 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
       <View style={styles.walletCard}>
         <Text style={styles.sectionTitle}>Wallet Balance</Text>
         <Text style={styles.walletValue}>
-          {(resolvedStudentWallet.balanceCents / 100).toLocaleString()} {resolvedStudentWallet.currency}
+          {(resolvedStudentWallet.balanceCents / 100).toLocaleString()}{" "}
+          {resolvedStudentWallet.currency}
         </Text>
       </View>
 
       <Text style={styles.sectionTitle}>Quick Actions</Text>
       <View style={styles.actionsRow}>
-        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('grades')}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("grades")}>
           <Text style={styles.actionButtonText}>Grades</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('assignments')}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("assignments")}>
           <Text style={styles.actionButtonText}>Assignments</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate('attendance')}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => onNavigate("attendance")}>
           <Text style={styles.actionButtonText}>Attendance</Text>
         </TouchableOpacity>
       </View>
@@ -408,7 +432,7 @@ const DashboardScreen: React.FC<{ onNavigate: (screen: ScreenKey) => void }> = (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fbff',
+    backgroundColor: "#f8fbff",
   },
   content: {
     padding: theme.spacing.lg,
@@ -416,22 +440,23 @@ const styles = StyleSheet.create({
   },
   centerState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: theme.spacing.lg,
     backgroundColor: theme.colors.background,
   },
   stateTitle: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.xl,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
     marginBottom: theme.spacing.sm,
   },
   stateText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.base,
     marginTop: theme.spacing.md,
-    textAlign: 'center',
+    textAlign: "center",
+    fontFamily: theme.fonts.regular,
   },
   hero: {
     backgroundColor: theme.colors.primary,
@@ -442,74 +467,76 @@ const styles = StyleSheet.create({
   offlineNotice: {
     color: theme.colors.warning,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
     marginBottom: theme.spacing.md,
   },
   eyebrow: {
-    color: '#bfdbfe',
+    color: "#bfdbfe",
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
-    textTransform: 'uppercase',
+    fontFamily: theme.fonts.display,
+    textTransform: "uppercase",
     letterSpacing: 1,
   },
   heroTitle: {
     color: theme.colors.white,
     fontSize: theme.fontSizes.xxxl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
     marginTop: theme.spacing.sm,
   },
   heroSubtitle: {
-    color: '#dbeafe',
+    color: "#dbeafe",
     fontSize: theme.fontSizes.base,
     marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.regular,
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     marginBottom: theme.spacing.lg,
   },
   card: {
-    width: '48%',
+    width: "48%",
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.md,
     borderWidth: 1,
-    borderColor: '#e0ecff',
+    borderColor: "#e0ecff",
   },
   metricValue: {
     color: theme.colors.primary,
     fontSize: theme.fontSizes.xxl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
   },
   metricLabel: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.xs,
+    fontFamily: theme.fonts.regular,
   },
   walletCard: {
-    backgroundColor: '#ecfeff',
+    backgroundColor: "#ecfeff",
     borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: '#bae6fd',
+    borderColor: "#bae6fd",
   },
   sectionTitle: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.lg,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
     marginBottom: theme.spacing.md,
   },
   walletValue: {
     color: theme.colors.info,
     fontSize: theme.fontSizes.xxxl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
   },
   actionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: theme.spacing.sm,
   },
   actionButton: {
@@ -517,14 +544,14 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.lg,
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
   actionButtonText: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   list: {
     gap: theme.spacing.md,
@@ -540,12 +567,13 @@ const styles = StyleSheet.create({
   listTitle: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   listMeta: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.xs,
+    fontFamily: theme.fonts.regular,
   },
 });
 

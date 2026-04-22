@@ -1,8 +1,144 @@
 import { action, internalMutation, internalQuery, mutation, query } from "../_generated/server";
 import { v } from "convex/values";
-import { CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
+import { ALL_MODULES, CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
 import { generateTenantId } from "../helpers/idGenerator";
-import { SYSTEM_ROLE_SEEDS } from "../modules/platform/rbac";
+import { SYSTEM_ROLE_PERMISSIONS } from "../shared/permissions";
+
+const MARKETPLACE_SEED_ACTOR = "seed-marketplace-bootstrap";
+
+const PLATFORM_ROLE_METADATA: Record<
+  string,
+  { name: string; description: string; color: string; icon: string }
+> = {
+  master_admin: {
+    name: "Master Admin",
+    description: "Full unrestricted platform control.",
+    color: "#dc2626",
+    icon: "Crown",
+  },
+  super_admin: {
+    name: "Super Admin",
+    description: "Platform-wide administrative access.",
+    color: "#7c3aed",
+    icon: "Shield",
+  },
+  platform_manager: {
+    name: "Platform Manager",
+    description: "Runs daily operations across tenants, CRM, and PM.",
+    color: "#0070F3",
+    icon: "Briefcase",
+  },
+  support_agent: {
+    name: "Support Agent",
+    description: "Handles support, onboarding, and operational requests.",
+    color: "#059669",
+    icon: "Headphones",
+  },
+  billing_admin: {
+    name: "Billing Admin",
+    description: "Manages commercial, subscription, and finance operations.",
+    color: "#d97706",
+    icon: "CreditCard",
+  },
+  marketplace_reviewer: {
+    name: "Marketplace Reviewer",
+    description: "Reviews marketplace modules, publishers, and content.",
+    color: "#ec4899",
+    icon: "ShoppingBag",
+  },
+  content_moderator: {
+    name: "Content Moderator",
+    description: "Moderates communications, knowledge base, and published content.",
+    color: "#6366f1",
+    icon: "FileSearch",
+  },
+  analytics_viewer: {
+    name: "Analytics Viewer",
+    description: "Read-only visibility into analytics and selected PM data.",
+    color: "#06b6d4",
+    icon: "BarChart2",
+  },
+};
+
+const CRM_PIPELINE_STAGE_SEEDS = [
+  { name: "New", slug: "new", order: 1, color: "#94a3b8", icon: "Sparkles", probabilityDefault: 5, requiresNote: false, autoFollowUpDays: 1, isWon: false, isLost: false },
+  { name: "Contacted", slug: "contacted", order: 2, color: "#3b82f6", icon: "PhoneCall", probabilityDefault: 15, requiresNote: false, autoFollowUpDays: 3, isWon: false, isLost: false },
+  { name: "Qualified", slug: "qualified", order: 3, color: "#06b6d4", icon: "BadgeCheck", probabilityDefault: 35, requiresNote: false, autoFollowUpDays: 3, isWon: false, isLost: false },
+  { name: "Demo Booked", slug: "demo_booked", order: 4, color: "#8b5cf6", icon: "CalendarDays", probabilityDefault: 45, requiresNote: true, autoFollowUpDays: 2, isWon: false, isLost: false },
+  { name: "Demo Done", slug: "demo_done", order: 5, color: "#a855f7", icon: "MonitorPlay", probabilityDefault: 55, requiresNote: true, autoFollowUpDays: 2, isWon: false, isLost: false },
+  { name: "Proposal Sent", slug: "proposal_sent", order: 6, color: "#f59e0b", icon: "FileText", probabilityDefault: 70, requiresNote: false, autoFollowUpDays: 4, isWon: false, isLost: false },
+  { name: "Negotiation", slug: "negotiation", order: 7, color: "#f97316", icon: "Handshake", probabilityDefault: 80, requiresNote: true, autoFollowUpDays: 2, isWon: false, isLost: false },
+  { name: "Won", slug: "won", order: 8, color: "#10b981", icon: "Trophy", probabilityDefault: 100, requiresNote: false, autoFollowUpDays: undefined, isWon: true, isLost: false },
+  { name: "Lost", slug: "lost", order: 9, color: "#ef4444", icon: "CircleOff", probabilityDefault: 0, requiresNote: true, autoFollowUpDays: undefined, isWon: false, isLost: true },
+];
+
+async function ensureMarketplaceCatalog(ctx: any, now: number) {
+  const existingModules = await ctx.db.query("marketplace_modules").collect();
+  const idsBySlug = new Map<string, string>();
+
+  for (const moduleRecord of existingModules) {
+    idsBySlug.set(moduleRecord.slug, String(moduleRecord._id));
+  }
+
+  for (const moduleDef of ALL_MODULES) {
+    if (idsBySlug.has(moduleDef.moduleId)) continue;
+
+    const moduleId = await ctx.db.insert("marketplace_modules", {
+      slug: moduleDef.moduleId,
+      name: moduleDef.name,
+      description: moduleDef.description,
+      shortDescription: moduleDef.description,
+      category: moduleDef.category,
+      status: "published",
+      version: moduleDef.version,
+      isCore: CORE_MODULE_IDS.includes(moduleDef.moduleId),
+      pricingModel: "included",
+      priceCents: 0,
+      platformPriceKes: 0,
+      featureHighlights: moduleDef.features.slice(0, 5),
+      supportedRoles: [],
+      createdAt: now,
+      updatedAt: now,
+    } as any);
+
+    idsBySlug.set(moduleDef.moduleId, String(moduleId));
+  }
+
+  return idsBySlug;
+}
+
+async function ensureCoreMarketplaceInstallsForTenant(
+  ctx: any,
+  args: {
+    tenantId: string;
+    installedBy: string;
+    now: number;
+    moduleIdsBySlug: Map<string, string>;
+  }
+) {
+  for (const moduleSlug of CORE_MODULE_IDS) {
+    const moduleId = args.moduleIdsBySlug.get(moduleSlug) ?? moduleSlug;
+    const existingInstall = await ctx.db
+      .query("module_installs")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
+      .collect()
+      .then((rows: any[]) =>
+        rows.find((row: any) => String(row.moduleId) === String(moduleId))
+      );
+
+    if (existingInstall) continue;
+
+    await ctx.db.insert("module_installs", {
+      moduleId,
+      tenantId: args.tenantId,
+      status: "active",
+      installedAt: args.now,
+      installedBy: args.installedBy,
+      createdAt: args.now,
+      updatedAt: args.now,
+    } as any);
+  }
+}
 
 function requireWebhookSecret(provided: string) {
   const expected = process.env.CONVEX_WEBHOOK_SECRET;
@@ -280,21 +416,26 @@ export const seedPlatformRbacInternal = internalMutation({
     const now = Date.now();
     let rolesCreated = 0;
 
-    for (const seed of Object.values(SYSTEM_ROLE_SEEDS)) {
+    for (const [slug, permissions] of Object.entries(SYSTEM_ROLE_PERMISSIONS)) {
+      const seed = PLATFORM_ROLE_METADATA[slug];
+      if (!seed) continue;
+
       const existing = await ctx.db
         .query("platform_roles")
-        .withIndex("by_slug", (q) => q.eq("slug", seed.slug))
+        .withIndex("by_slug", (q) => q.eq("slug", slug))
         .unique();
 
       if (existing) {
         await ctx.db.patch(existing._id, {
           name: seed.name,
+          slug,
           description: seed.description,
           isSystem: true,
           isActive: true,
           color: seed.color,
           icon: seed.icon,
-          permissions: seed.permissions,
+          permissions,
+          userCount: existing.userCount ?? 0,
           updatedAt: now,
         });
         continue;
@@ -302,14 +443,15 @@ export const seedPlatformRbacInternal = internalMutation({
 
       await ctx.db.insert("platform_roles", {
         name: seed.name,
-        slug: seed.slug,
+        slug,
         description: seed.description,
         baseRole: undefined,
         isSystem: true,
         isActive: true,
         color: seed.color,
         icon: seed.icon,
-        permissions: seed.permissions,
+        permissions,
+        userCount: 0,
         createdBy: "system",
         createdAt: now,
         updatedAt: now,
@@ -317,9 +459,73 @@ export const seedPlatformRbacInternal = internalMutation({
       rolesCreated += 1;
     }
 
+    let pipelineStagesSeeded = 0;
+    for (const stage of CRM_PIPELINE_STAGE_SEEDS) {
+      const existing = await ctx.db
+        .query("crm_pipeline_stages")
+        .withIndex("by_slug", (q: any) => q.eq("slug", stage.slug))
+        .unique();
+
+      if (existing) {
+        await ctx.db.patch(existing._id, {
+          name: stage.name,
+          order: stage.order,
+          color: stage.color,
+          icon: stage.icon,
+          requiresNote: stage.requiresNote,
+          autoFollowUpDays: stage.autoFollowUpDays,
+          isWon: stage.isWon,
+          isLost: stage.isLost,
+          probabilityDefault: stage.probabilityDefault,
+          isActive: true,
+          updatedAt: now,
+        });
+        continue;
+      }
+
+      await ctx.db.insert("crm_pipeline_stages", {
+        ...stage,
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      } as any);
+      pipelineStagesSeeded += 1;
+    }
+
+    const defaultWorkspace = await ctx.db
+      .query("pmWorkspaces")
+      .withIndex("by_slug", (q: any) => q.eq("slug", "edumyles-platform"))
+      .first();
+
+    let defaultWorkspaceCreated = false;
+    if (!defaultWorkspace) {
+      await ctx.db.insert("pmWorkspaces", {
+        name: "EduMyles Platform",
+        slug: "edumyles-platform",
+        description: "Default cross-functional workspace for EduMyles platform delivery.",
+        type: "engineering",
+        icon: "🏢",
+        color: "#0070F3",
+        isPrivate: false,
+        isArchived: false,
+        memberIds: [],
+        customFieldSchema: [],
+        defaultStatuses: ["Backlog", "Todo", "In Progress", "In Review", "Done"],
+        createdBy: "system",
+        createdAt: now,
+        updatedAt: now,
+      } as any);
+      defaultWorkspaceCreated = true;
+    }
+
     const masterAdminEmail = process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase();
     if (!masterAdminEmail) {
-      return { rolesCreated, platformUserSeeded: false };
+      return {
+        rolesCreated,
+        pipelineStagesSeeded,
+        defaultWorkspaceCreated,
+        platformUserSeeded: false,
+      };
     }
 
     const masterAdminProfile = await ctx.db
@@ -339,6 +545,10 @@ export const seedPlatformRbacInternal = internalMutation({
     if (!existingPlatformUser) {
       await ctx.db.insert("platform_users", {
         userId: masterAdminProfile.workosUserId,
+        workosUserId: masterAdminProfile.workosUserId,
+        email: masterAdminProfile.email,
+        firstName: masterAdminProfile.firstName,
+        lastName: masterAdminProfile.lastName,
         role: "master_admin",
         department: "Platform",
         addedPermissions: [],
@@ -348,15 +558,23 @@ export const seedPlatformRbacInternal = internalMutation({
         scopePlans: [],
         status: "active",
         accessExpiresAt: undefined,
+        twoFactorEnabled: masterAdminProfile.twoFactorEnabled ?? false,
+        sessionCount: 0,
         invitedBy: undefined,
         acceptedAt: now,
         lastLogin: undefined,
+        lastActivityAt: undefined,
         notes: "Seeded from MASTER_ADMIN_EMAIL",
         createdAt: now,
         updatedAt: now,
       });
     }
 
-    return { rolesCreated, platformUserSeeded: true };
+    return {
+      rolesCreated,
+      pipelineStagesSeeded,
+      defaultWorkspaceCreated,
+      platformUserSeeded: true,
+    };
   },
 });

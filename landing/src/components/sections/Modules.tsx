@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { GraduationCap, Wallet, CalendarDays, FileText, Users, BarChart2, type LucideIcon } from "lucide-react";
+import {
+  GraduationCap,
+  Wallet,
+  CalendarDays,
+  FileText,
+  Users,
+  BarChart2,
+  type LucideIcon,
+} from "lucide-react";
 
 const modules: { icon: LucideIcon; title: string; benefit: string; description: string }[] = [
   {
@@ -22,15 +30,13 @@ const modules: { icon: LucideIcon; title: string; benefit: string; description: 
     icon: CalendarDays,
     title: "Attendance",
     benefit: "One-Tap Marking",
-    description:
-      "Daily and per-subject attendance tracking with automated parent alerts.",
+    description: "Daily and per-subject attendance tracking with automated parent alerts.",
   },
   {
     icon: FileText,
     title: "Exams & Gradebook",
     benefit: "Auto-Calculated Grades",
-    description:
-      "Mark entry, automatic grading, rank generation, and performance trend analysis.",
+    description: "Mark entry, automatic grading, rank generation, and performance trend analysis.",
   },
   {
     icon: Users,
@@ -82,11 +88,13 @@ export default function Modules() {
 
         {/* Heading */}
         <h2
-          className="font-playfair font-bold leading-[1.2] mb-12"
+          className="font-display font-bold leading-[1.2] mb-12"
           style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
         >
           Everything Your School Needs,{" "}
-          <em className="italic" style={{ color: "#E8A020" }}>In One Place</em>
+          <em className="italic" style={{ color: "#E8A020" }}>
+            In One Place
+          </em>
         </h2>
 
         {/* 3×2 card grid */}
@@ -94,7 +102,9 @@ export default function Modules() {
           {modules.map((mod, i) => (
             <div
               key={mod.title}
-              ref={(el) => { cardRefs.current[i] = el; }}
+              ref={(el) => {
+                cardRefs.current[i] = el;
+              }}
               className="fade-in bg-white rounded-[12px] p-8 text-center transition-all duration-300 cursor-default"
               style={{
                 border: "1px solid #e0e0e0",
@@ -120,18 +130,12 @@ export default function Modules() {
               </div>
 
               {/* Title */}
-              <h3
-                className="font-playfair font-bold text-[20px] mb-1"
-                style={{ color: "#061A12" }}
-              >
+              <h3 className="font-display font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>
                 {mod.title}
               </h3>
 
               {/* Benefit tag */}
-              <div
-                className="text-[14px] font-semibold mb-3"
-                style={{ color: "#E8A020" }}
-              >
+              <div className="text-[14px] font-semibold mb-3" style={{ color: "#E8A020" }}>
                 {mod.benefit}
               </div>
 

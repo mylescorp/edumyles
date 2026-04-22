@@ -3,14 +3,7 @@
 import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Mail,
-  Phone,
-  Clock,
-  FileText,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, Mail, Phone, Clock, FileText } from "lucide-react";
 import Logo from "@/components/shared/Logo";
 
 function PublisherApplicationSuccessContent() {
@@ -25,7 +18,7 @@ function PublisherApplicationSuccessContent() {
           <div className="w-20 h-20 bg-[#0F4C2A] rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="font-playfair text-4xl font-bold text-[#061A12] mb-4">
+          <h1 className="font-display text-4xl font-bold text-[#061A12] mb-4">
             Application Submitted!
           </h1>
           <p className="font-jakarta text-[18px] leading-7 text-[#5d6f66] mb-2">
@@ -37,10 +30,10 @@ function PublisherApplicationSuccessContent() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="font-playfair text-2xl font-bold text-[#061A12] mb-6">
+          <h2 className="font-display text-2xl font-bold text-[#061A12] mb-6">
             What Happens Next?
           </h2>
-          
+
           <div className="space-y-6">
             {[
               {
@@ -58,7 +51,8 @@ function PublisherApplicationSuccessContent() {
               {
                 icon: CheckCircle2,
                 title: "Account Setup",
-                description: "If approved, we'll help you set up your publisher account and access.",
+                description:
+                  "If approved, we'll help you set up your publisher account and access.",
                 time: "Within 7 business days",
               },
               {
@@ -76,12 +70,8 @@ function PublisherApplicationSuccessContent() {
                   <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-1">
                     {step.title}
                   </h3>
-                  <p className="font-jakarta text-[14px] text-[#5d6f66] mb-2">
-                    {step.description}
-                  </p>
-                  <p className="font-jakarta text-[12px] text-[#1A7A4A] font-medium">
-                    {step.time}
-                  </p>
+                  <p className="font-jakarta text-[14px] text-[#5d6f66] mb-2">{step.description}</p>
+                  <p className="font-jakarta text-[12px] text-[#1A7A4A] font-medium">{step.time}</p>
                 </div>
               </div>
             ))}
@@ -89,29 +79,29 @@ function PublisherApplicationSuccessContent() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="font-playfair text-2xl font-bold text-[#061A12] mb-6">
-            While You Wait
-          </h2>
-          
+          <h2 className="font-display text-2xl font-bold text-[#061A12] mb-6">While You Wait</h2>
+
           <div className="space-y-4">
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 Prepare Your Development Environment
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Set up your development tools and review our module development guidelines to get started quickly.
+                Set up your development tools and review our module development guidelines to get
+                started quickly.
               </p>
             </div>
-            
+
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 Research School Needs
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Understand the challenges East African schools face to build modules that solve real problems.
+                Understand the challenges East African schools face to build modules that solve real
+                problems.
               </p>
             </div>
-            
+
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
                 Join Our Community
@@ -138,7 +128,7 @@ function PublisherApplicationSuccessContent() {
               Contact Support
             </Link>
           </div>
-          
+
           <div className="flex items-center justify-center gap-6 text-sm text-[#6B9E83]">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4" />

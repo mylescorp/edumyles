@@ -1,9 +1,10 @@
-import { query, mutation, internalMutation, MutationCtx } from "../../_generated/server";
+import { query, mutation, action, internalMutation, internalQuery, MutationCtx } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
-import { api } from "../../_generated/api";
+import { internal } from "../../_generated/api";
 import { logAction } from "../../helpers/auditLog";
 import { idGenerator } from "../../helpers/idGenerator";
+import { ALL_PERMISSION_KEYS, SYSTEM_ROLE_PERMISSIONS } from "../../shared/permissions";
 
 const PLATFORM_INVITE_EXPIRY_MS = 72 * 60 * 60 * 1000;
 
@@ -11,15 +12,6 @@ type PermissionDefinition = {
   key: string;
   label: string;
   description: string;
-};
-
-type RoleSeed = {
-  name: string;
-  slug: string;
-  description: string;
-  color: string;
-  icon: string;
-  permissions: string[];
 };
 
 const PERMISSION_CATALOG: Record<string, PermissionDefinition[]> = {
@@ -179,9 +171,16 @@ const PERMISSION_CATALOG: Record<string, PermissionDefinition[]> = {
   ],
 };
 
-export const ALL_PLATFORM_PERMISSIONS = Object.values(PERMISSION_CATALOG)
-  .flat()
-  .map((permission) => permission.key);
+type RoleSeed = {
+  name: string;
+  slug: string;
+  description: string;
+  color: string;
+  icon: string;
+  permissions: string[];
+};
+
+export const ALL_PLATFORM_PERMISSIONS = ALL_PERMISSION_KEYS;
 
 export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
   master_admin: {
@@ -190,7 +189,7 @@ export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
     description: "Full unrestricted platform control.",
     color: "#D97706",
     icon: "crown",
-    permissions: ["*"],
+    permissions: SYSTEM_ROLE_PERMISSIONS.master_admin ?? [],
   },
   super_admin: {
     name: "Super Admin",
@@ -198,30 +197,7 @@ export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
     description: "Platform-wide operations with a few destructive controls withheld.",
     color: "#0F766E",
     icon: "shield-check",
-    permissions: [
-      "tenants.view", "tenants.view_details", "tenants.create", "tenants.edit",
-      "tenants.suspend", "tenants.unsuspend", "tenants.impersonate", "tenants.export",
-      "tenants.view_finance", "tenants.manage_finance", "tenants.manage_subscription",
-      "tenants.manage_modules", "tenants.manage_users", "tenants.manage_settings",
-      "tenants.manage_pilot_grants", "tenants.gdpr_export",
-      "platform_users.view", "platform_users.invite", "platform_users.edit_role",
-      "platform_users.edit_permissions", "platform_users.suspend", "platform_users.view_activity",
-      "marketplace.view", "marketplace.review_modules", "marketplace.suspend_module",
-      "marketplace.feature_module", "marketplace.manage_flags", "marketplace.manage_reviews",
-      "marketplace.manage_pilot_grants", "marketplace.manage_pricing",
-      "billing.view_dashboard", "billing.view_invoices", "billing.manage_invoices",
-      "billing.view_subscriptions", "billing.manage_subscriptions",
-      "crm.view", "crm.create_lead", "crm.edit_lead", "crm.assign_lead", "crm.delete_lead", "crm.create_proposal", "crm.convert_to_tenant",
-      "communications.view", "communications.send_broadcast", "communications.view_logs", "communications.manage_announcements",
-      "knowledge_base.view", "knowledge_base.create", "knowledge_base.edit", "knowledge_base.publish",
-      "analytics.view_platform", "analytics.view_business", "analytics.export", "analytics.manage_reports",
-      "security.view_dashboard", "security.view_audit_log", "security.manage_webhooks",
-      "settings.view", "settings.edit_general", "settings.edit_email", "settings.edit_sms", "settings.edit_integrations", "settings.manage_feature_flags", "settings.manage_sla",
-      "support.view", "support.assign", "support.reply", "support.close", "support.escalate", "support.view_internal_notes",
-      "waitlist.view", "waitlist.invite", "waitlist.reject", "onboarding.view", "onboarding.manage",
-      "staff_performance.view", "staff_performance.add_notes",
-      "pm.view", "pm.create", "pm.manage",
-    ],
+    permissions: SYSTEM_ROLE_PERMISSIONS.super_admin ?? [],
   },
   platform_manager: {
     name: "Platform Manager",
@@ -229,21 +205,7 @@ export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
     description: "Runs day-to-day platform operations.",
     color: "#2563EB",
     icon: "briefcase",
-    permissions: [
-      "tenants.view", "tenants.view_details", "tenants.create", "tenants.edit",
-      "tenants.suspend", "tenants.unsuspend", "tenants.export",
-      "tenants.manage_subscription", "tenants.manage_modules", "tenants.manage_users", "tenants.manage_pilot_grants",
-      "platform_users.view",
-      "marketplace.view", "marketplace.feature_module", "marketplace.manage_pilot_grants",
-      "crm.view", "crm.create_lead", "crm.edit_lead", "crm.assign_lead", "crm.create_proposal", "crm.convert_to_tenant",
-      "communications.view", "communications.send_broadcast", "communications.manage_announcements",
-      "knowledge_base.view", "knowledge_base.create", "knowledge_base.edit",
-      "analytics.view_platform",
-      "support.view", "support.assign", "support.reply",
-      "waitlist.view", "waitlist.invite", "waitlist.reject", "onboarding.view", "onboarding.manage",
-      "staff_performance.view_own",
-      "pm.view", "pm.create",
-    ],
+    permissions: SYSTEM_ROLE_PERMISSIONS.platform_manager ?? [],
   },
   support_agent: {
     name: "Support Agent",
@@ -251,13 +213,7 @@ export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
     description: "Handles operational and customer support work.",
     color: "#059669",
     icon: "life-buoy",
-    permissions: [
-      "tenants.view", "tenants.view_details", "tenants.manage_users",
-      "knowledge_base.view", "knowledge_base.create", "knowledge_base.edit",
-      "communications.view", "communications.send_broadcast", "communications.manage_announcements",
-      "support.view", "support.assign", "support.reply", "support.close", "support.view_internal_notes",
-      "onboarding.view", "staff_performance.view_own", "pm.view",
-    ],
+    permissions: SYSTEM_ROLE_PERMISSIONS.support_agent ?? [],
   },
   billing_admin: {
     name: "Billing Admin",
@@ -265,11 +221,7 @@ export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
     description: "Owns commercial and payout workflows.",
     color: "#7C3AED",
     icon: "credit-card",
-    permissions: [
-      "tenants.view", "tenants.view_details", "tenants.view_finance", "tenants.manage_finance", "tenants.manage_subscription",
-      "billing.view_dashboard", "billing.view_invoices", "billing.manage_invoices", "billing.view_subscriptions", "billing.manage_subscriptions", "billing.view_reports", "billing.export_reports", "billing.view_publisher_payouts", "billing.process_payouts",
-      "analytics.view_business", "analytics.export", "staff_performance.view_own",
-    ],
+    permissions: SYSTEM_ROLE_PERMISSIONS.billing_admin ?? [],
   },
   marketplace_reviewer: {
     name: "Marketplace Reviewer",
@@ -277,10 +229,7 @@ export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
     description: "Moderates publisher and module submissions.",
     color: "#EA580C",
     icon: "store",
-    permissions: [
-      "marketplace.view", "marketplace.review_modules", "marketplace.feature_module", "marketplace.manage_reviews",
-      "knowledge_base.view", "staff_performance.view_own", "pm.view",
-    ],
+    permissions: SYSTEM_ROLE_PERMISSIONS.marketplace_reviewer ?? [],
   },
   content_moderator: {
     name: "Content Moderator",
@@ -288,11 +237,7 @@ export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
     description: "Moderates reviews, flags, and knowledge content.",
     color: "#DC2626",
     icon: "shield-alert",
-    permissions: [
-      "marketplace.view", "marketplace.manage_flags", "marketplace.manage_reviews",
-      "knowledge_base.view", "knowledge_base.create", "knowledge_base.edit", "knowledge_base.publish",
-      "staff_performance.view_own",
-    ],
+    permissions: SYSTEM_ROLE_PERMISSIONS.content_moderator ?? [],
   },
   analytics_viewer: {
     name: "Analytics Viewer",
@@ -300,7 +245,7 @@ export const SYSTEM_ROLE_SEEDS: Record<string, RoleSeed> = {
     description: "Read-heavy business and usage analytics access.",
     color: "#0891B2",
     icon: "bar-chart-3",
-    permissions: ["analytics.view_platform", "analytics.view_business", "analytics.export", "analytics.manage_reports", "tenants.view", "billing.view_dashboard", "staff_performance.view_own"],
+    permissions: SYSTEM_ROLE_PERMISSIONS.analytics_viewer ?? [],
   },
 };
 
@@ -310,6 +255,14 @@ function slugifyRoleName(name: string) {
 
 function dedupePermissions(permissions: string[]) {
   return [...new Set(permissions.filter(Boolean))].sort();
+}
+
+function isMasterAdminRole(role?: string | null) {
+  return role === "master_admin";
+}
+
+function canManageMasterAdmins(actorRole?: string | null) {
+  return isMasterAdminRole(actorRole);
 }
 
 async function getSessionIdentity(ctx: any, sessionToken?: string) {
@@ -426,10 +379,11 @@ export async function getUserPermissions(ctx: any, userId: string): Promise<stri
   if (!platformUser) return [];
   if (platformUser.status === "suspended") return [];
   if (platformUser.accessExpiresAt && platformUser.accessExpiresAt < Date.now()) return [];
+  if (platformUser.role === "master_admin") return ["*"];
 
   const role = await getRoleDefinition(ctx, platformUser.role);
   if (!role || !role.isActive) return [];
-  if (platformUser.role === "master_admin" || role.permissions.includes("*")) return ["*"];
+  if (role.permissions.includes("*")) return ["*"];
 
   return dedupePermissions([
     ...role.permissions,
@@ -441,6 +395,16 @@ export function hasPermission(permissions: string[], permission: string) {
   return permissions.includes("*") || permissions.includes(permission);
 }
 
+export function hasAnyPermission(permissions: string[], required: string[]) {
+  if (permissions.includes("*")) return true;
+  return required.some((permission) => permissions.includes(permission));
+}
+
+export function hasAllPermissions(permissions: string[], required: string[]) {
+  if (permissions.includes("*")) return true;
+  return required.every((permission) => permissions.includes(permission));
+}
+
 export function checkScopeAccess(
   platformUser: { scopeCountries?: string[]; scopeTenantIds?: string[]; scopePlans?: string[] } | null | undefined,
   resource: { countryCode?: string; tenantId?: string; plan?: string }
@@ -450,9 +414,9 @@ export function checkScopeAccess(
   const tenantIds = platformUser.scopeTenantIds ?? [];
   const plans = platformUser.scopePlans ?? [];
 
-  if (countries.length > 0 && resource.countryCode && !countries.includes(resource.countryCode)) return false;
-  if (tenantIds.length > 0 && resource.tenantId && !tenantIds.includes(resource.tenantId)) return false;
-  if (plans.length > 0 && resource.plan && !plans.includes(resource.plan)) return false;
+  if (countries.length > 0 && (!resource.countryCode || !countries.includes(resource.countryCode))) return false;
+  if (tenantIds.length > 0 && (!resource.tenantId || !tenantIds.includes(resource.tenantId))) return false;
+  if (plans.length > 0 && (!resource.plan || !plans.includes(resource.plan))) return false;
   return true;
 }
 
@@ -509,16 +473,74 @@ async function writePermissionAuditLog(ctx: any, params: {
   previousValue: any;
   newValue: any;
   reason: string;
+  permissionKey?: string;
+  roleSlug?: string;
+  changeSummary?: string;
+  metadata?: any;
 }) {
   await ctx.db.insert("permission_audit_log", {
     targetUserId: params.targetUserId,
     changedBy: params.changedBy,
     changeType: params.changeType,
+    permissionKey: params.permissionKey,
+    roleSlug: params.roleSlug,
+    changeSummary: params.changeSummary,
     previousValue: JSON.stringify(params.previousValue ?? {}),
     newValue: JSON.stringify(params.newValue ?? {}),
     reason: params.reason,
+    metadata: params.metadata,
     createdAt: Date.now(),
   });
+}
+
+async function updateRoleUserCount(ctx: MutationCtx, roleSlug: string, delta: number) {
+  const role = await ctx.db
+    .query("platform_roles")
+    .withIndex("by_slug", (q: any) => q.eq("slug", roleSlug))
+    .unique();
+
+  if (!role) return;
+
+  const nextCount = Math.max(0, (role.userCount ?? 0) + delta);
+  await ctx.db.patch(role._id, {
+    userCount: nextCount,
+    updatedAt: Date.now(),
+  });
+}
+
+async function revokeStoredSessions(ctx: MutationCtx, target: any, sessionId?: string) {
+  const existingSessions = await ctx.db
+    .query("platform_sessions")
+    .withIndex("by_userId", (q: any) => q.eq("userId", target.userId))
+    .collect();
+
+  const sessionsToRevoke = sessionId
+    ? existingSessions.filter((session: any) => session.sessionId === sessionId)
+    : existingSessions;
+
+  for (const session of sessionsToRevoke) {
+    await ctx.db.patch(session._id, {
+      revokedAt: Date.now(),
+      isCurrent: false,
+      updatedAt: Date.now(),
+    });
+  }
+
+  if (target.workosUserId) {
+    if (sessionId) {
+      await ctx.scheduler.runAfter(
+        0,
+        internal.actions.auth.platformWorkos.revokeSingleSession,
+        { sessionId }
+      );
+    } else {
+      await ctx.scheduler.runAfter(
+        0,
+        internal.actions.auth.platformWorkos.revokeAllPlatformUserSessions,
+        { workosUserId: target.workosUserId }
+      );
+    }
+  }
 }
 
 export const createPlatformInviteRecord = async (
@@ -545,8 +567,27 @@ export const createPlatformInviteRecord = async (
   const normalizedEmail = args.email.trim().toLowerCase();
   const role = await getRoleDefinition(ctx, args.role);
   if (!role || !role.isActive) throw new Error("Invalid or inactive role");
-  if (args.role === "master_admin" && !hasPermission(actor.permissions, "platform_users.delete")) {
+  if (args.role === "master_admin" && !canManageMasterAdmins(actor.platformUser.role)) {
     throw new Error("Only master admins can invite other master admins");
+  }
+  const invalidAddedPermissions = (args.addedPermissions ?? []).filter(
+    (permission) => !ALL_PERMISSION_KEYS.includes(permission)
+  );
+  const invalidRemovedPermissions = (args.removedPermissions ?? []).filter(
+    (permission) => !ALL_PERMISSION_KEYS.includes(permission)
+  );
+  if (invalidAddedPermissions.length > 0 || invalidRemovedPermissions.length > 0) {
+    throw new Error(
+      `Invalid permissions: ${[...invalidAddedPermissions, ...invalidRemovedPermissions].join(", ")}`
+    );
+  }
+  if (!actor.permissions.includes("*")) {
+    const ungrantablePermissions = (args.addedPermissions ?? []).filter(
+      (permission) => !actor.permissions.includes(permission)
+    );
+    if (ungrantablePermissions.length > 0) {
+      throw new Error(`You cannot grant permissions you do not have: ${ungrantablePermissions.join(", ")}`);
+    }
   }
 
   const [existingInvites, existingProfile] = await Promise.all([
@@ -565,8 +606,11 @@ export const createPlatformInviteRecord = async (
     throw new Error("A pending invite already exists for this email");
   }
 
+  const inviteToken = crypto.randomUUID();
   const inviteId = await ctx.db.insert("platform_user_invites", {
     email: normalizedEmail,
+    firstName: args.firstName?.trim() || undefined,
+    lastName: args.lastName?.trim() || undefined,
     role: args.role,
     department: args.department?.trim() || undefined,
     addedPermissions: dedupePermissions(args.addedPermissions ?? []),
@@ -576,14 +620,24 @@ export const createPlatformInviteRecord = async (
     scopePlans: args.scopePlans ?? [],
     accessExpiresAt: args.accessExpiresAt,
     invitedBy: actor.userId,
-    token: idGenerator("platform_invite"),
+    workosInvitationToken: undefined,
+    token: inviteToken,
     status: "pending",
     expiresAt: Date.now() + PLATFORM_INVITE_EXPIRY_MS,
     acceptedAt: undefined,
     notifyInviter: args.notifyInviter ?? true,
     personalMessage: args.personalMessage?.trim() || undefined,
+    remindersSent: 0,
+    lastReminderAt: undefined,
     createdAt: Date.now(),
     updatedAt: Date.now(),
+  });
+
+  await ctx.scheduler.runAfter(24 * 60 * 60 * 1000, internal.modules.platform.rbac.sendInviteReminder, {
+    inviteId,
+  });
+  await ctx.scheduler.runAfter(48 * 60 * 60 * 1000, internal.modules.platform.rbac.sendInviteReminder, {
+    inviteId,
   });
 
   await logAction(ctx, {
@@ -597,7 +651,7 @@ export const createPlatformInviteRecord = async (
   });
 
   // Send invitation email - simplified logging for now
-  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/platform/invite/accept?token=${idGenerator("platform_invite")}`;
+  const inviteUrl = `${process.env.NEXT_PUBLIC_PLATFORM_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/platform/invite/accept?token=${inviteToken}`;
   const templateType = args.isExistingUser ? "existing_user" : "new_user";
   
   console.log("Platform invite email would be sent:", {
@@ -609,7 +663,13 @@ export const createPlatformInviteRecord = async (
     inviteUrl,
   });
 
-  return { success: true, inviteId, token: idGenerator("platform_invite"), email: normalizedEmail, roleName: role.name };
+  return {
+    success: true,
+    inviteId,
+    token: inviteToken,
+    email: normalizedEmail,
+    roleName: role.name,
+  };
 }
 
 export const getPermissionCatalog = query({
@@ -745,6 +805,11 @@ export const createRole = mutation({
     const slug = slugifyRoleName(args.name);
     if (!slug) throw new Error("Role name must produce a valid slug");
     if (SYSTEM_ROLE_SEEDS[slug]) throw new Error("Cannot override a system role");
+    if (args.permissions.includes("*")) throw new Error("Wildcard permissions are reserved for master admins");
+    const invalidPermissions = args.permissions.filter(
+      (permission) => !ALL_PERMISSION_KEYS.includes(permission)
+    );
+    if (invalidPermissions.length > 0) throw new Error(`Invalid permissions: ${invalidPermissions.join(", ")}`);
 
     const existing = await ctx.db
       .query("platform_roles")
@@ -762,6 +827,7 @@ export const createRole = mutation({
       color: args.color,
       icon: args.icon,
       permissions: dedupePermissions(args.permissions),
+      userCount: 0,
       createdBy: actor.userId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -798,6 +864,11 @@ export const updateRole = mutation({
     const role = await ctx.db.get(args.roleId);
     if (!role) throw new Error("Role not found");
     if (role.isSystem) throw new Error("Cannot edit system roles");
+    if (args.permissions?.includes("*")) throw new Error("Wildcard permissions are reserved for master admins");
+    const invalidPermissions = (args.permissions ?? []).filter(
+      (permission) => !ALL_PERMISSION_KEYS.includes(permission)
+    );
+    if (invalidPermissions.length > 0) throw new Error(`Invalid permissions: ${invalidPermissions.join(", ")}`);
 
     const patch: Record<string, any> = { updatedAt: Date.now() };
     if (args.name !== undefined) patch.name = args.name;
@@ -824,7 +895,11 @@ export const updateRole = mutation({
 });
 
 export const deleteRole = mutation({
-  args: { sessionToken: v.string(), roleId: v.id("platform_roles") },
+  args: {
+    sessionToken: v.string(),
+    roleId: v.id("platform_roles"),
+    reassignToRole: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
     const actor = await requirePermission(ctx, "platform_users.delete", args.sessionToken);
     const role = await ctx.db.get(args.roleId);
@@ -835,7 +910,24 @@ export const deleteRole = mutation({
       .query("platform_users")
       .withIndex("by_role", (q: any) => q.eq("role", role.slug))
       .collect();
-    if (usersWithRole.length > 0) throw new Error(`Cannot delete role — ${usersWithRole.length} users still have it.`);
+    if (usersWithRole.length > 0 && !args.reassignToRole) {
+      throw new Error(`Cannot delete role — ${usersWithRole.length} users still have it.`);
+    }
+
+    if (args.reassignToRole) {
+      const replacementRole = await getRoleDefinition(ctx, args.reassignToRole);
+      if (!replacementRole || !replacementRole.isActive) {
+        throw new Error("Reassignment role is invalid or inactive");
+      }
+
+      for (const user of usersWithRole) {
+        await ctx.db.patch(user._id, {
+          role: args.reassignToRole,
+          updatedAt: Date.now(),
+        });
+      }
+      await updateRoleUserCount(ctx, args.reassignToRole, usersWithRole.length);
+    }
 
     await ctx.db.delete(args.roleId);
     await logAction(ctx, {
@@ -846,6 +938,7 @@ export const deleteRole = mutation({
       entityType: "platform_role",
       entityId: String(args.roleId),
       before: role,
+      after: args.reassignToRole ? { reassignToRole: args.reassignToRole } : undefined,
     });
   },
 });
@@ -879,6 +972,7 @@ export const duplicateRole = mutation({
       color: source.color,
       icon: source.icon,
       permissions: dedupePermissions(source.permissions),
+      userCount: 0,
       createdBy: actor.userId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -984,7 +1078,43 @@ export const validateInviteToken = query({
   },
 });
 
-export const acceptPlatformInvite = mutation({
+export const getInviteByToken = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const invite = await ctx.db
+      .query("platform_user_invites")
+      .withIndex("by_token", (q: any) => q.eq("token", args.token))
+      .unique();
+
+    if (!invite) return null;
+
+    const role = await getRoleDefinition(ctx, invite.role);
+    return {
+      email: invite.email,
+      firstName: invite.firstName,
+      lastName: invite.lastName,
+      expiresAt: invite.expiresAt,
+      status: invite.status,
+      roleName: role?.name ?? invite.role,
+      roleSlug: invite.role,
+      permissions: role?.permissions ?? [],
+      personalMessage: invite.personalMessage,
+      department: invite.department,
+    };
+  },
+});
+
+export const getInviteRecordByToken = internalQuery({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("platform_user_invites")
+      .withIndex("by_token", (q: any) => q.eq("token", args.token))
+      .unique();
+  },
+});
+
+export const createPlatformUserFromInvite = internalMutation({
   args: {
     token: v.string(),
     workosUserId: v.string(),
@@ -1011,6 +1141,10 @@ export const acceptPlatformInvite = mutation({
 
     const patch = {
       role: invite.role,
+      workosUserId: args.workosUserId,
+      email: invite.email,
+      firstName: args.firstName ?? invite.firstName,
+      lastName: args.lastName ?? invite.lastName,
       department: invite.department,
       addedPermissions: invite.addedPermissions ?? [],
       removedPermissions: invite.removedPermissions ?? [],
@@ -1019,6 +1153,8 @@ export const acceptPlatformInvite = mutation({
       scopePlans: invite.scopePlans ?? [],
       status: "active" as const,
       accessExpiresAt: invite.accessExpiresAt,
+      twoFactorEnabled: false,
+      sessionCount: 0,
       invitedBy: invite.invitedBy,
       acceptedAt: Date.now(),
       lastLogin: Date.now(),
@@ -1035,6 +1171,7 @@ export const acceptPlatformInvite = mutation({
         notes: undefined,
         createdAt: Date.now(),
       });
+      await updateRoleUserCount(ctx, invite.role, 1);
     }
 
     await ctx.db.patch(invite._id, {
@@ -1057,6 +1194,44 @@ export const acceptPlatformInvite = mutation({
   },
 });
 
+export const acceptPlatformInvite = action({
+  args: {
+    token: v.string(),
+    workosUserId: v.string(),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+  },
+  handler: async (
+    ctx,
+    args
+  ): Promise<{ success: boolean; platformUserId: string }> => {
+    const invite = await ctx.runQuery(internal.modules.platform.rbac.getInviteRecordByToken, {
+      token: args.token,
+    });
+
+    if (!invite || invite.status !== "pending" || invite.expiresAt < Date.now()) {
+      throw new Error("Invalid or expired invitation");
+    }
+
+    await ctx.runAction(internal.actions.auth.platformWorkos.addToPlatformOrganization, {
+      workosUserId: args.workosUserId,
+      roleSlug: invite.role,
+    });
+
+    const result = await ctx.runMutation(internal.modules.platform.rbac.createPlatformUserFromInvite, {
+      token: args.token,
+      workosUserId: args.workosUserId,
+      firstName: args.firstName,
+      lastName: args.lastName,
+    });
+
+    return {
+      success: Boolean(result.success),
+      platformUserId: String(result.platformUserId),
+    };
+  },
+});
+
 export const resendPlatformInvite = mutation({
   args: { sessionToken: v.string(), inviteId: v.id("platform_user_invites") },
   handler: async (ctx, args) => {
@@ -1065,10 +1240,13 @@ export const resendPlatformInvite = mutation({
     if (!invite) throw new Error("Invite not found");
     if (!["pending", "expired"].includes(invite.status)) throw new Error("Only pending or expired invites can be resent");
 
+    const refreshedToken = crypto.randomUUID();
     const patch = {
-      token: idGenerator("platform_invite"),
+      token: refreshedToken,
       status: "pending" as const,
       expiresAt: Date.now() + PLATFORM_INVITE_EXPIRY_MS,
+      remindersSent: (invite.remindersSent ?? 0) + 1,
+      lastReminderAt: Date.now(),
       updatedAt: Date.now(),
     };
     await ctx.db.patch(args.inviteId, patch);
@@ -1092,7 +1270,7 @@ export const revokePlatformInvite = mutation({
   args: {
     sessionToken: v.string(),
     inviteId: v.id("platform_user_invites"),
-    reason: v.optional(v.string()),
+    reason: v.string(),
   },
   handler: async (ctx, args) => {
     const actor = await requirePermission(ctx, "platform_users.invite", args.sessionToken);
@@ -1109,7 +1287,67 @@ export const revokePlatformInvite = mutation({
       entityType: "platform_user_invite",
       entityId: String(args.inviteId),
       before: { status: invite.status },
-      after: { status: "revoked", reason: args.reason ?? null },
+      after: { status: "revoked", reason: args.reason },
+    });
+  },
+});
+
+export const expirePlatformInvites = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const invites = await ctx.db
+      .query("platform_user_invites")
+      .withIndex("by_status", (q: any) => q.eq("status", "pending"))
+      .collect();
+
+    for (const invite of invites) {
+      if (invite.expiresAt < now) {
+        await ctx.db.patch(invite._id, {
+          status: "expired",
+          updatedAt: now,
+        });
+      }
+    }
+  },
+});
+
+export const expireAccessExpiredAccounts = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const users = await ctx.db.query("platform_users").collect();
+
+    for (const user of users) {
+      if (
+        !user.deletedAt &&
+        user.status === "active" &&
+        user.accessExpiresAt &&
+        user.accessExpiresAt < now
+      ) {
+        await ctx.db.patch(user._id, {
+          status: "suspended",
+          updatedAt: now,
+        });
+        await revokeStoredSessions(ctx, user);
+      }
+    }
+  },
+});
+
+export const sendInviteReminder = internalMutation({
+  args: {
+    inviteId: v.id("platform_user_invites"),
+  },
+  handler: async (ctx, args) => {
+    const invite = await ctx.db.get(args.inviteId);
+    if (!invite) return;
+    if (invite.status !== "pending" || invite.expiresAt < Date.now()) return;
+
+    await ctx.db.patch(args.inviteId, {
+      remindersSent: (invite.remindersSent ?? 0) + 1,
+      lastReminderAt: Date.now(),
+      updatedAt: Date.now(),
     });
   },
 });
@@ -1129,6 +1367,123 @@ export const getPermissionAuditLog = query({
   },
 });
 
+export const getPlatformUsers = query({
+  args: {
+    sessionToken: v.string(),
+    role: v.optional(v.string()),
+    status: v.optional(v.string()),
+    department: v.optional(v.string()),
+    search: v.optional(v.string()),
+    accessType: v.optional(
+      v.union(v.literal("expiring"), v.literal("expired"), v.literal("active"))
+    ),
+  },
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, "platform_users.view", args.sessionToken);
+
+    const now = Date.now();
+    const search = args.search?.trim().toLowerCase();
+    const users = await ctx.db.query("platform_users").collect();
+
+    const filtered = users.filter((user: any) => {
+      if (user.deletedAt) return false;
+      if (args.role && user.role !== args.role) return false;
+      if (args.status && user.status !== args.status) return false;
+      if (args.department && user.department !== args.department) return false;
+
+      if (args.accessType === "expiring") {
+        if (!user.accessExpiresAt || user.accessExpiresAt < now || user.accessExpiresAt > now + 30 * 24 * 60 * 60 * 1000) {
+          return false;
+        }
+      }
+      if (args.accessType === "expired" && (!user.accessExpiresAt || user.accessExpiresAt >= now)) return false;
+      if (args.accessType === "active" && user.accessExpiresAt && user.accessExpiresAt < now) return false;
+
+      if (search) {
+        const haystack = [
+          user.email,
+          user.firstName,
+          user.lastName,
+          user.department,
+          user.role,
+          user.userId,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(search)) return false;
+      }
+
+      return true;
+    });
+
+    return Promise.all(filtered.map((user: any) => getDetailedPlatformUser(ctx, user)));
+  },
+});
+
+export const getPlatformUser = query({
+  args: {
+    sessionToken: v.string(),
+    platformUserId: v.optional(v.id("platform_users")),
+    userId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, "platform_users.view", args.sessionToken);
+
+    const platformUser = args.platformUserId
+      ? await ctx.db.get(args.platformUserId)
+      : args.userId
+        ? await getPlatformUserBySubject(ctx, args.userId)
+        : null;
+
+    if (!platformUser || platformUser.deletedAt) throw new Error("Platform user not found");
+
+    const sessions = await ctx.db
+      .query("platform_sessions")
+      .withIndex("by_userId", (q: any) => q.eq("userId", platformUser.userId))
+      .collect();
+
+    const auditEntries = await ctx.db
+      .query("permission_audit_log")
+      .withIndex("by_targetUserId", (q: any) => q.eq("targetUserId", platformUser.userId))
+      .collect();
+
+    return {
+      ...(await getDetailedPlatformUser(ctx, platformUser)),
+      sessions: sessions.sort((a: any, b: any) => b.lastActiveAt - a.lastActiveAt),
+      permissionAudit: auditEntries.sort((a: any, b: any) => b.createdAt - a.createdAt),
+    };
+  },
+});
+
+export const getPlatformInvites = query({
+  args: {
+    sessionToken: v.string(),
+    status: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, "platform_users.view", args.sessionToken);
+
+    let invites = await ctx.db.query("platform_user_invites").collect();
+    if (args.status) {
+      invites = invites.filter((invite: any) => invite.status === args.status);
+    }
+
+    const rows = await Promise.all(
+      invites.map(async (invite: any) => {
+        const inviter = await getPlatformUserBySubject(ctx, invite.invitedBy);
+        return {
+          ...invite,
+          id: String(invite._id),
+          inviterEmail: inviter?.email ?? invite.invitedBy,
+        };
+      })
+    );
+
+    return rows.sort((a: any, b: any) => b.createdAt - a.createdAt);
+  },
+});
+
 export const updateUserRole = mutation({
   args: {
     sessionToken: v.string(),
@@ -1140,10 +1495,13 @@ export const updateUserRole = mutation({
     const actor = await requirePermission(ctx, "platform_users.edit_role", args.sessionToken);
     const target = await getPlatformUserByDocIdOrThrow(ctx, args.targetUserId);
     if (target.userId === actor.userId) throw new Error("Cannot change your own role");
+    if (isMasterAdminRole(target.role) && !canManageMasterAdmins(actor.platformUser.role)) {
+      throw new Error("Only master admins can modify another master admin");
+    }
 
     const role = await getRoleDefinition(ctx, args.newRole);
     if (!role || !role.isActive) throw new Error("Invalid role");
-    if (args.newRole === "master_admin" && !hasPermission(actor.permissions, "platform_users.delete")) {
+    if (args.newRole === "master_admin" && !canManageMasterAdmins(actor.platformUser.role)) {
       throw new Error("Only master admins can assign master admin");
     }
 
@@ -1154,6 +1512,10 @@ export const updateUserRole = mutation({
       removedPermissions: [],
       updatedAt: Date.now(),
     });
+    if (target.role !== args.newRole) {
+      await updateRoleUserCount(ctx, target.role, -1);
+      await updateRoleUserCount(ctx, args.newRole, 1);
+    }
 
     await writePermissionAuditLog(ctx, {
       targetUserId: target.userId,
@@ -1162,6 +1524,8 @@ export const updateUserRole = mutation({
       previousValue: previous,
       newValue: { role: args.newRole },
       reason: args.reason,
+      roleSlug: args.newRole,
+      changeSummary: `Role changed from ${target.role} to ${args.newRole}`,
     });
 
     await logAction(ctx, {
@@ -1189,6 +1553,25 @@ export const updateUserPermissions = mutation({
     const actor = await requirePermission(ctx, "platform_users.edit_permissions", args.sessionToken);
     const target = await getPlatformUserByDocIdOrThrow(ctx, args.targetUserId);
     if (target.userId === actor.userId) throw new Error("Cannot edit your own permissions");
+    if (isMasterAdminRole(target.role) && !canManageMasterAdmins(actor.platformUser.role)) {
+      throw new Error("Only master admins can modify another master admin");
+    }
+
+    const invalidPermissions = [...args.addedPermissions, ...args.removedPermissions].filter(
+      (permission) => !ALL_PERMISSION_KEYS.includes(permission)
+    );
+    if (invalidPermissions.length > 0) {
+      throw new Error(`Invalid permissions: ${invalidPermissions.join(", ")}`);
+    }
+
+    if (!actor.permissions.includes("*")) {
+      const ungrantablePermissions = args.addedPermissions.filter(
+        (permission) => !actor.permissions.includes(permission)
+      );
+      if (ungrantablePermissions.length > 0) {
+        throw new Error(`You cannot grant permissions you do not have: ${ungrantablePermissions.join(", ")}`);
+      }
+    }
 
     const previous = {
       addedPermissions: target.addedPermissions ?? [],
@@ -1208,6 +1591,23 @@ export const updateUserPermissions = mutation({
       previousValue: previous,
       newValue: { addedPermissions: args.addedPermissions, removedPermissions: args.removedPermissions },
       reason: args.reason,
+      permissionKey: [...args.addedPermissions, ...args.removedPermissions].join(","),
+      changeSummary: "Updated user permission overrides",
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.targetUserId),
+      before: previous,
+      after: {
+        addedPermissions: dedupePermissions(args.addedPermissions),
+        removedPermissions: dedupePermissions(args.removedPermissions),
+        reason: args.reason,
+      },
     });
   },
 });
@@ -1244,6 +1644,23 @@ export const updateUserScope = mutation({
       previousValue: previous,
       newValue: { scopeCountries: args.scopeCountries, scopeTenantIds: args.scopeTenantIds, scopePlans: args.scopePlans },
       reason: args.reason,
+      changeSummary: "Updated scope restrictions",
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.targetUserId),
+      before: previous,
+      after: {
+        scopeCountries: args.scopeCountries,
+        scopeTenantIds: args.scopeTenantIds,
+        scopePlans: args.scopePlans,
+        reason: args.reason,
+      },
     });
   },
 });
@@ -1258,8 +1675,12 @@ export const suspendPlatformUser = mutation({
     const actor = await requirePermission(ctx, "platform_users.suspend", args.sessionToken);
     const target = await getPlatformUserByDocIdOrThrow(ctx, args.targetUserId);
     if (target.userId === actor.userId) throw new Error("Cannot suspend yourself");
+    if (isMasterAdminRole(target.role) && !canManageMasterAdmins(actor.platformUser.role)) {
+      throw new Error("Only master admins can suspend another master admin");
+    }
 
     await ctx.db.patch(args.targetUserId, { status: "suspended", updatedAt: Date.now() });
+    await revokeStoredSessions(ctx, target);
     await writePermissionAuditLog(ctx, {
       targetUserId: target.userId,
       changedBy: actor.userId,
@@ -1267,6 +1688,18 @@ export const suspendPlatformUser = mutation({
       previousValue: { status: target.status },
       newValue: { status: "suspended" },
       reason: args.reason,
+      changeSummary: "Suspended platform user",
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.targetUserId),
+      before: { status: target.status },
+      after: { status: "suspended", reason: args.reason },
     });
   },
 });
@@ -1288,9 +1721,23 @@ export const activatePlatformUser = mutation({
       previousValue: { status: target.status },
       newValue: { status: "active" },
       reason: args.reason ?? "Unsuspended",
+      changeSummary: "Unsuspended platform user",
+    });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.targetUserId),
+      before: { status: target.status },
+      after: { status: "active", reason: args.reason ?? "Unsuspended" },
     });
   },
 });
+
+export const unsuspendPlatformUser = activatePlatformUser;
 
 export const deletePlatformUser = mutation({
   args: {
@@ -1302,7 +1749,29 @@ export const deletePlatformUser = mutation({
     const actor = await requirePermission(ctx, "platform_users.delete", args.sessionToken);
     const target = await getPlatformUserByDocIdOrThrow(ctx, args.targetUserId);
     if (target.userId === actor.userId) throw new Error("Cannot delete your own account");
-    await ctx.db.delete(args.targetUserId);
+    if (isMasterAdminRole(target.role) && !canManageMasterAdmins(actor.platformUser.role)) {
+      throw new Error("Only master admins can delete another master admin");
+    }
+
+    await revokeStoredSessions(ctx, target);
+
+    const scrambledEmail = target.email
+      ? `deleted+${String(args.targetUserId)}-${Date.now()}@edumyles.invalid`
+      : undefined;
+
+    await ctx.db.patch(args.targetUserId, {
+      email: scrambledEmail,
+      firstName: undefined,
+      lastName: undefined,
+      department: undefined,
+      jobTitle: undefined,
+      status: "suspended",
+      deletedAt: Date.now(),
+      deletedBy: actor.userId,
+      deletedReason: args.reason,
+      updatedAt: Date.now(),
+    });
+    await updateRoleUserCount(ctx, target.role, -1);
     await logAction(ctx, {
       tenantId: "PLATFORM",
       actorId: actor.userId,
@@ -1333,7 +1802,50 @@ export const setUserAccessExpiry = mutation({
       previousValue: { accessExpiresAt: target.accessExpiresAt },
       newValue: { accessExpiresAt: args.accessExpiresAt },
       reason: args.reason,
+      changeSummary: "Updated access expiry",
     });
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.targetUserId),
+      before: { accessExpiresAt: target.accessExpiresAt },
+      after: { accessExpiresAt: args.accessExpiresAt, reason: args.reason },
+    });
+  },
+});
+
+export const setAccessExpiry = setUserAccessExpiry;
+
+export const revokePlatformUserSessions = mutation({
+  args: {
+    sessionToken: v.string(),
+    targetUserId: v.id("platform_users"),
+    sessionId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const actor = await requirePermission(ctx, "platform_users.suspend", args.sessionToken);
+    const target = await getPlatformUserByDocIdOrThrow(ctx, args.targetUserId);
+    if (isMasterAdminRole(target.role) && !canManageMasterAdmins(actor.platformUser.role)) {
+      throw new Error("Only master admins can revoke sessions for another master admin");
+    }
+
+    await revokeStoredSessions(ctx, target, args.sessionId);
+
+    await logAction(ctx, {
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
+      action: "user.updated",
+      entityType: "platform_user",
+      entityId: String(args.targetUserId),
+      after: { revokedSessionId: args.sessionId ?? "all" },
+    });
+
+    return { success: true };
   },
 });
 
@@ -1341,7 +1853,9 @@ export const getMyPermissions = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     const identity = await getSessionIdentity(ctx, args.sessionToken);
-    if (!identity) return { permissions: [], platformUser: null };
+    if (!identity) {
+      return { permissions: [], platformUser: null, isAuthenticated: false, isMasterAdmin: false };
+    }
 
     let platformUser = await getPlatformUserBySubject(ctx, identity.userId);
     if (!platformUser && identity.sessionRole === "master_admin") {
@@ -1366,14 +1880,22 @@ export const getMyPermissions = query({
       };
     }
 
-    if (!platformUser) return { permissions: [], platformUser: null };
+    if (!platformUser) {
+      return { permissions: [], platformUser: null, isAuthenticated: true, isMasterAdmin: false };
+    }
+
+    const permissions =
+      platformUser.role === "master_admin" ? ["*"] : await getUserPermissions(ctx, identity.userId);
+    const isMasterAdmin = platformUser.role === "master_admin";
 
     return {
-      permissions: platformUser.role === "master_admin" ? ["*"] : await getUserPermissions(ctx, identity.userId),
+      permissions,
       platformUser: {
         ...platformUser,
         id: platformUser._id ? String(platformUser._id) : platformUser.userId,
       },
+      isAuthenticated: true,
+      isMasterAdmin,
     };
   },
 });

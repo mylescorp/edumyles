@@ -20,13 +20,13 @@ import type { LucideIcon } from "lucide-react";
 // ─── Product column (with subtitles, like MylesCorp layout) ──────────────────
 
 const PRODUCT_LINKS = [
-  { label: "Student Information",  sub: "Admissions & Profiles" },
-  { label: "Fee & Finance",        sub: "M-Pesa, billing, receipts" },
-  { label: "Timetabling & HR",     sub: "Staff, payroll & scheduling" },
-  { label: "Exams & Reporting",    sub: "KCSE, CBC, custom reports" },
-  { label: "Parent Portal",        sub: "Live updates & fee alerts" },
-  { label: "Integrations",         sub: "Connect your favourite tools" },
-  { label: "Roadmap",              sub: "What we're building next" },
+  { label: "Student Information", sub: "Admissions & Profiles" },
+  { label: "Fee & Finance", sub: "M-Pesa, billing, receipts" },
+  { label: "Timetabling & HR", sub: "Staff, payroll & scheduling" },
+  { label: "Exams & Reporting", sub: "KCSE, CBC, custom reports" },
+  { label: "Parent Portal", sub: "Live updates & fee alerts" },
+  { label: "Integrations", sub: "Connect your favourite tools" },
+  { label: "Roadmap", sub: "What we're building next" },
 ];
 
 const PRODUCT_HREFS = [
@@ -42,11 +42,11 @@ const PRODUCT_HREFS = [
 // ─── Solutions column ────────────────────────────────────────────────────────
 
 const SOLUTIONS_LINKS = [
-  { label: "Primary Schools",        href: "/solutions/primary-schools" },
-  { label: "Secondary Schools",      href: "/solutions/secondary-schools" },
-  { label: "International Schools",  href: "/solutions/international-schools" },
-  { label: "School Groups",          href: "/solutions/school-groups" },
-  { label: "Case Studies",           href: "/case-studies" },
+  { label: "Primary Schools", href: "/solutions/primary-schools" },
+  { label: "Secondary Schools", href: "/solutions/secondary-schools" },
+  { label: "International Schools", href: "/solutions/international-schools" },
+  { label: "School Groups", href: "/solutions/school-groups" },
+  { label: "Case Studies", href: "/case-studies" },
 ];
 
 // ─── Partners column ──────────────────────────────────────────────────────────
@@ -61,14 +61,14 @@ const PARTNERS_LINKS = [
 // ─── Company column ───────────────────────────────────────────────────────────
 
 const COMPANY_LINKS = [
-  { label: "About Us",          href: "/about" },
-  { label: "Our Team",          href: "/team" },
-  { label: "Pricing",           href: "/pricing" },
-  { label: "Customers",         href: "/customers" },
-  { label: "Blog",              href: "/blog" },
-  { label: "Careers",           href: "/careers" },
-  { label: "Partners",          href: "/partners" },
-  { label: "Contact",           href: "/contact" },
+  { label: "About Us", href: "/about" },
+  { label: "Our Team", href: "/team" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Customers", href: "/customers" },
+  { label: "Blog", href: "/blog" },
+  { label: "Careers", href: "/careers" },
+  { label: "Partners", href: "/partners" },
+  { label: "Contact", href: "/contact" },
 ];
 
 // ─── Trust badges ─────────────────────────────────────────────────────────────
@@ -79,9 +79,9 @@ type TrustBadge =
 
 const TRUST_BADGES: TrustBadge[] = [
   { icon: ShieldCheck, label: "SOC 2 Type I" },
-  { emoji: "🇰🇪",      label: "Kenya DPA Compliant" },
-  { icon: Lock,        label: "256-bit Encrypted" },
-  { icon: TrendingUp,  label: "99.9% Uptime" },
+  { emoji: "🇰🇪", label: "Kenya DPA Compliant" },
+  { icon: Lock, label: "256-bit Encrypted" },
+  { icon: TrendingUp, label: "99.9% Uptime" },
 ];
 
 // ─── Social SVG icons ─────────────────────────────────────────────────────────
@@ -135,12 +135,42 @@ function IconTikTok() {
 }
 
 const SOCIAL_LINKS = [
-  { label: "LinkedIn",    Icon: IconLinkedIn,   href: "https://www.linkedin.com/company/mylescorptech/",  color: "#0077B5" },
-  { label: "Facebook",    Icon: IconFacebook,   href: "https://www.facebook.com/mylescorptech",        color: "#1877F2" },
-  { label: "Instagram",   Icon: IconInstagram,  href: "https://www.instagram.com/mylescorptech/",        color: "#E1306C" },
-  { label: "Twitter / X", Icon: IconTwitterX,   href: "https://x.com/mylescorptech",                     color: "#ffffff" },
-  { label: "YouTube",     Icon: IconYouTube,    href: "https://www.youtube.com/@mylescorptech",            color: "#FF0000" },
-  { label: "TikTok",      Icon: IconTikTok,     href: "https://www.tiktok.com/@edumyles_",            color: "#ffffff" },
+  {
+    label: "LinkedIn",
+    Icon: IconLinkedIn,
+    href: "https://www.linkedin.com/company/mylescorptech/",
+    color: "#0077B5",
+  },
+  {
+    label: "Facebook",
+    Icon: IconFacebook,
+    href: "https://www.facebook.com/mylescorptech",
+    color: "#1877F2",
+  },
+  {
+    label: "Instagram",
+    Icon: IconInstagram,
+    href: "https://www.instagram.com/mylescorptech/",
+    color: "#E1306C",
+  },
+  {
+    label: "Twitter / X",
+    Icon: IconTwitterX,
+    href: "https://x.com/mylescorptech",
+    color: "#ffffff",
+  },
+  {
+    label: "YouTube",
+    Icon: IconYouTube,
+    href: "https://www.youtube.com/@mylescorptech",
+    color: "#FF0000",
+  },
+  {
+    label: "TikTok",
+    Icon: IconTikTok,
+    href: "https://www.tiktok.com/@edumyles_",
+    color: "#ffffff",
+  },
 ];
 
 // ─── Scroll-to-top button ─────────────────────────────────────────────────────
@@ -177,16 +207,19 @@ function ScrollToTop() {
 // ─── Newsletter strip ─────────────────────────────────────────────────────────
 
 function NewsletterStrip() {
-  const [email, setEmail]           = useState("");
-  const [focused, setFocused]       = useState(false);
+  const [email, setEmail] = useState("");
+  const [focused, setFocused] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
-  const [loading, setLoading]       = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSubscribed(true); }, 900);
+    setTimeout(() => {
+      setLoading(false);
+      setSubscribed(true);
+    }, 900);
   };
 
   return (
@@ -195,27 +228,35 @@ function NewsletterStrip() {
       style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
     >
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-
         {/* Left: heading + description */}
         <div className="flex-1 min-w-0">
           <h3 className="font-jakarta font-bold text-[20px] text-white mb-1.5">Stay Connected</h3>
           <p className="font-jakarta text-[13px] leading-[1.8]" style={{ color: "#6B9E83" }}>
-            Get the latest product updates, school management insights and education tips
-            delivered to your inbox.{" "}
-            <span className="font-semibold" style={{ color: "#E8A020" }}>No spam, ever.</span>
+            Get the latest product updates, school management insights and education tips delivered
+            to your inbox.{" "}
+            <span className="font-semibold" style={{ color: "#E8A020" }}>
+              No spam, ever.
+            </span>
           </p>
         </div>
 
         {/* Right: form or success + social icons */}
         <div className="flex flex-col gap-5 w-full lg:w-auto">
-
           {/* Email form */}
           {subscribed ? (
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 flex-shrink-0" strokeWidth={2} style={{ color: "#26A65B" }} />
+              <CheckCircle2
+                className="w-6 h-6 flex-shrink-0"
+                strokeWidth={2}
+                style={{ color: "#26A65B" }}
+              />
               <div>
-                <p className="font-jakarta font-bold text-[14px] text-white">You&apos;re subscribed!</p>
-                <p className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>First issue lands next month.</p>
+                <p className="font-jakarta font-bold text-[14px] text-white">
+                  You&apos;re subscribed!
+                </p>
+                <p className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>
+                  First issue lands next month.
+                </p>
               </div>
             </div>
           ) : (
@@ -262,15 +303,22 @@ function NewsletterStrip() {
                   minWidth: "100px",
                   justifyContent: "center",
                 }}
-                onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#F5C453"; }}
-                onMouseLeave={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#E8A020"; }}
+                onMouseEnter={(e) => {
+                  if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#F5C453";
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#E8A020";
+                }}
               >
                 {loading ? (
                   <span className="inline-block w-4 h-4 border-2 border-[#061A12] border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
                     Subscribe
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.5} />
+                    <ArrowRight
+                      className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1"
+                      strokeWidth={2.5}
+                    />
                   </>
                 )}
               </button>
@@ -320,7 +368,6 @@ function NewsletterStrip() {
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -332,18 +379,25 @@ function NewsletterStrip() {
 export default function Footer() {
   return (
     <footer role="contentinfo" className="font-jakarta" style={{ background: "#061A12" }}>
-
       {/* ── Gold top accent ── */}
-      <div style={{ height: "3px", background: "linear-gradient(90deg, #1A7A4A 0%, #E8A020 50%, #1A7A4A 100%)" }} />
+      <div
+        style={{
+          height: "3px",
+          background: "linear-gradient(90deg, #1A7A4A 0%, #E8A020 50%, #1A7A4A 100%)",
+        }}
+      />
 
       {/* ── Main body: 4-column grid ── */}
       <div className="max-w-[1200px] mx-auto px-6 lg:px-16 pt-14 pb-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
-
           {/* ── Column 1: Brand ── */}
           <div>
             {/* Logo lockup */}
-            <Link href="/" className="inline-flex items-center gap-3 mb-5 no-underline group" aria-label="EduMyles home">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 mb-5 no-underline group"
+              aria-label="EduMyles home"
+            >
               <Image
                 src="/logo-icon.svg"
                 alt="EduMyles"
@@ -352,25 +406,34 @@ export default function Footer() {
                 className="flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
               />
               <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-playfair font-bold text-[18px]" style={{ color: "#D4AF37" }}>EduMyles</span>
-                <span className="font-jakarta uppercase tracking-[2px] text-[8px] font-semibold" style={{ color: "#E8A020" }}>
+                <span className="font-display font-bold text-[18px]" style={{ color: "#D4AF37" }}>
+                  EduMyles
+                </span>
+                <span
+                  className="font-jakarta uppercase tracking-[2px] text-[8px] font-semibold"
+                  style={{ color: "#E8A020" }}
+                >
                   School Management
                 </span>
               </div>
             </Link>
 
             {/* Description */}
-            <p className="font-jakarta text-[12.5px] leading-[1.9] mb-5" style={{ color: "#6B9E83", maxWidth: "260px" }}>
-              East Africa&apos;s leading school management platform — built for African schools, by people who understand African education.
+            <p
+              className="font-jakarta text-[12.5px] leading-[1.9] mb-5"
+              style={{ color: "#6B9E83", maxWidth: "260px" }}
+            >
+              East Africa&apos;s leading school management platform — built for African schools, by
+              people who understand African education.
             </p>
 
             {/* Contact info */}
             <div className="flex flex-col gap-2.5" style={{ color: "#6B9E83" }}>
               {[
-                { Icon: Mail,   text: "contact@edumyles.com" },
-                { Icon: Phone,  text: "+254 743 993 715" },
+                { Icon: Mail, text: "contact@edumyles.com" },
+                { Icon: Phone, text: "+254 743 993 715" },
                 { Icon: MapPin, text: "Nairobi, Kenya · WesternHeights" },
-                { Icon: Globe,  text: "www.edumyles.com",  href: "https://edumyles.com" },
+                { Icon: Globe, text: "www.edumyles.com", href: "https://edumyles.com" },
               ].map(({ Icon, text, href }) =>
                 href ? (
                   <a
@@ -380,15 +443,27 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 font-jakarta text-[12.5px] no-underline transition-colors duration-200"
                     style={{ color: "#6B9E83" }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83"; }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83";
+                    }}
                   >
-                    <Icon className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+                    <Icon
+                      className="w-3.5 h-3.5 flex-shrink-0"
+                      strokeWidth={1.5}
+                      style={{ color: "#E8A020" }}
+                    />
                     {text}
                   </a>
                 ) : (
                   <span key={text} className="flex items-center gap-2 font-jakarta text-[12.5px]">
-                    <Icon className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+                    <Icon
+                      className="w-3.5 h-3.5 flex-shrink-0"
+                      strokeWidth={1.5}
+                      style={{ color: "#E8A020" }}
+                    />
                     {text}
                   </span>
                 )
@@ -414,8 +489,12 @@ export default function Footer() {
                     <span
                       className="font-jakarta font-semibold text-[13px] transition-colors duration-200"
                       style={{ color: "#c8ddd4" }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLSpanElement).style.color = "#E8A020"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLSpanElement).style.color = "#c8ddd4"; }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLSpanElement).style.color = "#E8A020";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLSpanElement).style.color = "#c8ddd4";
+                      }}
                     >
                       {item.label}
                     </span>
@@ -443,8 +522,12 @@ export default function Footer() {
                     href={link.href}
                     className="font-jakarta text-[13px] no-underline inline-flex items-center gap-1.5 group transition-colors duration-200"
                     style={{ color: "#6B9E83" }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83"; }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83";
+                    }}
                   >
                     <span
                       className="inline-block w-0 h-px transition-all duration-200 group-hover:w-3"
@@ -472,8 +555,12 @@ export default function Footer() {
                     href={link.href}
                     className="font-jakarta text-[13px] no-underline inline-flex items-center gap-1.5 group transition-colors duration-200"
                     style={{ color: "#6B9E83" }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83"; }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83";
+                    }}
                   >
                     <span
                       className="inline-block w-0 h-px transition-all duration-200 group-hover:w-3"
@@ -485,7 +572,6 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-
         </div>
       </div>
 
@@ -522,10 +608,11 @@ export default function Footer() {
               el.style.color = "#6B9E83";
             }}
           >
-            {badge.icon
-              ? <badge.icon className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
-              : <span>{badge.emoji}</span>
-            }
+            {badge.icon ? (
+              <badge.icon className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
+            ) : (
+              <span>{badge.emoji}</span>
+            )}
             {badge.label}
           </span>
         ))}
@@ -534,7 +621,6 @@ export default function Footer() {
       {/* ── Bottom bar ── */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-16 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-
           {/* Copyright */}
           <p className="font-jakarta text-[11.5px] order-2 sm:order-1" style={{ color: "#4a6b58" }}>
             © 2026{" "}
@@ -544,29 +630,37 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="transition-colors duration-200"
               style={{ color: "#6B9E83", textDecoration: "none" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#E8A020"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83"; }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = "#E8A020";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = "#6B9E83";
+              }}
             >
               MylesCorp Technologies Ltd
-            </a>
-            {" "}· All rights reserved.
+            </a>{" "}
+            · All rights reserved.
           </p>
 
           {/* Legal links */}
           <div className="font-jakarta text-[11.5px] flex flex-wrap justify-center gap-5 order-1 sm:order-2">
             {[
-              { label: "Privacy Policy",    href: "/privacy" },
-              { label: "Terms of Service",  href: "/terms" },
-              { label: "Cookie Policy",     href: "/cookies" },
-              { label: "Contact",           href: "/contact" },
+              { label: "Privacy Policy", href: "/privacy" },
+              { label: "Terms of Service", href: "/terms" },
+              { label: "Cookie Policy", href: "/cookies" },
+              { label: "Contact", href: "/contact" },
             ].map(({ label, href }) => (
               <Link
                 key={label}
                 href={href}
                 className="no-underline transition-colors duration-200"
                 style={{ color: "#4a6b58" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#E8A020"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#4a6b58"; }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = "#E8A020";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = "#4a6b58";
+                }}
               >
                 {label}
               </Link>
@@ -577,10 +671,8 @@ export default function Footer() {
           <div className="order-3 flex-shrink-0">
             <ScrollToTop />
           </div>
-
         </div>
       </div>
-
     </footer>
   );
 }

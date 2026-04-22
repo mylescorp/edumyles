@@ -3745,6 +3745,7 @@ export default defineSchema({
   pmWorkspaces: defineTable({
     name: v.string(),
     slug: v.string(),
+    description: v.optional(v.string()),
     type: v.union(
       v.literal("engineering"),
       v.literal("onboarding"),
@@ -3752,6 +3753,10 @@ export default defineSchema({
       v.literal("okrs")
     ),
     icon: v.string(),
+    color: v.optional(v.string()),
+    isPrivate: v.optional(v.boolean()),
+    memberIds: v.optional(v.array(v.string())),
+    isArchived: v.optional(v.boolean()),
     customFieldSchema: v.array(
       v.object({
         key: v.string(),
@@ -3781,8 +3786,11 @@ export default defineSchema({
   // PM Projects - Scoped initiatives within workspaces
   pmProjects: defineTable({
     workspaceId: v.id("pmWorkspaces"),
+    slug: v.optional(v.string()),
     name: v.string(),
     description: v.string(),
+    priority: v.optional(v.string()),
+    visibility: v.optional(v.union(v.literal("private"), v.literal("workspace"), v.literal("all_staff"))),
     status: v.union(
       v.literal("active"),
       v.literal("paused"),
@@ -3792,13 +3800,22 @@ export default defineSchema({
     startDate: v.number(),
     dueDate: v.number(),
     ownerId: v.string(),
+    leadId: v.optional(v.string()),
     memberIds: v.array(v.string()),
+    progress: v.optional(v.number()),
+    totalTasks: v.optional(v.number()),
+    completedTasks: v.optional(v.number()),
+    isDeleted: v.optional(v.boolean()),
+    isArchived: v.optional(v.boolean()),
+    archivedAt: v.optional(v.number()),
     githubRepo: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
     customFields: v.optional(v.record(v.string(), v.any())),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_workspace", ["workspaceId"])
+    .index("by_slug", ["slug"])
     .index("by_owner", ["ownerId"])
     .index("by_status", ["status"])
     .index("by_workspace_status", ["workspaceId", "status"]),
@@ -3807,6 +3824,7 @@ export default defineSchema({
   pmEpics: defineTable({
     projectId: v.id("pmProjects"),
     title: v.string(),
+    description: v.optional(v.string()),
     status: v.union(v.literal("open"), v.literal("in_progress"), v.literal("done")),
     startDate: v.optional(v.number()),
     dueDate: v.optional(v.number()),
@@ -3825,6 +3843,7 @@ export default defineSchema({
     parentTaskId: v.optional(v.id("pmTasks")),
     title: v.string(),
     description: v.string(),
+    type: v.optional(v.string()),
     status: v.string(),
     priority: v.union(
       v.literal("urgent"),
@@ -3834,16 +3853,28 @@ export default defineSchema({
       v.literal("none")
     ),
     assigneeId: v.optional(v.string()),
+    reviewerId: v.optional(v.string()),
+    collaboratorIds: v.optional(v.array(v.string())),
     reporterId: v.string(),
+    creatorId: v.optional(v.string()),
+    sprintId: v.optional(v.id("pmSprints")),
     dueDate: v.optional(v.number()),
     estimateMinutes: v.optional(v.number()),
+    storyPoints: v.optional(v.number()),
     loggedMinutes: v.number(),
+    actualHours: v.optional(v.number()),
+    githubIssueNumber: v.optional(v.number()),
+    githubPrNumber: v.optional(v.number()),
+    githubBranch: v.optional(v.string()),
     githubPrNumbers: v.array(v.number()),
     githubIssueNumbers: v.array(v.number()),
     convexDeployId: v.optional(v.string()),
     customFields: v.optional(v.record(v.string(), v.any())),
     labels: v.array(v.string()),
+    completedAt: v.optional(v.number()),
+    isDeleted: v.optional(v.boolean()),
     position: v.number(), // Float for drag-drop ordering within status column
+    order: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -3853,7 +3884,8 @@ export default defineSchema({
     .index("by_due_date", ["dueDate"])
     .index("by_project_status", ["projectId", "status", "position"])
     .index("by_parent", ["parentTaskId"])
-    .index("by_reporter", ["reporterId"]),
+    .index("by_reporter", ["reporterId"])
+    .index("by_sprint", ["sprintId", "status"]),
 
   // PM Time Logs - Time tracking for tasks
   pmTimeLogs: defineTable({
@@ -3862,10 +3894,73 @@ export default defineSchema({
     minutes: v.number(),
     description: v.optional(v.string()),
     loggedAt: v.number(), // Unix timestamp of the work date
+    billable: v.optional(v.boolean()),
+    date: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_task", ["taskId", "loggedAt"])
     .index("by_user", ["userId", "loggedAt"]),
+
+  pmSprints: defineTable({
+    projectId: v.id("pmProjects"),
+    name: v.string(),
+    goal: v.optional(v.string()),
+    startDate: v.number(),
+    endDate: v.number(),
+    status: v.union(v.literal("planned"), v.literal("active"), v.literal("completed")),
+    velocity: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_project", ["projectId", "startDate"])
+    .index("by_project_status", ["projectId", "status"]),
+
+  pmTaskComments: defineTable({
+    taskId: v.id("pmTasks"),
+    authorId: v.string(),
+    body: v.string(),
+    mentions: v.optional(v.array(v.string())),
+    reactions: v.optional(
+      v.array(
+        v.object({
+          emoji: v.string(),
+          userIds: v.array(v.string()),
+        })
+      )
+    ),
+    isEdited: v.optional(v.boolean()),
+    editedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_taskId", ["taskId", "createdAt"])
+    .index("by_authorId", ["authorId", "createdAt"]),
+
+  pmProjectShares: defineTable({
+    projectId: v.id("pmProjects"),
+    sharedWithUserId: v.string(),
+    sharedByUserId: v.string(),
+    accessLevel: v.union(v.literal("view"), v.literal("comment"), v.literal("edit")),
+    message: v.optional(v.string()),
+    expiresAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_projectId", ["projectId", "createdAt"])
+    .index("by_sharedWithUserId", ["sharedWithUserId", "createdAt"]),
+
+  pmGithubEvents: defineTable({
+    projectId: v.optional(v.id("pmProjects")),
+    repository: v.string(),
+    eventType: v.string(),
+    deliveryId: v.optional(v.string()),
+    action: v.optional(v.string()),
+    payload: v.any(),
+    createdAt: v.number(),
+  })
+    .index("by_projectId", ["projectId", "createdAt"])
+    .index("by_repository", ["repository", "createdAt"])
+    .index("by_deliveryId", ["deliveryId"]),
 
   // PM Roles - Role-based access control for PM system
   pmRoles: defineTable({
@@ -4126,8 +4221,13 @@ export default defineSchema({
 
   platform_users: defineTable({
     userId: v.string(),
+    workosUserId: v.optional(v.string()),
+    email: v.optional(v.string()),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
     role: v.string(),
     department: v.optional(v.string()),
+    jobTitle: v.optional(v.string()),
     addedPermissions: v.optional(v.array(v.string())),
     removedPermissions: v.optional(v.array(v.string())),
     scopeCountries: v.optional(v.array(v.string())),
@@ -4135,14 +4235,21 @@ export default defineSchema({
     scopePlans: v.optional(v.array(v.string())),
     status: v.union(v.literal("active"), v.literal("suspended")),
     accessExpiresAt: v.optional(v.number()),
+    twoFactorEnabled: v.optional(v.boolean()),
+    sessionCount: v.optional(v.number()),
     invitedBy: v.optional(v.string()),
     acceptedAt: v.optional(v.number()),
     lastLogin: v.optional(v.number()),
+    lastActivityAt: v.optional(v.number()),
     notes: v.optional(v.string()),
+    deletedAt: v.optional(v.number()),
+    deletedBy: v.optional(v.string()),
+    deletedReason: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_userId", ["userId"])
+    .index("by_workosUserId", ["workosUserId"])
     .index("by_role", ["role"])
     .index("by_status", ["status"])
     .index("by_accessExpiresAt", ["accessExpiresAt"])
@@ -4158,6 +4265,7 @@ export default defineSchema({
     color: v.string(),
     icon: v.string(),
     permissions: v.array(v.string()),
+    userCount: v.optional(v.number()),
     createdBy: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -4168,6 +4276,8 @@ export default defineSchema({
 
   platform_user_invites: defineTable({
     email: v.string(),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
     role: v.string(),
     department: v.optional(v.string()),
     addedPermissions: v.optional(v.array(v.string())),
@@ -4178,6 +4288,7 @@ export default defineSchema({
     accessExpiresAt: v.optional(v.number()),
     invitedBy: v.string(),
     token: v.string(),
+    workosInvitationToken: v.optional(v.string()),
     status: v.union(
       v.literal("pending"),
       v.literal("accepted"),
@@ -4188,6 +4299,8 @@ export default defineSchema({
     acceptedAt: v.optional(v.number()),
     notifyInviter: v.optional(v.boolean()),
     personalMessage: v.optional(v.string()),
+    remindersSent: v.optional(v.number()),
+    lastReminderAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -4210,14 +4323,64 @@ export default defineSchema({
       v.literal("account_suspended"),
       v.literal("account_unsuspended")
     ),
+    permissionKey: v.optional(v.string()),
+    roleSlug: v.optional(v.string()),
+    changeSummary: v.optional(v.string()),
     previousValue: v.string(),
     newValue: v.string(),
     reason: v.string(),
+    metadata: v.optional(v.any()),
     createdAt: v.number(),
   })
     .index("by_targetUserId", ["targetUserId"])
     .index("by_changedBy", ["changedBy"])
     .index("by_createdAt", ["createdAt"]),
+
+  platform_sessions: defineTable({
+    platformUserId: v.optional(v.id("platform_users")),
+    userId: v.string(),
+    workosUserId: v.optional(v.string()),
+    sessionId: v.string(),
+    sessionToken: v.optional(v.string()),
+    ipAddress: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    deviceLabel: v.optional(v.string()),
+    location: v.optional(v.string()),
+    countryCode: v.optional(v.string()),
+    lastActiveAt: v.number(),
+    expiresAt: v.optional(v.number()),
+    revokedAt: v.optional(v.number()),
+    isCurrent: v.optional(v.boolean()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId", "lastActiveAt"])
+    .index("by_sessionId", ["sessionId"])
+    .index("by_platformUserId", ["platformUserId", "lastActiveAt"]),
+
+  platform_notifications: defineTable({
+    userId: v.string(),
+    title: v.string(),
+    body: v.string(),
+    type: v.union(
+      v.literal("invite"),
+      v.literal("rbac"),
+      v.literal("crm"),
+      v.literal("pm"),
+      v.literal("security"),
+      v.literal("billing"),
+      v.literal("waitlist"),
+      v.literal("system")
+    ),
+    actionUrl: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+    isRead: v.boolean(),
+    readAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_userId", ["userId", "createdAt"])
+    .index("by_userId_isRead", ["userId", "isRead"])
+    .index("by_type", ["type", "createdAt"]),
 
   platform_settings: defineTable({
     key: v.string(),
@@ -5255,20 +5418,31 @@ export default defineSchema({
     decisionMaker: v.optional(v.string()),
     source: v.optional(v.string()),
     qualificationScore: v.optional(v.number()),
+    probability: v.optional(v.number()),
     stage: v.string(),
     assignedTo: v.optional(v.string()),
+    ownerId: v.optional(v.string()),
     dealValueKes: v.optional(v.number()),
     expectedClose: v.optional(v.number()),
     tenantId: v.optional(v.string()),
     notes: v.optional(v.string()),
     status: v.optional(v.string()),
+    sourceType: v.optional(v.string()),
+    isArchived: v.optional(v.boolean()),
+    isDeleted: v.optional(v.boolean()),
+    tags: v.optional(v.array(v.string())),
+    lastContactedAt: v.optional(v.number()),
+    nextFollowUpAt: v.optional(v.number()),
+    nextFollowUpNote: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_status", ["status"])
     .index("by_stage", ["stage"])
     .index("by_email", ["email"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_ownerId", ["ownerId", "updatedAt"])
+    .index("by_assignedTo", ["assignedTo", "updatedAt"]),
 
   crm_deals: defineTable({
     leadId: v.string(),
@@ -5289,8 +5463,16 @@ export default defineSchema({
 
   crm_proposals: defineTable({
     dealId: v.string(),
+    leadId: v.optional(v.id("crm_leads")),
     tenantId: v.optional(v.string()),
     planId: v.optional(v.string()),
+    recommendedPlan: v.optional(v.string()),
+    billingPeriod: v.optional(v.union(
+      v.literal("monthly"),
+      v.literal("termly"),
+      v.literal("annual")
+    )),
+    studentCount: v.optional(v.number()),
     customItems: v.optional(
       v.array(
         v.object({
@@ -5301,24 +5483,128 @@ export default defineSchema({
       )
     ),
     totalKes: v.number(),
+    totalMonthlyKes: v.optional(v.number()),
+    totalAnnualKes: v.optional(v.number()),
+    trackingToken: v.optional(v.string()),
+    viewCount: v.optional(v.number()),
+    viewedAt: v.optional(v.number()),
+    viewerIp: v.optional(v.string()),
     status: v.union(
       v.literal("draft"),
       v.literal("sent"),
+      v.literal("viewed"),
       v.literal("accepted"),
       v.literal("rejected"),
       v.literal("expired")
     ),
     sentAt: v.optional(v.number()),
     acceptedAt: v.optional(v.number()),
+    rejectedAt: v.optional(v.number()),
+    rejectionReason: v.optional(v.string()),
     validUntil: v.optional(v.number()),
     pdfUrl: v.optional(v.string()),
+    customNotes: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_status", ["status"])
     .index("by_dealId", ["dealId"])
+    .index("by_leadId", ["leadId", "createdAt"])
     .index("by_validUntil", ["validUntil"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_trackingToken", ["trackingToken"]),
+
+  crm_activities: defineTable({
+    leadId: v.id("crm_leads"),
+    createdByUserId: v.string(),
+    type: v.string(),
+    subject: v.optional(v.string()),
+    body: v.optional(v.string()),
+    isPrivate: v.boolean(),
+    scheduledAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    metadata: v.optional(v.any()),
+    outcome: v.optional(v.string()),
+    durationMinutes: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_leadId", ["leadId", "createdAt"])
+    .index("by_createdByUserId", ["createdByUserId", "createdAt"])
+    .index("by_scheduledAt", ["scheduledAt"]),
+
+  crm_contacts: defineTable({
+    leadId: v.id("crm_leads"),
+    firstName: v.string(),
+    lastName: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    title: v.optional(v.string()),
+    isPrimary: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_leadId", ["leadId", "createdAt"])
+    .index("by_email", ["email"]),
+
+  crm_lead_shares: defineTable({
+    leadId: v.id("crm_leads"),
+    sharedWithUserId: v.string(),
+    sharedByUserId: v.string(),
+    accessLevel: v.union(v.literal("view"), v.literal("edit")),
+    message: v.optional(v.string()),
+    expiresAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_leadId", ["leadId", "createdAt"])
+    .index("by_sharedWithUserId", ["sharedWithUserId", "createdAt"]),
+
+  crm_pipeline_stages: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    order: v.number(),
+    color: v.string(),
+    icon: v.string(),
+    requiresNote: v.boolean(),
+    autoFollowUpDays: v.optional(v.number()),
+    isWon: v.boolean(),
+    isLost: v.boolean(),
+    probabilityDefault: v.number(),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_order", ["order"]),
+
+  crm_teams: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    description: v.optional(v.string()),
+    memberIds: v.array(v.string()),
+    leadUserId: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_leadUserId", ["leadUserId"]),
+
+  crm_follow_ups: defineTable({
+    leadId: v.id("crm_leads"),
+    assignedToUserId: v.string(),
+    title: v.string(),
+    notes: v.optional(v.string()),
+    dueAt: v.number(),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+    isOverdue: v.boolean(),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_leadId", ["leadId", "dueAt"])
+    .index("by_assignedToUserId", ["assignedToUserId", "dueAt"])
+    .index("by_dueAt", ["dueAt"]),
 
   support_tickets: defineTable({
     tenantId: v.string(),

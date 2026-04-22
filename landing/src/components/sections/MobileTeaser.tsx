@@ -27,7 +27,7 @@ export default function MobileTeaser() {
           </span>
 
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-5"
+            className="font-display font-bold leading-[1.2] mb-5"
             style={{ fontSize: "clamp(1.75rem, 3vw, 2.75rem)", color: "#ffffff" }}
           >
             Runs on any device.{" "}
@@ -37,15 +37,18 @@ export default function MobileTeaser() {
           </h2>
 
           <p className="text-base leading-relaxed mb-7" style={{ color: "rgba(255,255,255,0.75)" }}>
-            EduMyles is fully responsive — works perfectly on any phone, tablet, or computer. No
-            app download required. Just open your browser and go.
+            EduMyles is fully responsive — works perfectly on any phone, tablet, or computer. No app
+            download required. Just open your browser and go.
           </p>
 
           <ul className="flex flex-col gap-3 mb-8">
             {bullets.map((bullet) => (
               <li key={bullet} className="flex items-start gap-3">
                 <span className="text-[#E8A020] font-bold text-sm mt-0.5 flex-shrink-0">✓</span>
-                <span className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
+                <span
+                  className="text-sm leading-relaxed"
+                  style={{ color: "rgba(255,255,255,0.8)" }}
+                >
                   {bullet}
                 </span>
               </li>
@@ -55,7 +58,11 @@ export default function MobileTeaser() {
           <div className="mb-8">
             <span
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full"
-              style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.12)" }}
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                color: "rgba(255,255,255,0.6)",
+                border: "1px solid rgba(255,255,255,0.12)",
+              }}
             >
               📱 Native iOS &amp; Android app — Coming Q4 2026
             </span>
@@ -132,14 +139,29 @@ export default function MobileTeaser() {
                     justifyContent: "space-between",
                   }}
                 >
-                  <span style={{ color: "#E8A020", fontSize: "9px", fontWeight: 700, letterSpacing: "0.05em" }}>
+                  <span
+                    style={{
+                      color: "#E8A020",
+                      fontSize: "9px",
+                      fontWeight: 700,
+                      letterSpacing: "0.05em",
+                    }}
+                  >
                     EduMyles
                   </span>
                   <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "8px" }}>9:41 AM</span>
                 </div>
 
                 {/* Screen content */}
-                <div style={{ padding: "8px 8px 0", flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div
+                  style={{
+                    padding: "8px 8px 0",
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
                   {/* Attendance card */}
                   <div
                     style={{
@@ -149,10 +171,19 @@ export default function MobileTeaser() {
                       border: "1px solid #d1fae5",
                     }}
                   >
-                    <p style={{ fontSize: "8px", fontWeight: 600, color: "#061A12", marginBottom: "4px" }}>
+                    <p
+                      style={{
+                        fontSize: "8px",
+                        fontWeight: 600,
+                        color: "#061A12",
+                        marginBottom: "4px",
+                      }}
+                    >
                       Attendance Today
                     </p>
-                    <p style={{ fontSize: "14px", fontWeight: 800, color: "#0F4C2A", lineHeight: 1 }}>
+                    <p
+                      style={{ fontSize: "14px", fontWeight: 800, color: "#0F4C2A", lineHeight: 1 }}
+                    >
                       94%
                     </p>
                     {/* Progress bar */}
@@ -190,7 +221,9 @@ export default function MobileTeaser() {
                   >
                     <span style={{ fontSize: "12px" }}>🔔</span>
                     <div>
-                      <p style={{ fontSize: "8px", fontWeight: 700, color: "#061A12" }}>3 fee alerts</p>
+                      <p style={{ fontSize: "8px", fontWeight: 700, color: "#061A12" }}>
+                        3 fee alerts
+                      </p>
                       <p style={{ fontSize: "7px", color: "#92400e" }}>Pending collections</p>
                     </div>
                   </div>
@@ -209,7 +242,9 @@ export default function MobileTeaser() {
                   >
                     <span style={{ fontSize: "12px" }}>💬</span>
                     <div>
-                      <p style={{ fontSize: "8px", fontWeight: 700, color: "#061A12" }}>2 new messages</p>
+                      <p style={{ fontSize: "8px", fontWeight: 700, color: "#061A12" }}>
+                        2 new messages
+                      </p>
                       <p style={{ fontSize: "7px", color: "#64748b" }}>from parents</p>
                     </div>
                   </div>
@@ -226,7 +261,15 @@ export default function MobileTeaser() {
                   }}
                 >
                   {([Home, BarChart2, User, Settings] as const).map((Icon, i) => (
-                    <Icon key={i} style={{ width: "14px", height: "14px", color: i === 0 ? "#1A7A4A" : "#94a3b8" }} strokeWidth={1.5} />
+                    <Icon
+                      key={i}
+                      style={{
+                        width: "14px",
+                        height: "14px",
+                        color: i === 0 ? "#1A7A4A" : "#94a3b8",
+                      }}
+                      strokeWidth={1.5}
+                    />
                   ))}
                 </div>
               </div>
@@ -239,7 +282,8 @@ export default function MobileTeaser() {
               width: "160px",
               height: "20px",
               borderRadius: "50%",
-              background: "radial-gradient(ellipse at center, rgba(232,160,32,0.35) 0%, transparent 70%)",
+              background:
+                "radial-gradient(ellipse at center, rgba(232,160,32,0.35) 0%, transparent 70%)",
               marginTop: "-4px",
             }}
           />

@@ -25,13 +25,17 @@ import Logo from "@/components/shared/Logo";
 type FormState = "idle" | "loading" | "error" | "success";
 
 const BUSINESS_TYPES = [
-  { value: "individual", label: "Individual Developer", description: "Solo developer or small team" },
+  {
+    value: "individual",
+    label: "Individual Developer",
+    description: "Solo developer or small team",
+  },
   { value: "company", label: "Company", description: "Registered business entity" },
 ] as const;
 
 const COUNTRY_OPTIONS = [
   "Kenya",
-  "Uganda", 
+  "Uganda",
   "Tanzania",
   "Rwanda",
   "Zambia",
@@ -42,7 +46,7 @@ const COUNTRY_OPTIONS = [
 
 const POPULAR_MODULES = [
   "Attendance Management",
-  "Fee Collection", 
+  "Fee Collection",
   "Exam Management",
   "Parent Communication",
   "Timetable Generation",
@@ -64,7 +68,7 @@ function PublisherApplicationContent() {
   const [formState, setFormState] = useState<FormState>("idle");
   const [error, setError] = useState("");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
-  
+
   const [fields, setFields] = useState({
     businessName: "",
     businessType: "individual" as "individual" | "company",
@@ -87,16 +91,14 @@ function PublisherApplicationContent() {
   }
 
   function handleModuleToggle(module: string) {
-    setSelectedModules((current) => 
-      current.includes(module) 
-        ? current.filter(m => m !== module)
-        : [...current, module]
+    setSelectedModules((current) =>
+      current.includes(module) ? current.filter((m) => m !== module) : [...current, module]
     );
-    
+
     setFields((current) => ({
       ...current,
-      modules: selectedModules.includes(module) 
-        ? current.modules.filter(m => m !== module)
+      modules: selectedModules.includes(module)
+        ? current.modules.filter((m) => m !== module)
         : [...current.modules, module],
     }));
   }
@@ -145,11 +147,12 @@ function PublisherApplicationContent() {
           <div className="w-16 h-16 bg-[#0F4C2A] rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-8 h-8 text-white" />
           </div>
-          <h1 className="font-playfair text-3xl font-bold text-[#061A12] mb-4">
+          <h1 className="font-display text-3xl font-bold text-[#061A12] mb-4">
             Application Submitted!
           </h1>
           <p className="font-jakarta text-[#5d6f66] mb-6">
-            Your publisher application has been submitted successfully. We&apos;ll review it and get back to you within 3-5 business days.
+            Your publisher application has been submitted successfully. We&apos;ll review it and get
+            back to you within 3-5 business days.
           </p>
           <div className="animate-spin w-6 h-6 border-2 border-[#0F4C2A] border-t-transparent rounded-full mx-auto"></div>
         </div>
@@ -177,13 +180,14 @@ function PublisherApplicationContent() {
               <Code2 className="h-4 w-4" />
               Publisher Program
             </div>
-            <h1 className="font-playfair text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
+            <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
               Become an EduMyles
               <br />
               Module Publisher
             </h1>
             <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
-              Develop and sell modules for the EduMyles platform. Reach thousands of schools across East Africa and earn recurring revenue from your innovations.
+              Develop and sell modules for the EduMyles platform. Reach thousands of schools across
+              East Africa and earn recurring revenue from your innovations.
             </p>
           </div>
 
@@ -211,15 +215,15 @@ function PublisherApplicationContent() {
               >
                 <item.icon className="h-6 w-6 text-[#E8A020]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-white">{item.title}</h2>
-                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">{item.body}</p>
+                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">
+                  {item.body}
+                </p>
               </div>
             ))}
           </div>
 
           <div className="mt-12 rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
-            <h2 className="font-playfair text-[28px] font-bold text-white">
-              Publisher Tiers
-            </h2>
+            <h2 className="font-display text-[28px] font-bold text-white">Publisher Tiers</h2>
             <div className="mt-6 space-y-4">
               {[
                 {
@@ -228,14 +232,24 @@ function PublisherApplicationContent() {
                   features: ["Up to 5 modules", "Basic analytics", "Community support"],
                 },
                 {
-                  tier: "Verified", 
+                  tier: "Verified",
                   description: "For established developers",
-                  features: ["Up to 20 modules", "Advanced analytics", "Priority support", "Marketing tools"],
+                  features: [
+                    "Up to 20 modules",
+                    "Advanced analytics",
+                    "Priority support",
+                    "Marketing tools",
+                  ],
                 },
                 {
                   tier: "Enterprise",
                   description: "For large development teams",
-                  features: ["Unlimited modules", "White-label options", "Dedicated support", "Custom integrations"],
+                  features: [
+                    "Unlimited modules",
+                    "White-label options",
+                    "Dedicated support",
+                    "Custom integrations",
+                  ],
                 },
               ].map((tier) => (
                 <div key={tier.tier} className="border-l-2 border-[#E8A020] pl-4">
@@ -243,7 +257,10 @@ function PublisherApplicationContent() {
                   <p className="font-jakarta text-[13px] text-[#A8E6C3] mt-1">{tier.description}</p>
                   <ul className="mt-2 space-y-1">
                     {tier.features.map((feature) => (
-                      <li key={feature} className="font-jakarta text-[12px] text-[#D7F3E2] flex items-center gap-2">
+                      <li
+                        key={feature}
+                        className="font-jakarta text-[12px] text-[#D7F3E2] flex items-center gap-2"
+                      >
                         <CheckCircle2 className="w-3 h-3" />
                         {feature}
                       </li>
@@ -262,11 +279,12 @@ function PublisherApplicationContent() {
               <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
                 Publisher Application
               </p>
-              <h2 className="mt-2 font-playfair text-[clamp(2rem,3vw,2.7rem)] font-bold text-[#061A12]">
+              <h2 className="mt-2 font-display text-[clamp(2rem,3vw,2.7rem)] font-bold text-[#061A12]">
                 Developer Information
               </h2>
               <p className="mt-3 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
-                Tell us about your development experience and the modules you&apos;d like to build for schools.
+                Tell us about your development experience and the modules you&apos;d like to build
+                for schools.
               </p>
             </div>
 
@@ -279,9 +297,12 @@ function PublisherApplicationContent() {
                     Business Information
                   </h3>
                 </div>
-                
+
                 <div>
-                  <label htmlFor="businessName" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="businessName"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Business or Developer Name
                   </label>
                   <input
@@ -296,7 +317,10 @@ function PublisherApplicationContent() {
                 </div>
 
                 <div>
-                  <label htmlFor="businessType" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="businessType"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Business Type
                   </label>
                   <select
@@ -315,7 +339,10 @@ function PublisherApplicationContent() {
                 </div>
 
                 <div>
-                  <label htmlFor="businessDescription" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="businessDescription"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Business Description
                   </label>
                   <textarea
@@ -330,7 +357,10 @@ function PublisherApplicationContent() {
                 </div>
 
                 <div>
-                  <label htmlFor="website" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="website"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Website (Optional)
                   </label>
                   <input
@@ -356,7 +386,10 @@ function PublisherApplicationContent() {
 
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="contactPhone" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    <label
+                      htmlFor="contactPhone"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                    >
                       Phone Number
                     </label>
                     <div className="relative">
@@ -374,7 +407,10 @@ function PublisherApplicationContent() {
                   </div>
 
                   <div>
-                    <label htmlFor="country" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    <label
+                      htmlFor="country"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                    >
                       Country
                     </label>
                     <div className="relative">
@@ -397,7 +433,10 @@ function PublisherApplicationContent() {
                 </div>
 
                 <div>
-                  <label htmlFor="contactAddress" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="contactAddress"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Business Address
                   </label>
                   <textarea
@@ -422,7 +461,10 @@ function PublisherApplicationContent() {
                 </div>
 
                 <div>
-                  <label htmlFor="experience" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="experience"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Tell us about your development experience
                   </label>
                   <textarea
@@ -479,12 +521,15 @@ function PublisherApplicationContent() {
                 disabled={formState === "loading"}
                 className="inline-flex w-full items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-[#0F4C2A] px-6 py-4 font-jakarta text-[15px] font-bold text-white transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {formState === "loading" ? "Submitting Application..." : "Submit Publisher Application"}
+                {formState === "loading"
+                  ? "Submitting Application..."
+                  : "Submit Publisher Application"}
               </button>
 
               <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
                 <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
-                  By submitting this application, you agree to our publisher terms and conditions. We&apos;ll review your application and contact you within 3-5 business days.
+                  By submitting this application, you agree to our publisher terms and conditions.
+                  We&apos;ll review your application and contact you within 3-5 business days.
                 </p>
               </div>
             </form>

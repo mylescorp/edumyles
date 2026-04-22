@@ -228,7 +228,6 @@ const integrations = [
 export default function SchoolGroupsPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Section 1: Hero ─────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -251,24 +250,31 @@ export default function SchoolGroupsPage() {
           {/* eyebrow */}
           <div
             className="inline-block font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+            style={{
+              background: "rgba(232,160,32,0.12)",
+              border: "1px solid #E8A020",
+              color: "#E8A020",
+            }}
           >
             For School Groups &amp; Networks
           </div>
           {/* H1 */}
           <h1
-            className="font-playfair font-bold leading-[1.15] mb-5"
+            className="font-display font-bold leading-[1.15] mb-5"
             style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
           >
             One platform. Every campus.{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>Complete control.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              Complete control.
+            </em>
           </h1>
           {/* subtitle */}
           <p
             className="font-jakarta font-light leading-[1.8] mb-8 mx-auto"
             style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "660px" }}
           >
-            Multi-campus dashboard, network-wide reporting, central HR, and strict data isolation between schools — all in one platform built for school groups in Africa.
+            Multi-campus dashboard, network-wide reporting, central HR, and strict data isolation
+            between schools — all in one platform built for school groups in Africa.
           </p>
           {/* CTAs */}
           <div className="flex flex-wrap justify-center gap-4 mb-10">
@@ -282,7 +288,11 @@ export default function SchoolGroupsPage() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Start Free Trial
             </a>
@@ -298,7 +308,11 @@ export default function SchoolGroupsPage() {
               <span
                 key={badge}
                 className="font-semibold text-[12px] px-4 py-2 rounded-[50px]"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.2)", color: "#A8E6C3" }}
+                style={{
+                  background: "rgba(255,255,255,0.07)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  color: "#A8E6C3",
+                }}
               >
                 ✓ {badge}
               </span>
@@ -312,8 +326,15 @@ export default function SchoolGroupsPage() {
               { value: "Real-time", label: "network view" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <div className="font-playfair font-bold text-[2rem]" style={{ color: "#E8A020" }}>{s.value}</div>
-                <div className="text-[13px] font-semibold uppercase tracking-[0.08em] mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>{s.label}</div>
+                <div className="font-display font-bold text-[2rem]" style={{ color: "#E8A020" }}>
+                  {s.value}
+                </div>
+                <div
+                  className="text-[13px] font-semibold uppercase tracking-[0.08em] mt-1"
+                  style={{ color: "rgba(255,255,255,0.5)" }}
+                >
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
@@ -331,7 +352,7 @@ export default function SchoolGroupsPage() {
               The challenges school networks face
             </p>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               Sound familiar?
@@ -342,21 +363,33 @@ export default function SchoolGroupsPage() {
               <div
                 key={p.num}
                 className="rounded-2xl p-8"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(232,160,32,0.2)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(232,160,32,0.2)",
+                }}
               >
                 <div className="flex items-start gap-4 mb-4">
                   <span
-                    className="font-playfair font-bold text-[2.5rem] leading-none"
+                    className="font-display font-bold text-[2.5rem] leading-none"
                     style={{ color: "rgba(232,160,32,0.25)" }}
                   >
                     {p.num}
                   </span>
-                  <p.icon className="w-9 h-9 flex-shrink-0 mt-1" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+                  <p.icon
+                    className="w-9 h-9 flex-shrink-0 mt-1"
+                    strokeWidth={1.5}
+                    style={{ color: "#E8A020" }}
+                  />
                 </div>
-                <h3 className="font-playfair font-bold text-[17px] mb-3" style={{ color: "#ffffff" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-3"
+                  style={{ color: "#ffffff" }}
+                >
                   {p.title}
                 </h3>
-                <p className="leading-[1.8] text-[14px]" style={{ color: "#A8E6C3" }}>{p.text}</p>
+                <p className="leading-[1.8] text-[14px]" style={{ color: "#A8E6C3" }}>
+                  {p.text}
+                </p>
               </div>
             ))}
           </div>
@@ -374,11 +407,13 @@ export default function SchoolGroupsPage() {
               How It Works
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Your network is live in{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>three weeks.</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                three weeks.
+              </em>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -389,7 +424,7 @@ export default function SchoolGroupsPage() {
                 style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
               >
                 <div
-                  className="font-playfair font-bold text-[3rem] leading-none mb-4"
+                  className="font-display font-bold text-[3rem] leading-none mb-4"
                   style={{ color: "rgba(15,76,42,0.12)" }}
                 >
                   {s.step}
@@ -400,10 +435,15 @@ export default function SchoolGroupsPage() {
                 >
                   {s.when}
                 </span>
-                <h3 className="font-playfair font-bold text-[19px] mb-3" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[19px] mb-3"
+                  style={{ color: "#061A12" }}
+                >
                   {s.title}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>{s.desc}</p>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+                  {s.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -421,7 +461,7 @@ export default function SchoolGroupsPage() {
               Core Modules
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Everything a school network needs
@@ -440,10 +480,15 @@ export default function SchoolGroupsPage() {
                 <div className="mb-4">
                   <m.icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
                 </div>
-                <h3 className="font-playfair font-bold text-[17px] mb-2" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-2"
+                  style={{ color: "#061A12" }}
+                >
                   {m.title}
                 </h3>
-                <p className="text-[13px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{m.desc}</p>
+                <p className="text-[13px] leading-[1.7]" style={{ color: "#5a5a5a" }}>
+                  {m.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -455,11 +500,13 @@ export default function SchoolGroupsPage() {
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               The Network Admin dashboard —{" "}
-              <em className="italic" style={{ color: "#0F4C2A" }}>everything, at a glance.</em>
+              <em className="italic" style={{ color: "#0F4C2A" }}>
+                everything, at a glance.
+              </em>
             </h2>
           </div>
           <div className="grid md:grid-cols-2 gap-8">
@@ -468,14 +515,20 @@ export default function SchoolGroupsPage() {
               className="rounded-2xl p-8"
               style={{ background: "#ffffff", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
             >
-              <h3 className="font-playfair font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
+              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
                 Key metrics visible to Group Admin
               </h3>
               <ul className="space-y-3">
                 {networkMetrics.map((metric) => (
                   <li key={metric} className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 flex-shrink-0 mt-0.5" strokeWidth={2} style={{ color: "#1A7A4A" }} />
-                    <span className="text-[14px] leading-[1.65]" style={{ color: "#3d3d3d" }}>{metric}</span>
+                    <TrendingUp
+                      className="w-5 h-5 flex-shrink-0 mt-0.5"
+                      strokeWidth={2}
+                      style={{ color: "#1A7A4A" }}
+                    />
+                    <span className="text-[14px] leading-[1.65]" style={{ color: "#3d3d3d" }}>
+                      {metric}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -485,7 +538,7 @@ export default function SchoolGroupsPage() {
               className="rounded-2xl p-8"
               style={{ background: "#ffffff", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
             >
-              <h3 className="font-playfair font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
+              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
                 Permissions model
               </h3>
               <div className="space-y-3">
@@ -495,18 +548,21 @@ export default function SchoolGroupsPage() {
                     className="rounded-xl p-4"
                     style={{
                       marginLeft: `${level.depth * 16}px`,
-                      background: level.depth === 0
-                        ? "rgba(15,76,42,0.08)"
-                        : level.depth === 1
-                        ? "rgba(26,122,74,0.06)"
-                        : level.depth === 2
-                        ? "rgba(168,230,195,0.35)"
-                        : "rgba(168,230,195,0.18)",
+                      background:
+                        level.depth === 0
+                          ? "rgba(15,76,42,0.08)"
+                          : level.depth === 1
+                            ? "rgba(26,122,74,0.06)"
+                            : level.depth === 2
+                              ? "rgba(168,230,195,0.35)"
+                              : "rgba(168,230,195,0.18)",
                       border: `1px solid ${level.depth === 0 ? "rgba(15,76,42,0.2)" : "rgba(26,122,74,0.12)"}`,
                     }}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-[14px]" style={{ color: "#061A12" }}>{level.role}</span>
+                      <span className="font-semibold text-[14px]" style={{ color: "#061A12" }}>
+                        {level.role}
+                      </span>
                       <span
                         className="text-[11px] font-semibold px-2.5 py-0.5 rounded-[50px]"
                         style={{ background: "rgba(15,76,42,0.1)", color: "#0F4C2A" }}
@@ -514,7 +570,9 @@ export default function SchoolGroupsPage() {
                         {level.scope}
                       </span>
                     </div>
-                    <p className="text-[12px] leading-[1.55]" style={{ color: "#5a5a5a" }}>{level.description}</p>
+                    <p className="text-[12px] leading-[1.55]" style={{ color: "#5a5a5a" }}>
+                      {level.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -530,12 +588,15 @@ export default function SchoolGroupsPage() {
             {stats.map((s) => (
               <div key={s.label}>
                 <div
-                  className="font-playfair font-bold leading-none mb-2"
+                  className="font-display font-bold leading-none mb-2"
                   style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "#E8A020" }}
                 >
                   {s.value}
                 </div>
-                <div className="font-semibold text-[12px] uppercase tracking-[0.1em]" style={{ color: "rgba(168,230,195,0.7)" }}>
+                <div
+                  className="font-semibold text-[12px] uppercase tracking-[0.1em]"
+                  style={{ color: "rgba(168,230,195,0.7)" }}
+                >
                   {s.label}
                 </div>
               </div>
@@ -549,17 +610,17 @@ export default function SchoolGroupsPage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-4"
+              className="font-display font-bold leading-[1.2] mb-4"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
-              Why School Groups Choose{" "}
-              <span style={{ color: "#E8A020" }}>EduMyles</span>
+              Why School Groups Choose <span style={{ color: "#E8A020" }}>EduMyles</span>
             </h2>
-            <p 
+            <p
               className="font-jakarta text-lg max-w-[700px] mx-auto"
               style={{ color: "#5a5a5a", lineHeight: "1.7" }}
             >
-              Experience unified management across your entire educational network with our purpose-built platform.
+              Experience unified management across your entire educational network with our
+              purpose-built platform.
             </p>
           </div>
 
@@ -568,58 +629,58 @@ export default function SchoolGroupsPage() {
               {
                 icon: Network,
                 title: "Real-Time Network Visibility",
-                description: "See enrollment, fees, attendance, and performance across all campuses from one dashboard in real-time."
+                description:
+                  "See enrollment, fees, attendance, and performance across all campuses from one dashboard in real-time.",
               },
               {
                 icon: TrendingUp,
                 title: "40% Administrative Efficiency",
-                description: "Reduce administrative overhead by 40% through centralized processes and automated workflows."
+                description:
+                  "Reduce administrative overhead by 40% through centralized processes and automated workflows.",
               },
               {
                 icon: Briefcase,
                 title: "Unified HR Management",
-                description: "Manage staff transfers, payroll, and HR policies across all campuses with one integrated system."
+                description:
+                  "Manage staff transfers, payroll, and HR policies across all campuses with one integrated system.",
               },
               {
                 icon: CreditCard,
                 title: "Consolidated Billing",
-                description: "One invoice for all campuses with volume discounts and simplified financial management."
+                description:
+                  "One invoice for all campuses with volume discounts and simplified financial management.",
               },
               {
                 icon: ShieldCheck,
                 title: "Data Isolation & Security",
-                description: "Each campus sees only their data while network admin has complete oversight with enterprise-grade security."
+                description:
+                  "Each campus sees only their data while network admin has complete oversight with enterprise-grade security.",
               },
               {
                 icon: Users,
                 title: "Unified Parent Experience",
-                description: "Parents with children across multiple schools see everything in one portal with single login."
-              }
+                description:
+                  "Parents with children across multiple schools see everything in one portal with single login.",
+              },
             ].map((benefit, _index) => (
               <div
                 key={benefit.title}
                 className="text-center p-6 rounded-2xl"
-                style={{ 
-                  background: "linear-gradient(135deg, #F3FBF6 0%, #E8F5EE 100%)", 
-                  border: "1px solid rgba(26,122,74,0.2)" 
+                style={{
+                  background: "linear-gradient(135deg, #F3FBF6 0%, #E8F5EE 100%)",
+                  border: "1px solid rgba(26,122,74,0.2)",
                 }}
               >
-                <div 
+                <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
                   style={{ background: "rgba(26,122,74,0.15)" }}
                 >
                   <benefit.icon className="w-8 h-8" style={{ color: "#1A7A4A" }} />
                 </div>
-                <h3 
-                  className="font-playfair font-bold text-xl mb-3"
-                  style={{ color: "#061A12" }}
-                >
+                <h3 className="font-display font-bold text-xl mb-3" style={{ color: "#061A12" }}>
                   {benefit.title}
                 </h3>
-                <p 
-                  className="font-jakarta text-sm leading-[1.6]"
-                  style={{ color: "#5a5a5a" }}
-                >
+                <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "#5a5a5a" }}>
                   {benefit.description}
                 </p>
               </div>
@@ -631,23 +692,31 @@ export default function SchoolGroupsPage() {
       {/* ── Section 8: Testimonial ─────────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "#FEF3DC" }}>
         <div className="max-w-[820px] mx-auto text-center">
-          <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>&ldquo;</div>
+          <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>
+            &ldquo;
+          </div>
           <blockquote
-            className="font-playfair italic leading-[1.85] mb-8"
+            className="font-display italic leading-[1.85] mb-8"
             style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "#2d2d2d" }}
           >
-            We manage four schools. Before EduMyles, I&apos;d spend the entire first Monday of the month on the phone with four different bursars. Now I open one dashboard and see everything — fees, enrollment, staff attendance. I took that Monday back.
+            We manage four schools. Before EduMyles, I&apos;d spend the entire first Monday of the
+            month on the phone with four different bursars. Now I open one dashboard and see
+            everything — fees, enrollment, staff attendance. I took that Monday back.
           </blockquote>
           <div className="flex items-center justify-center gap-3">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[16px]"
+              className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[16px]"
               style={{ background: "#0F4C2A", color: "#ffffff" }}
             >
               PM
             </div>
             <div className="text-left">
-              <p className="font-semibold text-[14px]" style={{ color: "#0F4C2A" }}>Dr. Peter Maina</p>
-              <p className="text-[13px]" style={{ color: "#666" }}>Group CEO, Greenbrook Education Network, Nairobi</p>
+              <p className="font-semibold text-[14px]" style={{ color: "#0F4C2A" }}>
+                Dr. Peter Maina
+              </p>
+              <p className="text-[13px]" style={{ color: "#666" }}>
+                Group CEO, Greenbrook Education Network, Nairobi
+              </p>
             </div>
           </div>
         </div>
@@ -658,7 +727,7 @@ export default function SchoolGroupsPage() {
         <div className="max-w-[900px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Before and after EduMyles
@@ -667,30 +736,62 @@ export default function SchoolGroupsPage() {
               The difference a unified platform makes across your entire network.
             </p>
           </div>
-          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #e0e0e0", boxShadow: "0 4px 24px rgba(6,26,18,0.07)" }}>
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ border: "1px solid #e0e0e0", boxShadow: "0 4px 24px rgba(6,26,18,0.07)" }}
+          >
             <table className="w-full" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "#061A12" }}>
-                  <th className="text-left py-4 px-6 font-semibold text-[14px]" style={{ color: "#ffffff" }}>Challenge</th>
-                  <th className="text-center py-4 px-6 font-semibold text-[14px]" style={{ color: "rgba(255,255,255,0.7)" }}>Before EduMyles</th>
-                  <th className="text-center py-4 px-6 font-semibold text-[14px]" style={{ color: "#E8A020" }}>With EduMyles</th>
+                  <th
+                    className="text-left py-4 px-6 font-semibold text-[14px]"
+                    style={{ color: "#ffffff" }}
+                  >
+                    Challenge
+                  </th>
+                  <th
+                    className="text-center py-4 px-6 font-semibold text-[14px]"
+                    style={{ color: "rgba(255,255,255,0.7)" }}
+                  >
+                    Before EduMyles
+                  </th>
+                  <th
+                    className="text-center py-4 px-6 font-semibold text-[14px]"
+                    style={{ color: "#E8A020" }}
+                  >
+                    With EduMyles
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonRows.map((row, i) => (
                   <tr
                     key={row.challenge}
-                    style={{ background: i % 2 === 0 ? "#ffffff" : "#f9fafb", borderBottom: "1px solid #f0f0f0" }}
+                    style={{
+                      background: i % 2 === 0 ? "#ffffff" : "#f9fafb",
+                      borderBottom: "1px solid #f0f0f0",
+                    }}
                   >
-                    <td className="py-4 px-6 font-semibold text-[14px]" style={{ color: "#061A12" }}>{row.challenge}</td>
+                    <td
+                      className="py-4 px-6 font-semibold text-[14px]"
+                      style={{ color: "#061A12" }}
+                    >
+                      {row.challenge}
+                    </td>
                     <td className="py-4 px-6 text-center">
-                      <span className="inline-flex items-center gap-1.5 text-[13px]" style={{ color: "#5a5a5a" }}>
+                      <span
+                        className="inline-flex items-center gap-1.5 text-[13px]"
+                        style={{ color: "#5a5a5a" }}
+                      >
                         <X className="w-4 h-4 flex-shrink-0" style={{ color: "#e53935" }} />
                         {row.before}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-center">
-                      <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold" style={{ color: "#1A7A4A" }}>
+                      <span
+                        className="inline-flex items-center gap-1.5 text-[13px] font-semibold"
+                        style={{ color: "#1A7A4A" }}
+                      >
                         <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                         {row.after}
                       </span>
@@ -708,7 +809,7 @@ export default function SchoolGroupsPage() {
         <div className="max-w-[820px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Frequently asked questions
@@ -721,10 +822,15 @@ export default function SchoolGroupsPage() {
                 className="rounded-2xl p-7"
                 style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 10px rgba(6,26,18,0.04)" }}
               >
-                <h3 className="font-playfair font-bold text-[17px] mb-3" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-3"
+                  style={{ color: "#061A12" }}
+                >
                   {faq.q}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>{faq.a}</p>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+                  {faq.a}
+                </p>
               </div>
             ))}
           </div>
@@ -741,7 +847,7 @@ export default function SchoolGroupsPage() {
             Integrations
           </p>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-8"
+            className="font-display font-bold leading-[1.2] mb-8"
             style={{ fontSize: "clamp(1.4rem,2.5vw,2rem)", color: "#061A12" }}
           >
             Works with the tools your network already uses
@@ -751,7 +857,12 @@ export default function SchoolGroupsPage() {
               <span
                 key={int}
                 className="font-semibold text-[13px] px-5 py-2.5 rounded-[50px]"
-                style={{ background: "#ffffff", color: "#0F4C2A", border: "1px solid rgba(15,76,42,0.2)", boxShadow: "0 1px 4px rgba(6,26,18,0.08)" }}
+                style={{
+                  background: "#ffffff",
+                  color: "#0F4C2A",
+                  border: "1px solid rgba(15,76,42,0.2)",
+                  boxShadow: "0 1px 4px rgba(6,26,18,0.08)",
+                }}
               >
                 {int}
               </span>
@@ -770,13 +881,15 @@ export default function SchoolGroupsPage() {
             Group Pricing
           </div>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
           >
             School group pricing is custom
           </h2>
           <p className="text-[16px] leading-[1.8] mb-8" style={{ color: "#5a5a5a" }}>
-            Contact us with your campus count and student numbers and we&apos;ll build a quote that reflects your network&apos;s size. Volume discounts apply from 3+ campuses. Or start with a free trial on your first campus.
+            Contact us with your campus count and student numbers and we&apos;ll build a quote that
+            reflects your network&apos;s size. Volume discounts apply from 3+ campuses. Or start
+            with a free trial on your first campus.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
@@ -801,11 +914,13 @@ export default function SchoolGroupsPage() {
       <section className="py-24 px-4" style={{ background: "#0F4C2A" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
           >
             Ready to bring your school network{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>under one roof?</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              under one roof?
+            </em>
           </h2>
           <p className="text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
             Join school groups across Africa that have already unified their campuses on EduMyles.
@@ -821,15 +936,17 @@ export default function SchoolGroupsPage() {
             <a
               href="/book-demo"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Book a Demo
             </a>
           </div>
         </div>
       </section>
-
     </div>
   );
 }
-

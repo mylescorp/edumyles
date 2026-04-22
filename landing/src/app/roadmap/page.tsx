@@ -58,8 +58,7 @@ const columns: Column[] = [
       },
       {
         title: "CBC Gradebook v2",
-        description:
-          "Full competency scoring with auto-generated CBC report cards.",
+        description: "Full competency scoring with auto-generated CBC report cards.",
         tag: "Feature",
       },
       {
@@ -69,14 +68,12 @@ const columns: Column[] = [
       },
       {
         title: "Parent Mobile App (Beta)",
-        description:
-          "iOS & Android app for parents to view attendance and fees.",
+        description: "iOS & Android app for parents to view attendance and fees.",
         tag: "Feature",
       },
       {
         title: "WhatsApp Fee Reminders",
-        description:
-          "Automated fee reminders via WhatsApp Business API.",
+        description: "Automated fee reminders via WhatsApp Business API.",
         tag: "Feature",
       },
     ],
@@ -96,20 +93,17 @@ const columns: Column[] = [
       },
       {
         title: "Student Performance Analytics",
-        description:
-          "Predictive analytics to identify at-risk students before term end.",
+        description: "Predictive analytics to identify at-risk students before term end.",
         tag: "AI",
       },
       {
         title: "Payroll Automation v2",
-        description:
-          "Auto-calculate NHIF, NSSF, PAYE with direct bank integration.",
+        description: "Auto-calculate NHIF, NSSF, PAYE with direct bank integration.",
         tag: "Enhancement",
       },
       {
         title: "Teacher Mobile App",
-        description:
-          "Mobile app for teachers: attendance, gradebook, parent messaging.",
+        description: "Mobile app for teachers: attendance, gradebook, parent messaging.",
         tag: "Feature",
       },
       {
@@ -128,32 +122,27 @@ const columns: Column[] = [
     items: [
       {
         title: "AI Report Writing Assistant",
-        description:
-          "AI drafts personalized teacher comments for each student's report card.",
+        description: "AI drafts personalized teacher comments for each student's report card.",
         tag: "AI",
       },
       {
         title: "Alumni Portal",
-        description:
-          "Track graduates, collect testimonials, manage alumni community.",
+        description: "Track graduates, collect testimonials, manage alumni community.",
         tag: "Feature",
       },
       {
         title: "EduMyles Marketplace",
-        description:
-          "Buy/sell lesson plans, assessment templates, school forms.",
+        description: "Buy/sell lesson plans, assessment templates, school forms.",
         tag: "Platform",
       },
       {
         title: "Voice Attendance",
-        description:
-          "Mark attendance by voice — for schools with limited smartphones.",
+        description: "Mark attendance by voice — for schools with limited smartphones.",
         tag: "Accessibility",
       },
       {
         title: "Offline Mode",
-        description:
-          "Work without internet — sync when connection restored.",
+        description: "Work without internet — sync when connection restored.",
         tag: "Reliability",
       },
     ],
@@ -163,7 +152,6 @@ const columns: Column[] = [
 export default function RoadmapPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -184,16 +172,22 @@ export default function RoadmapPage() {
         <div className="relative max-w-[1200px] mx-auto w-full text-center">
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+            style={{
+              background: "rgba(232,160,32,0.12)",
+              border: "1px solid #E8A020",
+              color: "#E8A020",
+            }}
           >
             Product Roadmap
           </div>
           <h1
-            className="font-playfair font-bold leading-[1.15] mb-5"
+            className="font-display font-bold leading-[1.15] mb-5"
             style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
           >
             What we&apos;re{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>building next.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              building next.
+            </em>
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
@@ -227,10 +221,7 @@ export default function RoadmapPage() {
                 style={{ border: "1px solid #e4ede8" }}
               >
                 {/* Column header */}
-                <div
-                  className="px-5 py-4 flex items-center gap-3"
-                  style={{ background: headerBg }}
-                >
+                <div className="px-5 py-4 flex items-center gap-3" style={{ background: headerBg }}>
                   <Icon size={18} style={{ color: headerText, opacity: 0.9 }} />
                   <span
                     className="font-jakarta font-bold"
@@ -298,7 +289,7 @@ export default function RoadmapPage() {
       <section style={{ background: "#F3FBF6", padding: "5rem 2rem" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold mb-4"
+            className="font-display font-bold mb-4"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
           >
             Suggest a feature
@@ -307,7 +298,8 @@ export default function RoadmapPage() {
             className="font-jakarta font-light mb-8 mx-auto"
             style={{ fontSize: "17px", color: "#4a7a5a", maxWidth: "540px", lineHeight: 1.8 }}
           >
-            Our roadmap is shaped by what schools need. Vote on upcoming features or tell us what to build next.
+            Our roadmap is shaped by what schools need. Vote on upcoming features or tell us what to
+            build next.
           </p>
           <Link
             href="/contact?subject=feature-request"
@@ -333,7 +325,7 @@ export default function RoadmapPage() {
         />
         <div className="relative max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold mb-4"
+            className="font-display font-bold mb-4"
             style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
           >
             Start using EduMyles today — and shape what we build tomorrow.
@@ -370,4 +362,3 @@ export default function RoadmapPage() {
     </div>
   );
 }
-

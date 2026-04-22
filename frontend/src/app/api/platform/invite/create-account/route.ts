@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
-import { ConvexHttpClient } from "convex/browser";
-import { api } from "@/convex/_generated/api";
 
-const workos = new WorkOS(process.env.WORKOS_API_KEY);
+function getWorkOSClient() {
+  const apiKey = process.env.WORKOS_API_KEY;
+  if (!apiKey) {
+    throw new Error("WORKOS_NOT_CONFIGURED");
+  }
+  return new WorkOS(apiKey);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +16,8 @@ export async function POST(request: NextRequest) {
     if (!email || !firstName || !lastName || !password) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
+
+    const workos = getWorkOSClient();
 
     // Create WorkOS user
     const user = await workos.userManagement.createUser({
@@ -28,6 +34,9 @@ export async function POST(request: NextRequest) {
     console.error("Error creating WorkOS account:", error);
     
     if (error instanceof Error) {
+      if (error.message.includes("WORKOS_NOT_CONFIGURED")) {
+        return NextResponse.json({ error: "WorkOS is not configured in this environment" }, { status: 503 });
+      }
       if (error.message.includes("already exists")) {
         return NextResponse.json({ error: "An account with this email already exists" }, { status: 409 });
       }

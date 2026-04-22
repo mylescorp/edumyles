@@ -103,7 +103,6 @@ const schoolTypes = [
 export default function CustomersPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -124,17 +123,23 @@ export default function CustomersPage() {
         <div className="relative max-w-[1200px] mx-auto w-full text-center">
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+            style={{
+              background: "rgba(232,160,32,0.12)",
+              border: "1px solid #E8A020",
+              color: "#E8A020",
+            }}
           >
             Our Customers
           </div>
           <h1
-            className="font-playfair font-bold leading-[1.15] mb-5"
+            className="font-display font-bold leading-[1.15] mb-5"
             style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
           >
             Schools that{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>run better</em>
-            {" "}with EduMyles.
+            <em className="italic" style={{ color: "#E8A020" }}>
+              run better
+            </em>{" "}
+            with EduMyles.
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
@@ -173,7 +178,7 @@ export default function CustomersPage() {
           {stats.map((s) => (
             <div key={s.label} className="text-center">
               <div
-                className="font-playfair font-bold"
+                className="font-display font-bold"
                 style={{ fontSize: "2.25rem", color: "#E8A020", lineHeight: 1.1 }}
               >
                 {s.value}
@@ -193,7 +198,7 @@ export default function CustomersPage() {
       <section style={{ background: "#ffffff", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
-            className="font-playfair font-bold text-center mb-8"
+            className="font-display font-bold text-center mb-8"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
           >
             Schools Using EduMyles Today
@@ -228,7 +233,7 @@ export default function CustomersPage() {
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg font-playfair font-bold flex items-center justify-center mx-auto mb-2"
+                  className="w-10 h-10 rounded-lg font-display font-bold flex items-center justify-center mx-auto mb-2"
                   style={{
                     background: "#0F4C2A",
                     color: "#E8A020",
@@ -256,7 +261,7 @@ export default function CustomersPage() {
       <section style={{ background: "#F3FBF6", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
-            className="font-playfair font-bold text-center mb-12"
+            className="font-display font-bold text-center mb-12"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
           >
             What school leaders say
@@ -280,7 +285,7 @@ export default function CustomersPage() {
               >
                 {/* Decorative quote mark */}
                 <div
-                  className="font-playfair font-bold leading-none mb-3"
+                  className="font-display font-bold leading-none mb-3"
                   style={{
                     fontSize: "4rem",
                     color: t.featured ? "rgba(232,160,32,0.4)" : "rgba(26,122,74,0.2)",
@@ -290,7 +295,7 @@ export default function CustomersPage() {
                   &ldquo;
                 </div>
                 <p
-                  className="font-playfair italic flex-1 mb-5"
+                  className="font-display italic flex-1 mb-5"
                   style={{
                     fontSize: "18px",
                     color: t.featured ? "#E8E8E8" : "#2d4a38",
@@ -301,7 +306,7 @@ export default function CustomersPage() {
                 </p>
                 <div className="flex items-center gap-3 mt-auto">
                   <div
-                    className="w-9 h-9 rounded-lg font-playfair font-bold flex items-center justify-center shrink-0"
+                    className="w-9 h-9 rounded-lg font-display font-bold flex items-center justify-center shrink-0"
                     style={{
                       background: t.featured ? "#E8A020" : "#0F4C2A",
                       color: t.featured ? "#061A12" : "#E8A020",
@@ -335,7 +340,7 @@ export default function CustomersPage() {
       <section style={{ background: "#ffffff", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
-            className="font-playfair font-bold text-center mb-12"
+            className="font-display font-bold text-center mb-12"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
           >
             Schools we work with
@@ -354,7 +359,7 @@ export default function CustomersPage() {
                   <Icon size={22} style={{ color: "#1A7A4A" }} />
                 </div>
                 <div
-                  className="font-playfair font-bold mb-0.5"
+                  className="font-display font-bold mb-0.5"
                   style={{ fontSize: "2rem", color: "#E8A020" }}
                 >
                   {count}
@@ -400,7 +405,7 @@ export default function CustomersPage() {
         />
         <div className="relative max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold mb-4"
+            className="font-display font-bold mb-4"
             style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
           >
             Join 50+ schools already running better.
@@ -437,4 +442,3 @@ export default function CustomersPage() {
     </div>
   );
 }
-

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -8,15 +8,15 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useMutation, useQuery } from 'convex/react';
-import GradeRow, { type GradeRowProps } from '../components/GradeRow';
-import StudentCard, { type StudentCardProps } from '../components/StudentCard';
+} from "react-native";
+import { useMutation, useQuery } from "convex/react";
+import GradeRow, { type GradeRowProps } from "../components/GradeRow";
+import StudentCard, { type StudentCardProps } from "../components/StudentCard";
 
-import { useAuth } from '../hooks/useAuth';
-import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
-import { api } from '../lib/convexApi';
-import { theme } from '../theme';
+import { useAuth } from "../hooks/useAuth";
+import { useCachedQueryValue, useOfflineSync } from "../hooks/useOfflineSync";
+import { api } from "../lib/convexApi";
+import { theme } from "../theme";
 
 const GradesScreen: React.FC = () => {
   const { sessionToken, user } = useAuth();
@@ -24,35 +24,35 @@ const GradesScreen: React.FC = () => {
   const [selectedClassId, setSelectedClassId] = React.useState<string | null>(null);
   const [gradeDrafts, setGradeDrafts] = React.useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const currentTerm = 'Term 1';
+  const currentTerm = "Term 1";
   const currentAcademicYear = String(new Date().getFullYear());
 
   const studentGrades = useQuery(
     api.modules.portal.student.queries.getMyGrades,
-    sessionToken && user?.role === 'student' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken } : "skip"
   );
   const parentChildren = useQuery(
     api.modules.portal.parent.queries.getChildren,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const teacherClasses = useQuery(
     api.modules.academics.queries.getTeacherClasses,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const teacherClassStudents = useQuery(
     api.modules.academics.queries.getClassStudents,
-    sessionToken && user?.role === 'teacher' && selectedClassId
+    sessionToken && user?.role === "teacher" && selectedClassId
       ? { sessionToken, classId: selectedClassId }
-      : 'skip',
+      : "skip"
   );
   const enterGrades = useMutation(api.modules.academics.mutations.enterGrades);
 
-  const resolvedStudentGrades = useCachedQueryValue<any[]>('student.grades.list', studentGrades);
-  const resolvedParentChildren = useCachedQueryValue<any[]>('parent.children.list', parentChildren);
-  const resolvedTeacherClasses = useCachedQueryValue<any[]>('teacher.classes.list', teacherClasses);
+  const resolvedStudentGrades = useCachedQueryValue<any[]>("student.grades.list", studentGrades);
+  const resolvedParentChildren = useCachedQueryValue<any[]>("parent.children.list", parentChildren);
+  const resolvedTeacherClasses = useCachedQueryValue<any[]>("teacher.classes.list", teacherClasses);
   const resolvedTeacherClassStudents = useCachedQueryValue<any[]>(
-    selectedClassId ? `teacher.grades.students.${selectedClassId}` : 'teacher.grades.students.none',
-    teacherClassStudents,
+    selectedClassId ? `teacher.grades.students.${selectedClassId}` : "teacher.grades.students.none",
+    teacherClassStudents
   );
 
   React.useEffect(() => {
@@ -62,11 +62,11 @@ const GradesScreen: React.FC = () => {
   }, [resolvedTeacherClasses, selectedClassId]);
 
   const calculateGrade = (score: number): string => {
-    if (score >= 90) return 'A';
-    if (score >= 80) return 'B';
-    if (score >= 70) return 'C';
-    if (score >= 60) return 'D';
-    return 'F';
+    if (score >= 90) return "A";
+    if (score >= 80) return "B";
+    if (score >= 70) return "C";
+    if (score >= 60) return "D";
+    return "F";
   };
 
   const handleSubmitGrades = async () => {
@@ -79,18 +79,21 @@ const GradesScreen: React.FC = () => {
       await enterGrades({
         sessionToken,
         grades: resolvedTeacherClassStudents
-          .filter((student: any) => gradeDrafts[student._id] !== undefined && gradeDrafts[student._id] !== '')
+          .filter(
+            (student: any) =>
+              gradeDrafts[student._id] !== undefined && gradeDrafts[student._id] !== ""
+          )
           .map((student: any) => {
             const score = Number(gradeDrafts[student._id] ?? 0);
             return {
               studentId: student._id,
               classId: selectedClassId,
-              subjectId: 'general',
+              subjectId: "general",
               term: currentTerm,
               academicYear: currentAcademicYear,
               score,
               grade: calculateGrade(score),
-              recordedBy: user?.userId ?? '',
+              recordedBy: user?.userId ?? "",
             };
           }),
       });
@@ -103,7 +106,7 @@ const GradesScreen: React.FC = () => {
     return <Text style={styles.stateText}>Sign in to view this section.</Text>;
   }
 
-  if (user?.role === 'parent') {
+  if (user?.role === "parent") {
     if (!resolvedParentChildren) {
       return (
         <View style={styles.center}>
@@ -126,7 +129,7 @@ const GradesScreen: React.FC = () => {
     );
   }
 
-  if (user?.role === 'teacher') {
+  if (user?.role === "teacher") {
     if (!resolvedTeacherClasses) {
       return (
         <View style={styles.center}>
@@ -174,16 +177,16 @@ const GradesScreen: React.FC = () => {
                   <Text style={styles.meta}>No students are enrolled in this class yet.</Text>
                 ) : (
                   resolvedTeacherClassStudents.map((student: any) => {
-                    const rawScore = gradeDrafts[student._id] ?? '';
-                    const numericScore = rawScore === '' ? null : Number(rawScore);
+                    const rawScore = gradeDrafts[student._id] ?? "";
+                    const numericScore = rawScore === "" ? null : Number(rawScore);
                     return (
                       <View key={student._id} style={styles.studentRow}>
                         <View style={styles.studentCopy}>
                           <Text style={styles.studentName}>
-                            {[student.firstName, student.lastName].filter(Boolean).join(' ')}
+                            {[student.firstName, student.lastName].filter(Boolean).join(" ")}
                           </Text>
                           <Text style={styles.meta}>
-                            {student.admissionNumber ?? 'No admission number'}
+                            {student.admissionNumber ?? "No admission number"}
                           </Text>
                         </View>
                         <View style={styles.gradeEntryRow}>
@@ -202,7 +205,7 @@ const GradesScreen: React.FC = () => {
                           />
                           <Text style={styles.gradeBadge}>
                             {numericScore === null || Number.isNaN(numericScore)
-                              ? '—'
+                              ? "—"
                               : calculateGrade(numericScore)}
                           </Text>
                         </View>
@@ -211,12 +214,19 @@ const GradesScreen: React.FC = () => {
                   })
                 )}
                 <TouchableOpacity
-                  style={[styles.primaryButton, (isOffline || isSubmitting) && styles.disabledButton]}
+                  style={[
+                    styles.primaryButton,
+                    (isOffline || isSubmitting) && styles.disabledButton,
+                  ]}
                   onPress={handleSubmitGrades}
                   disabled={isOffline || isSubmitting}
                 >
                   <Text style={styles.primaryButtonText}>
-                    {isOffline ? 'Reconnect to submit' : isSubmitting ? 'Saving...' : 'Submit grades'}
+                    {isOffline
+                      ? "Reconnect to submit"
+                      : isSubmitting
+                        ? "Saving..."
+                        : "Submit grades"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -263,20 +273,21 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   stateText: {
     flex: 1,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    textAlign: "center",
+    textAlignVertical: "center",
     color: theme.colors.textSecondary,
     padding: theme.spacing.lg,
+    fontFamily: theme.fonts.regular,
   },
   banner: {
     color: theme.colors.warning,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   card: {
     backgroundColor: theme.colors.white,
@@ -288,27 +299,28 @@ const styles = StyleSheet.create({
   subject: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.lg,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   score: {
     color: theme.colors.primary,
     fontSize: theme.fontSizes.xxxl,
-    fontWeight: '800',
+    fontWeight: "800",
     marginVertical: theme.spacing.sm,
   },
   meta: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     marginTop: 2,
+    fontFamily: theme.fonts.regular,
   },
   sectionLabel: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   choiceWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: theme.spacing.sm,
     marginTop: theme.spacing.sm,
   },
@@ -327,7 +339,7 @@ const styles = StyleSheet.create({
   choiceChipText: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
   },
   choiceChipTextActive: {
     color: theme.colors.white,
@@ -344,11 +356,11 @@ const styles = StyleSheet.create({
   studentName: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   gradeEntryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: theme.spacing.md,
   },
   scoreInput: {
@@ -360,20 +372,21 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.sm,
     backgroundColor: theme.colors.background,
     color: theme.colors.text,
+    fontFamily: theme.fonts.bodyMedium,
   },
   gradeBadge: {
     minWidth: 36,
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.colors.primary,
     fontSize: theme.fontSizes.xl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
   },
   primaryButton: {
     marginTop: theme.spacing.md,
     backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.lg,
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
   },
   disabledButton: {
     opacity: 0.6,
@@ -381,7 +394,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: theme.colors.white,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
 });
 

@@ -136,6 +136,7 @@ export default function BillingSettingsPage() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [enterpriseDialogOpen, setEnterpriseDialogOpen] = useState(false);
   const [paymentProvider, setPaymentProvider] = useState("mpesa");
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("monthly");
   const [paymentReference, setPaymentReference] = useState("");
   const [cancelReason, setCancelReason] = useState("");
   const [enterprisePhone, setEnterprisePhone] = useState(tenant?.phone ?? "");

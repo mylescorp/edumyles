@@ -1,18 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trackCookieConsent } from "@/lib/analytics";
 
 export default function CookieBanner() {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
     try {
-      return !window.localStorage.getItem("em-cookies");
+      setVisible(!window.localStorage.getItem("em-cookies"));
     } catch {
-      return true;
+      setVisible(true);
     }
-  });
+  }, []);
 
   function accept() {
     try {
@@ -34,7 +37,7 @@ export default function CookieBanner() {
     trackCookieConsent("declined");
   }
 
-  if (!visible) return null;
+  if (!mounted || !visible) return null;
 
   return (
     <div

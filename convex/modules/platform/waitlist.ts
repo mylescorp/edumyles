@@ -398,14 +398,8 @@ export const submitWaitlistForm = mutation({
       sourceChannel: args.sourceChannel ?? "landing_waitlist",
       allowCrmCreate: true,
     });
-
-    // Auto-create CRM lead — non-critical, wrap in try/catch so a schema
-    // mismatch or missing table never prevents the waitlist insert from succeeding.
-    try {
-      const existingLead = await ctx.db
-        .query("crm_leads")
-        .withIndex("by_email", (q) => q.eq("email", args.email))
-        .first();
+    const entry = (await ctx.db.get(waitlistId)) as any;
+    const firstName = entry?.fullName?.trim().split(/\s+/)[0] || "there";
 
     await sendPlatformEmail(ctx, {
       to: [entry.email],
@@ -418,29 +412,6 @@ export const submitWaitlistForm = mutation({
         qualificationScore,
       },
     });
-
-        await ctx.db.patch(waitlistId, {
-          crmLeadId: String(leadId),
-          updatedAt: now,
-        });
-      }
-    } catch {
-      // CRM lead creation is best-effort — log and continue
-      console.warn("[addToWaitlist] CRM lead creation skipped:", args.email);
-    }
-
-    // Schedule confirmation email — non-critical, wrap so email failures
-    // never roll back the waitlist insert.
-    try {
-      await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
-        tenantId: "PLATFORM",
-        actorId: "system",
-        actorEmail: "no-reply@edumyles.com",
-        to: [args.email],
-        subject: "You're on the EduMyles waitlist!",
-        text: `Hi ${args.fullName},\n\nThank you for joining the EduMyles waitlist for ${args.schoolName}. Our team will be in touch soon with next steps.\n\nThe EduMyles Team`,
-      });
-    }
 
     if (qualificationScore >= 75) {
       await ctx.db.insert("notifications", {

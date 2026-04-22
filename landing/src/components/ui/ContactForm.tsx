@@ -20,9 +20,7 @@ export default function ContactForm() {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -56,10 +54,13 @@ export default function ContactForm() {
         {/* Heading */}
         <div className="mb-8">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-2"
+            className="font-display font-bold leading-[1.2] mb-2"
             style={{ fontSize: "clamp(1.6rem,3vw,2.25rem)", color: "#061A12" }}
           >
-            Send Us a <em className="italic" style={{ color: "#E8A020" }}>Message</em>
+            Send Us a{" "}
+            <em className="italic" style={{ color: "#E8A020" }}>
+              Message
+            </em>
           </h2>
           <p className="font-jakarta text-[15px]" style={{ color: "#5a5a5a" }}>
             Fill in the form below and we&apos;ll get back to you within 24 hours.
@@ -77,7 +78,7 @@ export default function ContactForm() {
             >
               ✓
             </div>
-            <h3 className="font-playfair font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h3 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
               Thank you!
             </h3>
             <p className="font-jakarta text-[15px]" style={{ color: "#5a5a5a" }}>
@@ -85,11 +86,7 @@ export default function ContactForm() {
             </p>
           </div>
         ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-5"
-            noValidate
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
             {/* Row: Full Name + Email */}
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
@@ -211,7 +208,10 @@ export default function ContactForm() {
             {formState === "error" && (
               <p className="font-jakarta text-[14px]" style={{ color: "#dc2626" }}>
                 Something went wrong. Please try again or email us directly at{" "}
-                <a href="mailto:contact@edumyles.com" style={{ color: "#dc2626", textDecoration: "underline" }}>
+                <a
+                  href="mailto:contact@edumyles.com"
+                  style={{ color: "#dc2626", textDecoration: "underline" }}
+                >
                   contact@edumyles.com
                 </a>
                 .

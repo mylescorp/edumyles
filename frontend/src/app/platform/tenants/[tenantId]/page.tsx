@@ -16,6 +16,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +48,14 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+
+function normalizeArray<T>(value: any): T[] {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.rows)) return value.rows;
+  return [];
+}
 
 function formatKes(amount?: number) {
   return `KES ${(amount ?? 0).toLocaleString()}`;
@@ -221,12 +231,16 @@ export default function TenantDetailPage() {
     settings,
   } = tenantDetail;
 
+  const pendingInviteRows = normalizeArray<any>(pendingInvites);
+  const nudgeTemplateRows = normalizeArray<any>(onboardingRecord?.nudgeTemplates);
+  const onboardingNoteRows = normalizeArray<any>(onboardingRecord?.notes);
+
   const pendingSchoolAdmin =
-    pendingInvites.find((invite: any) => invite.role === "school_admin") ?? null;
+    pendingInviteRows.find((invite: any) => invite.role === "school_admin") ?? null;
   const adminInviteTarget = pendingSchoolAdmin ?? primaryAdmin ?? null;
   const activeNudgeTemplate =
-    onboardingRecord?.nudgeTemplates?.find((template: any) => template.key === selectedTemplate) ??
-    onboardingRecord?.nudgeTemplates?.[0] ??
+    nudgeTemplateRows.find((template: any) => template.key === selectedTemplate) ??
+    nudgeTemplateRows[0] ??
     null;
 
   const handleProvisionOrg = async () => {
@@ -1116,7 +1130,7 @@ export default function TenantDetailPage() {
               <CardTitle>Pending Invites</CardTitle>
             </CardHeader>
             <CardContent>
-              {pendingInvites.length === 0 ? (
+              {pendingInviteRows.length === 0 ? (
                 <EmptyState
                   icon={Mail}
                   title="No pending invites"
@@ -1133,7 +1147,7 @@ export default function TenantDetailPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pendingInvites.map((invite: any) => (
+                    {pendingInviteRows.map((invite: any) => (
                       <TableRow key={String(invite._id)}>
                         <TableCell>{formatName(invite.firstName, invite.lastName)}</TableCell>
                         <TableCell>{invite.email}</TableCell>
@@ -1535,7 +1549,7 @@ export default function TenantDetailPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(onboardingRecord?.nudgeTemplates ?? []).map((template: any) => (
+                  {nudgeTemplateRows.map((template: any) => (
                     <SelectItem key={template.key} value={template.key}>
                       {template.label}
                     </SelectItem>

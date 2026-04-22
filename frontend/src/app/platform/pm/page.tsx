@@ -15,9 +15,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PmAdminRail } from "@/components/platform/PmAdminRail";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { normalizeArray } from "@/lib/normalizeData";
 import { BarChart3, Clock, FolderKanban, Pencil, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,6 +32,19 @@ type WorkspaceSummary = {
   projectCount: number;
   defaultStatuses?: string[];
   customFieldSchema?: unknown[];
+};
+
+type ProjectSummary = {
+  _id: string;
+  slug?: string;
+  workspaceId: string;
+  name: string;
+  description: string;
+  status: string;
+  priority?: string;
+  progress?: number;
+  leadId?: string;
+  memberIds: string[];
 };
 
 const WORKSPACE_TYPES = ["engineering", "onboarding", "bugs", "okrs"] as const;
@@ -105,14 +120,34 @@ export default function PMPage() {
     api.modules.pm.workspaces.getPmStats,
     sessionToken ? { sessionToken } : "skip"
   );
+  const projects = useQuery(
+    api.modules.pm.projects.getProjects,
+    sessionToken ? { sessionToken } : "skip"
+  ) as ProjectSummary[] | undefined;
+  const myTasks = useQuery(api.modules.pm.tasks.getMyTasks, sessionToken ? { sessionToken } : "skip");
 
   const createWorkspace = useMutation(api.modules.pm.workspaces.createWorkspace);
   const updateWorkspace = useMutation(api.modules.pm.workspaces.updateWorkspace);
   const deleteWorkspace = useMutation(api.modules.pm.workspaces.deleteWorkspace);
+  const workspaceRows = useMemo(() => normalizeArray<WorkspaceSummary>(workspaces), [workspaces]);
+  const projectRows = useMemo(() => normalizeArray<ProjectSummary>(projects), [projects]);
+  const myTaskRows = useMemo(() => normalizeArray<any>(myTasks), [myTasks]);
 
   const totalProjects = useMemo(
-    () => workspaces?.reduce((sum: number, ws: WorkspaceSummary) => sum + ws.projectCount, 0) || 0,
-    [workspaces]
+    () => workspaceRows.reduce((sum: number, ws: WorkspaceSummary) => sum + ws.projectCount, 0),
+    [workspaceRows]
+  );
+  const activeProjects = useMemo(
+    () => projectRows.filter((project) => ["active", "paused"].includes(project.status)).slice(0, 6),
+    [projectRows]
+  );
+  const tasksDueSoon = useMemo(
+    () =>
+      myTaskRows
+        .filter((task) => task.dueDate && task.status?.toLowerCase() !== "done")
+        .sort((a, b) => (a.dueDate ?? Number.MAX_SAFE_INTEGER) - (b.dueDate ?? Number.MAX_SAFE_INTEGER))
+        .slice(0, 6),
+    [myTaskRows]
   );
 
   const resetForm = () => {
@@ -257,7 +292,7 @@ export default function PMPage() {
     }
   };
 
-  if (authLoading || (sessionToken && workspaces === undefined)) {
+  if (authLoading || (sessionToken && (workspaces === undefined || projects === undefined || myTasks === undefined))) {
     return <LoadingSkeleton variant="page" />;
   }
 
@@ -294,6 +329,8 @@ export default function PMPage() {
           </div>
         }
       />
+
+      <PmAdminRail currentHref="/platform/pm" />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -338,8 +375,87 @@ export default function PMPage() {
         </Card>
       </div>
 
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <Card className="border-slate-200">
+          <CardHeader>
+            <CardTitle>My Tasks Due This Week</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {tasksDueSoon.length === 0 ? (
+              <EmptyState
+                icon={Clock}
+                title="Nothing urgent right now"
+                description="Your upcoming assigned tasks will appear here."
+                className="py-8"
+              />
+            ) : (
+              tasksDueSoon.map((task: any) => (
+                <Link
+                  key={task._id}
+                  href={`/platform/pm/${task.project?.slug ?? workspaceRows.find((w) => w._id === task.project?.workspaceId)?.slug ?? "workspace"}/${task.projectId}`}
+                  className="block rounded-2xl border border-slate-200 p-4 transition hover:bg-slate-50"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-slate-950">{task.title}</p>
+                      <p className="mt-1 text-sm text-slate-500">{task.project?.name ?? "Project"}</p>
+                    </div>
+                    <Badge variant="secondary">
+                      {new Date(task.dueDate).toLocaleDateString()}
+                    </Badge>
+                  </div>
+                </Link>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Active Projects</CardTitle>
+            <Link href="/platform/pm/my-tasks">
+              <Button variant="ghost" size="sm">
+                View My Tasks
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {activeProjects.length === 0 ? (
+              <EmptyState
+                icon={FolderKanban}
+                title="No active projects yet"
+                description="Create or join a project to start tracking delivery."
+                className="py-8"
+              />
+            ) : (
+              activeProjects.map((project) => {
+                const workspace = workspaceRows.find((row) => row._id === project.workspaceId);
+                return (
+                  <Link
+                    key={project._id}
+                    href={`/platform/pm/${workspace?.slug ?? "workspace"}/${project._id}`}
+                    className="block rounded-2xl border border-slate-200 p-4 transition hover:bg-slate-50"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-slate-950">{project.name}</p>
+                        <p className="mt-1 line-clamp-2 text-sm text-slate-500">{project.description}</p>
+                      </div>
+                      <Badge variant="outline">{project.status}</Badge>
+                    </div>
+                    <div className="mt-3 text-xs text-slate-500">
+                      Progress: {project.progress ?? 0}% • Members: {project.memberIds.length}
+                    </div>
+                  </Link>
+                );
+              })
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {workspaces?.map((workspace: WorkspaceSummary) => (
+        {workspaceRows.map((workspace: WorkspaceSummary) => (
           <Card key={workspace._id} className="transition-all duration-200 hover:shadow-lg">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-3">
@@ -385,7 +501,7 @@ export default function PMPage() {
         ))}
       </div>
 
-      {(!workspaces || workspaces.length === 0) && (
+      {workspaceRows.length === 0 && (
         <Card>
           <CardContent>
             <EmptyState

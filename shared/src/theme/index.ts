@@ -75,8 +75,10 @@ export const colors = {
 // ----------------------------------------------------------
 export const typography = {
   fontFamily: {
-    /** Primary font — Poppins (Zoho Puvi alternative) */
-    primary: '"Poppins", sans-serif',
+    /** Primary UI font */
+    primary: '"Inter", system-ui, sans-serif',
+    /** Display font for headings and metrics */
+    display: '"Plus Jakarta Sans", system-ui, sans-serif',
     /** Monospace — for code, tenant IDs */
     mono: '"JetBrains Mono", "Fira Code", monospace',
   },

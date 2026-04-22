@@ -32,7 +32,7 @@ const BUSINESS_TYPES = [
 
 const COUNTRY_OPTIONS = [
   "Kenya",
-  "Uganda", 
+  "Uganda",
   "Tanzania",
   "Rwanda",
   "Zambia",
@@ -43,7 +43,7 @@ const COUNTRY_OPTIONS = [
 
 const MARKETING_CHANNELS = [
   "Social Media Marketing",
-  "Email Marketing", 
+  "Email Marketing",
   "Content Marketing",
   "Direct Sales",
   "Events & Conferences",
@@ -64,7 +64,7 @@ export default function ResellerApplicationPage() {
   const [formState, setFormState] = useState<FormState>("idle");
   const [error, setError] = useState("");
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
-  
+
   const [fields, setFields] = useState({
     businessName: "",
     businessType: "reseller" as "reseller" | "affiliate",
@@ -89,16 +89,14 @@ export default function ResellerApplicationPage() {
   }
 
   function handleChannelToggle(channel: string) {
-    setSelectedChannels((current) => 
-      current.includes(channel) 
-        ? current.filter(c => c !== channel)
-        : [...current, channel]
+    setSelectedChannels((current) =>
+      current.includes(channel) ? current.filter((c) => c !== channel) : [...current, channel]
     );
-    
+
     setFields((current) => ({
       ...current,
-      marketingChannels: selectedChannels.includes(channel) 
-        ? current.marketingChannels.filter(c => c !== channel)
+      marketingChannels: selectedChannels.includes(channel)
+        ? current.marketingChannels.filter((c) => c !== channel)
         : [...current.marketingChannels, channel],
     }));
   }
@@ -147,11 +145,12 @@ export default function ResellerApplicationPage() {
           <div className="w-16 h-16 bg-[#0F4C2A] rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-8 h-8 text-white" />
           </div>
-          <h1 className="font-playfair text-3xl font-bold text-[#061A12] mb-4">
+          <h1 className="font-display text-3xl font-bold text-[#061A12] mb-4">
             Application Submitted!
           </h1>
           <p className="font-jakarta text-[#5d6f66] mb-6">
-            Your reseller application has been submitted successfully. We&apos;ll review it and get back to you within 3-5 business days.
+            Your reseller application has been submitted successfully. We&apos;ll review it and get
+            back to you within 3-5 business days.
           </p>
           <div className="animate-spin w-6 h-6 border-2 border-[#0F4C2A] border-t-transparent rounded-full mx-auto"></div>
         </div>
@@ -179,13 +178,14 @@ export default function ResellerApplicationPage() {
               <Handshake className="h-4 w-4" />
               Reseller Program
             </div>
-            <h1 className="font-playfair text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
+            <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
               Partner with EduMyles
               <br />
               to Transform Education
             </h1>
             <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
-              Join our network of resellers and affiliates helping schools across East Africa adopt modern management systems. Earn competitive commissions while making a real impact.
+              Join our network of resellers and affiliates helping schools across East Africa adopt
+              modern management systems. Earn competitive commissions while making a real impact.
             </p>
           </div>
 
@@ -213,15 +213,15 @@ export default function ResellerApplicationPage() {
               >
                 <item.icon className="h-6 w-6 text-[#E8A020]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-white">{item.title}</h2>
-                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">{item.body}</p>
+                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">
+                  {item.body}
+                </p>
               </div>
             ))}
           </div>
 
           <div className="mt-12 rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
-            <h2 className="font-playfair text-[28px] font-bold text-white">
-              Reseller Tiers
-            </h2>
+            <h2 className="font-display text-[28px] font-bold text-white">Reseller Tiers</h2>
             <div className="mt-6 space-y-4">
               {[
                 {
@@ -231,27 +231,44 @@ export default function ResellerApplicationPage() {
                   features: ["Up to 5 schools", "Basic marketing materials", "Email support"],
                 },
                 {
-                  tier: "Silver", 
+                  tier: "Silver",
                   description: "For growing resellers",
                   commission: "20-25%",
-                  features: ["Up to 15 schools", "Advanced marketing kit", "Priority support", "Training portal"],
+                  features: [
+                    "Up to 15 schools",
+                    "Advanced marketing kit",
+                    "Priority support",
+                    "Training portal",
+                  ],
                 },
                 {
                   tier: "Gold",
                   description: "For established resellers",
                   commission: "25-30%",
-                  features: ["Up to 30 schools", "White-label options", "Dedicated account manager", "Custom commissions"],
+                  features: [
+                    "Up to 30 schools",
+                    "White-label options",
+                    "Dedicated account manager",
+                    "Custom commissions",
+                  ],
                 },
                 {
                   tier: "Platinum",
                   description: "For enterprise partners",
                   commission: "30%+",
-                  features: ["Unlimited schools", "Full white-label", "Custom integrations", "Revenue sharing"],
+                  features: [
+                    "Unlimited schools",
+                    "Full white-label",
+                    "Custom integrations",
+                    "Revenue sharing",
+                  ],
                 },
               ].map((tier) => (
                 <div key={tier.tier} className="border-l-2 border-[#E8A020] pl-4">
                   <div className="flex items-center gap-3">
-                    <h3 className="font-jakarta text-[16px] font-bold text-[#E8A020]">{tier.tier}</h3>
+                    <h3 className="font-jakarta text-[16px] font-bold text-[#E8A020]">
+                      {tier.tier}
+                    </h3>
                     <span className="bg-[rgba(232,160,32,0.2)] text-[#E8A020] px-2 py-1 rounded text-xs font-bold">
                       {tier.commission}
                     </span>
@@ -259,7 +276,10 @@ export default function ResellerApplicationPage() {
                   <p className="font-jakarta text-[13px] text-[#A8E6C3] mt-1">{tier.description}</p>
                   <ul className="mt-2 space-y-1">
                     {tier.features.map((feature) => (
-                      <li key={feature} className="font-jakarta text-[12px] text-[#D7F3E2] flex items-center gap-2">
+                      <li
+                        key={feature}
+                        className="font-jakarta text-[12px] text-[#D7F3E2] flex items-center gap-2"
+                      >
                         <CheckCircle2 className="w-3 h-3" />
                         {feature}
                       </li>
@@ -278,7 +298,7 @@ export default function ResellerApplicationPage() {
               <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
                 Reseller Application
               </p>
-              <h2 className="mt-2 font-playfair text-[clamp(2rem,3vw,2.7rem)] font-bold text-[#061A12]">
+              <h2 className="mt-2 font-display text-[clamp(2rem,3vw,2.7rem)] font-bold text-[#061A12]">
                 Partner Information
               </h2>
               <p className="mt-3 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
@@ -295,9 +315,12 @@ export default function ResellerApplicationPage() {
                     Business Information
                   </h3>
                 </div>
-                
+
                 <div>
-                  <label htmlFor="businessName" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="businessName"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Business or Organization Name
                   </label>
                   <input
@@ -312,7 +335,10 @@ export default function ResellerApplicationPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="businessType" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="businessType"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Partnership Type
                   </label>
                   <select
@@ -331,7 +357,10 @@ export default function ResellerApplicationPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="businessDescription" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="businessDescription"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Business Description
                   </label>
                   <textarea
@@ -346,7 +375,10 @@ export default function ResellerApplicationPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="website" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="website"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Website (Optional)
                   </label>
                   <input
@@ -372,7 +404,10 @@ export default function ResellerApplicationPage() {
 
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="contactPhone" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    <label
+                      htmlFor="contactPhone"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                    >
                       Phone Number
                     </label>
                     <div className="relative">
@@ -390,7 +425,10 @@ export default function ResellerApplicationPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="country" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                    <label
+                      htmlFor="country"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                    >
                       Country
                     </label>
                     <div className="relative">
@@ -413,7 +451,10 @@ export default function ResellerApplicationPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="contactAddress" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="contactAddress"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Business Address
                   </label>
                   <textarea
@@ -438,7 +479,10 @@ export default function ResellerApplicationPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="targetMarket" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="targetMarket"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Target Market
                   </label>
                   <textarea
@@ -453,7 +497,10 @@ export default function ResellerApplicationPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="experience" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="experience"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Relevant Experience
                   </label>
                   <textarea
@@ -468,7 +515,10 @@ export default function ResellerApplicationPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="expectedVolume" className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]">
+                  <label
+                    htmlFor="expectedVolume"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
                     Expected Sales Volume
                   </label>
                   <select
@@ -529,12 +579,15 @@ export default function ResellerApplicationPage() {
                 disabled={formState === "loading"}
                 className="inline-flex w-full items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-[#0F4C2A] px-6 py-4 font-jakarta text-[15px] font-bold text-white transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {formState === "loading" ? "Submitting Application..." : "Submit Reseller Application"}
+                {formState === "loading"
+                  ? "Submitting Application..."
+                  : "Submit Reseller Application"}
               </button>
 
               <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
                 <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
-                  By submitting this application, you agree to our reseller terms and conditions. We&apos;ll review your application and contact you within 3-5 business days.
+                  By submitting this application, you agree to our reseller terms and conditions.
+                  We&apos;ll review your application and contact you within 3-5 business days.
                 </p>
               </div>
             </form>

@@ -24,7 +24,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDate, formatRelativeTime } from "@/lib/formatters";
-import { AlertTriangle, CheckCircle2, Clock3, HeartPulse, SearchX, TimerReset, TrendingUp } from "lucide-react";
+import { AlertTriangle, ArrowUpDown, CheckCircle2, Clock3, HeartPulse, MessageSquareMore, SearchX, ShieldCheck, Sparkles, TimerReset, TrendingUp } from "lucide-react";
 import { TenantsAdminRail } from "@/components/platform/TenantsAdminRail";
 
 type TenantSuccessRow = {
@@ -80,6 +80,14 @@ type PlatformAdmin = {
 
 type FilterKey = "all" | "at_risk" | "stalled" | "almost" | "activated" | "converted";
 type SortKey = "tenant" | "country" | "health" | "status" | "lastActivity";
+
+function normalizeArray<T>(value: any): T[] {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.rows)) return value.rows;
+  return [];
+}
 
 function healthClass(score: number) {
   if (score >= 80) return "text-emerald-700";
@@ -194,14 +202,14 @@ export default function TenantSuccessPage() {
   const assignAccountManager = useMutation(api.modules.platform.onboarding.assignAccountManager);
   const addPlatformOnboardingNote = useMutation(api.modules.platform.onboarding.addPlatformOnboardingNote);
 
-  const nudgeTemplateOptions = dashboard?.nudgeTemplates ?? [];
+  const nudgeTemplateOptions = normalizeArray<any>(dashboard?.nudgeTemplates);
   const activeTemplate = useMemo(
     () => nudgeTemplateOptions.find((template) => template.key === selectedTemplate) ?? nudgeTemplateOptions[0] ?? null,
     [nudgeTemplateOptions, selectedTemplate]
   );
 
   const filteredRows = useMemo(() => {
-    const rows = dashboard?.rows ?? [];
+    const rows = normalizeArray<TenantSuccessRow>(dashboard?.rows);
     const needle = search.trim().toLowerCase();
     const nextRows = rows.filter((row) => {
       const matchesSearch =
@@ -245,6 +253,9 @@ export default function TenantSuccessPage() {
       }
     });
   }, [dashboard?.rows, filter, search, sortBy, sortDirection]);
+
+  const platformAdminRows = normalizeArray<PlatformAdmin>(platformAdmins);
+  const stalledQueue = normalizeArray<TenantSuccessRow>(dashboard?.stalledQueue);
 
   if (isLoading || dashboard === undefined || platformAdmins === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -562,7 +573,7 @@ export default function TenantSuccessPage() {
                                 <SelectValue placeholder="Assign AM" />
                               </SelectTrigger>
                               <SelectContent>
-                                {platformAdmins.map((admin) => (
+                                {platformAdminRows.map((admin) => (
                                   <SelectItem key={admin.eduMylesUserId} value={admin.eduMylesUserId}>
                                     {[admin.firstName, admin.lastName].filter(Boolean).join(" ") || admin.email}
                                   </SelectItem>
@@ -585,7 +596,7 @@ export default function TenantSuccessPage() {
             <CardDescription>Schools inactive for 48+ hours, prioritized for intervention.</CardDescription>
           </CardHeader>
           <CardContent>
-            {dashboard.stalledQueue.length === 0 ? (
+            {stalledQueue.length === 0 ? (
               <EmptyState
                 icon={CheckCircle2}
                 title="No stalled onboardings"
@@ -595,7 +606,7 @@ export default function TenantSuccessPage() {
             ) : (
               <ScrollArea className="h-[640px] pr-4">
                 <div className="space-y-4">
-                  {dashboard.stalledQueue.map((entry) => (
+                  {stalledQueue.map((entry) => (
                     <div key={entry.tenantId} className="rounded-xl border p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -8,75 +8,79 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useMutation, useQuery } from 'convex/react';
+} from "react-native";
+import { useMutation, useQuery } from "convex/react";
 
-import { useAuth } from '../hooks/useAuth';
-import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
-import { api } from '../lib/convexApi';
-import { theme } from '../theme';
+import { useAuth } from "../hooks/useAuth";
+import { useCachedQueryValue, useOfflineSync } from "../hooks/useOfflineSync";
+import { api } from "../lib/convexApi";
+import { theme } from "../theme";
 
 const AssignmentsScreen: React.FC = () => {
   const { sessionToken, user } = useAuth();
   const { isOffline } = useOfflineSync();
   const [selectedConversation, setSelectedConversation] = React.useState<string | null>(null);
-  const [newConversationMessage, setNewConversationMessage] = React.useState('');
-  const [draftReply, setDraftReply] = React.useState('');
+  const [newConversationMessage, setNewConversationMessage] = React.useState("");
+  const [draftReply, setDraftReply] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [teacherAssignmentTitle, setTeacherAssignmentTitle] = React.useState('');
-  const [teacherAssignmentDescription, setTeacherAssignmentDescription] = React.useState('');
-  const [teacherAssignmentDueDate, setTeacherAssignmentDueDate] = React.useState('');
+  const [teacherAssignmentTitle, setTeacherAssignmentTitle] = React.useState("");
+  const [teacherAssignmentDescription, setTeacherAssignmentDescription] = React.useState("");
+  const [teacherAssignmentDueDate, setTeacherAssignmentDueDate] = React.useState("");
   const [selectedTeacherClassId, setSelectedTeacherClassId] = React.useState<string | null>(null);
 
   const studentAssignments = useQuery(
     api.modules.portal.student.queries.getMyAssignments,
-    sessionToken && user?.role === 'student' ? { sessionToken, limit: 20 } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken, limit: 20 } : "skip"
   );
   const teacherAssignments = useQuery(
     api.modules.academics.queries.listAssignments,
-    sessionToken && user?.role === 'teacher'
+    sessionToken && user?.role === "teacher"
       ? { sessionToken, teacherId: user.userId, limit: 20 }
-      : 'skip',
+      : "skip"
   );
   const teacherClasses = useQuery(
     api.modules.academics.queries.getTeacherClasses,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const parentConversations = useQuery(
     api.modules.communications.queries.listMyConversations,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const parentMessages = useQuery(
     api.modules.communications.queries.getConversationMessages,
-    sessionToken && user?.role === 'parent' && selectedConversation
+    sessionToken && user?.role === "parent" && selectedConversation
       ? { sessionToken, conversationId: selectedConversation }
-      : 'skip',
+      : "skip"
   );
 
   const createConversation = useMutation(api.modules.communications.mutations.createConversation);
   const sendMessage = useMutation(api.modules.communications.mutations.sendMessage);
-  const markConversationRead = useMutation(api.modules.communications.mutations.markConversationRead);
+  const markConversationRead = useMutation(
+    api.modules.communications.mutations.markConversationRead
+  );
   const createAssignment = useMutation(api.modules.academics.mutations.createAssignment);
 
   const resolvedStudentAssignments = useCachedQueryValue<any[]>(
-    'student.assignments.list',
-    studentAssignments,
+    "student.assignments.list",
+    studentAssignments
   );
   const resolvedTeacherAssignments = useCachedQueryValue<any[]>(
-    'teacher.assignments.list',
-    teacherAssignments,
+    "teacher.assignments.list",
+    teacherAssignments
   );
   const resolvedTeacherClasses = useCachedQueryValue<any[]>(
-    'teacher.assignments.classes',
-    teacherClasses,
+    "teacher.assignments.classes",
+    teacherClasses
   );
   const resolvedParentConversations = useCachedQueryValue<any[]>(
-    'parent.messages.conversations',
-    parentConversations,
+    "parent.messages.conversations",
+    parentConversations
   );
   const resolvedParentMessages = useCachedQueryValue<any[]>(
-    selectedConversation ? `parent.messages.thread.${selectedConversation}` : 'parent.messages.thread.none',
-    parentMessages,
+    selectedConversation
+      ? `parent.messages.thread.${selectedConversation}`
+      : "parent.messages.thread.none",
+    parentMessages
   );
 
   const handleCreateConversation = async () => {
@@ -88,16 +92,16 @@ const AssignmentsScreen: React.FC = () => {
     try {
       const result = await createConversation({
         sessionToken,
-        type: 'direct',
+        type: "direct",
         participants: [],
-        name: 'Parent Message to School',
+        name: "Parent Message to School",
         initialMessage: newConversationMessage.trim(),
       });
       const conversationId = (result as any)?.conversationId as string | undefined;
       if (conversationId) {
         setSelectedConversation(conversationId);
       }
-      setNewConversationMessage('');
+      setNewConversationMessage("");
     } finally {
       setIsSubmitting(false);
     }
@@ -115,7 +119,7 @@ const AssignmentsScreen: React.FC = () => {
         conversationId: selectedConversation as any,
         content: draftReply.trim(),
       });
-      setDraftReply('');
+      setDraftReply("");
     } finally {
       setIsSubmitting(false);
     }
@@ -149,12 +153,12 @@ const AssignmentsScreen: React.FC = () => {
         title: teacherAssignmentTitle.trim(),
         description: teacherAssignmentDescription.trim(),
         dueDate: teacherAssignmentDueDate.trim(),
-        status: 'active',
-        type: 'homework',
+        status: "active",
+        type: "homework",
       });
-      setTeacherAssignmentTitle('');
-      setTeacherAssignmentDescription('');
-      setTeacherAssignmentDueDate('');
+      setTeacherAssignmentTitle("");
+      setTeacherAssignmentDescription("");
+      setTeacherAssignmentDueDate("");
     } finally {
       setIsSubmitting(false);
     }
@@ -164,7 +168,7 @@ const AssignmentsScreen: React.FC = () => {
     return <Text style={styles.stateText}>Sign in to view this section.</Text>;
   }
 
-  if (user?.role === 'parent') {
+  if (user?.role === "parent") {
     if (!resolvedParentConversations) {
       return (
         <View style={styles.center}>
@@ -188,12 +192,16 @@ const AssignmentsScreen: React.FC = () => {
             editable={!isOffline && !isSubmitting}
           />
           <TouchableOpacity
-            style={[styles.primaryButton, (!newConversationMessage.trim() || isOffline || isSubmitting) && styles.disabledButton]}
+            style={[
+              styles.primaryButton,
+              (!newConversationMessage.trim() || isOffline || isSubmitting) &&
+                styles.disabledButton,
+            ]}
             onPress={handleCreateConversation}
             disabled={!newConversationMessage.trim() || isOffline || isSubmitting}
           >
             <Text style={styles.primaryButtonText}>
-              {isOffline ? 'Reconnect to send' : isSubmitting ? 'Sending...' : 'Start conversation'}
+              {isOffline ? "Reconnect to send" : isSubmitting ? "Sending..." : "Start conversation"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -209,15 +217,15 @@ const AssignmentsScreen: React.FC = () => {
               ]}
               onPress={() => handleSelectConversation(conversation._id)}
             >
-              <Text style={styles.title}>{conversation.name ?? 'Conversation with school'}</Text>
+              <Text style={styles.title}>{conversation.name ?? "Conversation with school"}</Text>
               <Text style={styles.meta}>
-                {conversation.lastMessagePreview ?? 'No messages yet'}
+                {conversation.lastMessagePreview ?? "No messages yet"}
               </Text>
               <Text style={styles.meta}>
-                Last activity:{' '}
+                Last activity:{" "}
                 {conversation.lastMessageAt
                   ? new Date(conversation.lastMessageAt).toLocaleString()
-                  : 'Waiting for first reply'}
+                  : "Waiting for first reply"}
               </Text>
             </TouchableOpacity>
           ))
@@ -229,14 +237,23 @@ const AssignmentsScreen: React.FC = () => {
               <Text style={styles.meta}>No messages in this thread yet.</Text>
             ) : (
               <FlatList
-                data={(resolvedParentMessages ?? []) as Array<{ _id: string; senderRole?: string; content?: string; createdAt?: number }>}
+                data={
+                  (resolvedParentMessages ?? []) as Array<{
+                    _id: string;
+                    senderRole?: string;
+                    content?: string;
+                    createdAt?: number;
+                  }>
+                }
                 keyExtractor={(item) => item._id}
                 renderItem={({ item: message }) => (
                   <View style={styles.messageBubble}>
-                    <Text style={styles.messageRole}>{message.senderRole ?? 'user'}</Text>
+                    <Text style={styles.messageRole}>{message.senderRole ?? "user"}</Text>
                     <Text style={styles.messageBody}>{message.content}</Text>
                     <Text style={styles.messageMeta}>
-                      {message.createdAt ? new Date(message.createdAt).toLocaleString() : 'Just now'}
+                      {message.createdAt
+                        ? new Date(message.createdAt).toLocaleString()
+                        : "Just now"}
                     </Text>
                   </View>
                 )}
@@ -252,12 +269,15 @@ const AssignmentsScreen: React.FC = () => {
               editable={!isOffline && !isSubmitting}
             />
             <TouchableOpacity
-              style={[styles.primaryButton, (!draftReply.trim() || isOffline || isSubmitting) && styles.disabledButton]}
+              style={[
+                styles.primaryButton,
+                (!draftReply.trim() || isOffline || isSubmitting) && styles.disabledButton,
+              ]}
               onPress={handleSendReply}
               disabled={!draftReply.trim() || isOffline || isSubmitting}
             >
               <Text style={styles.primaryButtonText}>
-                {isOffline ? 'Reconnect to reply' : isSubmitting ? 'Sending...' : 'Send reply'}
+                {isOffline ? "Reconnect to reply" : isSubmitting ? "Sending..." : "Send reply"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -266,7 +286,7 @@ const AssignmentsScreen: React.FC = () => {
     );
   }
 
-  if (user?.role === 'teacher') {
+  if (user?.role === "teacher") {
     if (!resolvedTeacherAssignments || !resolvedTeacherClasses) {
       return (
         <View style={styles.center}>
@@ -298,7 +318,9 @@ const AssignmentsScreen: React.FC = () => {
                   <Text
                     style={[
                       styles.choiceChipText,
-                      selectedTeacherClassId === classItem._id ? styles.choiceChipTextActive : undefined,
+                      selectedTeacherClassId === classItem._id
+                        ? styles.choiceChipTextActive
+                        : undefined,
                     ]}
                   >
                     {classItem.name}
@@ -351,7 +373,7 @@ const AssignmentsScreen: React.FC = () => {
             }
           >
             <Text style={styles.primaryButtonText}>
-              {isOffline ? 'Reconnect to create' : isSubmitting ? 'Saving...' : 'Create assignment'}
+              {isOffline ? "Reconnect to create" : isSubmitting ? "Saving..." : "Create assignment"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -361,9 +383,9 @@ const AssignmentsScreen: React.FC = () => {
           resolvedTeacherAssignments.map((assignment: any) => (
             <View key={assignment._id} style={styles.card}>
               <Text style={styles.title}>{assignment.title}</Text>
-              <Text style={styles.meta}>{assignment.className ?? 'Class not set'}</Text>
-              <Text style={styles.meta}>Status: {assignment.status ?? 'draft'}</Text>
-              <Text style={styles.meta}>Due: {assignment.dueDate ?? 'No due date'}</Text>
+              <Text style={styles.meta}>{assignment.className ?? "Class not set"}</Text>
+              <Text style={styles.meta}>Status: {assignment.status ?? "draft"}</Text>
+              <Text style={styles.meta}>Due: {assignment.dueDate ?? "No due date"}</Text>
             </View>
           ))
         )}
@@ -389,10 +411,12 @@ const AssignmentsScreen: React.FC = () => {
       {resolvedStudentAssignments.map((assignment: any) => (
         <View key={assignment._id} style={styles.card}>
           <Text style={styles.title}>{assignment.title}</Text>
-          <Text style={styles.meta}>{assignment.subjectName ?? 'Subject'}</Text>
+          <Text style={styles.meta}>{assignment.subjectName ?? "Subject"}</Text>
           <Text style={styles.meta}>Status: {assignment.submissionStatus}</Text>
           <Text style={styles.meta}>Due: {assignment.dueDate}</Text>
-          {assignment.feedback ? <Text style={styles.feedback}>Feedback: {assignment.feedback}</Text> : null}
+          {assignment.feedback ? (
+            <Text style={styles.feedback}>Feedback: {assignment.feedback}</Text>
+          ) : null}
         </View>
       ))}
     </ScrollView>
@@ -410,15 +434,16 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   stateText: {
     flex: 1,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    textAlign: "center",
+    textAlignVertical: "center",
     color: theme.colors.textSecondary,
     padding: theme.spacing.lg,
+    fontFamily: theme.fonts.regular,
   },
   card: {
     backgroundColor: theme.colors.white,
@@ -429,28 +454,30 @@ const styles = StyleSheet.create({
   },
   selectedCard: {
     borderColor: theme.colors.primary,
-    backgroundColor: '#eff6ff',
+    backgroundColor: "#eff6ff",
   },
   title: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.lg,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
     marginBottom: theme.spacing.sm,
   },
   meta: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     marginTop: 2,
+    fontFamily: theme.fonts.regular,
   },
   feedback: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.regular,
   },
   banner: {
     color: theme.colors.warning,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   input: {
     minHeight: 96,
@@ -459,16 +486,17 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     padding: theme.spacing.md,
     color: theme.colors.text,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
     marginTop: theme.spacing.md,
     backgroundColor: theme.colors.background,
+    fontFamily: theme.fonts.regular,
   },
   primaryButton: {
     marginTop: theme.spacing.md,
     backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.lg,
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
   },
   disabledButton: {
     opacity: 0.6,
@@ -476,17 +504,17 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: theme.colors.white,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   sectionLabel: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
     marginTop: theme.spacing.md,
   },
   choiceWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: theme.spacing.sm,
     marginTop: theme.spacing.sm,
   },
@@ -505,7 +533,7 @@ const styles = StyleSheet.create({
   choiceChipText: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
   },
   choiceChipTextActive: {
     color: theme.colors.white,
@@ -516,23 +544,25 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     padding: theme.spacing.md,
     marginTop: theme.spacing.sm,
-    backgroundColor: '#f8fafc',
+    backgroundColor: "#f8fafc",
   },
   messageRole: {
     color: theme.colors.primary,
     fontSize: theme.fontSizes.xs,
-    fontWeight: '700',
-    textTransform: 'capitalize',
+    fontFamily: theme.fonts.displayMedium,
+    textTransform: "capitalize",
   },
   messageBody: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.xs,
+    fontFamily: theme.fonts.regular,
   },
   messageMeta: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.xs,
     marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.regular,
   },
 });
 

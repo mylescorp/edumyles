@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
+import { normalizeArray } from "@/lib/normalizeData";
 import {
   AlertTriangle,
   Bot,
@@ -299,18 +300,29 @@ export default function AISupportPage() {
   const analyzeTicket = useMutation(api.platform.support.mutations.analyzeTicketWithAI);
   const generateResponse = useMutation(api.platform.support.mutations.generateAIResponse);
   const escalateTicket = useMutation(api.platform.support.mutations.escalateToHumanAgent);
+  const ticketRows = useMemo(() => normalizeArray<SupportTicket>(aiTickets), [aiTickets]);
+  const tenantRows = useMemo(() => normalizeArray<TenantOption>(tenants), [tenants]);
+  const tenantUserRows = useMemo(() => normalizeArray<TenantUserOption>(tenantUsers), [tenantUsers]);
+  const topCategoryRows = useMemo(
+    () => normalizeArray<{ category: string; count: number }>(trendsInsight?.topCategories),
+    [trendsInsight?.topCategories]
+  );
+  const topPerformerRows = useMemo(
+    () => normalizeArray<{ agentId: string; tickets: number; resolved: number; name?: string }>(agentInsight?.topPerformers),
+    [agentInsight?.topPerformers]
+  );
 
-  const selectedUser = tenantUsers?.find((user) => String(user._id ?? user.userId ?? "") === selectedUserId);
+  const selectedUser = tenantUserRows.find((user) => String(user._id ?? user.userId ?? "") === selectedUserId);
 
   const ticketCounts = useMemo(() => {
-    const tickets = aiTickets ?? [];
+    const tickets = ticketRows;
     return {
       total: tickets.length,
       open: tickets.filter((ticket) => ticket.status === "open").length,
       escalated: tickets.filter((ticket) => ticket.status === "escalated").length,
       resolved: tickets.filter((ticket) => ticket.status === "resolved" || ticket.status === "closed").length,
     };
-  }, [aiTickets]);
+  }, [ticketRows]);
 
   const isLoadingInsights =
     !!sessionToken &&
@@ -521,7 +533,7 @@ export default function AISupportPage() {
                 <CardTitle>Top Ticket Categories</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {(trendsInsight?.topCategories ?? []).length === 0 ? (
+                {topCategoryRows.length === 0 ? (
                   <EmptyState
                     icon={Lightbulb}
                     title="No category trends available"
@@ -529,7 +541,7 @@ export default function AISupportPage() {
                     className="py-8"
                   />
                 ) : (
-                  (trendsInsight?.topCategories ?? []).map((entry) => (
+                  topCategoryRows.map((entry) => (
                     <div key={entry.category} className="flex items-center justify-between rounded-lg border p-3">
                       <div className="flex items-center gap-3">
                         <div className="rounded-full bg-blue-100 p-2">
@@ -607,7 +619,7 @@ export default function AISupportPage() {
 
           <div className="grid gap-4 xl:grid-cols-[1.5fr,1fr]">
             <div className="space-y-4">
-              {(aiTickets ?? []).length === 0 ? (
+              {ticketRows.length === 0 ? (
                 <Card>
                   <CardContent>
                     <EmptyState
@@ -619,7 +631,7 @@ export default function AISupportPage() {
                   </CardContent>
                 </Card>
               ) : (
-                (aiTickets ?? []).map((ticket) => (
+                ticketRows.map((ticket) => (
                   <Card key={ticket._id} className={selectedTicket?._id === ticket._id ? "border-primary" : ""}>
                     <CardContent className="space-y-4 p-5">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -710,10 +722,10 @@ export default function AISupportPage() {
                     <div className="text-2xl font-semibold">{agentInsight?.avgTicketsPerAgent ?? 0}</div>
                   </div>
                 </div>
-                {(agentInsight?.topPerformers ?? []).length === 0 ? (
+                {topPerformerRows.length === 0 ? (
                   <div className="text-sm text-muted-foreground">No assigned-agent performance data is available yet.</div>
                 ) : (
-                  (agentInsight?.topPerformers ?? []).map((agent) => (
+                  topPerformerRows.map((agent) => (
                     <div key={agent.agentId} className="flex items-center justify-between rounded-lg border p-3">
                       <div className="flex items-center gap-3">
                         <div className="rounded-full bg-emerald-100 p-2">
@@ -783,7 +795,7 @@ export default function AISupportPage() {
                   <SelectValue placeholder="Select tenant" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(tenants ?? []).map((tenant) => (
+                  {tenantRows.map((tenant) => (
                     <SelectItem key={tenant.tenantId} value={tenant.tenantId}>
                       {tenant.name}
                     </SelectItem>
@@ -798,7 +810,7 @@ export default function AISupportPage() {
                   <SelectValue placeholder={selectedTenantId ? "Select user" : "Choose a tenant first"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {(tenantUsers ?? []).map((user) => {
+                  {tenantUserRows.map((user) => {
                     const value = String(user._id ?? user.userId ?? "");
                     if (!value) return null;
                     return (

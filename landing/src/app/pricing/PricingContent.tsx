@@ -54,7 +54,8 @@ const plans = [
     tagline: "2,000+ students",
     monthlyPrice: null,
     annualPrice: null,
-    description: "For large institutions, county networks, and multi-school groups needing custom SLAs.",
+    description:
+      "For large institutions, county networks, and multi-school groups needing custom SLAs.",
     features: [
       "Everything in Professional",
       "Custom SLA agreement",
@@ -151,7 +152,12 @@ export default function PricingContent() {
         <div className="max-w-[1200px] mx-auto">
           {/* Billing toggle */}
           <div className="flex items-center justify-center gap-4 mb-12">
-            <span className="font-jakarta text-[14px] font-medium" style={{ color: annual ? "#6B9E83" : "#061A12" }}>Monthly</span>
+            <span
+              className="font-jakarta text-[14px] font-medium"
+              style={{ color: annual ? "#6B9E83" : "#061A12" }}
+            >
+              Monthly
+            </span>
             <button
               type="button"
               onClick={() => setAnnual(!annual)}
@@ -164,7 +170,10 @@ export default function PricingContent() {
                 style={{ transform: annual ? "translateX(24px)" : "translateX(0)" }}
               />
             </button>
-            <span className="font-jakarta text-[14px] font-medium" style={{ color: annual ? "#061A12" : "#6B9E83" }}>
+            <span
+              className="font-jakarta text-[14px] font-medium"
+              style={{ color: annual ? "#061A12" : "#6B9E83" }}
+            >
               Annual{" "}
               <span
                 className="text-[11px] font-bold px-2 py-0.5 rounded-[20px] ml-1"
@@ -184,7 +193,9 @@ export default function PricingContent() {
                   background: plan.featured ? "#061A12" : "#ffffff",
                   border: plan.featured ? "2px solid #E8A020" : "1px solid #e8f4ec",
                   padding: "2rem",
-                  boxShadow: plan.featured ? "0 20px 60px rgba(6,26,18,0.3)" : "0 4px 20px rgba(6,26,18,0.06)",
+                  boxShadow: plan.featured
+                    ? "0 20px 60px rgba(6,26,18,0.3)"
+                    : "0 4px 20px rgba(6,26,18,0.06)",
                   transform: plan.featured ? "scale(1.02)" : "none",
                 }}
               >
@@ -194,14 +205,18 @@ export default function PricingContent() {
                       className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-[20px] whitespace-nowrap"
                       style={{ background: "#E8A020", color: "#061A12" }}
                     >
-                      <Star className="w-3 h-3 inline mr-1 -mt-0.5" strokeWidth={2} fill="currentColor" />
+                      <Star
+                        className="w-3 h-3 inline mr-1 -mt-0.5"
+                        strokeWidth={2}
+                        fill="currentColor"
+                      />
                       {plan.highlight}
                     </span>
                   </div>
                 )}
 
                 <h3
-                  className="font-playfair font-bold text-[24px] mb-1"
+                  className="font-display font-bold text-[24px] mb-1"
                   style={{ color: plan.featured ? "#E8A020" : "#061A12" }}
                 >
                   {plan.name}
@@ -212,15 +227,24 @@ export default function PricingContent() {
 
                 <div className="mb-4">
                   {plan.monthlyPrice === null ? (
-                    <div className="font-playfair font-bold text-[40px]" style={{ color: plan.featured ? "#E8A020" : "#061A12" }}>
+                    <div
+                      className="font-display font-bold text-[40px]"
+                      style={{ color: plan.featured ? "#E8A020" : "#061A12" }}
+                    >
                       Custom
                     </div>
                   ) : (
                     <>
-                      <div className="font-playfair font-bold text-[38px]" style={{ color: plan.featured ? "#E8A020" : "#061A12" }}>
+                      <div
+                        className="font-display font-bold text-[38px]"
+                        style={{ color: plan.featured ? "#E8A020" : "#061A12" }}
+                      >
                         {formatKES(annual ? plan.annualPrice! : plan.monthlyPrice)}
                       </div>
-                      <div className="font-jakarta text-[13px]" style={{ color: plan.featured ? "rgba(255,255,255,0.5)" : "#8a8a8a" }}>
+                      <div
+                        className="font-jakarta text-[13px]"
+                        style={{ color: plan.featured ? "rgba(255,255,255,0.5)" : "#8a8a8a" }}
+                      >
                         per school / month {annual ? "(billed annually)" : ""}
                       </div>
                     </>
@@ -237,8 +261,16 @@ export default function PricingContent() {
                 <ul className="flex flex-col gap-2.5 mb-8 flex-1">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <span className="font-bold text-[14px] flex-shrink-0 mt-0.5" style={{ color: "#26A65B" }}>✓</span>
-                      <span className="font-jakarta text-[14px]" style={{ color: plan.featured ? "rgba(255,255,255,0.8)" : "#3d3d3d" }}>
+                      <span
+                        className="font-bold text-[14px] flex-shrink-0 mt-0.5"
+                        style={{ color: "#26A65B" }}
+                      >
+                        ✓
+                      </span>
+                      <span
+                        className="font-jakarta text-[14px]"
+                        style={{ color: plan.featured ? "rgba(255,255,255,0.8)" : "#3d3d3d" }}
+                      >
                         {f}
                       </span>
                     </li>
@@ -271,19 +303,31 @@ export default function PricingContent() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-10">
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#061A12" }}
             >
-              Compare <em className="italic" style={{ color: "#E8A020" }}>all features</em>
+              Compare{" "}
+              <em className="italic" style={{ color: "#E8A020" }}>
+                all features
+              </em>
             </h2>
           </div>
           <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid #e8f4ec" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "#061A12" }}>
-                  <th className="font-jakarta font-bold text-[14px] text-left py-4 px-5" style={{ color: "#ffffff", width: "40%" }}>Feature</th>
+                  <th
+                    className="font-jakarta font-bold text-[14px] text-left py-4 px-5"
+                    style={{ color: "#ffffff", width: "40%" }}
+                  >
+                    Feature
+                  </th>
                   {["Starter", "Professional", "Enterprise"].map((p) => (
-                    <th key={p} className="font-jakarta font-bold text-[14px] text-center py-4 px-5" style={{ color: p === "Professional" ? "#E8A020" : "#ffffff" }}>
+                    <th
+                      key={p}
+                      className="font-jakarta font-bold text-[14px] text-center py-4 px-5"
+                      style={{ color: p === "Professional" ? "#E8A020" : "#ffffff" }}
+                    >
                       {p}
                     </th>
                   ))}
@@ -298,10 +342,21 @@ export default function PricingContent() {
                       borderBottom: "1px solid #e8f4ec",
                     }}
                   >
-                    <td className="font-jakarta text-[14px] py-3.5 px-5" style={{ color: "#3d3d3d" }}>{row.feature}</td>
-                    <td className="text-center py-3.5 px-5"><Cell val={row.starter} /></td>
-                    <td className="text-center py-3.5 px-5"><Cell val={row.pro} /></td>
-                    <td className="text-center py-3.5 px-5"><Cell val={row.enterprise} /></td>
+                    <td
+                      className="font-jakarta text-[14px] py-3.5 px-5"
+                      style={{ color: "#3d3d3d" }}
+                    >
+                      {row.feature}
+                    </td>
+                    <td className="text-center py-3.5 px-5">
+                      <Cell val={row.starter} />
+                    </td>
+                    <td className="text-center py-3.5 px-5">
+                      <Cell val={row.pro} />
+                    </td>
+                    <td className="text-center py-3.5 px-5">
+                      <Cell val={row.enterprise} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -315,10 +370,13 @@ export default function PricingContent() {
         <div className="max-w-[760px] mx-auto">
           <div className="text-center mb-10">
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#061A12" }}
             >
-              Pricing <em className="italic" style={{ color: "#E8A020" }}>FAQs</em>
+              Pricing{" "}
+              <em className="italic" style={{ color: "#E8A020" }}>
+                FAQs
+              </em>
             </h2>
           </div>
           <div className="flex flex-col gap-3">
@@ -331,20 +389,32 @@ export default function PricingContent() {
                 <button
                   type="button"
                   className="w-full flex justify-between items-center gap-4 text-left font-jakarta font-semibold text-[15px] py-5 px-6 transition-colors duration-200"
-                  style={{ color: openFaq === i ? "#E8A020" : "#061A12", background: "transparent", cursor: "pointer" }}
+                  style={{
+                    color: openFaq === i ? "#E8A020" : "#061A12",
+                    background: "transparent",
+                    cursor: "pointer",
+                  }}
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 >
                   {faq.q}
                   <span
                     className="flex-shrink-0 text-[20px] transition-transform duration-300"
-                    style={{ transform: openFaq === i ? "rotate(45deg)" : "none", color: "#E8A020" }}
+                    style={{
+                      transform: openFaq === i ? "rotate(45deg)" : "none",
+                      color: "#E8A020",
+                    }}
                   >
                     +
                   </span>
                 </button>
                 {openFaq === i && (
                   <div className="px-6 pb-5">
-                    <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#5a5a5a" }}>{faq.a}</p>
+                    <p
+                      className="font-jakarta text-[14px] leading-[1.8]"
+                      style={{ color: "#5a5a5a" }}
+                    >
+                      {faq.a}
+                    </p>
                   </div>
                 )}
               </div>
@@ -357,11 +427,13 @@ export default function PricingContent() {
       <section className="py-20 px-4" style={{ background: "#0F4C2A" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
           >
             Ready to get started?{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>It&apos;s free for 30 days.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              It&apos;s free for 30 days.
+            </em>
           </h2>
           <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
             No credit card required. No setup fees. Full access from day one.
@@ -377,7 +449,11 @@ export default function PricingContent() {
             <Link
               href="/contact?subject=pricing"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Talk to Sales
             </Link>
@@ -387,4 +463,3 @@ export default function PricingContent() {
     </>
   );
 }
-

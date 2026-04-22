@@ -82,17 +82,43 @@ const releases: Release[] = [
   },
 ];
 
-const tagConfig: Record<ChangeTag, { icon: LucideIcon; label: string; bg: string; color: string; border: string }> = {
-  new: { icon: Sparkles, label: "New", bg: "rgba(38,166,91,0.1)", color: "#0F4C2A", border: "rgba(38,166,91,0.25)" },
-  improved: { icon: Star, label: "Improved", bg: "rgba(232,160,32,0.1)", color: "#9A5D00", border: "rgba(232,160,32,0.25)" },
-  fixed: { icon: Bug, label: "Fixed", bg: "rgba(59,130,246,0.1)", color: "#1e40af", border: "rgba(59,130,246,0.25)" },
-  security: { icon: ShieldCheck, label: "Security", bg: "rgba(139,92,246,0.1)", color: "#6b21a8", border: "rgba(139,92,246,0.25)" },
+const tagConfig: Record<
+  ChangeTag,
+  { icon: LucideIcon; label: string; bg: string; color: string; border: string }
+> = {
+  new: {
+    icon: Sparkles,
+    label: "New",
+    bg: "rgba(38,166,91,0.1)",
+    color: "#0F4C2A",
+    border: "rgba(38,166,91,0.25)",
+  },
+  improved: {
+    icon: Star,
+    label: "Improved",
+    bg: "rgba(232,160,32,0.1)",
+    color: "#9A5D00",
+    border: "rgba(232,160,32,0.25)",
+  },
+  fixed: {
+    icon: Bug,
+    label: "Fixed",
+    bg: "rgba(59,130,246,0.1)",
+    color: "#1e40af",
+    border: "rgba(59,130,246,0.25)",
+  },
+  security: {
+    icon: ShieldCheck,
+    label: "Security",
+    bg: "rgba(139,92,246,0.1)",
+    color: "#6b21a8",
+    border: "rgba(139,92,246,0.25)",
+  },
 };
 
 export default function ChangelogPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -114,33 +140,48 @@ export default function ChangelogPage() {
           <div className="max-w-[680px]">
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+              style={{
+                background: "rgba(232,160,32,0.12)",
+                border: "1px solid #E8A020",
+                color: "#E8A020",
+              }}
             >
               Product Updates
             </div>
             <h1
-              className="font-playfair font-bold leading-[1.15] mb-5"
+              className="font-display font-bold leading-[1.15] mb-5"
               style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
             >
               What&apos;s new in{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>EduMyles</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                EduMyles
+              </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8] mb-8"
               style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "540px" }}
             >
-              We ship improvements every week. Here&apos;s everything that&apos;s been updated, fixed, or launched.
+              We ship improvements every week. Here&apos;s everything that&apos;s been updated,
+              fixed, or launched.
             </p>
             <div className="flex flex-wrap gap-3">
               <span
                 className="inline-flex items-center gap-1.5 font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#E8E8E8" }}
+                style={{
+                  background: "rgba(255,255,255,0.07)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: "#E8E8E8",
+                }}
               >
                 <Rocket className="w-3.5 h-3.5" strokeWidth={1.5} /> Latest release: v2.4.0
               </span>
               <span
                 className="inline-flex items-center gap-1.5 font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#E8E8E8" }}
+                style={{
+                  background: "rgba(255,255,255,0.07)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: "#E8E8E8",
+                }}
               >
                 <CalendarDays className="w-3.5 h-3.5" strokeWidth={1.5} /> Last updated: March 2026
               </span>
@@ -159,7 +200,11 @@ export default function ChangelogPage() {
                 <div className="flex flex-col items-center flex-shrink-0" style={{ width: "48px" }}>
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center font-jakarta font-bold text-[11px] z-10 flex-shrink-0"
-                    style={{ background: i === 0 ? "#E8A020" : "#F3FBF6", color: i === 0 ? "#061A12" : "#0F4C2A", border: `2px solid ${i === 0 ? "#E8A020" : "#d4eade"}` }}
+                    style={{
+                      background: i === 0 ? "#E8A020" : "#F3FBF6",
+                      color: i === 0 ? "#061A12" : "#0F4C2A",
+                      border: `2px solid ${i === 0 ? "#E8A020" : "#d4eade"}`,
+                    }}
                   >
                     {release.version.replace("v", "")}
                   </div>
@@ -173,7 +218,7 @@ export default function ChangelogPage() {
                 {/* Entry content */}
                 <div className="pb-12 flex-1">
                   <div className="flex items-center gap-3 mb-4">
-                    <h2 className="font-playfair font-bold text-[22px]" style={{ color: "#061A12" }}>
+                    <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
                       {release.version}
                     </h2>
                     <span
@@ -202,11 +247,19 @@ export default function ChangelogPage() {
                           <li key={ci} className="flex items-start gap-3">
                             <span
                               className="inline-flex items-center gap-1 font-jakarta font-semibold text-[11px] px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5"
-                              style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}
+                              style={{
+                                background: cfg.bg,
+                                color: cfg.color,
+                                border: `1px solid ${cfg.border}`,
+                              }}
                             >
-                              <cfg.icon className="w-3 h-3 inline mr-0.5" strokeWidth={1.5} /> {cfg.label}
+                              <cfg.icon className="w-3 h-3 inline mr-0.5" strokeWidth={1.5} />{" "}
+                              {cfg.label}
                             </span>
-                            <span className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#3a3a3a" }}>
+                            <span
+                              className="font-jakarta text-[14px] leading-[1.7]"
+                              style={{ color: "#3a3a3a" }}
+                            >
                               {change.text}
                             </span>
                           </li>
@@ -231,7 +284,7 @@ export default function ChangelogPage() {
             Stay Updated
           </div>
           <h2
-            className="font-playfair font-bold mb-3"
+            className="font-display font-bold mb-3"
             style={{ fontSize: "clamp(1.5rem,2.5vw,2rem)", color: "#061A12" }}
           >
             Get notified of new releases

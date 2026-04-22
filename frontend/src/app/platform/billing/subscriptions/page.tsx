@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDate, formatRelativeTime } from "@/lib/formatters";
+import { normalizeArray } from "@/lib/normalizeData";
 import { CheckCircle2, CreditCard, PauseCircle, SearchX, ShieldAlert, TimerReset } from "lucide-react";
 
 type SubscriptionRow = {
@@ -118,28 +119,31 @@ export default function PlatformBillingSubscriptionsPage() {
 
   const pauseSubscription = useMutation(api.modules.platform.subscriptions.pauseSubscription);
   const extendTrial = useMutation(api.modules.platform.subscriptions.extendTrial);
+  const subscriptionRows = useMemo(() => normalizeArray<SubscriptionRow>(subscriptions), [subscriptions]);
+  const atRiskRows = useMemo(() => normalizeArray<SubscriptionRow>(atRiskSubscriptions), [atRiskSubscriptions]);
+  const planRows = useMemo(() => normalizeArray<Plan>(plans), [plans]);
 
   const riskIds = useMemo(
-    () => new Set((atRiskSubscriptions ?? []).map((subscription) => subscription.tenantId)),
-    [atRiskSubscriptions]
+    () => new Set(atRiskRows.map((subscription) => subscription.tenantId)),
+    [atRiskRows]
   );
 
   const planMap = useMemo(
-    () => new Map((plans ?? []).map((plan) => [plan.name, plan])),
-    [plans]
+    () => new Map(planRows.map((plan) => [plan.name, plan])),
+    [planRows]
   );
 
   const filteredRows = useMemo(() => {
-    const rows = subscriptions ?? [];
+    const rows = subscriptionRows;
     const needle = search.trim().toLowerCase();
     if (!needle) return rows;
     return rows.filter((row) =>
       [row.tenantName, row.tenantId, row.planId, row.status].join(" ").toLowerCase().includes(needle)
     );
-  }, [search, subscriptions]);
+  }, [search, subscriptionRows]);
 
   const stats = useMemo(() => {
-    const rows = subscriptions ?? [];
+    const rows = subscriptionRows;
     return {
       total: rows.length,
       active: rows.filter((row) => row.status === "active").length,
@@ -147,7 +151,7 @@ export default function PlatformBillingSubscriptionsPage() {
       atRisk: rows.filter((row) => riskIds.has(row.tenantId)).length,
       suspended: rows.filter((row) => row.status === "suspended").length,
     };
-  }, [riskIds, subscriptions]);
+  }, [riskIds, subscriptionRows]);
 
   if (isLoading || subscriptions === undefined || atRiskSubscriptions === undefined || plans === undefined) {
     return <LoadingSkeleton variant="page" />;
@@ -259,7 +263,7 @@ export default function PlatformBillingSubscriptionsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All plans</SelectItem>
-                {plans.map((plan) => (
+                {planRows.map((plan) => (
                   <SelectItem key={plan.id} value={plan.name}>
                     {plan.name}
                   </SelectItem>
