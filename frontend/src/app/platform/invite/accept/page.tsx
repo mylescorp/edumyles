@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/convex/_generated/api";
-import { useConvexMutation } from "@/hooks/useSSRSafeConvex";
+import { useAction } from "@/hooks/useSSRSafeConvex";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,22 +15,29 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Mail, Shield, UserPlus, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-const newAccountSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const newAccountSchema = z
+  .object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+    acceptedTerms: z.literal(true, {
+      errorMap: () => ({ message: "You must accept the terms to continue" }),
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function InviteAcceptPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [step, setStep] = useState<"loading" | "valid" | "expired" | "invalid" | "new-account" | "existing-account" | "success">("loading");
+  const [step, setStep] = useState<
+    "loading" | "valid" | "expired" | "invalid" | "new-account" | "existing-account" | "success"
+  >("loading");
   const [invite, setInvite] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,20 +45,21 @@ export default function InviteAcceptPage() {
     lastName: "",
     password: "",
     confirmPassword: "",
+    acceptedTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const acceptInvite = useConvexMutation(api.modules.platform.rbac.acceptPlatformInvite);
+  const acceptInvite = useAction(api.modules.platform.rbac.acceptPlatformInvite);
 
   useEffect(() => {
     const success = searchParams.get("success");
     const error = searchParams.get("error");
-    
+
     if (success === "true") {
       setStep("success");
       return;
     }
-    
+
     if (error) {
       setStep("invalid");
       return;
@@ -95,7 +103,7 @@ export default function InviteAcceptPage() {
 
     try {
       const validated = newAccountSchema.parse(formData);
-      
+
       // First create WorkOS account
       const createResponse = await fetch("/api/platform/invite/create-account", {
         method: "POST",
@@ -150,7 +158,7 @@ export default function InviteAcceptPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
-      }).then(res => res.json());
+      }).then((res) => res.json());
 
       window.location.href = authUrl.url;
     } catch (error) {
@@ -177,9 +185,7 @@ export default function InviteAcceptPage() {
           <CardHeader className="text-center">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <CardTitle>Invalid Invitation</CardTitle>
-            <CardDescription>
-              This invitation link is not valid or has been used.
-            </CardDescription>
+            <CardDescription>This invitation link is not valid or has been used.</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
             <Button onClick={() => router.push("/platform")} variant="outline">
@@ -224,9 +230,7 @@ export default function InviteAcceptPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button onClick={() => router.push("/platform")}>
-              Go to Dashboard
-            </Button>
+            <Button onClick={() => router.push("/platform")}>Go to Dashboard</Button>
           </CardContent>
         </Card>
       </div>
@@ -248,15 +252,25 @@ export default function InviteAcceptPage() {
               You've been invited to join as a <Badge variant="secondary">{invite.roleName}</Badge>
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             <div className="bg-slate-50 p-4 rounded-lg">
               <h3 className="font-semibold mb-2">Invitation Details</h3>
               <div className="space-y-1 text-sm text-slate-600">
-                <p><strong>Email:</strong> {invite.email}</p>
-                <p><strong>Role:</strong> {invite.roleName}</p>
-                {invite.department && <p><strong>Department:</strong> {invite.department}</p>}
-                <p><strong>Invited by:</strong> Platform Team</p>
+                <p>
+                  <strong>Email:</strong> {invite.email}
+                </p>
+                <p>
+                  <strong>Role:</strong> {invite.roleName}
+                </p>
+                {invite.department && (
+                  <p>
+                    <strong>Department:</strong> {invite.department}
+                  </p>
+                )}
+                <p>
+                  <strong>Invited by:</strong> Platform Team
+                </p>
               </div>
             </div>
 
@@ -271,7 +285,7 @@ export default function InviteAcceptPage() {
 
             <div className="space-y-4">
               <h3 className="font-semibold">Choose Account Type</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button
                   onClick={() => setStep("new-account")}
@@ -281,7 +295,7 @@ export default function InviteAcceptPage() {
                   <UserPlus className="h-6 w-6 mb-2" />
                   <span>Create New Account</span>
                 </Button>
-                
+
                 <Button
                   onClick={handleExistingAccount}
                   variant="outline"
@@ -305,11 +319,7 @@ export default function InviteAcceptPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <Button
-              variant="ghost"
-              onClick={() => setStep("valid")}
-              className="mb-4"
-            >
+            <Button variant="ghost" onClick={() => setStep("valid")} className="mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
@@ -318,7 +328,7 @@ export default function InviteAcceptPage() {
               Create a new account to accept the invitation for <strong>{invite.email}</strong>
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleNewAccount} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -334,7 +344,7 @@ export default function InviteAcceptPage() {
                     <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <Label htmlFor="lastName">Last Name</Label>
                   <Input
@@ -358,9 +368,7 @@ export default function InviteAcceptPage() {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className={errors.password ? "border-red-500" : ""}
                 />
-                {errors.password && (
-                  <p className="text-sm text-red-500 mt-1">{errors.password}</p>
-                )}
+                {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password}</p>}
               </div>
 
               <div>
@@ -376,6 +384,22 @@ export default function InviteAcceptPage() {
                   <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>
                 )}
               </div>
+
+              <label className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 text-sm text-slate-600">
+                <input
+                  type="checkbox"
+                  checked={formData.acceptedTerms}
+                  onChange={(e) => setFormData({ ...formData, acceptedTerms: e.target.checked })}
+                  className="mt-1 h-4 w-4 rounded border-slate-300"
+                />
+                <span>
+                  I agree to the EduMyles Platform terms of service and understand this account is
+                  for internal platform operations.
+                </span>
+              </label>
+              {errors.acceptedTerms && (
+                <p className="text-sm text-red-500 mt-1">{errors.acceptedTerms}</p>
+              )}
 
               <Alert>
                 <AlertDescription>

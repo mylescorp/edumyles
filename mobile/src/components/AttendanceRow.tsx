@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { theme } from '../theme';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { theme } from "../theme";
 
 export type AttendanceRowProps = {
   _id: string;
@@ -21,8 +21,9 @@ const AttendanceRow = React.memo(function AttendanceRow({
   status,
   remarks,
 }: AttendanceRowProps) {
-  const statusLabel = String(status ?? '').toUpperCase();
-  const statusColor = STATUS_COLORS[String(status ?? '').toLowerCase()] ?? theme.colors.textSecondary;
+  const statusLabel = String(status ?? "").toUpperCase();
+  const statusColor =
+    STATUS_COLORS[String(status ?? "").toLowerCase()] ?? theme.colors.textSecondary;
 
   return (
     <View style={styles.card}>
@@ -45,25 +46,26 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 14,
     marginBottom: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 3,
     elevation: 2,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   date: {
     fontSize: 14,
     color: theme.colors.text,
     flex: 1,
+    fontFamily: theme.fonts.regular,
   },
   statusBadge: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 8,
@@ -73,5 +75,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: theme.colors.textSecondary,
     marginTop: 6,
+    fontFamily: theme.fonts.regular,
   },
 });

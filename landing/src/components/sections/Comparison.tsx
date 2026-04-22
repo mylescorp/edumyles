@@ -74,7 +74,7 @@ export default function Comparison() {
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-10">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
           >
             Why EduMyles?
@@ -92,12 +92,8 @@ export default function Comparison() {
                 <th className="text-left px-5 py-4 text-white font-semibold">
                   ❌ Manual (Excel/WhatsApp)
                 </th>
-                <th className="text-left px-5 py-4 text-white font-semibold">
-                  ⚠️ Generic SaaS
-                </th>
-                <th className="text-left px-5 py-4 text-white font-semibold">
-                  ✅ EduMyles
-                </th>
+                <th className="text-left px-5 py-4 text-white font-semibold">⚠️ Generic SaaS</th>
+                <th className="text-left px-5 py-4 text-white font-semibold">✅ EduMyles</th>
               </tr>
             </thead>
             <tbody>
@@ -114,9 +110,7 @@ export default function Comparison() {
         </div>
 
         <div className="text-center mt-10">
-          <p className="text-base font-medium text-[#061A12] mb-4">
-            Ready to make the switch?
-          </p>
+          <p className="text-base font-medium text-[#061A12] mb-4">Ready to make the switch?</p>
           <Link
             href="/waitlist"
             className="inline-flex items-center gap-2 font-semibold text-sm px-6 py-3 rounded-full text-white transition-all hover:scale-[1.02] active:scale-[0.98]"

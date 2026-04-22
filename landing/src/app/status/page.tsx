@@ -2,7 +2,17 @@
 
 import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Globe, Smartphone, UserCheck, GraduationCap, Zap, Wallet, Mail, MessageSquare, CheckCircle2 } from "lucide-react";
+import {
+  Globe,
+  Smartphone,
+  UserCheck,
+  GraduationCap,
+  Zap,
+  Wallet,
+  Mail,
+  MessageSquare,
+  CheckCircle2,
+} from "lucide-react";
 
 const services: { name: string; icon: LucideIcon; ms: string }[] = [
   { name: "Web Application", icon: Globe, ms: "42ms" },
@@ -62,7 +72,11 @@ export default function StatusPage() {
   useEffect(() => {
     const update = () => {
       setLastChecked(
-        new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+        new Date().toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })
       );
     };
     update();
@@ -72,7 +86,6 @@ export default function StatusPage() {
 
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -92,14 +105,18 @@ export default function StatusPage() {
         />
         <div className="relative max-w-[1200px] mx-auto w-full text-center">
           <h1
-            className="font-playfair font-bold leading-[1.2] mb-6"
+            className="font-display font-bold leading-[1.2] mb-6"
             style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "#ffffff" }}
           >
             System Status
           </h1>
           <div
             className="inline-flex items-center gap-3 font-jakarta font-bold text-[18px] px-6 py-3 rounded-[50px] mb-4"
-            style={{ background: "rgba(38,166,91,0.15)", border: "1px solid rgba(38,166,91,0.4)", color: "#6EE7A0" }}
+            style={{
+              background: "rgba(38,166,91,0.15)",
+              border: "1px solid rgba(38,166,91,0.4)",
+              color: "#6EE7A0",
+            }}
           >
             <span
               style={{
@@ -124,10 +141,7 @@ export default function StatusPage() {
       {/* ── Services Status ─────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "#ffffff" }}>
         <div className="max-w-[860px] mx-auto">
-          <h2
-            className="font-playfair font-bold text-[24px] mb-8"
-            style={{ color: "#061A12" }}
-          >
+          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "#061A12" }}>
             Current Status
           </h2>
           <div
@@ -144,8 +158,15 @@ export default function StatusPage() {
                 }}
               >
                 <div className="flex items-center gap-3">
-                  <svc.icon className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
-                  <span className="font-jakarta font-medium text-[15px]" style={{ color: "#212121" }}>
+                  <svc.icon
+                    className="w-5 h-5 flex-shrink-0"
+                    strokeWidth={1.5}
+                    style={{ color: "#0F4C2A" }}
+                  />
+                  <span
+                    className="font-jakarta font-medium text-[15px]"
+                    style={{ color: "#212121" }}
+                  >
                     {svc.name}
                   </span>
                 </div>
@@ -155,7 +176,11 @@ export default function StatusPage() {
                   </span>
                   <span
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1 rounded-full"
-                    style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A", border: "1px solid rgba(38,166,91,0.2)" }}
+                    style={{
+                      background: "rgba(38,166,91,0.1)",
+                      color: "#0F4C2A",
+                      border: "1px solid rgba(38,166,91,0.2)",
+                    }}
                   >
                     <span
                       style={{
@@ -179,15 +204,16 @@ export default function StatusPage() {
       <section className="py-16 px-4" style={{ background: "#F3FBF6" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h2
-              className="font-playfair font-bold text-[24px]"
-              style={{ color: "#061A12" }}
-            >
+            <h2 className="font-display font-bold text-[24px]" style={{ color: "#061A12" }}>
               30-Day Uptime
             </h2>
             <span
               className="font-jakarta font-bold text-[14px] px-4 py-2 rounded-full"
-              style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A", border: "1px solid rgba(38,166,91,0.2)" }}
+              style={{
+                background: "rgba(38,166,91,0.1)",
+                color: "#0F4C2A",
+                border: "1px solid rgba(38,166,91,0.2)",
+              }}
             >
               99.9% average uptime
             </span>
@@ -196,8 +222,15 @@ export default function StatusPage() {
             {services.map((svc) => (
               <div key={svc.name}>
                 <div className="flex items-center gap-2 mb-2">
-                  <svc.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
-                  <span className="font-jakarta font-medium text-[13px]" style={{ color: "#3a3a3a" }}>
+                  <svc.icon
+                    className="w-4 h-4 flex-shrink-0"
+                    strokeWidth={1.5}
+                    style={{ color: "#0F4C2A" }}
+                  />
+                  <span
+                    className="font-jakarta font-medium text-[13px]"
+                    style={{ color: "#3a3a3a" }}
+                  >
                     {svc.name}
                   </span>
                 </div>
@@ -207,12 +240,30 @@ export default function StatusPage() {
           </div>
           <div className="flex items-center gap-4 mt-6">
             <div className="flex items-center gap-1.5">
-              <div style={{ width: "12px", height: "12px", borderRadius: "2px", background: "#26A65B" }} />
-              <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>Operational</span>
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "2px",
+                  background: "#26A65B",
+                }}
+              />
+              <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>
+                Operational
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div style={{ width: "12px", height: "12px", borderRadius: "2px", background: "#d1d5db" }} />
-              <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>Scheduled Maintenance</span>
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "2px",
+                  background: "#d1d5db",
+                }}
+              />
+              <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>
+                Scheduled Maintenance
+              </span>
             </div>
           </div>
         </div>
@@ -221,17 +272,18 @@ export default function StatusPage() {
       {/* ── Incident History ────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "#ffffff" }}>
         <div className="max-w-[860px] mx-auto">
-          <h2
-            className="font-playfair font-bold text-[24px] mb-8"
-            style={{ color: "#061A12" }}
-          >
+          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "#061A12" }}>
             Past Incidents
           </h2>
           <div
             className="rounded-2xl mb-6 p-5 flex items-center gap-3"
             style={{ background: "rgba(38,166,91,0.06)", border: "1px solid rgba(38,166,91,0.2)" }}
           >
-            <CheckCircle2 className="w-4 h-4 inline mr-1" style={{ color: "#26A65B" }} strokeWidth={1.5} />
+            <CheckCircle2
+              className="w-4 h-4 inline mr-1"
+              style={{ color: "#26A65B" }}
+              strokeWidth={1.5}
+            />
             <span className="font-jakarta font-medium text-[14px]" style={{ color: "#0F4C2A" }}>
               No incidents in the last 30 days.
             </span>
@@ -245,10 +297,16 @@ export default function StatusPage() {
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div>
-                    <div className="font-jakarta font-bold text-[13px] mb-1" style={{ color: "#9ca3af" }}>
+                    <div
+                      className="font-jakarta font-bold text-[13px] mb-1"
+                      style={{ color: "#9ca3af" }}
+                    >
                       {inc.date}
                     </div>
-                    <h3 className="font-jakarta font-semibold text-[16px] mb-1" style={{ color: "#212121" }}>
+                    <h3
+                      className="font-jakarta font-semibold text-[16px] mb-1"
+                      style={{ color: "#212121" }}
+                    >
                       {inc.title}
                     </h3>
                     <span className="font-jakarta text-[13px]" style={{ color: "#5a5a5a" }}>
@@ -257,7 +315,11 @@ export default function StatusPage() {
                   </div>
                   <span
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1.5 rounded-full flex-shrink-0"
-                    style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A", border: "1px solid rgba(38,166,91,0.2)" }}
+                    style={{
+                      background: "rgba(38,166,91,0.1)",
+                      color: "#0F4C2A",
+                      border: "1px solid rgba(38,166,91,0.2)",
+                    }}
                   >
                     <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} /> Resolved
                   </span>
@@ -272,7 +334,7 @@ export default function StatusPage() {
       <section className="py-16 px-4" style={{ background: "#F3FBF6" }}>
         <div className="max-w-[520px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold mb-3"
+            className="font-display font-bold mb-3"
             style={{ fontSize: "clamp(1.4rem,2.5vw,1.9rem)", color: "#061A12" }}
           >
             Get incident alerts
@@ -280,7 +342,10 @@ export default function StatusPage() {
           <p className="font-jakarta text-[15px] mb-6" style={{ color: "#5a5a5a" }}>
             Be notified immediately when there&apos;s a service disruption.
           </p>
-          <form className="flex gap-3 flex-wrap sm:flex-nowrap justify-center" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="flex gap-3 flex-wrap sm:flex-nowrap justify-center"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <input
               type="email"
               placeholder="you@school.ac.ke"

@@ -18,7 +18,7 @@ export default function Loading() {
       {/* Brand name */}
       <p
         className="mt-5 text-2xl font-bold tracking-tight"
-        style={{ color: "#D4AF37", fontFamily: "var(--font-playfair, Georgia, serif)" }}
+        style={{ color: "#D4AF37", fontFamily: "var(--font-jakarta, system-ui, sans-serif)" }}
       >
         EduMyles
       </p>
@@ -33,7 +33,10 @@ export default function Loading() {
       <div className="mt-8 w-40 h-1 rounded-full bg-[#0F3D22] overflow-hidden">
         <div
           className="h-full rounded-full animate-[shimmer_1.4s_ease-in-out_infinite]"
-          style={{ background: "linear-gradient(90deg, #9B7A0A, #F7DF82, #9B7A0A)", backgroundSize: "200% 100%" }}
+          style={{
+            background: "linear-gradient(90deg, #9B7A0A, #F7DF82, #9B7A0A)",
+            backgroundSize: "200% 100%",
+          }}
         />
       </div>
 

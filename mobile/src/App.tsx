@@ -1,4 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  useFonts as useInterFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+} from "@expo-google-fonts/inter";
+import {
+  useFonts as useJakartaFonts,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+} from "@expo-google-fonts/plus-jakarta-sans";
 import {
   ActivityIndicator,
   Linking,
@@ -10,31 +20,31 @@ import {
   TouchableOpacity,
   View,
   Platform,
-} from 'react-native';
-import { ConvexProvider, ConvexReactClient, useConvex } from 'convex/react';
+} from "react-native";
+import { ConvexProvider, ConvexReactClient, useConvex } from "convex/react";
 
-import DashboardScreen from './screens/DashboardScreen';
-import LoginScreen from './screens/LoginScreen';
-import GradesScreen from './screens/GradesScreen';
-import AssignmentsScreen from './screens/AssignmentsScreen';
-import AttendanceScreen from './screens/AttendanceScreen';
-import FeesScreen from './screens/FeesScreen';
-import ProfileScreen from './screens/ProfileScreen';
-import { AuthProvider, useAuth } from './hooks/useAuth';
-import { useOfflineSync } from './hooks/useOfflineSync';
+import DashboardScreen from "./screens/DashboardScreen";
+import LoginScreen from "./screens/LoginScreen";
+import GradesScreen from "./screens/GradesScreen";
+import AssignmentsScreen from "./screens/AssignmentsScreen";
+import AttendanceScreen from "./screens/AttendanceScreen";
+import FeesScreen from "./screens/FeesScreen";
+import ProfileScreen from "./screens/ProfileScreen";
+import { AuthProvider, useAuth } from "./hooks/useAuth";
+import { useOfflineSync } from "./hooks/useOfflineSync";
 import {
   initializePushNotifications,
   registerForPushNotificationsAsync,
   registerMobileDeviceTokenMutation,
   syncPushTokenWithBackend,
-} from './services/pushNotifications';
-import { api } from './lib/convexApi';
-import { theme } from './theme';
+} from "./services/pushNotifications";
+import { api } from "./lib/convexApi";
+import { theme } from "./theme";
 
-type ScreenKey = 'dashboard' | 'grades' | 'assignments' | 'attendance' | 'fees' | 'profile';
+type ScreenKey = "dashboard" | "grades" | "assignments" | "attendance" | "fees" | "profile";
 type RoleTab = { key: ScreenKey; label: string };
 
-const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL ?? '';
+const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL ?? "";
 const ConvexProviderRoot = ConvexProvider as React.ComponentType<{
   client: ConvexReactClient;
   children?: React.ReactNode;
@@ -43,27 +53,24 @@ const ConvexProviderRoot = ConvexProvider as React.ComponentType<{
 const AppShell: React.FC = () => {
   const convex = useConvex();
   const { isAuthenticated, isLoading, sessionToken, user, signOut } = useAuth();
-  const [screen, setScreen] = useState<ScreenKey>('dashboard');
+  const [screen, setScreen] = useState<ScreenKey>("dashboard");
 
   // Register navigation dispatcher for deep link handling
   useEffect(() => {
     deepLinkNavigateRef.current = setScreen;
-    return () => { deepLinkNavigateRef.current = null; };
+    return () => {
+      deepLinkNavigateRef.current = null;
+    };
   }, []);
-  const {
-    isOffline,
-    isSyncing,
-    pendingMutations,
-    queueMutation,
-  } = useOfflineSync({
+  const { isOffline, isSyncing, pendingMutations, queueMutation } = useOfflineSync({
     mutationHandlers: {
-      'mobileDeviceToken.register': async (payload) => {
+      "mobileDeviceToken.register": async (payload) => {
         await convex.mutation(registerMobileDeviceTokenMutation, payload as any);
       },
-      'attendance.markAttendance': async (payload) => {
+      "attendance.markAttendance": async (payload) => {
         await convex.mutation(api.modules.academics.mutations.markAttendance, payload as any);
       },
-      'communications.sendMessage': async (payload) => {
+      "communications.sendMessage": async (payload) => {
         await convex.mutation(api.modules.communications.mutations.sendMessage, payload as any);
       },
     },
@@ -90,7 +97,7 @@ const AppShell: React.FC = () => {
       };
 
       if (isOffline) {
-        await queueMutation('mobileDeviceToken.register', payload);
+        await queueMutation("mobileDeviceToken.register", payload);
         return;
       }
 
@@ -123,38 +130,38 @@ const AppShell: React.FC = () => {
 
   const roleTabs: Record<string, RoleTab[]> = {
     parent: [
-      { key: 'dashboard', label: 'Dashboard' },
-      { key: 'grades', label: 'Children' },
-      { key: 'assignments', label: 'Messages' },
-      { key: 'attendance', label: 'Updates' },
-      { key: 'fees', label: 'Payments' },
-      { key: 'profile', label: 'Profile' },
+      { key: "dashboard", label: "Dashboard" },
+      { key: "grades", label: "Children" },
+      { key: "assignments", label: "Messages" },
+      { key: "attendance", label: "Updates" },
+      { key: "fees", label: "Payments" },
+      { key: "profile", label: "Profile" },
     ],
     teacher: [
-      { key: 'dashboard', label: 'Dashboard' },
-      { key: 'grades', label: 'Classes' },
-      { key: 'assignments', label: 'Assignments' },
-      { key: 'attendance', label: 'Attendance' },
-      { key: 'fees', label: 'Timetable' },
-      { key: 'profile', label: 'Profile' },
+      { key: "dashboard", label: "Dashboard" },
+      { key: "grades", label: "Classes" },
+      { key: "assignments", label: "Assignments" },
+      { key: "attendance", label: "Attendance" },
+      { key: "fees", label: "Timetable" },
+      { key: "profile", label: "Profile" },
     ],
     student: [
-      { key: 'dashboard', label: 'Dashboard' },
-      { key: 'grades', label: 'Grades' },
-      { key: 'assignments', label: 'Assignments' },
-      { key: 'attendance', label: 'Attendance' },
-      { key: 'fees', label: 'Fees' },
-      { key: 'profile', label: 'Profile' },
+      { key: "dashboard", label: "Dashboard" },
+      { key: "grades", label: "Grades" },
+      { key: "assignments", label: "Assignments" },
+      { key: "attendance", label: "Attendance" },
+      { key: "fees", label: "Fees" },
+      { key: "profile", label: "Profile" },
     ],
   };
 
-  const activeTabs = roleTabs[user?.role ?? 'student'] ?? roleTabs.student;
+  const activeTabs = roleTabs[user?.role ?? "student"] ?? roleTabs.student;
   const mobileTitle =
-    user?.role === 'parent'
-      ? 'EduMyles Parent'
-      : user?.role === 'teacher'
-        ? 'EduMyles Teacher'
-        : 'EduMyles Mobile';
+    user?.role === "parent"
+      ? "EduMyles Parent"
+      : user?.role === "teacher"
+        ? "EduMyles Teacher"
+        : "EduMyles Mobile";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -162,7 +169,7 @@ const AppShell: React.FC = () => {
       <View style={styles.header}>
         <View>
           <Text style={styles.headerTitle}>{mobileTitle}</Text>
-          <Text style={styles.headerSubtitle}>{user?.email ?? 'Signed in'}</Text>
+          <Text style={styles.headerSubtitle}>{user?.email ?? "Signed in"}</Text>
         </View>
         <TouchableOpacity onPress={signOut} style={styles.signOutButton}>
           <Text style={styles.signOutText}>Sign out</Text>
@@ -173,9 +180,9 @@ const AppShell: React.FC = () => {
         <View style={styles.syncBanner}>
           <Text style={styles.syncBannerText}>
             {isOffline
-              ? `Offline mode active${pendingMutations > 0 ? ` • ${pendingMutations} change(s) queued` : ''}`
+              ? `Offline mode active${pendingMutations > 0 ? ` • ${pendingMutations} change(s) queued` : ""}`
               : isSyncing
-                ? 'Syncing offline changes...'
+                ? "Syncing offline changes..."
                 : `${pendingMutations} queued change(s) ready to sync`}
           </Text>
         </View>
@@ -198,12 +205,12 @@ const AppShell: React.FC = () => {
       </ScrollView>
 
       <View style={styles.screenContainer}>
-        {screen === 'dashboard' && <DashboardScreen onNavigate={setScreen} />}
-        {screen === 'grades' && <GradesScreen />}
-        {screen === 'assignments' && <AssignmentsScreen />}
-        {screen === 'attendance' && <AttendanceScreen />}
-        {screen === 'fees' && <FeesScreen />}
-        {screen === 'profile' && <ProfileScreen />}
+        {screen === "dashboard" && <DashboardScreen onNavigate={setScreen} />}
+        {screen === "grades" && <GradesScreen />}
+        {screen === "assignments" && <AssignmentsScreen />}
+        {screen === "attendance" && <AttendanceScreen />}
+        {screen === "fees" && <FeesScreen />}
+        {screen === "profile" && <ProfileScreen />}
       </View>
     </SafeAreaView>
   );
@@ -216,41 +223,45 @@ const AppShell: React.FC = () => {
 // `edumyles://auth/callback?requestId=<id>&status=approved`.
 
 function parseDeepLink(url: string): { path: string; params: Record<string, string> } | null {
-  if (!url.startsWith('edumyles://') && !url.startsWith('https://app.mylescorptech.com')) {
+  if (!url.startsWith("edumyles://") && !url.startsWith("https://app.mylescorptech.com")) {
     return null;
   }
   try {
     // Handle edumyles://auth/callback?requestId=xxx
-    const withoutScheme = url.replace(/^edumyles:\/\//, '').replace(/^https:\/\/app\.mylescorptech\.com\//, '');
-    const [path, query] = withoutScheme.split('?');
+    const withoutScheme = url
+      .replace(/^edumyles:\/\//, "")
+      .replace(/^https:\/\/app\.mylescorptech\.com\//, "");
+    const [path, query] = withoutScheme.split("?");
     const params: Record<string, string> = {};
     if (query) {
-      query.split('&').forEach((pair) => {
-        const [k, v] = pair.split('=');
-        if (k) params[k] = decodeURIComponent(v ?? '');
+      query.split("&").forEach((pair) => {
+        const [k, v] = pair.split("=");
+        if (k) params[k] = decodeURIComponent(v ?? "");
       });
     }
-    return { path: path ?? '', params };
+    return { path: path ?? "", params };
   } catch {
     return null;
   }
 }
 
 /** Module-level ref so App can dispatch navigation to AppShell without prop drilling. */
-export const deepLinkNavigateRef = React.createRef<((screen: ScreenKey) => void) | null>() as React.MutableRefObject<((screen: ScreenKey) => void) | null>;
+export const deepLinkNavigateRef = React.createRef<
+  ((screen: ScreenKey) => void) | null
+>() as React.MutableRefObject<((screen: ScreenKey) => void) | null>;
 
 function dispatchDeepLink(parsed: ReturnType<typeof parseDeepLink>) {
   if (!parsed) return;
-  if (__DEV__) console.log('[DeepLink] dispatching:', parsed);
+  if (__DEV__) console.log("[DeepLink] dispatching:", parsed);
   // Auth callbacks are handled by LoginScreen polling — no navigation needed
   // Future paths: map parsed.path to a ScreenKey and call deepLinkNavigateRef.current
   const screenMap: Record<string, ScreenKey> = {
-    'dashboard': 'dashboard',
-    'grades': 'grades',
-    'assignments': 'assignments',
-    'attendance': 'attendance',
-    'fees': 'fees',
-    'profile': 'profile',
+    dashboard: "dashboard",
+    grades: "grades",
+    assignments: "assignments",
+    attendance: "attendance",
+    fees: "fees",
+    profile: "profile",
   };
   const targetScreen = screenMap[parsed.path];
   if (targetScreen && deepLinkNavigateRef.current) {
@@ -260,6 +271,15 @@ function dispatchDeepLink(parsed: ReturnType<typeof parseDeepLink>) {
 
 const App: React.FC = () => {
   const convex = useMemo(() => new ConvexReactClient(convexUrl), []);
+  const [interLoaded] = useInterFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+  });
+  const [jakartaLoaded] = useJakartaFonts({
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+  });
+  const fontsLoaded = interLoaded && jakartaLoaded;
 
   // Listen for deep links (handles both cold-start and foreground scenarios)
   useEffect(() => {
@@ -271,12 +291,22 @@ const App: React.FC = () => {
     });
 
     // Handle URLs that arrive while the app is foregrounded
-    const subscription = Linking.addEventListener('url', ({ url }) => {
+    const subscription = Linking.addEventListener("url", ({ url }) => {
       dispatchDeepLink(parseDeepLink(url));
     });
 
     return () => subscription.remove();
   }, []);
+
+  if (!fontsLoaded) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={styles.loadingText}>Loading EduMyles...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <ConvexProviderRoot client={convex}>
@@ -294,8 +324,8 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: theme.colors.background,
   },
   loadingText: {
@@ -308,34 +338,35 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   headerTitle: {
     color: theme.colors.white,
     fontSize: theme.fontSizes.xl,
-    fontWeight: '700',
+    fontFamily: theme.fonts.bold,
   },
   headerSubtitle: {
-    color: '#dbeafe',
+    color: "#dbeafe",
     fontSize: theme.fontSizes.sm,
     marginTop: 4,
+    fontFamily: theme.fonts.regular,
   },
   syncBanner: {
-    backgroundColor: '#fff7ed',
+    backgroundColor: "#fff7ed",
     borderBottomWidth: 1,
-    borderBottomColor: '#fed7aa',
+    borderBottomColor: "#fed7aa",
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.sm,
   },
   syncBannerText: {
-    color: '#9a3412',
+    color: "#9a3412",
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
   },
   signOutButton: {
-    backgroundColor: 'rgba(255,255,255,0.16)',
+    backgroundColor: "rgba(255,255,255,0.16)",
     borderRadius: theme.borderRadius.full,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
@@ -343,7 +374,7 @@ const styles = StyleSheet.create({
   signOutText: {
     color: theme.colors.white,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
   },
   tabBar: {
     paddingHorizontal: theme.spacing.md,
@@ -366,7 +397,7 @@ const styles = StyleSheet.create({
   tabText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
   },
   activeTabText: {
     color: theme.colors.white,

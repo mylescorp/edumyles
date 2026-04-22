@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import {
@@ -25,6 +27,7 @@ import {
   ExternalLink,
   Link as LinkIcon,
   Mail,
+  Settings2,
   ShieldCheck,
   Sparkles,
   TriangleAlert,
@@ -38,13 +41,29 @@ const inviteSchema = z.object({
   role: z.string().min(1, "Select a role"),
   department: z.string().optional(),
   personalMessage: z.string().optional(),
+  addedPermissions: z.array(z.string()).optional(),
+  removedPermissions: z.array(z.string()).optional(),
+  scopeCountries: z.array(z.string()).optional(),
+  scopeTenantIds: z.array(z.string()).optional(),
+  scopePlans: z.array(z.string()).optional(),
+  accessExpiresAt: z.number().optional(),
+  notifyInviter: z.boolean().optional(),
 });
+
+type PermissionCatalog = Record<string, Array<{ key: string; label: string; description: string }>>;
 
 interface PlatformAdminInviteFormProps {
   sessionToken: string;
   mode: "page" | "dialog";
   onCancel?: () => void;
   onComplete?: () => void;
+}
+
+function parseCsv(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 export function PlatformAdminInviteForm({
@@ -54,13 +73,20 @@ export function PlatformAdminInviteForm({
   onComplete,
 }: PlatformAdminInviteFormProps) {
   const router = useRouter();
-
   const [form, setForm] = useState({
     email: "",
-    role: "super_admin",
+    role: "support_agent",
     department: "platform_operations",
     personalMessage: "",
+    scopeCountries: "",
+    scopeTenantIds: "",
+    scopePlans: "",
+    accessExpiresAt: "",
+    notifyInviter: true,
   });
+  const [addedPermissions, setAddedPermissions] = useState<string[]>([]);
+  const [removedPermissions, setRemovedPermissions] = useState<string[]>([]);
+  const [showCustomizer, setShowCustomizer] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -72,32 +98,84 @@ export function PlatformAdminInviteForm({
     emailSent: boolean;
     workosError?: string;
   } | null>(null);
+
   const roles = usePlatformQuery(
     api.modules.platform.rbac.getRoles,
     sessionToken ? { sessionToken, includeSystem: true } : "skip",
     !!sessionToken
   ) as Array<any> | undefined;
 
+  const permissionCatalog = usePlatformQuery(
+    api.modules.platform.rbac.getPermissionCatalog,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as PermissionCatalog | undefined;
+
   const selectedRole = (roles ?? []).find((role) => role.slug === form.role);
-  const previewPermissions = (selectedRole?.permissions ?? []).slice(0, 12);
-  const remainingPermissions = Math.max((selectedRole?.permissions?.length ?? 0) - 12, 0);
+  const inheritedPermissions = selectedRole?.permissions ?? [];
+  const previewPermissions = inheritedPermissions.slice(0, 12);
+  const remainingPermissions = Math.max(inheritedPermissions.length - 12, 0);
+  const permissionGroups = useMemo(
+    () => Object.entries(permissionCatalog ?? {}),
+    [permissionCatalog]
+  );
+  const isPageMode = mode === "page";
 
   const resetFlow = () => {
     setForm({
       email: "",
-      role: "super_admin",
+      role: "support_agent",
       department: "platform_operations",
       personalMessage: "",
+      scopeCountries: "",
+      scopeTenantIds: "",
+      scopePlans: "",
+      accessExpiresAt: "",
+      notifyInviter: true,
     });
+    setAddedPermissions([]);
+    setRemovedPermissions([]);
+    setShowCustomizer(false);
     setError(null);
     setCopied(false);
     setCopiedUrl(false);
     setResult(null);
   };
 
+  const togglePermission = (permissionKey: string, mode: "add" | "remove", checked: boolean) => {
+    if (mode === "add") {
+      setAddedPermissions((current) =>
+        checked
+          ? [...new Set([...current, permissionKey])]
+          : current.filter((item) => item !== permissionKey)
+      );
+      return;
+    }
+
+    setRemovedPermissions((current) =>
+      checked
+        ? [...new Set([...current, permissionKey])]
+        : current.filter((item) => item !== permissionKey)
+    );
+  };
+
   const handleSubmit = async (event?: React.FormEvent) => {
     event?.preventDefault();
-    const parsed = inviteSchema.safeParse(form);
+
+    const parsed = inviteSchema.safeParse({
+      email: form.email,
+      role: form.role,
+      department: form.department,
+      personalMessage: form.personalMessage,
+      addedPermissions,
+      removedPermissions,
+      scopeCountries: parseCsv(form.scopeCountries),
+      scopeTenantIds: parseCsv(form.scopeTenantIds),
+      scopePlans: parseCsv(form.scopePlans),
+      accessExpiresAt: form.accessExpiresAt ? new Date(form.accessExpiresAt).getTime() : undefined,
+      notifyInviter: form.notifyInviter,
+    });
+
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Enter valid invite details.");
       return;
@@ -105,14 +183,14 @@ export function PlatformAdminInviteForm({
 
     setError(null);
     setSubmitting(true);
+
     try {
       const response = await fetch("/api/platform/invite-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionToken,
-          email: parsed.data.email,
-          role: parsed.data.role,
+          ...parsed.data,
           department: parsed.data.department?.trim() || undefined,
           personalMessage: parsed.data.personalMessage?.trim() || undefined,
         }),
@@ -133,7 +211,7 @@ export function PlatformAdminInviteForm({
       onComplete?.();
       toast.success(
         payload.emailSent
-          ? `WorkOS invitation sent to ${parsed.data.email}`
+          ? `Invitation sent to ${parsed.data.email}`
           : `Invite created for ${parsed.data.email}`
       );
     } catch (submitError) {
@@ -155,7 +233,7 @@ export function PlatformAdminInviteForm({
     if (!result?.signUpUrl) return;
     await navigator.clipboard.writeText(result.signUpUrl);
     setCopiedUrl(true);
-    toast.success("Sign-up link copied");
+    toast.success("Invite acceptance link copied");
     window.setTimeout(() => setCopiedUrl(false), 1500);
   };
 
@@ -172,7 +250,7 @@ export function PlatformAdminInviteForm({
             </Badge>
             <Badge variant="secondary" className="rounded-full px-3 py-1">
               <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-              Ready for onboarding
+              Ready for acceptance
             </Badge>
           </div>
           <div>
@@ -180,8 +258,8 @@ export function PlatformAdminInviteForm({
               {result.invitedEmail} is ready for the next step.
             </h3>
             <p className="mt-2 text-sm leading-7 text-muted-foreground">
-              Use the direct sign-up link for the smoothest path, and keep the fallback token for
-              support follow-up if the recipient needs manual help.
+              Share the acceptance link if the recipient needs a direct path, and keep the token for
+              manual support follow-up.
             </p>
           </div>
         </div>
@@ -190,15 +268,15 @@ export function PlatformAdminInviteForm({
           <div className="flex items-start gap-2 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
             <span>
-              WorkOS login invitation sent to <strong>{result.invitedEmail}</strong>.
+              Invitation email sent to <strong>{result.invitedEmail}</strong>.
             </span>
           </div>
         ) : (
           <div className="flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
             <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
             <span>
-              Invite record was created for <strong>{result.invitedEmail}</strong>, but the WorkOS
-              email could not be sent.
+              Invite record was created for <strong>{result.invitedEmail}</strong>, but the email
+              could not be confirmed.
               {result.workosError ? ` ${result.workosError}` : ""}
             </span>
           </div>
@@ -208,9 +286,9 @@ export function PlatformAdminInviteForm({
           <Card className="border-border/70 bg-gradient-to-br from-background to-muted/20 shadow-sm">
             <CardContent className="space-y-4 p-5">
               <div>
-                <p className="text-sm font-semibold text-foreground">Direct WorkOS sign-up link</p>
+                <p className="text-sm font-semibold text-foreground">Invite acceptance link</p>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Share this if the recipient needs a direct path into onboarding.
+                  This link opens the public accept page and keeps the invite token attached.
                 </p>
               </div>
               <div className="space-y-3">
@@ -246,7 +324,7 @@ export function PlatformAdminInviteForm({
               <div>
                 <p className="text-sm font-semibold text-foreground">Fallback invite token</p>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Keep this for support reconciliation if email delivery needs manual handling.
+                  Keep this for support reconciliation or manual invitation recovery.
                 </p>
               </div>
               <div className="space-y-3">
@@ -287,7 +365,13 @@ export function PlatformAdminInviteForm({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_380px]">
+    <div
+      className={
+        isPageMode
+          ? "grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]"
+          : "grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_380px]"
+      }
+    >
       <Card className="border-border/70 bg-gradient-to-br from-background via-background to-muted/20 shadow-sm">
         <CardContent className="space-y-6 p-6 lg:p-7">
           <div className="space-y-3">
@@ -305,11 +389,11 @@ export function PlatformAdminInviteForm({
             </div>
             <div>
               <h3 className="text-2xl font-semibold tracking-tight text-foreground">
-                Set the recipient, role, and onboarding context.
+                Set the recipient, role, and access posture.
               </h3>
               <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                The form is structured so identity comes first, access comes next, and the personal
-                note stays optional.
+                Identity comes first, then role posture, then optional permission customisation and
+                scope restrictions.
               </p>
             </div>
           </div>
@@ -327,7 +411,7 @@ export function PlatformAdminInviteForm({
                 <Input
                   id={`invite-email-${mode}`}
                   type="email"
-                  placeholder="admin@edumyles.com"
+                  placeholder="ops@edumyles.com"
                   value={form.email}
                   onChange={(event) =>
                     setForm((current) => ({ ...current, email: event.target.value }))
@@ -341,7 +425,7 @@ export function PlatformAdminInviteForm({
                 <Label htmlFor={`invite-department-${mode}`}>Department</Label>
                 <Input
                   id={`invite-department-${mode}`}
-                  placeholder="Operations"
+                  placeholder="Platform Operations"
                   value={form.department}
                   onChange={(event) =>
                     setForm((current) => ({ ...current, department: event.target.value }))
@@ -351,12 +435,16 @@ export function PlatformAdminInviteForm({
               </div>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
+            <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
               <div className="space-y-2">
                 <Label htmlFor={`invite-role-${mode}`}>Role</Label>
                 <Select
                   value={form.role}
-                  onValueChange={(value) => setForm((current) => ({ ...current, role: value }))}
+                  onValueChange={(value) => {
+                    setForm((current) => ({ ...current, role: value }));
+                    setAddedPermissions([]);
+                    setRemovedPermissions([]);
+                  }}
                 >
                   <SelectTrigger
                     id={`invite-role-${mode}`}
@@ -374,35 +462,217 @@ export function PlatformAdminInviteForm({
                 </Select>
               </div>
 
-              <div className="min-w-[220px] rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                  Selected Role
-                </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
-                  {selectedRole?.name ?? "Select a role"}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {(selectedRole?.permissions?.length ?? 0).toLocaleString()} mapped permissions
-                </p>
+              <div className="space-y-2">
+                <Label htmlFor={`invite-expiry-${mode}`}>Access Expiry</Label>
+                <Input
+                  id={`invite-expiry-${mode}`}
+                  type="datetime-local"
+                  value={form.accessExpiresAt}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, accessExpiresAt: event.target.value }))
+                  }
+                  className="h-12 border-border/70 bg-background"
+                />
               </div>
+            </div>
+
+            {selectedRole ? (
+              <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/90 p-4 md:grid-cols-[1.25fr_0.75fr]">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Selected Role
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-foreground">
+                    {selectedRole.name}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {selectedRole.description}
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
+                  <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      Inherited
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+                      {inheritedPermissions.length}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                      Overrides
+                    </p>
+                    <p className="mt-2 text-sm font-medium text-foreground">
+                      {addedPermissions.length} added, {removedPermissions.length} removed
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="grid gap-4 rounded-2xl border border-border/70 bg-muted/20 p-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor={`invite-scope-countries-${mode}`}>Scope Countries</Label>
+                <Input
+                  id={`invite-scope-countries-${mode}`}
+                  placeholder="KE, UG, TZ"
+                  value={form.scopeCountries}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, scopeCountries: event.target.value }))
+                  }
+                  className="h-11 border-border/70 bg-background"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`invite-scope-plans-${mode}`}>Scope Plans</Label>
+                <Input
+                  id={`invite-scope-plans-${mode}`}
+                  placeholder="starter, pro"
+                  value={form.scopePlans}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, scopePlans: event.target.value }))
+                  }
+                  className="h-11 border-border/70 bg-background"
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor={`invite-scope-tenants-${mode}`}>Scope Tenant IDs</Label>
+                <Input
+                  id={`invite-scope-tenants-${mode}`}
+                  placeholder="TENANT-1001, TENANT-2044"
+                  value={form.scopeTenantIds}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, scopeTenantIds: event.target.value }))
+                  }
+                  className="h-11 border-border/70 bg-background"
+                />
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Permission customizer</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Add extra permissions or remove inherited ones before sending the invite.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowCustomizer((current) => !current)}
+                >
+                  <Settings2 className="mr-2 h-4 w-4" />
+                  {showCustomizer ? "Hide customizer" : "Customize permissions"}
+                </Button>
+              </div>
+
+              {showCustomizer ? (
+                <div className="mt-4 max-h-[520px] space-y-4 overflow-y-auto pr-1">
+                  {permissionGroups.map(([category, permissions]) => (
+                    <div key={category} className="rounded-2xl border border-border/70 p-4">
+                      <div className="mb-3">
+                        <p className="font-medium text-foreground">{category}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Role defaults can be removed; non-default permissions can be granted as
+                          extras.
+                        </p>
+                      </div>
+                      <div className="space-y-3">
+                        {permissions.map((permission) => {
+                          const inherited = inheritedPermissions.includes(permission.key);
+                          const isAdded = addedPermissions.includes(permission.key);
+                          const isRemoved = removedPermissions.includes(permission.key);
+                          return (
+                            <div
+                              key={permission.key}
+                              className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/20 p-3 md:flex-row md:items-start md:justify-between"
+                            >
+                              <div className="space-y-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-sm font-medium text-foreground">
+                                    {permission.label}
+                                  </span>
+                                  <Badge variant="outline" className="font-mono text-[10px]">
+                                    {permission.key}
+                                  </Badge>
+                                  {inherited ? (
+                                    <Badge className="bg-emerald-500/10 text-emerald-700">
+                                      Inherited
+                                    </Badge>
+                                  ) : null}
+                                  {isAdded ? (
+                                    <Badge className="bg-sky-500/10 text-sky-700">Added</Badge>
+                                  ) : null}
+                                  {isRemoved ? (
+                                    <Badge className="bg-rose-500/10 text-rose-700">Removed</Badge>
+                                  ) : null}
+                                </div>
+                                <p className="text-xs leading-6 text-muted-foreground">
+                                  {permission.description}
+                                </p>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-4">
+                                {!inherited ? (
+                                  <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Checkbox
+                                      checked={isAdded}
+                                      onCheckedChange={(checked) =>
+                                        togglePermission(permission.key, "add", checked === true)
+                                      }
+                                    />
+                                    Grant extra
+                                  </label>
+                                ) : null}
+                                {inherited ? (
+                                  <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Checkbox
+                                      checked={isRemoved}
+                                      onCheckedChange={(checked) =>
+                                        togglePermission(permission.key, "remove", checked === true)
+                                      }
+                                    />
+                                    Remove inherited
+                                  </label>
+                                ) : null}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor={`invite-message-${mode}`}>Personal Message</Label>
               <Textarea
                 id={`invite-message-${mode}`}
-                placeholder="Add an onboarding note, handoff context, or expectations for the new admin."
+                placeholder="Add a short onboarding note, handoff context, or expectations for the new admin."
                 value={form.personalMessage}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, personalMessage: event.target.value }))
                 }
-                className="min-h-[160px] border-border/70 bg-background"
+                className="min-h-[140px] border-border/70 bg-background"
                 rows={6}
               />
-              <p className="text-xs text-muted-foreground">
-                This message is optional and can help the recipient understand why they are being
-                invited.
-              </p>
+            </div>
+
+            <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/20 px-4 py-3">
+              <div>
+                <p className="text-sm font-medium text-foreground">Notify me when accepted</p>
+                <p className="text-xs text-muted-foreground">
+                  Keep the inviter in the loop when the staff member completes account setup.
+                </p>
+              </div>
+              <Switch
+                checked={form.notifyInviter}
+                onCheckedChange={(checked) =>
+                  setForm((current) => ({ ...current, notifyInviter: checked }))
+                }
+              />
             </div>
 
             <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border/60 pt-3">
@@ -427,7 +697,13 @@ export function PlatformAdminInviteForm({
         </CardContent>
       </Card>
 
-      <Card className="h-fit border-border/70 bg-gradient-to-br from-background via-background to-muted/20 shadow-sm">
+      <Card
+        className={
+          isPageMode
+            ? "h-fit border-border/70 bg-gradient-to-br from-background via-background to-muted/20 shadow-sm xl:sticky xl:top-6"
+            : "h-fit border-border/70 bg-gradient-to-br from-background via-background to-muted/20 shadow-sm"
+        }
+      >
         <CardContent className="space-y-5 p-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -456,24 +732,24 @@ export function PlatformAdminInviteForm({
                 Permission count
               </p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
-                {(selectedRole?.permissions?.length ?? 0).toLocaleString()}
+                {inheritedPermissions.length.toLocaleString()}
               </p>
             </div>
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                Role posture
+                Override summary
               </p>
               <p className="mt-2 text-sm font-medium text-foreground">
-                {selectedRole?.description ?? "Awaiting role selection"}
+                {addedPermissions.length} added, {removedPermissions.length} removed
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Sample permissions
+              Sample inherited permissions
             </p>
-            <div className="space-y-2">
+            <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1">
               {previewPermissions.length > 0 ? (
                 previewPermissions.map((permission: string) => (
                   <div
@@ -491,7 +767,7 @@ export function PlatformAdminInviteForm({
             </div>
             {remainingPermissions > 0 ? (
               <p className="text-xs text-muted-foreground">
-                And {remainingPermissions} more permissions.
+                And {remainingPermissions} more inherited permissions.
               </p>
             ) : null}
           </div>
@@ -500,8 +776,8 @@ export function PlatformAdminInviteForm({
             <p className="text-sm font-medium text-foreground">Review checklist</p>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               <li>Use a verified work email for identity matching.</li>
-              <li>Double-check destructive roles before sending.</li>
-              <li>Add a short onboarding note when context matters.</li>
+              <li>Double-check master-admin invitations before sending.</li>
+              <li>Apply scope restrictions when access should be limited.</li>
             </ul>
           </div>
         </CardContent>

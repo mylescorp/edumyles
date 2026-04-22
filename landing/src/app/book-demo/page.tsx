@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Clock, Users, CheckCircle, Star, Phone, Mail, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  Clock,
+  Users,
+  CheckCircle,
+  Star,
+  Phone,
+  Mail,
+  MapPin,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Book a Demo — EduMyles | School Management System",
@@ -40,23 +50,24 @@ export default function BookDemoPage() {
             </Link>
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+              style={{
+                background: "rgba(232,160,32,0.12)",
+                border: "1px solid #E8A020",
+                color: "#E8A020",
+              }}
             >
               Schedule a Demo
             </div>
             <h1
-              className="font-playfair font-bold leading-tight mb-6"
+              className="font-display font-bold leading-tight mb-6"
               style={{ fontSize: "clamp(2rem,4vw,3.5rem)", color: "#ffffff" }}
             >
               See EduMyles in Action
             </h1>
-            <p
-              className="font-jakarta text-[18px] leading-[1.7] mb-8"
-              style={{ color: "#A8E6C3" }}
-            >
-              Get a personalized 30-minute demo tailored to your school&apos;s needs. 
-              See how our platform simplifies administration, enhances communication, 
-              and improves student outcomes.
+            <p className="font-jakarta text-[18px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
+              Get a personalized 30-minute demo tailored to your school&apos;s needs. See how our
+              platform simplifies administration, enhances communication, and improves student
+              outcomes.
             </p>
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
@@ -89,19 +100,23 @@ export default function BookDemoPage() {
             {/* Form */}
             <div>
               <h2
-                className="font-playfair font-bold mb-4"
+                className="font-display font-bold mb-4"
                 style={{ fontSize: "clamp(1.8rem,3vw,2.5rem)", color: "#061A12" }}
               >
                 Schedule Your Demo
               </h2>
               <p className="font-jakarta text-[16px] mb-8" style={{ color: "#5a5a5a" }}>
-                Fill in your details and we&apos;ll contact you within 24 hours to schedule your personalized demo.
+                Fill in your details and we&apos;ll contact you within 24 hours to schedule your
+                personalized demo.
               </p>
-              
+
               <form className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                    <label
+                      className="block font-jakarta font-semibold text-[14px] mb-2"
+                      style={{ color: "#061A12" }}
+                    >
                       First Name *
                     </label>
                     <input
@@ -113,7 +128,10 @@ export default function BookDemoPage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                    <label
+                      className="block font-jakarta font-semibold text-[14px] mb-2"
+                      style={{ color: "#061A12" }}
+                    >
                       Last Name *
                     </label>
                     <input
@@ -128,7 +146,10 @@ export default function BookDemoPage() {
 
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                    <label
+                      className="block font-jakarta font-semibold text-[14px] mb-2"
+                      style={{ color: "#061A12" }}
+                    >
                       Email Address *
                     </label>
                     <input
@@ -140,7 +161,10 @@ export default function BookDemoPage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                    <label
+                      className="block font-jakarta font-semibold text-[14px] mb-2"
+                      style={{ color: "#061A12" }}
+                    >
                       Phone Number *
                     </label>
                     <input
@@ -154,7 +178,10 @@ export default function BookDemoPage() {
                 </div>
 
                 <div>
-                  <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                  <label
+                    className="block font-jakarta font-semibold text-[14px] mb-2"
+                    style={{ color: "#061A12" }}
+                  >
                     School Name *
                   </label>
                   <input
@@ -167,7 +194,10 @@ export default function BookDemoPage() {
                 </div>
 
                 <div>
-                  <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                  <label
+                    className="block font-jakarta font-semibold text-[14px] mb-2"
+                    style={{ color: "#061A12" }}
+                  >
                     School Type *
                   </label>
                   <select
@@ -185,7 +215,10 @@ export default function BookDemoPage() {
                 </div>
 
                 <div>
-                  <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                  <label
+                    className="block font-jakarta font-semibold text-[14px] mb-2"
+                    style={{ color: "#061A12" }}
+                  >
                     Job Title *
                   </label>
                   <input
@@ -198,7 +231,10 @@ export default function BookDemoPage() {
                 </div>
 
                 <div>
-                  <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                  <label
+                    className="block font-jakarta font-semibold text-[14px] mb-2"
+                    style={{ color: "#061A12" }}
+                  >
                     Preferred Demo Date
                   </label>
                   <input
@@ -209,7 +245,10 @@ export default function BookDemoPage() {
                 </div>
 
                 <div>
-                  <label className="block font-jakarta font-semibold text-[14px] mb-2" style={{ color: "#061A12" }}>
+                  <label
+                    className="block font-jakarta font-semibold text-[14px] mb-2"
+                    style={{ color: "#061A12" }}
+                  >
                     Tell us about your school&apos;s needs (optional)
                   </label>
                   <textarea
@@ -223,7 +262,12 @@ export default function BookDemoPage() {
                 <button
                   type="submit"
                   className="w-full font-jakarta font-bold text-[16px] px-8 py-4 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
-                  style={{ background: "#061A12", color: "#ffffff", border: "none", cursor: "pointer" }}
+                  style={{
+                    background: "#061A12",
+                    color: "#ffffff",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
                 >
                   Request Demo
                 </button>
@@ -233,12 +277,12 @@ export default function BookDemoPage() {
             {/* What to Expect */}
             <div>
               <h3
-                className="font-playfair font-bold mb-6"
+                className="font-display font-bold mb-6"
                 style={{ fontSize: "clamp(1.5rem,2.5vw,2rem)", color: "#061A12" }}
               >
                 What to Expect
               </h3>
-              
+
               <div className="space-y-6">
                 <div className="flex gap-4">
                   <div
@@ -248,11 +292,18 @@ export default function BookDemoPage() {
                     <CalendarDays className="w-6 h-6" style={{ color: "#061A12" }} />
                   </div>
                   <div>
-                    <h4 className="font-jakarta font-bold text-[16px] mb-2" style={{ color: "#061A12" }}>
+                    <h4
+                      className="font-jakarta font-bold text-[16px] mb-2"
+                      style={{ color: "#061A12" }}
+                    >
                       Personalized Walkthrough
                     </h4>
-                    <p className="font-jakarta text-[14px] leading-[1.6]" style={{ color: "#5a5a5a" }}>
-                      We&apos;ll show you exactly how EduMyles addresses your specific challenges and workflows.
+                    <p
+                      className="font-jakarta text-[14px] leading-[1.6]"
+                      style={{ color: "#5a5a5a" }}
+                    >
+                      We&apos;ll show you exactly how EduMyles addresses your specific challenges
+                      and workflows.
                     </p>
                   </div>
                 </div>
@@ -265,10 +316,16 @@ export default function BookDemoPage() {
                     <Users className="w-6 h-6" style={{ color: "#061A12" }} />
                   </div>
                   <div>
-                    <h4 className="font-jakarta font-bold text-[16px] mb-2" style={{ color: "#061A12" }}>
+                    <h4
+                      className="font-jakarta font-bold text-[16px] mb-2"
+                      style={{ color: "#061A12" }}
+                    >
                       Live Q&A Session
                     </h4>
-                    <p className="font-jakarta text-[14px] leading-[1.6]" style={{ color: "#5a5a5a" }}>
+                    <p
+                      className="font-jakarta text-[14px] leading-[1.6]"
+                      style={{ color: "#5a5a5a" }}
+                    >
                       Get answers to your specific questions from our education technology experts.
                     </p>
                   </div>
@@ -282,10 +339,16 @@ export default function BookDemoPage() {
                     <CheckCircle className="w-6 h-6" style={{ color: "#061A12" }} />
                   </div>
                   <div>
-                    <h4 className="font-jakarta font-bold text-[16px] mb-2" style={{ color: "#061A12" }}>
+                    <h4
+                      className="font-jakarta font-bold text-[16px] mb-2"
+                      style={{ color: "#061A12" }}
+                    >
                       No-Obligation Consultation
                     </h4>
-                    <p className="font-jakarta text-[14px] leading-[1.6]" style={{ color: "#5a5a5a" }}>
+                    <p
+                      className="font-jakarta text-[14px] leading-[1.6]"
+                      style={{ color: "#5a5a5a" }}
+                    >
                       Learn how EduMyles can benefit your school without any pressure to commit.
                     </p>
                   </div>
@@ -293,14 +356,24 @@ export default function BookDemoPage() {
               </div>
 
               {/* Testimonial */}
-              <div className="mt-10 p-6 rounded-2xl" style={{ background: "#061A12", borderLeft: "4px solid #E8A020" }}>
+              <div
+                className="mt-10 p-6 rounded-2xl"
+                style={{ background: "#061A12", borderLeft: "4px solid #E8A020" }}
+              >
                 <div className="flex mb-4">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} className="w-5 h-5" style={{ color: "#E8A020" }} fill="#E8A020" />
+                    <Star
+                      key={star}
+                      className="w-5 h-5"
+                      style={{ color: "#E8A020" }}
+                      fill="#E8A020"
+                    />
                   ))}
                 </div>
-                <p className="font-playfair italic text-[16px] leading-[1.7] text-white mb-4">
-                  &ldquo;The demo was incredibly helpful. They understood our challenges immediately and showed us exactly how EduMyles would solve them. We were up and running within a week.&rdquo;
+                <p className="font-display italic text-[16px] leading-[1.7] text-white mb-4">
+                  &ldquo;The demo was incredibly helpful. They understood our challenges immediately
+                  and showed us exactly how EduMyles would solve them. We were up and running within
+                  a week.&rdquo;
                 </p>
                 <p className="font-jakarta font-semibold text-[13px]" style={{ color: "#E8A020" }}>
                   Grace Njeri, Finance Officer — Nairobi Green Academy
@@ -315,7 +388,7 @@ export default function BookDemoPage() {
       <section className="py-16 px-4" style={{ background: "#ffffff" }}>
         <div className="max-w-[800px] mx-auto text-center">
           <h3
-            className="font-playfair font-bold mb-4"
+            className="font-display font-bold mb-4"
             style={{ fontSize: "clamp(1.5rem,2.5vw,2rem)", color: "#061A12" }}
           >
             Prefer to Talk Directly?
@@ -323,14 +396,17 @@ export default function BookDemoPage() {
           <p className="font-jakarta text-[16px] mb-8" style={{ color: "#5a5a5a" }}>
             Our team is ready to answer your questions and help you get started.
           </p>
-          
+
           <div className="grid sm:grid-cols-3 gap-6">
-            <div className="p-6 rounded-xl" style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}>
+            <div
+              className="p-6 rounded-xl"
+              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+            >
               <Phone className="w-6 h-6 mb-3" style={{ color: "#0F4C2A" }} />
               <h4 className="font-jakarta font-bold text-[15px] mb-2" style={{ color: "#061A12" }}>
                 Call Us
               </h4>
-              <a 
+              <a
                 href="tel:+254743993715"
                 className="font-jakarta text-[14px] no-underline hover:underline"
                 style={{ color: "#5a5a5a" }}
@@ -338,8 +414,11 @@ export default function BookDemoPage() {
                 +254 743 993 715
               </a>
             </div>
-            
-            <div className="p-6 rounded-xl" style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+            >
               <Mail className="w-6 h-6 mb-3" style={{ color: "#0F4C2A" }} />
               <h4 className="font-jakarta font-bold text-[15px] mb-2" style={{ color: "#061A12" }}>
                 Email Us
@@ -348,8 +427,11 @@ export default function BookDemoPage() {
                 demo@edumyles.com
               </p>
             </div>
-            
-            <div className="p-6 rounded-xl" style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+            >
               <MapPin className="w-6 h-6 mb-3" style={{ color: "#0F4C2A" }} />
               <h4 className="font-jakarta font-bold text-[15px] mb-2" style={{ color: "#061A12" }}>
                 Visit Us

@@ -44,11 +44,11 @@ export default function InviteAdminPage() {
           <UsersAdminRail variant="rail" />
         </aside>
 
-        <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-background via-background to-muted/20 shadow-sm">
-          <CardContent className="p-0">
-            <div className="grid gap-0 xl:grid-cols-[1.05fr_1.45fr]">
-              <div className="border-b border-border/60 bg-muted/20 p-6 lg:p-8 xl:border-b-0 xl:border-r">
-                <div className="space-y-6">
+        <div className="space-y-6">
+          <Card className="overflow-hidden border-border/70 bg-gradient-to-r from-emerald-500/8 via-background to-sky-500/5 shadow-sm">
+            <CardContent className="p-6 lg:p-8">
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_320px] xl:items-end">
+                <div className="space-y-5">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge
                       variant="outline"
@@ -62,62 +62,51 @@ export default function InviteAdminPage() {
                     </Badge>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-emerald-500/10 text-emerald-700 shadow-sm">
-                      <UserPlus className="h-6 w-6" />
+                  <div className="space-y-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-500/10 text-emerald-700 shadow-sm">
+                      <UserPlus className="h-5 w-5" />
                     </div>
-                    <h2 className="max-w-lg text-3xl font-semibold tracking-tight text-foreground">
-                      Invite the next platform operator with confidence.
+                    <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-foreground">
+                      Invite the next platform operator with a cleaner, review-first flow.
                     </h2>
-                    <p className="max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
-                      A professional onboarding flow should surface role context, safety cues, and
-                      access impact before the invite is ever sent. This layout is tuned for that.
+                    <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base">
+                      Keep identity, role posture, scope restrictions, and permission overrides in
+                      one place without forcing operators to scan three competing panels.
                     </p>
                   </div>
+                </div>
 
-                  <div className="space-y-3">
-                    <div className="rounded-2xl border border-border/70 bg-background/90 p-5">
-                      <p className="text-sm font-medium text-foreground">What this page handles</p>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        Role assignment, department context, invite message, and access preview in a
-                        single review flow.
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-background to-background p-5">
-                      <div className="flex items-start gap-3">
-                        <ShieldCheck className="mt-0.5 h-4 w-4 text-emerald-700" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Operational safety</p>
-                          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                            Permission scope is visible before sending, which reduces accidental
-                            over-provisioning and makes handoffs cleaner.
-                          </p>
-                        </div>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                  <div className="rounded-2xl border border-border/70 bg-background/85 p-4">
+                    <p className="text-sm font-medium text-foreground">What this page handles</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      Identity capture, role assignment, scoped access, permission overrides, and
+                      invite delivery.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+                    <div className="flex items-start gap-3">
+                      <ShieldCheck className="mt-0.5 h-4 w-4 text-emerald-700" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Operational safety</p>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                          Review the effective access posture before the invite is sent so handoffs
+                          stay controlled.
+                        </p>
                       </div>
-                    </div>
-                    <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-5">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
-                        Best practice
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        Use the smallest role that matches responsibility, then expand access only if
-                        the job actually requires it.
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="p-6 lg:p-8">
-                <PlatformAdminInviteForm
-                  mode="page"
-                  sessionToken={sessionToken}
-                  onCancel={() => window.history.back()}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <PlatformAdminInviteForm
+            mode="page"
+            sessionToken={sessionToken}
+            onCancel={() => window.history.back()}
+          />
+        </div>
       </div>
     </div>
   );

@@ -214,7 +214,6 @@ const faqs = [
 export default function PrimarySchoolsPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ─────────────────────────────────────────────────────────
           SECTION 1 · HERO
       ───────────────────────────────────────────────────────── */}
@@ -239,18 +238,24 @@ export default function PrimarySchoolsPage() {
           {/* Eyebrow */}
           <div
             className="inline-block font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+            style={{
+              background: "rgba(232,160,32,0.12)",
+              border: "1px solid #E8A020",
+              color: "#E8A020",
+            }}
           >
             For Primary Schools
           </div>
 
           {/* H1 */}
           <h1
-            className="font-playfair font-bold leading-[1.15] mb-5"
+            className="font-display font-bold leading-[1.15] mb-5"
             style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
           >
             Built for CBC. Made for{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>primary schools.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              primary schools.
+            </em>
           </h1>
 
           {/* Subtitle */}
@@ -258,8 +263,8 @@ export default function PrimarySchoolsPage() {
             className="font-jakarta font-light leading-[1.8] mb-8 mx-auto"
             style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "660px" }}
           >
-            From PP1 to Class 8 — EduMyles handles CBC assessment, M-Pesa fee collection,
-            NEMIS reporting, and parent communication in one platform built for Kenya.
+            From PP1 to Class 8 — EduMyles handles CBC assessment, M-Pesa fee collection, NEMIS
+            reporting, and parent communication in one platform built for Kenya.
           </p>
 
           {/* CTAs */}
@@ -274,7 +279,11 @@ export default function PrimarySchoolsPage() {
             <a
               href="/book-demo"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Book a Demo
             </a>
@@ -282,11 +291,20 @@ export default function PrimarySchoolsPage() {
 
           {/* Feature badges */}
           <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {["CBC & 8-4-4 Gradebook", "M-Pesa Integration", "NEMIS Export Ready", "Offline-capable"].map((badge) => (
+            {[
+              "CBC & 8-4-4 Gradebook",
+              "M-Pesa Integration",
+              "NEMIS Export Ready",
+              "Offline-capable",
+            ].map((badge) => (
               <span
                 key={badge}
                 className="font-semibold text-[12px] px-4 py-2 rounded-[50px]"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.2)", color: "#A8E6C3" }}
+                style={{
+                  background: "rgba(255,255,255,0.07)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  color: "#A8E6C3",
+                }}
               >
                 ✓ {badge}
               </span>
@@ -311,8 +329,12 @@ export default function PrimarySchoolsPage() {
                   borderRight: i < 2 ? "1px solid rgba(232,160,32,0.2)" : "none",
                 }}
               >
-                <div className="font-playfair font-bold text-[1.5rem]" style={{ color: "#E8A020" }}>{s.value}</div>
-                <div className="font-jakarta text-[12px] mt-0.5" style={{ color: "#90CAF9" }}>{s.sub}</div>
+                <div className="font-display font-bold text-[1.5rem]" style={{ color: "#E8A020" }}>
+                  {s.value}
+                </div>
+                <div className="font-jakarta text-[12px] mt-0.5" style={{ color: "#90CAF9" }}>
+                  {s.sub}
+                </div>
               </div>
             ))}
           </div>
@@ -332,7 +354,7 @@ export default function PrimarySchoolsPage() {
               The challenges primary schools face
             </p>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               Sound familiar?
@@ -343,12 +365,15 @@ export default function PrimarySchoolsPage() {
               <div
                 key={i}
                 className="rounded-2xl p-8"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(232,160,32,0.2)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(232,160,32,0.2)",
+                }}
               >
                 {/* Number badge */}
                 <div className="flex items-center gap-3 mb-5">
                   <span
-                    className="font-playfair font-bold text-[22px] leading-none"
+                    className="font-display font-bold text-[22px] leading-none"
                     style={{ color: "#E8A020" }}
                   >
                     {String(i + 1).padStart(2, "0")}
@@ -363,10 +388,15 @@ export default function PrimarySchoolsPage() {
                 <div className="mb-4">
                   <p.icon className="w-10 h-10" strokeWidth={1.5} style={{ color: "#E8A020" }} />
                 </div>
-                <h3 className="font-playfair font-bold text-[18px] mb-3" style={{ color: "#ffffff" }}>
+                <h3
+                  className="font-display font-bold text-[18px] mb-3"
+                  style={{ color: "#ffffff" }}
+                >
                   {p.title}
                 </h3>
-                <p className="font-jakarta leading-[1.8] text-[15px]" style={{ color: "#A8E6C3" }}>{p.text}</p>
+                <p className="font-jakarta leading-[1.8] text-[15px]" style={{ color: "#A8E6C3" }}>
+                  {p.text}
+                </p>
               </div>
             ))}
           </div>
@@ -386,13 +416,18 @@ export default function PrimarySchoolsPage() {
               Getting started
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               From chaos to clarity in{" "}
-              <em className="italic" style={{ color: "#1A7A4A" }}>3 steps</em>
+              <em className="italic" style={{ color: "#1A7A4A" }}>
+                3 steps
+              </em>
             </h2>
-            <p className="font-jakarta text-[16px] leading-[1.7]" style={{ color: "#5a5a5a", maxWidth: "520px", margin: "0 auto" }}>
+            <p
+              className="font-jakarta text-[16px] leading-[1.7]"
+              style={{ color: "#5a5a5a", maxWidth: "520px", margin: "0 auto" }}
+            >
               Most primary schools are fully live and generating reports within two weeks.
             </p>
           </div>
@@ -435,7 +470,7 @@ export default function PrimarySchoolsPage() {
                 <div key={s.step} className="flex flex-col items-center text-center">
                   {/* Numbered circle */}
                   <div
-                    className="flex items-center justify-center font-playfair font-bold text-[22px] rounded-full mb-6 flex-shrink-0"
+                    className="flex items-center justify-center font-display font-bold text-[22px] rounded-full mb-6 flex-shrink-0"
                     style={{
                       width: "64px",
                       height: "64px",
@@ -452,10 +487,16 @@ export default function PrimarySchoolsPage() {
                   >
                     {s.time}
                   </span>
-                  <h3 className="font-playfair font-bold text-[19px] mb-3" style={{ color: "#061A12" }}>
+                  <h3
+                    className="font-display font-bold text-[19px] mb-3"
+                    style={{ color: "#061A12" }}
+                  >
                     {s.title}
                   </h3>
-                  <p className="font-jakarta text-[14px] leading-[1.75]" style={{ color: "#5a5a5a", maxWidth: "280px" }}>
+                  <p
+                    className="font-jakarta text-[14px] leading-[1.75]"
+                    style={{ color: "#5a5a5a", maxWidth: "280px" }}
+                  >
                     {s.desc}
                   </p>
                 </div>
@@ -478,7 +519,7 @@ export default function PrimarySchoolsPage() {
               Features for Primary Schools
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Everything a primary school needs
@@ -508,10 +549,15 @@ export default function PrimarySchoolsPage() {
                 >
                   <m.icon className="w-6 h-6" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
                 </div>
-                <h3 className="font-playfair font-bold text-[17px] mb-2" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-2"
+                  style={{ color: "#061A12" }}
+                >
                   {m.title}
                 </h3>
-                <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>{m.desc}</p>
+                <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+                  {m.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -531,18 +577,23 @@ export default function PrimarySchoolsPage() {
               CBC Grading System
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               CBC grading,{" "}
-              <em className="italic" style={{ color: "#1A7A4A" }}>done right.</em>
+              <em className="italic" style={{ color: "#1A7A4A" }}>
+                done right.
+              </em>
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-10 items-start">
             {/* Left: performance levels */}
             <div>
-              <p className="font-jakarta font-semibold text-[13px] uppercase tracking-[0.1em] mb-5" style={{ color: "#5a5a5a" }}>
+              <p
+                className="font-jakarta font-semibold text-[13px] uppercase tracking-[0.1em] mb-5"
+                style={{ color: "#5a5a5a" }}
+              >
                 4 CBC performance levels
               </p>
               <div className="flex flex-col gap-4">
@@ -550,17 +601,33 @@ export default function PrimarySchoolsPage() {
                   <div
                     key={lvl.code}
                     className="flex items-center gap-4 rounded-xl p-4"
-                    style={{ background: "#ffffff", border: `2px solid ${lvl.borderColor}20`, boxShadow: "0 1px 8px rgba(6,26,18,0.05)" }}
+                    style={{
+                      background: "#ffffff",
+                      border: `2px solid ${lvl.borderColor}20`,
+                      boxShadow: "0 1px 8px rgba(6,26,18,0.05)",
+                    }}
                   >
                     <div
-                      className="flex-shrink-0 flex items-center justify-center font-playfair font-bold text-[18px] rounded-[10px]"
-                      style={{ width: "52px", height: "52px", background: lvl.badgeBg, color: lvl.badgeColor }}
+                      className="flex-shrink-0 flex items-center justify-center font-display font-bold text-[18px] rounded-[10px]"
+                      style={{
+                        width: "52px",
+                        height: "52px",
+                        background: lvl.badgeBg,
+                        color: lvl.badgeColor,
+                      }}
                     >
                       {lvl.code}
                     </div>
                     <div>
-                      <div className="font-playfair font-bold text-[16px]" style={{ color: "#061A12" }}>{lvl.code}</div>
-                      <div className="font-jakarta text-[13px]" style={{ color: "#5a5a5a" }}>{lvl.label}</div>
+                      <div
+                        className="font-display font-bold text-[16px]"
+                        style={{ color: "#061A12" }}
+                      >
+                        {lvl.code}
+                      </div>
+                      <div className="font-jakarta text-[13px]" style={{ color: "#5a5a5a" }}>
+                        {lvl.label}
+                      </div>
                     </div>
                     <div
                       className="ml-auto w-3 h-3 rounded-full flex-shrink-0"
@@ -574,16 +641,29 @@ export default function PrimarySchoolsPage() {
             {/* Right: what EduMyles generates */}
             <div
               className="rounded-2xl p-8"
-              style={{ background: "#ffffff", border: "1px solid #e8f4ec", boxShadow: "0 2px 16px rgba(6,26,18,0.06)" }}
+              style={{
+                background: "#ffffff",
+                border: "1px solid #e8f4ec",
+                boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+              }}
             >
-              <p className="font-playfair font-bold text-[20px] mb-6" style={{ color: "#061A12" }}>
+              <p className="font-display font-bold text-[20px] mb-6" style={{ color: "#061A12" }}>
                 What EduMyles auto-generates
               </p>
               <ul className="flex flex-col gap-4">
                 {autoGenerates.map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" strokeWidth={2} style={{ color: "#1A7A4A" }} />
-                    <span className="font-jakarta text-[15px] leading-[1.65]" style={{ color: "#3d3d3d" }}>{item}</span>
+                    <CheckCircle2
+                      className="w-5 h-5 flex-shrink-0 mt-0.5"
+                      strokeWidth={2}
+                      style={{ color: "#1A7A4A" }}
+                    />
+                    <span
+                      className="font-jakarta text-[15px] leading-[1.65]"
+                      style={{ color: "#3d3d3d" }}
+                    >
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -608,11 +688,13 @@ export default function PrimarySchoolsPage() {
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#ffffff" }}
             >
               What primary schools achieve with{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>EduMyles</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                EduMyles
+              </em>
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -620,15 +702,20 @@ export default function PrimarySchoolsPage() {
               <div
                 key={s.value}
                 className="rounded-2xl p-8 text-center"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(232,160,32,0.2)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(232,160,32,0.2)",
+                }}
               >
                 <div
-                  className="font-playfair font-bold mb-3"
+                  className="font-display font-bold mb-3"
                   style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "#E8A020", lineHeight: 1 }}
                 >
                   {s.value}
                 </div>
-                <p className="font-jakarta text-[14px] leading-[1.6]" style={{ color: "#A8E6C3" }}>{s.label}</p>
+                <p className="font-jakarta text-[14px] leading-[1.6]" style={{ color: "#A8E6C3" }}>
+                  {s.label}
+                </p>
               </div>
             ))}
           </div>
@@ -643,21 +730,29 @@ export default function PrimarySchoolsPage() {
           {/* Stars */}
           <div className="flex justify-center gap-1 mb-6">
             {[1, 2, 3, 4, 5].map((n) => (
-              <Star key={n} className="w-5 h-5" fill="#E8A020" strokeWidth={0} style={{ color: "#E8A020" }} />
+              <Star
+                key={n}
+                className="w-5 h-5"
+                fill="#E8A020"
+                strokeWidth={0}
+                style={{ color: "#E8A020" }}
+              />
             ))}
           </div>
           {/* Large quotation mark */}
           <div
-            className="font-playfair leading-none mb-4 select-none"
+            className="font-display leading-none mb-4 select-none"
             style={{ fontSize: "6rem", color: "#E8A020", lineHeight: 0.7, opacity: 0.5 }}
           >
             &ldquo;
           </div>
           <blockquote
-            className="font-playfair italic leading-[1.8] mb-7"
+            className="font-display italic leading-[1.8] mb-7"
             style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "#2d2d2d" }}
           >
-            We have 520 learners from PP2 to Class 8. Before EduMyles, CBC report cards alone took three teachers an entire weekend every term. Now it takes four hours. The M-Pesa integration means zero cash handling — parents love it.
+            We have 520 learners from PP2 to Class 8. Before EduMyles, CBC report cards alone took
+            three teachers an entire weekend every term. Now it takes four hours. The M-Pesa
+            integration means zero cash handling — parents love it.
           </blockquote>
           <p className="font-jakarta font-semibold text-[14px]" style={{ color: "#0F4C2A" }}>
             — James M., Head Teacher, Greenfield Primary School, Thika
@@ -678,24 +773,38 @@ export default function PrimarySchoolsPage() {
               Why switch?
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               EduMyles vs{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>the old way</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                the old way
+              </em>
             </h2>
           </div>
 
-          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 20px rgba(6,26,18,0.07)" }}>
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 20px rgba(6,26,18,0.07)" }}
+          >
             {/* Header */}
             <div className="grid grid-cols-3" style={{ background: "#061A12" }}>
-              <div className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em]" style={{ color: "rgba(255,255,255,0.5)" }}>
+              <div
+                className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em]"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
                 Feature
               </div>
-              <div className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em] text-center" style={{ color: "#FCA5A5" }}>
+              <div
+                className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em] text-center"
+                style={{ color: "#FCA5A5" }}
+              >
                 Manual / Excel
               </div>
-              <div className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em] text-center" style={{ color: "#A8E6C3" }}>
+              <div
+                className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em] text-center"
+                style={{ color: "#A8E6C3" }}
+              >
                 EduMyles
               </div>
             </div>
@@ -704,19 +813,31 @@ export default function PrimarySchoolsPage() {
               <div
                 key={row.feature}
                 className="grid grid-cols-3 items-center"
-                style={{ background: i % 2 === 0 ? "#ffffff" : "#F9FDFB", borderTop: "1px solid #e8f4ec" }}
+                style={{
+                  background: i % 2 === 0 ? "#ffffff" : "#F9FDFB",
+                  borderTop: "1px solid #e8f4ec",
+                }}
               >
-                <div className="px-6 py-4 font-jakarta font-semibold text-[14px]" style={{ color: "#061A12" }}>
+                <div
+                  className="px-6 py-4 font-jakarta font-semibold text-[14px]"
+                  style={{ color: "#061A12" }}
+                >
                   {row.feature}
                 </div>
                 <div className="px-6 py-4 text-center">
-                  <span className="inline-flex items-center gap-1.5 font-jakarta text-[13px]" style={{ color: "#DC2626" }}>
+                  <span
+                    className="inline-flex items-center gap-1.5 font-jakarta text-[13px]"
+                    style={{ color: "#DC2626" }}
+                  >
                     <X className="w-4 h-4 flex-shrink-0" strokeWidth={2.5} />
                     {row.manual}
                   </span>
                 </div>
                 <div className="px-6 py-4 text-center">
-                  <span className="inline-flex items-center gap-1.5 font-jakarta text-[13px] font-semibold" style={{ color: "#1A7A4A" }}>
+                  <span
+                    className="inline-flex items-center gap-1.5 font-jakarta text-[13px] font-semibold"
+                    style={{ color: "#1A7A4A" }}
+                  >
                     <CheckCircle2 className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
                     {row.edumyles}
                   </span>
@@ -740,11 +861,13 @@ export default function PrimarySchoolsPage() {
               Integrations
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
             >
               Plays well with{" "}
-              <em className="italic" style={{ color: "#1A7A4A" }}>what you already use</em>
+              <em className="italic" style={{ color: "#1A7A4A" }}>
+                what you already use
+              </em>
             </h2>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
@@ -752,14 +875,24 @@ export default function PrimarySchoolsPage() {
               <div
                 key={intg.name}
                 className="flex items-center gap-3 rounded-[50px] px-5 py-3"
-                style={{ background: "#ffffff", border: "1px solid #e8f4ec", boxShadow: "0 1px 8px rgba(6,26,18,0.05)" }}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #e8f4ec",
+                  boxShadow: "0 1px 8px rgba(6,26,18,0.05)",
+                }}
               >
                 <Globe className="w-4 h-4" strokeWidth={1.5} style={{ color: intg.color }} />
-                <span className="font-jakarta font-semibold text-[14px]" style={{ color: "#061A12" }}>{intg.name}</span>
+                <span
+                  className="font-jakarta font-semibold text-[14px]"
+                  style={{ color: "#061A12" }}
+                >
+                  {intg.name}
+                </span>
                 <span
                   className="font-jakarta font-semibold text-[11px] px-2 py-0.5 rounded-[50px]"
                   style={{
-                    background: intg.color === "#6366F1" ? "rgba(99,102,241,0.1)" : "rgba(26,122,74,0.1)",
+                    background:
+                      intg.color === "#6366F1" ? "rgba(99,102,241,0.1)" : "rgba(26,122,74,0.1)",
                     color: intg.color,
                   }}
                 >
@@ -784,7 +917,7 @@ export default function PrimarySchoolsPage() {
               FAQ
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
             >
               Common questions from primary schools
@@ -795,12 +928,21 @@ export default function PrimarySchoolsPage() {
               <div
                 key={i}
                 className="rounded-2xl p-7"
-                style={{ background: "#ffffff", border: "1px solid #e8f4ec", boxShadow: "0 1px 8px rgba(6,26,18,0.04)" }}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #e8f4ec",
+                  boxShadow: "0 1px 8px rgba(6,26,18,0.04)",
+                }}
               >
-                <h3 className="font-playfair font-bold text-[17px] mb-3" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-3"
+                  style={{ color: "#061A12" }}
+                >
                   {faq.q}
                 </h3>
-                <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#5a5a5a" }}>{faq.a}</p>
+                <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#5a5a5a" }}>
+                  {faq.a}
+                </p>
               </div>
             ))}
           </div>
@@ -820,7 +962,7 @@ export default function PrimarySchoolsPage() {
               Pricing
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-4"
+              className="font-display font-bold leading-[1.2] mb-4"
               style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
             >
               Affordable for every primary school
@@ -839,7 +981,13 @@ export default function PrimarySchoolsPage() {
                 period: "/month",
                 capacity: "Up to 500 learners",
                 highlight: false,
-                features: ["CBC Gradebook (PP1–Class 8)", "M-Pesa Integration", "NEMIS Export", "Parent SMS Alerts", "Attendance Tracking"],
+                features: [
+                  "CBC Gradebook (PP1–Class 8)",
+                  "M-Pesa Integration",
+                  "NEMIS Export",
+                  "Parent SMS Alerts",
+                  "Attendance Tracking",
+                ],
               },
               {
                 plan: "Growth",
@@ -847,7 +995,13 @@ export default function PrimarySchoolsPage() {
                 period: "/month",
                 capacity: "Up to 1,000 learners",
                 highlight: true,
-                features: ["Everything in Starter", "CBC Portfolio Management", "WhatsApp Alerts", "Advanced Analytics", "Priority Support"],
+                features: [
+                  "Everything in Starter",
+                  "CBC Portfolio Management",
+                  "WhatsApp Alerts",
+                  "Advanced Analytics",
+                  "Priority Support",
+                ],
               },
             ].map((tier) => (
               <div
@@ -856,7 +1010,9 @@ export default function PrimarySchoolsPage() {
                 style={{
                   background: tier.highlight ? "#061A12" : "#ffffff",
                   border: tier.highlight ? "2px solid #E8A020" : "1px solid #e8f4ec",
-                  boxShadow: tier.highlight ? "0 8px 32px rgba(232,160,32,0.2)" : "0 2px 16px rgba(6,26,18,0.06)",
+                  boxShadow: tier.highlight
+                    ? "0 8px 32px rgba(232,160,32,0.2)"
+                    : "0 2px 16px rgba(6,26,18,0.06)",
                 }}
               >
                 <div className="flex items-start justify-between mb-6">
@@ -869,16 +1025,22 @@ export default function PrimarySchoolsPage() {
                     </p>
                     <div className="flex items-baseline gap-1">
                       <span
-                        className="font-playfair font-bold"
+                        className="font-display font-bold"
                         style={{ fontSize: "2rem", color: tier.highlight ? "#ffffff" : "#061A12" }}
                       >
                         {tier.price}
                       </span>
-                      <span className="font-jakarta text-[14px]" style={{ color: tier.highlight ? "#A8E6C3" : "#5a5a5a" }}>
+                      <span
+                        className="font-jakarta text-[14px]"
+                        style={{ color: tier.highlight ? "#A8E6C3" : "#5a5a5a" }}
+                      >
                         {tier.period}
                       </span>
                     </div>
-                    <p className="font-jakarta text-[13px] mt-1" style={{ color: tier.highlight ? "#A8E6C3" : "#5a5a5a" }}>
+                    <p
+                      className="font-jakarta text-[13px] mt-1"
+                      style={{ color: tier.highlight ? "#A8E6C3" : "#5a5a5a" }}
+                    >
                       {tier.capacity}
                     </p>
                   </div>
@@ -894,8 +1056,17 @@ export default function PrimarySchoolsPage() {
                 <ul className="flex flex-col gap-3 mb-8">
                   {tier.features.map((f) => (
                     <li key={f} className="flex items-center gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: tier.highlight ? "#E8A020" : "#1A7A4A" }} />
-                      <span className="font-jakarta text-[14px]" style={{ color: tier.highlight ? "#A8E6C3" : "#3d3d3d" }}>{f}</span>
+                      <CheckCircle2
+                        className="w-4 h-4 flex-shrink-0"
+                        strokeWidth={2}
+                        style={{ color: tier.highlight ? "#E8A020" : "#1A7A4A" }}
+                      />
+                      <span
+                        className="font-jakarta text-[14px]"
+                        style={{ color: tier.highlight ? "#A8E6C3" : "#3d3d3d" }}
+                      >
+                        {f}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -934,15 +1105,17 @@ export default function PrimarySchoolsPage() {
             <Shield className="w-8 h-8" strokeWidth={1.5} style={{ color: "#A8E6C3" }} />
           </div>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
           >
             Ready to bring your primary school{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>into the digital age?</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              into the digital age?
+            </em>
           </h2>
           <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
-            Join hundreds of Kenyan primary schools already running on EduMyles.
-            Set up in days, not months.
+            Join hundreds of Kenyan primary schools already running on EduMyles. Set up in days, not
+            months.
           </p>
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <a
@@ -955,7 +1128,11 @@ export default function PrimarySchoolsPage() {
             <a
               href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Book a Demo
             </a>
@@ -965,8 +1142,6 @@ export default function PrimarySchoolsPage() {
           </p>
         </div>
       </section>
-
     </div>
   );
 }
-

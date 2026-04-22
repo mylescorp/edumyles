@@ -2,20 +2,32 @@ import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
-import crypto from "crypto";
 
 /**
  * POST /api/platform/invite-user
  *
  * 1. Creates a platform invite record in Convex.
  * 2. Tries to send a WorkOS invitation email.
- * 3. Always returns a direct sign-up URL the admin can share manually,
+ * 3. Always returns a direct acceptance URL the admin can share manually,
  *    plus the platform invite token for support fallback.
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, role, department, personalMessage, sessionToken } = body as {
+    const {
+      email,
+      role,
+      department,
+      personalMessage,
+      sessionToken,
+      addedPermissions,
+      removedPermissions,
+      scopeCountries,
+      scopeTenantIds,
+      scopePlans,
+      accessExpiresAt,
+      notifyInviter,
+    } = body as {
       email: string;
       role:
         | "master_admin"
@@ -29,6 +41,13 @@ export async function POST(req: NextRequest) {
       department?: string;
       personalMessage?: string;
       sessionToken: string;
+      addedPermissions?: string[];
+      removedPermissions?: string[];
+      scopeCountries?: string[];
+      scopeTenantIds?: string[];
+      scopePlans?: string[];
+      accessExpiresAt?: number;
+      notifyInviter?: boolean;
     };
 
     if (!email || !role || !sessionToken) {
@@ -42,18 +61,28 @@ export async function POST(req: NextRequest) {
     }
 
     const convex = new ConvexHttpClient(convexUrl);
-    let convexResult: { success: boolean; inviteId: string; token: string; email: string; roleName: any };
+    let convexResult: {
+      success: boolean;
+      inviteId: string;
+      token: string;
+      email: string;
+      roleName: any;
+    };
     try {
-      convexResult = await convex.mutation(
-        api.modules.platform.rbac.invitePlatformUser,
-        {
-          sessionToken,
-          email,
-          role,
-          department: department?.trim() || undefined,
-          personalMessage: personalMessage?.trim() || undefined,
-        }
-      );
+      convexResult = await convex.mutation(api.modules.platform.rbac.invitePlatformUser, {
+        sessionToken,
+        email,
+        role,
+        department: department?.trim() || undefined,
+        personalMessage: personalMessage?.trim() || undefined,
+        addedPermissions,
+        removedPermissions,
+        scopeCountries,
+        scopeTenantIds,
+        scopePlans,
+        accessExpiresAt,
+        notifyInviter,
+      });
     } catch (convexErr: any) {
       const msg: string = convexErr?.message ?? String(convexErr);
       if (msg.includes("CONFLICT")) {
@@ -66,39 +95,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to create invite record" }, { status: 500 });
     }
 
-    // ── 2. Build a direct WorkOS sign-up URL (always — even without API key) ─
-    // This URL lets the invitee sign up without needing the email.
+    const acceptUrl = `${req.nextUrl.origin}/platform/invite/accept?token=${convexResult.token}`;
+
+    // ── 2. Try to send WorkOS invitation email (optional) ───────────────────
     const workosApiKey = process.env.WORKOS_API_KEY;
-    const clientId =
-      process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
-    const redirectUri =
-      process.env.WORKOS_REDIRECT_URI ||
-      `${req.nextUrl.origin}/auth/callback`;
 
-    let signUpUrl: string | null = null;
-    if (workosApiKey && clientId) {
-      try {
-        const workos = new WorkOS(workosApiKey);
-        const nonce = crypto.randomBytes(8).toString("hex");
-        signUpUrl = workos.userManagement.getAuthorizationUrl({
-          clientId,
-          redirectUri,
-          provider: "authkit",
-          screenHint: "sign-up",
-          loginHint: email, // pre-fills the email field
-          state: Buffer.from(JSON.stringify({ nonce })).toString("base64url"),
-        });
-      } catch (urlErr: any) {
-        console.warn("[invite-user] Could not build sign-up URL:", urlErr?.message);
-      }
-    }
-
-    // Fallback: a plain login URL the admin can share
-    if (!signUpUrl) {
-      signUpUrl = `${req.nextUrl.origin}/auth/login/api`;
-    }
-
-    // ── 3. Try to send WorkOS invitation email ────────────────────────────────
     if (!workosApiKey) {
       console.warn("[invite-user] WORKOS_API_KEY not set — skipping invitation email");
       return NextResponse.json({
@@ -106,8 +107,9 @@ export async function POST(req: NextRequest) {
         emailSent: false,
         inviteId: convexResult.inviteId,
         token: convexResult.token,
-        signUpUrl,
-        workosError: "WORKOS_API_KEY is not set in the frontend Vercel project. Go to Vercel → edumyles-frontend → Settings → Environment Variables and add it.",
+        signUpUrl: acceptUrl,
+        workosError:
+          "WORKOS_API_KEY is not set in the frontend Vercel project. Go to Vercel → edumyles-frontend → Settings → Environment Variables and add it.",
       });
     }
 
@@ -124,11 +126,10 @@ export async function POST(req: NextRequest) {
         emailSent: true,
         inviteId: convexResult.inviteId,
         token: convexResult.token,
-        signUpUrl, // always returned so admin has it as backup
+        signUpUrl: acceptUrl,
       });
     } catch (workosErr: any) {
-      const errMsg: string =
-        workosErr?.rawData?.message ?? workosErr?.message ?? String(workosErr);
+      const errMsg: string = workosErr?.rawData?.message ?? workosErr?.message ?? String(workosErr);
       const errCode: string = workosErr?.rawData?.code ?? workosErr?.code ?? "";
       console.error("[invite-user] WorkOS sendInvitation failed:", errCode, errMsg);
 
@@ -137,7 +138,7 @@ export async function POST(req: NextRequest) {
         emailSent: false,
         inviteId: convexResult.inviteId,
         token: convexResult.token,
-        signUpUrl,
+        signUpUrl: acceptUrl,
         workosError: errCode ? `${errCode}: ${errMsg}` : errMsg,
       });
     }

@@ -56,7 +56,6 @@ const numbers = [
 export default function CaseStudiesPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -78,22 +77,29 @@ export default function CaseStudiesPage() {
           <div className="max-w-[720px]">
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+              style={{
+                background: "rgba(232,160,32,0.12)",
+                border: "1px solid #E8A020",
+                color: "#E8A020",
+              }}
             >
               Case Studies
             </div>
             <h1
-              className="font-playfair font-bold leading-[1.15] mb-5"
+              className="font-display font-bold leading-[1.15] mb-5"
               style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
             >
               Real schools.{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>Real results.</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                Real results.
+              </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8] mb-8"
               style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "580px" }}
             >
-              See how schools across East Africa are saving time, increasing fee collection, and improving parent communication with EduMyles.
+              See how schools across East Africa are saving time, increasing fee collection, and
+              improving parent communication with EduMyles.
             </p>
             <div className="flex flex-wrap gap-3">
               {[
@@ -104,7 +110,11 @@ export default function CaseStudiesPage() {
                 <span
                   key={pill}
                   className="inline-flex items-center font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
-                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#E8E8E8" }}
+                  style={{
+                    background: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    color: "#E8E8E8",
+                  }}
                 >
                   {pill}
                 </span>
@@ -122,7 +132,11 @@ export default function CaseStudiesPage() {
               <div
                 key={cs.title}
                 className="rounded-2xl flex flex-col overflow-hidden transition-transform duration-200 hover:-translate-y-1"
-                style={{ background: "#ffffff", border: "1px solid #e8f4ec", boxShadow: "0 2px 16px rgba(6,26,18,0.06)" }}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #e8f4ec",
+                  boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+                }}
               >
                 <div className="p-7 flex flex-col flex-1">
                   <span
@@ -132,7 +146,7 @@ export default function CaseStudiesPage() {
                     {cs.tag}
                   </span>
                   <h2
-                    className="font-playfair font-bold leading-[1.3] mb-4"
+                    className="font-display font-bold leading-[1.3] mb-4"
                     style={{ fontSize: "1.2rem", color: "#061A12" }}
                   >
                     {cs.title}
@@ -151,12 +165,15 @@ export default function CaseStudiesPage() {
                         style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
                       >
                         <div
-                          className="font-playfair font-bold text-[16px] mb-0.5"
+                          className="font-display font-bold text-[16px] mb-0.5"
                           style={{ color: "#E8A020" }}
                         >
                           {m.value}
                         </div>
-                        <div className="font-jakarta text-[10px] font-medium leading-tight" style={{ color: "#6B9E83" }}>
+                        <div
+                          className="font-jakarta text-[10px] font-medium leading-tight"
+                          style={{ color: "#6B9E83" }}
+                        >
                           {m.label}
                         </div>
                       </div>
@@ -187,11 +204,13 @@ export default function CaseStudiesPage() {
               Aggregate Results
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Results Across{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>All Schools</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                All Schools
+              </em>
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -199,10 +218,14 @@ export default function CaseStudiesPage() {
               <div
                 key={n.label}
                 className="rounded-2xl p-8 text-center transition-transform duration-200 hover:-translate-y-1"
-                style={{ background: "#ffffff", border: "1px solid #d4eade", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #d4eade",
+                  boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                }}
               >
                 <div
-                  className="font-playfair font-bold mb-2"
+                  className="font-display font-bold mb-2"
                   style={{ fontSize: "2.2rem", color: "#E8A020" }}
                 >
                   {n.value}
@@ -220,11 +243,13 @@ export default function CaseStudiesPage() {
       <section className="py-20 px-4" style={{ background: "#061A12" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
           >
             Want results like these?{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>Start your free 30-day trial.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              Start your free 30-day trial.
+            </em>
           </h2>
           <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
             Join 50+ schools already running better with EduMyles. No credit card required.
@@ -240,7 +265,11 @@ export default function CaseStudiesPage() {
             <a
               href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Book a Demo
             </a>
@@ -250,4 +279,3 @@ export default function CaseStudiesPage() {
     </div>
   );
 }
-

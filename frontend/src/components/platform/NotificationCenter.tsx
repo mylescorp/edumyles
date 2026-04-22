@@ -128,19 +128,19 @@ export function NotificationCenter() {
               <div
                 key={n._id}
                 className={`flex items-start gap-3 p-3 border-b last:border-0 hover:bg-muted/50 transition-colors ${
-                  !n.read ? "bg-blue-50/50" : ""
+                  !(n.read ?? n.isRead) ? "bg-blue-50/50" : ""
                 }`}
               >
                 <div className="mt-0.5">
                   {TYPE_ICONS[n.type] ?? TYPE_ICONS.info}
                 </div>
                 <div className="flex-1 min-w-0">
-                  {n.actionUrl ? (
+                  {n.actionUrl || n.link ? (
                     <Link
-                      href={n.actionUrl}
+                      href={n.actionUrl ?? n.link}
                       className="text-sm font-medium hover:underline"
                       onClick={() => {
-                        if (!n.read) handleMarkRead(n._id);
+                        if (!(n.read ?? n.isRead)) handleMarkRead(n._id);
                         setOpen(false);
                       }}
                     >
@@ -150,14 +150,14 @@ export function NotificationCenter() {
                     <p className="text-sm font-medium">{n.title}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                    {n.message}
+                    {n.message ?? n.body}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {timeAgo(n.createdAt)}
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  {!n.read && (
+                  {!(n.read ?? n.isRead) && (
                     <Button
                       variant="ghost"
                       size="sm"

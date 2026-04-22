@@ -8,7 +8,8 @@ import { Rocket, CreditCard, BookOpen, BarChart2, Users, CalendarDays, Mail } fr
 const featured = {
   category: "Product Update",
   title: "Introducing the All-New EduMyles 2026: Real-Time, Role-Based, and Built for Scale",
-  excerpt: "We rebuilt EduMyles from the ground up with a real-time architecture, 11 deeply integrated modules, and a brand new interface. Here's everything that's new.",
+  excerpt:
+    "We rebuilt EduMyles from the ground up with a real-time architecture, 11 deeply integrated modules, and a brand new interface. Here's everything that's new.",
   date: "March 2026",
   readTime: "8 min read",
   author: "EduMyles Team",
@@ -30,7 +31,8 @@ const posts: Post[] = [
   {
     category: "Finance",
     title: "How to Set Up M-Pesa Fee Collection for Your School in Under 30 Minutes",
-    excerpt: "A step-by-step guide to integrating M-Pesa Daraja into your EduMyles fee structure and going fully cashless.",
+    excerpt:
+      "A step-by-step guide to integrating M-Pesa Daraja into your EduMyles fee structure and going fully cashless.",
     date: "February 2026",
     readTime: "6 min read",
     author: "EduMyles Team",
@@ -40,7 +42,8 @@ const posts: Post[] = [
   {
     category: "CBC",
     title: "CBC Gradebook in EduMyles: A Complete Guide for Kenyan Schools",
-    excerpt: "Everything you need to know about setting up competency-based assessment, learning areas, and strand reports.",
+    excerpt:
+      "Everything you need to know about setting up competency-based assessment, learning areas, and strand reports.",
     date: "February 2026",
     readTime: "9 min read",
     author: "EduMyles Team",
@@ -50,7 +53,8 @@ const posts: Post[] = [
   {
     category: "School Management",
     title: "5 Signs Your School Has Outgrown Excel — And What to Do About It",
-    excerpt: "From attendance confusion to fee arrears chaos, these are the warning signs every school administrator should watch for.",
+    excerpt:
+      "From attendance confusion to fee arrears chaos, these are the warning signs every school administrator should watch for.",
     date: "January 2026",
     readTime: "5 min read",
     author: "EduMyles Team",
@@ -60,7 +64,8 @@ const posts: Post[] = [
   {
     category: "School Management",
     title: "How Kenyan Schools Manage Payroll Efficiently - Complete Guide",
-    excerpt: "Discover how Kenyan schools are revolutionizing payroll management with automated systems, ensuring KRA compliance while boosting staff satisfaction.",
+    excerpt:
+      "Discover how Kenyan schools are revolutionizing payroll management with automated systems, ensuring KRA compliance while boosting staff satisfaction.",
     date: "March 2026",
     readTime: "7 min read",
     author: "EduMyles Team",
@@ -70,7 +75,8 @@ const posts: Post[] = [
   {
     category: "Parent Engagement",
     title: "How EduMyles Parent Portal Reduces SMS Costs by 60% While Improving Communication",
-    excerpt: "Schools using the parent portal see fewer WhatsApp enquiries, faster fee payments, and more engaged parents.",
+    excerpt:
+      "Schools using the parent portal see fewer WhatsApp enquiries, faster fee payments, and more engaged parents.",
     date: "January 2026",
     readTime: "4 min read",
     author: "EduMyles Team",
@@ -80,7 +86,8 @@ const posts: Post[] = [
   {
     category: "Operations",
     title: "Timetable Generation: How EduMyles Creates Conflict-Free Schedules Automatically",
-    excerpt: "The algorithm behind EduMyles timetable engine — and why it saves school coordinators 2 full days every term.",
+    excerpt:
+      "The algorithm behind EduMyles timetable engine — and why it saves school coordinators 2 full days every term.",
     date: "December 2025",
     readTime: "7 min read",
     author: "EduMyles Team",
@@ -90,7 +97,8 @@ const posts: Post[] = [
   {
     category: "Regional",
     title: "School Management Software in Uganda: What's Different from Kenya",
-    excerpt: "UNEB vs CBC, Airtel Money vs M-Pesa, Ugandan MoES requirements — here's what we adapted for Ugandan schools.",
+    excerpt:
+      "UNEB vs CBC, Airtel Money vs M-Pesa, Ugandan MoES requirements — here's what we adapted for Ugandan schools.",
     date: "December 2025",
     readTime: "6 min read",
     author: "EduMyles Team",
@@ -99,20 +107,31 @@ const posts: Post[] = [
   },
 ];
 
-const categories = ["All", "Product Update", "Finance", "CBC", "School Management", "Parent Engagement", "Operations", "Regional"];
+const categories = [
+  "All",
+  "Product Update",
+  "Finance",
+  "CBC",
+  "School Management",
+  "Parent Engagement",
+  "Operations",
+  "Regional",
+];
 
 export default function BlogContent() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [email, setEmail] = useState("");
 
-  const visiblePosts = activeCategory === "All"
-    ? posts
-    : posts.filter((p) => p.category === activeCategory);
+  const visiblePosts =
+    activeCategory === "All" ? posts : posts.filter((p) => p.category === activeCategory);
 
   return (
     <>
       {/* ── Category Filter ───────────────────────────────── */}
-      <section className="py-8 px-4 border-b" style={{ background: "#ffffff", borderColor: "#e8f4ec" }}>
+      <section
+        className="py-8 px-4 border-b"
+        style={{ background: "#ffffff", borderColor: "#e8f4ec" }}
+      >
         <div className="max-w-[1200px] mx-auto">
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
@@ -154,23 +173,34 @@ export default function BlogContent() {
                   >
                     NEW
                   </span>
-                  <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>{featured.category}</span>
+                  <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>
+                    {featured.category}
+                  </span>
                 </div>
                 <h2
-                  className="font-playfair font-bold leading-[1.25] mb-4"
+                  className="font-display font-bold leading-[1.25] mb-4"
                   style={{ fontSize: "clamp(1.5rem,2.5vw,2.25rem)", color: "#ffffff" }}
                 >
                   {featured.title}
                 </h2>
-                <p className="font-jakarta text-[15px] leading-[1.7] mb-6" style={{ color: "#A8E6C3" }}>
+                <p
+                  className="font-jakarta text-[15px] leading-[1.7] mb-6"
+                  style={{ color: "#A8E6C3" }}
+                >
                   {featured.excerpt}
                 </p>
                 <div className="flex items-center gap-4 mb-6">
-                  <span className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>{featured.author}</span>
+                  <span className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>
+                    {featured.author}
+                  </span>
                   <span style={{ color: "#0F4C2A" }}>·</span>
-                  <span className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>{featured.date}</span>
+                  <span className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>
+                    {featured.date}
+                  </span>
                   <span style={{ color: "#0F4C2A" }}>·</span>
-                  <span className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>{featured.readTime}</span>
+                  <span className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>
+                    {featured.readTime}
+                  </span>
                 </div>
                 <a
                   href={featured.slug}
@@ -182,7 +212,10 @@ export default function BlogContent() {
               </div>
               <div
                 className="hidden md:flex w-[200px] h-[200px] flex-shrink-0 rounded-2xl items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(232,160,32,0.2)" }}
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(232,160,32,0.2)",
+                }}
               >
                 <Rocket className="w-20 h-20" strokeWidth={1.5} style={{ color: "#E8A020" }} />
               </div>
@@ -194,10 +227,7 @@ export default function BlogContent() {
       {/* ── Post Grid ─────────────────────────────────────── */}
       <section className="py-12 px-4 pb-16" style={{ background: "#F3FBF6" }}>
         <div className="max-w-[1200px] mx-auto">
-          <h2
-            className="font-playfair font-bold text-[24px] mb-8"
-            style={{ color: "#061A12" }}
-          >
+          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "#061A12" }}>
             {activeCategory === "All" ? "Latest articles" : activeCategory}
           </h2>
           {visiblePosts.length === 0 ? (
@@ -219,12 +249,24 @@ export default function BlogContent() {
                 >
                   <div
                     className="flex items-center justify-center relative overflow-hidden"
-                    style={{ background: "#F3FBF6", height: "180px", borderBottom: "1px solid #e8f4ec" }}
+                    style={{
+                      background: "#F3FBF6",
+                      height: "180px",
+                      borderBottom: "1px solid #e8f4ec",
+                    }}
                   >
                     {post.flagEmoji ? (
-                      <span className="text-6xl transform transition-transform duration-300 group-hover:scale-110">{post.flagEmoji}</span>
+                      <span className="text-6xl transform transition-transform duration-300 group-hover:scale-110">
+                        {post.flagEmoji}
+                      </span>
                     ) : (
-                      post.icon && <post.icon className="w-14 h-14 transform transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
+                      post.icon && (
+                        <post.icon
+                          className="w-14 h-14 transform transition-transform duration-300 group-hover:scale-110"
+                          strokeWidth={1.5}
+                          style={{ color: "#0F4C2A" }}
+                        />
+                      )
                     )}
                   </div>
                   <div className="flex flex-col gap-4 p-6 flex-1">
@@ -251,11 +293,18 @@ export default function BlogContent() {
                     >
                       {post.excerpt}
                     </p>
-                    <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: "#f0f0f0" }}>
+                    <div
+                      className="flex items-center justify-between pt-2 border-t"
+                      style={{ borderColor: "#f0f0f0" }}
+                    >
                       <div className="flex items-center gap-2">
-                        <span className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>{post.author}</span>
+                        <span className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
+                          {post.author}
+                        </span>
                         <span style={{ color: "#d0d0d0" }}>·</span>
-                        <span className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>{post.date}</span>
+                        <span className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
+                          {post.date}
+                        </span>
                       </div>
                       <span
                         className="font-jakarta text-xs font-medium transition-colors duration-200 group-hover:text-[#E8A020]"
@@ -279,16 +328,20 @@ export default function BlogContent() {
             <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "#A8E6C3" }} />
           </div>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-3"
+            className="font-display font-bold leading-[1.2] mb-3"
             style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}
           >
             Stay in the loop
           </h2>
           <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
-            Monthly insights on school management, product updates, and education technology in Africa. No spam.
+            Monthly insights on school management, product updates, and education technology in
+            Africa. No spam.
           </p>
           <form
-            onSubmit={(e) => { e.preventDefault(); setEmail(""); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              setEmail("");
+            }}
             className="flex flex-col sm:flex-row gap-3 max-w-[480px] mx-auto"
           >
             <input
@@ -322,11 +375,13 @@ export default function BlogContent() {
       <section className="py-16 px-4" style={{ background: "#0F4C2A" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}
           >
             Ready to run your school{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>better?</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              better?
+            </em>
           </h2>
           <p className="font-jakarta text-[16px] leading-[1.7] mb-7" style={{ color: "#A8E6C3" }}>
             Start your free 30-day trial. No credit card. No setup fees.
@@ -342,7 +397,11 @@ export default function BlogContent() {
             <Link
               href="/features"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               See All Features
             </Link>
@@ -352,4 +411,3 @@ export default function BlogContent() {
     </>
   );
 }
-

@@ -2,225 +2,204 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "@/convex/_generated/api";
 import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ArrowLeft, UserPlus } from "lucide-react";
-import { useMutation } from "@/hooks/useSSRSafeConvex";
-import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useMutation } from "@/hooks/useSSRSafeConvex";
+import { ArrowLeft, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CreateLeadPage() {
   const router = useRouter();
   const { sessionToken } = useAuth();
-  const createLead = useMutation(api.platform.crm.mutations.createLead);
-
+  const createLead = useMutation(api.modules.platform.crm.createLead);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     schoolName: "",
-    contactPerson: "",
-    email: "",
+    contactName: "",
+    contactEmail: "",
     phone: "",
-    county: "",
-    schoolType: "",
-    source: "",
+    country: "Kenya",
+    studentCount: "",
+    source: "landing_waitlist",
+    sourceType: "waitlist",
+    timeline: "",
+    decisionMaker: "",
+    dealValueKes: "",
     notes: "",
+    tags: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!sessionToken || !form.schoolName || !form.contactPerson || !form.email || !form.source) return;
+  const update = (field: keyof typeof form) => (value: string) =>
+    setForm((current) => ({ ...current, [field]: value }));
 
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!sessionToken) return;
     setIsSubmitting(true);
-    setError(null);
     try {
-      await createLead({
+      const result = await createLead({
         sessionToken,
         schoolName: form.schoolName,
-        contactPerson: form.contactPerson,
-        email: form.email,
+        contactName: form.contactName,
+        contactEmail: form.contactEmail,
         phone: form.phone || undefined,
-        county: form.county || undefined,
-        schoolType: form.schoolType || undefined,
+        country: form.country,
+        studentCount: form.studentCount ? Number(form.studentCount) : undefined,
         source: form.source,
+        sourceType: form.sourceType,
+        timeline: form.timeline || undefined,
+        decisionMaker: form.decisionMaker || undefined,
+        dealValueKes: form.dealValueKes ? Number(form.dealValueKes) : undefined,
         notes: form.notes || undefined,
+        tags: form.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
       });
-      router.push("/platform/crm");
-    } catch (err: any) {
-      setError(err.message ?? "Failed to create lead");
+      toast.success("Lead created.");
+      router.push(`/platform/crm/${result.leadId}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create lead.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
         <PageHeader
-          title="Create Lead"
-          description="Add a new school lead to the CRM pipeline"
+          title="Create CRM Lead"
+          description="Capture the commercial context, score inputs, and follow-up posture before the first handoff."
           breadcrumbs={[
             { label: "Platform", href: "/platform" },
             { label: "CRM", href: "/platform/crm" },
-            { label: "Create Lead" },
+            { label: "Leads", href: "/platform/crm/leads" },
+            { label: "Create lead" },
           ]}
         />
       </div>
 
       <CrmAdminRail currentHref="/platform/crm/leads/create" />
 
-      <Card className="max-w-2xl">
+      <Card className="max-w-5xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5" />
-            Lead Details
+            <Plus className="h-5 w-5" />
+            Lead intake
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="schoolName">School Name *</Label>
-                <Input
-                  id="schoolName"
-                  value={form.schoolName}
-                  onChange={set("schoolName")}
-                  placeholder="e.g. Greenfield Academy"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="contactPerson">Contact Person *</Label>
-                <Input
-                  id="contactPerson"
-                  value={form.contactPerson}
-                  onChange={set("contactPerson")}
-                  placeholder="e.g. John Doe"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={form.email}
-                  onChange={set("email")}
-                  placeholder="contact@school.edu"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={form.phone}
-                  onChange={set("phone")}
-                  placeholder="+254 700 000 000"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="county">County</Label>
-                <Input
-                  id="county"
-                  value={form.county}
-                  onChange={set("county")}
-                  placeholder="e.g. Nairobi"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>School Type</Label>
-                <Select
-                  value={form.schoolType}
-                  onValueChange={(v) => setForm((p) => ({ ...p, schoolType: v }))}
-                >
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="School name" required>
+                <Input value={form.schoolName} onChange={(event) => update("schoolName")(event.target.value)} placeholder="Riverside Secondary School" required />
+              </Field>
+              <Field label="Primary contact" required>
+                <Input value={form.contactName} onChange={(event) => update("contactName")(event.target.value)} placeholder="Alice Wanjiku" required />
+              </Field>
+              <Field label="Contact email" required>
+                <Input type="email" value={form.contactEmail} onChange={(event) => update("contactEmail")(event.target.value)} placeholder="alice@school.ac.ke" required />
+              </Field>
+              <Field label="Phone">
+                <Input value={form.phone} onChange={(event) => update("phone")(event.target.value)} placeholder="+254 700 000 000" />
+              </Field>
+              <Field label="Country" required>
+                <Input value={form.country} onChange={(event) => update("country")(event.target.value)} required />
+              </Field>
+              <Field label="Estimated student count">
+                <Input type="number" value={form.studentCount} onChange={(event) => update("studentCount")(event.target.value)} placeholder="320" />
+              </Field>
+              <Field label="Source">
+                <Select value={form.source} onValueChange={update("source")}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="primary">Primary School</SelectItem>
-                    <SelectItem value="secondary">Secondary School</SelectItem>
-                    <SelectItem value="mixed">Mixed (Primary + Secondary)</SelectItem>
-                    <SelectItem value="international">International School</SelectItem>
-                    <SelectItem value="university">University / College</SelectItem>
+                    <SelectItem value="landing_waitlist">Landing waitlist</SelectItem>
+                    <SelectItem value="referral">Referral</SelectItem>
+                    <SelectItem value="event">Event</SelectItem>
+                    <SelectItem value="outbound">Outbound</SelectItem>
+                    <SelectItem value="partner">Partner</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
+              <Field label="Source type">
+                <Select value={form.sourceType} onValueChange={update("sourceType")}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="waitlist">Waitlist</SelectItem>
+                    <SelectItem value="referral">Referral</SelectItem>
+                    <SelectItem value="partner">Partner</SelectItem>
+                    <SelectItem value="inbound">Inbound</SelectItem>
+                    <SelectItem value="event">Event</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Timeline">
+                <Input value={form.timeline} onChange={(event) => update("timeline")(event.target.value)} placeholder="Needs go-live this term" />
+              </Field>
+              <Field label="Decision maker">
+                <Input value={form.decisionMaker} onChange={(event) => update("decisionMaker")(event.target.value)} placeholder="Principal / Finance Director" />
+              </Field>
+              <Field label="Potential value (KES)">
+                <Input type="number" value={form.dealValueKes} onChange={(event) => update("dealValueKes")(event.target.value)} placeholder="250000" />
+              </Field>
             </div>
 
-            <div className="space-y-2">
-              <Label>Lead Source *</Label>
-              <Select
-                value={form.source}
-                onValueChange={(v) => setForm((p) => ({ ...p, source: v }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="How did you find this lead?" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="website">Website</SelectItem>
-                  <SelectItem value="referral">Referral</SelectItem>
-                  <SelectItem value="cold_call">Cold Call</SelectItem>
-                  <SelectItem value="event">Event / Conference</SelectItem>
-                  <SelectItem value="social_media">Social Media</SelectItem>
-                  <SelectItem value="partnership">Partnership</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Field label="Tags">
+              <Input value={form.tags} onChange={(event) => update("tags")(event.target.value)} placeholder="high_value, urgent, referral" />
+            </Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                value={form.notes}
-                onChange={set("notes")}
-                placeholder="Any additional context about this lead..."
-                rows={3}
-              />
-            </div>
+            <Field label="Internal notes">
+              <Textarea value={form.notes} onChange={(event) => update("notes")(event.target.value)} rows={5} placeholder="Capture the pain points, urgency, and any deal blockers here." />
+            </Field>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
-
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-wrap justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => router.back()}>
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting || !form.schoolName || !form.contactPerson || !form.email || !form.source}
-              >
-                {isSubmitting ? "Creating..." : "Create Lead"}
+              <Button type="submit" disabled={isSubmitting || !form.schoolName || !form.contactName || !form.contactEmail}>
+                {isSubmitting ? "Creating..." : "Create lead"}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  children,
+  required,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>
+        {label}
+        {required ? " *" : null}
+      </Label>
+      {children}
     </div>
   );
 }

@@ -32,7 +32,7 @@
   <path d="M240,110 C240,103 223,99 200,101 L200,115 C223,113 240,119 240,110 Z" fill="url(#lf-gold)"/>
   <rect x="199" y="99" width="2" height="18" fill="#9B7A0A" opacity="0.7" rx="0.5"/>
   <!-- EduMyles text -->
-  <text x="200" y="195" text-anchor="middle" font-family="'Playfair Display', Georgia, serif" font-size="38" font-weight="700" fill="#D4AF37" letter-spacing="0.5">EduMyles</text>
+  <text x="200" y="195" text-anchor="middle" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="38" font-weight="700" fill="#D4AF37" letter-spacing="0.5">EduMyles</text>
   <!-- Tagline -->
   <text x="200" y="220" text-anchor="middle" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="13" font-weight="500" fill="#D4AF37" letter-spacing="3" opacity="0.85">EMPOWERING EDUCATION</text>
 </svg>

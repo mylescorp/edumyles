@@ -1,37 +1,55 @@
 import { v } from "convex/values";
 import { mutation, query } from "../../_generated/server";
-import { requirePmRole } from "./roles";
 import { logAction } from "../../helpers/auditLog";
+import { getProjectsForUser, getWorkspaceAccess, requirePmPermission } from "./helpers";
 
-// SECURITY: PM functions use requirePmRole(), which internally validates the
-// tenant session before applying PM-specific authorization.
+const workspaceFieldSchema = v.object({
+  key: v.string(),
+  name: v.string(),
+  type: v.union(
+    v.literal("text"),
+    v.literal("number"),
+    v.literal("select"),
+    v.literal("multi_select"),
+    v.literal("date"),
+    v.literal("user"),
+    v.literal("checkbox")
+  ),
+  options: v.optional(v.array(v.string())),
+  required: v.boolean(),
+});
 
-// Queries
+function uniqueMembers(ids: string[], actorId: string) {
+  return [...new Set([actorId, ...ids.filter(Boolean)])];
+}
+
 export const getWorkspaces = query({
   args: {
     sessionToken: v.string(),
+    includeArchived: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    await requirePmRole(ctx, args, "viewer");
-
+    const actor = await requirePmPermission(ctx, args, "pm.view_own");
     const workspaces = await ctx.db.query("pmWorkspaces").collect();
-    
-    // Add project counts to each workspace
-    const workspacesWithCounts = await Promise.all(
-      workspaces.map(async (workspace) => {
-        const projects = await ctx.db
-          .query("pmProjects")
-          .withIndex("by_workspace", (q) => q.eq("workspaceId", workspace._id))
-          .collect();
+    const accessibleWorkspaces = [];
 
-        return {
-          ...workspace,
-          projectCount: projects.length,
-        };
-      })
-    );
+    for (const workspace of workspaces) {
+      if (!args.includeArchived && workspace.isArchived) continue;
+      const canAccess = await getWorkspaceAccess(ctx, workspace, actor.userId, actor.permissions);
+      if (!canAccess) continue;
 
-    return workspacesWithCounts;
+      const projects = (await getProjectsForUser(ctx, actor.userId, actor.permissions)).filter(
+        (project) => String(project.workspaceId) === String(workspace._id)
+      );
+
+      accessibleWorkspaces.push({
+        ...workspace,
+        projectCount: projects.length,
+        memberCount: workspace.memberIds?.length ?? 0,
+      });
+    }
+
+    return accessibleWorkspaces.sort((a, b) => a.name.localeCompare(b.name));
   },
 });
 
@@ -41,22 +59,22 @@ export const getWorkspace = query({
     workspaceId: v.id("pmWorkspaces"),
   },
   handler: async (ctx, args) => {
-    await requirePmRole(ctx, args, "viewer", args.workspaceId);
-
+    const actor = await requirePmPermission(ctx, args, "pm.view_own");
     const workspace = await ctx.db.get(args.workspaceId);
-    if (!workspace) {
-      throw new Error("WORKSPACE_NOT_FOUND");
-    }
+    if (!workspace) throw new Error("WORKSPACE_NOT_FOUND");
 
-    // Get projects for this workspace
-    const projects = await ctx.db
-      .query("pmProjects")
-      .withIndex("by_workspace", (q) => q.eq("workspaceId", workspace._id))
-      .collect();
+    const canAccess = await getWorkspaceAccess(ctx, workspace, actor.userId, actor.permissions);
+    if (!canAccess) throw new Error("UNAUTHORIZED");
+
+    const projects = (await getProjectsForUser(ctx, actor.userId, actor.permissions)).filter(
+      (project) => String(project.workspaceId) === String(workspace._id)
+    );
 
     return {
       ...workspace,
       projects,
+      projectCount: projects.length,
+      memberCount: workspace.memberIds?.length ?? 0,
     };
   },
 });
@@ -67,17 +85,15 @@ export const getWorkspaceBySlug = query({
     slug: v.string(),
   },
   handler: async (ctx, args) => {
-    await requirePmRole(ctx, args, "viewer");
-
+    const actor = await requirePmPermission(ctx, args, "pm.view_own");
     const workspace = await ctx.db
       .query("pmWorkspaces")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .first();
 
-    if (!workspace) {
-      throw new Error("WORKSPACE_NOT_FOUND");
-    }
-
+    if (!workspace) throw new Error("WORKSPACE_NOT_FOUND");
+    const canAccess = await getWorkspaceAccess(ctx, workspace, actor.userId, actor.permissions);
+    if (!canAccess) throw new Error("UNAUTHORIZED");
     return workspace;
   },
 });
@@ -87,92 +103,90 @@ export const getPmStats = query({
     sessionToken: v.string(),
   },
   handler: async (ctx, args) => {
-    await requirePmRole(ctx, args, "viewer");
+    const actor = await requirePmPermission(ctx, args, "pm.view_own");
+    const accessibleProjects = await getProjectsForUser(ctx, actor.userId, actor.permissions);
+    const projectIds = new Set(accessibleProjects.map((project) => String(project._id)));
 
-    // Count all tasks across all projects
-    const allTasks = await ctx.db.query("pmTasks").collect();
-    const activeTasks = allTasks.filter(
-      (t) => t.status !== "Done" && t.status !== "done" && t.status !== "Cancelled"
-    ).length;
+    const tasks = (await ctx.db.query("pmTasks").collect()).filter(
+      (task) => !task.isDeleted && projectIds.has(String(task.projectId))
+    );
+    const logs = await ctx.db.query("pmTimeLogs").collect();
+    const relevantLogs = logs.filter((log) => {
+      const task = tasks.find((entry) => String(entry._id) === String(log.taskId));
+      if (!task) return false;
+      return hasViewAll(actor.permissions) || log.userId === actor.userId;
+    });
 
-    // Count all time logs this month
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    const allTimeLogs = await ctx.db.query("pmTimeLogs").collect();
-    const monthlyMinutes = allTimeLogs
-      .filter((log) => log.loggedAt >= startOfMonth.getTime())
-      .reduce((sum, log) => sum + (log.minutes ?? 0), 0);
-
-    // Count unique contributors (users with PM roles)
-    const allRoles = await ctx.db.query("pmRoles").collect();
-    const uniqueMembers = new Set(allRoles.map((r) => r.userId)).size;
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
 
     return {
-      activeTasks,
-      hoursLoggedThisMonth: Math.round(monthlyMinutes / 60),
-      teamMembers: uniqueMembers,
+      activeTasks: tasks.filter(
+        (task) => !["done", "cancelled", "completed"].includes(task.status.toLowerCase())
+      ).length,
+      hoursLoggedThisMonth: Math.round(
+        relevantLogs
+          .filter((log) => log.loggedAt >= monthStart.getTime())
+          .reduce((sum, log) => sum + log.minutes, 0) / 60
+      ),
+      teamMembers: new Set(accessibleProjects.flatMap((project) => project.memberIds)).size,
     };
   },
 });
 
-// Mutations
 export const createWorkspace = mutation({
   args: {
     sessionToken: v.string(),
     name: v.string(),
     slug: v.string(),
-    type: v.union(v.literal("engineering"), v.literal("onboarding"), v.literal("bugs"), v.literal("okrs")),
+    description: v.optional(v.string()),
+    type: v.union(
+      v.literal("engineering"),
+      v.literal("onboarding"),
+      v.literal("bugs"),
+      v.literal("okrs")
+    ),
     icon: v.string(),
+    color: v.optional(v.string()),
+    isPrivate: v.optional(v.boolean()),
+    memberIds: v.optional(v.array(v.string())),
     defaultStatuses: v.array(v.string()),
-    customFieldSchema: v.optional(v.array(v.object({
-      key: v.string(),
-      name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("select"), v.literal("multi_select"), v.literal("date"), v.literal("user"), v.literal("checkbox")),
-      options: v.optional(v.array(v.string())),
-      required: v.boolean(),
-    }))),
+    customFieldSchema: v.optional(v.array(workspaceFieldSchema)),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requirePmRole(ctx, args, "admin");
-
-    // Check if slug already exists
+    const actor = await requirePmPermission(ctx, args, "pm.create_workspace");
     const existing = await ctx.db
       .query("pmWorkspaces")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .first();
-
-    if (existing) {
-      throw new Error("SLUG_ALREADY_EXISTS");
-    }
+    if (existing) throw new Error("SLUG_ALREADY_EXISTS");
 
     const workspaceId = await ctx.db.insert("pmWorkspaces", {
-      name: args.name,
-      slug: args.slug,
+      name: args.name.trim(),
+      slug: args.slug.trim(),
+      description: args.description?.trim(),
       type: args.type,
-      icon: args.icon,
+      icon: args.icon.trim(),
+      color: args.color?.trim(),
+      isPrivate: args.isPrivate ?? false,
+      memberIds: uniqueMembers(args.memberIds ?? [], actor.userId),
+      isArchived: false,
       defaultStatuses: args.defaultStatuses,
-      customFieldSchema: args.customFieldSchema || [],
-      createdBy: tenantCtx.userId,
+      customFieldSchema: args.customFieldSchema ?? [],
+      createdBy: actor.userId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
 
     await logAction(ctx, {
-      tenantId: tenantCtx.tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email,
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
       action: "pm.workspace.created",
       entityType: "pmWorkspace",
       entityId: String(workspaceId),
-      after: {
-        name: args.name,
-        slug: args.slug,
-        type: args.type,
-        icon: args.icon,
-        defaultStatuses: args.defaultStatuses,
-        customFieldSchema: args.customFieldSchema || [],
-      },
+      after: { name: args.name, slug: args.slug, isPrivate: args.isPrivate ?? false },
     });
 
     return workspaceId;
@@ -185,65 +199,54 @@ export const updateWorkspace = mutation({
     workspaceId: v.id("pmWorkspaces"),
     name: v.optional(v.string()),
     slug: v.optional(v.string()),
+    description: v.optional(v.string()),
     icon: v.optional(v.string()),
+    color: v.optional(v.string()),
+    isPrivate: v.optional(v.boolean()),
+    memberIds: v.optional(v.array(v.string())),
     defaultStatuses: v.optional(v.array(v.string())),
-    customFieldSchema: v.optional(v.array(v.object({
-      key: v.string(),
-      name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("select"), v.literal("multi_select"), v.literal("date"), v.literal("user"), v.literal("checkbox")),
-      options: v.optional(v.array(v.string())),
-      required: v.boolean(),
-    }))),
+    customFieldSchema: v.optional(v.array(workspaceFieldSchema)),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requirePmRole(ctx, args, "admin", args.workspaceId);
-
+    const actor = await requirePmPermission(ctx, args, "pm.manage_workspace");
     const workspace = await ctx.db.get(args.workspaceId);
-    if (!workspace) {
-      throw new Error("WORKSPACE_NOT_FOUND");
-    }
+    if (!workspace) throw new Error("WORKSPACE_NOT_FOUND");
 
-    // Check if new slug conflicts with existing workspace
+    const patch: Record<string, unknown> = { updatedAt: Date.now() };
     if (args.slug && args.slug !== workspace.slug) {
       const existing = await ctx.db
         .query("pmWorkspaces")
         .withIndex("by_slug", (q) => q.eq("slug", args.slug!))
         .first();
-
-      if (existing && existing._id !== args.workspaceId) {
+      if (existing && String(existing._id) !== String(args.workspaceId)) {
         throw new Error("SLUG_ALREADY_EXISTS");
       }
     }
 
-    const updateData: any = {
-      updatedAt: Date.now(),
-    };
+    if (args.name !== undefined) patch.name = args.name.trim();
+    if (args.slug !== undefined) patch.slug = args.slug.trim();
+    if (args.description !== undefined) patch.description = args.description?.trim();
+    if (args.icon !== undefined) patch.icon = args.icon.trim();
+    if (args.color !== undefined) patch.color = args.color?.trim();
+    if (args.isPrivate !== undefined) patch.isPrivate = args.isPrivate;
+    if (args.memberIds !== undefined) patch.memberIds = uniqueMembers(args.memberIds, actor.userId);
+    if (args.defaultStatuses !== undefined) patch.defaultStatuses = args.defaultStatuses;
+    if (args.customFieldSchema !== undefined) patch.customFieldSchema = args.customFieldSchema;
 
-    if (args.name !== undefined) updateData.name = args.name;
-    if (args.slug !== undefined) updateData.slug = args.slug;
-    if (args.icon !== undefined) updateData.icon = args.icon;
-    if (args.defaultStatuses !== undefined) updateData.defaultStatuses = args.defaultStatuses;
-    if (args.customFieldSchema !== undefined) updateData.customFieldSchema = args.customFieldSchema;
-
-    await ctx.db.patch(args.workspaceId, updateData);
+    await ctx.db.patch(args.workspaceId, patch);
 
     await logAction(ctx, {
-      tenantId: tenantCtx.tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email,
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
       action: "pm.workspace.updated",
       entityType: "pmWorkspace",
       entityId: String(args.workspaceId),
-      before: {
-        name: workspace.name,
-        slug: workspace.slug,
-        icon: workspace.icon,
-        defaultStatuses: workspace.defaultStatuses,
-        customFieldSchema: workspace.customFieldSchema,
-      },
-      after: updateData,
+      before: workspace,
+      after: patch,
     });
-    return true;
+
+    return { success: true };
   },
 });
 
@@ -254,44 +257,39 @@ export const deleteWorkspace = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requirePmRole(ctx, args, "admin", args.workspaceId);
-
+    const actor = await requirePmPermission(ctx, args, "pm.manage_workspace");
     const workspace = await ctx.db.get(args.workspaceId);
-    if (!workspace) {
-      throw new Error("WORKSPACE_NOT_FOUND");
-    }
+    if (!workspace) throw new Error("WORKSPACE_NOT_FOUND");
 
-    // Check if workspace has projects
     const projects = await ctx.db
       .query("pmProjects")
-      .withIndex("by_workspace", (q) => q.eq("workspaceId", workspace._id))
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
       .collect();
-
-    if (projects.length > 0) {
+    if (projects.some((project) => !project.isDeleted)) {
       throw new Error("CANNOT_DELETE_WORKSPACE_WITH_PROJECTS");
     }
 
-    await ctx.db.delete(args.workspaceId);
+    await ctx.db.patch(args.workspaceId, {
+      isArchived: true,
+      updatedAt: Date.now(),
+    });
 
     await logAction(ctx, {
-      tenantId: tenantCtx.tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email,
+      tenantId: "PLATFORM",
+      actorId: actor.userId,
+      actorEmail: actor.email || "unknown@example.com",
       action: "pm.workspace.deleted",
       entityType: "pmWorkspace",
       entityId: String(args.workspaceId),
-      before: {
-        name: workspace.name,
-        slug: workspace.slug,
-        type: workspace.type,
-        icon: workspace.icon,
-        defaultStatuses: workspace.defaultStatuses,
-        customFieldSchema: workspace.customFieldSchema,
-      },
-      after: {
-        reason: args.reason,
-      },
+      before: workspace,
+      after: { reason: args.reason, isArchived: true },
     });
-    return true;
+
+    return { success: true };
   },
 });
+
+function hasViewAll(permissions: string[]) {
+  return permissions.includes("*") || permissions.includes("pm.view_all");
+}
+

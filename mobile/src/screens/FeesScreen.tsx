@@ -1,11 +1,11 @@
-import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useQuery } from 'convex/react';
+import React from "react";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useQuery } from "convex/react";
 
-import { useAuth } from '../hooks/useAuth';
-import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
-import { api } from '../lib/convexApi';
-import { theme } from '../theme';
+import { useAuth } from "../hooks/useAuth";
+import { useCachedQueryValue, useOfflineSync } from "../hooks/useOfflineSync";
+import { api } from "../lib/convexApi";
+import { theme } from "../theme";
 
 const getCurrentDayOfWeek = () => {
   const jsDay = new Date().getDay();
@@ -18,50 +18,50 @@ const FeesScreen: React.FC = () => {
 
   const studentWallet = useQuery(
     api.modules.ewallet.queries.getMyWalletBalance,
-    sessionToken && user?.role === 'student' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken } : "skip"
   );
   const studentTransactions = useQuery(
     api.modules.ewallet.queries.getMyTransactionHistory,
-    sessionToken && user?.role === 'student' ? { sessionToken, limit: 10 } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken, limit: 10 } : "skip"
   );
   const parentFeeOverview = useQuery(
     api.modules.portal.parent.queries.getChildrenFeeOverview,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const parentPaymentHistory = useQuery(
     api.modules.portal.parent.queries.getPaymentHistory,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const teacherSchedule = useQuery(
     api.modules.timetable.queries.getTeacherSchedule,
-    sessionToken && user?.role === 'teacher'
+    sessionToken && user?.role === "teacher"
       ? { sessionToken, teacherId: user.userId, dayOfWeek: getCurrentDayOfWeek() }
-      : 'skip',
+      : "skip"
   );
 
-  const resolvedStudentWallet = useCachedQueryValue<any>('student.fees.wallet', studentWallet);
+  const resolvedStudentWallet = useCachedQueryValue<any>("student.fees.wallet", studentWallet);
   const resolvedStudentTransactions = useCachedQueryValue<any[]>(
-    'student.fees.transactions',
-    studentTransactions,
+    "student.fees.transactions",
+    studentTransactions
   );
   const resolvedParentFeeOverview = useCachedQueryValue<any[]>(
-    'parent.payments.feeOverview',
-    parentFeeOverview,
+    "parent.payments.feeOverview",
+    parentFeeOverview
   );
   const resolvedParentPaymentHistory = useCachedQueryValue<any[]>(
-    'parent.payments.history',
-    parentPaymentHistory,
+    "parent.payments.history",
+    parentPaymentHistory
   );
   const resolvedTeacherSchedule = useCachedQueryValue<any[]>(
-    'teacher.timetable.today',
-    teacherSchedule,
+    "teacher.timetable.today",
+    teacherSchedule
   );
 
   if (!sessionToken) {
     return <Text style={styles.stateText}>Sign in to view this section.</Text>;
   }
 
-  if (user?.role === 'parent') {
+  if (user?.role === "parent") {
     if (!resolvedParentFeeOverview || !resolvedParentPaymentHistory) {
       return (
         <View style={styles.center}>
@@ -72,7 +72,7 @@ const FeesScreen: React.FC = () => {
 
     const totalBalance = resolvedParentFeeOverview.reduce(
       (sum: number, child: any) => sum + (child.balance ?? 0),
-      0,
+      0
     );
 
     return (
@@ -89,9 +89,12 @@ const FeesScreen: React.FC = () => {
             <Text style={styles.transactionType}>
               {child.firstName} {child.lastName}
             </Text>
-            <Text style={styles.transactionAmount}>{((child.balance ?? 0) / 100).toLocaleString()}</Text>
+            <Text style={styles.transactionAmount}>
+              {((child.balance ?? 0) / 100).toLocaleString()}
+            </Text>
             <Text style={styles.meta}>
-              Paid invoices: {child.paidInvoiceCount ?? 0} • Pending: {child.pendingInvoiceCount ?? 0}
+              Paid invoices: {child.paidInvoiceCount ?? 0} • Pending:{" "}
+              {child.pendingInvoiceCount ?? 0}
             </Text>
           </View>
         ))}
@@ -102,10 +105,12 @@ const FeesScreen: React.FC = () => {
         ) : (
           resolvedParentPaymentHistory.slice(0, 10).map((payment: any) => (
             <View key={payment._id} style={styles.card}>
-              <Text style={styles.transactionType}>{payment.studentName ?? 'Student payment'}</Text>
-              <Text style={styles.transactionAmount}>{(payment.amount / 100).toLocaleString()}</Text>
+              <Text style={styles.transactionType}>{payment.studentName ?? "Student payment"}</Text>
+              <Text style={styles.transactionAmount}>
+                {(payment.amount / 100).toLocaleString()}
+              </Text>
               <Text style={styles.meta}>
-                {payment.method ?? payment.provider ?? 'Payment'} • {payment.status ?? 'processed'}
+                {payment.method ?? payment.provider ?? "Payment"} • {payment.status ?? "processed"}
               </Text>
             </View>
           ))
@@ -114,7 +119,7 @@ const FeesScreen: React.FC = () => {
     );
   }
 
-  if (user?.role === 'teacher') {
+  if (user?.role === "teacher") {
     if (!resolvedTeacherSchedule) {
       return (
         <View style={styles.center}>
@@ -135,12 +140,14 @@ const FeesScreen: React.FC = () => {
         ) : (
           resolvedTeacherSchedule.map((slot: any) => (
             <View key={slot._id} style={styles.card}>
-              <Text style={styles.transactionType}>{slot.subjectName ?? slot.subjectId ?? 'Class slot'}</Text>
+              <Text style={styles.transactionType}>
+                {slot.subjectName ?? slot.subjectId ?? "Class slot"}
+              </Text>
               <Text style={styles.transactionAmount}>
                 {slot.startTime} - {slot.endTime}
               </Text>
               <Text style={styles.meta}>
-                Room: {slot.room ?? 'Not assigned'} • Class: {slot.classId ?? 'Class pending'}
+                Room: {slot.room ?? "Not assigned"} • Class: {slot.classId ?? "Class pending"}
               </Text>
             </View>
           ))
@@ -163,7 +170,8 @@ const FeesScreen: React.FC = () => {
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Available wallet balance</Text>
         <Text style={styles.balanceValue}>
-          {(resolvedStudentWallet.balanceCents / 100).toLocaleString()} {resolvedStudentWallet.currency}
+          {(resolvedStudentWallet.balanceCents / 100).toLocaleString()}{" "}
+          {resolvedStudentWallet.currency}
         </Text>
       </View>
 
@@ -177,7 +185,9 @@ const FeesScreen: React.FC = () => {
             <Text style={styles.transactionAmount}>
               {(transaction.amountCents / 100).toLocaleString()} {resolvedStudentWallet.currency}
             </Text>
-            <Text style={styles.meta}>{transaction.note ?? transaction.reference ?? 'No description provided'}</Text>
+            <Text style={styles.meta}>
+              {transaction.note ?? transaction.reference ?? "No description provided"}
+            </Text>
           </View>
         ))
       )}
@@ -196,47 +206,49 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   stateText: {
     flex: 1,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    textAlign: "center",
+    textAlignVertical: "center",
     color: theme.colors.textSecondary,
     padding: theme.spacing.lg,
+    fontFamily: theme.fonts.regular,
   },
   balanceCard: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: "#eff6ff",
     borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: '#bfdbfe',
+    borderColor: "#bfdbfe",
   },
   balanceLabel: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   balanceValue: {
     color: theme.colors.primary,
     fontSize: theme.fontSizes.xxxl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
     marginTop: theme.spacing.sm,
   },
   sectionTitle: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.lg,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   emptyText: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.base,
+    fontFamily: theme.fonts.regular,
   },
   banner: {
     color: theme.colors.warning,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   card: {
     backgroundColor: theme.colors.white,
@@ -248,19 +260,20 @@ const styles = StyleSheet.create({
   transactionType: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
-    fontWeight: '700',
-    textTransform: 'capitalize',
+    fontFamily: theme.fonts.displayMedium,
+    textTransform: "capitalize",
   },
   transactionAmount: {
     color: theme.colors.success,
     fontSize: theme.fontSizes.xl,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
     marginTop: theme.spacing.sm,
   },
   meta: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.regular,
   },
 });
 

@@ -1,16 +1,9 @@
 ▲ Next.js 16.2.2 (Turbopack)
 - Local:         http://localhost:3001
-- Network:       http://192.168.0.101:3001
-✓ Ready in 2.1s
+- Network:       http://192.168.1.128:3001
+✓ Ready in 5.5s
 
- GET / 200 in 1782ms (next.js: 503ms, application-code: 1279ms)
- HEAD / 200 in 327ms (next.js: 8ms, application-code: 319ms)
- GET / 200 in 296ms (next.js: 7ms, application-code: 289ms)
- GET /waitlist 200 in 1666ms (next.js: 1476ms, application-code: 190ms)
-✓ Compiled in 2.1s
-✓ Compiled in 218ms
-✓ Compiled in 259ms
- GET /waitlist 200 in 414ms (next.js: 199ms, application-code: 215ms)
- GET /waitlist 200 in 119ms (next.js: 9ms, application-code: 110ms)
- POST /api/waitlist 200 in 3.5s (next.js: 2.2s, application-code: 1315ms)
- GET /waitlist/success?email=jonathan.ayany%40student.moringaschool.com&school=test 200 in 905ms (next.js: 852ms, application-code: 53ms)
+ HEAD / 200 in 2.5s (next.js: 637ms, application-code: 1813ms)
+ GET /waitlist/success?email=jonathan.ayany%40student.moringaschool.com&school=test 200 in 1044ms (next.js: 534ms, application-code: 511ms)
+ GET /waitlist/success?email=jonathan.ayany%40student.moringaschool.com&school=test 200 in 593ms (next.js: 139ms, application-code: 454ms)
+ GET / 200 in 220ms (next.js: 76ms, application-code: 144ms)

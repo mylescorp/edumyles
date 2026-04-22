@@ -7,20 +7,17 @@ const problems: { icon: LucideIcon; title: string; description: string }[] = [
   {
     icon: ClipboardList,
     title: "Manual Registers",
-    description:
-      "Attendance marked on paper, then re-entered into Excel. Hours wasted. Data lost.",
+    description: "Attendance marked on paper, then re-entered into Excel. Hours wasted. Data lost.",
   },
   {
     icon: BarChart2,
     title: "Scattered Data",
-    description:
-      "Student records in 5 different spreadsheets. No single source of truth.",
+    description: "Student records in 5 different spreadsheets. No single source of truth.",
   },
   {
     icon: MessageCircle,
     title: "Communication Chaos",
-    description:
-      "Parent updates via WhatsApp, SMS, and phone calls. No system. No records.",
+    description: "Parent updates via WhatsApp, SMS, and phone calls. No system. No records.",
   },
 ];
 
@@ -56,12 +53,17 @@ export default function Features() {
         {/* Eyebrow */}
         <div className="flex items-center gap-[10px] mb-[10px]">
           <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "#E8A020" }} />
-          <div className="text-[10px] font-bold tracking-[2.5px] uppercase" style={{ color: "#E8A020" }}>The Problem</div>
+          <div
+            className="text-[10px] font-bold tracking-[2.5px] uppercase"
+            style={{ color: "#E8A020" }}
+          >
+            The Problem
+          </div>
         </div>
 
         {/* Heading */}
         <h2
-          className="font-playfair font-bold leading-[1.2] mb-12"
+          className="font-display font-bold leading-[1.2] mb-12"
           style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#ffffff" }}
         >
           Schools are drowning in paperwork.{" "}
@@ -75,7 +77,9 @@ export default function Features() {
           {problems.map((problem, i) => (
             <div
               key={problem.title}
-              ref={(el) => { cardRefs.current[i] = el; }}
+              ref={(el) => {
+                cardRefs.current[i] = el;
+              }}
               className="fade-in rounded-[12px] p-8 transition-all duration-300 cursor-default"
               style={{
                 background: "rgba(255,255,255,0.05)",
@@ -94,10 +98,7 @@ export default function Features() {
               <div className="mb-4" style={{ color: "#E8A020" }}>
                 <problem.icon className="w-6 h-6" strokeWidth={1.5} />
               </div>
-              <h3
-                className="font-playfair font-bold text-[20px] mb-3"
-                style={{ color: "#ffffff" }}
-              >
+              <h3 className="font-display font-bold text-[20px] mb-3" style={{ color: "#ffffff" }}>
                 {problem.title}
               </h3>
               <p className="text-[14px] leading-[1.6]" style={{ color: "#90CAF9" }}>

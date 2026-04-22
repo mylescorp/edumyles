@@ -1,10 +1,624 @@
-⨯ Failed to start server
-Error: listen EADDRINUSE: address already in use :::3000
-    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
-    at new Promise (<anonymous>) {
-  code: 'EADDRINUSE',
-  errno: -4091,
-  syscall: 'listen',
-  address: '::',
-  port: 3000
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:253:22)
+  251 |
+  252 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 253 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  254 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  255 |               <CardHeader className="pb-3">
+  256 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:253:22)
+  251 |
+  252 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 253 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  254 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  255 |               <CardHeader className="pb-3">
+  256 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:253:22)
+  251 |
+  252 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 253 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  254 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  255 |               <CardHeader className="pb-3">
+  256 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:253:22)
+  251 |
+  252 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 253 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  254 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  255 |               <CardHeader className="pb-3">
+  256 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead.
+    at Set.forEach (<anonymous>) (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead.
+    at Set.forEach (<anonymous>) (src/app/error.tsx:16:13)
+⨯ ReferenceError: FolderKanban is not defined
+    at module evaluation (src\lib\routes.ts:91:65)
+    at module evaluation (src\hooks\usePermissionBasedNav.ts:1:1)
+    at module evaluation (src\components\layout\GlobalShell.tsx:13:1)
+    at module evaluation (src\components\layout\shells\AppShellBase.tsx:5:1)
+    at module evaluation (src\components\layout\shells\PlatformShell.tsx:4:1)
+  89 | ...
+  90 | ...ard", href: "/platform/pm", icon: Kanban, section: "Project Management", permission: "p...
+> 91 | ...s", href: "/platform/pm/workspaces", icon: FolderKanban, section: "Project Management",...
+     |                                               ^
+  92 | ..., href: "/platform/pm/my-tasks", icon: ClipboardList, section: "Project Management", pe...
+  93 | ...
+  94 | ...ashboard", href: "/platform/billing", icon: DollarSign, section: "Billing", permission:... {
+  digest: '3321920274'
 }
+[browser] Uncaught Error: Switched to client rendering because the server rendering errored:
+
+FolderKanban is not defined
+    at module evaluation (C:\Users\Admin\Projects\edumyles\frontend\.next\dev\server\chunks\ssr\_0ycr-u4._.js:1142:15)
+    at module evaluation (C:\Users\Admin\Projects\edumyles\frontend\.next\dev\server\chunks\ssr\_0ycr-u4._.js:1946:158)
+    at module evaluation (C:\Users\Admin\Projects\edumyles\frontend\.next\dev\server\chunks\ssr\_0ycr-u4._.js:2999:175)
+    at module evaluation (C:\Users\Admin\Projects\edumyles\frontend\.next\dev\server\chunks\ssr\_0ycr-u4._.js:6833:181)
+    at module evaluation (C:\Users\Admin\Projects\edumyles\frontend\.next\dev\server\chunks\ssr\_0ycr-u4._.js:7012:192)
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:253:22)
+  251 |
+  252 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 253 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  254 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  255 |               <CardHeader className="pb-3">
+  256 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:253:22)
+  251 |
+  252 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 253 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  254 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  255 |               <CardHeader className="pb-3">
+  256 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. (file://C:/Users/Admin/Projects/edumyles/frontend/.next/dev/static/chunks/node_modules_0b8bext._.js:21944:40)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:240:22)
+  238 |
+  239 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 240 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  241 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  242 |               <CardHeader className="pb-3">
+  243 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:240:22)
+  238 |
+  239 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 240 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  241 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  242 |               <CardHeader className="pb-3">
+  243 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Error: Objects are not valid as a React child (found: object with keys {data, isLoading, error, refetch, value}). If you meant to render a collection of children, use an array instead. (src/app/error.tsx:16:13)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] RangeError: Maximum call stack size exceeded
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:65:10)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+  63 | }
+  64 |
+> 65 | function unwrapRenderValue<T = unknown>(value: any): T | undefined {
+     |          ^
+  66 |   if (value === undefined || value === null) return undefined;
+  67 |   if (typeof value === "object") {
+  68 |     if ("value" in value && value.value !== undefined) { (src/app/error.tsx:16:13)
+[browser] RangeError: Maximum call stack size exceeded
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:65:10)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+  63 | }
+  64 |
+> 65 | function unwrapRenderValue<T = unknown>(value: any): T | undefined {
+     |          ^
+  66 |   if (value === undefined || value === null) return undefined;
+  67 |   if (typeof value === "object") {
+  68 |     if ("value" in value && value.value !== undefined) { (src/app/error.tsx:16:13)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] RangeError: Maximum call stack size exceeded
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:65:10)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+  63 | }
+  64 |
+> 65 | function unwrapRenderValue<T = unknown>(value: any): T | undefined {
+     |          ^
+  66 |   if (value === undefined || value === null) return undefined;
+  67 |   if (typeof value === "object") {
+  68 |     if ("value" in value && value.value !== undefined) { (src/app/error.tsx:16:13)
+[browser] RangeError: Maximum call stack size exceeded
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:65:10)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+    at unwrapRenderValue (src/components/layout/GlobalShell.tsx:72:14)
+  63 | }
+  64 |
+> 65 | function unwrapRenderValue<T = unknown>(value: any): T | undefined {
+     |          ^
+  66 |   if (value === undefined || value === null) return undefined;
+  67 |   if (typeof value === "object") {
+  68 |     if ("value" in value && value.value !== undefined) { (src/app/error.tsx:16:13)
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:240:22)
+  238 |
+  239 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 240 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  241 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  242 |               <CardHeader className="pb-3">
+  243 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] TypeError: projects?.map is not a function
+    at WorkspacePage (src/app/platform/pm/[slug]/page.tsx:240:22)
+  238 |
+  239 |       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+> 240 |           {projects?.map((project: ProjectSummary) => (
+      |                      ^
+  241 |             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
+  242 |               <CardHeader className="pb-3">
+  243 |                 <div className="flex items-center justify-between"> (src/app/platform/error.tsx:16:13)
+[browser] TypeError: rows.reduce is not a function
+    at MyTasksPage.useMemo[grouped] (src/app/platform/pm/my-tasks/page.tsx:26:17)
+    at MyTasksPage (src/app/platform/pm/my-tasks/page.tsx:24:26)
+  24 |   const grouped = useMemo(() => {
+  25 |     const rows = (tasks ?? []) as any[];
+> 26 |     return rows.reduce((acc: Record<string, any[]>, task: any) => {
+     |                 ^
+  27 |       const key = task.project?.name ?? "Unassigned project";
+  28 |       acc[key] = acc[key] ?? [];
+  29 |       acc[key].push(task); (src/app/platform/error.tsx:16:13)
+[browser] TypeError: rows.reduce is not a function
+    at MyTasksPage.useMemo[grouped] (src/app/platform/pm/my-tasks/page.tsx:26:17)
+    at MyTasksPage (src/app/platform/pm/my-tasks/page.tsx:24:26)
+  24 |   const grouped = useMemo(() => {
+  25 |     const rows = (tasks ?? []) as any[];
+> 26 |     return rows.reduce((acc: Record<string, any[]>, task: any) => {
+     |                 ^
+  27 |       const key = task.project?.name ?? "Unassigned project";
+  28 |       acc[key] = acc[key] ?? [];
+  29 |       acc[key].push(task); (src/app/platform/error.tsx:16:13)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Error: [CONVEX Q(modules/platform/rbac:getPlatformUser)] [Request ID: e1c03d65d16c42e4] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .platformUserId
+Value: "permissions"
+Validator: v.id("platform_users")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:28:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at PlatformUserDetailPage (src/app/platform/users/[userId]/page.tsx:77:32)
+  26 |   const shouldSkip = enabled === false;
+  27 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 28 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  29 |
+  30 |   if (shouldSkip) {
+  31 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Error: [CONVEX Q(modules/platform/rbac:getPlatformUser)] [Request ID: e1c03d65d16c42e4] Server Error
+ArgumentValidationError: Value does not match validator.
+Path: .platformUserId
+Value: "permissions"
+Validator: v.id("platform_users")
+
+
+  Called by client
+    at useQuery (src/hooks/useSSRSafeConvex.ts:28:32)
+    at usePlatformQuery (src/hooks/usePlatformQuery.ts:17:26)
+    at PlatformUserDetailPage (src/app/platform/users/[userId]/page.tsx:77:32)
+  26 |   const shouldSkip = enabled === false;
+  27 |   const queryArgs = shouldSkip ? "skip" : (args === "skip" ? "skip" : (args ?? {}));
+> 28 |   const result = useConvexQuery(query, queryArgs);
+     |                                ^
+  29 |
+  30 |   if (shouldSkip) {
+  31 |     return undefined as any; (src/app/platform/error.tsx:16:13)
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[browser] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.

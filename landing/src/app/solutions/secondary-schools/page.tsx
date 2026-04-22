@@ -25,7 +25,6 @@ export const metadata: Metadata = {
 export default function SecondarySchoolsPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── SECTION 1: Hero ────────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -48,20 +47,25 @@ export default function SecondarySchoolsPage() {
           {/* Eyebrow */}
           <div
             className="inline-block font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+            style={{
+              background: "rgba(232,160,32,0.12)",
+              border: "1px solid #E8A020",
+              color: "#E8A020",
+            }}
           >
             For Secondary Schools
           </div>
 
           {/* H1 */}
           <h1
-            className="font-playfair font-bold leading-[1.15] mb-5"
+            className="font-display font-bold leading-[1.15] mb-5"
             style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
           >
-            From Form 1 to Form 4.{" "}
-            <br className="hidden sm:block" />
+            From Form 1 to Form 4. <br className="hidden sm:block" />
             Every module your{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>secondary school needs.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              secondary school needs.
+            </em>
           </h1>
 
           {/* Subtitle */}
@@ -69,7 +73,8 @@ export default function SecondarySchoolsPage() {
             className="font-light leading-[1.8] mb-8 mx-auto"
             style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "680px" }}
           >
-            KCSE gradebook, CBC Senior, auto-timetabling, M-Pesa fee collection, HR &amp; payroll — unified in one platform built for Kenyan secondary schools.
+            KCSE gradebook, CBC Senior, auto-timetabling, M-Pesa fee collection, HR &amp; payroll —
+            unified in one platform built for Kenyan secondary schools.
           </p>
 
           {/* CTAs */}
@@ -84,7 +89,11 @@ export default function SecondarySchoolsPage() {
             <a
               href="/book-demo"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Book a Demo
             </a>
@@ -92,20 +101,21 @@ export default function SecondarySchoolsPage() {
 
           {/* Badges */}
           <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {[
-              "KCSE & CBC Senior",
-              "Auto-Timetabling",
-              "HR & Payroll Built-In",
-              "Multi-Stream",
-            ].map((badge) => (
-              <span
-                key={badge}
-                className="font-semibold text-[12px] px-4 py-2 rounded-[50px]"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.2)", color: "#A8E6C3" }}
-              >
-                ✓ {badge}
-              </span>
-            ))}
+            {["KCSE & CBC Senior", "Auto-Timetabling", "HR & Payroll Built-In", "Multi-Stream"].map(
+              (badge) => (
+                <span
+                  key={badge}
+                  className="font-semibold text-[12px] px-4 py-2 rounded-[50px]"
+                  style={{
+                    background: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    color: "#A8E6C3",
+                  }}
+                >
+                  ✓ {badge}
+                </span>
+              )
+            )}
           </div>
 
           {/* Stats row */}
@@ -124,12 +134,14 @@ export default function SecondarySchoolsPage() {
                 style={{ background: "rgba(6,26,18,0.95)" }}
               >
                 <div
-                  className="font-playfair font-bold mb-1"
+                  className="font-display font-bold mb-1"
                   style={{ fontSize: "clamp(1.6rem,3vw,2.25rem)", color: "#E8A020" }}
                 >
                   {stat}
                 </div>
-                <div className="text-[13px] font-medium" style={{ color: "#A8E6C3" }}>{label}</div>
+                <div className="text-[13px] font-medium" style={{ color: "#A8E6C3" }}>
+                  {label}
+                </div>
               </div>
             ))}
           </div>
@@ -147,7 +159,7 @@ export default function SecondarySchoolsPage() {
               The challenges secondary schools face
             </p>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               Sound familiar?
@@ -174,18 +186,27 @@ export default function SecondarySchoolsPage() {
               <div
                 key={num}
                 className="rounded-2xl p-7"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(232,160,32,0.2)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(232,160,32,0.2)",
+                }}
               >
                 <div className="flex items-start gap-4 mb-4">
                   <span
-                    className="font-playfair font-bold text-[2rem] leading-none"
+                    className="font-display font-bold text-[2rem] leading-none"
                     style={{ color: "#E8A020", opacity: 0.7 }}
                   >
                     {num}
                   </span>
-                  <Icon className="w-8 h-8 mt-1 flex-shrink-0" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+                  <Icon
+                    className="w-8 h-8 mt-1 flex-shrink-0"
+                    strokeWidth={1.5}
+                    style={{ color: "#E8A020" }}
+                  />
                 </div>
-                <p className="leading-[1.8] text-[15px]" style={{ color: "#A8E6C3" }}>{text}</p>
+                <p className="leading-[1.8] text-[15px]" style={{ color: "#A8E6C3" }}>
+                  {text}
+                </p>
               </div>
             ))}
           </div>
@@ -203,7 +224,7 @@ export default function SecondarySchoolsPage() {
               Getting Started
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Live in under 4 weeks
@@ -245,12 +266,14 @@ export default function SecondarySchoolsPage() {
                   {step}
                 </div>
                 <h3
-                  className="font-playfair font-bold text-[1.3rem] mb-3 leading-[1.3]"
+                  className="font-display font-bold text-[1.3rem] mb-3 leading-[1.3]"
                   style={{ color: "#061A12" }}
                 >
                   {title}
                 </h3>
-                <p className="text-[14px] leading-[1.75] mb-5" style={{ color: "#5a5a5a" }}>{desc}</p>
+                <p className="text-[14px] leading-[1.75] mb-5" style={{ color: "#5a5a5a" }}>
+                  {desc}
+                </p>
                 <div
                   className="inline-flex items-center gap-1.5 font-semibold text-[12px] px-3 py-1 rounded-full"
                   style={{ background: "#F3FBF6", color: "#0F4C2A" }}
@@ -275,7 +298,7 @@ export default function SecondarySchoolsPage() {
               All 11 Modules
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Everything a secondary school needs
@@ -340,10 +363,15 @@ export default function SecondarySchoolsPage() {
                 <div className="mb-4">
                   <Icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
                 </div>
-                <h3 className="font-playfair font-bold text-[1.1rem] mb-2 leading-[1.3]" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[1.1rem] mb-2 leading-[1.3]"
+                  style={{ color: "#061A12" }}
+                >
                   {title}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>{desc}</p>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+                  {desc}
+                </p>
               </div>
             ))}
           </div>
@@ -355,11 +383,13 @@ export default function SecondarySchoolsPage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Two capabilities that{" "}
-              <em className="italic" style={{ color: "#0F4C2A" }}>define a secondary school.</em>
+              <em className="italic" style={{ color: "#0F4C2A" }}>
+                define a secondary school.
+              </em>
             </h2>
             <p className="text-[16px] leading-[1.7]" style={{ color: "#2d5a3d" }}>
               Deep-dive into the modules that matter most.
@@ -378,7 +408,7 @@ export default function SecondarySchoolsPage() {
                 KCSE &amp; CBC Senior Gradebook
               </div>
               <h3
-                className="font-playfair font-bold text-[1.4rem] mb-5 leading-[1.3]"
+                className="font-display font-bold text-[1.4rem] mb-5 leading-[1.3]"
                 style={{ color: "#061A12" }}
               >
                 Grades, ranks, and report cards — automated.
@@ -393,8 +423,14 @@ export default function SecondarySchoolsPage() {
                   "Predicted grade alerts mid-term to flag at-risk candidates early",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" strokeWidth={2} style={{ color: "#1A7A4A" }} />
-                    <span className="text-[14px] leading-[1.7]" style={{ color: "#3d3d3d" }}>{item}</span>
+                    <CheckCircle2
+                      className="w-4 h-4 mt-0.5 flex-shrink-0"
+                      strokeWidth={2}
+                      style={{ color: "#1A7A4A" }}
+                    />
+                    <span className="text-[14px] leading-[1.7]" style={{ color: "#3d3d3d" }}>
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -412,7 +448,7 @@ export default function SecondarySchoolsPage() {
                 Auto-Timetabling
               </div>
               <h3
-                className="font-playfair font-bold text-[1.4rem] mb-5 leading-[1.3]"
+                className="font-display font-bold text-[1.4rem] mb-5 leading-[1.3]"
                 style={{ color: "#061A12" }}
               >
                 Two weeks of work done in under an hour.
@@ -427,8 +463,14 @@ export default function SecondarySchoolsPage() {
                   "Export to PDF or print directly — ready to pin on the staffroom noticeboard",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" strokeWidth={2} style={{ color: "#1A7A4A" }} />
-                    <span className="text-[14px] leading-[1.7]" style={{ color: "#3d3d3d" }}>{item}</span>
+                    <CheckCircle2
+                      className="w-4 h-4 mt-0.5 flex-shrink-0"
+                      strokeWidth={2}
+                      style={{ color: "#1A7A4A" }}
+                    />
+                    <span className="text-[14px] leading-[1.7]" style={{ color: "#3d3d3d" }}>
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -442,7 +484,7 @@ export default function SecondarySchoolsPage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-6">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-5"
+              className="font-display font-bold leading-[1.2] mb-5"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               Payroll that&apos;s actually accurate.
@@ -450,10 +492,14 @@ export default function SecondarySchoolsPage() {
           </div>
           <div
             className="max-w-[800px] mx-auto rounded-2xl p-8 mb-12 text-center"
-            style={{ background: "rgba(232,160,32,0.08)", border: "1px solid rgba(232,160,32,0.25)" }}
+            style={{
+              background: "rgba(232,160,32,0.08)",
+              border: "1px solid rgba(232,160,32,0.25)",
+            }}
           >
             <p className="text-[16px] leading-[1.9]" style={{ color: "#FEF3DC" }}>
-              Most Kenyan schools overpay or underpay statutory deductions because they use outdated calculators.{" "}
+              Most Kenyan schools overpay or underpay statutory deductions because they use outdated
+              calculators.{" "}
               <strong style={{ color: "#E8A020" }}>
                 EduMyles is updated whenever PAYE, SHA, or NSSF rates change
               </strong>{" "}
@@ -486,10 +532,13 @@ export default function SecondarySchoolsPage() {
               <div
                 key={title}
                 className="rounded-2xl p-6"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(232,160,32,0.2)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(232,160,32,0.2)",
+                }}
               >
                 <div
-                  className="font-playfair font-bold text-[1.5rem] mb-1"
+                  className="font-display font-bold text-[1.5rem] mb-1"
                   style={{ color: "#E8A020" }}
                 >
                   {title}
@@ -500,7 +549,9 @@ export default function SecondarySchoolsPage() {
                 >
                   {subtitle}
                 </div>
-                <p className="text-[13px] leading-[1.7]" style={{ color: "#90CAF9" }}>{desc}</p>
+                <p className="text-[13px] leading-[1.7]" style={{ color: "#90CAF9" }}>
+                  {desc}
+                </p>
               </div>
             ))}
           </div>
@@ -528,12 +579,14 @@ export default function SecondarySchoolsPage() {
             ].map(({ stat, label }) => (
               <div key={stat}>
                 <div
-                  className="font-playfair font-bold mb-2"
+                  className="font-display font-bold mb-2"
                   style={{ fontSize: "clamp(2rem,4vw,2.75rem)", color: "#FEF3DC" }}
                 >
                   {stat}
                 </div>
-                <div className="text-[14px] font-medium leading-[1.5]" style={{ color: "#A8E6C3" }}>{label}</div>
+                <div className="text-[14px] font-medium leading-[1.5]" style={{ color: "#A8E6C3" }}>
+                  {label}
+                </div>
               </div>
             ))}
           </div>
@@ -543,16 +596,20 @@ export default function SecondarySchoolsPage() {
       {/* ── SECTION 8: Testimonial ────────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "#FEF3DC" }}>
         <div className="max-w-[820px] mx-auto text-center">
-          <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>&ldquo;</div>
+          <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>
+            &ldquo;
+          </div>
           <blockquote
-            className="font-playfair italic leading-[1.85] mb-8"
+            className="font-display italic leading-[1.85] mb-8"
             style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "#2d2d2d" }}
           >
-            Our school has 1,100 students across 12 streams. Timetabling used to take our deputy principal two weeks. EduMyles generates a conflict-free timetable in under an hour. That time is now spent on teaching.
+            Our school has 1,100 students across 12 streams. Timetabling used to take our deputy
+            principal two weeks. EduMyles generates a conflict-free timetable in under an hour. That
+            time is now spent on teaching.
           </blockquote>
           <div className="inline-flex items-center gap-3 mx-auto">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[1rem] flex-shrink-0"
+              className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[1rem] flex-shrink-0"
               style={{ background: "#0F4C2A", color: "#FEF3DC" }}
             >
               SK
@@ -578,7 +635,7 @@ export default function SecondarySchoolsPage() {
               EduMyles vs Traditional
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               See the difference clearly
@@ -642,7 +699,9 @@ export default function SecondarySchoolsPage() {
                       borderTop: "1px solid #e8f4ec",
                     }}
                   >
-                    <td className="px-6 py-4 font-semibold" style={{ color: "#061A12" }}>{feature}</td>
+                    <td className="px-6 py-4 font-semibold" style={{ color: "#061A12" }}>
+                      {feature}
+                    </td>
                     <td className="px-6 py-4" style={{ color: "#888" }}>
                       <span className="flex items-center gap-2">
                         <span style={{ color: "#d32f2f" }}>✗</span> {manual}
@@ -672,7 +731,7 @@ export default function SecondarySchoolsPage() {
               Frequently Asked Questions
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Questions from secondary school leaders
@@ -711,12 +770,14 @@ export default function SecondarySchoolsPage() {
                 style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 8px rgba(6,26,18,0.04)" }}
               >
                 <h3
-                  className="font-playfair font-bold text-[1.05rem] mb-3 leading-[1.4]"
+                  className="font-display font-bold text-[1.05rem] mb-3 leading-[1.4]"
                   style={{ color: "#061A12" }}
                 >
                   {q}
                 </h3>
-                <p className="text-[14px] leading-[1.8]" style={{ color: "#5a5a5a" }}>{a}</p>
+                <p className="text-[14px] leading-[1.8]" style={{ color: "#5a5a5a" }}>
+                  {a}
+                </p>
               </div>
             ))}
           </div>
@@ -733,7 +794,7 @@ export default function SecondarySchoolsPage() {
             Integrations
           </p>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-8"
+            className="font-display font-bold leading-[1.2] mb-8"
             style={{ fontSize: "clamp(1.5rem,2.5vw,2.25rem)", color: "#061A12" }}
           >
             Connects with the tools your school already uses
@@ -776,7 +837,7 @@ export default function SecondarySchoolsPage() {
               Pricing for Secondary Schools
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
             >
               Transparent, all-inclusive pricing
@@ -799,14 +860,18 @@ export default function SecondarySchoolsPage() {
               </div>
               <div className="mb-1">
                 <span
-                  className="font-playfair font-bold"
+                  className="font-display font-bold"
                   style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "#061A12" }}
                 >
                   KES 21,500
                 </span>
-                <span className="text-[14px] ml-1" style={{ color: "#888" }}>/month</span>
+                <span className="text-[14px] ml-1" style={{ color: "#888" }}>
+                  /month
+                </span>
               </div>
-              <p className="text-[13px] mb-5" style={{ color: "#5a5a5a" }}>Up to 1,000 students</p>
+              <p className="text-[13px] mb-5" style={{ color: "#5a5a5a" }}>
+                Up to 1,000 students
+              </p>
               <ul className="space-y-2 text-[14px]" style={{ color: "#3d3d3d" }}>
                 {[
                   "All 11 modules included",
@@ -817,7 +882,11 @@ export default function SecondarySchoolsPage() {
                   "Parent & student portals",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: "#1A7A4A" }} />
+                    <CheckCircle2
+                      className="w-4 h-4 flex-shrink-0"
+                      strokeWidth={2}
+                      style={{ color: "#1A7A4A" }}
+                    />
                     {item}
                   </li>
                 ))}
@@ -849,14 +918,18 @@ export default function SecondarySchoolsPage() {
               </div>
               <div className="mb-1">
                 <span
-                  className="font-playfair font-bold"
+                  className="font-display font-bold"
                   style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "#E8A020" }}
                 >
                   KES 38,900
                 </span>
-                <span className="text-[14px] ml-1" style={{ color: "#90CAF9" }}>/month</span>
+                <span className="text-[14px] ml-1" style={{ color: "#90CAF9" }}>
+                  /month
+                </span>
               </div>
-              <p className="text-[13px] mb-5" style={{ color: "#A8E6C3" }}>Up to 3,000 students</p>
+              <p className="text-[13px] mb-5" style={{ color: "#A8E6C3" }}>
+                Up to 3,000 students
+              </p>
               <ul className="space-y-2 text-[14px]" style={{ color: "#d4e8da" }}>
                 {[
                   "Everything in Growth",
@@ -867,7 +940,11 @@ export default function SecondarySchoolsPage() {
                   "Dedicated onboarding manager",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" strokeWidth={2} style={{ color: "#E8A020" }} />
+                    <CheckCircle2
+                      className="w-4 h-4 flex-shrink-0"
+                      strokeWidth={2}
+                      style={{ color: "#E8A020" }}
+                    />
                     {item}
                   </li>
                 ))}
@@ -900,7 +977,7 @@ export default function SecondarySchoolsPage() {
             For Secondary Schools
           </div>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-5"
+            className="font-display font-bold leading-[1.2] mb-5"
             style={{ fontSize: "clamp(1.9rem,3.5vw,3rem)", color: "#ffffff" }}
           >
             Ready to bring your secondary school{" "}
@@ -909,7 +986,8 @@ export default function SecondarySchoolsPage() {
             </em>
           </h2>
           <p className="text-[17px] leading-[1.8] mb-4" style={{ color: "#A8E6C3" }}>
-            Join hundreds of Kenyan secondary schools already using EduMyles to manage timetables, grades, fees, and payroll — all in one place.
+            Join hundreds of Kenyan secondary schools already using EduMyles to manage timetables,
+            grades, fees, and payroll — all in one place.
           </p>
           <p className="text-[14px] mb-10 font-medium" style={{ color: "rgba(168,230,195,0.7)" }}>
             Free trial · No credit card required · Go live in 3–4 weeks
@@ -936,8 +1014,6 @@ export default function SecondarySchoolsPage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
-

@@ -6,31 +6,31 @@
 /* Critical design tokens - loaded immediately */
 :root {
   /* Brand */
-  --em-primary:       #1A4731;
-  --em-primary-light: #16A34A;
-  --em-accent:        #F59E0B;
-  --em-danger:        #DC2626;
+  --em-primary: #1a4731;
+  --em-primary-light: #16a34a;
+  --em-accent: #f59e0b;
+  --em-danger: #dc2626;
 
   /* Text */
-  --em-text-primary:   #1E293B;
-  --em-text-secondary: #64748B;
-  --em-text-inverse:   #FFFFFF;
+  --em-text-primary: #1e293b;
+  --em-text-secondary: #64748b;
+  --em-text-inverse: #ffffff;
 
   /* Surfaces */
-  --em-bg-base:        #FFFFFF;
-  --em-bg-subtle:      #F8FAFC;
-  --em-border:         #E2E8F0;
+  --em-bg-base: #ffffff;
+  --em-bg-subtle: #f8fafc;
+  --em-border: #e2e8f0;
 
   /* Elevation Shadows */
-  --em-shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --em-shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  --em-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --em-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
 
   /* Spacing tokens */
-  --space-1:  4px;
-  --space-2:  8px;
-  --space-4:  16px;
-  --space-6:  24px;
-  --space-8:  32px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
 }
 
 /* Critical layout styles */
@@ -106,15 +106,27 @@ img {
 }
 
 @keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* Font display optimization */
 .font-sans {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
-.font-poppins {
-  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+.font-display {
+  font-family:
+    var(--font-jakarta),
+    system-ui,
+    -apple-system,
+    sans-serif;
 }

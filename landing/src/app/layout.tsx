@@ -1,29 +1,21 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Plus_Jakarta_Sans, DM_Mono } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import PerformanceTracker from "@/components/ui/PerformanceTracker";
 
-const playfair = Playfair_Display({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-playfair",
+  weight: ["400", "500"],
+  variable: "--font-inter",
   display: "swap",
 });
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["600", "700"],
   variable: "--font-jakarta",
-  display: "swap",
-});
-
-const dmMono = DM_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-mono",
   display: "swap",
 });
 
@@ -37,7 +29,8 @@ export const metadata: Metadata = {
     "EduMyles is the all-in-one school management system for East African schools. M-Pesa fee collection, CBC gradebook, parent portal, attendance tracking, and more. Trusted by 50+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
   openGraph: {
     title: "EduMyles — School Management System for East Africa",
-    description: "The all-in-one school management platform for East African schools. M-Pesa fees, digital gradebooks, parent communication & more.",
+    description:
+      "The all-in-one school management platform for East African schools. M-Pesa fees, digital gradebooks, parent communication & more.",
     url: "https://edumyles.com",
     siteName: "EduMyles",
     type: "website",
@@ -116,12 +109,11 @@ const organizationSchema = {
   logo: "https://edumyles.com/logo.png",
   description: "School Management System for East African Schools",
   foundingDate: "2022",
-  founders: [{ "@type": "Person", name: "Jonathan Myles", sameAs: "https://linkedin.com/in/mylesoft" }],
-  areaServed: ["KE", "UG", "TZ", "RW", "ZM"],
-  sameAs: [
-    "https://twitter.com/edumyles",
-    "https://linkedin.com/company/edumyles",
+  founders: [
+    { "@type": "Person", name: "Jonathan Myles", sameAs: "https://linkedin.com/in/mylesoft" },
   ],
+  areaServed: ["KE", "UG", "TZ", "RW", "ZM"],
+  sameAs: ["https://twitter.com/edumyles", "https://linkedin.com/company/edumyles"],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -139,7 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body
         suppressHydrationWarning
-        className={`${playfair.variable} ${jakarta.variable} ${dmMono.variable} font-jakarta antialiased bg-white text-dark-grey`}
+        className={`${inter.variable} ${jakarta.variable} font-sans antialiased bg-white text-dark-grey`}
       >
         <PerformanceTracker />
         <ConditionalLayout>{children}</ConditionalLayout>

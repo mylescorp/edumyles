@@ -5,7 +5,7 @@ import { BarChart2 } from "lucide-react";
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  
+
   // Track referral click when component mounts
   useEffect(() => {
     const referralCode = new URLSearchParams(window.location.search).get("ref");
@@ -83,20 +83,22 @@ export default function Hero() {
 
       <div className="relative z-[3] max-w-[1200px] mx-auto w-full">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-
           {/* Left — Text content */}
           <div className="fade-in">
             {/* Eyebrow */}
             <div className="flex items-center gap-[10px] mb-6">
               <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "#E8A020" }} />
-              <div className="text-[10px] font-bold tracking-[2.5px] uppercase" style={{ color: "#E8A020" }}>
+              <div
+                className="text-[10px] font-bold tracking-[2.5px] uppercase"
+                style={{ color: "#E8A020" }}
+              >
                 Trusted by 50+ Schools Across Africa
               </div>
             </div>
 
             {/* Headline */}
             <h1
-              className="font-playfair font-bold leading-[1.2] mb-6"
+              className="font-display font-bold leading-[1.2] mb-6"
               style={{ fontSize: "clamp(2.5rem, 5vw, 4.25rem)", color: "#ffffff" }}
             >
               The All-in-One{" "}
@@ -111,8 +113,8 @@ export default function Hero() {
               className="font-jakarta font-light leading-[1.8] mb-8"
               style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "520px" }}
             >
-              Manage admissions, fees, attendance, exams &amp; parent communication from one powerful
-              platform. No more Excel chaos. No more WhatsApp groups for school updates.
+              Manage admissions, fees, attendance, exams &amp; parent communication from one
+              powerful platform. No more Excel chaos. No more WhatsApp groups for school updates.
             </p>
 
             {/* CTA Buttons */}
@@ -129,7 +131,11 @@ export default function Hero() {
               <a
                 href="#pricing"
                 className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-all duration-300 no-underline"
-                style={{ background: "transparent", color: "#ffffff", border: "1.5px solid rgba(255,255,255,0.2)" }}
+                style={{
+                  background: "transparent",
+                  color: "#ffffff",
+                  border: "1.5px solid rgba(255,255,255,0.2)",
+                }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "#E8A020";
                   e.currentTarget.style.color = "#E8A020";
@@ -158,7 +164,10 @@ export default function Hero() {
                     border: "1px solid rgba(232,160,32,0.2)",
                   }}
                 >
-                  <strong className="block text-[14px] sm:text-[18px] font-bold" style={{ color: "#E8A020" }}>
+                  <strong
+                    className="block text-[14px] sm:text-[18px] font-bold"
+                    style={{ color: "#E8A020" }}
+                  >
                     {stat.value}
                   </strong>
                   <small className="text-[12px]" style={{ color: "#6B9E83" }}>
@@ -186,7 +195,8 @@ export default function Hero() {
                 padding: "4px 12px",
               }}
             >
-              <BarChart2 className="w-4 h-4" strokeWidth={1.5} /> Sample data — see your real numbers after setup
+              <BarChart2 className="w-4 h-4" strokeWidth={1.5} /> Sample data — see your real
+              numbers after setup
             </div>
             {/* Card 1 — Total Students */}
             <div
@@ -200,9 +210,15 @@ export default function Hero() {
                 backdropFilter: "blur(10px)",
               }}
             >
-              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>Total Students</div>
-              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>1,250</div>
-              <div className="text-[11px] mt-1" style={{ color: "#A8E6C3" }}>+42 this term</div>
+              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>
+                Total Students
+              </div>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>
+                1,250
+              </div>
+              <div className="text-[11px] mt-1" style={{ color: "#A8E6C3" }}>
+                +42 this term
+              </div>
             </div>
 
             {/* Card 2 — Fees Collected */}
@@ -217,9 +233,15 @@ export default function Hero() {
                 backdropFilter: "blur(10px)",
               }}
             >
-              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>Fees Collected</div>
-              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>Ksh 2.4M</div>
-              <div className="text-[11px] mt-1" style={{ color: "#A8E6C3" }}>87% collection rate</div>
+              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>
+                Fees Collected
+              </div>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>
+                Ksh 2.4M
+              </div>
+              <div className="text-[11px] mt-1" style={{ color: "#A8E6C3" }}>
+                87% collection rate
+              </div>
             </div>
 
             {/* Card 3 — Attendance */}
@@ -234,9 +256,16 @@ export default function Hero() {
                 backdropFilter: "blur(10px)",
               }}
             >
-              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>Attendance Rate</div>
-              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>94%</div>
-              <div className="mt-2 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>
+                Attendance Rate
+              </div>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>
+                94%
+              </div>
+              <div
+                className="mt-2 h-1.5 rounded-full"
+                style={{ background: "rgba(255,255,255,0.1)" }}
+              >
                 <div
                   className="h-full rounded-full"
                   style={{ width: "94%", background: "linear-gradient(90deg, #1A7A4A, #E8A020)" }}

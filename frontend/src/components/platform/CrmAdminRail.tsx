@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const CRM_LINKS = [
-  { label: "Pipeline", href: "/platform/crm" },
+  { label: "Dashboard", href: "/platform/crm" },
+  { label: "Pipeline", href: "/platform/crm/pipeline" },
   { label: "Leads", href: "/platform/crm/leads" },
   { label: "Create Lead", href: "/platform/crm/leads/create" },
   { label: "Proposals", href: "/platform/crm/proposals" },
+  { label: "Reports", href: "/platform/crm/reports" },
+  { label: "Settings", href: "/platform/crm/settings" },
 ] as const;
 
 export function CrmAdminRail({ currentHref }: { currentHref: string }) {

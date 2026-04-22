@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,14 +7,14 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useMutation, useQuery } from 'convex/react';
-import AttendanceRow, { type AttendanceRowProps } from '../components/AttendanceRow';
+} from "react-native";
+import { useMutation, useQuery } from "convex/react";
+import AttendanceRow, { type AttendanceRowProps } from "../components/AttendanceRow";
 
-import { useAuth } from '../hooks/useAuth';
-import { useCachedQueryValue, useOfflineSync } from '../hooks/useOfflineSync';
-import { api } from '../lib/convexApi';
-import { theme } from '../theme';
+import { useAuth } from "../hooks/useAuth";
+import { useCachedQueryValue, useOfflineSync } from "../hooks/useOfflineSync";
+import { api } from "../lib/convexApi";
+import { theme } from "../theme";
 
 const AttendanceScreen: React.FC = () => {
   const { sessionToken, user } = useAuth();
@@ -22,58 +22,65 @@ const AttendanceScreen: React.FC = () => {
   const [selectedClassId, setSelectedClassId] = React.useState<string | null>(null);
   const [attendanceDraft, setAttendanceDraft] = React.useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const attendanceDate = React.useMemo(() => new Date().toISOString().split('T')[0] ?? '', []);
+  const attendanceDate = React.useMemo(() => new Date().toISOString().split("T")[0] ?? "", []);
 
   const studentAttendance = useQuery(
     api.modules.portal.student.queries.getMyAttendance,
-    sessionToken && user?.role === 'student' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "student" ? { sessionToken } : "skip"
   );
   const parentAnnouncements = useQuery(
     api.modules.portal.parent.queries.getAnnouncements,
-    sessionToken && user?.role === 'parent' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "parent" ? { sessionToken } : "skip"
   );
   const teacherClasses = useQuery(
     api.modules.academics.queries.getTeacherClasses,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const teacherTodayClasses = useQuery(
     api.modules.academics.queries.getTeacherTodayClassesCount,
-    sessionToken && user?.role === 'teacher' ? { sessionToken } : 'skip',
+    sessionToken && user?.role === "teacher" ? { sessionToken } : "skip"
   );
   const teacherClassStudents = useQuery(
     api.modules.academics.queries.getClassStudents,
-    sessionToken && user?.role === 'teacher' && selectedClassId
+    sessionToken && user?.role === "teacher" && selectedClassId
       ? { sessionToken, classId: selectedClassId }
-      : 'skip',
+      : "skip"
   );
   const teacherAttendance = useQuery(
     api.modules.academics.queries.getAttendance,
-    sessionToken && user?.role === 'teacher' && selectedClassId
+    sessionToken && user?.role === "teacher" && selectedClassId
       ? { sessionToken, classId: selectedClassId, date: attendanceDate }
-      : 'skip',
+      : "skip"
   );
   const markAttendance = useMutation(api.modules.academics.mutations.markAttendance);
 
   const resolvedStudentAttendance = useCachedQueryValue<any[]>(
-    'student.attendance.list',
-    studentAttendance,
+    "student.attendance.list",
+    studentAttendance
   );
   const resolvedParentAnnouncements = useCachedQueryValue<any[]>(
-    'parent.announcements.list',
-    parentAnnouncements,
+    "parent.announcements.list",
+    parentAnnouncements
   );
-  const resolvedTeacherClasses = useCachedQueryValue<any[]>('teacher.classes.attendance', teacherClasses);
+  const resolvedTeacherClasses = useCachedQueryValue<any[]>(
+    "teacher.classes.attendance",
+    teacherClasses
+  );
   const resolvedTeacherTodayClasses = useCachedQueryValue<number>(
-    'teacher.attendance.todayCount',
-    teacherTodayClasses,
+    "teacher.attendance.todayCount",
+    teacherTodayClasses
   );
   const resolvedTeacherClassStudents = useCachedQueryValue<any[]>(
-    selectedClassId ? `teacher.attendance.students.${selectedClassId}` : 'teacher.attendance.students.none',
-    teacherClassStudents,
+    selectedClassId
+      ? `teacher.attendance.students.${selectedClassId}`
+      : "teacher.attendance.students.none",
+    teacherClassStudents
   );
   const resolvedTeacherAttendance = useCachedQueryValue<any[]>(
-    selectedClassId ? `teacher.attendance.records.${selectedClassId}.${attendanceDate}` : 'teacher.attendance.records.none',
-    teacherAttendance,
+    selectedClassId
+      ? `teacher.attendance.records.${selectedClassId}.${attendanceDate}`
+      : "teacher.attendance.records.none",
+    teacherAttendance
   );
 
   React.useEffect(() => {
@@ -113,8 +120,8 @@ const AttendanceScreen: React.FC = () => {
           classId: selectedClassId,
           studentId: student._id,
           date: attendanceDate,
-          status: attendanceDraft[student._id] ?? 'present',
-          recordedBy: user?.userId ?? '',
+          status: attendanceDraft[student._id] ?? "present",
+          recordedBy: user?.userId ?? "",
         })),
       });
     } finally {
@@ -126,7 +133,7 @@ const AttendanceScreen: React.FC = () => {
     return <Text style={styles.stateText}>Sign in to view this section.</Text>;
   }
 
-  if (user?.role === 'parent') {
+  if (user?.role === "parent") {
     if (!resolvedParentAnnouncements) {
       return (
         <View style={styles.center}>
@@ -141,7 +148,9 @@ const AttendanceScreen: React.FC = () => {
         {resolvedParentAnnouncements.length === 0 ? (
           <Text style={styles.stateText}>No school updates are available yet.</Text>
         ) : (
-          (resolvedParentAnnouncements as Array<{ _id: string; title?: string; message?: string }>).map((announcement) => (
+          (
+            resolvedParentAnnouncements as Array<{ _id: string; title?: string; message?: string }>
+          ).map((announcement) => (
             <View key={announcement._id} style={styles.card}>
               <Text style={styles.status}>{announcement.title}</Text>
               <Text style={styles.meta}>{announcement.message}</Text>
@@ -152,7 +161,7 @@ const AttendanceScreen: React.FC = () => {
     );
   }
 
-  if (user?.role === 'teacher') {
+  if (user?.role === "teacher") {
     if (!resolvedTeacherClasses || resolvedTeacherTodayClasses === undefined) {
       return (
         <View style={styles.center}>
@@ -205,19 +214,19 @@ const AttendanceScreen: React.FC = () => {
                     <View key={student._id} style={styles.studentRow}>
                       <View style={styles.studentCopy}>
                         <Text style={styles.studentName}>
-                          {[student.firstName, student.lastName].filter(Boolean).join(' ')}
+                          {[student.firstName, student.lastName].filter(Boolean).join(" ")}
                         </Text>
                         <Text style={styles.meta}>
-                          {student.admissionNumber ?? 'No admission number'}
+                          {student.admissionNumber ?? "No admission number"}
                         </Text>
                       </View>
                       <View style={styles.choiceWrap}>
-                        {['present', 'absent', 'late', 'excused'].map((status) => (
+                        {["present", "absent", "late", "excused"].map((status) => (
                           <TouchableOpacity
                             key={status}
                             style={[
                               styles.smallChip,
-                              (attendanceDraft[student._id] ?? 'present') === status
+                              (attendanceDraft[student._id] ?? "present") === status
                                 ? styles.choiceChipActive
                                 : undefined,
                             ]}
@@ -226,7 +235,7 @@ const AttendanceScreen: React.FC = () => {
                             <Text
                               style={[
                                 styles.smallChipText,
-                                (attendanceDraft[student._id] ?? 'present') === status
+                                (attendanceDraft[student._id] ?? "present") === status
                                   ? styles.choiceChipTextActive
                                   : undefined,
                               ]}
@@ -240,12 +249,19 @@ const AttendanceScreen: React.FC = () => {
                   ))
                 )}
                 <TouchableOpacity
-                  style={[styles.primaryButton, (isOffline || isSubmitting) && styles.disabledButton]}
+                  style={[
+                    styles.primaryButton,
+                    (isOffline || isSubmitting) && styles.disabledButton,
+                  ]}
                   onPress={handleSubmitAttendance}
                   disabled={isOffline || isSubmitting}
                 >
                   <Text style={styles.primaryButtonText}>
-                    {isOffline ? 'Reconnect to submit' : isSubmitting ? 'Saving...' : 'Save attendance'}
+                    {isOffline
+                      ? "Reconnect to submit"
+                      : isSubmitting
+                        ? "Saving..."
+                        : "Save attendance"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -292,15 +308,16 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   stateText: {
     flex: 1,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    textAlign: "center",
+    textAlignVertical: "center",
     color: theme.colors.textSecondary,
     padding: theme.spacing.lg,
+    fontFamily: theme.fonts.regular,
   },
   card: {
     backgroundColor: theme.colors.white,
@@ -310,35 +327,36 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
   },
   summaryCard: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: "#eff6ff",
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: '#bfdbfe',
+    borderColor: "#bfdbfe",
   },
   status: {
     color: theme.colors.primary,
     fontSize: theme.fontSizes.base,
-    fontWeight: '800',
+    fontFamily: theme.fonts.display,
   },
   meta: {
     color: theme.colors.textSecondary,
     fontSize: theme.fontSizes.sm,
     marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.regular,
   },
   banner: {
     color: theme.colors.warning,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.display,
   },
   sectionLabel: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   choiceWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: theme.spacing.sm,
     marginTop: theme.spacing.sm,
   },
@@ -357,7 +375,7 @@ const styles = StyleSheet.create({
   choiceChipText: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '600',
+    fontFamily: theme.fonts.bodyMedium,
   },
   choiceChipTextActive: {
     color: theme.colors.white,
@@ -374,7 +392,7 @@ const styles = StyleSheet.create({
   studentName: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.base,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
   smallChip: {
     borderWidth: 1,
@@ -387,15 +405,15 @@ const styles = StyleSheet.create({
   smallChipText: {
     color: theme.colors.text,
     fontSize: theme.fontSizes.xs,
-    fontWeight: '600',
-    textTransform: 'capitalize',
+    fontFamily: theme.fonts.bodyMedium,
+    textTransform: "capitalize",
   },
   primaryButton: {
     marginTop: theme.spacing.md,
     backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.lg,
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
   },
   disabledButton: {
     opacity: 0.6,
@@ -403,7 +421,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: theme.colors.white,
     fontSize: theme.fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: theme.fonts.displayMedium,
   },
 });
 

@@ -81,9 +81,65 @@ crons.daily(
 );
 
 crons.daily(
+  "check overdue crm follow-ups",
+  { hourUTC: 5, minuteUTC: 0 },
+  (internal as any).modules.platform.crm.checkOverdueFollowUps,
+  {}
+);
+
+crons.daily(
+  "expire crm lead shares",
+  { hourUTC: 6, minuteUTC: 0 },
+  (internal as any).modules.platform.crm.expireCRMShares,
+  {}
+);
+
+crons.weekly(
+  "send weekly crm pipeline report",
+  { dayOfWeek: "monday", hourUTC: 6, minuteUTC: 0 },
+  (internal as any).modules.platform.crm.sendWeeklyPipelineReport,
+  {}
+);
+
+crons.daily(
   "expire platform invites",
   { hourUTC: 22, minuteUTC: 30 },
   (internal as any).modules.platform.users.expireOldInvites,
+  {}
+);
+
+crons.daily(
+  "send pm task due notifications",
+  { hourUTC: 5, minuteUTC: 0 },
+  (internal as any).modules.pm.crons.sendTaskDueNotifications,
+  {}
+);
+
+crons.daily(
+  "mark overdue pm tasks",
+  { hourUTC: 5, minuteUTC: 30 },
+  (internal as any).modules.pm.crons.markOverdueTasks,
+  {}
+);
+
+crons.daily(
+  "notify sprint ending soon",
+  { hourUTC: 6, minuteUTC: 0 },
+  (internal as any).modules.pm.crons.notifySprintEndingSoon,
+  {}
+);
+
+crons.weekly(
+  "send weekly pm summary",
+  { dayOfWeek: "monday", hourUTC: 6, minuteUTC: 15 },
+  (internal as any).modules.pm.crons.sendWeeklyProjectSummary,
+  {}
+);
+
+crons.monthly(
+  "purge old platform notifications",
+  { day: 1, hourUTC: 6, minuteUTC: 30 },
+  (internal as any).platform.notifications.mutations.purgeOldNotifications,
   {}
 );
 

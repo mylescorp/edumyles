@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PmProjectRail } from "@/components/platform/PmProjectRail";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
@@ -299,26 +300,23 @@ export default function ListViewPage() {
         }
       />
 
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <div className="mb-2">
-            <Link href={`/platform/pm/${workspaceSlug}/${projectId}`}>
-              <Button variant="ghost" size="sm">Back to Project</Button>
+      <PmProjectRail workspaceSlug={workspaceSlug} projectId={projectId} currentHref={`/platform/pm/${workspaceSlug}/${projectId}/list`} />
+
+      <Card className="border-slate-200/80 bg-slate-50/60">
+        <CardContent className="flex flex-col gap-2 pt-6 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-muted-foreground">
+            List view stays in sync with the kanban board, backlog, timeline, calendar, and settings views.
+          </p>
+          <div className="flex gap-2">
+            <Link href={`/platform/pm/${workspaceSlug}/${projectId}/calendar`}>
+              <Button variant="outline" size="sm">Calendar</Button>
+            </Link>
+            <Link href={`/platform/pm/${workspaceSlug}/${projectId}/timeline`}>
+              <Button variant="outline" size="sm">Timeline</Button>
             </Link>
           </div>
-          <p className="text-sm text-muted-foreground">
-            List view stays in sync with the kanban board, calendar, and timeline.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href={`/platform/pm/${workspaceSlug}/${projectId}/calendar`}>
-            <Button variant="outline" size="sm">Calendar</Button>
-          </Link>
-          <Link href={`/platform/pm/${workspaceSlug}/${projectId}/timeline`}>
-            <Button variant="outline" size="sm">Timeline</Button>
-          </Link>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <TaskStatCard title="Total Tasks" value={taskStats.total} />

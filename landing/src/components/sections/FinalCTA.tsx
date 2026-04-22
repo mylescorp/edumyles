@@ -30,18 +30,17 @@ export default function FinalCTA() {
     >
       <div ref={ref} className="fade-in max-w-[800px] mx-auto">
         <h2
-          className="font-playfair font-bold leading-[1.2] mb-3"
+          className="font-display font-bold leading-[1.2] mb-3"
           style={{ fontSize: "clamp(1.75rem, 3vw, 2.625rem)", color: "#ffffff" }}
         >
           Ready to{" "}
-          <em className="italic" style={{ color: "#E8A020" }}>Transform</em>{" "}
+          <em className="italic" style={{ color: "#E8A020" }}>
+            Transform
+          </em>{" "}
           Your School?
         </h2>
 
-        <p
-          className="text-[18px] mb-8 leading-relaxed"
-          style={{ color: "#90CAF9" }}
-        >
+        <p className="text-[18px] mb-8 leading-relaxed" style={{ color: "#90CAF9" }}>
           Join 50+ schools already running on EduMyles. Setup is free. Support is local.
         </p>
 
@@ -58,7 +57,11 @@ export default function FinalCTA() {
           <a
             href="#pricing"
             className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-all duration-300 no-underline"
-            style={{ background: "transparent", color: "#ffffff", border: "1.5px solid rgba(255,255,255,0.2)" }}
+            style={{
+              background: "transparent",
+              color: "#ffffff",
+              border: "1.5px solid rgba(255,255,255,0.2)",
+            }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = "#E8A020";
               e.currentTarget.style.color = "#E8A020";

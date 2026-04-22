@@ -104,7 +104,11 @@ const team = [
 
 function TeamIconAvatar({ member }: { member: { icon?: unknown } }) {
   if (!member.icon) return null;
-  const Icon = member.icon as React.ComponentType<{ className?: string; strokeWidth?: number; style?: React.CSSProperties }>;
+  const Icon = member.icon as React.ComponentType<{
+    className?: string;
+    strokeWidth?: number;
+    style?: React.CSSProperties;
+  }>;
   return (
     <div
       className="w-full flex items-center justify-center"
@@ -118,7 +122,6 @@ function TeamIconAvatar({ member }: { member: { icon?: unknown } }) {
 export default function AboutPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -140,22 +143,30 @@ export default function AboutPage() {
           <div className="max-w-[700px]">
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+              style={{
+                background: "rgba(232,160,32,0.12)",
+                border: "1px solid #E8A020",
+                color: "#E8A020",
+              }}
             >
               Our Story
             </div>
             <h1
-              className="font-playfair font-bold leading-[1.15] mb-5"
+              className="font-display font-bold leading-[1.15] mb-5"
               style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
             >
               Built for Africa&apos;s schools.{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>By people who get it.</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                By people who get it.
+              </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8]"
               style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "580px" }}
             >
-              EduMyles started with one observation: schools across East Africa were running on WhatsApp groups, paper registers, and disconnected Excel sheets. We built the platform we wished existed.
+              EduMyles started with one observation: schools across East Africa were running on
+              WhatsApp groups, paper registers, and disconnected Excel sheets. We built the platform
+              we wished existed.
             </p>
           </div>
         </div>
@@ -166,14 +177,21 @@ export default function AboutPage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
             {stats.map((s) => (
-              <div key={s.label} className="text-center p-5 rounded-2xl" style={{ background: "#ffffff", border: "1px solid #e8f4ec" }}>
+              <div
+                key={s.label}
+                className="text-center p-5 rounded-2xl"
+                style={{ background: "#ffffff", border: "1px solid #e8f4ec" }}
+              >
                 <div
-                  className="font-playfair font-bold text-[28px] mb-1"
+                  className="font-display font-bold text-[28px] mb-1"
                   style={{ color: "#E8A020" }}
                 >
                   {s.value}
                 </div>
-                <div className="font-jakarta text-[12px] font-medium uppercase tracking-wider" style={{ color: "#6B9E83" }}>
+                <div
+                  className="font-jakarta text-[12px] font-medium uppercase tracking-wider"
+                  style={{ color: "#6B9E83" }}
+                >
                   {s.label}
                 </div>
               </div>
@@ -194,17 +212,29 @@ export default function AboutPage() {
                 Our Mission
               </div>
               <h2
-                className="font-playfair font-bold leading-[1.2] mb-5"
+                className="font-display font-bold leading-[1.2] mb-5"
                 style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
               >
                 Simplify school administration so educators can{" "}
-                <em className="italic" style={{ color: "#E8A020" }}>focus on teaching.</em>
+                <em className="italic" style={{ color: "#E8A020" }}>
+                  focus on teaching.
+                </em>
               </h2>
-              <p className="font-jakarta text-[16px] leading-[1.8] mb-4" style={{ color: "#5a5a5a" }}>
-                EduMyles exists to take the administrative burden off African schools — so that principals can lead, teachers can teach, and parents can stay informed. We believe that operational clarity unlocks academic excellence.
+              <p
+                className="font-jakarta text-[16px] leading-[1.8] mb-4"
+                style={{ color: "#5a5a5a" }}
+              >
+                EduMyles exists to take the administrative burden off African schools — so that
+                principals can lead, teachers can teach, and parents can stay informed. We believe
+                that operational clarity unlocks academic excellence.
               </p>
-              <p className="font-jakarta text-[16px] leading-[1.8] mb-4" style={{ color: "#5a5a5a" }}>
-                <strong style={{ color: "#061A12" }}>Our Vision:</strong> To be Africa&apos;s most trusted school management platform, powering institutions of every size — from single-classroom community schools to multi-campus international networks.
+              <p
+                className="font-jakarta text-[16px] leading-[1.8] mb-4"
+                style={{ color: "#5a5a5a" }}
+              >
+                <strong style={{ color: "#061A12" }}>Our Vision:</strong> To be Africa&apos;s most
+                trusted school management platform, powering institutions of every size — from
+                single-classroom community schools to multi-campus international networks.
               </p>
               <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#6B9E83" }}>
                 EduMyles is a product of{" "}
@@ -226,21 +256,27 @@ export default function AboutPage() {
               }}
             >
               <blockquote
-                className="font-playfair italic text-[22px] leading-[1.6] mb-6"
+                className="font-display italic text-[22px] leading-[1.6] mb-6"
                 style={{ color: "#ffffff" }}
               >
-                &ldquo;The best school management system in Africa shouldn&apos;t cost more than a teacher&apos;s salary. It shouldn&apos;t require a dedicated IT team. It should just work.&rdquo;
+                &ldquo;The best school management system in Africa shouldn&apos;t cost more than a
+                teacher&apos;s salary. It shouldn&apos;t require a dedicated IT team. It should just
+                work.&rdquo;
               </blockquote>
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[12px]"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[12px]"
                   style={{ background: "#E8A020", color: "#061A12" }}
                 >
                   JM
                 </div>
                 <div>
-                  <div className="font-jakarta font-bold text-[14px]" style={{ color: "#E8A020" }}>Jonathan Myles</div>
-                  <div className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>CEO &amp; Founder, EduMyles</div>
+                  <div className="font-jakarta font-bold text-[14px]" style={{ color: "#E8A020" }}>
+                    Jonathan Myles
+                  </div>
+                  <div className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>
+                    CEO &amp; Founder, EduMyles
+                  </div>
                 </div>
               </div>
             </div>
@@ -254,16 +290,22 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.12)", border: "1px solid rgba(232,160,32,0.3)", color: "#E8A020" }}
+              style={{
+                background: "rgba(232,160,32,0.12)",
+                border: "1px solid rgba(232,160,32,0.3)",
+                color: "#E8A020",
+              }}
             >
               Our Journey
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               From a WhatsApp group{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>to 10,000+ students.</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                to 10,000+ students.
+              </em>
             </h2>
           </div>
           <div className="flex flex-col gap-0">
@@ -278,14 +320,32 @@ export default function AboutPage() {
                     {m.year.slice(2)}
                   </div>
                   {i < milestones.length - 1 && (
-                    <div className="w-0.5 flex-1 my-2" style={{ background: "rgba(232,160,32,0.2)", minHeight: "32px" }} />
+                    <div
+                      className="w-0.5 flex-1 my-2"
+                      style={{ background: "rgba(232,160,32,0.2)", minHeight: "32px" }}
+                    />
                   )}
                 </div>
                 {/* Content */}
                 <div className="pb-8">
-                  <div className="font-jakarta font-bold text-[12px] mb-1" style={{ color: "#E8A020" }}>{m.year}</div>
-                  <h3 className="font-playfair font-bold text-[18px] mb-2" style={{ color: "#ffffff" }}>{m.title}</h3>
-                  <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#A8E6C3" }}>{m.desc}</p>
+                  <div
+                    className="font-jakarta font-bold text-[12px] mb-1"
+                    style={{ color: "#E8A020" }}
+                  >
+                    {m.year}
+                  </div>
+                  <h3
+                    className="font-display font-bold text-[18px] mb-2"
+                    style={{ color: "#ffffff" }}
+                  >
+                    {m.title}
+                  </h3>
+                  <p
+                    className="font-jakarta text-[14px] leading-[1.7]"
+                    style={{ color: "#A8E6C3" }}
+                  >
+                    {m.desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -304,10 +364,13 @@ export default function AboutPage() {
               What We Believe
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
-              Our Core <em className="italic" style={{ color: "#E8A020" }}>Values</em>
+              Our Core{" "}
+              <em className="italic" style={{ color: "#E8A020" }}>
+                Values
+              </em>
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -315,22 +378,40 @@ export default function AboutPage() {
               <div
                 key={v.title}
                 className="rounded-2xl p-6 flex flex-col items-center text-center"
-                style={{ background: "#ffffff", border: "1px solid rgba(38,166,91,0.15)", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid rgba(38,166,91,0.15)",
+                  boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                }}
               >
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[18px] mb-3"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[18px] mb-3"
                   style={{ background: "#E8A020", color: "#061A12" }}
                 >
                   {v.letter}
                 </div>
-                <h3 className="font-playfair font-bold text-[18px] mb-2" style={{ color: "#061A12" }}>{v.title}</h3>
-                <p className="font-jakarta text-[14px] leading-[1.7] mb-3" style={{ color: "#5a5a5a" }}>{v.desc}</p>
+                <h3
+                  className="font-display font-bold text-[18px] mb-2"
+                  style={{ color: "#061A12" }}
+                >
+                  {v.title}
+                </h3>
+                <p
+                  className="font-jakarta text-[14px] leading-[1.7] mb-3"
+                  style={{ color: "#5a5a5a" }}
+                >
+                  {v.desc}
+                </p>
                 <div className="flex flex-wrap justify-center gap-1 mt-auto">
                   {v.keywords.map((kw) => (
                     <span
                       key={kw}
                       className="font-jakarta font-semibold text-[10px] px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(232,160,32,0.1)", border: "1px solid rgba(232,160,32,0.25)", color: "#9A5D00" }}
+                      style={{
+                        background: "rgba(232,160,32,0.1)",
+                        border: "1px solid rgba(232,160,32,0.25)",
+                        color: "#9A5D00",
+                      }}
                     >
                       {kw}
                     </span>
@@ -347,10 +428,13 @@ export default function AboutPage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-12">
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
-              The <em className="italic" style={{ color: "#E8A020" }}>team</em>
+              The{" "}
+              <em className="italic" style={{ color: "#E8A020" }}>
+                team
+              </em>
             </h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-6">
@@ -375,19 +459,34 @@ export default function AboutPage() {
                   <TeamIconAvatar member={t} />
                 )}
                 <div className="p-6">
-                  <h3 className="font-playfair font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>{t.name}</h3>
-                  <div className="font-jakarta text-[13px] font-medium mb-3" style={{ color: "#E8A020" }}>{t.role}</div>
-                  <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{t.bio}</p>
+                  <h3
+                    className="font-display font-bold text-[20px] mb-1"
+                    style={{ color: "#061A12" }}
+                  >
+                    {t.name}
+                  </h3>
+                  <div
+                    className="font-jakarta text-[13px] font-medium mb-3"
+                    style={{ color: "#E8A020" }}
+                  >
+                    {t.role}
+                  </div>
+                  <p
+                    className="font-jakarta text-[14px] leading-[1.7]"
+                    style={{ color: "#5a5a5a" }}
+                  >
+                    {t.bio}
+                  </p>
                   {t.linkedin && (
                     <a
                       href={t.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 font-jakarta text-[12px] font-medium mt-3 px-3 py-1.5 rounded-lg no-underline transition-all duration-200"
-                      style={{ 
-                        background: "rgba(232,160,32,0.1)", 
-                        border: "1px solid rgba(232,160,32,0.2)", 
-                        color: "#E8A020" 
+                      style={{
+                        background: "rgba(232,160,32,0.1)",
+                        border: "1px solid rgba(232,160,32,0.2)",
+                        color: "#E8A020",
                       }}
                     >
                       LinkedIn Profile
@@ -404,11 +503,13 @@ export default function AboutPage() {
       <section className="py-20 px-4" style={{ background: "#0F4C2A" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
           >
             Join the schools{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>already running better.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              already running better.
+            </em>
           </h2>
           <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
             Start your free 30-day trial or talk to our team. No pressure, no obligation.
@@ -424,7 +525,11 @@ export default function AboutPage() {
             <Link
               href="/contact"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Talk to Us
             </Link>
@@ -434,4 +539,3 @@ export default function AboutPage() {
     </div>
   );
 }
-

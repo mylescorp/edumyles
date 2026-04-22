@@ -4,14 +4,22 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle, School, Users, GraduationCap, UserCog, Heart } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle,
+  School,
+  Users,
+  GraduationCap,
+  UserCog,
+  Heart,
+} from "lucide-react";
 
 const ROLES = [
-  { icon: School,        label: "School Admin",  desc: "Manage the entire school" },
-  { icon: UserCog,       label: "Teacher",        desc: "Classes, grades & attendance" },
-  { icon: GraduationCap, label: "Student",        desc: "Your academic portal" },
-  { icon: Heart,         label: "Parent",         desc: "Track your child's progress" },
-  { icon: Users,         label: "Partner",        desc: "Sponsorship & finance access" },
+  { icon: School, label: "School Admin", desc: "Manage the entire school" },
+  { icon: UserCog, label: "Teacher", desc: "Classes, grades & attendance" },
+  { icon: GraduationCap, label: "Student", desc: "Your academic portal" },
+  { icon: Heart, label: "Parent", desc: "Track your child's progress" },
+  { icon: Users, label: "Partner", desc: "Sponsorship & finance access" },
 ];
 
 export default function SignupPage() {
@@ -46,13 +54,13 @@ export default function SignupPage() {
           <div className="space-y-4">
             <h1
               className="text-4xl xl:text-5xl font-bold leading-tight"
-              style={{ color: "#F3FBF6", fontFamily: "var(--font-playfair)" }}
+              style={{ color: "#F3FBF6", fontFamily: "var(--font-jakarta)" }}
             >
               Every role. One platform.
             </h1>
             <p className="text-lg" style={{ color: "#A8E6C3" }}>
-              Whether you are an administrator, teacher, student or parent —
-              EduMyles has a portal built for your exact needs.
+              Whether you are an administrator, teacher, student or parent — EduMyles has a portal
+              built for your exact needs.
             </p>
           </div>
 
@@ -61,7 +69,10 @@ export default function SignupPage() {
               <div
                 key={label}
                 className="flex items-center gap-3 rounded-xl px-4 py-3"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,230,195,0.15)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(168,230,195,0.15)",
+                }}
               >
                 <span
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
@@ -70,8 +81,12 @@ export default function SignupPage() {
                   <Icon className="h-4 w-4" style={{ color: "#E8A020" }} />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: "#F3FBF6" }}>{label}</p>
-                  <p className="text-xs" style={{ color: "#6B9E83" }}>{desc}</p>
+                  <p className="text-sm font-semibold" style={{ color: "#F3FBF6" }}>
+                    {label}
+                  </p>
+                  <p className="text-xs" style={{ color: "#6B9E83" }}>
+                    {desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -93,7 +108,7 @@ export default function SignupPage() {
           <div className="space-y-2">
             <h2
               className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white"
-              style={{ fontFamily: "var(--font-playfair)" }}
+              style={{ fontFamily: "var(--font-jakarta)" }}
             >
               Get started today
             </h2>
@@ -108,7 +123,10 @@ export default function SignupPage() {
               "Instant access to all core features",
               "Kenya, Uganda, Tanzania & Rwanda supported",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-400">
+              <li
+                key={item}
+                className="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-400"
+              >
                 <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#26A65B" }} />
                 {item}
               </li>
@@ -158,9 +176,14 @@ export default function SignupPage() {
 
           <p className="text-xs text-gray-400 dark:text-gray-600 text-center leading-relaxed">
             By creating an account you agree to our{" "}
-            <a href="/terms" className="underline underline-offset-2 hover:text-gray-600">Terms of Service</a>
-            {" "}and{" "}
-            <a href="/privacy" className="underline underline-offset-2 hover:text-gray-600">Privacy Policy</a>.
+            <a href="/terms" className="underline underline-offset-2 hover:text-gray-600">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" className="underline underline-offset-2 hover:text-gray-600">
+              Privacy Policy
+            </a>
+            .
           </p>
 
           <p className="text-center text-sm text-gray-500 dark:text-gray-400">

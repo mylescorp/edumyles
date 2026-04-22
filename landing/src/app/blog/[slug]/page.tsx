@@ -10,7 +10,8 @@ const posts = [
     category: "Education Policy",
     readTime: "8 min read",
     date: "February 14, 2026",
-    excerpt: "Everything school administrators and teachers need to know about Competency-Based Curriculum grading — from rubric design to auto-generated report cards.",
+    excerpt:
+      "Everything school administrators and teachers need to know about Competency-Based Curriculum grading — from rubric design to auto-generated report cards.",
     content: [
       {
         type: "intro",
@@ -78,11 +79,26 @@ const posts = [
       {
         type: "faq",
         items: [
-          { q: "Can CBC and 8-4-4 students be in the same gradebook?", a: "Yes — EduMyles supports dual curriculum. CBC learners (PP1–Grade 9) and 8-4-4 learners (Form 1–4) are tracked separately within the same school account." },
-          { q: "How do I generate KNEC-compliant report forms?", a: "From the gradebook, click 'Generate Reports' → select 'CBC Term Report' → choose the class and term. Reports generate instantly in the approved KNEC format." },
-          { q: "What happens if a teacher marks a learner BE?", a: "The system flags the learner for intervention and prompts the teacher to record a support plan. School leadership can view all BE-flagged learners in one dashboard." },
-          { q: "Is the EduMyles CBC gradebook approved for NEMIS?", a: "Yes — EduMyles exports CBC data in the NEMIS-compatible format required for Ministry of Education reporting." },
-          { q: "Can parents see CBC scores in real time?", a: "Yes — parents with the EduMyles parent portal see their child's current CBC performance and can track progress across all sub-strands." },
+          {
+            q: "Can CBC and 8-4-4 students be in the same gradebook?",
+            a: "Yes — EduMyles supports dual curriculum. CBC learners (PP1–Grade 9) and 8-4-4 learners (Form 1–4) are tracked separately within the same school account.",
+          },
+          {
+            q: "How do I generate KNEC-compliant report forms?",
+            a: "From the gradebook, click 'Generate Reports' → select 'CBC Term Report' → choose the class and term. Reports generate instantly in the approved KNEC format.",
+          },
+          {
+            q: "What happens if a teacher marks a learner BE?",
+            a: "The system flags the learner for intervention and prompts the teacher to record a support plan. School leadership can view all BE-flagged learners in one dashboard.",
+          },
+          {
+            q: "Is the EduMyles CBC gradebook approved for NEMIS?",
+            a: "Yes — EduMyles exports CBC data in the NEMIS-compatible format required for Ministry of Education reporting.",
+          },
+          {
+            q: "Can parents see CBC scores in real time?",
+            a: "Yes — parents with the EduMyles parent portal see their child's current CBC performance and can track progress across all sub-strands.",
+          },
         ],
       },
     ],
@@ -93,7 +109,8 @@ const posts = [
     category: "Finance & Fees",
     readTime: "6 min read",
     date: "January 28, 2026",
-    excerpt: "A practical walkthrough for school administrators on integrating M-Pesa — reducing manual reconciliation work and late payments.",
+    excerpt:
+      "A practical walkthrough for school administrators on integrating M-Pesa — reducing manual reconciliation work and late payments.",
     content: [
       {
         type: "intro",
@@ -153,10 +170,22 @@ const posts = [
       {
         type: "faq",
         items: [
-          { q: "What if a parent uses the wrong admission number?", a: "EduMyles flags unmatched M-Pesa payments in a 'Unallocated Payments' queue. The finance officer can manually allocate them to the correct student with one click." },
-          { q: "Can we collect fees for multiple campuses via one Paybill?", a: "Yes — EduMyles multi-campus plans support multiple Paybill numbers or a single shared Paybill with campus codes as the account prefix." },
-          { q: "Does EduMyles support bank transfer payments too?", a: "Yes — manual bank transfer payments can be recorded by the finance officer. M-Pesa reconciliation is automatic; bank transfers are entered manually." },
-          { q: "Is there a transaction fee?", a: "EduMyles does not charge per transaction. Standard Safaricom M-Pesa transaction fees apply on the payer's side." },
+          {
+            q: "What if a parent uses the wrong admission number?",
+            a: "EduMyles flags unmatched M-Pesa payments in a 'Unallocated Payments' queue. The finance officer can manually allocate them to the correct student with one click.",
+          },
+          {
+            q: "Can we collect fees for multiple campuses via one Paybill?",
+            a: "Yes — EduMyles multi-campus plans support multiple Paybill numbers or a single shared Paybill with campus codes as the account prefix.",
+          },
+          {
+            q: "Does EduMyles support bank transfer payments too?",
+            a: "Yes — manual bank transfer payments can be recorded by the finance officer. M-Pesa reconciliation is automatic; bank transfers are entered manually.",
+          },
+          {
+            q: "Is there a transaction fee?",
+            a: "EduMyles does not charge per transaction. Standard Safaricom M-Pesa transaction fees apply on the payer's side.",
+          },
         ],
       },
     ],
@@ -167,7 +196,8 @@ const posts = [
     category: "HR & Payroll",
     readTime: "7 min read",
     date: "January 10, 2026",
-    excerpt: "A guide to statutory deductions, TSC compliance, NHIF/SHA, NSSF, and PAYE for school HR managers — with a practical end-of-month checklist.",
+    excerpt:
+      "A guide to statutory deductions, TSC compliance, NHIF/SHA, NSSF, and PAYE for school HR managers — with a practical end-of-month checklist.",
     content: [
       {
         type: "intro",
@@ -228,9 +258,18 @@ const posts = [
       {
         type: "faq",
         items: [
-          { q: "Does EduMyles generate KRA-compliant payroll reports?", a: "Yes — EduMyles generates P9 forms, PAYE schedules, and SHA/NSSF summary sheets in formats accepted for KRA filing." },
-          { q: "Can we run payroll for both TSC and BOM staff in one system?", a: "EduMyles manages BOM staff payroll. TSC staff can be added for leave tracking and HR records, but their salary is not processed through EduMyles." },
-          { q: "How does the system handle mid-month joiners or leavers?", a: "EduMyles pro-rates salary automatically based on the number of working days when a staff member joins or leaves mid-month." },
+          {
+            q: "Does EduMyles generate KRA-compliant payroll reports?",
+            a: "Yes — EduMyles generates P9 forms, PAYE schedules, and SHA/NSSF summary sheets in formats accepted for KRA filing.",
+          },
+          {
+            q: "Can we run payroll for both TSC and BOM staff in one system?",
+            a: "EduMyles manages BOM staff payroll. TSC staff can be added for leave tracking and HR records, but their salary is not processed through EduMyles.",
+          },
+          {
+            q: "How does the system handle mid-month joiners or leavers?",
+            a: "EduMyles pro-rates salary automatically based on the number of working days when a staff member joins or leaves mid-month.",
+          },
         ],
       },
     ],
@@ -241,7 +280,11 @@ export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const post = posts.find((p) => p.slug === slug);
   if (!post) return { title: "Post Not Found" };
@@ -254,29 +297,50 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 function renderContent(block: (typeof posts)[0]["content"][0]) {
   if (block.type === "intro") {
     return (
-      <p key={block.text} className="font-jakarta text-[16px] leading-[1.9] font-light" style={{ color: "#374151" }}>
+      <p
+        key={block.text}
+        className="font-jakarta text-[16px] leading-[1.9] font-light"
+        style={{ color: "#374151" }}
+      >
         {block.text}
       </p>
     );
   }
   if (block.type === "h2") {
     return (
-      <h2 key={block.text} className="font-playfair font-bold text-[22px] mt-10 mb-4" style={{ color: "#061A12" }}>
+      <h2
+        key={block.text}
+        className="font-display font-bold text-[22px] mt-10 mb-4"
+        style={{ color: "#061A12" }}
+      >
         {block.text}
       </h2>
     );
   }
   if (block.type === "p") {
     return (
-      <p key={block.text} className="font-jakarta text-[15px] leading-[1.9]" style={{ color: "#5a5a5a" }}>
+      <p
+        key={block.text}
+        className="font-jakarta text-[15px] leading-[1.9]"
+        style={{ color: "#5a5a5a" }}
+      >
         {block.text}
       </p>
     );
   }
   if (block.type === "highlight" && block.text) {
     return (
-      <div key={block.text} className="rounded-xl p-5 my-2" style={{ background: "rgba(232,160,32,0.06)", border: "1px solid rgba(232,160,32,0.2)" }}>
-        <p className="font-jakarta font-semibold text-[14px] leading-[1.8]" style={{ color: "#374151" }}>{block.text}</p>
+      <div
+        key={block.text}
+        className="rounded-xl p-5 my-2"
+        style={{ background: "rgba(232,160,32,0.06)", border: "1px solid rgba(232,160,32,0.2)" }}
+      >
+        <p
+          className="font-jakarta font-semibold text-[14px] leading-[1.8]"
+          style={{ color: "#374151" }}
+        >
+          {block.text}
+        </p>
       </div>
     );
   }
@@ -285,9 +349,24 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
     return (
       <ul key="list-block" className="flex flex-col gap-2.5 my-2">
         {listItems.map((item, idx) => (
-          <li key={idx} className="flex items-start gap-3 font-jakarta text-[14.5px] leading-[1.8]" style={{ color: "#5a5a5a", listStyle: "none" }}>
-            <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#1A7A4A", display: "block" }} />
+          <li
+            key={idx}
+            className="flex items-start gap-3 font-jakarta text-[14.5px] leading-[1.8]"
+            style={{ color: "#5a5a5a", listStyle: "none" }}
+          >
+            <span
+              className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+            >
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "#1A7A4A",
+                  display: "block",
+                }}
+              />
             </span>
             {item}
           </li>
@@ -300,9 +379,17 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
     return (
       <div key="faq-block" className="flex flex-col gap-4 my-2">
         {faqItems.map((item, idx) => (
-          <div key={idx} className="rounded-xl p-5" style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}>
-            <p className="font-jakarta font-bold text-[14px] mb-2" style={{ color: "#061A12" }}>{item.q}</p>
-            <p className="font-jakarta text-[13.5px] leading-[1.8]" style={{ color: "#5a5a5a" }}>{item.a}</p>
+          <div
+            key={idx}
+            className="rounded-xl p-5"
+            style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+          >
+            <p className="font-jakarta font-bold text-[14px] mb-2" style={{ color: "#061A12" }}>
+              {item.q}
+            </p>
+            <p className="font-jakarta text-[13.5px] leading-[1.8]" style={{ color: "#5a5a5a" }}>
+              {item.a}
+            </p>
           </div>
         ))}
       </div>
@@ -325,30 +412,53 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         className="relative flex items-center overflow-hidden"
         style={{ background: "#061A12", borderTop: "3px solid #E8A020", padding: "5rem 2rem 4rem" }}
       >
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
-          backgroundSize: "50px 50px",
-        }} />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundSize: "50px 50px",
+          }}
+        />
         <div className="relative max-w-[860px] mx-auto w-full">
-          <Link href="/blog" className="inline-flex items-center gap-2 font-jakarta text-[13px] mb-6 no-underline transition-colors duration-200" style={{ color: "#6B9E83" }}>
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 font-jakarta text-[13px] mb-6 no-underline transition-colors duration-200"
+            style={{ color: "#6B9E83" }}
+          >
             <ArrowLeft className="w-4 h-4" strokeWidth={2} />
             Back to Blog
           </Link>
           <div className="flex flex-wrap gap-3 mb-5">
-            <span className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-4 py-1.5 rounded-full" style={{ background: "rgba(232,160,32,0.12)", border: "1px solid rgba(232,160,32,0.3)", color: "#E8A020" }}>
+            <span
+              className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-4 py-1.5 rounded-full"
+              style={{
+                background: "rgba(232,160,32,0.12)",
+                border: "1px solid rgba(232,160,32,0.3)",
+                color: "#E8A020",
+              }}
+            >
               <Tag className="w-3 h-3" strokeWidth={2} />
               {post.category}
             </span>
           </div>
-          <h1 className="font-playfair font-bold leading-tight mb-5" style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", color: "#ffffff" }}>
+          <h1
+            className="font-display font-bold leading-tight mb-5"
+            style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", color: "#ffffff" }}
+          >
             {post.title}
           </h1>
           <div className="flex flex-wrap gap-5">
-            <span className="inline-flex items-center gap-2 font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>
+            <span
+              className="inline-flex items-center gap-2 font-jakarta text-[13px]"
+              style={{ color: "#6B9E83" }}
+            >
               <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
               {post.date}
             </span>
-            <span className="inline-flex items-center gap-2 font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>
+            <span
+              className="inline-flex items-center gap-2 font-jakarta text-[13px]"
+              style={{ color: "#6B9E83" }}
+            >
               <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
               {post.readTime}
             </span>
@@ -369,13 +479,33 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* Related posts */}
         <div>
-          <h3 className="font-playfair font-bold text-[20px] mb-6" style={{ color: "#061A12" }}>Related Articles</h3>
+          <h3 className="font-display font-bold text-[20px] mb-6" style={{ color: "#061A12" }}>
+            Related Articles
+          </h3>
           <div className="grid sm:grid-cols-2 gap-5">
             {related.map((r) => (
-              <Link key={r.slug} href={`/blog/${r.slug}`} className="rounded-xl p-5 no-underline transition-all duration-200 hover:-translate-y-0.5 group" style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}>
-                <span className="font-jakarta text-[11px] font-semibold uppercase tracking-wider mb-2 block" style={{ color: "#6B9E83" }}>{r.category}</span>
-                <h4 className="font-playfair font-bold text-[15px] mb-2 group-hover:text-[#E8A020] transition-colors duration-200" style={{ color: "#061A12" }}>{r.title}</h4>
-                <span className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px]" style={{ color: "#1A7A4A" }}>
+              <Link
+                key={r.slug}
+                href={`/blog/${r.slug}`}
+                className="rounded-xl p-5 no-underline transition-all duration-200 hover:-translate-y-0.5 group"
+                style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+              >
+                <span
+                  className="font-jakarta text-[11px] font-semibold uppercase tracking-wider mb-2 block"
+                  style={{ color: "#6B9E83" }}
+                >
+                  {r.category}
+                </span>
+                <h4
+                  className="font-display font-bold text-[15px] mb-2 group-hover:text-[#E8A020] transition-colors duration-200"
+                  style={{ color: "#061A12" }}
+                >
+                  {r.title}
+                </h4>
+                <span
+                  className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px]"
+                  style={{ color: "#1A7A4A" }}
+                >
                   Read article <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
                 </span>
               </Link>
@@ -385,13 +515,29 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* CTA */}
         <div className="mt-14 rounded-2xl p-8 text-center" style={{ background: "#061A12" }}>
-          <h3 className="font-playfair font-bold text-[22px] text-white mb-3">Ready to manage your school smarter?</h3>
-          <p className="font-jakarta text-[14px] mb-6" style={{ color: "#A8E6C3" }}>Join 50+ schools already running better with EduMyles. Free 30-day trial.</p>
+          <h3 className="font-display font-bold text-[22px] text-white mb-3">
+            Ready to manage your school smarter?
+          </h3>
+          <p className="font-jakarta text-[14px] mb-6" style={{ color: "#A8E6C3" }}>
+            Join 50+ schools already running better with EduMyles. Free 30-day trial.
+          </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/waitlist" className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline" style={{ background: "#E8A020", color: "#061A12" }}>
+            <Link
+              href="/waitlist"
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
+              style={{ background: "#E8A020", color: "#061A12" }}
+            >
               Start Free Trial →
             </Link>
-            <Link href="/book-demo" className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-[50px] no-underline" style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.3)", color: "#ffffff" }}>
+            <Link
+              href="/book-demo"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.3)",
+                color: "#ffffff",
+              }}
+            >
               Book a Demo
             </Link>
           </div>
@@ -400,4 +546,3 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     </div>
   );
 }
-

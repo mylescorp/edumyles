@@ -51,11 +51,13 @@ export default function HowItWorks() {
       <div className="max-w-[1200px] mx-auto">
         {/* Heading */}
         <h2
-          className="font-playfair font-bold leading-[1.2] mb-12"
+          className="font-display font-bold leading-[1.2] mb-12"
           style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#ffffff" }}
         >
           Get Your School Running on EduMyles in{" "}
-          <em className="italic" style={{ color: "#E8A020" }}>3 Simple Steps</em>
+          <em className="italic" style={{ color: "#E8A020" }}>
+            3 Simple Steps
+          </em>
         </h2>
 
         {/* Steps */}
@@ -63,7 +65,9 @@ export default function HowItWorks() {
           {steps.map((step, i) => (
             <div
               key={step.number}
-              ref={(el) => { stepRefs.current[i] = el; }}
+              ref={(el) => {
+                stepRefs.current[i] = el;
+              }}
               className="fade-in text-center md:text-left relative flex flex-col items-center md:items-start"
               style={{ transitionDelay: `${i * 0.15}s` }}
             >
@@ -93,12 +97,15 @@ export default function HowItWorks() {
               </div>
 
               <h3
-                className="font-playfair font-bold text-[20px] mb-3 mt-4"
+                className="font-display font-bold text-[20px] mb-3 mt-4"
                 style={{ color: "#ffffff" }}
               >
                 {step.title}
               </h3>
-              <p className="text-[14px] leading-[1.6] max-w-[280px] md:max-w-none" style={{ color: "#90CAF9" }}>
+              <p
+                className="text-[14px] leading-[1.6] max-w-[280px] md:max-w-none"
+                style={{ color: "#90CAF9" }}
+              >
                 {step.description}
               </p>
             </div>

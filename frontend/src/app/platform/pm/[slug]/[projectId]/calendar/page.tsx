@@ -5,9 +5,14 @@ import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { PmProjectRail } from "@/components/platform/PmProjectRail";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { CalendarRange } from "lucide-react";
 
 export default function CalendarPage() {
   const params = useParams();
@@ -21,13 +26,7 @@ export default function CalendarPage() {
   );
 
   if (authLoading || (sessionToken && project === undefined)) {
-    return (
-      <>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </>
-    );
+    return <LoadingSkeleton variant="page" />;
   }
 
   if (!sessionToken || !project) {
@@ -52,29 +51,44 @@ export default function CalendarPage() {
     .sort((a: any, b: any) => (a.dueDate ?? 0) - (b.dueDate ?? 0));
 
   return (
-    <>
       <div className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <div className="mb-2">
-              <Link href={`/platform/pm/${workspaceSlug}/${projectId}`}>
-                <Button variant="ghost" size="sm">Back to Project</Button>
-              </Link>
+        <PageHeader
+          title={`${project.name} Calendar`}
+          description="Scan upcoming due dates and workload shape for this project using live PM task data."
+          breadcrumbs={[
+            { label: "Platform", href: "/platform" },
+            { label: "PM", href: "/platform/pm" },
+            { label: workspaceSlug, href: `/platform/pm/${workspaceSlug}` },
+            { label: project.name, href: `/platform/pm/${workspaceSlug}/${projectId}` },
+            { label: "Calendar" },
+          ]}
+          actions={
+            <Link href={`/platform/pm/${workspaceSlug}/${projectId}`}>
+              <Button variant="outline">Back to Board</Button>
+            </Link>
+          }
+        />
+
+        <PmProjectRail workspaceSlug={workspaceSlug} projectId={projectId} currentHref={`/platform/pm/${workspaceSlug}/${projectId}/calendar`} />
+
+        <Card className="overflow-hidden border-slate-200/80 bg-[linear-gradient(180deg,rgba(248,250,252,0.9),rgba(255,255,255,0.98))]">
+          <CardContent className="grid gap-4 p-6 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Dated tasks</p>
+              <p className="mt-3 text-3xl font-semibold text-slate-950">{tasksWithDates.length}</p>
             </div>
-            <h1 className="text-3xl font-bold text-foreground">{project.name}</h1>
-            <p className="text-muted-foreground mt-2">
-              Upcoming due dates sourced from live PM project data.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Link href={`/platform/pm/${workspaceSlug}/${projectId}/list`}>
-              <Button variant="outline" size="sm">List</Button>
-            </Link>
-            <Link href={`/platform/pm/${workspaceSlug}/${projectId}/timeline`}>
-              <Button variant="outline" size="sm">Timeline</Button>
-            </Link>
-          </div>
-        </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Next due</p>
+              <p className="mt-3 text-sm font-medium text-slate-950">
+                {tasksWithDates[0]?.dueDate ? new Date(tasksWithDates[0].dueDate).toLocaleDateString() : "Nothing scheduled"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">View posture</p>
+              <p className="mt-3 text-sm text-muted-foreground">Calendar surface for delivery planning and deadline reviews.</p>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -82,9 +96,11 @@ export default function CalendarPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {tasksWithDates.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No dated tasks are available for this project yet.
-              </p>
+              <EmptyState
+                icon={CalendarRange}
+                title="No scheduled due dates yet"
+                description="Add due dates to project tasks and they will appear here in chronological order."
+              />
             ) : (
               tasksWithDates.map((task: any) => (
                 <div key={task._id} className="border rounded-lg p-4 flex items-center justify-between gap-4">
@@ -111,6 +127,5 @@ export default function CalendarPage() {
           </CardContent>
         </Card>
       </div>
-    </>
   );
 }

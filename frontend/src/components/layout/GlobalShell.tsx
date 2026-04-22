@@ -62,6 +62,54 @@ export interface NavGroup {
   items?: { label: string; href: string }[];
 }
 
+function unwrapRenderValue<T = unknown>(value: any): T | undefined {
+  let current = value;
+  const seen = new Set<any>();
+
+  while (current !== undefined && current !== null) {
+    if (typeof current !== "object") {
+      return current as T;
+    }
+
+    if (seen.has(current)) {
+      return undefined;
+    }
+    seen.add(current);
+
+    const nextValue =
+      "value" in current && current.value !== undefined && current.value !== current
+        ? current.value
+        : "data" in current && current.data !== undefined && current.data !== current
+          ? current.data
+          : undefined;
+
+    if (nextValue === undefined) {
+      return current as T;
+    }
+
+    current = nextValue;
+  }
+
+  return undefined;
+}
+
+function safeRenderText(value: any, fallback = ""): string {
+  const resolved = unwrapRenderValue(value);
+  if (typeof resolved === "string") return resolved;
+  if (typeof resolved === "number") return String(resolved);
+  return fallback;
+}
+
+function safeRenderNumber(value: any, fallback = 0): number {
+  const resolved = unwrapRenderValue(value);
+  if (typeof resolved === "number" && Number.isFinite(resolved)) return resolved;
+  if (typeof resolved === "string") {
+    const parsed = Number(resolved);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return fallback;
+}
+
 function getNavGroups(navItems: NavItem[]): NavGroup[] {
   const groups: NavGroup[] = [];
 
@@ -173,7 +221,15 @@ function MobileDrawer({
   logout: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [openSection, setOpenSection] = useState<string | null>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const activeGroup = groups.find((group) =>
+      group.items?.some((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
+    );
+    setOpenSection(activeGroup?.label ?? null);
+  }, [groups, pathname]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -245,34 +301,44 @@ function MobileDrawer({
               const isGroupActive = group.items?.some(
                 (item) => pathname === item.href || pathname.startsWith(item.href + "/")
               );
+              const isOpen = openSection === group.label;
               return (
                 <div key={group.label} className="mb-1">
-                  <p
+                  <button
+                    type="button"
+                    onClick={() => setOpenSection((current) => (current === group.label ? null : group.label))}
                     className={cn(
-                      "px-3 py-1.5 text-xs font-bold uppercase tracking-widest",
-                      isGroupActive ? "text-[var(--em-gold)]" : "text-white/35"
+                      "flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left transition-all duration-150",
+                      isGroupActive
+                        ? "border-[var(--topnav-active-border)] bg-[var(--sidebar-accent)] text-[var(--em-gold)]"
+                        : "border-white/10 bg-white/[0.03] text-white/75 hover:bg-white/[0.06] hover:text-white"
                     )}
                   >
-                    {group.label}
-                  </p>
-                  {group.items?.map((item) => {
-                    const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-150 ml-1",
-                          isActive
-                            ? "bg-[var(--sidebar-accent)] text-[var(--em-gold)] font-semibold border-l-2 border-[var(--em-gold)]"
-                            : "text-white/65 hover:text-white hover:bg-white/8"
-                        )}
-                      >
-                        {item.label}
-                      </Link>
-                    );
-                  })}
+                    <span className="text-xs font-bold uppercase tracking-widest">{group.label}</span>
+                    <ChevronRight className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")} />
+                  </button>
+                  {isOpen ? (
+                    <div className="mt-2 space-y-1">
+                      {group.items?.map((item) => {
+                        const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setOpen(false)}
+                            className={cn(
+                              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-150 ml-1",
+                              isActive
+                                ? "bg-[var(--sidebar-accent)] text-[var(--em-gold)] font-semibold border-l-2 border-[var(--em-gold)]"
+                                : "text-white/65 hover:text-white hover:bg-white/8"
+                            )}
+                          >
+                            {item.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : null}
                 </div>
               );
             })}
@@ -709,7 +775,7 @@ function LeftSidebar({
   onToggle: () => void;
 }) {
   const pathname = usePathname();
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [openSection, setOpenSection] = useState<string | null>(null);
   const groupedNavItems = useMemo(() => {
     const grouped = navItems.reduce<Array<{ section: string; items: NavItem[] }>>((acc, item) => {
       const section = item.section ?? "__standalone__";
@@ -737,19 +803,21 @@ function LeftSidebar({
     return activeGroup?.section ?? groupedNavItems[0]?.section ?? "__standalone__";
   }, [groupedNavItems, pathname]);
 
+  useEffect(() => {
+    if (collapsed) return;
+    if (activeSection && activeSection !== "__standalone__") {
+      setOpenSection(activeSection);
+    }
+  }, [activeSection, collapsed]);
+
   const isExpanded = (section: string) => {
     if (collapsed) return true;
-    if (expandedSections[section] !== undefined) {
-      return expandedSections[section];
-    }
-    return true;
+    if (section === "__standalone__") return true;
+    return openSection === section;
   };
 
   const toggleSection = (section: string) => {
-    setExpandedSections((current) => ({
-      ...current,
-      [section]: !isExpanded(section),
-    }));
+    setOpenSection((current) => (current === section ? null : section));
   };
 
   return (
@@ -943,10 +1011,17 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
       });
 
   const anyUser = user as any;
-  const displayName = formatName(anyUser?.firstName, anyUser?.lastName);
-  const initials = getInitials(anyUser?.firstName, anyUser?.lastName);
+  const normalizedShellHealth = unwrapRenderValue<any>(shellHealth) ?? {};
+  const safeRole = safeRenderText(role, "");
+  const safeTenantName = safeRenderText(tenant?.name, "My School");
+  const safeUserEmail = safeRenderText(anyUser?.email, "");
+  const safeFirstName = safeRenderText(anyUser?.firstName, "");
+  const safeLastName = safeRenderText(anyUser?.lastName, "");
+  const displayName = formatName(safeFirstName, safeLastName);
+  const initials = getInitials(safeFirstName, safeLastName);
   const groups = getNavGroups(visibleNavItems);
-  const workspaceLabel = getRoleWorkspaceLabel(role ?? "", tenant?.name);
+  const workspaceLabel = getRoleWorkspaceLabel(safeRole, safeTenantName);
+  const normalizedUnreadCount = safeRenderNumber(unreadCount, 0);
   const isAdminWorkspaceMode = false;
   const adminWorkspaceTenants: Array<{ tenantId: string; name: string; subdomain?: string }> = [];
   const adminWorkspaceTenantId = "";
@@ -973,15 +1048,15 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const knowledgeHref = pathname?.startsWith("/platform") ? "/platform/knowledge-base" : "/support";
   const aiSupportHref = pathname?.startsWith("/platform") ? "/platform/ai-support" : "/support";
   const shellHealthTone =
-    shellHealth?.status === "healthy"
+    normalizedShellHealth?.status === "healthy"
       ? "bg-emerald-500"
-      : shellHealth?.status === "watch"
+      : normalizedShellHealth?.status === "watch"
         ? "bg-amber-500"
         : "bg-rose-500";
   const shellHealthLabel =
-    shellHealth?.status === "healthy"
+    normalizedShellHealth?.status === "healthy"
       ? "Platform healthy"
-      : shellHealth?.status === "watch"
+      : normalizedShellHealth?.status === "watch"
         ? "Platform needs attention"
         : "Platform critical";
   const handleRefresh = () => {
@@ -1004,7 +1079,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
           <div className="flex min-h-[60px] items-center gap-2 px-3 md:px-4">
             {/* Mobile menu */}
             <div className="flex md:hidden">
-              <MobileDrawer groups={groups} user={anyUser} tenant={tenant} logout={logout} />
+              <MobileDrawer groups={groups} user={anyUser} tenant={{ ...tenant, name: safeTenantName }} logout={logout} />
             </div>
 
             {/* ── Logo mark (Zoho-style: "E" monogram + name) ── */}
@@ -1119,17 +1194,17 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     </div>
                     <div className="mt-1 flex items-center gap-4 text-xs text-white/85">
                       <span className="font-semibold">{shellHealthLabel}</span>
-                      <span>{shellHealth?.responseTime ?? 0}ms avg</span>
-                      <span>{shellHealth?.errorRate?.toFixed?.(1) ?? "0.0"}% errors</span>
+                      <span>{safeRenderNumber(normalizedShellHealth?.responseTime, 0)}ms avg</span>
+                      <span>{safeRenderNumber(normalizedShellHealth?.errorRate, 0).toFixed(1)}% errors</span>
                     </div>
                   </div>
 
                   <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
                     <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">Queue</p>
                     <div className="mt-1 flex items-center gap-3 text-xs text-white/80">
-                      <span>{shellHealth?.pendingReviews ?? 0} reviews</span>
-                      <span>{shellHealth?.activeFlags ?? 0} flags</span>
-                      <span>{unreadCount ?? 0} unread</span>
+                      <span>{safeRenderNumber(normalizedShellHealth?.pendingReviews, 0)} reviews</span>
+                      <span>{safeRenderNumber(normalizedShellHealth?.activeFlags, 0)} flags</span>
+                      <span>{normalizedUnreadCount} unread</span>
                     </div>
                   </div>
                 </div>
@@ -1189,7 +1264,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
 
               <NotificationsMenu
                 notifications={notifications}
-                unreadCount={unreadCount}
+                unreadCount={normalizedUnreadCount}
                 notificationsHref={notificationsHref}
                 markAsRead={markAsRead}
                 markAllAsRead={markAllAsRead}
@@ -1219,17 +1294,17 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                 <DropdownMenuTrigger asChild>
                   <button className="ml-0.5 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] pl-1.5 pr-2.5 py-1.5 text-white transition-all duration-150 hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--em-gold)]">
                     <Avatar className="h-7 w-7">
-                      <AvatarImage src={anyUser?.avatarUrl ?? undefined} alt={displayName} />
+                      <AvatarImage src={safeRenderText(anyUser?.avatarUrl, "") || undefined} alt={displayName} />
                       <AvatarFallback className="text-[10px] bg-[var(--sidebar-accent)] text-[var(--em-gold)] font-bold border border-[var(--em-gold-35)]">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
                     <div className="hidden sm:flex flex-col items-start leading-tight">
                       <span className="text-xs font-semibold text-white">
-                        {displayName || anyUser?.email}
+                        {displayName || safeUserEmail}
                       </span>
                       <span className="text-[10px] text-[var(--em-sage-muted)]">
-                        {getRoleLabel(role ?? "")}
+                        {getRoleLabel(safeRole)}
                       </span>
                     </div>
                     <ChevronDown className="h-3 w-3 text-white/40 hidden sm:block" />
@@ -1243,14 +1318,14 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                   <DropdownMenuLabel>
                     <div className="flex flex-col gap-1">
                       <span className="text-sm font-semibold text-white">
-                        {displayName || anyUser?.email}
+                        {displayName || safeUserEmail}
                       </span>
-                      <span className="text-xs text-[var(--em-sage-muted)]">{user?.email}</span>
+                      <span className="text-xs text-[var(--em-sage-muted)]">{safeUserEmail}</span>
                       <Badge
                         variant="secondary"
                         className="mt-0.5 w-fit text-[10px] bg-[var(--sidebar-accent-hover)] text-[var(--em-gold)] border border-[var(--topnav-active-border)] font-semibold"
                       >
-                        {getRoleLabel(role ?? "")}
+                        {getRoleLabel(safeRole)}
                       </Badge>
                     </div>
                   </DropdownMenuLabel>
@@ -1280,11 +1355,11 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     >
                       <Zap className="h-4 w-4 text-[var(--em-sage-muted)]" />
                       Notifications
-                      {unreadCount > 0 && (
-                        <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-white border-0 text-[10px] font-bold">
-                          {unreadCount > 9 ? "9+" : unreadCount}
-                        </Badge>
-                      )}
+                        {normalizedUnreadCount > 0 && (
+                          <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-white border-0 text-[10px] font-bold">
+                            {normalizedUnreadCount > 9 ? "9+" : normalizedUnreadCount}
+                          </Badge>
+                        )}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />

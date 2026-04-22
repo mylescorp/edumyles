@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  CreditCard,
-  MessageSquare,
-  FileText,
-  BookOpen,
-  BarChart2,
-  Zap,
-} from "lucide-react";
+import { CreditCard, MessageSquare, FileText, BookOpen, BarChart2, Zap } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Integrations — EduMyles | M-Pesa, SMS, NEMIS & More",
@@ -70,8 +63,7 @@ const categories: Category[] = [
     integrations: [
       {
         name: "Africa's Talking SMS",
-        description:
-          "Automated SMS to parents for fees, attendance, reports, emergencies.",
+        description: "Automated SMS to parents for fees, attendance, reports, emergencies.",
         status: "Native",
       },
       {
@@ -100,8 +92,7 @@ const categories: Category[] = [
       },
       {
         name: "KNEC",
-        description:
-          "Grade 6 and KCSE result import for internal analysis and reporting.",
+        description: "Grade 6 and KCSE result import for internal analysis and reporting.",
         status: "Beta",
       },
     ],
@@ -114,8 +105,7 @@ const categories: Category[] = [
     integrations: [
       {
         name: "Google Classroom",
-        description:
-          "Sync assignments and grades between Google Classroom and EduMyles gradebook.",
+        description: "Sync assignments and grades between Google Classroom and EduMyles gradebook.",
         status: "Beta",
       },
       {
@@ -125,8 +115,7 @@ const categories: Category[] = [
       },
       {
         name: "Zoom",
-        description:
-          "Schedule and launch online classes directly from EduMyles timetable.",
+        description: "Schedule and launch online classes directly from EduMyles timetable.",
         status: "Coming Soon",
       },
     ],
@@ -139,14 +128,12 @@ const categories: Category[] = [
     integrations: [
       {
         name: "Excel / Google Sheets",
-        description:
-          "One-click export of any report, register, or fee statement.",
+        description: "One-click export of any report, register, or fee statement.",
         status: "Native",
       },
       {
         name: "Power BI",
-        description:
-          "Connect EduMyles data to Power BI for custom school analytics dashboards.",
+        description: "Connect EduMyles data to Power BI for custom school analytics dashboards.",
         status: "Beta",
       },
     ],
@@ -171,7 +158,6 @@ const apiFeatures = [
 export default function IntegrationsPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -192,22 +178,29 @@ export default function IntegrationsPage() {
         <div className="relative max-w-[1200px] mx-auto w-full text-center">
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+            style={{
+              background: "rgba(232,160,32,0.12)",
+              border: "1px solid #E8A020",
+              color: "#E8A020",
+            }}
           >
             Integrations
           </div>
           <h1
-            className="font-playfair font-bold leading-[1.15] mb-5"
+            className="font-display font-bold leading-[1.15] mb-5"
             style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
           >
             Connect EduMyles with the{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>tools your school uses.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              tools your school uses.
+            </em>
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
             style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "600px" }}
           >
-            Native integrations with M-Pesa, SMS gateways, government systems, and education tools — no extra cost.
+            Native integrations with M-Pesa, SMS gateways, government systems, and education tools —
+            no extra cost.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {["20+ Integrations", "No extra cost", "API-first"].map((pill) => (
@@ -231,7 +224,7 @@ export default function IntegrationsPage() {
       <section style={{ background: "#ffffff", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
-            className="font-playfair font-bold text-center mb-14"
+            className="font-display font-bold text-center mb-14"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
           >
             All Integrations
@@ -249,15 +242,12 @@ export default function IntegrationsPage() {
                     <Icon size={18} style={{ color }} />
                   </div>
                   <h3
-                    className="font-playfair font-bold"
+                    className="font-display font-bold"
                     style={{ fontSize: "1.35rem", color: "#061A12" }}
                   >
                     {title}
                   </h3>
-                  <div
-                    className="flex-1 h-px ml-2"
-                    style={{ background: "rgba(6,26,18,0.08)" }}
-                  />
+                  <div className="flex-1 h-px ml-2" style={{ background: "rgba(6,26,18,0.08)" }} />
                 </div>
 
                 {/* Integration cards */}
@@ -289,7 +279,7 @@ export default function IntegrationsPage() {
                           </span>
                         </div>
                         <div
-                          className="font-playfair font-bold mb-1.5"
+                          className="font-display font-bold mb-1.5"
                           style={{ fontSize: "16px", color: "#061A12" }}
                         >
                           {item.name}
@@ -320,7 +310,7 @@ export default function IntegrationsPage() {
             <Zap size={22} style={{ color: "#1A7A4A" }} />
           </div>
           <h2
-            className="font-playfair font-bold mb-4"
+            className="font-display font-bold mb-4"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
           >
             Build your own integration
@@ -329,7 +319,8 @@ export default function IntegrationsPage() {
             className="font-jakarta font-light mb-10 mx-auto"
             style={{ fontSize: "17px", color: "#4a7a5a", maxWidth: "600px", lineHeight: 1.8 }}
           >
-            EduMyles has a full REST API. Query student records, push attendance, trigger payments, and subscribe to webhook events.
+            EduMyles has a full REST API. Query student records, push attendance, trigger payments,
+            and subscribe to webhook events.
           </p>
 
           <div className="grid sm:grid-cols-3 gap-5 mb-10">
@@ -379,7 +370,7 @@ export default function IntegrationsPage() {
         />
         <div className="relative max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold mb-4"
+            className="font-display font-bold mb-4"
             style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
           >
             Missing an integration? Let us know.

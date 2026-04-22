@@ -64,7 +64,6 @@ const dataQA = [
 export default function SecurityPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -86,35 +85,55 @@ export default function SecurityPage() {
           <div className="max-w-[700px]">
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+              style={{
+                background: "rgba(232,160,32,0.12)",
+                border: "1px solid #E8A020",
+                color: "#E8A020",
+              }}
             >
               Security &amp; Privacy
             </div>
             <h1
-              className="font-playfair font-bold leading-[1.15] mb-5"
+              className="font-display font-bold leading-[1.15] mb-5"
               style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
             >
               Your school data is{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>safe with us.</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                safe with us.
+              </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8] mb-8"
               style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "560px" }}
             >
-              Student data is sacred. We&apos;ve built EduMyles from the ground up with security, privacy, and compliance at every layer.
+              Student data is sacred. We&apos;ve built EduMyles from the ground up with security,
+              privacy, and compliance at every layer.
             </p>
             <div className="flex flex-wrap gap-3">
-              {([
-                { icon: <Lock className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />, label: "SOC 2 Type I" },
-                { icon: <span className="flex-shrink-0">🇰🇪</span>, label: "Kenya DPA Compliant" },
-                { icon: <LockKeyhole className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />, label: "End-to-End Encrypted" },
-              ] as { icon: React.ReactNode; label: string }[]).map((badge) => (
+              {(
+                [
+                  {
+                    icon: <Lock className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />,
+                    label: "SOC 2 Type I",
+                  },
+                  { icon: <span className="flex-shrink-0">🇰🇪</span>, label: "Kenya DPA Compliant" },
+                  {
+                    icon: <LockKeyhole className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />,
+                    label: "End-to-End Encrypted",
+                  },
+                ] as { icon: React.ReactNode; label: string }[]
+              ).map((badge) => (
                 <span
                   key={badge.label}
                   className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-4 py-2 rounded-[50px]"
-                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.2)", color: "#E8E8E8" }}
+                  style={{
+                    background: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    color: "#E8E8E8",
+                  }}
                 >
-                  {badge.icon}{badge.label}
+                  {badge.icon}
+                  {badge.label}
                 </span>
               ))}
             </div>
@@ -133,11 +152,13 @@ export default function SecurityPage() {
               Built-In Protections
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Security at{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>every layer</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                every layer
+              </em>
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -145,7 +166,11 @@ export default function SecurityPage() {
               <div
                 key={f.title}
                 className="rounded-2xl p-7 transition-transform duration-200 hover:-translate-y-1"
-                style={{ background: "#ffffff", border: "1px solid #e8f4ec", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #e8f4ec",
+                  boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                }}
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center text-[22px] mb-4"
@@ -157,7 +182,10 @@ export default function SecurityPage() {
                     <f.icon className="w-6 h-6" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
                   )}
                 </div>
-                <h3 className="font-playfair font-bold text-[18px] mb-3" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[18px] mb-3"
+                  style={{ color: "#061A12" }}
+                >
                   {f.title}
                 </h3>
                 <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#5a5a5a" }}>
@@ -180,11 +208,13 @@ export default function SecurityPage() {
               Transparency
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               How We Handle{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>Your Data</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                Your Data
+              </em>
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-6">
@@ -192,7 +222,11 @@ export default function SecurityPage() {
               <div
                 key={item.q}
                 className="rounded-2xl p-7"
-                style={{ background: "#ffffff", border: "1px solid #d4eade", boxShadow: "0 2px 8px rgba(6,26,18,0.04)" }}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #d4eade",
+                  boxShadow: "0 2px 8px rgba(6,26,18,0.04)",
+                }}
               >
                 <div
                   className="font-jakarta font-bold text-[12px] mb-1 uppercase tracking-wide"
@@ -200,7 +234,10 @@ export default function SecurityPage() {
                 >
                   Q
                 </div>
-                <h3 className="font-playfair font-bold text-[17px] mb-3" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-3"
+                  style={{ color: "#061A12" }}
+                >
                   {item.q}
                 </h3>
                 <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#5a5a5a" }}>
@@ -217,18 +254,22 @@ export default function SecurityPage() {
         <div className="max-w-[620px] mx-auto text-center">
           <div
             className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6"
-            style={{ background: "rgba(232,160,32,0.15)", border: "1px solid rgba(232,160,32,0.3)" }}
+            style={{
+              background: "rgba(232,160,32,0.15)",
+              border: "1px solid rgba(232,160,32,0.3)",
+            }}
           >
             <Lock className="w-6 h-6" strokeWidth={1.5} style={{ color: "#E8A020" }} />
           </div>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}
           >
             Found a vulnerability?
           </h2>
           <p className="font-jakarta text-[16px] leading-[1.8] mb-3" style={{ color: "#A8E6C3" }}>
-            We have a responsible disclosure programme. Security researchers who report issues in good faith are protected and acknowledged.
+            We have a responsible disclosure programme. Security researchers who report issues in
+            good faith are protected and acknowledged.
           </p>
           <p className="font-jakarta text-[14px] mb-8" style={{ color: "#6B9E83" }}>
             Email:{" "}

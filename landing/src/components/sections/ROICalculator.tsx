@@ -59,7 +59,7 @@ export default function ROICalculator() {
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-10">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
           >
             Calculate Your School&apos;s ROI
@@ -93,7 +93,9 @@ export default function ROICalculator() {
                 value={students}
                 onChange={(e) => setStudents(Number(e.target.value))}
                 className="w-full h-2 rounded-full appearance-none accent-[#061A12] cursor-pointer"
-                style={{ background: `linear-gradient(to right, #061A12 ${((students - 50) / (3000 - 50)) * 100}%, #e5e7eb ${((students - 50) / (3000 - 50)) * 100}%)` }}
+                style={{
+                  background: `linear-gradient(to right, #061A12 ${((students - 50) / (3000 - 50)) * 100}%, #e5e7eb ${((students - 50) / (3000 - 50)) * 100}%)`,
+                }}
                 aria-label="Number of students"
               />
               <div className="flex justify-between text-xs text-gray-400 mt-1">
@@ -123,7 +125,9 @@ export default function ROICalculator() {
                 value={staff}
                 onChange={(e) => setStaff(Number(e.target.value))}
                 className="w-full h-2 rounded-full appearance-none accent-[#061A12] cursor-pointer"
-                style={{ background: `linear-gradient(to right, #061A12 ${((staff - 1) / (20 - 1)) * 100}%, #e5e7eb ${((staff - 1) / (20 - 1)) * 100}%)` }}
+                style={{
+                  background: `linear-gradient(to right, #061A12 ${((staff - 1) / (20 - 1)) * 100}%, #e5e7eb ${((staff - 1) / (20 - 1)) * 100}%)`,
+                }}
                 aria-label="Number of administrative staff"
               />
               <div className="flex justify-between text-xs text-gray-400 mt-1">
@@ -153,7 +157,9 @@ export default function ROICalculator() {
                 value={hourlyRate}
                 onChange={(e) => setHourlyRate(Number(e.target.value))}
                 className="w-full h-2 rounded-full appearance-none accent-[#061A12] cursor-pointer"
-                style={{ background: `linear-gradient(to right, #061A12 ${((hourlyRate - 200) / (1000 - 200)) * 100}%, #e5e7eb ${((hourlyRate - 200) / (1000 - 200)) * 100}%)` }}
+                style={{
+                  background: `linear-gradient(to right, #061A12 ${((hourlyRate - 200) / (1000 - 200)) * 100}%, #e5e7eb ${((hourlyRate - 200) / (1000 - 200)) * 100}%)`,
+                }}
                 aria-label="Average admin hourly rate in KES"
               />
               <div className="flex justify-between text-xs text-gray-400 mt-1">
@@ -172,9 +178,13 @@ export default function ROICalculator() {
                   className="rounded-2xl p-5 flex flex-col gap-1"
                   style={{ background: "#F3FBF6", border: "1px solid #d1fae5" }}
                 >
-                  <metric.icon className="w-5 h-5 mb-0.5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+                  <metric.icon
+                    className="w-5 h-5 mb-0.5"
+                    strokeWidth={1.5}
+                    style={{ color: "#1A7A4A" }}
+                  />
                   <span
-                    className="font-playfair font-bold text-lg leading-tight"
+                    className="font-display font-bold text-lg leading-tight"
                     style={{ color: "#E8A020" }}
                   >
                     {metric.value}

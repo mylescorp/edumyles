@@ -11,7 +11,14 @@ export function usePlatformPermissions() {
     api.modules.platform.rbac.getMyPermissions,
     sessionToken ? { sessionToken } : "skip",
     !!sessionToken
-  ) as { permissions: string[]; platformUser: any } | undefined;
+  ) as
+    | {
+        permissions: string[];
+        platformUser: any;
+        isAuthenticated?: boolean;
+        isMasterAdmin?: boolean;
+      }
+    | undefined;
 
   function can(permission: string) {
     const permissions = result?.permissions ?? [];
@@ -33,6 +40,7 @@ export function usePlatformPermissions() {
     canAny,
     canAll,
     isLoaded: result !== undefined,
-    isMasterAdmin: result?.platformUser?.role === "master_admin",
+    isAuthenticated: result?.isAuthenticated ?? Boolean(sessionToken),
+    isMasterAdmin: result?.isMasterAdmin ?? result?.platformUser?.role === "master_admin",
   };
 }

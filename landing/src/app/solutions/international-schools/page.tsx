@@ -237,7 +237,6 @@ const integrations = [
 export default function InternationalSchoolsPage() {
   return (
     <div style={{ color: "#212121" }}>
-
       {/* ── Section 1: Hero ─────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
@@ -260,24 +259,31 @@ export default function InternationalSchoolsPage() {
           {/* eyebrow */}
           <div
             className="inline-block font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
-            style={{ background: "rgba(232,160,32,0.12)", border: "1px solid #E8A020", color: "#E8A020" }}
+            style={{
+              background: "rgba(232,160,32,0.12)",
+              border: "1px solid #E8A020",
+              color: "#E8A020",
+            }}
           >
             For International Schools
           </div>
           {/* H1 */}
           <h1
-            className="font-playfair font-bold leading-[1.15] mb-5"
+            className="font-display font-bold leading-[1.15] mb-5"
             style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
           >
             The premium school management platform for{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>international schools in Africa.</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              international schools in Africa.
+            </em>
           </h1>
           {/* subtitle */}
           <p
             className="font-jakarta font-light leading-[1.8] mb-8 mx-auto"
             style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "660px" }}
           >
-            IGCSE, IB, and Cambridge curricula. Multi-currency fee collection. SSO and MFA. White-label options so your school brand is always front and centre.
+            IGCSE, IB, and Cambridge curricula. Multi-currency fee collection. SSO and MFA.
+            White-label options so your school brand is always front and centre.
           </p>
           {/* CTAs */}
           <div className="flex flex-wrap justify-center gap-4 mb-10">
@@ -291,7 +297,11 @@ export default function InternationalSchoolsPage() {
             <a
               href="/book-demo"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Book a Demo
             </a>
@@ -307,7 +317,11 @@ export default function InternationalSchoolsPage() {
               <span
                 key={badge}
                 className="font-semibold text-[12px] px-4 py-2 rounded-[50px]"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.2)", color: "#A8E6C3" }}
+                style={{
+                  background: "rgba(255,255,255,0.07)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  color: "#A8E6C3",
+                }}
               >
                 ✓ {badge}
               </span>
@@ -321,8 +335,15 @@ export default function InternationalSchoolsPage() {
               { value: "White-label", label: "ready" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <div className="font-playfair font-bold text-[2rem]" style={{ color: "#E8A020" }}>{s.value}</div>
-                <div className="text-[13px] font-semibold uppercase tracking-[0.08em] mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>{s.label}</div>
+                <div className="font-display font-bold text-[2rem]" style={{ color: "#E8A020" }}>
+                  {s.value}
+                </div>
+                <div
+                  className="text-[13px] font-semibold uppercase tracking-[0.08em] mt-1"
+                  style={{ color: "rgba(255,255,255,0.5)" }}
+                >
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
@@ -340,7 +361,7 @@ export default function InternationalSchoolsPage() {
               The challenges international schools face
             </p>
             <h2
-              className="font-playfair font-bold leading-[1.2]"
+              className="font-display font-bold leading-[1.2]"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               Your school deserves better.
@@ -351,21 +372,33 @@ export default function InternationalSchoolsPage() {
               <div
                 key={p.num}
                 className="rounded-2xl p-8"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(232,160,32,0.2)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(232,160,32,0.2)",
+                }}
               >
                 <div className="flex items-start gap-4 mb-4">
                   <span
-                    className="font-playfair font-bold text-[2.5rem] leading-none"
+                    className="font-display font-bold text-[2.5rem] leading-none"
                     style={{ color: "rgba(232,160,32,0.25)" }}
                   >
                     {p.num}
                   </span>
-                  <p.icon className="w-9 h-9 flex-shrink-0 mt-1" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+                  <p.icon
+                    className="w-9 h-9 flex-shrink-0 mt-1"
+                    strokeWidth={1.5}
+                    style={{ color: "#E8A020" }}
+                  />
                 </div>
-                <h3 className="font-playfair font-bold text-[17px] mb-3" style={{ color: "#ffffff" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-3"
+                  style={{ color: "#ffffff" }}
+                >
                   {p.title}
                 </h3>
-                <p className="leading-[1.8] text-[14px]" style={{ color: "#A8E6C3" }}>{p.text}</p>
+                <p className="leading-[1.8] text-[14px]" style={{ color: "#A8E6C3" }}>
+                  {p.text}
+                </p>
               </div>
             ))}
           </div>
@@ -383,11 +416,13 @@ export default function InternationalSchoolsPage() {
               How It Works
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               From contract to fully live in{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>11 days.</em>
+              <em className="italic" style={{ color: "#E8A020" }}>
+                11 days.
+              </em>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -398,7 +433,7 @@ export default function InternationalSchoolsPage() {
                 style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
               >
                 <div
-                  className="font-playfair font-bold text-[3rem] leading-none mb-4"
+                  className="font-display font-bold text-[3rem] leading-none mb-4"
                   style={{ color: "rgba(15,76,42,0.12)" }}
                 >
                   {s.step}
@@ -409,10 +444,15 @@ export default function InternationalSchoolsPage() {
                 >
                   {s.when}
                 </span>
-                <h3 className="font-playfair font-bold text-[19px] mb-3" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[19px] mb-3"
+                  style={{ color: "#061A12" }}
+                >
                   {s.title}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>{s.desc}</p>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+                  {s.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -430,7 +470,7 @@ export default function InternationalSchoolsPage() {
               Core Modules
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Everything an international school expects
@@ -449,10 +489,15 @@ export default function InternationalSchoolsPage() {
                 <div className="mb-4">
                   <m.icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
                 </div>
-                <h3 className="font-playfair font-bold text-[17px] mb-2" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-2"
+                  style={{ color: "#061A12" }}
+                >
                   {m.title}
                 </h3>
-                <p className="text-[13px] leading-[1.7]" style={{ color: "#5a5a5a" }}>{m.desc}</p>
+                <p className="text-[13px] leading-[1.7]" style={{ color: "#5a5a5a" }}>
+                  {m.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -464,11 +509,13 @@ export default function InternationalSchoolsPage() {
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Curriculum support,{" "}
-              <em className="italic" style={{ color: "#0F4C2A" }}>built to the standard you teach to.</em>
+              <em className="italic" style={{ color: "#0F4C2A" }}>
+                built to the standard you teach to.
+              </em>
             </h2>
           </div>
           <div className="grid md:grid-cols-2 gap-8">
@@ -477,7 +524,7 @@ export default function InternationalSchoolsPage() {
               className="rounded-2xl p-8"
               style={{ background: "#ffffff", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
             >
-              <h3 className="font-playfair font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
+              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
                 Supported curricula
               </h3>
               <div className="flex flex-wrap gap-3">
@@ -485,7 +532,11 @@ export default function InternationalSchoolsPage() {
                   <span
                     key={c}
                     className="text-[13px] font-semibold px-4 py-2 rounded-[50px]"
-                    style={{ background: "rgba(26,122,74,0.1)", color: "#0F4C2A", border: "1px solid rgba(26,122,74,0.2)" }}
+                    style={{
+                      background: "rgba(26,122,74,0.1)",
+                      color: "#0F4C2A",
+                      border: "1px solid rgba(26,122,74,0.2)",
+                    }}
                   >
                     {c}
                   </span>
@@ -497,14 +548,20 @@ export default function InternationalSchoolsPage() {
               className="rounded-2xl p-8"
               style={{ background: "#ffffff", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
             >
-              <h3 className="font-playfair font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
+              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
                 What makes our gradebook premium
               </h3>
               <ul className="space-y-3">
                 {gradebookFeatures.map((feat) => (
                   <li key={feat} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" strokeWidth={2} style={{ color: "#1A7A4A" }} />
-                    <span className="text-[14px] leading-[1.65]" style={{ color: "#3d3d3d" }}>{feat}</span>
+                    <CheckCircle2
+                      className="w-5 h-5 flex-shrink-0 mt-0.5"
+                      strokeWidth={2}
+                      style={{ color: "#1A7A4A" }}
+                    />
+                    <span className="text-[14px] leading-[1.65]" style={{ color: "#3d3d3d" }}>
+                      {feat}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -524,12 +581,15 @@ export default function InternationalSchoolsPage() {
               Security & Compliance
             </div>
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               Enterprise-grade security, built in.
             </h2>
-            <p className="text-[16px] leading-[1.7]" style={{ color: "#90CAF9", maxWidth: "560px", margin: "0 auto" }}>
+            <p
+              className="text-[16px] leading-[1.7]"
+              style={{ color: "#90CAF9", maxWidth: "560px", margin: "0 auto" }}
+            >
               Every control your IT team will ask for — available on day one.
             </p>
           </div>
@@ -538,13 +598,25 @@ export default function InternationalSchoolsPage() {
               <div
                 key={card.title}
                 className="rounded-2xl p-7"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(232,160,32,0.2)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(232,160,32,0.2)",
+                }}
               >
-                <card.icon className="w-8 h-8 mb-4" strokeWidth={1.5} style={{ color: "#E8A020" }} />
-                <h3 className="font-playfair font-bold text-[18px] mb-2" style={{ color: "#ffffff" }}>
+                <card.icon
+                  className="w-8 h-8 mb-4"
+                  strokeWidth={1.5}
+                  style={{ color: "#E8A020" }}
+                />
+                <h3
+                  className="font-display font-bold text-[18px] mb-2"
+                  style={{ color: "#ffffff" }}
+                >
                   {card.title}
                 </h3>
-                <p className="text-[13px] leading-[1.7]" style={{ color: "#A8E6C3" }}>{card.desc}</p>
+                <p className="text-[13px] leading-[1.7]" style={{ color: "#A8E6C3" }}>
+                  {card.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -558,12 +630,15 @@ export default function InternationalSchoolsPage() {
             {stats.map((s) => (
               <div key={s.label}>
                 <div
-                  className="font-playfair font-bold leading-none mb-2"
+                  className="font-display font-bold leading-none mb-2"
                   style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "#E8A020" }}
                 >
                   {s.value}
                 </div>
-                <div className="font-semibold text-[12px] uppercase tracking-[0.1em]" style={{ color: "rgba(168,230,195,0.7)" }}>
+                <div
+                  className="font-semibold text-[12px] uppercase tracking-[0.1em]"
+                  style={{ color: "rgba(168,230,195,0.7)" }}
+                >
                   {s.label}
                 </div>
               </div>
@@ -577,17 +652,17 @@ export default function InternationalSchoolsPage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-4"
+              className="font-display font-bold leading-[1.2] mb-4"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
-              Why International Schools Choose{" "}
-              <span style={{ color: "#E8A020" }}>EduMyles</span>
+              Why International Schools Choose <span style={{ color: "#E8A020" }}>EduMyles</span>
             </h2>
-            <p 
+            <p
               className="font-jakarta text-lg max-w-[700px] mx-auto"
               style={{ color: "#5a5a5a", lineHeight: "1.7" }}
             >
-              Experience the difference with our premium platform designed for international education standards.
+              Experience the difference with our premium platform designed for international
+              education standards.
             </p>
           </div>
 
@@ -596,58 +671,58 @@ export default function InternationalSchoolsPage() {
               {
                 icon: Globe2,
                 title: "99% Parent Portal Adoption",
-                description: "International parents expect premium digital experiences. Our branded portal achieves 99% adoption within weeks."
+                description:
+                  "International parents expect premium digital experiences. Our branded portal achieves 99% adoption within weeks.",
               },
               {
                 icon: CreditCard,
                 title: "Multi-Currency Excellence",
-                description: "Seamlessly handle KES, USD, GBP, EUR with automatic reconciliation and unified financial reporting."
+                description:
+                  "Seamlessly handle KES, USD, GBP, EUR with automatic reconciliation and unified financial reporting.",
               },
               {
                 icon: ShieldCheck,
                 title: "Enterprise Security",
-                description: "SSO, MFA, audit logs, and data residency options that exceed international school requirements."
+                description:
+                  "SSO, MFA, audit logs, and data residency options that exceed international school requirements.",
               },
               {
                 icon: Star,
                 title: "White-Label Experience",
-                description: "Deploy under your school's brand with custom domain, logo, and colors. Parents see only your brand."
+                description:
+                  "Deploy under your school's brand with custom domain, logo, and colors. Parents see only your brand.",
               },
               {
                 icon: Network,
                 title: "Global Curriculum Support",
-                description: "Full support for IGCSE, IB, Cambridge, and custom curricula with flexible grading systems."
+                description:
+                  "Full support for IGCSE, IB, Cambridge, and custom curricula with flexible grading systems.",
               },
               {
                 icon: Users,
                 title: "Premium Support",
-                description: "Dedicated account manager, 24/7 priority support, and custom onboarding for international schools."
-              }
+                description:
+                  "Dedicated account manager, 24/7 priority support, and custom onboarding for international schools.",
+              },
             ].map((benefit, _index) => (
               <div
                 key={benefit.title}
                 className="text-center p-6 rounded-2xl"
-                style={{ 
-                  background: "linear-gradient(135deg, #FEF3DC 0%, #FFF8E7 100%)", 
-                  border: "1px solid rgba(232,160,32,0.2)" 
+                style={{
+                  background: "linear-gradient(135deg, #FEF3DC 0%, #FFF8E7 100%)",
+                  border: "1px solid rgba(232,160,32,0.2)",
                 }}
               >
-                <div 
+                <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
                   style={{ background: "rgba(232,160,32,0.15)" }}
                 >
                   <benefit.icon className="w-8 h-8" style={{ color: "#E8A020" }} />
                 </div>
-                <h3 
-                  className="font-playfair font-bold text-xl mb-3"
-                  style={{ color: "#061A12" }}
-                >
+                <h3 className="font-display font-bold text-xl mb-3" style={{ color: "#061A12" }}>
                   {benefit.title}
                 </h3>
-                <p 
-                  className="font-jakarta text-sm leading-[1.6]"
-                  style={{ color: "#5a5a5a" }}
-                >
+                <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "#5a5a5a" }}>
                   {benefit.description}
                 </p>
               </div>
@@ -659,23 +734,31 @@ export default function InternationalSchoolsPage() {
       {/* ── Section 9: Testimonial ─────────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "#FEF3DC" }}>
         <div className="max-w-[820px] mx-auto text-center">
-          <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>&ldquo;</div>
+          <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>
+            &ldquo;
+          </div>
           <blockquote
-            className="font-playfair italic leading-[1.85] mb-8"
+            className="font-display italic leading-[1.85] mb-8"
             style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "#2d2d2d" }}
           >
-            What impressed us most was the parent portal adoption rate. Within two weeks, 98% of our parents were checking their child&apos;s attendance and fees online. The white-label option means parents only ever see our brand.
+            What impressed us most was the parent portal adoption rate. Within two weeks, 98% of our
+            parents were checking their child&apos;s attendance and fees online. The white-label
+            option means parents only ever see our brand.
           </blockquote>
           <div className="flex items-center justify-center gap-3">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center font-playfair font-bold text-[16px]"
+              className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[16px]"
               style={{ background: "#0F4C2A", color: "#ffffff" }}
             >
               CN
             </div>
             <div className="text-left">
-              <p className="font-semibold text-[14px]" style={{ color: "#0F4C2A" }}>Catherine Njoroge</p>
-              <p className="text-[13px]" style={{ color: "#666" }}>Head of Administration, Brookside International Preparatory, Karen</p>
+              <p className="font-semibold text-[14px]" style={{ color: "#0F4C2A" }}>
+                Catherine Njoroge
+              </p>
+              <p className="text-[13px]" style={{ color: "#666" }}>
+                Head of Administration, Brookside International Preparatory, Karen
+              </p>
             </div>
           </div>
         </div>
@@ -686,7 +769,7 @@ export default function InternationalSchoolsPage() {
         <div className="max-w-[900px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               EduMyles vs generic SIS tools
@@ -695,22 +778,48 @@ export default function InternationalSchoolsPage() {
               See what you get that other platforms simply don&apos;t offer.
             </p>
           </div>
-          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #e0e0e0", boxShadow: "0 4px 24px rgba(6,26,18,0.07)" }}>
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ border: "1px solid #e0e0e0", boxShadow: "0 4px 24px rgba(6,26,18,0.07)" }}
+          >
             <table className="w-full" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "#061A12" }}>
-                  <th className="text-left py-4 px-6 font-semibold text-[14px]" style={{ color: "#ffffff" }}>Feature</th>
-                  <th className="text-center py-4 px-6 font-semibold text-[14px]" style={{ color: "rgba(255,255,255,0.7)" }}>Generic SIS Tools</th>
-                  <th className="text-center py-4 px-6 font-semibold text-[14px]" style={{ color: "#E8A020" }}>EduMyles</th>
+                  <th
+                    className="text-left py-4 px-6 font-semibold text-[14px]"
+                    style={{ color: "#ffffff" }}
+                  >
+                    Feature
+                  </th>
+                  <th
+                    className="text-center py-4 px-6 font-semibold text-[14px]"
+                    style={{ color: "rgba(255,255,255,0.7)" }}
+                  >
+                    Generic SIS Tools
+                  </th>
+                  <th
+                    className="text-center py-4 px-6 font-semibold text-[14px]"
+                    style={{ color: "#E8A020" }}
+                  >
+                    EduMyles
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonRows.map((row, i) => (
                   <tr
                     key={row.feature}
-                    style={{ background: i % 2 === 0 ? "#ffffff" : "#f9fafb", borderBottom: "1px solid #f0f0f0" }}
+                    style={{
+                      background: i % 2 === 0 ? "#ffffff" : "#f9fafb",
+                      borderBottom: "1px solid #f0f0f0",
+                    }}
                   >
-                    <td className="py-4 px-6 font-semibold text-[14px]" style={{ color: "#061A12" }}>{row.feature}</td>
+                    <td
+                      className="py-4 px-6 font-semibold text-[14px]"
+                      style={{ color: "#061A12" }}
+                    >
+                      {row.feature}
+                    </td>
                     <td className="py-4 px-6 text-center" style={{ color: "#5a5a5a" }}>
                       <span className="inline-flex items-center gap-1.5 text-[13px]">
                         <X className="w-4 h-4 flex-shrink-0" style={{ color: "#e53935" }} />
@@ -718,7 +827,10 @@ export default function InternationalSchoolsPage() {
                       </span>
                     </td>
                     <td className="py-4 px-6 text-center">
-                      <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold" style={{ color: "#1A7A4A" }}>
+                      <span
+                        className="inline-flex items-center gap-1.5 text-[13px] font-semibold"
+                        style={{ color: "#1A7A4A" }}
+                      >
                         <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                         {row.after}
                       </span>
@@ -736,7 +848,7 @@ export default function InternationalSchoolsPage() {
         <div className="max-w-[820px] mx-auto">
           <div className="text-center mb-14">
             <h2
-              className="font-playfair font-bold leading-[1.2] mb-3"
+              className="font-display font-bold leading-[1.2] mb-3"
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
             >
               Frequently asked questions
@@ -749,10 +861,15 @@ export default function InternationalSchoolsPage() {
                 className="rounded-2xl p-7"
                 style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 10px rgba(6,26,18,0.04)" }}
               >
-                <h3 className="font-playfair font-bold text-[17px] mb-3" style={{ color: "#061A12" }}>
+                <h3
+                  className="font-display font-bold text-[17px] mb-3"
+                  style={{ color: "#061A12" }}
+                >
                   {faq.q}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>{faq.a}</p>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+                  {faq.a}
+                </p>
               </div>
             ))}
           </div>
@@ -769,7 +886,7 @@ export default function InternationalSchoolsPage() {
             Integrations
           </p>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-8"
+            className="font-display font-bold leading-[1.2] mb-8"
             style={{ fontSize: "clamp(1.4rem,2.5vw,2rem)", color: "#061A12" }}
           >
             Works with the tools your school already uses
@@ -779,7 +896,12 @@ export default function InternationalSchoolsPage() {
               <span
                 key={int}
                 className="font-semibold text-[13px] px-5 py-2.5 rounded-[50px]"
-                style={{ background: "#ffffff", color: "#0F4C2A", border: "1px solid rgba(15,76,42,0.2)", boxShadow: "0 1px 4px rgba(6,26,18,0.08)" }}
+                style={{
+                  background: "#ffffff",
+                  color: "#0F4C2A",
+                  border: "1px solid rgba(15,76,42,0.2)",
+                  boxShadow: "0 1px 4px rgba(6,26,18,0.08)",
+                }}
               >
                 {int}
               </span>
@@ -798,13 +920,15 @@ export default function InternationalSchoolsPage() {
             Enterprise Pricing
           </div>
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
           >
             Custom pricing for international schools
           </h2>
           <p className="text-[16px] leading-[1.8] mb-8" style={{ color: "#5a5a5a" }}>
-            International schools use our Enterprise plan — custom pricing based on student count, campus configuration, and required integrations. Contact us for a white-glove onboarding experience.
+            International schools use our Enterprise plan — custom pricing based on student count,
+            campus configuration, and required integrations. Contact us for a white-glove onboarding
+            experience.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
@@ -829,14 +953,17 @@ export default function InternationalSchoolsPage() {
       <section className="py-24 px-4" style={{ background: "#0F4C2A" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
-            className="font-playfair font-bold leading-[1.2] mb-4"
+            className="font-display font-bold leading-[1.2] mb-4"
             style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
           >
             Ready to give your international school{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>the platform it deserves?</em>
+            <em className="italic" style={{ color: "#E8A020" }}>
+              the platform it deserves?
+            </em>
           </h2>
           <p className="text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
-            Talk to our enterprise team and get a bespoke demo tailored to your curriculum and infrastructure.
+            Talk to our enterprise team and get a bespoke demo tailored to your curriculum and
+            infrastructure.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
@@ -849,14 +976,17 @@ export default function InternationalSchoolsPage() {
             <a
               href="/book-demo"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "transparent", border: "2px solid rgba(255,255,255,0.4)", color: "#ffffff" }}
+              style={{
+                background: "transparent",
+                border: "2px solid rgba(255,255,255,0.4)",
+                color: "#ffffff",
+              }}
             >
               Book a Demo
             </a>
           </div>
         </div>
       </section>
-
     </div>
   );
 }

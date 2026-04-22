@@ -1,5 +1,6 @@
 import { StyleSheet, Dimensions } from "react-native";
 import { colors as sharedColors } from "@edumyles/shared";
+import { fonts } from "./theme/typography";
 
 const { width, height } = Dimensions.get("window");
 
@@ -10,33 +11,33 @@ const { width, height } = Dimensions.get("window");
 export const theme = {
   colors: {
     // Brand — forest green from shared design tokens
-    primary: sharedColors.forest[600],     // #045e38 — dark forest green
+    primary: sharedColors.forest[600], // #045e38 — dark forest green
     primaryLight: sharedColors.forest[400], // #3ea96f — lighter accent
-    secondary: sharedColors.crimson[500],   // #E42527 — action red
+    secondary: sharedColors.crimson[500], // #E42527 — action red
 
     // Semantic
-    success: sharedColors.forest[500],      // #056C40
-    warning: sharedColors.amber[500],       // #FFD731
+    success: sharedColors.forest[500], // #056C40
+    warning: sharedColors.amber[500], // #FFD731
     warningText: "#78350f",
-    error: sharedColors.crimson[500],       // #E42527
+    error: sharedColors.crimson[500], // #E42527
     info: "#0891b2",
 
     // Surfaces
-    background: sharedColors.cream[50],     // #ffffff
-    surface: sharedColors.cream[100],       // #FAFAFA
-    card: sharedColors.cream[50],           // #ffffff
+    background: sharedColors.cream[50], // #ffffff
+    surface: sharedColors.cream[100], // #FAFAFA
+    card: sharedColors.cream[50], // #ffffff
 
     // Text
-    text: sharedColors.charcoal[500],       // #101010
+    text: sharedColors.charcoal[500], // #101010
     textSecondary: sharedColors.charcoal[300], // #808080
-    textLight: sharedColors.charcoal[200],  // #b3b3b3
+    textLight: sharedColors.charcoal[200], // #b3b3b3
 
     white: sharedColors.white,
     black: sharedColors.black,
 
     // Borders
-    border: sharedColors.cream[400],        // #E8E8E8
-    separator: sharedColors.cream[300],     // #F0F0F0
+    border: sharedColors.cream[400], // #E8E8E8
+    separator: sharedColors.cream[300], // #F0F0F0
 
     // Attendance status
     present: sharedColors.forest[500],
@@ -63,10 +64,14 @@ export const theme = {
   },
 
   fonts: {
-    regular: "System",
-    medium: "System",
-    semibold: "System",
-    bold: "System",
+    body: fonts.body,
+    bodyMedium: fonts.bodyMedium,
+    displayMedium: fonts.displayMedium,
+    display: fonts.display,
+    regular: fonts.body,
+    medium: fonts.bodyMedium,
+    semibold: fonts.displayMedium,
+    bold: fonts.display,
   },
 
   fontSizes: {
