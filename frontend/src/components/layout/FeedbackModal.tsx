@@ -65,7 +65,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
               Thank you for your feedback!
             </p>
             <p className="text-[12px] text-gray-400">
-              We'll review it and get back to you.
+              We&apos;ll review it and get back to you.
             </p>
           </div>
         ) : (
@@ -87,8 +87,8 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                   >
                     <Star
                       className="h-6 w-6 transition-colors"
-                      fill={(hovered || rating) >= star ? "#E8A020" : "none"}
-                      stroke={(hovered || rating) >= star ? "#E8A020" : "#d1d5db"}
+                      fill={(hovered || rating) >= star ? "var(--platform-highlight)" : "none"}
+                      stroke={(hovered || rating) >= star ? "var(--platform-highlight)" : "#d1d5db"}
                     />
                   </button>
                 ))}
@@ -104,7 +104,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="e.g. Suggestion for the dashboard"
-                className="w-full h-9 px-3 text-[13px] border border-gray-200 rounded-lg outline-none focus:border-[#0F4C2A] focus:ring-1 focus:ring-[#0F4C2A]/20 transition-all placeholder:text-gray-400"
+                className="w-full h-9 rounded-lg border border-gray-200 px-3 text-[13px] outline-none transition-all placeholder:text-gray-400 focus:border-[var(--platform-accent)] focus:ring-1 focus:ring-[var(--platform-accent-soft)]"
               />
             </div>
 
@@ -118,7 +118,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tell us what you think or suggest a feature…"
                 rows={4}
-                className="w-full px-3 py-2.5 text-[13px] border border-gray-200 rounded-lg outline-none focus:border-[#0F4C2A] focus:ring-1 focus:ring-[#0F4C2A]/20 transition-all resize-none placeholder:text-gray-400"
+                className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2.5 text-[13px] outline-none transition-all placeholder:text-gray-400 focus:border-[var(--platform-accent)] focus:ring-1 focus:ring-[var(--platform-accent-soft)]"
               />
             </div>
 
@@ -126,7 +126,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             <button
               type="submit"
               disabled={!subject.trim() || !message.trim()}
-              className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-[#0F4C2A] hover:bg-[#0a3a20] disabled:opacity-40 disabled:cursor-not-allowed text-white text-[13px] font-medium transition-colors"
+              className="flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[var(--platform-accent)] text-[13px] font-medium text-white transition-colors hover:bg-[var(--platform-accent-hover)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Send className="h-3.5 w-3.5" />
               Send Feedback

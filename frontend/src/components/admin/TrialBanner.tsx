@@ -93,7 +93,7 @@ export function TrialBanner() {
             Keep onboarding momentum high and choose your plan before the trial ends to avoid module suspension.
           </p>
         </div>
-        <Button asChild className="bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]">
+        <Button asChild className="bg-[var(--platform-accent)] text-white hover:bg-[var(--platform-accent-hover)]">
           <Link href="/admin/settings/billing">
             <CreditCard className="mr-2 h-4 w-4" />
             Choose a Plan

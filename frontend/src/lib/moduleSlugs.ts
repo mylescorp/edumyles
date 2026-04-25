@@ -18,6 +18,7 @@ const MODULE_ALIAS_MAP: Record<string, string[]> = {
   mod_parent_portal: ["parent_portal"],
   mod_alumni: ["alumni"],
   mod_partner: ["partner"],
+  mod_social: ["social"],
 };
 
 const LEGACY_TO_SPEC_MAP = Object.entries(MODULE_ALIAS_MAP).reduce<Record<string, string>>(

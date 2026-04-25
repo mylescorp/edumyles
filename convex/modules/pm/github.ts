@@ -78,6 +78,29 @@ export const linkGitHubIssue = mutation({
   },
 });
 
+export const attachGithubIssueToTask = internalMutation({
+  args: {
+    taskId: v.id("pmTasks"),
+    issueNumber: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task || task.isDeleted) throw new Error("TASK_NOT_FOUND");
+    const current = [...(task.githubIssueNumbers ?? [])];
+    if (!current.includes(args.issueNumber)) {
+      current.push(args.issueNumber);
+    }
+
+    await ctx.db.patch(args.taskId, {
+      githubIssueNumber: args.issueNumber,
+      githubIssueNumbers: dedupeNumbers(current),
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
 export const processPullRequest = internalMutation({
   args: {
     repository: v.string(),
@@ -252,4 +275,3 @@ async function findTaskForGithubEvent(
 function dedupeNumbers(values: number[]) {
   return [...new Set(values)];
 }
-

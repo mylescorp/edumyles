@@ -75,6 +75,7 @@ export type AuditAction =
   | "onboarding.initialized" | "onboarding.completed"
   | "analytics.report_generated" | "analytics.report_exported"
   | "crm.deal_created" | "crm.deal_updated" | "crm.lead_created" | "crm.lead_updated" | "crm.activity_added" | "crm.proposal_created" | "crm.proposal_updated" | "crm.proposal_sent"
+  | "demo_request.created" | "demo_request.updated" | "demo_request.assigned" | "demo_request.status_changed" | "demo_request.deleted" | "demo_request.restored"
   | "pm.workspace.created" | "pm.workspace.updated" | "pm.workspace.deleted"
   | "pm.project.created" | "pm.project.updated" | "pm.project.deleted"
   | "pm.task.created" | "pm.task.updated" | "pm.task.deleted"

@@ -46,10 +46,6 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
   const pendingAdmissions = pendingAdmissionsResult?.data;
   const pendingInvoices = pendingInvoicesResult?.data;
 
-  // Core module IDs that should always be visible
-  const coreModuleIds = ["sis", "communications", "users"];
-
-  // Core module IDs that should always be visible
   // Filter and sort navigation items based on module installation status
   const filteredItems = navItems
     .filter((item) => {
@@ -122,7 +118,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
           priority
         />
         {!collapsed && (
-          <span className="text-sm font-bold text-[#D4AF37] tracking-tight transition-all duration-200">
+            <span className="text-sm font-bold text-[var(--platform-highlight)] tracking-tight transition-all duration-200">
             EduMyles
           </span>
         )}
@@ -213,11 +209,11 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                   <div
                     className={cn(
                       "flex h-4 w-4 items-center justify-center rounded transition-all duration-150",
-                      disabledByPermission
-                        ? "text-white/25"
-                        : isActive
-                          ? "text-[#E8A020]"
-                          : "text-sidebar-icon group-hover:text-[#E8A020]"
+                        disabledByPermission
+                          ? "text-white/25"
+                          : isActive
+                          ? "text-[var(--platform-highlight)]"
+                          : "text-sidebar-icon group-hover:text-[var(--platform-highlight)]"
                     )}
                   >
                     {disabledByPermission ? <Lock className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
@@ -273,9 +269,9 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                 "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 disabledByPermission
                   ? "cursor-not-allowed opacity-80"
-                  : "hover:bg-[rgba(232,160,32,0.1)] hover:translate-x-0.5",
+                  : "hover:bg-[var(--platform-highlight-soft)] hover:translate-x-0.5",
                 isActive && !disabledByPermission
-                  ? "bg-[rgba(232,160,32,0.15)] text-white shadow-sm border-l-2 border-[#E8A020]"
+                  ? "bg-[var(--platform-highlight-soft)] text-white shadow-sm border-l-2 border-[var(--platform-highlight)]"
                   : disabledByPermission
                     ? "text-white/40"
                     : "text-sidebar-text hover:text-white"
@@ -361,12 +357,12 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
             )}
           >
             <div className="relative h-8 w-8 rounded-full border border-[rgba(232,160,32,0.35)] bg-[rgba(232,160,32,0.15)] flex items-center justify-center shadow-sm">
-              <span className="text-xs font-bold text-[#E8A020]">
+              <span className="text-xs font-bold text-[var(--platform-highlight)]">
                 {(user as any)?.firstName?.[0]?.toUpperCase() ??
                   (user as any)?.email?.[0]?.toUpperCase() ??
                   "U"}
               </span>
-              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#26A65B] border-2 border-[#0C3020]"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[var(--em-success)] border-2 border-[#0C3020]"></div>
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">

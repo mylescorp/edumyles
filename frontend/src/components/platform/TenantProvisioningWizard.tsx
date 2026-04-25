@@ -293,15 +293,14 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     return publishedModules.filter((module) => !included.has(String(module._id)) && !included.has(module.slug));
   }, [formData.selectedModuleIds, publishedModules]);
 
-  const progress = ((currentStep + 1) / STEP_TITLES.length) * 100;
   const websiteSubdomainValue = getWebsiteSubdomainValue(formData.websiteUrl);
   const subdomainStatusTone =
     formData.subdomain.trim().length < 3
       ? "text-muted-foreground"
       : subdomainAvailability === undefined
-        ? "text-[#1565C0]"
+        ? "text-[var(--platform-accent)]"
         : subdomainAvailability.available
-          ? "text-[#26A65B]"
+          ? "text-[var(--em-success)]"
           : "text-destructive";
   const regionOptions = regions;
 

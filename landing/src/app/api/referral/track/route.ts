@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     const convex = getLandingConvexClient();
 
-    await convex.mutation(api.publicApplications.trackPublicReferralClick, {
+    const result = await convex.mutation(api.publicApplications.trackPublicReferralClick, {
       referralCode,
       source: source || "direct",
       campaign: body.campaign || undefined,
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       ipAddress,
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, clickId: result.clickId });
   } catch (error) {
     console.error("Referral tracking error:", error);
     return NextResponse.json({ error: "Failed to track referral" }, { status: 500 });

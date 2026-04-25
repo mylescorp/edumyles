@@ -4,6 +4,7 @@ import { requireTenantSession } from "../../helpers/tenantGuard";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireRole } from "../../helpers/authorize";
 import { logAction } from "../../helpers/auditLog";
+import { getInstalledModules as getGuardInstalledModules } from "../../helpers/moduleGuard";
 import { TIER_MODULES } from "./tierModules";
 import { isCoreModule, CORE_MODULE_IDS, ALL_MODULES, MODULE_DEPENDENCIES } from "./moduleDefinitions";
 
@@ -17,6 +18,60 @@ const REVERSE_DEPENDENCIES: Record<string, string[]> = Object.entries(MODULE_DEP
   },
   {} as Record<string, string[]>
 );
+
+const LEGACY_MODULE_IDS_BY_SLUG: Record<string, string> = {
+  core_sis: "sis",
+  core_users: "users",
+  core_notifications: "communications",
+  mod_academics: "academics",
+  mod_attendance: "attendance",
+  mod_admissions: "admissions",
+  mod_finance: "finance",
+  mod_timetable: "timetable",
+  mod_library: "library",
+  mod_transport: "transport",
+  mod_hr: "hr",
+  mod_communications: "communications",
+  mod_ewallet: "ewallet",
+  mod_ecommerce: "ecommerce",
+  mod_reports: "reports",
+  mod_advanced_analytics: "analytics",
+  mod_parent_portal: "parent_portal",
+  mod_alumni: "alumni",
+  mod_partner: "partner",
+  mod_social: "social",
+};
+
+function toLegacyModuleId(moduleSlugOrId: string) {
+  return LEGACY_MODULE_IDS_BY_SLUG[moduleSlugOrId] ?? moduleSlugOrId;
+}
+
+async function hasActivePilotGrant(ctx: any, tenantId: string, moduleId: string) {
+  const [activeGrants, marketplaceModules] = await Promise.all([
+    ctx.db
+      .query("pilot_grants")
+      .withIndex("by_tenant_status", (q: any) =>
+        q.eq("tenantId", tenantId).eq("status", "active")
+      )
+      .collect(),
+    ctx.db.query("marketplace_modules").collect(),
+  ]);
+
+  const marketplaceSlugById = new Map<string, string>(
+    marketplaceModules.map((moduleRecord: any) => [String(moduleRecord._id), moduleRecord.slug])
+  );
+
+  return activeGrants.some((grant: any) => {
+    if (grant.endDate && grant.endDate < Date.now()) {
+      return false;
+    }
+
+    const grantedModuleId = toLegacyModuleId(
+      marketplaceSlugById.get(String(grant.moduleId)) ?? String(grant.moduleId)
+    );
+    return grantedModuleId === moduleId;
+  });
+}
 
 /**
  * Validate args.tenantId matches the authenticated session's tenantId.
@@ -44,6 +99,7 @@ export const installModule = mutation({
     assertTenantMatch(tenantCtx.tenantId, args.tenantId);
 
     const { tenantId } = tenantCtx;
+    const installedModules = await getGuardInstalledModules(ctx, tenantId);
 
     // Verify the module exists in registry; fall back to static definitions if
     // the registry hasn't been seeded yet so installs never silently fail.
@@ -75,15 +131,19 @@ export const installModule = mutation({
     }
 
     // Check if already installed
-    const existing = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
-      )
-      .first();
+    const existing = installedModules.find((install: any) => {
+      const normalizedInstallId = toLegacyModuleId(
+        String(install.moduleSlug ?? install.moduleId)
+      );
+      return normalizedInstallId === args.moduleId;
+    });
 
-    if (existing) {
-      throw new Error("MODULE_ALREADY_INSTALLED: Module is already installed");
+    if (existing?.status === "active") {
+      return {
+        success: true,
+        moduleId: args.moduleId,
+        alreadyInstalled: true,
+      };
     }
 
     // Check tier access
@@ -99,8 +159,9 @@ export const installModule = mutation({
 
     const tier = org?.tier ?? tenant?.plan ?? "free";
     const allowedModules = TIER_MODULES[tier] ?? TIER_MODULES["free"];
+    const hasPilotAccess = await hasActivePilotGrant(ctx, tenantId, args.moduleId);
 
-    if (!allowedModules!.includes(args.moduleId)) {
+    if (!allowedModules!.includes(args.moduleId) && !hasPilotAccess) {
       throw new Error(
         `TIER_RESTRICTED: Module '${args.moduleId}' is not available on '${tier}' tier. Upgrade required.`
       );
@@ -109,12 +170,12 @@ export const installModule = mutation({
     // Check dependencies
     const deps = MODULE_DEPENDENCIES[args.moduleId] ?? [];
     for (const dep of deps) {
-      const depInstalled = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_module", (q) =>
-          q.eq("tenantId", tenantId).eq("moduleId", dep)
-        )
-        .first();
+      const depInstalled = installedModules.find((install: any) => {
+        const normalizedInstallId = toLegacyModuleId(
+          String(install.moduleSlug ?? install.moduleId)
+        );
+        return normalizedInstallId === dep;
+      });
 
       if (!depInstalled || depInstalled.status !== "active") {
         throw new Error(

@@ -24,13 +24,27 @@ import { TrendingUp, TrendingDown, DollarSign, Users, MessageSquare, FileText } 
 
 // EduMyles Design System v3 Chart Colors
 const chartColors = {
-  categorical: ['#16A34A', '#1E3A8A', '#F59E0B', '#7C3AED', '#0D9488', '#DC2626'],
-  sequential:  ['#FEE2E2', '#FEF9C3', '#FDE68A', '#DCFCE7', '#16A34A'],
+  categorical: ["#0F4C2A", "#26A65B", "#E8A020", "#9A5D00", "#6B9E83", "#DC2626"],
+  sequential: ["#FEE2E2", "#FEF3DC", "#F5C453", "#E8F5EE", "#26A65B"],
   grid: '#E2E8F0',
   axis: '#64748B',
   tooltip_bg: '#1E293B',
   tooltip_text: '#F1F5F9',
 };
+
+function RevenueByPlanTooltip({ active, payload }: any) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-em-bg-base p-3 rounded-lg shadow-lg border border-em-border">
+        <p className="font-semibold text-em-text-primary">{data.name}</p>
+        <p className="text-sm text-em-text-secondary">MRR: KES {data.value.toLocaleString()}</p>
+        <p className="text-sm text-em-text-secondary">Tenants: {data.tenants}</p>
+      </div>
+    );
+  }
+  return null;
+}
 
 interface MRRChartProps {
   data: Array<{
@@ -368,20 +382,6 @@ export function RevenueByPlanChart({ data, isLoading }: RevenueByPlanChartProps)
 
   const COLORS = chartColors.categorical;
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-em-bg-base p-3 rounded-lg shadow-lg border border-em-border">
-          <p className="font-semibold text-em-text-primary">{data.name}</p>
-          <p className="text-sm text-em-text-secondary">MRR: KES {data.value.toLocaleString()}</p>
-          <p className="text-sm text-em-text-secondary">Tenants: {data.tenants}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   const renderCustomLabel = (entry: any) => {
     const percent = ((entry.value / data.reduce((sum, item) => sum + item.mrr, 0)) * 100).toFixed(1);
     return `${percent}%`;
@@ -420,7 +420,7 @@ export function RevenueByPlanChart({ data, isLoading }: RevenueByPlanChartProps)
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<RevenueByPlanTooltip />} />
             <Legend 
               wrapperStyle={{ fontSize: '12px' }}
               formatter={(value, entry: any) => [

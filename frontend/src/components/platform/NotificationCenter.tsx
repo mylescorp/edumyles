@@ -22,14 +22,19 @@ import {
   AlertTriangle,
   CheckCircle2,
   MessageSquare,
+  Shield,
 } from "lucide-react";
 import Link from "next/link";
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
-  info: <Info className="h-4 w-4 text-blue-500" />,
-  warning: <AlertTriangle className="h-4 w-4 text-amber-500" />,
-  success: <CheckCircle2 className="h-4 w-4 text-green-500" />,
-  message: <MessageSquare className="h-4 w-4 text-purple-500" />,
+  invite: <MessageSquare className="h-4 w-4 text-sky-500" />,
+  rbac: <Shield className="h-4 w-4 text-violet-500" />,
+  crm: <Info className="h-4 w-4 text-blue-500" />,
+  pm: <CheckCircle2 className="h-4 w-4 text-green-500" />,
+  security: <AlertTriangle className="h-4 w-4 text-amber-500" />,
+  billing: <Info className="h-4 w-4 text-emerald-500" />,
+  waitlist: <MessageSquare className="h-4 w-4 text-orange-500" />,
+  system: <Info className="h-4 w-4 text-slate-500" />,
 };
 
 function timeAgo(timestamp: number): string {
@@ -54,10 +59,10 @@ export function NotificationCenter() {
   ) as number | undefined;
 
   const notifications = usePlatformQuery(
-    api.platform.notifications.queries.listNotifications,
+    api.platform.notifications.queries.getMyNotifications,
     { sessionToken, limit: 20 },
     !!sessionToken && open
-  ) as any[] | undefined;
+  ) as { notifications: any[]; unreadCount: number } | undefined;
 
   const markAsRead = useMutation(api.platform.notifications.mutations.markAsRead);
   const markAllAsRead = useMutation(api.platform.notifications.mutations.markAllAsRead);
@@ -118,13 +123,13 @@ export function NotificationCenter() {
             <div className="flex justify-center py-8">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : notifications.length === 0 ? (
+          ) : (notifications?.notifications?.length ?? 0) === 0 ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
               <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>No notifications yet</p>
             </div>
           ) : (
-            notifications.map((n: any) => (
+            notifications.notifications.map((n: any) => (
               <div
                 key={n._id}
                 className={`flex items-start gap-3 p-3 border-b last:border-0 hover:bg-muted/50 transition-colors ${

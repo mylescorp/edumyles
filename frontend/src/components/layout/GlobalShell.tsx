@@ -62,6 +62,10 @@ export interface NavGroup {
   items?: { label: string; href: string }[];
 }
 
+function isRenderableNavHref(href: string) {
+  return !href.includes("[") && !href.includes("]");
+}
+
 function unwrapRenderValue<T = unknown>(value: any): T | undefined {
   let current = value;
   const seen = new Set<any>();
@@ -114,6 +118,10 @@ function getNavGroups(navItems: NavItem[]): NavGroup[] {
   const groups: NavGroup[] = [];
 
   for (const item of navItems) {
+    if (!isRenderableNavHref(item.href)) {
+      continue;
+    }
+
     if (!item.section) {
       groups.push({ label: item.label, href: item.href });
       continue;
@@ -143,13 +151,6 @@ function getRoleWorkspaceLabel(role: string, tenantName?: string): string {
   if (role === "master_admin" || role === "super_admin") return "Platform Admin";
   if (tenantName) return tenantName;
   return "My School";
-}
-
-function readClientCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
-  return match?.[1] ? decodeURIComponent(match[1]) : null;
 }
 
 // ─── Dropdown nav group ───────────────────────────────────────────────────────
@@ -1002,8 +1003,9 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
 
   // For platform routes, use permission-based navigation; for others, use original navItems
   const visibleNavItems = isPlatformRoute
-    ? permissionBasedNavItems
+    ? permissionBasedNavItems.filter((item) => isRenderableNavHref(item.href))
     : navItems.filter((item) => {
+        if (!isRenderableNavHref(item.href)) return false;
         if (!item.module) return true;
         if (coreModuleIds.includes(item.module)) return true;
         if (!isModuleInstalled(item.module)) return false;
@@ -1393,7 +1395,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
             className={cn("flex-1 overflow-y-auto", isPlatformRoute && "pb-24")}
             style={{
               background: isPlatformRoute
-                ? "radial-gradient(circle at top right, rgba(216, 169, 72, 0.08), transparent 22%), radial-gradient(circle at top left, rgba(15, 76, 42, 0.08), transparent 24%), linear-gradient(180deg, rgba(240,248,244,0.96) 0%, rgba(245,249,246,1) 220px)"
+                ? "var(--platform-page-bg)"
                 : "linear-gradient(180deg, rgba(240,248,244,0.9) 0%, rgba(245,249,246,1) 220px)",
             }}
           >

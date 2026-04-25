@@ -139,6 +139,23 @@
   --topnav-active-border: #e8a020;
   --topnav-hover-bg: rgba(255, 255, 255, 0.08);
 
+  /* ── Platform UI aliases ── */
+  --platform-accent: var(--em-forest);
+  --platform-accent-hover: var(--em-emerald);
+  --platform-accent-soft: rgba(15, 76, 42, 0.08);
+  --platform-accent-border: rgba(15, 76, 42, 0.18);
+  --platform-highlight: var(--em-gold);
+  --platform-highlight-soft: rgba(232, 160, 32, 0.1);
+  --platform-highlight-border: rgba(232, 160, 32, 0.22);
+  --platform-danger-soft: rgba(220, 38, 38, 0.08);
+  --platform-danger-border: rgba(220, 38, 38, 0.2);
+  --platform-success-soft: rgba(38, 166, 91, 0.08);
+  --platform-success-border: rgba(38, 166, 91, 0.2);
+  --platform-page-bg:
+    radial-gradient(circle at top right, rgba(232, 160, 32, 0.08), transparent 24%),
+    radial-gradient(circle at top left, rgba(15, 76, 42, 0.08), transparent 24%),
+    linear-gradient(180deg, rgba(240, 248, 244, 0.96) 0%, rgba(245, 249, 246, 1) 220px);
+
   /* ── Shadcn/ui surface mappings ── */
   --background: var(--em-bg-base);
   --foreground: var(--em-text-primary);

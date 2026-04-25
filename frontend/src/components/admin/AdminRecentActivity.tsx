@@ -24,26 +24,26 @@ interface ActivityItem {
 const ACTIVITY_CONFIG: Record<ActivityItem["type"], { icon: any; iconBg: string; iconColor: string; label: string }> = {
   student_enrolled: {
     icon: GraduationCap,
-    iconBg: "bg-[rgba(15,76,42,0.1)]",
-    iconColor: "text-[#0F4C2A]",
+    iconBg: "bg-[var(--platform-accent-soft)]",
+    iconColor: "text-[var(--platform-accent)]",
     label: "Enrolled",
   },
   invoice_paid: {
     icon: DollarSign,
-    iconBg: "bg-[rgba(21,101,192,0.1)]",
-    iconColor: "text-[#1565C0]",
+    iconBg: "bg-[var(--platform-highlight-soft)]",
+    iconColor: "text-[var(--platform-highlight)]",
     label: "Payment",
   },
   staff_added: {
     icon: UserCheck,
-    iconBg: "bg-[rgba(124,58,237,0.1)]",
-    iconColor: "text-[#7C3AED]",
+    iconBg: "bg-[var(--platform-accent-soft)]",
+    iconColor: "text-[var(--platform-accent)]",
     label: "Staff",
   },
   application_submitted: {
     icon: FileText,
-    iconBg: "bg-[rgba(232,160,32,0.1)]",
-    iconColor: "text-[#E8A020]",
+    iconBg: "bg-[var(--platform-highlight-soft)]",
+    iconColor: "text-[var(--platform-highlight)]",
     label: "Admission",
   },
 };
@@ -63,7 +63,7 @@ export function AdminRecentActivity({
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
         <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-          <Activity className="h-4 w-4 text-[#0F4C2A]" />
+          <Activity className="h-4 w-4 text-[var(--platform-accent)]" />
           Recent Activity
         </CardTitle>
         {showViewAll && (

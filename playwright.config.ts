@@ -23,7 +23,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3100",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3005",
     storageState: authFile,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
@@ -82,11 +82,20 @@ export default defineConfig({
 
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
-    : {
-        command:
-          "node -e \"const { spawn } = require('node:child_process'); const child = spawn('npm run dev -- --port 3100', { cwd: 'frontend', stdio: 'inherit', shell: true, env: { ...process.env, ENABLE_DEV_AUTH_BYPASS: 'false', SENTRY_SUPPRESS_INSTRUMENTATION_FILE_WARNING: '1' } }); child.on('exit', (code) => process.exit(code ?? 0));\"",
-        url: "http://localhost:3100/auth/login",
-        reuseExistingServer: !process.env.CI,
-        timeout: 120 * 1000,
-      },
+    : [
+        {
+          command:
+            "node -e \"const { spawn } = require('node:child_process'); const child = spawn('npm run dev', { cwd: 'frontend', stdio: 'inherit', shell: true, env: { ...process.env, ENABLE_DEV_AUTH_BYPASS: 'false', SENTRY_SUPPRESS_INSTRUMENTATION_FILE_WARNING: '1' } }); child.on('exit', (code) => process.exit(code ?? 0));\"",
+          url: "http://localhost:3005/auth/login",
+          reuseExistingServer: !process.env.CI,
+          timeout: 120 * 1000,
+        },
+        {
+          command: "npm run dev",
+          url: "http://localhost:3001",
+          cwd: "landing",
+          reuseExistingServer: !process.env.CI,
+          timeout: 120 * 1000,
+        },
+      ],
 });

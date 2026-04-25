@@ -14,7 +14,8 @@ export type ModuleSlug =
   | "mod_advanced_analytics"
   | "mod_parent_portal"
   | "mod_alumni"
-  | "mod_partner";
+  | "mod_partner"
+  | "mod_social";
 
 export type AccessLevel = "full" | "read_only" | "restricted" | "none";
 export type RoleKey = "school_admin" | "principal" | "teacher" | "student" | "parent";
@@ -690,6 +691,196 @@ export const MODULE_SPECS: Record<ModuleSlug, ModuleSpec> = {
       { key: "partner_request_received", label: "Partner request received", description: "Notify admins when a partner request is submitted.", defaultChannels: ["in_app", "email"], canDisable: true },
     ],
   }),
+  mod_social: {
+    metadata: {
+      slug: "mod_social",
+      displayName: "Social Media",
+      version: "1.0.0",
+    },
+    navConfig: {
+      adminNav: [
+        {
+          href: "/admin/social",
+          label: "Social Media",
+          icon: "Share2",
+          requiredFeature: "view_social_dashboard",
+        },
+      ],
+      teacherNav: [
+        {
+          href: "/portal/teacher/social/create",
+          label: "Social Media",
+          icon: "Share2",
+          requiredFeature: "create_posts",
+        },
+      ],
+      studentNav: [],
+      parentNav: [],
+      dashboardWidgets: [
+        {
+          widgetId: "social_pending_approval",
+          title: "Social Pending Approval",
+          supportedRoles: ["school_admin", "principal", "teacher"],
+        },
+        {
+          widgetId: "social_quick_stats",
+          title: "Social Quick Stats",
+          supportedRoles: ["school_admin", "principal"],
+        },
+      ],
+    },
+    dashboardWidgets: [
+      {
+        widgetId: "social_pending_approval",
+        title: "Social Pending Approval",
+        supportedRoles: ["school_admin", "principal", "teacher"],
+      },
+      {
+        widgetId: "social_quick_stats",
+        title: "Social Quick Stats",
+        supportedRoles: ["school_admin", "principal"],
+      },
+    ],
+    features: {
+      view_social_dashboard: {
+        key: "view_social_dashboard",
+        label: "View Social Dashboard",
+        description: "View social media dashboards, posts, and publishing status.",
+        defaultRoles: ["school_admin", "principal", "teacher"],
+      },
+      create_posts: {
+        key: "create_posts",
+        label: "Create Posts",
+        description: "Create drafts and submit social posts for approval.",
+        defaultRoles: ["school_admin", "teacher"],
+      },
+      approve_posts: {
+        key: "approve_posts",
+        label: "Approve Posts",
+        description: "Approve, reject, schedule, and publish social posts.",
+        defaultRoles: ["school_admin"],
+      },
+      manage_accounts: {
+        key: "manage_accounts",
+        label: "Manage Accounts",
+        description: "Connect and manage platform social accounts and tokens.",
+        defaultRoles: ["school_admin"],
+      },
+      view_analytics: {
+        key: "view_analytics",
+        label: "View Analytics",
+        description: "View social analytics and reporting.",
+        defaultRoles: ["school_admin", "principal"],
+      },
+      reply_comments: {
+        key: "reply_comments",
+        label: "Reply To Comments",
+        description: "Manage and reply to social comments.",
+        defaultRoles: ["school_admin", "principal"],
+      },
+      manage_campaigns: {
+        key: "manage_campaigns",
+        label: "Manage Campaigns",
+        description: "Create and manage social campaigns and templates.",
+        defaultRoles: ["school_admin"],
+      },
+      manage_settings: {
+        key: "manage_settings",
+        label: "Manage Settings",
+        description: "Configure approval flows and automation settings.",
+        defaultRoles: ["school_admin"],
+      },
+    },
+    defaultRoleAccess: [
+      { role: "school_admin", accessLevel: "full", allowedFeatures: [] },
+      {
+        role: "principal",
+        accessLevel: "restricted",
+        allowedFeatures: ["view_social_dashboard", "view_analytics", "reply_comments"],
+      },
+      {
+        role: "teacher",
+        accessLevel: "restricted",
+        allowedFeatures: ["view_social_dashboard", "create_posts"],
+      },
+      { role: "student", accessLevel: "none", allowedFeatures: [] },
+      { role: "parent", accessLevel: "none", allowedFeatures: [] },
+    ],
+    configSchema: {
+      moduleSlug: "mod_social",
+      sections: [
+        {
+          key: "approval",
+          title: "Approval Workflow",
+          description: "Configure how social posts are reviewed and published.",
+          fields: [
+            {
+              key: "requiresApproval",
+              type: "boolean",
+              label: "Require approval",
+              defaultValue: true,
+            },
+            {
+              key: "autoPublishOnApproval",
+              type: "boolean",
+              label: "Auto publish on approval",
+              defaultValue: true,
+            },
+            {
+              key: "allowSelfApproval",
+              type: "boolean",
+              label: "Allow self approval",
+              defaultValue: false,
+            },
+            {
+              key: "defaultTimezone",
+              type: "string",
+              label: "Default timezone",
+              defaultValue: "Africa/Nairobi",
+            },
+          ],
+        },
+      ],
+    },
+    notifications: [
+      {
+        key: "social_post_submitted",
+        label: "Post Submitted",
+        description: "Notify approvers when a post is submitted.",
+        defaultChannels: ["in_app", "email"],
+        canDisable: false,
+      },
+      {
+        key: "social_post_approved",
+        label: "Post Approved",
+        description: "Notify creators when a post is approved.",
+        defaultChannels: ["in_app", "email"],
+        canDisable: false,
+      },
+      {
+        key: "social_post_rejected",
+        label: "Post Rejected",
+        description: "Notify creators when a post is rejected.",
+        defaultChannels: ["in_app", "email"],
+        canDisable: false,
+      },
+      {
+        key: "social_post_published",
+        label: "Post Published",
+        description: "Notify stakeholders when a post publishes successfully.",
+        defaultChannels: ["in_app"],
+        canDisable: true,
+      },
+      {
+        key: "social_token_expiring",
+        label: "Token Expiring",
+        description: "Warn admins when a connected account needs attention.",
+        defaultChannels: ["in_app", "email"],
+        canDisable: false,
+      },
+    ],
+    subscriptions: [],
+  },
 };
 
 export function getModuleSpec(moduleSlug: ModuleSlug): ModuleSpec {

@@ -26,6 +26,7 @@ export {
   suspendModule,
   deprecateModule,
   installModule,
+  setTenantModuleStatus,
   uninstallCatalogModule,
   uninstallModule,
   updateInstallationConfig,

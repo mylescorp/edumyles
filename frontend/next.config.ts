@@ -35,7 +35,7 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
   headers: async () => [
-    // ── Security + default cache for all routes ───────────────────────────
+    // ── Security headers for all routes ───────────────────────────────────
     {
       source: '/(.*)',
       headers: [
@@ -43,10 +43,9 @@ const nextConfig = {
         { key: 'X-Frame-Options', value: 'DENY' },
         { key: 'X-Content-Type-Options', value: 'nosniff' },
         { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
-        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
       ],
     },
-    // ── Dev navigator — never cache so changes are always fresh ─────────
+    // ── Dev navigator — never cache so changes are always fresh ──────────
     {
       source: '/dev',
       headers: [
@@ -54,11 +53,11 @@ const nextConfig = {
         { key: 'Pragma', value: 'no-cache' },
       ],
     },
-    // ── Static Next.js assets — long-lived, immutable ────────────────────
     {
-      source: '/_next/static/(.*)',
+      source: '/dev/:path*',
       headers: [
-        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
       ],
     },
     // ── Protected app routes — NEVER cache; always re-validate with server ─

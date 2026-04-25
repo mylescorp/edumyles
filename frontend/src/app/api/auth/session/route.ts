@@ -35,6 +35,53 @@ function normalizeRole(role?: string | null) {
   return role ?? "school_admin";
 }
 
+function isPlatformRole(role?: string | null) {
+  if (!role) return false;
+  return [
+    "master_admin",
+    "super_admin",
+    "platform_manager",
+    "support_agent",
+    "billing_admin",
+    "marketplace_reviewer",
+    "content_moderator",
+    "analytics_viewer",
+  ].includes(normalizeRole(role));
+}
+
+function getRequestIp(req: NextRequest) {
+  return (
+    req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-real-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    undefined
+  );
+}
+
+async function recordPlatformActivityIfNeeded(
+  convex: ConvexHttpClient,
+  req: NextRequest,
+  params: {
+    sessionToken: string;
+    role?: string | null;
+    email?: string | null;
+  }
+) {
+  if (!isPlatformRole(params.role)) return;
+  try {
+    await convex.mutation(api.modules.platform.auth.recordPlatformActivity, {
+      sessionToken: params.sessionToken,
+      sessionId: params.sessionToken,
+    });
+  } catch (error) {
+    console.warn("[api/auth/session] Platform activity tracking failed:", {
+      error,
+      email: params.email,
+      ipAddress: getRequestIp(req),
+    });
+  }
+}
+
 async function getSessionCompat(convex: ConvexHttpClient, sessionToken: string, serverSecret?: string) {
   const getSessionRef = (api.sessions as any).getSession;
 
@@ -715,6 +762,11 @@ export async function GET(req: NextRequest) {
               role: normalizedRole,
               expiresAt: session.expiresAt,
             },
+          });
+          await recordPlatformActivityIfNeeded(convex, req, {
+            sessionToken: session.sessionToken,
+            role: normalizedRole,
+            email: session.email,
           });
           const isProduction = process.env.NODE_ENV === "production";
           const userCookie = req.cookies.get("edumyles_user")?.value;

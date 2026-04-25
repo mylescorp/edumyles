@@ -1,20 +1,32 @@
-import { withAuth } from "@workos-inc/authkit-nextjs";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { normalizeDevRole } from "@/lib/dev/access";
 
 export async function ensureProtectedRouteSession() {
-  // Skip WorkOS auth check in dev bypass mode — proxy.ts already allows all requests through
-  const isDevBypass =
-    process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
-    process.env.NODE_ENV !== "production";
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("edumyles_session")?.value ?? null;
+  const role = cookieStore.get("edumyles_role")?.value ?? null;
 
-  if (!isDevBypass) {
-    await withAuth({ ensureSignedIn: true });
+  if (!sessionToken) {
+    redirect("/auth/login");
   }
 
-  const cookieStore = await cookies();
+  return {
+    sessionToken,
+    role,
+  };
+}
+
+export async function ensureAuthorizedRouteSession(allowedRoles: readonly string[]) {
+  const session = await ensureProtectedRouteSession();
+  const normalizedRole = normalizeDevRole(session.role);
+
+  if (!normalizedRole || !allowedRoles.includes(normalizedRole)) {
+    redirect("/platform");
+  }
 
   return {
-    sessionToken: cookieStore.get("edumyles_session")?.value ?? null,
-    role: cookieStore.get("edumyles_role")?.value ?? null,
+    ...session,
+    role: normalizedRole,
   };
 }

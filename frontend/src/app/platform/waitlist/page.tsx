@@ -54,6 +54,13 @@ type WaitlistEntry = {
   referralSource?: string;
   referralCode?: string;
   sourceChannel?: string;
+  marketingAttribution?: {
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+    ctaSource?: string;
+    landingPage?: string;
+  };
   biggestChallenge?: string;
   notes?: string;
   status: "waiting" | "invited" | "converted" | "rejected" | "expired";
@@ -709,6 +716,9 @@ export default function WaitlistPage() {
                 <div><span className="font-medium">CRM stage:</span> {detailTarget.crmLead ? labelize(detailTarget.crmLead.stage ?? "open") : "No lead"}</div>
                 <div><span className="font-medium">Referral source:</span> {detailTarget.referralSource ?? "Not specified"}</div>
                 <div><span className="font-medium">Referral code:</span> {detailTarget.referralCode ?? "Not provided"}</div>
+                <div><span className="font-medium">CTA source:</span> {detailTarget.marketingAttribution?.ctaSource ?? "Not captured"}</div>
+                <div><span className="font-medium">Campaign:</span> {detailTarget.marketingAttribution?.utmCampaign ?? "Not captured"}</div>
+                <div><span className="font-medium">Landing page:</span> {detailTarget.marketingAttribution?.landingPage ?? "Not captured"}</div>
               </CardContent></Card>
               <Card className="md:col-span-2"><CardHeader><CardTitle className="text-base">Challenge and notes</CardTitle></CardHeader><CardContent className="space-y-3 text-sm">
                 <div><div className="font-medium">Biggest challenge</div><div className="text-muted-foreground">{detailTarget.biggestChallenge ?? "No challenge supplied yet."}</div></div>

@@ -45,11 +45,27 @@ type LeadDetail = {
     country: string;
     studentCount?: number;
     stage: string;
+    source?: string;
+    sourceType?: string;
     qualificationScore?: number;
     dealValueKes?: number;
     notes?: string;
     ownerName?: string;
     assignedToName?: string;
+    marketingAttribution?: {
+      utmSource?: string;
+      utmMedium?: string;
+      utmCampaign?: string;
+      utmTerm?: string;
+      utmContent?: string;
+      gclid?: string;
+      fbclid?: string;
+      ctaSource?: string;
+      ctaLabel?: string;
+      landingPage?: string;
+      currentPage?: string;
+      referrer?: string;
+    };
   };
   contacts: Array<{
     _id: string;
@@ -468,6 +484,19 @@ export default function LeadDetailPage() {
               <Info label="Assigned" value={lead.lead.assignedToName ?? "Not assigned"} />
               <Info label="Student count" value={lead.lead.studentCount ? String(lead.lead.studentCount) : "Unknown"} />
               <Info label="Current stage posture" value={currentStage ? `${currentStage.name} · ${currentStage.probabilityDefault}%` : lead.lead.stage} />
+              <Info label="Lead source" value={lead.lead.source ?? lead.lead.sourceType ?? "Unknown"} />
+              <Info
+                label="CTA source"
+                value={lead.lead.marketingAttribution?.ctaSource ?? "Not captured"}
+              />
+              <Info
+                label="Campaign"
+                value={lead.lead.marketingAttribution?.utmCampaign ?? "Not captured"}
+              />
+              <Info
+                label="Landing page"
+                value={lead.lead.marketingAttribution?.landingPage ?? "Not captured"}
+              />
             </CardContent>
           </Card>
 

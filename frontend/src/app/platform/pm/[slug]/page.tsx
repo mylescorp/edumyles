@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { normalizeArray } from "@/lib/normalizeData";
 import { toast } from "sonner";
 
 type ProjectSummary = {
@@ -81,6 +82,7 @@ export default function WorkspacePage() {
       : "skip"
   );
   const createProject = useMutation(api.modules.pm.projects.createProject);
+  const projectRows = useMemo(() => normalizeArray<ProjectSummary>(projects), [projects]);
 
   const setField = (field: keyof typeof formData, value: string) => {
     setFormData((current) => ({ ...current, [field]: value }));
@@ -208,7 +210,7 @@ export default function WorkspacePage() {
 
       <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.08),transparent_30%),linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,0.98))]">
         <CardContent className="grid gap-6 p-6 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-3">
+              <div className="space-y-3">
             <div className="text-3xl">{workspace.icon || "📁"}</div>
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Workspace posture</p>
@@ -226,7 +228,7 @@ export default function WorkspacePage() {
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Projects</p>
-              <p className="mt-3 text-2xl font-semibold text-slate-950">{projects?.length || 0}</p>
+              <p className="mt-3 text-2xl font-semibold text-slate-950">{projectRows.length}</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Navigation</p>
@@ -237,7 +239,7 @@ export default function WorkspacePage() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {projects?.map((project: ProjectSummary) => (
+          {projectRows.map((project: ProjectSummary) => (
             <Card key={project._id} className="hover:shadow-lg transition-all duration-200">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -277,20 +279,29 @@ export default function WorkspacePage() {
                     </div>
                   </div>
                 </div>
-                <Link 
-                  href={`/platform/pm/${workspaceSlug}/${project._id}`}
-                  className="block mt-4"
-                >
-                  <Button className="w-full">
-                    Open Project
+                <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                  <Button asChild className="w-full">
+                    <Link href={`/platform/pm/${workspaceSlug}/${project._id}`}>
+                      Open Board
+                    </Link>
                   </Button>
-                </Link>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href={`/platform/pm/${workspaceSlug}/${project._id}/list`}>
+                      List
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href={`/platform/pm/${workspaceSlug}/${project._id}/backlog`}>
+                      Backlog
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
       </div>
 
-      {(!projects || projects.length === 0) && (
+      {projectRows.length === 0 && (
         <Card>
           <CardContent>
             <EmptyState

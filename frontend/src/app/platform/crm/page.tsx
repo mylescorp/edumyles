@@ -20,6 +20,7 @@ import {
   AlertCircle,
   ArrowRight,
   CalendarClock,
+  Columns3,
   DollarSign,
   FileText,
   Plus,
@@ -145,6 +146,12 @@ export default function PlatformCrmDashboardPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            <Button asChild variant="outline" className="gap-2">
+              <Link href="/platform/crm/pipeline">
+                <Columns3 className="h-4 w-4" />
+                Pipeline Board
+              </Link>
+            </Button>
             <PermissionGate permission="crm.view_reports">
               <Button asChild variant="outline" className="gap-2">
                 <Link href="/platform/crm/reports">
@@ -178,8 +185,18 @@ export default function PlatformCrmDashboardPage() {
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <Card className="border-emerald-100 bg-[linear-gradient(180deg,rgba(240,253,250,0.7),rgba(255,255,255,0.96))]">
           <CardHeader>
-            <CardTitle>Pipeline overview</CardTitle>
-            <CardDescription>Every stage is fed by live Convex records with value totals already computed server-side.</CardDescription>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <CardTitle>Pipeline overview</CardTitle>
+                <CardDescription>Every stage is fed by live Convex records with value totals already computed server-side.</CardDescription>
+              </div>
+              <Button asChild variant="outline" className="gap-2">
+                <Link href="/platform/crm/pipeline">
+                  <Columns3 className="h-4 w-4" />
+                  Open pipeline board
+                </Link>
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {stageCards.length === 0 ? (

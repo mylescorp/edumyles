@@ -84,6 +84,7 @@ export function useInstalledModules(userRole?: string) {
     () =>
       installedModuleDetails.map((install: any) => ({
         ...install,
+        moduleSlug: install.moduleSlug ?? install.moduleId,
         accessLevel: getRoleAccessLevel(install, userRole),
       })),
     [installedModuleDetails, userRole]
@@ -131,7 +132,9 @@ export function useInstalledModules(userRole?: string) {
       ? [
           ...new Set([
             ...CORE_MODULE_IDS,
-            ...resolvedInstalledModuleDetails.map((moduleRecord: any) => moduleRecord.moduleId),
+            ...resolvedInstalledModuleDetails.map((moduleRecord: any) =>
+              moduleRecord.moduleSlug ?? moduleRecord.moduleId
+            ),
           ]),
         ]
       : CORE_MODULE_IDS;

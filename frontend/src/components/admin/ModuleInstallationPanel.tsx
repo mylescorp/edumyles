@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/use-toast";
+import { normalizeArray } from "@/lib/normalizeData";
 import {
   Package,
   Star,
@@ -113,7 +114,7 @@ export function ModuleInstallationPanel() {
         platformPriceKes?: number;
       }
     | undefined;
-  const resolvedAvailableModules = (availableModules as any[]) ?? [];
+  const resolvedAvailableModules = normalizeArray<any>(availableModules);
 
   const handleInstall = useCallback(async (moduleId: string) => {
     if (!sessionToken || !tenantId) return;

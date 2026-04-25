@@ -28,7 +28,7 @@ function MiniAvatar({ item }: { item: ChatItem }) {
       <div
         className={cn(
           "h-9 w-9 rounded-full flex items-center justify-center text-[12px] font-bold",
-          item.isChannel ? "bg-gray-100 text-gray-500" : "bg-[#e8f5f0] text-[#0F4C2A]"
+          item.isChannel ? "bg-gray-100 text-gray-500" : "bg-[var(--platform-accent-soft)] text-[var(--platform-accent)]"
         )}
       >
         {item.isChannel ? (
@@ -97,7 +97,6 @@ export function SmartChatModal({ open, onClose, onSelectChat }: SmartChatModalPr
 
   useEffect(() => {
     if (open) {
-      setQuery("");
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [open]);

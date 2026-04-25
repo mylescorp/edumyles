@@ -4448,6 +4448,24 @@ export default defineSchema({
       assignedTo: v.optional(v.string()),
       resellerId: v.optional(v.string()),
       sourceChannel: v.optional(v.string()),
+      marketingAttribution: v.optional(v.object({
+        utmSource: v.optional(v.string()),
+        utmMedium: v.optional(v.string()),
+        utmCampaign: v.optional(v.string()),
+        utmTerm: v.optional(v.string()),
+        utmContent: v.optional(v.string()),
+        gclid: v.optional(v.string()),
+        fbclid: v.optional(v.string()),
+        msclkid: v.optional(v.string()),
+        ttclid: v.optional(v.string()),
+        referrer: v.optional(v.string()),
+        landingPage: v.optional(v.string()),
+        currentPage: v.optional(v.string()),
+        originPath: v.optional(v.string()),
+        ctaSource: v.optional(v.string()),
+        ctaLabel: v.optional(v.string()),
+        referralClickId: v.optional(v.string()),
+      })),
       invitedAt: v.optional(v.number()),
       inviteEmailSentAt: v.optional(v.number()),
       convertedAt: v.optional(v.number()),
@@ -4465,6 +4483,92 @@ export default defineSchema({
       .index("by_isHighValue", ["isHighValue"])
       .index("by_assignedTo", ["assignedTo"])
       .index("by_resellerId", ["resellerId"])
+      .index("by_createdAt", ["createdAt"]),
+
+  demo_requests: defineTable({
+      fullName: v.string(),
+      email: v.string(),
+      phone: v.optional(v.string()),
+      schoolName: v.string(),
+      schoolType: v.optional(v.string()),
+      jobTitle: v.optional(v.string()),
+      preferredDemoDate: v.optional(v.string()),
+      needs: v.optional(v.string()),
+      country: v.optional(v.string()),
+      county: v.optional(v.string()),
+      studentCount: v.optional(v.number()),
+      currentSystem: v.optional(v.string()),
+      referralSource: v.optional(v.string()),
+      referralCode: v.optional(v.string()),
+      sourceChannel: v.optional(v.string()),
+      marketingAttribution: v.optional(v.object({
+        utmSource: v.optional(v.string()),
+        utmMedium: v.optional(v.string()),
+        utmCampaign: v.optional(v.string()),
+        utmTerm: v.optional(v.string()),
+        utmContent: v.optional(v.string()),
+        gclid: v.optional(v.string()),
+        fbclid: v.optional(v.string()),
+        msclkid: v.optional(v.string()),
+        ttclid: v.optional(v.string()),
+        referrer: v.optional(v.string()),
+        landingPage: v.optional(v.string()),
+        currentPage: v.optional(v.string()),
+        originPath: v.optional(v.string()),
+        ctaSource: v.optional(v.string()),
+        ctaLabel: v.optional(v.string()),
+        referralClickId: v.optional(v.string()),
+      })),
+      qualificationScore: v.optional(v.number()),
+      isHighValue: v.optional(v.boolean()),
+      status: v.union(
+        v.literal("requested"),
+        v.literal("contacted"),
+        v.literal("scheduled"),
+        v.literal("completed"),
+        v.literal("cancelled")
+      ),
+      priority: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"))),
+      assignedTo: v.optional(v.string()),
+      assignedTeam: v.optional(v.string()),
+      crmLeadId: v.optional(v.string()),
+      scheduledFor: v.optional(v.number()),
+      scheduledEndAt: v.optional(v.number()),
+      meetingUrl: v.optional(v.string()),
+      bookingSource: v.optional(v.string()),
+      externalBookingId: v.optional(v.string()),
+      externalBookingUid: v.optional(v.string()),
+      nextActionAt: v.optional(v.number()),
+      nextActionLabel: v.optional(v.string()),
+      lastContactedAt: v.optional(v.number()),
+      notesInternal: v.optional(v.string()),
+      outcome: v.optional(v.string()),
+      deletedAt: v.optional(v.number()),
+      deletedBy: v.optional(v.string()),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("by_email", ["email"])
+      .index("by_status", ["status"])
+      .index("by_createdAt", ["createdAt"])
+      .index("by_crmLeadId", ["crmLeadId"])
+      .index("by_assignedTo", ["assignedTo", "updatedAt"])
+      .index("by_scheduledFor", ["scheduledFor"])
+      .index("by_nextActionAt", ["nextActionAt"])
+      .index("by_externalBookingUid", ["externalBookingUid"])
+      .index("by_externalBookingId", ["externalBookingId"]),
+
+  demo_request_events: defineTable({
+      demoRequestId: v.id("demo_requests"),
+      eventType: v.string(),
+      title: v.string(),
+      body: v.optional(v.string()),
+      actorUserId: v.optional(v.string()),
+      actorEmail: v.optional(v.string()),
+      metadata: v.optional(v.any()),
+      createdAt: v.number(),
+    })
+      .index("by_demoRequestId", ["demoRequestId", "createdAt"])
       .index("by_createdAt", ["createdAt"]),
 
   tenant_invites: defineTable({
@@ -5428,6 +5532,24 @@ export default defineSchema({
     notes: v.optional(v.string()),
     status: v.optional(v.string()),
     sourceType: v.optional(v.string()),
+    marketingAttribution: v.optional(v.object({
+      utmSource: v.optional(v.string()),
+      utmMedium: v.optional(v.string()),
+      utmCampaign: v.optional(v.string()),
+      utmTerm: v.optional(v.string()),
+      utmContent: v.optional(v.string()),
+      gclid: v.optional(v.string()),
+      fbclid: v.optional(v.string()),
+      msclkid: v.optional(v.string()),
+      ttclid: v.optional(v.string()),
+      referrer: v.optional(v.string()),
+      landingPage: v.optional(v.string()),
+      currentPage: v.optional(v.string()),
+      originPath: v.optional(v.string()),
+      ctaSource: v.optional(v.string()),
+      ctaLabel: v.optional(v.string()),
+      referralClickId: v.optional(v.string()),
+    })),
     isArchived: v.optional(v.boolean()),
     isDeleted: v.optional(v.boolean()),
     tags: v.optional(v.array(v.string())),
@@ -6183,10 +6305,268 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_reseller", ["resellerId"])
+    .index("by_clickId", ["clickId"])
     .index("by_referralCode", ["referralCode"])
     .index("by_source", ["source"])
     .index("by_campaign", ["campaign"])
     .index("by_converted", ["converted"])
     .index("by_timestamp", ["timestamp"])
     .index("by_conversionId", ["conversionId"]),
+
+  social_accounts: defineTable({
+    tenantId: v.optional(v.string()),
+    isPlatformAccount: v.optional(v.boolean()),
+    platform: v.union(
+      v.literal("facebook"),
+      v.literal("instagram"),
+      v.literal("twitter"),
+      v.literal("linkedin"),
+      v.literal("youtube"),
+      v.literal("tiktok"),
+      v.literal("whatsapp"),
+      v.literal("telegram")
+    ),
+    accountName: v.string(),
+    accountHandle: v.optional(v.string()),
+    accountId: v.string(),
+    profileImageUrl: v.optional(v.string()),
+    followerCount: v.optional(v.number()),
+    followingCount: v.optional(v.number()),
+    accessToken: v.string(),
+    refreshToken: v.optional(v.string()),
+    tokenExpiresAt: v.optional(v.number()),
+    pageToken: v.optional(v.string()),
+    accountType: v.optional(v.string()),
+    pageId: v.optional(v.string()),
+    igUserId: v.optional(v.string()),
+    wabaId: v.optional(v.string()),
+    phoneNumberId: v.optional(v.string()),
+    status: v.union(
+      v.literal("active"),
+      v.literal("token_expired"),
+      v.literal("disconnected"),
+      v.literal("error")
+    ),
+    lastSyncAt: v.optional(v.number()),
+    lastErrorMessage: v.optional(v.string()),
+    connectedBy: v.string(),
+    connectedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_isPlatformAccount", ["isPlatformAccount"])
+    .index("by_tenantId_platform", ["tenantId", "platform"])
+    .index("by_accountId", ["accountId"])
+    .index("by_status", ["status"]),
+
+  social_campaigns: defineTable({
+    tenantId: v.optional(v.string()),
+    isPlatformCampaign: v.optional(v.boolean()),
+    name: v.string(),
+    description: v.optional(v.string()),
+    goal: v.optional(v.string()),
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+    status: v.union(
+      v.literal("planning"),
+      v.literal("active"),
+      v.literal("paused"),
+      v.literal("completed"),
+      v.literal("cancelled")
+    ),
+    tags: v.array(v.string()),
+    createdBy: v.string(),
+    isDeleted: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_status", ["status"]),
+
+  social_approval_flows: defineTable({
+    tenantId: v.optional(v.string()),
+    isPlatformFlow: v.optional(v.boolean()),
+    name: v.string(),
+    isDefault: v.boolean(),
+    requiresApproval: v.boolean(),
+    approverRoles: v.array(v.string()),
+    approverUserIds: v.array(v.string()),
+    notifyOnSubmit: v.boolean(),
+    autoPublishOnApproval: v.boolean(),
+    allowSelfApproval: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_isDefault", ["isDefault"]),
+
+  social_media_library: defineTable({
+    tenantId: v.optional(v.string()),
+    isPlatformLibrary: v.optional(v.boolean()),
+    name: v.string(),
+    description: v.optional(v.string()),
+    fileUrl: v.string(),
+    fileType: v.union(
+      v.literal("image"),
+      v.literal("video"),
+      v.literal("gif"),
+      v.literal("document")
+    ),
+    fileSizeBytes: v.number(),
+    mimeType: v.string(),
+    dimensions: v.optional(
+      v.object({
+        width: v.number(),
+        height: v.number(),
+        durationSeconds: v.optional(v.number()),
+      })
+    ),
+    tags: v.array(v.string()),
+    uploadedBy: v.string(),
+    usageCount: v.number(),
+    isDeleted: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_fileType", ["fileType"]),
+
+  social_content_templates: defineTable({
+    tenantId: v.optional(v.string()),
+    isPlatformTemplate: v.optional(v.boolean()),
+    name: v.string(),
+    description: v.optional(v.string()),
+    platforms: v.array(v.string()),
+    textTemplate: v.optional(v.string()),
+    mediaUrls: v.array(v.string()),
+    tags: v.array(v.string()),
+    createdBy: v.string(),
+    usageCount: v.number(),
+    isDeleted: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_tenantId", ["tenantId"]),
+
+  social_posts: defineTable({
+    tenantId: v.optional(v.string()),
+    isPlatformPost: v.optional(v.boolean()),
+    title: v.string(),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("pending_approval"),
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("scheduled"),
+      v.literal("publishing"),
+      v.literal("published"),
+      v.literal("partially_published"),
+      v.literal("failed"),
+      v.literal("cancelled")
+    ),
+    scheduledAt: v.optional(v.number()),
+    publishedAt: v.optional(v.number()),
+    targetAccountIds: v.array(v.id("social_accounts")),
+    platformVariants: v.array(
+      v.object({
+        platform: v.string(),
+        accountId: v.id("social_accounts"),
+        textContent: v.optional(v.string()),
+        mediaUrls: v.array(v.string()),
+        mediaType: v.optional(v.string()),
+        linkUrl: v.optional(v.string()),
+        linkTitle: v.optional(v.string()),
+        linkDescription: v.optional(v.string()),
+        tweetThreadParts: v.optional(v.array(v.string())),
+        pollOptions: v.optional(v.array(v.string())),
+        pollDurationMinutes: v.optional(v.number()),
+        youtubeTitle: v.optional(v.string()),
+        youtubeDescription: v.optional(v.string()),
+        youtubeTags: v.optional(v.array(v.string())),
+        youtubeCategory: v.optional(v.string()),
+        youtubePrivacy: v.optional(v.string()),
+        tiktokCaption: v.optional(v.string()),
+        whatsappTemplateId: v.optional(v.string()),
+        telegramChatId: v.optional(v.string()),
+        publishedPostId: v.optional(v.string()),
+        publishedPostUrl: v.optional(v.string()),
+        publishStatus: v.optional(v.string()),
+        publishError: v.optional(v.string()),
+        publishedAt: v.optional(v.number()),
+      })
+    ),
+    approvalRequired: v.boolean(),
+    approvedBy: v.optional(v.string()),
+    approvedAt: v.optional(v.number()),
+    rejectedBy: v.optional(v.string()),
+    rejectedAt: v.optional(v.number()),
+    rejectionReason: v.optional(v.string()),
+    tags: v.array(v.string()),
+    campaignId: v.optional(v.id("social_campaigns")),
+    createdBy: v.string(),
+    isDeleted: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenantId", ["tenantId"])
+    .index("by_isPlatformPost", ["isPlatformPost"])
+    .index("by_status", ["status"])
+    .index("by_scheduledAt", ["scheduledAt"])
+    .index("by_createdBy", ["createdBy"])
+    .index("by_campaignId", ["campaignId"]),
+
+  social_analytics: defineTable({
+    tenantId: v.optional(v.string()),
+    isPlatformAnalytics: v.optional(v.boolean()),
+    accountId: v.id("social_accounts"),
+    platform: v.string(),
+    postId: v.optional(v.id("social_posts")),
+    platformPostId: v.optional(v.string()),
+    impressions: v.optional(v.number()),
+    reach: v.optional(v.number()),
+    engagements: v.optional(v.number()),
+    likes: v.optional(v.number()),
+    comments: v.optional(v.number()),
+    shares: v.optional(v.number()),
+    saves: v.optional(v.number()),
+    clicks: v.optional(v.number()),
+    followerGrowth: v.optional(v.number()),
+    videoViews: v.optional(v.number()),
+    videoWatchTimeSeconds: v.optional(v.number()),
+    videoCompletionRate: v.optional(v.number()),
+    rawMetrics: v.optional(v.string()),
+    periodStart: v.number(),
+    periodEnd: v.number(),
+    pulledAt: v.number(),
+  })
+    .index("by_accountId", ["accountId"])
+    .index("by_postId", ["postId"])
+    .index("by_tenantId_platform", ["tenantId", "platform"])
+    .index("by_periodStart", ["periodStart"]),
+
+  social_comments: defineTable({
+    tenantId: v.optional(v.string()),
+    isPlatformComment: v.optional(v.boolean()),
+    postId: v.id("social_posts"),
+    accountId: v.id("social_accounts"),
+    platform: v.string(),
+    platformCommentId: v.string(),
+    platformPostId: v.string(),
+    authorName: v.string(),
+    authorHandle: v.optional(v.string()),
+    authorProfileUrl: v.optional(v.string()),
+    body: v.string(),
+    likeCount: v.number(),
+    isReply: v.boolean(),
+    parentCommentId: v.optional(v.string()),
+    status: v.union(
+      v.literal("new"),
+      v.literal("read"),
+      v.literal("replied"),
+      v.literal("hidden"),
+      v.literal("deleted_on_platform")
+    ),
+    repliedAt: v.optional(v.number()),
+    repliedBy: v.optional(v.string()),
+    replyText: v.optional(v.string()),
+    pulledAt: v.number(),
+  })
+    .index("by_postId", ["postId"])
+    .index("by_accountId", ["accountId"])
+    .index("by_status", ["status"])
+    .index("by_platform", ["platform"]),
 });

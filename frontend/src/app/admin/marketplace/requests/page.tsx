@@ -21,6 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import type { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { formatRelativeTime } from "@/lib/formatters";
+import { normalizeArray } from "@/lib/normalizeData";
 import { Inbox, Plus, Check, X } from "lucide-react";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -103,8 +104,8 @@ export default function ModuleRequestsPage() {
     return <LoadingSkeleton variant="page" />;
   }
 
-  const allTyped = typedRequests ?? [];
-  const allLegacy = legacyRequests ?? [];
+  const allTyped = normalizeArray<any>(typedRequests);
+  const allLegacy = normalizeArray<any>(legacyRequests);
 
   const pendingLegacy = allLegacy.filter((r) => r.status === "pending");
   const approvedLegacy = allLegacy.filter((r) => r.status === "approved");
