@@ -93,12 +93,12 @@ type SortOption =
 function StatusBadge({ status }: { status: string }) {
   const className =
     status === "active"
-      ? "border-[#26A65B]/20 bg-[rgba(38,166,91,0.08)] text-[#26A65B]"
+      ? "border-[var(--platform-success-border)] bg-[var(--platform-success-soft)] text-[var(--em-success)]"
       : status === "trial"
-        ? "border-[#1565C0]/20 bg-[rgba(21,101,192,0.08)] text-[#1565C0]"
+        ? "border-[var(--platform-accent-border)] bg-[var(--platform-accent-soft)] text-[var(--platform-accent)]"
         : status === "archived"
           ? "border-slate-300 bg-slate-100 text-slate-700"
-          : "border-[#D64545]/20 bg-[rgba(214,69,69,0.08)] text-[#D64545]";
+          : "border-[var(--platform-danger-border)] bg-[var(--platform-danger-soft)] text-[var(--em-danger)]";
 
   return (
     <Badge variant="outline" className={className}>
@@ -110,12 +110,12 @@ function StatusBadge({ status }: { status: string }) {
 function PlanBadge({ plan }: { plan: string }) {
   const className =
     plan === "enterprise"
-      ? "border-violet-300 bg-violet-100 text-violet-700"
+      ? "border-[var(--platform-accent-border)] bg-[var(--platform-accent-soft)] text-[var(--platform-accent)]"
       : plan === "pro"
-        ? "border-[#E8A020]/20 bg-[rgba(232,160,32,0.08)] text-[#C17B00]"
+        ? "border-[var(--platform-highlight-border)] bg-[var(--platform-highlight-soft)] text-[var(--em-gold-deep)]"
         : plan === "standard" || plan === "growth"
-          ? "border-[#1565C0]/20 bg-[rgba(21,101,192,0.08)] text-[#1565C0]"
-          : "border-[#26A65B]/20 bg-[rgba(38,166,91,0.08)] text-[#26A65B]";
+          ? "border-[var(--platform-accent-border)] bg-[var(--platform-accent-soft)] text-[var(--platform-accent)]"
+          : "border-[var(--platform-success-border)] bg-[var(--platform-success-soft)] text-[var(--em-success)]";
 
   return (
     <Badge variant="outline" className={className}>
@@ -458,10 +458,10 @@ export default function TenantsPage() {
         <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active + Trial</CardTitle>
-            <Users className="h-4 w-4 text-[#26A65B]" />
+            <Users className="h-4 w-4 text-[var(--em-success)]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-[#26A65B]">
+            <div className="text-2xl font-semibold text-[var(--em-success)]">
               {statusCards.activeTenants + statusCards.trialTenants}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -473,10 +473,10 @@ export default function TenantsPage() {
         <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Suspended</CardTitle>
-            <Ban className="h-4 w-4 text-[#D64545]" />
+            <Ban className="h-4 w-4 text-[var(--em-danger)]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-[#D64545]">{statusCards.suspendedTenants}</div>
+            <div className="text-2xl font-semibold text-[var(--em-danger)]">{statusCards.suspendedTenants}</div>
             <p className="text-xs text-muted-foreground">Tenants requiring intervention</p>
           </CardContent>
         </Card>
@@ -484,10 +484,10 @@ export default function TenantsPage() {
         <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total MRR</CardTitle>
-            <Activity className="h-4 w-4 text-[#E8A020]" />
+            <Activity className="h-4 w-4 text-[var(--platform-highlight)]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-[#C17B00]">
+            <div className="text-2xl font-semibold text-[var(--em-gold-deep)]">
               {formatKes(statusCards.totalMonthlyRecurringKes)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -632,7 +632,7 @@ export default function TenantsPage() {
       </Card>
 
       {selectedTenantIds.length > 0 && (
-        <Card className="border-[#E8A020]/25 bg-[rgba(232,160,32,0.06)] shadow-sm">
+        <Card className="border-[var(--platform-highlight-border)] bg-[var(--platform-highlight-soft)] shadow-sm">
           <CardContent className="flex flex-col gap-3 p-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-sm font-semibold text-foreground">
@@ -709,7 +709,7 @@ export default function TenantsPage() {
                         </td>
                         <td className="px-4 py-4">
                           <div className="flex items-start gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(21,101,192,0.08)] text-[#1565C0]">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--platform-accent-soft)] text-[var(--platform-accent)]">
                               <Building2 className="h-4 w-4" />
                             </div>
                             <div className="space-y-1">

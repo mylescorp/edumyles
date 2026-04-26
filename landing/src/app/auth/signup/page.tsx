@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
+import { buildSubmissionAttribution, storeReferralClickId } from "@/lib/attribution";
 
 type FormState = "idle" | "loading" | "error";
 
@@ -72,7 +73,7 @@ function SignUpPageContent() {
     schoolName: "",
     studentCount: "",
     currentSystem: "",
-    referralSource: referralCode ? "Referral" : "Search engine",
+    referralSource: referralCode ? "Friend/Colleague" : "Google Search",
     biggestChallenge: "",
     referralCode: referralCode || "", // Include referral code in form data
   });
@@ -91,9 +92,17 @@ function SignUpPageContent() {
           userAgent: navigator.userAgent,
           referrer: document.referrer,
         }),
-      }).catch(() => {
+      })
+        .then(async (response) => {
+          if (!response.ok) return;
+          const payload = (await response.json()) as { clickId?: string };
+          if (payload.clickId) {
+            storeReferralClickId(payload.clickId);
+          }
+        })
+        .catch(() => {
         // Silently fail tracking - don't interrupt user flow
-      });
+        });
     }
   }, [referralCode]);
 
@@ -115,7 +124,13 @@ function SignUpPageContent() {
       const response = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fields),
+        body: JSON.stringify({
+          ...fields,
+          marketingAttribution: buildSubmissionAttribution(searchParams, window.location.pathname, {
+            ctaSource: searchParams.get("cta") ?? undefined,
+            ctaLabel: searchParams.get("cta_label") ?? "Join Waitlist",
+          }),
+        }),
       });
 
       const payload = (await response.json()) as {

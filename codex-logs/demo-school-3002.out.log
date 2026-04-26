@@ -1,0 +1,42 @@
+
+> frontend@0.1.0 dev
+> next dev --port 3005 --port 3002
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://192.168.1.128:3002
+- Environments: .env.local
+✓ Ready in 1995ms
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · optimizePackageImports
+  · serverActions
+
+ GET /auth/login 200 in 4.8s (next.js: 2.2s, application-code: 2.7s)
+ GET /api/auth/session 200 in 512ms (next.js: 453ms, application-code: 58ms)
+ GET /api/auth/session 200 in 535ms (next.js: 520ms, application-code: 14ms)
+ GET /auth/login 200 in 300ms (next.js: 11ms, application-code: 289ms)
+[CONVEX Q(platform/tenants/queries:listAllTenants)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX Q(platform/tenants/queries:listAllTenants)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(platform/billing/mutations:updateTenantTier)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(platform/billing/mutations:updateTenantTier)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/auth/admin-tenants 200 in 2.4s (next.js: 2.4s, application-code: 14ms)
+[CONVEX M(modules/marketplace/seed:ensureCoreModules)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:ensureCoreModules)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/auth/session?workspace=admin 200 in 11.4s (next.js: 48ms, application-code: 11.4s)
+ GET /api/auth/session?workspace=admin 200 in 12.3s (next.js: 14ms, application-code: 12.3s)
+ GET /admin/modules 200 in 2.7s (next.js: 247ms, proxy.ts: 1586ms, application-code: 837ms)
+[CONVEX Q(platform/tenants/queries:listAllTenants)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(platform/billing/mutations:updateTenantTier)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:ensureCoreModules)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/auth/session?workspace=admin 200 in 8.0s (next.js: 12ms, application-code: 8.0s)
+ GET /admin/academics 200 in 1358ms (next.js: 166ms, proxy.ts: 1096ms, application-code: 96ms)
+○ Compiling /_not-found/page ...
+ GET /admin/academics/assignments 404 in 9.4s (next.js: 9.0s, proxy.ts: 350ms, application-code: 71ms)
+ GET /admin/academics/assignments 404 in 1046ms (next.js: 40ms, proxy.ts: 810ms, application-code: 196ms)

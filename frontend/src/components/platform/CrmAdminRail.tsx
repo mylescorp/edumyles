@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const CRM_LINKS = [
   { label: "Dashboard", href: "/platform/crm" },
-  { label: "Pipeline", href: "/platform/crm/pipeline" },
+  { label: "Pipeline Board", href: "/platform/crm/pipeline" },
   { label: "Leads", href: "/platform/crm/leads" },
   { label: "Create Lead", href: "/platform/crm/leads/create" },
   { label: "Proposals", href: "/platform/crm/proposals" },

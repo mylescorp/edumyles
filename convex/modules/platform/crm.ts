@@ -6,6 +6,7 @@ import { logAction } from "../../helpers/auditLog";
 import { requireRole } from "../../helpers/authorize";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { hasPermission, requirePermission } from "./rbac";
+import { createPlatformNotificationRecord } from "./notificationHelpers";
 
 const PLATFORM_TENANT_ID = "PLATFORM";
 const FOLLOW_UP_DAY_MS = 24 * 60 * 60 * 1000;
@@ -129,15 +130,22 @@ async function insertNotification(ctx: any, params: {
   type?: string;
   link?: string;
 }) {
-  await ctx.db.insert("notifications", {
-    tenantId: PLATFORM_TENANT_ID,
+  await createPlatformNotificationRecord(ctx, {
     userId: params.userId,
     title: params.title,
-    message: params.message,
-    type: params.type ?? "crm",
-    isRead: false,
-    link: params.link,
-    createdAt: Date.now(),
+    body: params.message,
+    type:
+      params.type === "invite" ||
+      params.type === "rbac" ||
+      params.type === "crm" ||
+      params.type === "pm" ||
+      params.type === "security" ||
+      params.type === "billing" ||
+      params.type === "waitlist" ||
+      params.type === "system"
+        ? params.type
+        : "crm",
+    actionUrl: params.link,
   });
 }
 
@@ -1316,6 +1324,46 @@ export const getProposal = query({
     ]);
 
     return { ...proposal, lead, plan };
+  },
+});
+
+export const getPublicProposalByTrackingToken = query({
+  args: {
+    trackingToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const proposal = await ctx.db
+      .query("crm_proposals")
+      .withIndex("by_trackingToken", (q: any) => q.eq("trackingToken", args.trackingToken))
+      .unique();
+
+    if (!proposal || !proposal.leadId) {
+      return null;
+    }
+
+    const [lead, plan] = await Promise.all([
+      ctx.db.get(proposal.leadId),
+      proposal.planId ? ctx.db.get(proposal.planId as any) : null,
+    ]);
+
+    if (!lead) {
+      return null;
+    }
+
+    return {
+      ...proposal,
+      lead: {
+        _id: lead._id,
+        schoolName: lead.schoolName,
+        contactName: lead.contactName,
+        email: lead.email,
+        phone: lead.phone,
+        county: (lead as any).county ?? lead.country,
+        country: lead.country,
+        studentCount: lead.studentCount,
+      },
+      plan,
+    };
   },
 });
 

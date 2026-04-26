@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
 import { getLandingConvexClient } from "@/lib/server/convex";
+import type { MarketingAttribution } from "@/lib/attribution";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,6 +18,7 @@ interface WaitlistSubmission {
   referralSource?: string;
   biggestChallenge?: string;
   sourceChannel?: string;
+  marketingAttribution?: MarketingAttribution;
 }
 
 /** Send a plain notification email via Resend when Convex is unavailable. */
@@ -36,6 +38,9 @@ async function sendFallbackEmail(data: WaitlistSubmission): Promise<void> {
     `Phone:         ${data.phone ?? "Not provided"}`,
     `Source:        ${data.referralSource ?? "landing_waitlist"}`,
     `Challenge:     ${data.biggestChallenge ?? "Not specified"}`,
+    `CTA:           ${data.marketingAttribution?.ctaSource ?? "Not specified"}`,
+    `Campaign:      ${data.marketingAttribution?.utmCampaign ?? "Not specified"}`,
+    `Landing page:  ${data.marketingAttribution?.landingPage ?? "Not specified"}`,
   ].join("\n");
 
   await fetch("https://api.resend.com/emails", {
@@ -68,6 +73,7 @@ export async function POST(request: NextRequest) {
       referralSource?: string;
       referralCode?: string;
       biggestChallenge?: string;
+      marketingAttribution?: MarketingAttribution;
     };
 
     const firstName = body.firstName?.trim() ?? "";
@@ -82,6 +88,7 @@ export async function POST(request: NextRequest) {
     const biggestChallenge = body.biggestChallenge?.trim() || undefined;
     const referralSource = body.referralSource?.trim() || "landing_waitlist";
     const referralCode = body.referralCode?.trim() || undefined;
+    const marketingAttribution = body.marketingAttribution;
     const parsedStudentCount =
       typeof body.studentCount === "string"
         ? Number(body.studentCount)
@@ -118,6 +125,7 @@ export async function POST(request: NextRequest) {
       referralCode,
       biggestChallenge,
       sourceChannel: "landing_waitlist",
+      marketingAttribution,
     };
 
     // Primary path — save to Convex
@@ -137,7 +145,11 @@ export async function POST(request: NextRequest) {
       await sendFallbackEmail(submission).catch((e) =>
         console.error("[landing/api/waitlist] Fallback email failed:", e)
       );
-      return NextResponse.json({ success: true });
+      return NextResponse.json({
+        error:
+          "We captured your request for manual follow-up, but the live waitlist system is temporarily unavailable. Please try again shortly.",
+        capturedViaFallback: true,
+      }, { status: 503 });
     }
   } catch (error) {
     console.error("[landing/api/waitlist] Unexpected error:", error);

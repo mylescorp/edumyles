@@ -149,18 +149,39 @@ function isRoleAllowedForPath(pathname: string, role: string): boolean {
   return true;
 }
 
+function hasWorkosConfig() {
+  return Boolean(process.env.WORKOS_API_KEY || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID);
+}
+
+function applyAuthResponse(
+  request: NextRequest,
+  authkitHeaders: Headers | null,
+  options?: { redirect?: URL }
+) {
+  if (authkitHeaders) {
+    return handleAuthkitHeaders(request, authkitHeaders, options);
+  }
+  if (options?.redirect) {
+    return NextResponse.redirect(options.redirect);
+  }
+  return NextResponse.next();
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Dev bypass — skip ALL auth checks before any WorkOS call.
-  // Only allowed outside production to prevent redirect loops.
-  if (process.env.ENABLE_DEV_AUTH_BYPASS === "true" && process.env.NODE_ENV !== "production") {
-    return NextResponse.next();
-  }
+  let workosSession: { user?: unknown } = {};
+  let authkitHeaders: Headers | null = null;
+  let authorizationUrl: URL | null = null;
 
-  const { session: workosSession, headers: authkitHeaders, authorizationUrl } = await authkit(
-    request
-  );
+  if (hasWorkosConfig()) {
+    const authkitResult = await authkit(request);
+    workosSession = authkitResult.session;
+    authkitHeaders = authkitResult.headers;
+    authorizationUrl = authkitResult.authorizationUrl
+      ? new URL(authkitResult.authorizationUrl, request.nextUrl.origin)
+      : null;
+  }
 
   // ── 0. IP blocking enforcement ────────────────────────────────
   // Skip the check for the blocked-ips endpoint itself and static assets
@@ -230,8 +251,8 @@ export async function proxy(request: NextRequest) {
   // 1. Unauthenticated → WorkOS login. Legacy cookie-only sessions are allowed
   // temporarily while existing users cycle through the updated callback flow.
   if (isProtected && !hasServerSession && !session) {
-    return handleAuthkitHeaders(request, authkitHeaders, {
-      redirect: authorizationUrl ?? new URL("/auth/login/api", request.nextUrl.origin),
+    return applyAuthResponse(request, authkitHeaders, {
+      redirect: authorizationUrl ?? new URL("/auth/login", request.nextUrl.origin),
     });
   }
 
@@ -240,7 +261,7 @@ export async function proxy(request: NextRequest) {
     (session || hasServerSession) &&
     AUTH_PAGES.some((route) => pathname === route || pathname.startsWith(`${route}/`))
   ) {
-    return handleAuthkitHeaders(request, authkitHeaders, {
+    return applyAuthResponse(request, authkitHeaders, {
       redirect: new URL(getRoleDashboard(role ?? "school_admin"), request.url),
     });
   }
@@ -248,7 +269,7 @@ export async function proxy(request: NextRequest) {
   // 2. Root redirect
   if (pathname === "/") {
     if (session || hasServerSession) {
-      return handleAuthkitHeaders(request, authkitHeaders, {
+      return applyAuthResponse(request, authkitHeaders, {
         redirect: new URL(getRoleDashboard(role ?? "school_admin"), request.url),
       });
     }
@@ -267,7 +288,7 @@ export async function proxy(request: NextRequest) {
       if (!pathname.startsWith(correctDashboard)) {
         const redirectUrl = new URL(correctDashboard, request.url);
         redirectUrl.searchParams.set("error", "unauthorized");
-        return handleAuthkitHeaders(request, authkitHeaders, { redirect: redirectUrl });
+        return applyAuthResponse(request, authkitHeaders, { redirect: redirectUrl });
       }
     }
   }
@@ -277,7 +298,7 @@ export async function proxy(request: NextRequest) {
   const parts = host.split(".");
   const firstPart = parts[0] ?? "";
 
-  const response = handleAuthkitHeaders(request, authkitHeaders);
+  const response = applyAuthResponse(request, authkitHeaders);
 
   // Prevent browser from caching authenticated pages — ensures back button
   // always hits the server (and middleware) rather than serving a stale page

@@ -28,48 +28,48 @@ const quickActions: QuickAction[] = [
     description: "Add a new student",
     href: "/admin/students/create",
     icon: GraduationCap,
-    iconBg: "bg-[rgba(15,76,42,0.1)]",
-    iconColor: "text-[#0F4C2A]",
+    iconBg: "bg-[var(--platform-accent-soft)]",
+    iconColor: "text-[var(--platform-accent)]",
   },
   {
     title: "Add Staff Member",
     description: "Create staff / teacher account",
     href: "/admin/staff/create",
     icon: Users,
-    iconBg: "bg-[rgba(21,101,192,0.1)]",
-    iconColor: "text-[#1565C0]",
+    iconBg: "bg-[var(--platform-accent-soft)]",
+    iconColor: "text-[var(--platform-accent)]",
   },
   {
     title: "Create Invoice",
     description: "Generate a fee invoice",
     href: "/admin/finance/invoices/create",
     icon: DollarSign,
-    iconBg: "bg-[rgba(232,160,32,0.1)]",
-    iconColor: "text-[#E8A020]",
+    iconBg: "bg-[var(--platform-highlight-soft)]",
+    iconColor: "text-[var(--platform-highlight)]",
   },
   {
     title: "Schedule Event",
     description: "Add to the calendar",
     href: "/admin/timetable/events/create",
     icon: Calendar,
-    iconBg: "bg-[rgba(124,58,237,0.1)]",
-    iconColor: "text-[#7C3AED]",
+    iconBg: "bg-[var(--platform-accent-soft)]",
+    iconColor: "text-[var(--platform-accent)]",
   },
   {
     title: "Send Announcement",
     description: "Broadcast to all users",
     href: "/admin/communications/create",
     icon: MessageSquare,
-    iconBg: "bg-[rgba(38,166,91,0.1)]",
-    iconColor: "text-[#26A65B]",
+    iconBg: "bg-[var(--platform-success-soft)]",
+    iconColor: "text-[var(--em-success)]",
   },
   {
     title: "Generate Report",
     description: "Academic or financial reports",
     href: "/admin/reports",
     icon: FileText,
-    iconBg: "bg-[rgba(220,38,38,0.08)]",
-    iconColor: "text-[#DC2626]",
+    iconBg: "bg-[var(--platform-danger-soft)]",
+    iconColor: "text-[var(--em-danger)]",
   },
 ];
 
@@ -78,7 +78,7 @@ export function AdminQuickActions() {
     <Card className="shadow-sm">
       <CardHeader className="pb-3 pt-5 px-5">
         <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-          <Zap className="h-4 w-4 text-[#E8A020]" />
+          <Zap className="h-4 w-4 text-[var(--platform-accent)]" />
           Quick Actions
         </CardTitle>
       </CardHeader>

@@ -42,7 +42,7 @@ export default function PlatformSupportPage() {
           { label: "Support", href: "/platform/support" },
         ]}
         badge={
-          <Badge className="gap-1.5 border border-[#26A65B]/40 bg-[rgba(38,166,91,0.07)] text-xs text-[#26A65B]">
+          <Badge className="gap-1.5 border border-[var(--platform-success-border)] bg-[var(--platform-success-soft)] text-xs text-[var(--em-primary)]">
             <Sparkles className="h-3.5 w-3.5" />
             Support hub
           </Badge>
@@ -56,7 +56,7 @@ export default function PlatformSupportPage() {
             <Card key={area.href} className="border-border/60 shadow-sm">
               <CardHeader className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0F4C2A]/8 text-[#0F4C2A]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--platform-accent-soft)] text-[var(--platform-accent)]">
                     <Icon className="h-5 w-5" />
                   </div>
                   <Badge variant="outline" className="text-xs">
@@ -70,7 +70,7 @@ export default function PlatformSupportPage() {
               </CardHeader>
               <CardContent>
                 <Link href={area.href}>
-                  <Button className="w-full bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]">
+                  <Button className="w-full bg-[var(--platform-accent)] text-white hover:bg-[var(--platform-accent-hover)]">
                     Open {area.title}
                   </Button>
                 </Link>
@@ -84,7 +84,7 @@ export default function PlatformSupportPage() {
         <Card className="border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <LifeBuoy className="h-4 w-4 text-[#1565C0]" />
+              <LifeBuoy className="h-4 w-4 text-[var(--platform-accent)]" />
               How Support Should Flow
             </CardTitle>
           </CardHeader>
@@ -98,7 +98,7 @@ export default function PlatformSupportPage() {
         <Card className="border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <ShieldCheck className="h-4 w-4 text-[#0D9488]" />
+              <ShieldCheck className="h-4 w-4 text-[var(--platform-accent)]" />
               Governance
             </CardTitle>
           </CardHeader>

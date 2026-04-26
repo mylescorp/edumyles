@@ -1,10 +1,17 @@
 import { action, internalMutation, internalQuery, mutation, query } from "../_generated/server";
+import { internal } from "../_generated/api";
 import { v } from "convex/values";
-import { ALL_MODULES, CORE_MODULE_IDS } from "../modules/marketplace/moduleDefinitions";
+import {
+  ALL_MODULES,
+  CORE_MODULE_IDS,
+  type ModuleDefinition,
+} from "../modules/marketplace/moduleDefinitions";
 import { generateTenantId } from "../helpers/idGenerator";
 import { SYSTEM_ROLE_PERMISSIONS } from "../shared/permissions";
 
 const MARKETPLACE_SEED_ACTOR = "seed-marketplace-bootstrap";
+const FULL_DEMO_MODE = "full_demo";
+const DEFAULT_DEMO_TERM_DAYS = 90;
 
 const PLATFORM_ROLE_METADATA: Record<
   string,
@@ -74,37 +81,140 @@ const CRM_PIPELINE_STAGE_SEEDS = [
 
 async function ensureMarketplaceCatalog(ctx: any, now: number) {
   const existingModules = await ctx.db.query("marketplace_modules").collect();
+  const modulesBySlug = new Map<string, any>();
   const idsBySlug = new Map<string, string>();
 
   for (const moduleRecord of existingModules) {
+    modulesBySlug.set(moduleRecord.slug, moduleRecord);
     idsBySlug.set(moduleRecord.slug, String(moduleRecord._id));
   }
 
   for (const moduleDef of ALL_MODULES) {
-    if (idsBySlug.has(moduleDef.moduleId)) continue;
-
-    const moduleId = await ctx.db.insert("marketplace_modules", {
+    const existing = modulesBySlug.get(moduleDef.moduleId) as any;
+    const payload = {
       slug: moduleDef.moduleId,
       name: moduleDef.name,
+      tagline: existing?.tagline ?? moduleDef.description,
       description: moduleDef.description,
-      shortDescription: moduleDef.description,
       category: moduleDef.category,
-      status: "published",
+      status: "published" as const,
+      isFeatured: existing?.isFeatured ?? moduleDef.isCore,
+      isCore: moduleDef.isCore,
+      minimumPlan: existing?.minimumPlan ?? mapModuleTierToMarketplacePlan(moduleDef),
+      dependencies: moduleDef.dependencies,
+      supportedRoles: existing?.supportedRoles ?? [],
       version: moduleDef.version,
-      isCore: CORE_MODULE_IDS.includes(moduleDef.moduleId),
-      pricingModel: "included",
-      priceCents: 0,
-      platformPriceKes: 0,
-      featureHighlights: moduleDef.features.slice(0, 5),
-      supportedRoles: [],
-      createdAt: now,
+      iconUrl: existing?.iconUrl,
+      screenshots: existing?.screenshots ?? [],
+      documentationUrl: existing?.documentationUrl ?? moduleDef.documentation,
+      changelogUrl: existing?.changelogUrl,
+      publishedAt: existing?.publishedAt ?? now,
+      averageRating: existing?.averageRating ?? 0,
+      reviewCount: existing?.reviewCount ?? 0,
+      installCount: existing?.installCount ?? 0,
+      activeInstallCount: existing?.activeInstallCount ?? 0,
       updatedAt: now,
-    } as any);
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, payload);
+      continue;
+    }
+
+    const moduleId = await ctx.db.insert("marketplace_modules", {
+      ...payload,
+      createdAt: now,
+    });
 
     idsBySlug.set(moduleDef.moduleId, String(moduleId));
   }
 
   return idsBySlug;
+}
+
+function mapModuleTierToMarketplacePlan(moduleDef: ModuleDefinition) {
+  if (moduleDef.isCore) return "free" as const;
+  if (moduleDef.tier === "pro") return "pro" as const;
+  if (moduleDef.tier === "enterprise") return "enterprise" as const;
+  return "starter" as const;
+}
+
+async function ensurePublishedModulesCatalog(ctx: any, now: number) {
+  const existingModules = await ctx.db.query("modules").collect();
+  const modulesBySlug = new Map<string, any>(
+    existingModules.map((module: any) => [module.slug, module])
+  );
+
+  for (const moduleDef of ALL_MODULES) {
+    const existing = modulesBySlug.get(moduleDef.moduleId) as any;
+    const payload = {
+      publisherId: existing?.publisherId ?? "system",
+      name: moduleDef.name,
+      slug: moduleDef.moduleId,
+      tagline: existing?.tagline ?? moduleDef.description,
+      category: moduleDef.category,
+      description: moduleDef.description,
+      featureList: moduleDef.features,
+      supportedRoles: existing?.supportedRoles ?? [],
+      minimumPlan: mapModuleTierToMarketplacePlan(moduleDef),
+      pricingModel: existing?.pricingModel ?? (moduleDef.isCore ? "included" : "pilot"),
+      suggestedPriceKes: existing?.suggestedPriceKes,
+      platformPriceKes: existing?.platformPriceKes ?? 0,
+      compatibleModuleIds: existing?.compatibleModuleIds ?? moduleDef.dependencies,
+      incompatibleModuleIds: existing?.incompatibleModuleIds ?? [],
+      status: "published" as const,
+      isFeatured: existing?.isFeatured ?? moduleDef.isCore,
+      documentationUrl: existing?.documentationUrl ?? moduleDef.documentation,
+      supportEmail: existing?.supportEmail ?? moduleDef.support.email,
+      termsUrl: existing?.termsUrl,
+      privacyUrl: existing?.privacyUrl,
+      updatedAt: now,
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, payload);
+      continue;
+    }
+
+    await ctx.db.insert("modules", {
+      ...payload,
+      createdAt: now,
+    });
+  }
+}
+
+async function ensureModuleRegistry(ctx: any, now: number) {
+  const existingRegistry = await ctx.db.query("moduleRegistry").collect();
+  const registryByModuleId = new Map<string, any>(
+    existingRegistry.map((entry: any) => [entry.moduleId, entry])
+  );
+
+  for (const moduleDef of ALL_MODULES) {
+    const existing = registryByModuleId.get(moduleDef.moduleId) as any;
+    const payload = {
+      moduleId: moduleDef.moduleId,
+      name: moduleDef.name,
+      description: moduleDef.description,
+      tier: moduleDef.tier,
+      category: moduleDef.category,
+      status: "published" as const,
+      version: moduleDef.version,
+      isCore: moduleDef.isCore,
+      iconName: moduleDef.iconName,
+      pricing: moduleDef.pricing,
+      features: moduleDef.features,
+      dependencies: moduleDef.dependencies,
+      documentation: moduleDef.documentation,
+      support: moduleDef.support,
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, payload);
+      continue;
+    }
+
+    await ctx.db.insert("moduleRegistry", payload);
+  }
 }
 
 async function ensureCoreMarketplaceInstallsForTenant(
@@ -140,6 +250,367 @@ async function ensureCoreMarketplaceInstallsForTenant(
   }
 }
 
+async function ensureAllLegacyModulesForTenant(
+  ctx: any,
+  args: {
+    tenantId: string;
+    installedBy: string;
+    now: number;
+  }
+) {
+  for (const moduleDef of ALL_MODULES) {
+    const existingInstall = await ctx.db
+      .query("installedModules")
+      .withIndex("by_tenant_module", (q: any) =>
+        q.eq("tenantId", args.tenantId).eq("moduleId", moduleDef.moduleId)
+      )
+      .first();
+
+    if (existingInstall) {
+      await ctx.db.patch(existingInstall._id, {
+        status: "active",
+        updatedAt: args.now,
+        config: {
+          ...(existingInstall.config ?? {}),
+          demoProvisioned: true,
+          provisioningSource: "full_demo_seed",
+        },
+      });
+      continue;
+    }
+
+    await ctx.db.insert("installedModules", {
+      tenantId: args.tenantId,
+      moduleId: moduleDef.moduleId,
+      installedAt: args.now,
+      installedBy: args.installedBy,
+      config: {
+        demoProvisioned: true,
+        provisioningSource: "full_demo_seed",
+      },
+      status: "active",
+      updatedAt: args.now,
+    });
+  }
+}
+
+async function ensureTenantSubscriptionState(
+  ctx: any,
+  args: {
+    tenantId: string;
+    tenantName: string;
+    adminEmail: string;
+    now: number;
+    pilotEndsAt: number;
+  }
+) {
+  const tenant = await ctx.db
+    .query("tenants")
+    .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
+    .first();
+
+  if (tenant) {
+    await ctx.db.patch(tenant._id, {
+      name: args.tenantName,
+      email: args.adminEmail,
+      plan: "enterprise",
+      status: "trial",
+      trialStartedAt: args.now,
+      trialEndsAt: args.pilotEndsAt,
+      updatedAt: args.now,
+    });
+  }
+
+  const organization = await ctx.db
+    .query("organizations")
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", args.tenantId))
+    .first();
+
+  if (organization) {
+    await ctx.db.patch(organization._id, {
+      name: args.tenantName,
+      tier: "enterprise",
+      isActive: true,
+    });
+  }
+
+  const existingSubscription = await ctx.db
+    .query("tenant_subscriptions")
+    .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
+    .first();
+
+  const subscriptionPatch = {
+    planId: "enterprise",
+    status: "trialing" as const,
+    currentPeriodStart: args.now,
+    currentPeriodEnd: args.pilotEndsAt,
+    cancelAtPeriodEnd: false,
+    customPriceMonthlyKes: 0,
+    customPriceAnnualKes: 0,
+    customPricingNotes:
+      "Full Demo School pilot | Billing cycle: termly | Demo access: all modules | Pricing: pilot access free for one term",
+    nextPaymentDue: args.pilotEndsAt,
+    trialEndsAt: args.pilotEndsAt,
+    cancelledAt: undefined,
+    cancellationReason: undefined,
+    updatedAt: args.now,
+  };
+
+  if (existingSubscription) {
+    await ctx.db.patch(existingSubscription._id, subscriptionPatch);
+  } else {
+    await ctx.db.insert("tenant_subscriptions", {
+      tenantId: args.tenantId,
+      studentCountAtBilling: 3,
+      paymentProvider: undefined,
+      paymentReference: undefined,
+      createdAt: args.now,
+      ...subscriptionPatch,
+    });
+  }
+}
+
+async function ensureDemoAdminAccess(
+  ctx: any,
+  args: {
+    tenantId: string;
+    subdomain: string;
+    adminEmail: string;
+    now: number;
+  }
+) {
+  const organization = await ctx.db
+    .query("organizations")
+    .withIndex("by_tenant", (q: any) => q.eq("tenantId", args.tenantId))
+    .first();
+
+  const eduMylesUserId = `seed-admin-${args.subdomain}`;
+  const workosUserId = `pending-seed-admin-${args.subdomain}`;
+  const sessionToken = `seed-admin-${args.subdomain}`;
+
+  const existingUser = await ctx.db
+    .query("users")
+    .withIndex("by_tenant_email", (q: any) =>
+      q.eq("tenantId", args.tenantId).eq("email", args.adminEmail)
+    )
+    .first();
+
+  if (existingUser) {
+    await ctx.db.patch(existingUser._id, {
+      eduMylesUserId: existingUser.eduMylesUserId ?? eduMylesUserId,
+      workosUserId: existingUser.workosUserId ?? workosUserId,
+      firstName: existingUser.firstName ?? "Demo",
+      lastName: existingUser.lastName ?? "Admin",
+      role: "school_admin",
+      permissions: existingUser.permissions?.length ? existingUser.permissions : ["*"],
+      organizationId: existingUser.organizationId ?? organization?._id,
+      isActive: true,
+      status: "active",
+      createdAt: existingUser.createdAt ?? args.now,
+    });
+  } else {
+    await ctx.db.insert("users", {
+      tenantId: args.tenantId,
+      eduMylesUserId,
+      workosUserId,
+      email: args.adminEmail,
+      firstName: "Demo",
+      lastName: "Admin",
+      role: "school_admin",
+      permissions: ["*"],
+      organizationId: organization?._id,
+      isActive: true,
+      status: "active",
+      createdAt: args.now,
+    });
+  }
+
+  const existingSession = await ctx.db
+    .query("sessions")
+    .withIndex("by_token", (q: any) => q.eq("sessionToken", sessionToken))
+    .first();
+
+  if (existingSession) {
+    await ctx.db.patch(existingSession._id, {
+      tenantId: args.tenantId,
+      userId: existingUser?.eduMylesUserId ?? eduMylesUserId,
+      email: args.adminEmail,
+      role: "school_admin",
+      expiresAt: args.now + 365 * 24 * 60 * 60 * 1000,
+      isActive: true,
+    });
+  } else {
+    await ctx.db.insert("sessions", {
+      sessionToken,
+      tenantId: args.tenantId,
+      userId: existingUser?.eduMylesUserId ?? eduMylesUserId,
+      email: args.adminEmail,
+      role: "school_admin",
+      expiresAt: args.now + 365 * 24 * 60 * 60 * 1000,
+      createdAt: args.now,
+      isActive: true,
+    });
+  }
+
+  return {
+    eduMylesUserId: existingUser?.eduMylesUserId ?? eduMylesUserId,
+    sessionToken,
+  };
+}
+
+async function ensureFullDemoAccessForTenant(
+  ctx: any,
+  args: {
+    tenantId: string;
+    tenantName: string;
+    adminEmail: string;
+    subdomain: string;
+    installedBy: string;
+    now: number;
+    pilotDays: number;
+    moduleIdsBySlug: Map<string, string>;
+  }
+) {
+  const pilotEndsAt = args.now + args.pilotDays * 24 * 60 * 60 * 1000;
+  const expectedPilotGrantModuleIds = new Set(
+    ALL_MODULES.filter((moduleDef) => !moduleDef.isCore)
+      .map((moduleDef) => args.moduleIdsBySlug.get(moduleDef.moduleId))
+      .filter(Boolean)
+      .map(String)
+  );
+
+  await ensureTenantSubscriptionState(ctx, {
+    tenantId: args.tenantId,
+    tenantName: args.tenantName,
+    adminEmail: args.adminEmail,
+    now: args.now,
+    pilotEndsAt,
+  });
+
+  await ensureDemoAdminAccess(ctx, {
+    tenantId: args.tenantId,
+    subdomain: args.subdomain,
+    adminEmail: args.adminEmail,
+    now: args.now,
+  });
+
+  await ensureAllLegacyModulesForTenant(ctx, {
+    tenantId: args.tenantId,
+    installedBy: args.installedBy,
+    now: args.now,
+  });
+
+  for (const moduleDef of ALL_MODULES) {
+    const marketplaceModuleId = args.moduleIdsBySlug.get(moduleDef.moduleId);
+    const existingInstall = await ctx.db
+      .query("module_installs")
+      .withIndex("by_tenantId_moduleSlug", (q: any) =>
+        q.eq("tenantId", args.tenantId).eq("moduleSlug", moduleDef.moduleId)
+      )
+      .unique();
+
+    let pilotGrantId = existingInstall?.pilotGrantId;
+    if (!moduleDef.isCore && marketplaceModuleId) {
+      const existingGrants = await ctx.db
+        .query("pilot_grants")
+        .withIndex("by_moduleId_tenantId", (q: any) =>
+          q.eq("moduleId", marketplaceModuleId).eq("tenantId", args.tenantId)
+        )
+        .collect();
+
+      const activeGrant =
+        existingGrants.find((grant: any) =>
+          ["active", "extended"].includes(grant.status)
+        ) ?? existingGrants[0];
+
+      if (activeGrant) {
+        await ctx.db.patch(activeGrant._id, {
+          grantType: "free_trial",
+          startDate: args.now,
+          endDate: pilotEndsAt,
+          grantedBy: args.installedBy,
+          reason: "Demo School full-platform pilot access for one term",
+          stealthMode: false,
+          status: "active",
+          convertedToPaid: false,
+          updatedAt: args.now,
+        });
+        pilotGrantId = activeGrant._id;
+      } else {
+        pilotGrantId = await ctx.db.insert("pilot_grants", {
+          moduleId: marketplaceModuleId,
+          tenantId: args.tenantId,
+          grantType: "free_trial",
+          discountPct: undefined,
+          customPriceKes: 0,
+          startDate: args.now,
+          endDate: pilotEndsAt,
+          grantedBy: args.installedBy,
+          reason: "Demo School full-platform pilot access for one term",
+          stealthMode: false,
+          status: "active",
+          convertedToPaid: false,
+          notificationsSent: [],
+          createdAt: args.now,
+          updatedAt: args.now,
+        });
+      }
+    }
+
+    const installPatch: Record<string, unknown> = {
+      moduleId: marketplaceModuleId ?? moduleDef.moduleId,
+      moduleSlug: moduleDef.moduleId,
+      tenantId: args.tenantId,
+      status: "active",
+      billingPeriod: "termly",
+      currentPriceKes: 0,
+      hasPriceOverride: false,
+      isFree: true,
+      trialEndsAt: !moduleDef.isCore ? pilotEndsAt : undefined,
+      billingStartsAt: undefined,
+      nextBillingDate: !moduleDef.isCore ? pilotEndsAt : undefined,
+      installedAt: existingInstall?.installedAt ?? args.now,
+      installedBy: existingInstall?.installedBy ?? args.installedBy,
+      version: moduleDef.version,
+      paymentFailureCount: 0,
+      updatedAt: args.now,
+      pilotGrantId: pilotGrantId,
+      provisionedByPilotGrantId: pilotGrantId,
+    };
+
+    if (existingInstall) {
+      await ctx.db.patch(existingInstall._id, installPatch);
+      continue;
+    }
+
+    await ctx.db.insert("module_installs", {
+      ...installPatch,
+      firstInstalledAt: args.now,
+      createdAt: args.now,
+    });
+  }
+
+  const tenantPilotGrants = await ctx.db
+    .query("pilot_grants")
+    .withIndex("by_tenantId", (q: any) => q.eq("tenantId", args.tenantId))
+    .collect();
+
+  for (const grant of tenantPilotGrants) {
+    if (!["active", "extended"].includes(grant.status)) {
+      continue;
+    }
+
+    if (expectedPilotGrantModuleIds.has(String(grant.moduleId))) {
+      continue;
+    }
+
+    await ctx.db.patch(grant._id, {
+      status: "revoked",
+      updatedAt: args.now,
+    });
+  }
+}
+
 function requireWebhookSecret(provided: string) {
   const expected = process.env.CONVEX_WEBHOOK_SECRET;
   if (!expected || provided !== expected) {
@@ -152,10 +623,16 @@ export const seedDevDataInternal = internalMutation({
     tenantName: v.string(),
     subdomain: v.string(),
     adminEmail: v.string(),
+    mode: v.optional(v.string()),
+    pilotDays: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
     const moduleIdsBySlug = await ensureMarketplaceCatalog(ctx, now);
+    await ensurePublishedModulesCatalog(ctx, now);
+    await ensureModuleRegistry(ctx, now);
+    const fullDemoMode = args.mode === FULL_DEMO_MODE;
+    const pilotDays = args.pilotDays ?? DEFAULT_DEMO_TERM_DAYS;
 
     const existingTenant = await ctx.db
       .query("tenants")
@@ -163,12 +640,25 @@ export const seedDevDataInternal = internalMutation({
       .first();
 
     if (existingTenant) {
-      await ensureCoreMarketplaceInstallsForTenant(ctx, {
-        tenantId: existingTenant.tenantId,
-        installedBy: MARKETPLACE_SEED_ACTOR,
-        now,
-        moduleIdsBySlug,
-      });
+      if (fullDemoMode) {
+        await ensureFullDemoAccessForTenant(ctx, {
+          tenantId: existingTenant.tenantId,
+          tenantName: args.tenantName,
+          adminEmail: args.adminEmail,
+          subdomain: args.subdomain,
+          installedBy: MARKETPLACE_SEED_ACTOR,
+          now,
+          pilotDays,
+          moduleIdsBySlug,
+        });
+      } else {
+        await ensureCoreMarketplaceInstallsForTenant(ctx, {
+          tenantId: existingTenant.tenantId,
+          installedBy: MARKETPLACE_SEED_ACTOR,
+          now,
+          moduleIdsBySlug,
+        });
+      }
 
       const allTenants = await ctx.db.query("tenants").collect();
       for (const tenant of allTenants) {
@@ -191,6 +681,8 @@ export const seedDevDataInternal = internalMutation({
         adminSessionToken: existingSession?.sessionToken ?? "",
         adminRole: existingSession?.role ?? "school_admin",
         created: false,
+        mode: fullDemoMode ? FULL_DEMO_MODE : "standard",
+        pilotDays: fullDemoMode ? pilotDays : undefined,
       };
     }
 
@@ -206,10 +698,12 @@ export const seedDevDataInternal = internalMutation({
       subdomain: args.subdomain,
       email: args.adminEmail,
       phone: "+254700000000",
-      plan: "starter",
-      status: "active",
+      plan: fullDemoMode ? "enterprise" : "starter",
+      status: fullDemoMode ? "trial" : "active",
       county: "Nairobi",
       country: "KE",
+      trialStartedAt: fullDemoMode ? now : undefined,
+      trialEndsAt: fullDemoMode ? now + pilotDays * 24 * 60 * 60 * 1000 : undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -219,7 +713,7 @@ export const seedDevDataInternal = internalMutation({
       workosOrgId: `seed-org-${args.subdomain}`,
       name: args.tenantName,
       subdomain: args.subdomain,
-      tier: "starter",
+      tier: fullDemoMode ? "enterprise" : "starter",
       isActive: true,
       createdAt: now,
     });
@@ -377,6 +871,51 @@ export const seedDevDataInternal = internalMutation({
       updatedAt: now,
     });
 
+    const existingSubscription = await ctx.db
+      .query("tenant_subscriptions")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenantId))
+      .first();
+
+    if (!existingSubscription) {
+      const periodEnd =
+        fullDemoMode ? now + pilotDays * 24 * 60 * 60 * 1000 : now + 30 * 24 * 60 * 60 * 1000;
+      await ctx.db.insert("tenant_subscriptions", {
+        tenantId,
+        planId: fullDemoMode ? "enterprise" : "starter",
+        status: fullDemoMode ? "trialing" : "active",
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+        cancelAtPeriodEnd: false,
+        studentCountAtBilling: studentIds.length,
+        paymentProvider: undefined,
+        paymentReference: undefined,
+        customPriceMonthlyKes: 0,
+        customPriceAnnualKes: 0,
+        customPricingNotes: fullDemoMode
+          ? "Full Demo School pilot | Billing cycle: termly | Demo access: all modules | Pricing: pilot access free for one term"
+          : "Seed school subscription",
+        nextPaymentDue: periodEnd,
+        trialEndsAt: fullDemoMode ? periodEnd : undefined,
+        cancelledAt: undefined,
+        cancellationReason: undefined,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    if (fullDemoMode) {
+      await ensureFullDemoAccessForTenant(ctx, {
+        tenantId,
+        tenantName: args.tenantName,
+        adminEmail: args.adminEmail,
+        subdomain: args.subdomain,
+        installedBy: adminUserId,
+        now,
+        pilotDays,
+        moduleIdsBySlug,
+      });
+    }
+
     return {
       tenantId,
       tenantRecordId,
@@ -389,23 +928,29 @@ export const seedDevDataInternal = internalMutation({
       feeStructureId,
       invoiceIds,
       created: true,
+      mode: fullDemoMode ? FULL_DEMO_MODE : "standard",
+      pilotDays: fullDemoMode ? pilotDays : undefined,
     };
   },
 });
 
-export const seedDevData = action({
+export const seedDevData: any = action({
   args: {
     webhookSecret: v.string(),
     tenantName: v.string(),
     subdomain: v.string(),
     adminEmail: v.string(),
+    mode: v.optional(v.string()),
+    pilotDays: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<any> => {
     requireWebhookSecret(args.webhookSecret);
-    return await ctx.runMutation((ctx as any).internal.dev.seed.seedDevDataInternal, {
+    return await ctx.runMutation(internal.dev.seed.seedDevDataInternal, {
       tenantName: args.tenantName,
       subdomain: args.subdomain,
       adminEmail: args.adminEmail,
+      mode: args.mode,
+      pilotDays: args.pilotDays,
     });
   },
 });

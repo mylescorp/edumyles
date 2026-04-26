@@ -1,9 +1,7 @@
 ▲ Next.js 16.2.2 (Turbopack)
 - Local:         http://localhost:3001
 - Network:       http://192.168.1.128:3001
-✓ Ready in 5.5s
+✓ Ready in 1670ms
 
- HEAD / 200 in 2.5s (next.js: 637ms, application-code: 1813ms)
- GET /waitlist/success?email=jonathan.ayany%40student.moringaschool.com&school=test 200 in 1044ms (next.js: 534ms, application-code: 511ms)
- GET /waitlist/success?email=jonathan.ayany%40student.moringaschool.com&school=test 200 in 593ms (next.js: 139ms, application-code: 454ms)
- GET / 200 in 220ms (next.js: 76ms, application-code: 144ms)
+ HEAD / 200 in 3.7s (next.js: 790ms, application-code: 2.9s)
+ GET /book-demo 200 in 1858ms (next.js: 497ms, application-code: 1361ms)

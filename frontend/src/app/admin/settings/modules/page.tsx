@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
+import { normalizeArray } from "@/lib/normalizeData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -64,8 +65,8 @@ export default function ModuleSettingsPage() {
     api.modules.marketplace.queries.getAvailableForTier,
     canQueryModules ? { sessionToken } : "skip"
   );
-  const resolvedInstalledModules = (installedModules as any[]) ?? [];
-  const resolvedAvailableModules = (availableModules as any[]) ?? [];
+  const resolvedInstalledModules = normalizeArray<any>(installedModules);
+  const resolvedAvailableModules = normalizeArray<any>(availableModules);
 
   const toggleStatus = useMutation(api.modules.marketplace.mutations.toggleModuleStatus);
   const uninstallModule = useMutation(api.modules.marketplace.mutations.uninstallModule);
@@ -95,12 +96,14 @@ export default function ModuleSettingsPage() {
   const modules = useMemo(() => {
     const installed = resolvedInstalledModules;
     const catalogue = resolvedAvailableModules;
-    const installedMap = new Map(installed.map((mod) => [mod.moduleId, mod]));
+    const installedMap = new Map(
+      installed.map((mod) => [String(mod.moduleSlug ?? mod.moduleId), mod])
+    );
 
     return catalogue
-      .filter((mod: any) => mod.isCore || installedMap.has(mod.moduleId))
+      .filter((mod: any) => mod.isCore || installedMap.has(String(mod.moduleId)))
       .map((mod: any) => {
-        const installedRecord = installedMap.get(mod.moduleId);
+        const installedRecord = installedMap.get(String(mod.moduleId));
         return {
           moduleId: mod.moduleId,
           name: mod.name,

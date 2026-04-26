@@ -679,6 +679,46 @@ export const createModuleVersion = mutation({
   },
 });
 
+export const setTenantModuleStatus = mutation({
+  args: {
+    sessionToken: v.string(),
+    tenantId: v.string(),
+    moduleId: v.string(),
+    status: v.union(v.literal("active"), v.literal("inactive")),
+  },
+  handler: async (ctx, args) => {
+    const session = await requirePlatformSession(ctx, args);
+
+    const installation = await ctx.db
+      .query("installedModules")
+      .withIndex("by_tenant_module", (q) =>
+        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+      )
+      .first();
+
+    if (!installation) {
+      throw new Error("Module is not installed for this tenant");
+    }
+
+    await ctx.db.patch(installation._id, {
+      status: args.status,
+      updatedAt: Date.now(),
+    });
+
+    await logAction(ctx, {
+      tenantId: args.tenantId,
+      actorId: session.userId,
+      actorEmail: session.email,
+      action: "marketplace.module_updated",
+      entityType: "module_installation",
+      entityId: args.moduleId,
+      after: { status: args.status },
+    });
+
+    return { success: true };
+  },
+});
+
 export const uninstallCatalogModule = mutation({
   args: {
     sessionToken: v.string(),

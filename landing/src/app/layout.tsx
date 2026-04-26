@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/ConditionalLayout";
+import AttributionTracker from "@/components/ui/AttributionTracker";
 import PerformanceTracker from "@/components/ui/PerformanceTracker";
 
 const inter = Inter({
@@ -133,6 +135,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         suppressHydrationWarning
         className={`${inter.variable} ${jakarta.variable} font-sans antialiased bg-white text-dark-grey`}
       >
+        <Suspense fallback={null}>
+          <AttributionTracker />
+        </Suspense>
         <PerformanceTracker />
         <ConditionalLayout>{children}</ConditionalLayout>
         <SpeedInsights />

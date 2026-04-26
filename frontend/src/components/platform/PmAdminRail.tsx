@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 const PM_LINKS = [
   { label: "Dashboard", href: "/platform/pm" },
+  { label: "Boards", href: "/platform/pm/boards" },
   { label: "Workspaces", href: "/platform/pm/workspaces" },
   { label: "My Tasks", href: "/platform/pm/my-tasks" },
 ] as const;

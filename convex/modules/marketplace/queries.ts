@@ -2,10 +2,87 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requireTenantSession } from "../../helpers/tenantGuard";
 import { requireRole } from "../../helpers/authorize";
+import { getInstalledModules as getGuardInstalledModules } from "../../helpers/moduleGuard";
 import { TIER_MODULES } from "./tierModules";
 import { CORE_MODULE_IDS, ALL_MODULES, MODULE_DEPENDENCIES } from "./moduleDefinitions";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
+
+const LEGACY_MODULE_IDS_BY_SLUG: Record<string, string> = {
+  core_sis: "sis",
+  core_users: "users",
+  core_notifications: "communications",
+  mod_academics: "academics",
+  mod_attendance: "attendance",
+  mod_admissions: "admissions",
+  mod_finance: "finance",
+  mod_timetable: "timetable",
+  mod_library: "library",
+  mod_transport: "transport",
+  mod_hr: "hr",
+  mod_communications: "communications",
+  mod_ewallet: "ewallet",
+  mod_ecommerce: "ecommerce",
+  mod_reports: "reports",
+  mod_advanced_analytics: "analytics",
+  mod_parent_portal: "parent_portal",
+  mod_alumni: "alumni",
+  mod_partner: "partner",
+  mod_social: "social",
+};
+
+function toLegacyModuleId(moduleSlugOrId: string) {
+  return LEGACY_MODULE_IDS_BY_SLUG[moduleSlugOrId] ?? moduleSlugOrId;
+}
+
+async function getActivePilotGrantModuleIds(ctx: any, tenantId: string): Promise<Set<string>> {
+  const [activeGrants, marketplaceModules] = await Promise.all([
+    ctx.db
+      .query("pilot_grants")
+      .withIndex("by_tenant_status", (q: any) =>
+        q.eq("tenantId", tenantId).eq("status", "active")
+      )
+      .collect(),
+    ctx.db.query("marketplace_modules").collect(),
+  ]);
+
+  const marketplaceSlugById = new Map<string, string>(
+    marketplaceModules.map((moduleRecord: any) => [String(moduleRecord._id), moduleRecord.slug])
+  );
+
+  return new Set(
+    activeGrants
+      .filter((grant: any) => !grant.endDate || grant.endDate >= Date.now())
+      .map((grant: any) => marketplaceSlugById.get(String(grant.moduleId)) ?? String(grant.moduleId))
+      .map((moduleSlugOrId: string) => toLegacyModuleId(moduleSlugOrId))
+  );
+}
+
+async function getEntitledModuleIds(ctx: any, tenantId: string, allowedModuleIds: string[]) {
+  const [installedModules, pilotGrantModuleIds] = await Promise.all([
+    getGuardInstalledModules(ctx, tenantId),
+    getActivePilotGrantModuleIds(ctx, tenantId),
+  ]);
+
+  const entitledModuleIds = new Set<string>(allowedModuleIds);
+
+  for (const installedModule of installedModules) {
+    entitledModuleIds.add(
+      toLegacyModuleId(
+        String(
+          installedModule.moduleSlug ??
+            installedModule.moduleId
+        )
+      )
+    );
+  }
+
+  for (const pilotGrantModuleId of pilotGrantModuleIds) {
+    entitledModuleIds.add(pilotGrantModuleId);
+  }
+
+  return entitledModuleIds;
+}
 
 function buildFallbackModules(allowedModuleIds: string[]) {
   return ALL_MODULES.map((mod) => ({
@@ -31,6 +108,53 @@ function buildFallbackModules(allowedModuleIds: string[]) {
   }));
 }
 
+function mergeBuiltinAndRegistryModules(
+  dbModules: any[],
+  allowedModuleIds: string[],
+  forceAvailable: boolean = false
+) {
+  const merged = new Map<string, any>();
+
+  for (const mod of ALL_MODULES) {
+    merged.set(mod.moduleId, {
+      _id: mod.moduleId as any,
+      _creationTime: 0,
+      moduleId: mod.moduleId,
+      name: mod.name,
+      description: mod.description,
+      tier: mod.tier,
+      category: mod.category,
+      isCore: mod.isCore,
+      iconName: mod.iconName,
+      version: mod.version,
+      features: mod.features,
+      dependencies: mod.dependencies,
+      documentation: mod.documentation,
+      pricing: mod.pricing,
+      support: mod.support,
+      status: "published" as const,
+      availableForTier:
+        forceAvailable ||
+        CORE_MODULE_IDS.includes(mod.moduleId) ||
+        allowedModuleIds.includes(mod.moduleId),
+    });
+  }
+
+  for (const mod of dbModules) {
+    merged.set(mod.moduleId, {
+      ...merged.get(mod.moduleId),
+      ...mod,
+      isCore: mod.isCore ?? CORE_MODULE_IDS.includes(mod.moduleId),
+      availableForTier:
+        forceAvailable ||
+        CORE_MODULE_IDS.includes(mod.moduleId) ||
+        allowedModuleIds.includes(mod.moduleId),
+    });
+  }
+
+  return Array.from(merged.values());
+}
+
 // ── Queries ────────────────────────────────────────────────────────────────
 
 export const getModuleRegistry = query({
@@ -43,28 +167,7 @@ export const getModuleRegistry = query({
       .withIndex("by_status", (q) => q.eq("status", "published"))
       .collect();
 
-    if (modules.length === 0) {
-      return ALL_MODULES.map((mod) => ({
-        _id: mod.moduleId as any,
-        _creationTime: 0,
-        moduleId: mod.moduleId,
-        name: mod.name,
-        description: mod.description,
-        tier: mod.tier,
-        category: mod.category,
-        isCore: mod.isCore,
-        iconName: mod.iconName,
-        version: mod.version,
-        features: mod.features,
-        dependencies: mod.dependencies,
-        documentation: mod.documentation,
-        pricing: mod.pricing,
-        support: mod.support,
-        status: "published" as const,
-      }));
-    }
-
-    return modules;
+    return mergeBuiltinAndRegistryModules(modules, ALL_MODULES.map((mod) => mod.moduleId), true);
   },
 });
 
@@ -86,34 +189,7 @@ export const getInstalledModules = query({
     }
 
     try {
-      const installed = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
-        .collect();
-
-      const installedById = new Map(installed.map((mod) => [mod.moduleId, mod]));
-      const coreInstalled = ALL_MODULES
-        .filter((mod) => CORE_MODULE_IDS.includes(mod.moduleId))
-        .map((mod) => {
-          const existing = installedById.get(mod.moduleId);
-          return existing ?? {
-            _id: (`core:${mod.moduleId}`) as any,
-            _creationTime: 0,
-            tenantId,
-            moduleId: mod.moduleId,
-            installedAt: 0,
-            installedBy: "system",
-            config: {},
-            status: "active" as const,
-            updatedAt: 0,
-          };
-        });
-
-      const optionalInstalled = installed.filter(
-        (mod) => !CORE_MODULE_IDS.includes(mod.moduleId)
-      );
-
-      return [...coreInstalled, ...optionalInstalled];
+      return await getGuardInstalledModules(ctx, tenantId);
     } catch (dbError) {
       console.error("getInstalledModules query failed:", dbError);
       return ALL_MODULES.filter((mod) => CORE_MODULE_IDS.includes(mod.moduleId)).map((mod) => ({
@@ -121,6 +197,7 @@ export const getInstalledModules = query({
         _creationTime: 0,
         tenantId,
         moduleId: mod.moduleId,
+        moduleSlug: mod.moduleId,
         installedAt: 0,
         installedBy: "system",
         config: {},
@@ -162,19 +239,15 @@ export const getInstalledModuleIds = query({
     }
 
     try {
-      // Check if installedModules table exists by attempting a simple query first
-      console.log("Attempting to query installedModules table...");
-      
-      const installed = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_status", (q) =>
-          q.eq("tenantId", tenantId).eq("status", "active")
-        )
-        .collect();
+      console.log("Attempting to resolve installed modules...");
+
+      const installed = await getGuardInstalledModules(ctx, tenantId);
 
       console.log("getInstalledModuleIds found installed modules:", installed.length);
 
-      const installedIds = installed.map((m) => m.moduleId);
+      const installedIds = installed.map((m: any) =>
+        toLegacyModuleId(String(m.moduleSlug ?? m.moduleId))
+      );
       const allIds = new Set([...CORE_MODULE_IDS, ...installedIds]);
       const result = Array.from(allIds);
       
@@ -213,14 +286,7 @@ export const getAvailableForTier = query({
     if (tenantId === "PLATFORM") {
       const allModuleIds = ALL_MODULES.map((m) => m.moduleId);
       const dbModules = await ctx.db.query("moduleRegistry").collect();
-      if (dbModules.length === 0) {
-        return buildFallbackModules(allModuleIds);
-      }
-      return dbModules.map((mod) => ({
-        ...mod,
-        isCore: mod.isCore ?? CORE_MODULE_IDS.includes(mod.moduleId),
-        availableForTier: true,
-      }));
+      return mergeBuiltinAndRegistryModules(dbModules, allModuleIds, true);
     }
 
     const tenant = await ctx.db
@@ -230,20 +296,11 @@ export const getAvailableForTier = query({
 
     const tier = tenant?.plan ?? "free";
     const allowedModuleIds = TIER_MODULES[tier] || TIER_MODULES["free"]!;
+    const entitledModuleIds = await getEntitledModuleIds(ctx, tenantId, allowedModuleIds);
 
     const dbModules = await ctx.db.query("moduleRegistry").collect();
 
-    if (dbModules.length === 0) {
-      return buildFallbackModules(allowedModuleIds);
-    }
-
-    return dbModules.map((mod) => ({
-      ...mod,
-      isCore: mod.isCore ?? CORE_MODULE_IDS.includes(mod.moduleId),
-      availableForTier:
-        CORE_MODULE_IDS.includes(mod.moduleId) ||
-        allowedModuleIds.includes(mod.moduleId),
-    }));
+    return mergeBuiltinAndRegistryModules(dbModules, Array.from(entitledModuleIds));
   },
 });
 
@@ -275,6 +332,7 @@ export const getModuleDetails = query({
 
     const tier = tenant?.plan ?? "free";
     const allowedModuleIds = TIER_MODULES[tier] ?? TIER_MODULES["free"]!;
+    const entitledModuleIds = await getEntitledModuleIds(ctx, tenantId, allowedModuleIds);
 
     const installedState = installed
       ? {
@@ -296,8 +354,7 @@ export const getModuleDetails = query({
       ...registryModule,
       installed: installedState,
       availableForTier:
-        CORE_MODULE_IDS.includes(args.moduleId) ||
-        allowedModuleIds.includes(args.moduleId),
+        CORE_MODULE_IDS.includes(args.moduleId) || entitledModuleIds.has(args.moduleId),
       currentTier: tier,
     };
   },
@@ -376,17 +433,21 @@ export const getModuleAccessStatus = query({
       return { status: "allowed", reason: "Core module" };
     }
 
+    const installedModules = await getGuardInstalledModules(ctx, tenantId);
+    const existingInstall = installedModules.find((install: any) => {
+      const normalizedInstallId = toLegacyModuleId(
+        String(install.moduleSlug ?? install.moduleId)
+      );
+      return normalizedInstallId === args.moduleId;
+    });
+
+    if (existingInstall?.status === "active") {
+      return { status: "allowed", reason: "Module is already installed" };
+    }
+
     // Check pilot grant
-    const pilotGrant = await ctx.db
-      .query("pilot_grants")
-      .withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "active"))
-      .collect();
-    const activePilot = pilotGrant.find(
-      (g) =>
-        (g as any).moduleId === args.moduleId &&
-        (!((g as any).endDate) || (g as any).endDate >= Date.now())
-    );
-    if (activePilot) {
+    const pilotGrantModuleIds = await getActivePilotGrantModuleIds(ctx, tenantId);
+    if (pilotGrantModuleIds.has(args.moduleId)) {
       return { status: "allowed", reason: "Pilot grant active" };
     }
 
@@ -432,10 +493,12 @@ export const getModuleAccessStatus = query({
     // Dependency check
     const deps = MODULE_DEPENDENCIES[args.moduleId] ?? [];
     for (const dep of deps) {
-      const depInstall = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_module", (q) => q.eq("tenantId", tenantId).eq("moduleId", dep))
-        .first();
+      const depInstall = installedModules.find((install: any) => {
+        const normalizedInstallId = toLegacyModuleId(
+          String(install.moduleSlug ?? install.moduleId)
+        );
+        return normalizedInstallId === dep;
+      });
       if (!depInstall || depInstall.status !== "active") {
         return {
           status: "waitlist_only",

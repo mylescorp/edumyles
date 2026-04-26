@@ -21,7 +21,29 @@ import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-type NotificationType = "all" | "alert" | "warning" | "success" | "info" | "system";
+type NotificationType =
+  | "all"
+  | "invite"
+  | "rbac"
+  | "crm"
+  | "pm"
+  | "security"
+  | "billing"
+  | "waitlist"
+  | "system";
+
+function getNotificationGroupLabel(timestamp: number) {
+  const now = new Date();
+  const value = new Date(timestamp);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000;
+  const startOfWeek = startOfToday - 6 * 24 * 60 * 60 * 1000;
+
+  if (timestamp >= startOfToday) return "Today";
+  if (timestamp >= startOfYesterday) return "Yesterday";
+  if (timestamp >= startOfWeek) return "This Week";
+  return "Older";
+}
 
 function getNotificationIcon(type: string) {
   switch (type) {
@@ -47,11 +69,12 @@ export default function PlatformNotificationsPage() {
   const [isRefreshing, startRefreshing] = useTransition();
 
   const notifications = usePlatformQuery(
-    api.platform.notifications.queries.listNotifications,
+    api.platform.notifications.queries.getMyNotifications,
     {
       sessionToken: sessionToken || "",
       unreadOnly: view === "unread",
       limit: 100,
+      type: typeFilter === "all" ? undefined : typeFilter,
     },
     !!sessionToken
   );
@@ -67,18 +90,31 @@ export default function PlatformNotificationsPage() {
   const dismissNotification = useMutation(api.platform.notifications.mutations.dismissNotification);
 
   const filteredNotifications = useMemo(() => {
-    const list = notifications ?? [];
+    const list = notifications?.notifications ?? [];
     if (typeFilter === "all") return list;
     return list.filter((notification: any) => notification.type === typeFilter);
   }, [notifications, typeFilter]);
 
   const availableTypes = useMemo(() => {
     const values = new Set<string>();
-    for (const notification of notifications ?? []) {
+    for (const notification of notifications?.notifications ?? []) {
       if (notification.type) values.add(notification.type);
     }
     return Array.from(values).sort();
   }, [notifications]);
+
+  const groupedNotifications = useMemo(() => {
+    const groups = new Map<string, any[]>();
+    for (const notification of filteredNotifications) {
+      const label = getNotificationGroupLabel(notification.createdAt);
+      const current = groups.get(label) ?? [];
+      current.push(notification);
+      groups.set(label, current);
+    }
+    return ["Today", "Yesterday", "This Week", "Older"]
+      .map((label) => ({ label, items: groups.get(label) ?? [] }))
+      .filter((group) => group.items.length > 0);
+  }, [filteredNotifications]);
 
   const handleMarkAsRead = async (notificationId: string) => {
     if (!sessionToken) return;
@@ -209,107 +245,114 @@ export default function PlatformNotificationsPage() {
       ) : (
         <Card>
           <CardContent className="p-0">
-            {filteredNotifications.map((notification: any, index: number) => {
-              const isPending = pendingNotificationId === String(notification._id);
-              const isUnread = !notification.isRead;
+            {groupedNotifications.map((group, groupIndex) => (
+              <div key={group.label}>
+                <div className="border-b bg-muted/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {group.label}
+                </div>
+                {group.items.map((notification: any, index: number) => {
+                  const isPending = pendingNotificationId === String(notification._id);
+                  const isUnread = !notification.isRead;
 
-              return (
-                <div key={notification._id}>
-                  <div
-                    className={cn(
-                      "flex flex-col gap-4 p-4 transition-colors hover:bg-muted/30 md:flex-row md:items-start md:justify-between",
-                      isUnread && "bg-muted/20"
-                    )}
-                  >
-                    <div
-                      className="flex min-w-0 flex-1 cursor-pointer items-start gap-4"
-                      onClick={() => {
-                        if (isUnread && !isPending) {
-                          void handleMarkAsRead(String(notification._id));
-                        }
-                      }}
-                    >
-                      <div className="mt-0.5 shrink-0">{getNotificationIcon(notification.type)}</div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p
-                              className={cn(
-                                "text-sm leading-snug text-foreground",
-                                isUnread ? "font-semibold" : "font-medium"
-                              )}
-                            >
-                              {notification.title}
-                            </p>
-                            <Badge variant="outline" className="capitalize">
-                              {notification.type || "system"}
-                            </Badge>
+                  return (
+                    <div key={notification._id}>
+                      <div
+                        className={cn(
+                          "flex flex-col gap-4 p-4 transition-colors hover:bg-muted/30 md:flex-row md:items-start md:justify-between",
+                          isUnread && "bg-muted/20"
+                        )}
+                      >
+                        <div
+                          className="flex min-w-0 flex-1 cursor-pointer items-start gap-4"
+                          onClick={() => {
+                            if (isUnread && !isPending) {
+                              void handleMarkAsRead(String(notification._id));
+                            }
+                          }}
+                        >
+                          <div className="mt-0.5 shrink-0">{getNotificationIcon(notification.type)}</div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p
+                                  className={cn(
+                                    "text-sm leading-snug text-foreground",
+                                    isUnread ? "font-semibold" : "font-medium"
+                                  )}
+                                >
+                                  {notification.title}
+                                </p>
+                                <Badge variant="outline" className="capitalize">
+                                  {notification.type || "system"}
+                                </Badge>
+                              </div>
+                              {isUnread ? <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-blue-500" /> : null}
+                            </div>
+
+                            {notification.message ? (
+                              <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
+                                {notification.message}
+                              </p>
+                            ) : null}
+
+                            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              <span>
+                                {formatDistanceToNow(new Date(notification.createdAt), {
+                                  addSuffix: true,
+                                })}
+                              </span>
+                              {notification.link ? <span>Action available</span> : null}
+                              {isUnread ? <span>Unread</span> : <span>Read</span>}
+                            </div>
                           </div>
-                          {isUnread ? <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-blue-500" /> : null}
                         </div>
 
-                        {notification.message ? (
-                          <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
-                            {notification.message}
-                          </p>
-                        ) : null}
+                        <div className="flex flex-wrap items-center gap-2 md:ml-4">
+                          {notification.link ? (
+                            <Button asChild variant="outline" size="sm">
+                              <Link
+                                href={notification.link}
+                                onClick={() => {
+                                  if (isUnread && !isPending) {
+                                    void handleMarkAsRead(String(notification._id));
+                                  }
+                                }}
+                              >
+                                <ExternalLink className="mr-1 h-4 w-4" />
+                                Open
+                              </Link>
+                            </Button>
+                          ) : null}
 
-                        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                          <span>
-                            {formatDistanceToNow(new Date(notification.createdAt), {
-                              addSuffix: true,
-                            })}
-                          </span>
-                          {notification.link ? <span>Action available</span> : null}
-                          {isUnread ? <span>Unread</span> : <span>Read</span>}
+                          {isUnread ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => void handleMarkAsRead(String(notification._id))}
+                              disabled={isPending}
+                            >
+                              {isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-1 h-4 w-4" />}
+                              Read
+                            </Button>
+                          ) : null}
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => void handleDismiss(String(notification._id))}
+                            disabled={isPending}
+                          >
+                            {isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Trash2 className="mr-1 h-4 w-4" />}
+                            Dismiss
+                          </Button>
                         </div>
                       </div>
+                      {index < group.items.length - 1 || groupIndex < groupedNotifications.length - 1 ? <Separator /> : null}
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-2 md:ml-4">
-                      {notification.link ? (
-                        <Button asChild variant="outline" size="sm">
-                          <Link
-                            href={notification.link}
-                            onClick={() => {
-                              if (isUnread && !isPending) {
-                                void handleMarkAsRead(String(notification._id));
-                              }
-                            }}
-                          >
-                            <ExternalLink className="mr-1 h-4 w-4" />
-                            Open
-                          </Link>
-                        </Button>
-                      ) : null}
-
-                      {isUnread ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => void handleMarkAsRead(String(notification._id))}
-                          disabled={isPending}
-                        >
-                          {isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-1 h-4 w-4" />}
-                          Read
-                        </Button>
-                      ) : null}
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => void handleDismiss(String(notification._id))}
-                        disabled={isPending}
-                      >
-                        {isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Trash2 className="mr-1 h-4 w-4" />}
-                        Dismiss
-                      </Button>
-                    </div>
-                  </div>
-                  {index < filteredNotifications.length - 1 ? <Separator /> : null}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}

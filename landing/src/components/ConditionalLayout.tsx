@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/nav/Navbar";
 import Footer from "@/components/footer/Footer";
@@ -19,7 +20,9 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
   return (
     <>
       <ProgressBar />
-      <Navbar />
+      <Suspense fallback={null}>
+        <Navbar />
+      </Suspense>
       <main>{children}</main>
       <Footer />
       <LiveChat />

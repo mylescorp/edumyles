@@ -62,7 +62,7 @@ export function QuickActions({
         {showHeader && (
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center space-x-2 text-lg">
-              <Sparkles className="h-5 w-5 text-em-accent" />
+              <Sparkles className="h-5 w-5 text-[var(--platform-accent)]" />
               <span>Quick Actions</span>
               <Badge variant="secondary" className="text-xs">
                 {actions.length} available
@@ -111,7 +111,7 @@ export function QuickActions({
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Sparkles className="h-5 w-5 text-em-accent" />
+              <Sparkles className="h-5 w-5 text-[var(--platform-accent)]" />
               <span>Quick Actions</span>
               <Badge variant="secondary" className="text-xs">
                 {actions.length} available
@@ -237,8 +237,8 @@ const actionsCatalog: QuickAction[] = [
     title: "Create Tenant",
     description: "Start onboarding a new school tenant.",
     icon: Sparkles,
-    color: "text-[#0F4C2A]",
-    bgColor: "bg-[#0F4C2A]/5 hover:bg-[#0F4C2A]/10",
+    color: "text-[var(--platform-accent)]",
+    bgColor: "bg-[var(--platform-accent-soft)] hover:bg-[var(--platform-accent-soft)]",
     href: "/platform/tenants/create",
   },
   {
@@ -246,8 +246,8 @@ const actionsCatalog: QuickAction[] = [
     title: "Review Modules",
     description: "Process marketplace submissions waiting for moderation.",
     icon: TrendingUp,
-    color: "text-[#1565C0]",
-    bgColor: "bg-[#1565C0]/5 hover:bg-[#1565C0]/10",
+    color: "text-[var(--platform-accent)]",
+    bgColor: "bg-[var(--platform-accent-soft)] hover:bg-[var(--platform-accent-soft)]",
     href: "/platform/marketplace/admin",
   },
   {
@@ -255,8 +255,8 @@ const actionsCatalog: QuickAction[] = [
     title: "Billing",
     description: "Open platform billing and invoice operations.",
     icon: ChevronRight,
-    color: "text-[#E8A020]",
-    bgColor: "bg-[#E8A020]/5 hover:bg-[#E8A020]/10",
+    color: "text-[var(--platform-highlight)]",
+    bgColor: "bg-[var(--platform-highlight-soft)] hover:bg-[var(--platform-highlight-soft)]",
     href: "/platform/billing",
   },
 ];

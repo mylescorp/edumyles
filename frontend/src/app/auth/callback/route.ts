@@ -83,6 +83,61 @@ function authError(req: NextRequest, reason: string): NextResponse {
   );
 }
 
+function getRequestIp(req: NextRequest) {
+  return (
+    req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-real-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    undefined
+  );
+}
+
+function getRequestCountry(req: NextRequest) {
+  return (
+    req.headers.get("x-vercel-ip-country") ??
+    req.headers.get("cf-ipcountry") ??
+    undefined
+  );
+}
+
+function getRequestLocation(req: NextRequest) {
+  const city = req.headers.get("x-vercel-ip-city") ?? req.headers.get("cf-ipcity");
+  const country =
+    req.headers.get("x-vercel-ip-country") ?? req.headers.get("cf-ipcountry");
+  if (city && country) return `${city}, ${country}`;
+  return city ?? country ?? undefined;
+}
+
+async function recordPlatformLoginIfNeeded(
+  convex: ConvexHttpClient,
+  req: NextRequest,
+  params: {
+    sessionToken: string;
+    workosUserId: string;
+    email: string;
+    role: string;
+    expiresAt: number;
+  }
+) {
+  if (!isPlatformRole(params.role)) return;
+
+  try {
+    await convex.mutation(api.modules.platform.auth.recordPlatformLogin, {
+      sessionToken: params.sessionToken,
+      sessionId: params.sessionToken,
+      workosUserId: params.workosUserId,
+      email: params.email,
+      ipAddress: getRequestIp(req),
+      userAgent: req.headers.get("user-agent") ?? undefined,
+      countryCode: getRequestCountry(req),
+      location: getRequestLocation(req),
+      expiresAt: params.expiresAt,
+    });
+  } catch (error) {
+    console.warn("[auth/callback] Platform login tracking failed:", error);
+  }
+}
+
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const error = req.nextUrl.searchParams.get("error");
@@ -151,6 +206,7 @@ export async function GET(req: NextRequest) {
       }
 
       const sessionToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
       await convex.mutation(api.sessions.createSession, {
         serverSecret: serverSecret ?? "",
         sessionToken,
@@ -158,7 +214,14 @@ export async function GET(req: NextRequest) {
         userId: user.id,
         email: user.email,
         role,
-        expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        expiresAt,
+      });
+      await recordPlatformLoginIfNeeded(convex, req, {
+        sessionToken,
+        workosUserId: user.id,
+        email: user.email,
+        role,
+        expiresAt,
       });
 
       const returnTo =
@@ -249,6 +312,7 @@ export async function GET(req: NextRequest) {
       }
 
       const sessionToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
       await convex.mutation(api.sessions.createSession, {
         serverSecret: serverSecret ?? "",
         sessionToken,
@@ -256,7 +320,14 @@ export async function GET(req: NextRequest) {
         userId: user.id,
         email: user.email,
         role,
-        expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        expiresAt,
+      });
+      await recordPlatformLoginIfNeeded(convex, req, {
+        sessionToken,
+        workosUserId: user.id,
+        email: user.email,
+        role,
+        expiresAt,
       });
 
       const returnTo =
@@ -348,6 +419,7 @@ export async function GET(req: NextRequest) {
         }
 
         const sessionToken = crypto.randomBytes(32).toString("hex");
+        const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
         await convex.mutation(api.sessions.createSession, {
           serverSecret: serverSecret ?? "",
           sessionToken,
@@ -355,7 +427,14 @@ export async function GET(req: NextRequest) {
           userId: user.id,
           email: user.email,
           role,
-          expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+          expiresAt,
+        });
+        await recordPlatformLoginIfNeeded(convex, req, {
+          sessionToken,
+          workosUserId: user.id,
+          email: user.email,
+          role,
+          expiresAt,
         });
 
         const returnTo = getRoleDashboard(role);
@@ -373,6 +452,7 @@ export async function GET(req: NextRequest) {
       const tenantId = existing.tenantId;
 
       const sessionToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
       await convex.mutation(api.sessions.createSession, {
         serverSecret: serverSecret ?? "",
         sessionToken,
@@ -380,7 +460,14 @@ export async function GET(req: NextRequest) {
         userId: user.id,
         email: user.email,
         role,
-        expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        expiresAt,
+      });
+      await recordPlatformLoginIfNeeded(convex, req, {
+        sessionToken,
+        workosUserId: user.id,
+        email: user.email,
+        role,
+        expiresAt,
       });
 
       const returnTo =

@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { normalizeArray } from "@/lib/normalizeData";
-import { ArrowRight, CalendarClock, Plus, Search, Target, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, CalendarClock, Columns3, Plus, Search, Target, TrendingUp, Users } from "lucide-react";
 
 type LeadRow = {
   _id: string;
@@ -25,6 +25,14 @@ type LeadRow = {
   email: string;
   country: string;
   stage: string;
+  source?: string;
+  sourceType?: string;
+  marketingAttribution?: {
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+    ctaSource?: string;
+  };
   qualificationScore?: number;
   dealValueKes?: number;
   nextFollowUpAt?: number;
@@ -93,14 +101,22 @@ export default function CRMLeadsPage() {
           { label: "Leads" },
         ]}
         actions={
-          <PermissionGate permission="crm.create_lead">
-            <Button asChild className="gap-2">
-              <Link href="/platform/crm/leads/create">
-                <Plus className="h-4 w-4" />
-                New lead
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" className="gap-2">
+              <Link href="/platform/crm/pipeline">
+                <Columns3 className="h-4 w-4" />
+                Pipeline Board
               </Link>
             </Button>
-          </PermissionGate>
+            <PermissionGate permission="crm.create_lead">
+              <Button asChild className="gap-2">
+                <Link href="/platform/crm/leads/create">
+                  <Plus className="h-4 w-4" />
+                  New lead
+                </Link>
+              </Button>
+            </PermissionGate>
+          </div>
         }
       />
 
@@ -172,7 +188,18 @@ export default function CRMLeadsPage() {
                   <p className="truncate text-sm text-muted-foreground">
                     {lead.contactName} · {lead.email}
                   </p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">{lead.country}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    {lead.country}
+                    {lead.source ? ` · ${lead.source}` : ""}
+                  </p>
+                  {(lead.marketingAttribution?.utmCampaign || lead.marketingAttribution?.ctaSource) ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {lead.marketingAttribution?.ctaSource ?? "Inbound"}
+                      {lead.marketingAttribution?.utmCampaign
+                        ? ` · ${lead.marketingAttribution.utmCampaign}`
+                        : ""}
+                    </p>
+                  ) : null}
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Stage</p>

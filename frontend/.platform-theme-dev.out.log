@@ -1,0 +1,180 @@
+
+> frontend@0.1.0 dev
+> next dev --port 3005
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3005
+- Network:       http://192.168.1.128:3005
+- Environments: .env.local
+✓ Ready in 1424ms
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · optimizePackageImports
+  · serverActions
+
+○ Compiling /auth/login ...
+ GET /auth/login 200 in 14.4s (next.js: 12.3s, application-code: 2.1s)
+○ Compiling /platform ...
+ GET /platform 200 in 7.4s (next.js: 4.7s, proxy.ts: 2.1s, application-code: 631ms)
+ GET /api/auth/session?workspace=platform 200 in 2.6s (next.js: 1029ms, application-code: 1606ms)
+ GET /platform/crm/pipeline 200 in 3.9s (next.js: 1960ms, proxy.ts: 1816ms, application-code: 90ms)
+ GET /api/auth/session?workspace=platform 200 in 1665ms (next.js: 8ms, application-code: 1657ms)
+ GET /platform/crm/leads 200 in 12.6s (next.js: 1844ms, proxy.ts: 10.7s, application-code: 62ms)
+ GET /api/auth/session?workspace=platform 200 in 737ms (next.js: 6ms, application-code: 731ms)
+ GET /platform 200 in 3.1s (next.js: 9ms, proxy.ts: 2.9s, application-code: 161ms)
+ GET /admin 200 in 3.0s (next.js: 2.2s, proxy.ts: 400ms, application-code: 347ms)
+[CONVEX Q(platform/tenants/queries:listAllTenants)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(platform/billing/mutations:updateTenantTier)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:ensureCoreModules)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/auth/session?workspace=admin 200 in 8.0s (next.js: 9ms, application-code: 8.0s)
+ GET /admin/modules 200 in 2.1s (next.js: 1337ms, proxy.ts: 686ms, application-code: 53ms)
+[CONVEX Q(platform/tenants/queries:listAllTenants)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(platform/billing/mutations:updateTenantTier)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:ensureCoreModules)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+[CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/auth/session?workspace=admin 200 in 8.0s (next.js: 6ms, application-code: 8.0s)
+ GET /admin/marketplace/requests 200 in 3.5s (next.js: 1549ms, proxy.ts: 1898ms, application-code: 64ms)
+[CONVEX Q(platform/tenants/queries:listAllTenants)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/ops 200 in 3.3s (next.js: 609ms, application-code: 2.7s)
+ GET /dev 200 in 1966ms (next.js: 1770ms, application-code: 197ms)
+ GET /api/auth/session 200 in 15ms (next.js: 5ms, application-code: 10ms)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 4.7s (next.js: 490ms, application-code: 4.2s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 6.8s (next.js: 483ms, application-code: 6.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 3.1s (next.js: 8ms, application-code: 3.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 11.0s (next.js: 7ms, application-code: 11.0s)
+ GET /api/dev/system-map 200 in 12.0s (next.js: 7ms, application-code: 12.0s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 7ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 5.6s (next.js: 6ms, application-code: 5.6s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.4s (next.js: 8ms, application-code: 2.4s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 6.0s (next.js: 8ms, application-code: 6.0s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.9s (next.js: 8ms, application-code: 2.9s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 3.9s (next.js: 6ms, application-code: 3.9s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 8ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 6.6s (next.js: 7ms, application-code: 6.6s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 8ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.9s (next.js: 6ms, application-code: 2.9s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.5s (next.js: 10ms, application-code: 2.5s)
+ GET /platform 200 in 1487ms (next.js: 13ms, proxy.ts: 1270ms, application-code: 204ms)
+ GET /api/auth/session?workspace=platform 200 in 880ms (next.js: 6ms, application-code: 874ms)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 3.6s (next.js: 5ms, application-code: 3.6s)
+ GET /platform/tenants 200 in 3.3s (next.js: 1776ms, proxy.ts: 1487ms, application-code: 62ms)
+ GET /api/auth/session?workspace=platform 200 in 426ms (next.js: 5ms, application-code: 421ms)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.7s (next.js: 6ms, application-code: 2.7s)
+ GET /api/auth/session?workspace=platform 200 in 684ms (next.js: 5ms, application-code: 679ms)
+ GET /platform/tenants/TENANT-866903 200 in 4.0s (next.js: 2.8s, proxy.ts: 1116ms, application-code: 64ms)
+ GET /api/auth/session?workspace=platform 200 in 1080ms (next.js: 4ms, application-code: 1075ms)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 4.3s (next.js: 7ms, application-code: 4.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.2s (next.js: 9ms, application-code: 2.2s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.6s (next.js: 10ms, application-code: 2.6s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.4s (next.js: 7ms, application-code: 2.4s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.5s (next.js: 9ms, application-code: 2.5s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.6s (next.js: 11ms, application-code: 2.6s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.4s (next.js: 12ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.6s (next.js: 8ms, application-code: 2.6s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 7ms, application-code: 2.3s)
+ GET /platform/users/roles 200 in 2.5s (next.js: 1523ms, proxy.ts: 904ms, application-code: 58ms)
+ GET /api/auth/session?workspace=platform 200 in 1099ms (next.js: 6ms, application-code: 1093ms)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.5s (next.js: 7ms, application-code: 2.5s)
+ GET /platform/users/roles/create 200 in 2.8s (next.js: 1530ms, proxy.ts: 1150ms, application-code: 70ms)
+ GET /api/auth/session?workspace=platform 200 in 799ms (next.js: 7ms, application-code: 792ms)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.5s (next.js: 7ms, application-code: 2.5s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 11ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 10ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.4s (next.js: 14ms, application-code: 2.4s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.8s (next.js: 13ms, application-code: 2.7s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 10ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 9ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 8ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.2s (next.js: 12ms, application-code: 2.2s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 36ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.7s (next.js: 12ms, application-code: 2.7s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 1808ms (next.js: 8ms, application-code: 1800ms)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 7ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.2s (next.js: 48ms, application-code: 2.2s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.2s (next.js: 11ms, application-code: 2.2s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 8ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 10ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 7ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.5s (next.js: 9ms, application-code: 2.5s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 10ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.2s (next.js: 8ms, application-code: 2.2s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.0s (next.js: 40ms, application-code: 1971ms)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.6s (next.js: 28ms, application-code: 2.6s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 49ms, application-code: 2.0s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 32ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 38ms, application-code: 2.0s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.1s (next.js: 10ms, application-code: 2.1s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.3s (next.js: 7ms, application-code: 2.3s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 3.5s (next.js: 13ms, application-code: 3.4s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.5s (next.js: 10ms, application-code: 2.5s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.9s (next.js: 72ms, application-code: 2.8s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.6s (next.js: 11ms, application-code: 2.6s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.4s (next.js: 7ms, application-code: 2.4s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.4s (next.js: 7ms, application-code: 2.4s)
+[CONVEX Q(platform/tenants/queries:getRecentActivity)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+ GET /api/dev/system-map 200 in 2.6s (next.js: 15ms, application-code: 2.6s)
+[?25h

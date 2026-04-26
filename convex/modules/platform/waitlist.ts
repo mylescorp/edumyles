@@ -3,6 +3,12 @@ import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { requirePlatformContext } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
+import {
+  formatAttributionSummary,
+  marketingAttributionValidator,
+  mergeMarketingAttribution,
+  normalizeMarketingAttribution,
+} from "./leadAttribution";
 
 const WAITLIST_STATUS = v.union(
   v.literal("waiting"),
@@ -26,6 +32,7 @@ const waitlistBaseArgs = {
   referralCode: v.optional(v.string()),
   notes: v.optional(v.string()),
   sourceChannel: v.optional(v.string()),
+  marketingAttribution: v.optional(marketingAttributionValidator),
 };
 
 function calculateQualificationScore(args: {
@@ -137,6 +144,44 @@ async function resolveReseller(ctx: any, referralCode?: string) {
   );
 }
 
+async function markReferralConversion(
+  ctx: any,
+  args: {
+    referralClickId?: string;
+    referralCode?: string;
+    conversionId: string;
+    conversionValue?: number;
+  }
+) {
+  let click =
+    (args.referralClickId
+      ? await ctx.db
+          .query("resellerReferralClicks")
+          .withIndex("by_clickId", (q: any) => q.eq("clickId", args.referralClickId))
+          .first()
+      : null) ??
+    null;
+
+  if (!click && args.referralCode) {
+    click = (
+      await ctx.db
+        .query("resellerReferralClicks")
+        .withIndex("by_referralCode", (q: any) => q.eq("referralCode", args.referralCode))
+        .collect()
+    )
+      .filter((item: any) => !item.converted)
+      .sort((left: any, right: any) => right.timestamp - left.timestamp)[0];
+  }
+
+  if (!click) return;
+
+  await ctx.db.patch(click._id, {
+    converted: true,
+    conversionId: args.conversionId,
+    conversionValue: args.conversionValue,
+  });
+}
+
 async function syncCrmLead(
   ctx: any,
   args: {
@@ -169,6 +214,7 @@ async function syncCrmLead(
       args.entry.currentSystem ? `Current system: ${args.entry.currentSystem}` : undefined,
       args.entry.referralCode ? `Referral code: ${args.entry.referralCode}` : undefined,
       args.entry.resellerId ? `Reseller: ${args.entry.resellerId}` : undefined,
+      ...formatAttributionSummary(args.entry.marketingAttribution),
     ]
       .filter(Boolean)
       .join("\n"),
@@ -188,6 +234,11 @@ async function syncCrmLead(
         : args.entry.status === "converted"
           ? "won"
           : "open",
+    sourceType:
+      args.entry.sourceChannel === "demo_request"
+        ? "demo_request"
+        : args.entry.sourceChannel ?? args.entry.referralSource ?? "waitlist",
+    marketingAttribution: normalizeMarketingAttribution(args.entry.marketingAttribution),
     updatedAt: Date.now(),
   };
 
@@ -256,6 +307,7 @@ async function upsertWaitlistEntry(
     referralCode?: string;
     notes?: string;
     sourceChannel?: string;
+    marketingAttribution?: any;
     assignedTo?: string;
     actorId: string;
     actorEmail: string;
@@ -290,6 +342,10 @@ async function upsertWaitlistEntry(
     referralCode: args.referralCode?.trim() || undefined,
     notes: args.notes?.trim() || undefined,
     sourceChannel: args.sourceChannel?.trim() || (existing?.sourceChannel ?? "landing_waitlist"),
+    marketingAttribution: mergeMarketingAttribution(
+      existing?.marketingAttribution,
+      args.marketingAttribution
+    ),
     resellerId: reseller?.resellerId,
     qualificationScore,
     isHighValue,
@@ -329,6 +385,12 @@ async function upsertWaitlistEntry(
       updatedAt: Date.now(),
     });
   }
+
+  await markReferralConversion(ctx, {
+    referralClickId: sharedFields.marketingAttribution?.referralClickId,
+    referralCode: sharedFields.referralCode,
+    conversionId: String(waitlistId),
+  });
 
   return {
     waitlistId,

@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { internal } from "../../_generated/api";
 import { mutation, query } from "../../_generated/server";
 import { logAction } from "../../helpers/auditLog";
 import { hasPermission } from "../platform/rbac";
@@ -205,6 +206,16 @@ export const createTask = mutation({
     });
 
     await recalculateProjectMetrics(ctx, args.projectId);
+
+    if (project.githubRepo) {
+      await ctx.scheduler.runAfter(0, internal.actions.pm.github.createGithubIssue, {
+        taskId,
+        repository: project.githubRepo,
+        title: args.title.trim(),
+        description: sanitizeRichText(args.description),
+        labels: args.labels ?? [],
+      });
+    }
 
     if (args.assigneeId && args.assigneeId !== actor.userId) {
       await createPlatformNotificationRecord(ctx, {

@@ -25,6 +25,7 @@ const LEGACY_MODULE_IDS_BY_SLUG: Record<string, string> = {
   mod_parent_portal: "portal_parent",
   mod_alumni: "portal_alumni",
   mod_partner: "portal_partner",
+  mod_social: "social",
 };
 
 const SPEC_MODULE_SLUG_BY_LEGACY_ID: Record<string, string> = {
@@ -48,6 +49,7 @@ const SPEC_MODULE_SLUG_BY_LEGACY_ID: Record<string, string> = {
   parent_portal: "mod_parent_portal",
   alumni: "mod_alumni",
   partner: "mod_partner",
+  social: "mod_social",
   portal_parent: "mod_parent_portal",
   portal_alumni: "mod_alumni",
   portal_partner: "mod_partner",

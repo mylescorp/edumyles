@@ -9,6 +9,7 @@ const TENANT_LINKS = [
   { label: "Create Tenant", href: "/platform/tenants/create" },
   { label: "Tenant Success", href: "/platform/tenant-success" },
   { label: "Waitlist", href: "/platform/waitlist" },
+  { label: "Demo Ops", href: "/platform/demo-requests" },
   { label: "Onboarding", href: "/platform/onboarding" },
 ] as const;
 

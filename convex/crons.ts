@@ -87,6 +87,69 @@ crons.daily(
   {}
 );
 
+crons.interval(
+  "send upcoming demo reminders",
+  { hours: 1 },
+  (internal as any).modules.platform.demoRequests.sendUpcomingDemoReminders,
+  {}
+);
+
+crons.interval(
+  "send overdue demo alerts",
+  { hours: 2 },
+  (internal as any).modules.platform.demoRequests.sendOverdueDemoAlerts,
+  {}
+);
+
+crons.daily(
+  "send daily demo digest",
+  { hourUTC: 4, minuteUTC: 45 },
+  (internal as any).modules.platform.demoRequests.sendDailyDemoDigest,
+  {}
+);
+
+crons.interval(
+  "social refresh expired tokens",
+  { hours: 6 },
+  (internal as any).modules.social.oauth.refreshExpiredTokens,
+  {}
+);
+
+crons.daily(
+  "social alert expiring tokens",
+  { hourUTC: 5, minuteUTC: 30 },
+  (internal as any).modules.social.oauth.alertExpiringTokens,
+  {}
+);
+
+crons.interval(
+  "social process scheduled posts",
+  { minutes: 5 },
+  (internal as any).modules.social.publish.processScheduledPosts,
+  {}
+);
+
+crons.interval(
+  "social pull post analytics",
+  { hours: 4 },
+  (internal as any).modules.social.analytics.pullAllPostAnalytics,
+  {}
+);
+
+crons.daily(
+  "social pull account analytics",
+  { hourUTC: 4, minuteUTC: 0 },
+  (internal as any).modules.social.analytics.pullAllAccountAnalytics,
+  {}
+);
+
+crons.interval(
+  "social pull comments",
+  { minutes: 30 },
+  (internal as any).modules.social.comments.pullAllCommentsForPublishedPosts,
+  {}
+);
+
 crons.daily(
   "expire crm lead shares",
   { hourUTC: 6, minuteUTC: 0 },
@@ -104,7 +167,21 @@ crons.weekly(
 crons.daily(
   "expire platform invites",
   { hourUTC: 22, minuteUTC: 30 },
-  (internal as any).modules.platform.users.expireOldInvites,
+  (internal as any).modules.platform.rbac.expirePlatformInvites,
+  {}
+);
+
+crons.daily(
+  "expire platform access",
+  { hourUTC: 19, minuteUTC: 30 },
+  (internal as any).modules.platform.rbac.expireAccessExpiredAccounts,
+  {}
+);
+
+crons.daily(
+  "run daily security checks",
+  { hourUTC: 6, minuteUTC: 0 },
+  (internal as any).modules.platform.auth.runDailySecurityChecks,
   {}
 );
 

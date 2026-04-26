@@ -20,7 +20,7 @@ import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
 import { normalizeArray } from "@/lib/normalizeData";
-import { BarChart3, Clock, FolderKanban, Pencil, Plus, RefreshCw, Trash2, Users } from "lucide-react";
+import { BarChart3, Clock, Columns3, FolderKanban, Pencil, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 type WorkspaceSummary = {
@@ -318,6 +318,12 @@ export default function PMPage() {
         description="Manage engineering work, onboarding delivery, bug tracking, and OKRs with live PM workspace data."
         actions={
           <div className="flex items-center gap-2">
+            <Link href="/platform/pm/boards">
+              <Button variant="outline">
+                <Columns3 className="h-4 w-4 mr-2" />
+                Boards
+              </Button>
+            </Link>
             <Button variant="outline" onClick={() => startRefreshing(() => router.refresh())} disabled={isRefreshing || isSaving || isDeleting}>
               <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
               Refresh
@@ -453,6 +459,59 @@ export default function PMPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.07),transparent_35%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.98))]">
+        <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <CardTitle>Kanban boards</CardTitle>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Open any active project directly in the board view. This is the fastest path if you want drag-and-drop lanes rather than workspace administration.
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link href="/platform/pm/boards">
+              <Columns3 className="h-4 w-4 mr-2" />
+              Open board hub
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {activeProjects.length === 0 ? (
+            <div className="md:col-span-2 xl:col-span-3">
+              <EmptyState
+                icon={Columns3}
+                title="No active boards yet"
+                description="Create or activate a project and its kanban board will appear here."
+                className="py-10"
+              />
+            </div>
+          ) : (
+            activeProjects.map((project) => {
+              const workspace = workspaceRows.find((row) => row._id === project.workspaceId);
+              return (
+                <div key={project._id} className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-slate-950">{project.name}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{workspace?.name ?? "Workspace"}</p>
+                    </div>
+                    <Badge variant="outline">{project.status}</Badge>
+                  </div>
+                  <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{project.description || "Open the board to move tasks across delivery lanes."}</p>
+                  <div className="mt-4 flex gap-2">
+                    <Button asChild className="flex-1">
+                      <Link href={`/platform/pm/${workspace?.slug ?? "workspace"}/${project._id}`}>Open Board</Link>
+                    </Button>
+                    <Button asChild variant="outline" className="flex-1">
+                      <Link href={`/platform/pm/${workspace?.slug ?? "workspace"}/${project._id}/list`}>List View</Link>
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {workspaceRows.map((workspace: WorkspaceSummary) => (

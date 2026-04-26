@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/shared/Logo";
 import { School, GraduationCap, Globe, Building2, Briefcase, Code, Users, Award } from "lucide-react";
@@ -91,12 +91,23 @@ const partnerItems: PartnerItem[] = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [solutionsOpen, setSolutionsOpen] = useState(false);
   const [partnersOpen, setPartnersOpen] = useState(false);
   const solutionsRef = useRef<HTMLDivElement>(null);
   const partnersRef = useRef<HTMLDivElement>(null);
   const activeLink = pathname.split("/").pop() || "index";
+  const buildTrackedHref = (basePath: string, ctaSource: string, ctaLabel: string) => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set("cta", ctaSource);
+    nextParams.set("cta_label", ctaLabel);
+    nextParams.set("origin", pathname);
+    const query = nextParams.toString();
+    return query ? `${basePath}?${query}` : basePath;
+  };
+  const demoCtaHref = buildTrackedHref("/book-demo", "navbar_book_demo", "Book Demo");
+  const waitlistCtaHref = buildTrackedHref(SIGNUP_URL, "navbar_waitlist", "Join Waitlist");
 
   useEffect(() => {
     if (mobileOpen) document.body.style.overflow = "hidden";
@@ -289,8 +300,8 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-2.5 flex-shrink-0">
-            <a
-              href="/book-demo"
+            <Link
+              href={demoCtaHref}
               className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
                 background: "#E8A020",
@@ -308,9 +319,9 @@ export default function Navbar() {
               }}
             >
               Book a Demo
-            </a>
-            <a
-              href={SIGNUP_URL}
+            </Link>
+            <Link
+              href={waitlistCtaHref}
               className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
                 background: "#0F4C2A",
@@ -328,7 +339,7 @@ export default function Navbar() {
               }}
             >
                   Join Waitlist
-            </a>
+            </Link>
           </div>
 
           {/* Hamburger */}
@@ -441,22 +452,22 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col gap-3 mt-6">
-            <a
-              href="/book-demo"
+            <Link
+              href={demoCtaHref}
               onClick={() => setMobileOpen(false)}
               className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
               style={{ background: "#E8A020", color: "#061A12", border: "1.5px solid #E8A020" }}
             >
               Book a Demo
-            </a>
-            <a
-              href={SIGNUP_URL}
+            </Link>
+            <Link
+              href={waitlistCtaHref}
               onClick={() => setMobileOpen(false)}
               className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
               style={{ background: "#0F4C2A", color: "#ffffff", border: "1.5px solid #0F4C2A" }}
             >
                 Join Waitlist
-            </a>
+            </Link>
           </div>
 
           {/* Footer-style quick links */}

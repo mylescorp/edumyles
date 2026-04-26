@@ -19,28 +19,28 @@ interface AdminStatsCardProps {
 
 const variantConfig = {
   default: {
-    iconBg: "bg-[rgba(15,76,42,0.1)]",
-    iconColor: "text-[#0F4C2A]",
-    borderAccent: "border-l-[#0F4C2A]",
+    iconBg: "bg-[var(--platform-accent-soft)]",
+    iconColor: "text-[var(--platform-accent)]",
+    borderAccent: "border-l-[var(--platform-accent)]",
     trendColor: "text-muted-foreground",
   },
   success: {
-    iconBg: "bg-[rgba(38,166,91,0.12)]",
-    iconColor: "text-[#26A65B]",
-    borderAccent: "border-l-[#26A65B]",
-    trendColor: "text-[#26A65B]",
+    iconBg: "bg-[var(--platform-success-soft)]",
+    iconColor: "text-[var(--em-success)]",
+    borderAccent: "border-l-[var(--em-success)]",
+    trendColor: "text-[var(--em-success)]",
   },
   warning: {
-    iconBg: "bg-[rgba(232,160,32,0.12)]",
-    iconColor: "text-[#E8A020]",
-    borderAccent: "border-l-[#E8A020]",
-    trendColor: "text-[#E8A020]",
+    iconBg: "bg-[var(--platform-highlight-soft)]",
+    iconColor: "text-[var(--platform-highlight)]",
+    borderAccent: "border-l-[var(--platform-highlight)]",
+    trendColor: "text-[var(--platform-highlight)]",
   },
   danger: {
-    iconBg: "bg-[rgba(220,38,38,0.1)]",
-    iconColor: "text-[#DC2626]",
-    borderAccent: "border-l-[#DC2626]",
-    trendColor: "text-[#DC2626]",
+    iconBg: "bg-[var(--platform-danger-soft)]",
+    iconColor: "text-[var(--em-danger)]",
+    borderAccent: "border-l-[var(--em-danger)]",
+    trendColor: "text-[var(--em-danger)]",
   },
 };
 

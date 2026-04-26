@@ -9,6 +9,8 @@ type SeedOptions = {
   tenantName?: string;
   subdomain?: string;
   adminEmail?: string;
+  mode?: "standard" | "full_demo";
+  pilotDays?: number;
 };
 
 export async function seedDevData(options: SeedOptions = {}) {
@@ -35,6 +37,8 @@ export async function seedDevData(options: SeedOptions = {}) {
     tenantName,
     subdomain,
     adminEmail,
+    mode: options.mode,
+    pilotDays: options.pilotDays,
   });
 }
 
