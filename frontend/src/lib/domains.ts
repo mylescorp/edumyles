@@ -1,5 +1,4 @@
-const DEFAULT_APP_HOST = "edumyles-frontend.vercel.app";
-const DEFAULT_ROOT_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN || DEFAULT_APP_HOST;
+const DEFAULT_ROOT_DOMAIN = "edumyles.com";
 
 function normalizeDomain(value?: string | null) {
   const domain = (value?.trim() || DEFAULT_ROOT_DOMAIN).replace(/^https?:\/\//, "").replace(/\/+$/, "");
@@ -19,7 +18,7 @@ function normalizeDomain(value?: string | null) {
 }
 
 export function getRootDomain() {
-  return normalizeDomain(process.env.NEXT_PUBLIC_ROOT_DOMAIN);
+  return normalizeDomain(process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? process.env.NEXT_PUBLIC_APP_DOMAIN);
 }
 
 export function formatTenantHostname(subdomain: string) {

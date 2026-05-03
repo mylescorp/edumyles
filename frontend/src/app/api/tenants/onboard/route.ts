@@ -179,6 +179,8 @@ export async function POST(req: NextRequest) {
       invitationQueued: Boolean(invitationId),
       warnings,
       tenantName: payload.schoolName,
+      subdomain: provisionResult.subdomain,
+      tenantUrl: provisionResult.tenantUrl,
     });
   } catch (error: any) {
     console.error("[tenants/onboard] Error:", error);

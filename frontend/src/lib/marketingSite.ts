@@ -1,4 +1,4 @@
-const DEFAULT_MARKETING_SITE_URL = "https://edumyles.vercel.app";
+const DEFAULT_MARKETING_SITE_URL = "https://edumyles.com";
 const LOCAL_MARKETING_PORT = "3001";
 
 function trimTrailingSlash(value: string) {

@@ -1,5 +1,6 @@
 [browser] Image with src "http://localhost:3002/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
 [browser] Image with src "http://localhost:3002/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+<<<<<<< HEAD
 [api/auth/session] Failed to parse fast-path user cookie: [TypeError: fetch failed] {
   [cause]: Error: getaddrinfo ENOTFOUND warmhearted-hummingbird-522.convex.cloud
       at ignore-listed frames {
@@ -30,3 +31,5 @@ npm notice New minor version of npm available! 11.9.0 -> 11.13.0
 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.13.0
 npm notice To update run: npm install -g npm@11.13.0
 npm notice
+=======
+>>>>>>> af550efeb918b2215d07d76c8209c4eae84f0f3c
