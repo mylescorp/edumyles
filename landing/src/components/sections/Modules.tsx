@@ -7,52 +7,38 @@ import {
   CalendarDays,
   FileText,
   Users,
-  BarChart2,
+  BookOpen,
+  Bus,
+  Library,
+  MessageSquare,
+  ShoppingCart,
+  ShieldCheck,
+  Headphones,
   type LucideIcon,
 } from "lucide-react";
+import { PUBLIC_MODULES } from "@edumyles/shared/constants/publicCatalog";
+import type { Module } from "@edumyles/shared/types";
 
-const modules: { icon: LucideIcon; title: string; benefit: string; description: string }[] = [
-  {
-    icon: GraduationCap,
-    title: "Student Info System",
-    benefit: "Centralized Records",
-    description:
-      "Complete student profiles, academic history, and custom fields all in one secure place.",
-  },
-  {
-    icon: Wallet,
-    title: "Fee & Billing",
-    benefit: "Payment Tracking",
-    description:
-      "M-Pesa integration, automated receipts, and real-time outstanding balance alerts.",
-  },
-  {
-    icon: CalendarDays,
-    title: "Attendance",
-    benefit: "One-Tap Marking",
-    description: "Daily and per-subject attendance tracking with automated parent alerts.",
-  },
-  {
-    icon: FileText,
-    title: "Exams & Gradebook",
-    benefit: "Auto-Calculated Grades",
-    description: "Mark entry, automatic grading, rank generation, and performance trend analysis.",
-  },
-  {
-    icon: Users,
-    title: "Parent Portal",
-    benefit: "Real-Time Access",
-    description:
-      "Parents see grades, fees, attendance, and can communicate with teachers instantly.",
-  },
-  {
-    icon: BarChart2,
-    title: "Reports & Analytics",
-    benefit: "One-Click Insights",
-    description:
-      "Generate professional reports in seconds with custom filters and historical trends.",
-  },
-];
+const moduleIcons: Record<Module, LucideIcon> = {
+  sis: GraduationCap,
+  admissions: FileText,
+  finance: Wallet,
+  timetable: CalendarDays,
+  academics: BookOpen,
+  hr: Users,
+  library: Library,
+  transport: Bus,
+  communications: MessageSquare,
+  users: ShieldCheck,
+  tickets: Headphones,
+  ewallet: Wallet,
+  ecommerce: ShoppingCart,
+};
+
+const modules = PUBLIC_MODULES.map((module) => ({
+  ...module,
+  icon: moduleIcons[module.slug],
+}));
 
 export default function Modules() {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -101,7 +87,7 @@ export default function Modules() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {modules.map((mod, i) => (
             <div
-              key={mod.title}
+              key={mod.slug}
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
@@ -131,12 +117,12 @@ export default function Modules() {
 
               {/* Title */}
               <h3 className="font-display font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>
-                {mod.title}
+                {mod.label}
               </h3>
 
               {/* Benefit tag */}
               <div className="text-[14px] font-semibold mb-3" style={{ color: "#E8A020" }}>
-                {mod.benefit}
+                Included module
               </div>
 
               {/* Description */}
@@ -167,7 +153,7 @@ export default function Modules() {
             onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "#1A7A4A")}
           >
-            View all 11 modules →
+            View all 13 modules →
           </a>
         </div>
       </div>

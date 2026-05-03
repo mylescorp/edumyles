@@ -6,6 +6,7 @@ import {
   CORE_MODULE_IDS,
   type ModuleDefinition,
 } from "../modules/marketplace/moduleDefinitions";
+import { normalizeModuleSlug } from "../modules/marketplace/moduleAliases";
 import { generateTenantId } from "../helpers/idGenerator";
 import { SYSTEM_ROLE_PERMISSIONS } from "../shared/permissions";
 
@@ -90,9 +91,10 @@ async function ensureMarketplaceCatalog(ctx: any, now: number) {
   }
 
   for (const moduleDef of ALL_MODULES) {
-    const existing = modulesBySlug.get(moduleDef.moduleId) as any;
+    const moduleSlug = normalizeModuleSlug(moduleDef.moduleId);
+    const existing = modulesBySlug.get(moduleSlug) as any;
     const payload = {
-      slug: moduleDef.moduleId,
+      slug: moduleSlug,
       name: moduleDef.name,
       tagline: existing?.tagline ?? moduleDef.description,
       description: moduleDef.description,
@@ -101,7 +103,7 @@ async function ensureMarketplaceCatalog(ctx: any, now: number) {
       isFeatured: existing?.isFeatured ?? moduleDef.isCore,
       isCore: moduleDef.isCore,
       minimumPlan: existing?.minimumPlan ?? mapModuleTierToMarketplacePlan(moduleDef),
-      dependencies: moduleDef.dependencies,
+      dependencies: moduleDef.dependencies.map(normalizeModuleSlug),
       supportedRoles: existing?.supportedRoles ?? [],
       version: moduleDef.version,
       iconUrl: existing?.iconUrl,
@@ -126,7 +128,7 @@ async function ensureMarketplaceCatalog(ctx: any, now: number) {
       createdAt: now,
     });
 
-    idsBySlug.set(moduleDef.moduleId, String(moduleId));
+    idsBySlug.set(moduleSlug, String(moduleId));
   }
 
   return idsBySlug;
@@ -183,40 +185,6 @@ async function ensurePublishedModulesCatalog(ctx: any, now: number) {
   }
 }
 
-async function ensureModuleRegistry(ctx: any, now: number) {
-  const existingRegistry = await ctx.db.query("moduleRegistry").collect();
-  const registryByModuleId = new Map<string, any>(
-    existingRegistry.map((entry: any) => [entry.moduleId, entry])
-  );
-
-  for (const moduleDef of ALL_MODULES) {
-    const existing = registryByModuleId.get(moduleDef.moduleId) as any;
-    const payload = {
-      moduleId: moduleDef.moduleId,
-      name: moduleDef.name,
-      description: moduleDef.description,
-      tier: moduleDef.tier,
-      category: moduleDef.category,
-      status: "published" as const,
-      version: moduleDef.version,
-      isCore: moduleDef.isCore,
-      iconName: moduleDef.iconName,
-      pricing: moduleDef.pricing,
-      features: moduleDef.features,
-      dependencies: moduleDef.dependencies,
-      documentation: moduleDef.documentation,
-      support: moduleDef.support,
-    };
-
-    if (existing) {
-      await ctx.db.patch(existing._id, payload);
-      continue;
-    }
-
-    await ctx.db.insert("moduleRegistry", payload);
-  }
-}
-
 async function ensureCoreMarketplaceInstallsForTenant(
   ctx: any,
   args: {
@@ -226,7 +194,7 @@ async function ensureCoreMarketplaceInstallsForTenant(
     moduleIdsBySlug: Map<string, string>;
   }
 ) {
-  for (const moduleSlug of CORE_MODULE_IDS) {
+  for (const moduleSlug of CORE_MODULE_IDS.map(normalizeModuleSlug)) {
     const moduleId = args.moduleIdsBySlug.get(moduleSlug) ?? moduleSlug;
     const existingInstall = await ctx.db
       .query("module_installs")
@@ -240,29 +208,42 @@ async function ensureCoreMarketplaceInstallsForTenant(
 
     await ctx.db.insert("module_installs", {
       moduleId,
+      moduleSlug,
       tenantId: args.tenantId,
       status: "active",
+      billingPeriod: "monthly",
+      currentPriceKes: 0,
+      hasPriceOverride: false,
+      isFree: true,
+      firstInstalledAt: args.now,
+      billingStartsAt: args.now,
+      nextBillingDate: args.now,
       installedAt: args.now,
       installedBy: args.installedBy,
+      version: "1.0.0",
+      paymentFailureCount: 0,
       createdAt: args.now,
       updatedAt: args.now,
     } as any);
   }
 }
 
-async function ensureAllLegacyModulesForTenant(
+async function ensureAllMarketplaceModulesForTenant(
   ctx: any,
   args: {
     tenantId: string;
     installedBy: string;
     now: number;
+    moduleIdsBySlug: Map<string, string>;
   }
 ) {
   for (const moduleDef of ALL_MODULES) {
+    const moduleSlug = normalizeModuleSlug(moduleDef.moduleId);
+    const moduleId = args.moduleIdsBySlug.get(moduleSlug) ?? moduleSlug;
     const existingInstall = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q: any) =>
-        q.eq("tenantId", args.tenantId).eq("moduleId", moduleDef.moduleId)
+      .query("module_installs")
+      .withIndex("by_tenantId_moduleSlug", (q: any) =>
+        q.eq("tenantId", args.tenantId).eq("moduleSlug", moduleSlug)
       )
       .first();
 
@@ -270,25 +251,27 @@ async function ensureAllLegacyModulesForTenant(
       await ctx.db.patch(existingInstall._id, {
         status: "active",
         updatedAt: args.now,
-        config: {
-          ...(existingInstall.config ?? {}),
-          demoProvisioned: true,
-          provisioningSource: "full_demo_seed",
-        },
       });
       continue;
     }
 
-    await ctx.db.insert("installedModules", {
+    await ctx.db.insert("module_installs", {
       tenantId: args.tenantId,
-      moduleId: moduleDef.moduleId,
+      moduleId,
+      moduleSlug,
+      status: "active",
+      billingPeriod: "monthly",
+      currentPriceKes: 0,
+      hasPriceOverride: false,
+      isFree: moduleDef.isCore,
+      firstInstalledAt: args.now,
+      billingStartsAt: args.now,
+      nextBillingDate: args.now,
       installedAt: args.now,
       installedBy: args.installedBy,
-      config: {
-        demoProvisioned: true,
-        provisioningSource: "full_demo_seed",
-      },
-      status: "active",
+      version: moduleDef.version,
+      paymentFailureCount: 0,
+      createdAt: args.now,
       updatedAt: args.now,
     });
   }
@@ -474,7 +457,7 @@ async function ensureFullDemoAccessForTenant(
   const pilotEndsAt = args.now + args.pilotDays * 24 * 60 * 60 * 1000;
   const expectedPilotGrantModuleIds = new Set(
     ALL_MODULES.filter((moduleDef) => !moduleDef.isCore)
-      .map((moduleDef) => args.moduleIdsBySlug.get(moduleDef.moduleId))
+      .map((moduleDef) => args.moduleIdsBySlug.get(normalizeModuleSlug(moduleDef.moduleId)))
       .filter(Boolean)
       .map(String)
   );
@@ -494,18 +477,20 @@ async function ensureFullDemoAccessForTenant(
     now: args.now,
   });
 
-  await ensureAllLegacyModulesForTenant(ctx, {
+  await ensureAllMarketplaceModulesForTenant(ctx, {
     tenantId: args.tenantId,
     installedBy: args.installedBy,
     now: args.now,
+    moduleIdsBySlug: args.moduleIdsBySlug,
   });
 
   for (const moduleDef of ALL_MODULES) {
-    const marketplaceModuleId = args.moduleIdsBySlug.get(moduleDef.moduleId);
+    const moduleSlug = normalizeModuleSlug(moduleDef.moduleId);
+    const marketplaceModuleId = args.moduleIdsBySlug.get(moduleSlug);
     const existingInstall = await ctx.db
       .query("module_installs")
       .withIndex("by_tenantId_moduleSlug", (q: any) =>
-        q.eq("tenantId", args.tenantId).eq("moduleSlug", moduleDef.moduleId)
+        q.eq("tenantId", args.tenantId).eq("moduleSlug", moduleSlug)
       )
       .unique();
 
@@ -559,7 +544,7 @@ async function ensureFullDemoAccessForTenant(
 
     const installPatch: Record<string, unknown> = {
       moduleId: marketplaceModuleId ?? moduleDef.moduleId,
-      moduleSlug: moduleDef.moduleId,
+      moduleSlug,
       tenantId: args.tenantId,
       status: "active",
       billingPeriod: "termly",
@@ -630,7 +615,6 @@ export const seedDevDataInternal = internalMutation({
     const now = Date.now();
     const moduleIdsBySlug = await ensureMarketplaceCatalog(ctx, now);
     await ensurePublishedModulesCatalog(ctx, now);
-    await ensureModuleRegistry(ctx, now);
     const fullDemoMode = args.mode === FULL_DEMO_MODE;
     const pilotDays = args.pilotDays ?? DEFAULT_DEMO_TERM_DAYS;
 
@@ -718,25 +702,6 @@ export const seedDevDataInternal = internalMutation({
       createdAt: now,
     });
 
-    for (const moduleId of [...CORE_MODULE_IDS, "finance", "hr", "academics", "timetable"]) {
-      const existingModule = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_module", (q) => q.eq("tenantId", tenantId).eq("moduleId", moduleId))
-        .first();
-
-      if (!existingModule) {
-        await ctx.db.insert("installedModules", {
-          tenantId,
-          moduleId,
-          installedAt: now,
-          installedBy: adminUserId,
-          config: {},
-          status: "active",
-          updatedAt: now,
-        });
-      }
-    }
-
     const allTenants = await ctx.db.query("tenants").collect();
     for (const tenant of allTenants) {
       await ensureCoreMarketplaceInstallsForTenant(ctx, {
@@ -745,6 +710,37 @@ export const seedDevDataInternal = internalMutation({
         now,
         moduleIdsBySlug,
       });
+    }
+
+    for (const moduleId of [...CORE_MODULE_IDS, "finance", "hr", "academics", "timetable"]) {
+      const moduleSlug = normalizeModuleSlug(moduleId);
+      const marketplaceModuleId = moduleIdsBySlug.get(moduleSlug) ?? moduleSlug;
+      const existingModule = await ctx.db
+        .query("module_installs")
+        .withIndex("by_tenantId_moduleSlug", (q) => q.eq("tenantId", tenantId).eq("moduleSlug", moduleSlug))
+        .first();
+
+      if (!existingModule) {
+        await ctx.db.insert("module_installs", {
+          tenantId,
+          moduleId: marketplaceModuleId,
+          moduleSlug,
+          status: "active",
+          billingPeriod: "monthly",
+          currentPriceKes: 0,
+          hasPriceOverride: false,
+          isFree: moduleSlug.startsWith("core_"),
+          firstInstalledAt: now,
+          billingStartsAt: now,
+          nextBillingDate: now,
+          installedAt: now,
+          installedBy: adminUserId,
+          version: "1.0.0",
+          paymentFailureCount: 0,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
     }
 
     await ctx.db.insert("users", {

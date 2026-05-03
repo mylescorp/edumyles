@@ -140,6 +140,7 @@ function setupDbQuerySequence(ctx: ReturnType<typeof createTestCtx>, values: Arr
     (ctx.db.query as ReturnType<typeof vi.fn>).mockReturnValueOnce({
       withIndex: vi.fn().mockReturnValue({
         first: vi.fn().mockResolvedValue(value),
+        unique: vi.fn().mockResolvedValue(value),
       }),
     });
   });
@@ -160,25 +161,25 @@ describe('requireModule() — convex/helpers/moduleGuard.ts', () => {
   });
 
   it('throws MODULE_NOT_INSTALLED when the module record is absent', async () => {
-    setupDbQuerySequence(ctx, [null]); // installedModules query returns null
+    setupDbQuerySequence(ctx, [null]);
 
     await expect(requireModule(ctx, 'TENANT-1', 'finance')).rejects.toThrow(
-      "MODULE_NOT_INSTALLED: Module 'finance' is not installed for tenant 'TENANT-1'"
+      'MODULE_NOT_INSTALLED'
     );
   });
 
   it('throws MODULE_INACTIVE when the module is installed but inactive', async () => {
-    setupDbQuerySequence(ctx, [mockModule({ status: 'inactive' })]);
+    setupDbQuerySequence(ctx, [mockModule({ status: 'disabled' })]);
 
     await expect(requireModule(ctx, 'TENANT-1', 'finance')).rejects.toThrow(
-      "MODULE_INACTIVE: Module 'finance' is installed but status is 'inactive'"
+      'MODULE_INACTIVE'
     );
   });
 
   it('passes when module is active and its tier allows it', async () => {
     // Query sequence: installedModule → tenant → organization (null) → dependency sis
     setupDbQuerySequence(ctx, [
-      mockModule({ moduleId: 'finance', status: 'active' }), // installedModules
+      mockModule({ moduleId: 'finance', status: 'active' }),
       { tenantId: 'TENANT-1', plan: 'standard' },             // tenants
       null,                                                    // organizations (none)
       mockModule({ moduleId: 'sis', status: 'active' }),      // dependency
@@ -196,7 +197,7 @@ describe('requireModule() — convex/helpers/moduleGuard.ts', () => {
     ]);
 
     await expect(requireModule(ctx, 'TENANT-1', 'hr')).rejects.toThrow(
-      "MODULE_NOT_AVAILABLE_FOR_TIER: Module 'hr' is not available for tier 'starter'"
+      "MODULE_NOT_AVAILABLE_FOR_TIER: Module 'mod_hr' is not available for tier 'starter'"
     );
   });
 
@@ -211,7 +212,7 @@ describe('requireModule() — convex/helpers/moduleGuard.ts', () => {
     ]);
 
     await expect(requireModule(ctx, 'TENANT-1', 'timetable')).rejects.toThrow(
-      "MODULE_DEPENDENCIES_NOT_MET: Module 'timetable' requires 'academics' which is not installed"
+      "MODULE_DEPENDENCIES_NOT_MET: Module 'mod_timetable' requires 'mod_academics' which is not installed"
     );
   });
 
@@ -225,7 +226,7 @@ describe('requireModule() — convex/helpers/moduleGuard.ts', () => {
     ]);
 
     await expect(requireModule(ctx, 'TENANT-1', 'timetable')).rejects.toThrow(
-      "MODULE_DEPENDENCIES_NOT_MET: Module 'timetable' requires 'academics' which is not active"
+      "MODULE_DEPENDENCIES_NOT_MET: Module 'mod_timetable' requires 'mod_academics' which is not active"
     );
   });
 });
@@ -246,8 +247,8 @@ describe('deactivateModule() — convex/helpers/moduleGuard.ts', () => {
     );
   });
 
-  it('returns true immediately if the module is already inactive', async () => {
-    setupDbQuerySequence(ctx, [mockModule({ status: 'inactive' })]);
+  it('returns true immediately if the module is already disabled', async () => {
+    setupDbQuerySequence(ctx, [mockModule({ status: 'disabled' })]);
 
     const result = await deactivateModule(ctx, 'TENANT-1', 'finance');
     expect(result).toBe(true);
@@ -267,7 +268,7 @@ describe('deactivateModule() — convex/helpers/moduleGuard.ts', () => {
     expect(ctx.db.patch).not.toHaveBeenCalled();
   });
 
-  it('deactivates the module and patches status to inactive', async () => {
+  it('deactivates the module and patches status to disabled', async () => {
     // finance has one dependent (ewallet), so we need to show it is not installed
     setupDbQuerySequence(ctx, [
       mockModule({ moduleId: 'finance', status: 'active' }),
@@ -276,7 +277,7 @@ describe('deactivateModule() — convex/helpers/moduleGuard.ts', () => {
 
     const result = await deactivateModule(ctx, 'TENANT-1', 'finance');
     expect(result).toBe(true);
-    expect(ctx.db.patch).toHaveBeenCalledWith('installed-id-1', { status: 'inactive' });
+    expect(ctx.db.patch).toHaveBeenCalledWith('installed-id-1', { status: 'disabled' });
   });
 });
 

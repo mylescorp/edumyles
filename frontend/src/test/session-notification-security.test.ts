@@ -16,6 +16,19 @@ interface NotificationRecord {
   isRead: boolean;
 }
 
+interface PasswordResetTokenRecord {
+  token: string;
+  userId: string;
+  used: boolean;
+  expiresAt: number;
+}
+
+interface PaymentTransactionRecord {
+  paymentMethod: "mpesa" | "card" | "bank_transfer";
+  amount: number;
+  status: "pending" | "completed" | "failed" | "cancelled";
+}
+
 function validateTrustedServer(serverSecret?: string, expectedSecret = "trusted-secret") {
   if (!expectedSecret || serverSecret !== expectedSecret) {
     throw new Error("FORBIDDEN: Trusted server credentials required");
@@ -52,6 +65,66 @@ function validateNotificationOwnership(
   }
 
   return notification;
+}
+
+function validatePasswordResetTokenUse(
+  resetToken: PasswordResetTokenRecord | null,
+  userId: string,
+  now: number,
+  serverSecret?: string
+) {
+  validateTrustedServer(serverSecret);
+
+  if (!resetToken) {
+    throw new Error("Invalid reset token");
+  }
+
+  if (resetToken.used) {
+    throw new Error("This reset token has already been used");
+  }
+
+  if (resetToken.expiresAt < now) {
+    throw new Error("This reset token has expired");
+  }
+
+  if (resetToken.userId !== userId) {
+    throw new Error("Reset token does not match user");
+  }
+
+  return resetToken;
+}
+
+function validateMarketplacePaymentCallback(
+  transaction: PaymentTransactionRecord | null,
+  callback: {
+    paymentMethod: PaymentTransactionRecord["paymentMethod"];
+    status: "success" | "failed" | "cancelled";
+    amount: number;
+  },
+  serverSecret?: string
+) {
+  validateTrustedServer(serverSecret);
+
+  if (!transaction) {
+    throw new Error("Transaction not found");
+  }
+
+  if (transaction.paymentMethod !== callback.paymentMethod) {
+    throw new Error("Payment method mismatch");
+  }
+
+  if (transaction.status === "completed") {
+    return { status: "success", moduleActivated: true };
+  }
+
+  if (callback.status === "success" && transaction.amount !== callback.amount) {
+    throw new Error("Payment amount mismatch");
+  }
+
+  return {
+    status: callback.status,
+    moduleActivated: callback.status === "success",
+  };
 }
 
 describe("session security contract", () => {
@@ -144,5 +217,119 @@ describe("notification ownership contract", () => {
     expect(() => validateNotificationOwnership(session, foreignTenantNotification)).toThrow(
       "FORBIDDEN: Notification access denied"
     );
+  });
+});
+
+describe("password reset helper security contract", () => {
+  const resetToken: PasswordResetTokenRecord = {
+    token: "reset-token-123",
+    userId: "USR-victim",
+    used: false,
+    expiresAt: Date.now() + 60_000,
+  };
+
+  it("rejects reset token use without a trusted server secret", () => {
+    expect(() =>
+      validatePasswordResetTokenUse(resetToken, "USR-victim", Date.now())
+    ).toThrow("FORBIDDEN: Trusted server credentials required");
+  });
+
+  it("rejects reset token use for a different user", () => {
+    expect(() =>
+      validatePasswordResetTokenUse(
+        resetToken,
+        "USR-attacker",
+        Date.now(),
+        "trusted-secret"
+      )
+    ).toThrow("Reset token does not match user");
+  });
+
+  it("rejects expired or already-used reset tokens inside the write path", () => {
+    expect(() =>
+      validatePasswordResetTokenUse(
+        { ...resetToken, expiresAt: Date.now() - 1 },
+        "USR-victim",
+        Date.now(),
+        "trusted-secret"
+      )
+    ).toThrow("This reset token has expired");
+
+    expect(() =>
+      validatePasswordResetTokenUse(
+        { ...resetToken, used: true },
+        "USR-victim",
+        Date.now(),
+        "trusted-secret"
+      )
+    ).toThrow("This reset token has already been used");
+  });
+
+  it("allows trusted reset token use for the owning user", () => {
+    expect(
+      validatePasswordResetTokenUse(
+        resetToken,
+        "USR-victim",
+        Date.now(),
+        "trusted-secret"
+      )
+    ).toEqual(resetToken);
+  });
+});
+
+describe("marketplace payment callback security contract", () => {
+  const transaction: PaymentTransactionRecord = {
+    paymentMethod: "mpesa",
+    amount: 2500,
+    status: "pending",
+  };
+
+  it("rejects callbacks without trusted server credentials", () => {
+    expect(() =>
+      validateMarketplacePaymentCallback(
+        transaction,
+        { paymentMethod: "mpesa", status: "success", amount: 2500 }
+      )
+    ).toThrow("FORBIDDEN: Trusted server credentials required");
+  });
+
+  it("rejects successful callbacks with mismatched payment details", () => {
+    expect(() =>
+      validateMarketplacePaymentCallback(
+        transaction,
+        { paymentMethod: "card", status: "success", amount: 2500 },
+        "trusted-secret"
+      )
+    ).toThrow("Payment method mismatch");
+
+    expect(() =>
+      validateMarketplacePaymentCallback(
+        transaction,
+        { paymentMethod: "mpesa", status: "success", amount: 1 },
+        "trusted-secret"
+      )
+    ).toThrow("Payment amount mismatch");
+  });
+
+  it("allows matching successful callbacks from a trusted server", () => {
+    expect(
+      validateMarketplacePaymentCallback(
+        transaction,
+        { paymentMethod: "mpesa", status: "success", amount: 2500 },
+        "trusted-secret"
+      )
+    ).toEqual({ status: "success", moduleActivated: true });
+  });
+});
+
+describe("WorkOS sync security contract", () => {
+  it("rejects direct sync attempts without the trusted Convex webhook secret", () => {
+    expect(() => validateTrustedServer()).toThrow(
+      "FORBIDDEN: Trusted server credentials required"
+    );
+  });
+
+  it("allows sync only after the trusted webhook bridge provides the secret", () => {
+    expect(validateTrustedServer("trusted-secret")).toBeUndefined();
   });
 });

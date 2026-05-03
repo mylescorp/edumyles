@@ -7,18 +7,18 @@ export const dynamic = "force-dynamic";
 function resolveRedirectUri(req: NextRequest): string {
   const currentOrigin = req.nextUrl.origin;
   const currentHost = req.nextUrl.host;
-  const canonicalLandingUrl = process.env.NEXT_PUBLIC_LANDING_URL?.replace(/\/$/, "");
+  const canonicalLandingUrl =
+    process.env.NEXT_PUBLIC_LANDING_URL?.replace(/\/$/, "") ?? "https://edumyles.com";
   const configuredRedirectUri =
     process.env.WORKOS_REDIRECT_URI || process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI;
 
-  const approvedHosts = new Set(["edumyles.vercel.app", "edumyles-frontend.vercel.app"]);
+  const approvedHosts = new Set([new URL(canonicalLandingUrl).host]);
   const isPreviewHost =
     currentHost.endsWith(".vercel.app") && !approvedHosts.has(currentHost);
 
   if (isPreviewHost) {
     if (configuredRedirectUri) return configuredRedirectUri;
-    if (canonicalLandingUrl) return `${canonicalLandingUrl}/auth/callback`;
-    return "https://edumyles.vercel.app/auth/callback";
+    return `${canonicalLandingUrl}/auth/callback`;
   }
 
   return `${currentOrigin}/auth/callback`;

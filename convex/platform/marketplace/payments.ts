@@ -4,6 +4,28 @@ import { Id } from "../../_generated/dataModel";
 import { initiateMpesaStkPushForAmount } from "../../actions/payments/mpesa";
 import { createStripeCheckoutSessionForPayment } from "../../actions/payments/stripe";
 import { buildBankTransferInstructions } from "../../actions/payments/bankTransfer";
+import { normalizeModuleSlug } from "../../modules/marketplace/moduleAliases";
+
+async function getCanonicalMarketplaceModule(ctx: any, moduleId: string) {
+  return await ctx.db
+    .query("marketplace_modules")
+    .withIndex("by_slug", (q: any) => q.eq("slug", normalizeModuleSlug(moduleId)))
+    .first();
+}
+
+async function getModuleMonthlyPriceKes(ctx: any, moduleRecord: any) {
+  const pricing = await ctx.db
+    .query("module_pricing")
+    .withIndex("by_moduleId", (q: any) => q.eq("moduleId", moduleRecord._id))
+    .first();
+  return pricing?.baseRateKes ?? 0;
+}
+
+function assertTrustedServer(serverSecret?: string) {
+  if (!process.env.CONVEX_WEBHOOK_SECRET || serverSecret !== process.env.CONVEX_WEBHOOK_SECRET) {
+    throw new Error("FORBIDDEN: Trusted server credentials required");
+  }
+}
 
 // Payment processing mutations
 export const initiatePayment = mutation({
@@ -26,10 +48,7 @@ export const initiatePayment = mutation({
     }
 
     // Get module details
-    const module = await ctx.db
-      .query("moduleRegistry")
-      .filter((q) => q.eq(q.field("moduleId"), args.moduleId))
-      .first();
+    const module = await getCanonicalMarketplaceModule(ctx, args.moduleId);
 
     if (!module) {
       throw new Error("Module not found");
@@ -46,7 +65,10 @@ export const initiatePayment = mutation({
     }
 
     // Calculate pricing
-    const pricing = calculatePricing(module.pricing, args.billingCycle);
+    const pricing = calculatePricing(
+      { monthly: await getModuleMonthlyPriceKes(ctx, module) },
+      args.billingCycle
+    );
     
     // Apply coupon discount if provided
     let discount = 0;
@@ -138,6 +160,7 @@ export const initiatePayment = mutation({
 // Process payment callback/webhook
 export const processPaymentCallback = mutation({
   args: {
+    serverSecret: v.string(),
     paymentMethod: v.union(v.literal("mpesa"), v.literal("card"), v.literal("bank_transfer")),
     transactionReference: v.string(),
     status: v.union(v.literal("success"), v.literal("failed"), v.literal("cancelled")),
@@ -145,6 +168,8 @@ export const processPaymentCallback = mutation({
     metadata: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
     // Find transaction by reference
     const transaction = await ctx.db
       .query("paymentTransactions")
@@ -153,6 +178,22 @@ export const processPaymentCallback = mutation({
 
     if (!transaction) {
       throw new Error("Transaction not found");
+    }
+
+    if (transaction.paymentMethod !== args.paymentMethod) {
+      throw new Error("Payment method mismatch");
+    }
+
+    if (transaction.status === "completed") {
+      return {
+        transactionId: transaction._id,
+        status: "success",
+        moduleActivated: true,
+      };
+    }
+
+    if (args.status === "success" && transaction.amount !== args.amount) {
+      throw new Error("Payment amount mismatch");
     }
 
     // Update transaction status
@@ -169,6 +210,7 @@ export const processPaymentCallback = mutation({
         moduleId: transaction.moduleId,
         transactionId: transaction._id,
         billingCycle: transaction.billingCycle,
+        amount: transaction.amount,
       });
     }
 
@@ -182,13 +224,10 @@ export const processPaymentCallback = mutation({
 
 // Module installation
 async function activateModule(ctx: any, args: any) {
-  const { tenantId, moduleId, transactionId, billingCycle } = args;
+  const { tenantId, moduleId, transactionId, billingCycle, amount } = args;
 
   // Get module details
-  const module = await ctx.db
-    .query("moduleRegistry")
-    .filter((q: any) => q.eq(q.field("moduleId"), moduleId))
-    .first();
+  const module = await getCanonicalMarketplaceModule(ctx, moduleId);
 
   if (!module) {
     throw new Error("Module not found");
@@ -201,14 +240,54 @@ async function activateModule(ctx: any, args: any) {
   // Create module subscription
   const subscriptionId = await ctx.db.insert("moduleSubscriptions", {
     tenantId,
-    moduleId,
+    moduleId: module.slug,
     transactionId,
     billingCycle,
     status: "active",
     activatedAt: Date.now(),
     expiresAt,
     autoRenew: true,
-    features: module.features,
+    features: [],
+  });
+
+  const existingInstall = await ctx.db
+    .query("module_installs")
+    .withIndex("by_tenantId_moduleSlug", (q: any) =>
+      q.eq("tenantId", tenantId).eq("moduleSlug", module.slug)
+    )
+    .first();
+  const installPayload = {
+    tenantId,
+    moduleId: module._id,
+    moduleSlug: module.slug,
+    status: "active" as const,
+    billingPeriod: billingCycle,
+    currentPriceKes: amount ?? 0,
+    hasPriceOverride: false,
+    isFree: false,
+    billingStartsAt: Date.now(),
+    nextBillingDate: expiresAt,
+    installedAt: existingInstall?.installedAt ?? Date.now(),
+    installedBy: "payment",
+    version: module.version,
+    paymentFailureCount: 0,
+    updatedAt: Date.now(),
+  };
+
+  if (existingInstall) {
+    await ctx.db.patch(existingInstall._id, installPayload);
+  } else {
+    await ctx.db.insert("module_installs", {
+      ...installPayload,
+      firstInstalledAt: Date.now(),
+      createdAt: Date.now(),
+    });
+  }
+
+  await ctx.db.patch(module._id, {
+    installCount: (module.installCount ?? 0) + (existingInstall ? 0 : 1),
+    activeInstallCount: (module.activeInstallCount ?? 0) + (existingInstall?.status === "active" ? 0 : 1),
+    updatedAt: Date.now(),
   });
 
   // Log installation
@@ -295,8 +374,8 @@ export const getTenantSubscriptions = query({
     const enrichedSubscriptions = await Promise.all(
       subscriptions.map(async (subscription) => {
         const module = await ctx.db
-          .query("moduleRegistry")
-          .filter((q) => q.eq(q.field("moduleId"), subscription.moduleId))
+          .query("marketplace_modules")
+          .withIndex("by_slug", (q) => q.eq("slug", normalizeModuleSlug(subscription.moduleId)))
           .first();
 
         return {

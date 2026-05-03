@@ -24,6 +24,7 @@ import {
   Link2,
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
+import { trackFormSubmission, trackLeadConversion } from "@/lib/analytics";
 
 type FormState = "idle" | "loading" | "error" | "success";
 
@@ -54,7 +55,7 @@ const REFERRAL_CHANNELS = [
 ];
 
 const AFFILIATE_BENEFITS = [
-  "Earn 15% commission on all school subscriptions",
+  "Earn 10% commission on all school subscriptions",
   "30-day cookie tracking for referred schools",
   "Real-time commission dashboard",
   "Marketing materials and referral links",
@@ -132,6 +133,8 @@ function AffiliateApplicationContent() {
       }
 
       setFormState("success");
+      trackFormSubmission("affiliate_application", true);
+      trackLeadConversion("affiliate_application", { application_id: payload.applicationId });
       // Redirect to success page after a short delay
       setTimeout(() => {
         router.push(`/apply/affiliate/success?id=${payload.applicationId}`);
@@ -142,6 +145,7 @@ function AffiliateApplicationContent() {
           ? submitError.message
           : "We couldn't submit your application right now."
       );
+      trackFormSubmission("affiliate_application", false);
       setFormState("error");
     }
   }
@@ -192,7 +196,7 @@ function AffiliateApplicationContent() {
               EduMyles
             </h1>
             <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
-              Join our affiliate program and earn 15% commission by referring schools to EduMyles.
+              Join our affiliate program and earn 10% commission by referring schools to EduMyles.
               No sales experience required - just share your referral link and earn when schools
               subscribe.
             </p>
@@ -202,8 +206,8 @@ function AffiliateApplicationContent() {
             {[
               {
                 icon: TrendingUp,
-                title: "15% Commission",
-                body: "Earn 15% commission on every school subscription that comes through your referral link.",
+                title: "10% Commission",
+                body: "Earn 10% commission on every school subscription that comes through your referral link.",
               },
               {
                 icon: Link2,
@@ -251,7 +255,7 @@ function AffiliateApplicationContent() {
                     <li>1. Sign up for the affiliate program</li>
                     <li>2. Get your unique referral link</li>
                     <li>3. Share EduMyles with schools</li>
-                    <li>4. Earn 15% when they subscribe</li>
+                    <li>4. Earn 10% when they subscribe</li>
                     <li>5. Get paid monthly via M-Pesa or Bank</li>
                   </ol>
                 </div>

@@ -9,7 +9,6 @@ import {
   Target,
   Zap,
   Settings,
-  Brain,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -394,89 +393,6 @@ export default function TimetableGenerationGuide() {
                       </li>
                     ))}
                   </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Technology Stack */}
-          <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
-              The Technology Behind Timetable Generation
-            </h2>
-
-            <div className="space-y-6">
-              {[
-                {
-                  technology: "Constraint Satisfaction Programming (CSP)",
-                  role: "Core scheduling engine",
-                  description:
-                    "CSP algorithms treat timetabling as a constraint satisfaction problem, using backtracking and forward checking to find valid solutions.",
-                  benefit: "Guarantees conflict-free schedules",
-                },
-                {
-                  technology: "Genetic Algorithms",
-                  role: "Optimization engine",
-                  description:
-                    "Evolutionary algorithms explore millions of schedule combinations to find optimal solutions that maximize multiple objectives.",
-                  benefit: "Finds schedules humans would miss",
-                },
-                {
-                  technology: "Machine Learning",
-                  role: "Pattern recognition and prediction",
-                  description:
-                    "ML models analyze historical timetables to identify successful patterns and predict optimal scheduling decisions.",
-                  benefit: "Improves over time with school data",
-                },
-                {
-                  technology: "Graph Theory",
-                  role: "Conflict detection and resolution",
-                  description:
-                    "Complex constraint relationships are modeled as graphs, enabling efficient detection and resolution of scheduling conflicts.",
-                  benefit: "Handles complex constraint interactions",
-                },
-                {
-                  technology: "Multi-Objective Optimization",
-                  role: "Balance competing priorities",
-                  description:
-                    "Pareto optimization balances multiple objectives like teacher satisfaction, room efficiency, and student experience.",
-                  benefit: "Creates balanced, practical schedules",
-                },
-              ].map((tech) => (
-                <div
-                  key={tech.technology}
-                  className="flex gap-4 p-4 rounded-xl"
-                  style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(26,122,74,0.1)" }}
-                  >
-                    <Brain className="w-5 h-5" style={{ color: "#1A7A4A" }} />
-                  </div>
-                  <div>
-                    <h3
-                      className="font-jakarta font-bold text-base mb-1"
-                      style={{ color: "#061A12" }}
-                    >
-                      {tech.technology}
-                    </h3>
-                    <p
-                      className="font-jakarta text-xs font-semibold mb-1"
-                      style={{ color: "#1A7A4A" }}
-                    >
-                      {tech.role}
-                    </p>
-                    <p className="font-jakarta text-sm mb-2" style={{ color: "#5a5a5a" }}>
-                      {tech.description}
-                    </p>
-                    <div
-                      className="text-xs p-2 rounded"
-                      style={{ background: "rgba(26,122,74,0.1)", color: "#1A7A4A" }}
-                    >
-                      ✓ {tech.benefit}
-                    </div>
-                  </div>
                 </div>
               ))}
             </div>

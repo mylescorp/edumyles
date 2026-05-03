@@ -88,6 +88,8 @@ export type Module =
   | "library" // Library Management
   | "transport" // Transport Management
   | "communications" // Messaging & Notifications
+  | "users" // User Management & Access Control
+  | "tickets" // Support Tickets & Helpdesk
   | "ewallet" // eWallet
   | "ecommerce"; // School Shop / eCommerce
 

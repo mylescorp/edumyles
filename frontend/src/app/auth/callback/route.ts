@@ -63,6 +63,12 @@ function getRoleDashboard(role: string): string {
       return "/portal/alumni";
     case "partner":
       return "/portal/partner";
+    case "affiliate":
+      return "/portal/affiliate";
+    case "reseller":
+      return "/portal/reseller";
+    case "developer":
+      return "/portal/developer";
     default:
       return "/admin";
   }

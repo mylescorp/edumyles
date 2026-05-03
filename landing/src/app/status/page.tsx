@@ -19,10 +19,10 @@ const services: { name: string; icon: LucideIcon; ms: string }[] = [
   { name: "Parent Portal", icon: Smartphone, ms: "38ms" },
   { name: "Teacher Portal", icon: UserCheck, ms: "35ms" },
   { name: "Student Portal", icon: GraduationCap, ms: "41ms" },
-  { name: "Real-Time Sync (Convex)", icon: Zap, ms: "12ms" },
+  { name: "Live Data Sync", icon: Zap, ms: "12ms" },
   { name: "M-Pesa Integration", icon: Wallet, ms: "67ms" },
-  { name: "Email Delivery (Resend)", icon: Mail, ms: "88ms" },
-  { name: "SMS Gateway (Africa's Talking)", icon: MessageSquare, ms: "54ms" },
+  { name: "Email Delivery", icon: Mail, ms: "88ms" },
+  { name: "SMS Gateway", icon: MessageSquare, ms: "54ms" },
 ];
 
 const incidents = [
@@ -215,7 +215,7 @@ export default function StatusPage() {
                 border: "1px solid rgba(38,166,91,0.2)",
               }}
             >
-              99.9% average uptime
+              Live status monitoring
             </span>
           </div>
           <div className="flex flex-col gap-5">

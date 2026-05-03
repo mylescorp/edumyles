@@ -1,6 +1,13 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { getAppHref } from "@/lib/appLinks";
+import { noIndexMetadata } from "@/lib/seo";
 
-// Platform dashboard lives in the frontend app — redirect home
+export const metadata: Metadata = {
+  ...noIndexMetadata,
+  title: "EduMyles Platform Handoff",
+};
+
 export default function PlatformPage() {
-  redirect("/");
+  redirect(getAppHref("/platform"));
 }

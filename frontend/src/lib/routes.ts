@@ -69,6 +69,13 @@ export const platformNavItems: NavItem[] = [
     permission: "tenants.view",
   },
   {
+    label: "Networks",
+    href: "/platform/networks",
+    icon: Share2,
+    section: "Tenants",
+    permission: "tenants.view",
+  },
+  {
     label: "Create Tenant",
     href: "/platform/tenants/create",
     icon: Rocket,

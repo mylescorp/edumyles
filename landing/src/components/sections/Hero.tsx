@@ -92,7 +92,7 @@ export default function Hero() {
                 className="text-[10px] font-bold tracking-[2.5px] uppercase"
                 style={{ color: "#E8A020" }}
               >
-                Trusted by 50+ Schools Across Africa
+                Trusted by Regional Schools Across Africa
               </div>
             </div>
 
@@ -153,8 +153,8 @@ export default function Hero() {
             <div className="grid grid-cols-3 gap-3">
               {[
                 { value: "15 hrs/week", label: "saved per school" },
-                { value: "50+ Schools", label: "trust us" },
-                { value: "10,000+", label: "students managed" },
+                { value: "Regional Schools", label: "trust us" },
+                { value: "Multi-campus", label: "students managed" },
               ].map((stat) => (
                 <div
                   key={stat.value}

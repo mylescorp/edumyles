@@ -15,13 +15,15 @@ const DEV_SESSION_TOKEN = "dev_session_token";
 
 function toTenantContext(session: {
   tenantId: string;
+  activeTenantId?: string;
   userId: string;
   role: string;
   email?: string;
   permissions?: string[];
 }) {
+  const effectiveTenantId = session.activeTenantId ?? session.tenantId;
   return {
-    tenantId: session.tenantId,
+    tenantId: effectiveTenantId,
     userId: session.userId,
     role: session.role === "platform_admin" ? "super_admin" : session.role,
     email: session.email || "",
@@ -143,7 +145,9 @@ export async function requireTenantSession(
     });
   }
 
-  if (!session.tenantId.startsWith("TENANT-") && session.tenantId !== "PLATFORM") {
+  const effectiveTenantId = session.activeTenantId ?? session.tenantId;
+
+  if (!effectiveTenantId.startsWith("TENANT-") && effectiveTenantId !== "PLATFORM") {
     throw new ConvexError({ code: "INVALID_TENANT", message: "Malformed tenantId" });
   }
 
@@ -176,7 +180,9 @@ export async function requireTenantContext(ctx: QueryCtx | MutationCtx): Promise
     throw new ConvexError({ code: "UNAUTHENTICATED", message: "Session expired" });
   }
 
-  if (!session.tenantId.startsWith("TENANT-") && session.tenantId !== "PLATFORM") {
+  const effectiveTenantId = session.activeTenantId ?? session.tenantId;
+
+  if (!effectiveTenantId.startsWith("TENANT-") && effectiveTenantId !== "PLATFORM") {
     throw new ConvexError({ code: "INVALID_TENANT", message: "Malformed tenantId" });
   }
 

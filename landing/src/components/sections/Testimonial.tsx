@@ -84,7 +84,7 @@ export default function Testimonial() {
           What Schools Say
         </h2>
         <p className="font-jakarta text-[15px]" style={{ color: "#5a5a5a" }}>
-          Trusted by 50+ schools across East Africa
+          Trusted by schools across East Africa
         </p>
       </div>
 

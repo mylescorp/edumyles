@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       message: result.duplicate
         ? "Publisher application already exists and remains on file"
         : "Publisher application submitted successfully",
+      nextPath: `/apply/publisher/success?id=${result.applicationId}`,
     });
   } catch (error) {
     console.error("Publisher application error:", error);

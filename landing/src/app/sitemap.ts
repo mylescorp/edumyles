@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = "https://edumyles.com";
-  const now = new Date("2026-03-23");
+  const now = new Date("2026-05-03");
 
   const page = (path: string, priority: number, freq: MetadataRoute.Sitemap[0]["changeFrequency"] = "monthly") => ({
     url: `${base}${path}`,
@@ -16,17 +16,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page("/features",                            0.9, "monthly"),
     page("/pricing",                             0.9, "weekly"),
     page("/contact",                             0.9, "monthly"),
+    page("/book-demo",                           0.9, "monthly"),
+    page("/waitlist",                            0.9, "weekly"),
     page("/solutions/primary-schools",           0.8),
     page("/solutions/secondary-schools",         0.8),
     page("/solutions/international-schools",     0.8),
     page("/solutions/school-groups",             0.8),
     page("/about",                               0.7),
     page("/team",                                0.7),
-    page("/careers",                             0.7, "weekly"),
     page("/blog",                                0.8, "weekly"),
     page("/case-studies",                        0.8),
     page("/customers",                           0.7),
     page("/partners",                            0.7),
+    page("/resellers",                           0.7),
+    page("/apply/developer",                     0.7),
+    page("/apply/affiliate",                     0.7),
+    page("/apply/reseller",                      0.7),
     page("/integrations",                        0.7),
     page("/roadmap",                             0.6),
     page("/security",                            0.6),

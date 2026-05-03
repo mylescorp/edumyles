@@ -22,6 +22,8 @@
     ],
     "moduleNameMapper": {
       "^react-native$": "<rootDir>/src/__tests__/mocks/react-native.ts",
+      "^react-native-web/dist/exports/StyleSheet$": "<rootDir>/src/__tests__/mocks/react-native-style-sheet.ts",
+      "^react-native-web/dist/exports/Dimensions$": "<rootDir>/src/__tests__/mocks/react-native-dimensions.ts",
       "^@edumyles/shared$": "<rootDir>/src/__tests__/mocks/edumyles-shared.ts",
       "^@edumyles/shared/(.*)$": "<rootDir>/../shared/src/$1"
     },

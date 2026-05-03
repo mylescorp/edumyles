@@ -180,6 +180,11 @@ export const approvePublisher = mutation({
       "super_admin",
       "master_admin",
     ]);
+    const publisher = await ctx.db.get(args.publisherId);
+    if (!publisher) {
+      throw new Error("Publisher application not found");
+    }
+
     await ctx.db.patch(args.publisherId, {
       status: "approved",
       reviewedBy: platform.userId,
@@ -197,7 +202,12 @@ export const approvePublisher = mutation({
       after: { status: "approved" },
     });
 
-    return { success: true };
+    return {
+      success: true,
+      role: "developer",
+      portalPath: "/portal/developer",
+      publisherId: args.publisherId,
+    };
   },
 });
 

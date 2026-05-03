@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
     stage = "provisioning_tenant";
     const provisionResult = await convex.mutation(api.platform.tenants.mutations.provisionTenant, {
       sessionToken,
+      organizationMode: payload.organizationMode,
+      networkName: payload.networkName,
       schoolName: payload.schoolName,
       schoolType: payload.schoolType,
       country: payload.country,
@@ -62,11 +64,16 @@ export async function POST(req: NextRequest) {
       displayCurrency: payload.displayCurrency,
       academicYearStartMonth: payload.academicYearStartMonth,
       termStructure: payload.termStructure,
+      curriculumMode: payload.curriculumMode,
+      primaryCurriculumCode: payload.primaryCurriculumCode,
+      activeCurriculumCodes: payload.activeCurriculumCodes ?? [],
       selectedModuleIds: payload.selectedModuleIds ?? [],
       pilotGrantModuleIds: payload.pilotGrantModuleIds ?? [],
       welcomeTemplate: payload.welcomeTemplate,
       welcomeMessage,
       sendWelcomeImmediately: Boolean(sendWelcomeImmediately),
+      primaryCampus: payload.primaryCampus,
+      additionalCampuses: payload.additionalCampuses,
     });
 
     tenantId = provisionResult.tenantId;

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// All auth is handled via WorkOS — redirect directly to the auth API route.
+// All auth is handled via authentication provider — redirect directly to the auth API route.
 export default async function LoginPage({
   searchParams,
 }: {

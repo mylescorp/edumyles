@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./types": "./src/types/index.ts",
     "./constants": "./src/constants/index.ts",
+    "./constants/publicCatalog": "./src/constants/publicCatalog.ts",
     "./validators": "./src/validators/index.ts"
   },
   "scripts": {

@@ -5,7 +5,7 @@ import { CreditCard, MessageSquare, FileText, BookOpen, BarChart2, Zap } from "l
 export const metadata: Metadata = {
   title: "Integrations — EduMyles | M-Pesa, SMS, NEMIS & More",
   description:
-    "Native integrations with M-Pesa, Africa's Talking SMS, NEMIS, Google Classroom, and 20+ more tools. No extra cost. API-first. Built for East African schools.",
+    "Native integrations with M-Pesa, SMS, NEMIS, learning tools, and more. Built for East African schools.",
 };
 
 type StatusType = "Native" | "Beta" | "Coming Soon";
@@ -38,7 +38,7 @@ const categories: Category[] = [
     tintBg: "rgba(26,122,74,0.08)",
     integrations: [
       {
-        name: "M-Pesa (Safaricom Daraja)",
+        name: "M-Pesa",
         description:
           "Collect school fees directly via M-Pesa. Automatic reconciliation, real-time parent alerts.",
         status: "Native",
@@ -62,7 +62,7 @@ const categories: Category[] = [
     tintBg: "rgba(30,64,175,0.08)",
     integrations: [
       {
-        name: "Africa's Talking SMS",
+        name: "SMS Gateway",
         description: "Automated SMS to parents for fees, attendance, reports, emergencies.",
         status: "Native",
       },

@@ -6,6 +6,10 @@ import { api } from "@/convex/_generated/api";
 type Session = {
   sessionToken: string;
   tenantId: string;
+  activeTenantId?: string;
+  networkId?: string | null;
+  identityId?: string | null;
+  accessibleTenantIds?: string[];
   userId: string;
   email: string;
   role: string;
@@ -138,6 +142,18 @@ function buildFallbackSessionFromCookies(): Session | null {
         storedSession?.email === user.email
           ? storedSession.tenantId || tenantId
           : tenantId,
+      activeTenantId:
+        storedSession?.email === user.email
+          ? storedSession.activeTenantId || storedSession.tenantId || tenantId
+          : tenantId,
+      networkId:
+        storedSession?.email === user.email ? storedSession.networkId ?? null : null,
+      identityId:
+        storedSession?.email === user.email ? storedSession.identityId ?? null : null,
+      accessibleTenantIds:
+        storedSession?.email === user.email
+          ? storedSession.accessibleTenantIds ?? [storedSession.activeTenantId || storedSession.tenantId || tenantId]
+          : [tenantId],
       userId: user.email,
       email: user.email,
       role,
@@ -219,6 +235,7 @@ async function loadAuthSession(force = false) {
         ? {
             ...nextSession,
             tenantId: adminWorkspaceTenantId || nextSession.tenantId,
+            activeTenantId: adminWorkspaceTenantId || nextSession.activeTenantId || nextSession.tenantId,
           }
         : buildFallbackSessionFromCookies();
 
@@ -323,7 +340,7 @@ export function useAuth() {
       _id: session.userId,
       email: session.email,
       role: session.role,
-      tenantId: session.tenantId,
+      tenantId: session.activeTenantId ?? session.tenantId,
       sessionToken: session.sessionToken,
     };
 
@@ -409,8 +426,13 @@ export function useAuth() {
     isLoading,
     isAuthenticated: !!session,
     role: session?.role ?? null,
-    tenantId: session?.tenantId ?? null,
-    logout,
+    tenantId: session?.activeTenantId ?? session?.tenantId ?? null,
+    baseTenantId: session?.tenantId ?? null,
+      activeTenantId: session?.activeTenantId ?? session?.tenantId ?? null,
+      networkId: session?.networkId ?? null,
+      identityId: session?.identityId ?? null,
+      accessibleTenantIds: session?.accessibleTenantIds ?? (session ? [session.tenantId] : []),
+      logout,
     sessionToken: session?.sessionToken ?? null,
     platformProfile,
     tenantProfile,

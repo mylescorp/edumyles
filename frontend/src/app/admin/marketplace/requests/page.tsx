@@ -82,15 +82,13 @@ export default function ModuleRequestsPage() {
     budgetKes: "",
   });
 
-  // New module_requests (4-type)
   const typedRequests = useQuery(
     api.modules.marketplace.modules.getModuleRequests,
     sessionToken ? { sessionToken } : "skip",
     canQueryRequests
   ) as any[] | undefined;
 
-  // Legacy moduleRequests (access requests from users)
-  const legacyRequests = useQuery(
+  const accessRequests = useQuery(
     api.modules.marketplace.queries.getModuleRequests,
     sessionToken ? { sessionToken } : "skip"
     ,
@@ -98,18 +96,18 @@ export default function ModuleRequestsPage() {
   ) as any[] | undefined;
 
   const submitRequest = useMutation(api.modules.marketplace.modules.submitModuleRequest);
-  const reviewLegacy = useMutation(api.modules.marketplace.mutations.reviewModuleRequest);
+  const reviewAccessRequest = useMutation(api.modules.marketplace.mutations.reviewModuleRequest);
 
-  if (authLoading || tenantLoading || (canQueryRequests && (typedRequests === undefined || legacyRequests === undefined))) {
+  if (authLoading || tenantLoading || (canQueryRequests && (typedRequests === undefined || accessRequests === undefined))) {
     return <LoadingSkeleton variant="page" />;
   }
 
   const allTyped = normalizeArray<any>(typedRequests);
-  const allLegacy = normalizeArray<any>(legacyRequests);
+  const allAccessRequests = normalizeArray<any>(accessRequests);
 
-  const pendingLegacy = allLegacy.filter((r) => r.status === "pending");
-  const approvedLegacy = allLegacy.filter((r) => r.status === "approved");
-  const rejectedLegacy = allLegacy.filter((r) => r.status === "rejected");
+  const pendingLegacy = allAccessRequests.filter((r) => r.status === "pending" || r.status === "submitted");
+  const approvedLegacy = allAccessRequests.filter((r) => r.status === "approved" || r.status === "approved_exception_granted");
+  const rejectedLegacy = allAccessRequests.filter((r) => r.status === "rejected");
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -137,7 +135,7 @@ export default function ModuleRequestsPage() {
     if (!sessionToken) return;
     setProcessing(true);
     try {
-      await reviewLegacy({ sessionToken, requestId: requestId as Id<"moduleRequests">, status: "approved" });
+      await reviewAccessRequest({ sessionToken, requestId: requestId as Id<"module_requests">, status: "approved" });
       toast.success("Request approved");
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to approve request");
@@ -150,7 +148,7 @@ export default function ModuleRequestsPage() {
     if (!sessionToken) return;
     setProcessing(true);
     try {
-      await reviewLegacy({ sessionToken, requestId: requestId as Id<"moduleRequests">, status: "rejected" });
+      await reviewAccessRequest({ sessionToken, requestId: requestId as Id<"module_requests">, status: "rejected" });
       toast.success("Request rejected");
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to reject request");

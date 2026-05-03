@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 import { ALL_MODULES, CORE_MODULE_IDS } from "../../modules/marketplace/moduleDefinitions";
+import { normalizeModuleSlug } from "../../modules/marketplace/moduleAliases";
 
 const categoryValidator = v.union(
   v.literal("academic_tools"), v.literal("communication"),
@@ -429,24 +430,27 @@ export const installModule = mutation({
       .withIndex("by_moduleId", (q) => q.eq("moduleId", args.moduleId))
       .first();
     if (!mod) {
-      const registryModule = await ctx.db
-        .query("moduleRegistry")
-        .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
+      const moduleSlug = normalizeModuleSlug(args.moduleId);
+      const marketplaceModule = await ctx.db
+        .query("marketplace_modules")
+        .withIndex("by_slug", (q) => q.eq("slug", moduleSlug))
         .first();
-      const builtinDefinition = ALL_MODULES.find((entry) => entry.moduleId === args.moduleId);
+      const builtinDefinition = ALL_MODULES.find(
+        (entry) => normalizeModuleSlug(entry.moduleId) === moduleSlug
+      );
 
-      if (!registryModule && !builtinDefinition) {
+      if (!marketplaceModule && !builtinDefinition) {
         throw new Error("Module not found");
       }
 
       const existingBuiltin = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_module", (q) =>
-          q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+        .query("module_installs")
+        .withIndex("by_tenantId_moduleSlug", (q) =>
+          q.eq("tenantId", args.tenantId).eq("moduleSlug", moduleSlug)
         )
         .first();
 
-      if (existingBuiltin && existingBuiltin.status !== "inactive") {
+      if (existingBuiltin && existingBuiltin.status !== "disabled" && existingBuiltin.status !== "uninstalled") {
         throw new Error("Module is already installed for this tenant");
       }
 
@@ -454,17 +458,26 @@ export const installModule = mutation({
       if (existingBuiltin) {
         await ctx.db.patch(existingBuiltin._id, {
           status: "active",
-          config: args.configuration ?? existingBuiltin.config ?? {},
           updatedAt: now,
         });
       } else {
-        await ctx.db.insert("installedModules", {
+        await ctx.db.insert("module_installs", {
           tenantId: args.tenantId,
-          moduleId: args.moduleId,
+          moduleId: marketplaceModule?._id ?? moduleSlug,
+          moduleSlug,
+          billingPeriod: "monthly",
+          currentPriceKes: 0,
+          hasPriceOverride: false,
+          isFree: marketplaceModule?.isCore ?? builtinDefinition?.isCore ?? false,
+          firstInstalledAt: now,
+          billingStartsAt: now,
+          nextBillingDate: now,
           installedAt: now,
           installedBy: session.userId,
-          config: args.configuration ?? {},
           status: "active",
+          version: marketplaceModule?.version ?? builtinDefinition?.version ?? "1.0.0",
+          paymentFailureCount: 0,
+          createdAt: now,
           updatedAt: now,
         });
       }
@@ -472,11 +485,11 @@ export const installModule = mutation({
       await ctx.db.insert("marketplaceActivity", {
         type: "install",
         moduleId: args.moduleId,
-        moduleName: registryModule?.name || builtinDefinition?.name,
+        moduleName: marketplaceModule?.name || builtinDefinition?.name,
         tenantId: args.tenantId,
         actorId: session.userId,
         actorEmail: session.email,
-        details: { source: "builtin", version: registryModule?.version || builtinDefinition?.version },
+        details: { source: "builtin", version: marketplaceModule?.version || builtinDefinition?.version },
         createdAt: now,
       });
 
@@ -684,15 +697,15 @@ export const setTenantModuleStatus = mutation({
     sessionToken: v.string(),
     tenantId: v.string(),
     moduleId: v.string(),
-    status: v.union(v.literal("active"), v.literal("inactive")),
+    status: v.union(v.literal("active"), v.literal("disabled")),
   },
   handler: async (ctx, args) => {
     const session = await requirePlatformSession(ctx, args);
 
     const installation = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+      .query("module_installs")
+      .withIndex("by_tenantId_moduleSlug", (q) =>
+        q.eq("tenantId", args.tenantId).eq("moduleSlug", normalizeModuleSlug(args.moduleId))
       )
       .first();
 
@@ -783,9 +796,9 @@ export const uninstallCatalogModule = mutation({
     }
 
     const builtinInstallation = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", args.tenantId).eq("moduleId", args.moduleId)
+      .query("module_installs")
+      .withIndex("by_tenantId_moduleSlug", (q) =>
+        q.eq("tenantId", args.tenantId).eq("moduleSlug", normalizeModuleSlug(args.moduleId))
       )
       .first();
 
@@ -793,11 +806,15 @@ export const uninstallCatalogModule = mutation({
       throw new Error("Installation not found");
     }
 
-    if (CORE_MODULE_IDS.includes(args.moduleId)) {
+    if (CORE_MODULE_IDS.map(normalizeModuleSlug).includes(normalizeModuleSlug(args.moduleId))) {
       throw new Error("Core modules cannot be uninstalled");
     }
 
-    await ctx.db.delete(builtinInstallation._id);
+    await ctx.db.patch(builtinInstallation._id, {
+      status: "uninstalled",
+      uninstalledAt: Date.now(),
+      updatedAt: Date.now(),
+    });
 
     const builtinDefinition = ALL_MODULES.find((entry) => entry.moduleId === args.moduleId);
     const now = Date.now();

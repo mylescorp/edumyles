@@ -103,7 +103,7 @@ export default function EduMyles2026Launch() {
           {/* Introduction */}
           <div className="mb-12">
             <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
-              After three years of serving 500+ schools across East Africa, we&apos;ve learned what
+              After three years of serving schools across East Africa, we&apos;ve learned what
               truly matters in school management: real-time data, seamless collaboration, and the
               flexibility to grow. Today, we&apos;re proud to introduce EduMyles 2026 — our most
               ambitious release yet.
@@ -553,14 +553,14 @@ export default function EduMyles2026Launch() {
                 </h3>
                 <div className="space-y-4">
                   {[
-                    { metric: "99.9%", label: "Uptime SLA", desc: "Guaranteed availability" },
+                    { metric: "Live", label: "Uptime SLA", desc: "Guaranteed availability" },
                     {
                       metric: "<200ms",
                       label: "Average Response Time",
                       desc: "Sub-second page loads",
                     },
                     {
-                      metric: "10,000+",
+                      metric: "Multi-campus",
                       label: "Concurrent Users",
                       desc: "Supports large schools",
                     },

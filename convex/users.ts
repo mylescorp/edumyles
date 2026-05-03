@@ -407,18 +407,19 @@ export const getCurrentUser = query({
       .first();
 
     if (!session || session.expiresAt < Date.now()) return null;
+    const effectiveTenantId = session.activeTenantId ?? session.tenantId;
 
     const user = await ctx.db
       .query("users")
       .withIndex("by_tenant_email", (q) =>
-        q.eq("tenantId", session.tenantId).eq("email", session.email || "")
+        q.eq("tenantId", effectiveTenantId).eq("email", session.email || "")
       )
       .first();
 
     if (!user) {
       return {
         _id: session.userId,
-        tenantId: session.tenantId,
+        tenantId: effectiveTenantId,
         email: session.email || "",
         role: session.role,
         firstName: undefined,
@@ -744,12 +745,20 @@ export const saveUserAvatar = mutation({
 // Called by WorkOS webhook when a user profile is updated
 export const syncFromWorkOS = mutation({
   args: {
+    serverSecret: v.string(),
     eduMylesUserId: v.string(),
     email: v.string(),
     firstName: v.string(),
     lastName: v.string(),
   },
   handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      throw new ConvexError({
+        code: "FORBIDDEN",
+        message: "Trusted server credentials required",
+      });
+    }
+
     const user = await ctx.db
       .query("users")
       .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", args.eduMylesUserId))
@@ -766,8 +775,15 @@ export const syncFromWorkOS = mutation({
 
 // Called by WorkOS webhook when a user is deleted
 export const deactivateByWorkOSId = mutation({
-  args: { eduMylesUserId: v.string() },
+  args: { serverSecret: v.string(), eduMylesUserId: v.string() },
   handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      throw new ConvexError({
+        code: "FORBIDDEN",
+        message: "Trusted server credentials required",
+      });
+    }
+
     const user = await ctx.db
       .query("users")
       .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", args.eduMylesUserId))

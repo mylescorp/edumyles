@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import AttributionTracker from "@/components/ui/AttributionTracker";
 import PerformanceTracker from "@/components/ui/PerformanceTracker";
+import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/seo";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,26 +24,30 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://edumyles.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "EduMyles",
+    default: "School Management System for African Schools | EduMyles",
     template: "%s | EduMyles",
   },
   description:
-    "EduMyles is the all-in-one school management system for East African schools. M-Pesa fee collection, CBC gradebook, parent portal, attendance tracking, and more. Trusted by 50+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
+    "EduMyles is the all-in-one school management system for East African schools. M-Pesa fee collection, CBC gradebook, parent portal, attendance tracking, and more. Trusted by schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
+  alternates: {
+    canonical: "./",
+  },
   openGraph: {
     title: "EduMyles — School Management System for East Africa",
     description:
       "The all-in-one school management platform for East African schools. M-Pesa fees, digital gradebooks, parent communication & more.",
-    url: "https://edumyles.com",
+    url: SITE_URL,
     siteName: "EduMyles",
     type: "website",
-    images: [{ url: "/logo-full.svg", width: 400, height: 260 }],
+    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "EduMyles — School Management System for East Africa",
     description: "The all-in-one school management platform for East African schools.",
+    images: [DEFAULT_OG_IMAGE],
   },
   robots: { index: true, follow: true },
   icons: {
@@ -83,16 +89,11 @@ const softwareSchema = {
     priceCurrency: "KES",
     priceValidUntil: "2027-01-01",
   },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.9",
-    reviewCount: "54",
-  },
   publisher: {
     "@type": "Organization",
     name: "MylesCorp Technologies Ltd",
-    url: "https://mylesoft.vercel.app",
-    logo: "https://edumyles.com/logo-icon.svg",
+    url: "https://edumyles.com",
+    logo: "https://edumyles.com/logo.png",
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+254743993715",
@@ -119,9 +120,30 @@ const organizationSchema = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  const adsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+  const googleTagId = gaId ?? adsId;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {googleTagId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleTagId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-tag" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                ${gaId ? `gtag('config', '${gaId}');` : ""}
+                ${adsId ? `gtag('config', '${adsId}');` : ""}
+              `}
+            </Script>
+          </>
+        ) : null}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackFormSubmission, trackLeadConversion } from "@/lib/analytics";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -42,8 +43,11 @@ export default function ContactForm() {
         }),
       });
       if (!res.ok) throw new Error("Server error");
+      trackFormSubmission("contact", true);
+      trackLeadConversion("contact", { form_name: "contact" });
       setFormState("success");
     } catch {
+      trackFormSubmission("contact", false);
       setFormState("error");
     }
   };

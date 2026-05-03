@@ -4,358 +4,255 @@ import { requireTenantSession } from "../../helpers/tenantGuard";
 import { requireRole } from "../../helpers/authorize";
 import { getInstalledModules as getGuardInstalledModules } from "../../helpers/moduleGuard";
 import { TIER_MODULES } from "./tierModules";
-import { CORE_MODULE_IDS, ALL_MODULES, MODULE_DEPENDENCIES } from "./moduleDefinitions";
+import { ALL_MODULES } from "./moduleDefinitions";
+import {
+  getAllBuiltinModuleSlugs,
+  getBuiltinDefinition,
+  getCanonicalDependencies,
+  getCanonicalTierModules,
+  getCoreModuleSlugs,
+  isCoreModuleSlug,
+  normalizeModuleSlug,
+  toLegacyModuleId,
+} from "./moduleAliases";
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+type AccessStatus =
+  | "allowed"
+  | "plan_upgrade_required"
+  | "rbac_escalation_required"
+  | "payment_required"
+  | "waitlist_only";
 
-const LEGACY_MODULE_IDS_BY_SLUG: Record<string, string> = {
-  core_sis: "sis",
-  core_users: "users",
-  core_notifications: "communications",
-  mod_academics: "academics",
-  mod_attendance: "attendance",
-  mod_admissions: "admissions",
-  mod_finance: "finance",
-  mod_timetable: "timetable",
-  mod_library: "library",
-  mod_transport: "transport",
-  mod_hr: "hr",
-  mod_communications: "communications",
-  mod_ewallet: "ewallet",
-  mod_ecommerce: "ecommerce",
-  mod_reports: "reports",
-  mod_advanced_analytics: "analytics",
-  mod_parent_portal: "parent_portal",
-  mod_alumni: "alumni",
-  mod_partner: "partner",
-  mod_social: "social",
-};
-
-function toLegacyModuleId(moduleSlugOrId: string) {
-  return LEGACY_MODULE_IDS_BY_SLUG[moduleSlugOrId] ?? moduleSlugOrId;
-}
-
-async function getActivePilotGrantModuleIds(ctx: any, tenantId: string): Promise<Set<string>> {
-  const [activeGrants, marketplaceModules] = await Promise.all([
-    ctx.db
-      .query("pilot_grants")
-      .withIndex("by_tenant_status", (q: any) =>
-        q.eq("tenantId", tenantId).eq("status", "active")
-      )
-      .collect(),
-    ctx.db.query("marketplace_modules").collect(),
+async function getTenantPlan(ctx: any, tenantId: string) {
+  const [tenant, organization] = await Promise.all([
+    ctx.db.query("tenants").withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenantId)).first(),
+    ctx.db.query("organizations").withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId)).first(),
   ]);
-
-  const marketplaceSlugById = new Map<string, string>(
-    marketplaceModules.map((moduleRecord: any) => [String(moduleRecord._id), moduleRecord.slug])
-  );
-
-  return new Set(
-    activeGrants
-      .filter((grant: any) => !grant.endDate || grant.endDate >= Date.now())
-      .map((grant: any) => marketplaceSlugById.get(String(grant.moduleId)) ?? String(grant.moduleId))
-      .map((moduleSlugOrId: string) => toLegacyModuleId(moduleSlugOrId))
-  );
+  return organization?.tier ?? tenant?.plan ?? "free";
 }
 
-async function getEntitledModuleIds(ctx: any, tenantId: string, allowedModuleIds: string[]) {
-  const [installedModules, pilotGrantModuleIds] = await Promise.all([
-    getGuardInstalledModules(ctx, tenantId),
-    getActivePilotGrantModuleIds(ctx, tenantId),
-  ]);
-
-  const entitledModuleIds = new Set<string>(allowedModuleIds);
-
-  for (const installedModule of installedModules) {
-    entitledModuleIds.add(
-      toLegacyModuleId(
-        String(
-          installedModule.moduleSlug ??
-            installedModule.moduleId
-        )
-      )
-    );
-  }
-
-  for (const pilotGrantModuleId of pilotGrantModuleIds) {
-    entitledModuleIds.add(pilotGrantModuleId);
-  }
-
-  return entitledModuleIds;
+async function getMarketplaceModule(ctx: any, moduleSlugOrId: string) {
+  const moduleSlug = normalizeModuleSlug(moduleSlugOrId);
+  const record = await ctx.db
+    .query("marketplace_modules")
+    .withIndex("by_slug", (q: any) => q.eq("slug", moduleSlug))
+    .first();
+  return record ?? null;
 }
 
-function buildFallbackModules(allowedModuleIds: string[]) {
-  return ALL_MODULES.map((mod) => ({
-    _id: mod.moduleId as any,
+function buildBuiltinModuleSummary(moduleDefinition: (typeof ALL_MODULES)[number]) {
+  const moduleSlug = normalizeModuleSlug(moduleDefinition.moduleId);
+  return {
+    _id: moduleSlug as any,
     _creationTime: 0,
-    moduleId: mod.moduleId,
-    name: mod.name,
-    description: mod.description,
-    tier: mod.tier,
-    category: mod.category,
-    isCore: mod.isCore,
-    iconName: mod.iconName,
-    version: mod.version,
-    features: mod.features,
-    dependencies: mod.dependencies,
-    documentation: mod.documentation,
-    pricing: mod.pricing,
-    support: mod.support,
+    moduleId: moduleDefinition.moduleId,
+    moduleSlug,
+    slug: moduleSlug,
+    name: moduleDefinition.name,
+    description: moduleDefinition.description,
+    tagline: moduleDefinition.description,
+    tier: moduleDefinition.tier,
+    minimumPlan: moduleDefinition.tier,
+    category: moduleDefinition.category,
+    isCore: moduleDefinition.isCore,
+    iconName: moduleDefinition.iconName,
     status: "published" as const,
-    availableForTier:
-      CORE_MODULE_IDS.includes(mod.moduleId) ||
-      allowedModuleIds.includes(mod.moduleId),
-  }));
+    version: moduleDefinition.version,
+    features: moduleDefinition.features,
+    dependencies: moduleDefinition.dependencies,
+    dependencySlugs: moduleDefinition.dependencies.map(normalizeModuleSlug),
+    documentation: moduleDefinition.documentation,
+    documentationUrl: moduleDefinition.documentation,
+    pricing: moduleDefinition.pricing,
+    support: moduleDefinition.support,
+    supportedRoles: ["school_admin", "principal"],
+    averageRating: 0,
+    reviewCount: 0,
+    installCount: 0,
+    activeInstallCount: 0,
+  };
 }
 
-function mergeBuiltinAndRegistryModules(
-  dbModules: any[],
-  allowedModuleIds: string[],
-  forceAvailable: boolean = false
-) {
+function normalizeMarketplaceModule(record: any) {
+  const builtin = getBuiltinDefinition(record.slug);
+  const summary = builtin ? buildBuiltinModuleSummary(builtin) : null;
+  return {
+    ...summary,
+    ...record,
+    moduleId: summary?.moduleId ?? toLegacyModuleId(record.slug),
+    moduleSlug: record.slug,
+    slug: record.slug,
+    tier: summary?.tier ?? record.minimumPlan,
+    features: summary?.features ?? [],
+    dependencies: (record.dependencies ?? []).map(toLegacyModuleId),
+    dependencySlugs: record.dependencies ?? [],
+    documentation: record.documentationUrl,
+    pricing: summary?.pricing,
+    support: summary?.support,
+    availableForTier: false,
+  };
+}
+
+async function listPublishedMarketplaceModules(ctx: any) {
+  const records = await ctx.db
+    .query("marketplace_modules")
+    .withIndex("by_status", (q: any) => q.eq("status", "published"))
+    .collect();
+
   const merged = new Map<string, any>();
-
-  for (const mod of ALL_MODULES) {
-    merged.set(mod.moduleId, {
-      _id: mod.moduleId as any,
-      _creationTime: 0,
-      moduleId: mod.moduleId,
-      name: mod.name,
-      description: mod.description,
-      tier: mod.tier,
-      category: mod.category,
-      isCore: mod.isCore,
-      iconName: mod.iconName,
-      version: mod.version,
-      features: mod.features,
-      dependencies: mod.dependencies,
-      documentation: mod.documentation,
-      pricing: mod.pricing,
-      support: mod.support,
-      status: "published" as const,
-      availableForTier:
-        forceAvailable ||
-        CORE_MODULE_IDS.includes(mod.moduleId) ||
-        allowedModuleIds.includes(mod.moduleId),
-    });
+  for (const moduleDefinition of ALL_MODULES) {
+    const summary = buildBuiltinModuleSummary(moduleDefinition);
+    merged.set(summary.moduleSlug, summary);
   }
-
-  for (const mod of dbModules) {
-    merged.set(mod.moduleId, {
-      ...merged.get(mod.moduleId),
-      ...mod,
-      isCore: mod.isCore ?? CORE_MODULE_IDS.includes(mod.moduleId),
-      availableForTier:
-        forceAvailable ||
-        CORE_MODULE_IDS.includes(mod.moduleId) ||
-        allowedModuleIds.includes(mod.moduleId),
-    });
+  for (const record of records) {
+    merged.set(record.slug, normalizeMarketplaceModule(record));
   }
-
   return Array.from(merged.values());
 }
 
-// ── Queries ────────────────────────────────────────────────────────────────
+async function getActivePilotGrantModuleSlugs(ctx: any, tenantId: string) {
+  const activeGrants = await ctx.db
+    .query("pilot_grants")
+    .withIndex("by_tenant_status", (q: any) => q.eq("tenantId", tenantId).eq("status", "active"))
+    .collect();
 
-export const getModuleRegistry = query({
+  const moduleRecords = await ctx.db.query("marketplace_modules").collect();
+  const moduleSlugById = new Map<string, string>(
+    moduleRecords.map((moduleRecord: any) => [String(moduleRecord._id), moduleRecord.slug])
+  );
+
+  return new Set<string>(
+    activeGrants
+      .filter((grant: any) => !grant.endDate || grant.endDate >= Date.now())
+      .map((grant: any) =>
+        normalizeModuleSlug(String(moduleSlugById.get(String(grant.moduleId)) ?? grant.moduleId))
+      )
+  );
+}
+
+async function getEntitledModuleSlugs(ctx: any, tenantId: string, plan: string) {
+  const [installed, pilotGrantSlugs] = await Promise.all([
+    getGuardInstalledModules(ctx, tenantId),
+    getActivePilotGrantModuleSlugs(ctx, tenantId),
+  ]);
+  const entitled = new Set([
+    ...getCoreModuleSlugs(),
+    ...getCanonicalTierModules((TIER_MODULES[plan] ?? TIER_MODULES.free ?? []) as string[]),
+  ]);
+
+  for (const install of installed) {
+    entitled.add(normalizeModuleSlug(String(install.moduleSlug ?? install.moduleId)));
+  }
+  for (const slug of pilotGrantSlugs) {
+    entitled.add(slug);
+  }
+
+  return entitled;
+}
+
+export const getMarketplaceModules = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     await requireTenantSession(ctx, args);
-
-    const modules = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_status", (q) => q.eq("status", "published"))
-      .collect();
-
-    return mergeBuiltinAndRegistryModules(modules, ALL_MODULES.map((mod) => mod.moduleId), true);
+    return (await listPublishedMarketplaceModules(ctx)).map((moduleRecord) => ({
+      ...moduleRecord,
+      availableForTier: true,
+    }));
   },
 });
 
 export const getInstalledModules = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    if (!args.sessionToken || args.sessionToken.trim() === "") {
-      console.log("getInstalledModules called without a session token, returning []");
-      return [];
-    }
-
-    let tenantId: string;
-    try {
-      const tenantContext = await requireTenantSession(ctx, args);
-      tenantId = tenantContext.tenantId;
-    } catch (sessionError) {
-      console.error("getInstalledModules session validation failed:", sessionError);
-      return [];
-    }
-
-    try {
-      return await getGuardInstalledModules(ctx, tenantId);
-    } catch (dbError) {
-      console.error("getInstalledModules query failed:", dbError);
-      return ALL_MODULES.filter((mod) => CORE_MODULE_IDS.includes(mod.moduleId)).map((mod) => ({
-        _id: (`core:${mod.moduleId}`) as any,
-        _creationTime: 0,
-        tenantId,
-        moduleId: mod.moduleId,
-        moduleSlug: mod.moduleId,
-        installedAt: 0,
-        installedBy: "system",
-        config: {},
-        status: "active" as const,
-        updatedAt: 0,
-      }));
-    }
+    if (!args.sessionToken?.trim()) return [];
+    const tenant = await requireTenantSession(ctx, args);
+    return await getGuardInstalledModules(ctx, tenant.tenantId);
   },
 });
 
 export const getInstalledModuleIds = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    console.log("getInstalledModuleIds called with:", {
-      sessionToken: args.sessionToken ? "present" : "missing"
-    });
+    if (!args.sessionToken?.trim()) return getCoreModuleSlugs();
+    const tenant = await requireTenantSession(ctx, args);
 
-    // First validate sessionToken exists
-    if (!args.sessionToken || args.sessionToken.trim() === "") {
-      console.log("No session token provided, returning core modules");
-      return CORE_MODULE_IDS;
+    if (tenant.tenantId === "PLATFORM") {
+      return getAllBuiltinModuleSlugs();
     }
 
-    let tenantId;
-    try {
-      const tenantContext = await requireTenantSession(ctx, args);
-      tenantId = tenantContext.tenantId;
-      console.log("getInstalledModuleIds tenant context:", { tenantId });
-    } catch (sessionError) {
-      console.error("Session validation failed:", sessionError);
-      console.log("Falling back to core modules due to session error");
-      return CORE_MODULE_IDS;
-    }
-
-    // Platform admins are not tenants — return all module IDs as "installed"
-    if (tenantId === "PLATFORM") {
-      console.log("Platform admin detected, returning all module IDs");
-      return ALL_MODULES.map((m) => m.moduleId);
-    }
-
-    try {
-      console.log("Attempting to resolve installed modules...");
-
-      const installed = await getGuardInstalledModules(ctx, tenantId);
-
-      console.log("getInstalledModuleIds found installed modules:", installed.length);
-
-      const installedIds = installed.map((m: any) =>
-        toLegacyModuleId(String(m.moduleSlug ?? m.moduleId))
-      );
-      const allIds = new Set([...CORE_MODULE_IDS, ...installedIds]);
-      const result = Array.from(allIds);
-      
-      console.log("getInstalledModuleIds returning:", {
-        coreModules: CORE_MODULE_IDS.length,
-        installedModules: installedIds.length,
-        totalModules: result.length
-      });
-
-      return result;
-    } catch (dbError) {
-      console.error("Database query failed:", dbError);
-      console.log("Falling back to core modules only due to database error");
-      return CORE_MODULE_IDS;
-    }
+    const installed = await getGuardInstalledModules(ctx, tenant.tenantId);
+    return Array.from(
+      new Set([
+        ...getCoreModuleSlugs(),
+        ...installed.map((install: any) => normalizeModuleSlug(String(install.moduleSlug ?? install.moduleId))),
+      ])
+    );
   },
 });
 
 export const getAvailableForTier = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    if (!args.sessionToken || args.sessionToken.trim() === "") {
-      return buildFallbackModules([]);
+    if (!args.sessionToken?.trim()) {
+      return (await listPublishedMarketplaceModules(ctx)).map((moduleRecord) => ({
+        ...moduleRecord,
+        availableForTier: isCoreModuleSlug(moduleRecord.moduleSlug),
+      }));
     }
 
-    let tenantId: string;
-    try {
-      const tenantContext = await requireTenantSession(ctx, args);
-      tenantId = tenantContext.tenantId;
-    } catch (sessionError) {
-      console.error("getAvailableForTier session validation failed:", sessionError);
-      return buildFallbackModules([]);
+    const tenant = await requireTenantSession(ctx, args);
+    if (tenant.tenantId === "PLATFORM") {
+      return (await listPublishedMarketplaceModules(ctx)).map((moduleRecord) => ({
+        ...moduleRecord,
+        availableForTier: true,
+      }));
     }
 
-    // Platform admins see all modules as available
-    if (tenantId === "PLATFORM") {
-      const allModuleIds = ALL_MODULES.map((m) => m.moduleId);
-      const dbModules = await ctx.db.query("moduleRegistry").collect();
-      return mergeBuiltinAndRegistryModules(dbModules, allModuleIds, true);
-    }
-
-    const tenant = await ctx.db
-      .query("tenants")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-      .first();
-
-    const tier = tenant?.plan ?? "free";
-    const allowedModuleIds = TIER_MODULES[tier] || TIER_MODULES["free"]!;
-    const entitledModuleIds = await getEntitledModuleIds(ctx, tenantId, allowedModuleIds);
-
-    const dbModules = await ctx.db.query("moduleRegistry").collect();
-
-    return mergeBuiltinAndRegistryModules(dbModules, Array.from(entitledModuleIds));
+    const plan = await getTenantPlan(ctx, tenant.tenantId);
+    const entitled = await getEntitledModuleSlugs(ctx, tenant.tenantId, plan);
+    return (await listPublishedMarketplaceModules(ctx)).map((moduleRecord) => ({
+      ...moduleRecord,
+      currentTier: plan,
+      availableForTier: entitled.has(moduleRecord.moduleSlug),
+    }));
   },
 });
 
 export const getModuleDetails = query({
   args: { sessionToken: v.string(), moduleId: v.string() },
   handler: async (ctx, args) => {
-    const { tenantId } = await requireTenantSession(ctx, args);
+    const tenant = await requireTenantSession(ctx, args);
+    const moduleSlug = normalizeModuleSlug(args.moduleId);
+    const builtinDefinition = getBuiltinDefinition(moduleSlug);
+    const moduleRecord =
+      (await getMarketplaceModule(ctx, moduleSlug)) ??
+      (builtinDefinition ? buildBuiltinModuleSummary(builtinDefinition as (typeof ALL_MODULES)[number]) : null);
 
-    const registryModule =
-      (await ctx.db
-        .query("moduleRegistry")
-        .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
-        .first()) ??
-      (ALL_MODULES.find((m) => m.moduleId === args.moduleId) as any ?? null);
+    if (!moduleRecord || normalizeModuleSlug(moduleRecord.slug ?? moduleRecord.moduleId) !== moduleSlug) {
+      throw new Error("MODULE_NOT_FOUND");
+    }
 
-    if (!registryModule) throw new Error("MODULE_NOT_FOUND");
-
-    const installed = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
-      )
-      .first();
-
-    const tenant = await ctx.db
-      .query("tenants")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-      .first();
-
-    const tier = tenant?.plan ?? "free";
-    const allowedModuleIds = TIER_MODULES[tier] ?? TIER_MODULES["free"]!;
-    const entitledModuleIds = await getEntitledModuleIds(ctx, tenantId, allowedModuleIds);
-
-    const installedState = installed
-      ? {
-          status: installed.status,
-          installedAt: installed.installedAt,
-          installedBy: installed.installedBy,
-          config: installed.config,
-        }
-      : CORE_MODULE_IDS.includes(args.moduleId)
+    const [installed, plan] = await Promise.all([
+      getGuardInstalledModules(ctx, tenant.tenantId),
+      getTenantPlan(ctx, tenant.tenantId),
+    ]);
+    const installedState =
+      installed.find((install: any) => normalizeModuleSlug(String(install.moduleSlug ?? install.moduleId)) === moduleSlug) ??
+      (isCoreModuleSlug(moduleSlug)
         ? {
-            status: "active" as const,
+            status: "active",
             installedAt: 0,
             installedBy: "system",
             config: {},
           }
-        : null;
+        : null);
+    const entitled = await getEntitledModuleSlugs(ctx, tenant.tenantId, plan);
 
     return {
-      ...registryModule,
+      ...normalizeMarketplaceModule(moduleRecord.slug ? moduleRecord : { ...moduleRecord, slug: moduleSlug }),
       installed: installedState,
-      availableForTier:
-        CORE_MODULE_IDS.includes(args.moduleId) || entitledModuleIds.has(args.moduleId),
-      currentTier: tier,
+      availableForTier: entitled.has(moduleSlug),
+      currentTier: plan,
     };
   },
 });
@@ -363,171 +260,118 @@ export const getModuleDetails = query({
 export const getModuleRequests = query({
   args: { sessionToken: v.string(), status: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantSession(ctx, args);
-    requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
-
-    const { tenantId } = tenantCtx;
+    const tenant = await requireTenantSession(ctx, args);
+    requireRole(tenant, "school_admin", "master_admin", "super_admin");
 
     const requests = args.status
       ? await ctx.db
-        .query("moduleRequests")
-        .withIndex("by_tenant_status", (q) =>
-          q.eq("tenantId", tenantId).eq("status", args.status!)
-        )
-        .collect()
+          .query("module_requests")
+          .withIndex("by_tenant_status", (q: any) => q.eq("tenantId", tenant.tenantId).eq("status", args.status!))
+          .collect()
       : await ctx.db
-          .query("moduleRequests")
-          .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+          .query("module_requests")
+          .withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenant.tenantId))
           .collect();
 
     return await Promise.all(
-      requests.map(async (request) => {
-        const registryModule =
-          (await ctx.db
-            .query("moduleRegistry")
-            .withIndex("by_module_id", (q) => q.eq("moduleId", request.moduleId))
-            .first()) ??
-          ALL_MODULES.find((mod) => mod.moduleId === request.moduleId);
-
+      requests.map(async (request: any) => {
+        const moduleSlug = request.moduleId ? normalizeModuleSlug(request.moduleId) : undefined;
+        const moduleRecord = moduleSlug ? await getMarketplaceModule(ctx, moduleSlug) : null;
         return {
           ...request,
-          moduleName: registryModule?.name ?? request.moduleId,
+          moduleSlug,
+          moduleName: moduleRecord?.name ?? getBuiltinDefinition(moduleSlug ?? "")?.name ?? request.name ?? request.moduleId,
         };
       })
     );
   },
 });
 
-/**
- * Public query that checks whether a tenant can install a given module and
- * returns one of five access statuses so the UI can route to the right flow.
- * Mirrors the logic in the internalMutation checkModuleAccess.
- */
 export const getModuleAccessStatus = query({
   args: { sessionToken: v.string(), moduleId: v.string() },
-  handler: async (ctx, args): Promise<{
-    status: "allowed" | "plan_upgrade_required" | "rbac_escalation_required" | "payment_required" | "waitlist_only";
-    reason: string;
-    platformPriceKes?: number;
-  }> => {
-    const { tenantId } = await requireTenantSession(ctx, args);
+  handler: async (
+    ctx,
+    args
+  ): Promise<{ status: AccessStatus; reason: string; platformPriceKes?: number }> => {
+    const tenant = await requireTenantSession(ctx, args);
+    const moduleSlug = normalizeModuleSlug(args.moduleId);
+    const moduleRecord = await getMarketplaceModule(ctx, moduleSlug);
+    const builtin = getBuiltinDefinition(moduleSlug);
 
-    // Resolve module from registry or static definitions
-    const registryModule =
-      (await ctx.db
-        .query("moduleRegistry")
-        .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
-        .first()) ??
-      (ALL_MODULES.find((m) => m.moduleId === args.moduleId) as any ?? null);
-
-    if (!registryModule) {
+    if (!moduleRecord && !builtin) {
       return { status: "waitlist_only", reason: "Module not found" };
     }
 
-    if (registryModule.status && registryModule.status !== "published") {
+    if (moduleRecord && moduleRecord.status !== "published") {
       return { status: "waitlist_only", reason: "Module is not yet published" };
     }
 
-    // Core modules are always allowed
-    if (CORE_MODULE_IDS.includes(args.moduleId)) {
+    if (isCoreModuleSlug(moduleSlug)) {
       return { status: "allowed", reason: "Core module" };
     }
 
-    const installedModules = await getGuardInstalledModules(ctx, tenantId);
-    const existingInstall = installedModules.find((install: any) => {
-      const normalizedInstallId = toLegacyModuleId(
-        String(install.moduleSlug ?? install.moduleId)
-      );
-      return normalizedInstallId === args.moduleId;
-    });
-
-    if (existingInstall?.status === "active") {
+    const installed = await getGuardInstalledModules(ctx, tenant.tenantId);
+    const existing = installed.find(
+      (install: any) => normalizeModuleSlug(String(install.moduleSlug ?? install.moduleId)) === moduleSlug
+    );
+    if (existing?.status === "active") {
       return { status: "allowed", reason: "Module is already installed" };
     }
 
-    // Check pilot grant
-    const pilotGrantModuleIds = await getActivePilotGrantModuleIds(ctx, tenantId);
-    if (pilotGrantModuleIds.has(args.moduleId)) {
+    const pilotGrantSlugs = await getActivePilotGrantModuleSlugs(ctx, tenant.tenantId);
+    if (pilotGrantSlugs.has(moduleSlug)) {
       return { status: "allowed", reason: "Pilot grant active" };
     }
 
-    // Check exception grant
-    const exceptionGrant = await ctx.db
-      .query("module_exception_grants")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", tenantId).eq("moduleId", String(registryModule._id ?? args.moduleId))
-      )
-      .first();
-    if (exceptionGrant && (!exceptionGrant.expiresAt || exceptionGrant.expiresAt >= Date.now())) {
-      return { status: "allowed", reason: "Exception grant active" };
+    const tenantPlan = await getTenantPlan(ctx, tenant.tenantId);
+    const allowedForPlan = getCanonicalTierModules(TIER_MODULES[tenantPlan] ?? []);
+    if (!allowedForPlan.includes(moduleSlug)) {
+      return {
+        status: "plan_upgrade_required",
+        reason: `Module requires a higher plan (current: ${tenantPlan})`,
+      };
     }
 
-    // Check plan tier
-    const tenant = await ctx.db
-      .query("tenants")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-      .first();
-    const plan = tenant?.plan ?? "free";
-    const allowedForPlan = TIER_MODULES[plan] ?? [];
-    if (!allowedForPlan.includes(args.moduleId)) {
-      return { status: "plan_upgrade_required", reason: `Module requires a higher plan (current: ${plan})` };
-    }
-
-    // RBAC check — if module declares required roles, at least one active user must have it
-    if (Array.isArray(registryModule.supportedRoles) && registryModule.supportedRoles.length > 0) {
+    const supportedRoles = moduleRecord?.supportedRoles ?? ["school_admin", "principal"];
+    if (supportedRoles.length > 0) {
       const tenantUsers = await ctx.db
         .query("users")
-        .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId))
+        .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
         .collect();
       const hasEligibleRole = tenantUsers.some(
-        (user: any) => user.isActive && registryModule.supportedRoles.includes(user.role)
+        (user: any) => user.isActive && supportedRoles.includes(user.role)
       );
       if (!hasEligibleRole) {
         return {
           status: "rbac_escalation_required",
-          reason: `No active users with roles: ${registryModule.supportedRoles.join(", ")}`,
+          reason: `No active users with roles: ${supportedRoles.join(", ")}`,
         };
       }
     }
 
-    // Dependency check
-    const deps = MODULE_DEPENDENCIES[args.moduleId] ?? [];
-    for (const dep of deps) {
-      const depInstall = installedModules.find((install: any) => {
-        const normalizedInstallId = toLegacyModuleId(
-          String(install.moduleSlug ?? install.moduleId)
-        );
-        return normalizedInstallId === dep;
-      });
-      if (!depInstall || depInstall.status !== "active") {
+    for (const dependencySlug of getCanonicalDependencies(moduleSlug)) {
+      const dependencyInstall = installed.find(
+        (install: any) => normalizeModuleSlug(String(install.moduleSlug ?? install.moduleId)) === dependencySlug
+      );
+      if (!dependencyInstall || dependencyInstall.status !== "active") {
         return {
           status: "waitlist_only",
-          reason: `Missing dependency: ${dep} must be installed and active first`,
+          reason: `Missing dependency: ${toLegacyModuleId(dependencySlug)} must be installed and active first`,
         };
       }
     }
 
-    // Payment check
-    const successfulPayment = await ctx.db
-      .query("module_payments")
-      .withIndex("by_tenant_status", (q) =>
-        q.eq("tenantId", tenantId).eq("status", "success")
-      )
-      .filter((q) => q.eq(q.field("moduleId"), args.moduleId))
-      .collect();
-    const hasSuccessfulPayment = successfulPayment.some(
-      (payment) => payment.status === "success"
-    );
-
-    if (
-      registryModule.platformPriceKes &&
-      registryModule.platformPriceKes > 0 &&
-      !hasSuccessfulPayment
-    ) {
+    const pricing = moduleRecord
+      ? await ctx.db
+          .query("module_pricing")
+          .withIndex("by_moduleId", (q: any) => q.eq("moduleId", moduleRecord._id))
+          .first()
+      : null;
+    if (pricing && !moduleRecord?.isCore) {
       return {
         status: "payment_required",
-        reason: "Module requires a one-time payment",
-        platformPriceKes: registryModule.platformPriceKes,
+        reason: "Module requires marketplace billing setup",
+        platformPriceKes: pricing.baseRateKes,
       };
     }
 

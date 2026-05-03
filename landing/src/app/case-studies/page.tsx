@@ -47,7 +47,7 @@ const caseStudies = [
 ];
 
 const numbers = [
-  { value: "KES 120M+", label: "Fees processed" },
+  { value: "Automated", label: "Fees processed" },
   { value: "94%", label: "Average attendance improvement" },
   { value: "15 hrs/week", label: "Saved per administrator" },
   { value: "2 weeks", label: "Average onboarding time" },
@@ -252,7 +252,7 @@ export default function CaseStudiesPage() {
             </em>
           </h2>
           <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
-            Join 50+ schools already running better with EduMyles. No credit card required.
+            Join schools already running better with EduMyles. No credit card required.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a

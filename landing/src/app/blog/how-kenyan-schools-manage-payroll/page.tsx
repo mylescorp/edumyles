@@ -127,7 +127,7 @@ export default function KenyanSchoolsPayrollGuide() {
               <div className="grid md:grid-cols-3 gap-4">
                 {[
                   { number: "75%", label: "Time Saved", desc: "vs manual processing" },
-                  { number: "99.9%", label: "Accuracy Rate", desc: "automated calculations" },
+                  { number: "Live", label: "Accuracy Rate", desc: "automated calculations" },
                   { number: "100%", label: "KRA Compliant", desc: "with automated updates" },
                 ].map((stat) => (
                   <div

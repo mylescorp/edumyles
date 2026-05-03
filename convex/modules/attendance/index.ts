@@ -1,4 +1,6 @@
 export * from "./publicApi";
+export * from "./queries";
+export * from "./mutations";
 export * from "./features";
 export * from "./configSchema";
 export * from "./notifications";

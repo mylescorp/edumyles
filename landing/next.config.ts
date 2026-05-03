@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@edumyles/shared"],
   typescript: {
     ignoreBuildErrors: true,
   },
