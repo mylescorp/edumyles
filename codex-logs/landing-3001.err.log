@@ -1,6 +1,15 @@
 [browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-WhatsApp tracking error: Error: [Request ID: bdf0c4abb711965a] Server Error
+WhatsApp tracking error: Error: [Request ID: b2dfd6861ebdd9cc] Server Error
 Could not find public function for 'publicEngagements:submitLandingEngagement'. Did you forget to run `npx convex dev`?
 
     at ignore-listed frames
+Convex landing chat storage error: Error: [Request ID: 72c6e4cd0dfe2154] Server Error
+Could not find public function for 'publicEngagements:submitLandingEngagement'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+Chat message received but RESEND_API_KEY is not configured
+WhatsApp tracking error: Error: [Request ID: 6dbfc03b41adfb9d] Server Error
+Could not find public function for 'publicEngagements:submitLandingEngagement'. Did you forget to run `npx convex dev`?
+
+    at ignore-listed frames
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior

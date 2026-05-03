@@ -9,6 +9,7 @@ import {
   buildWhatsAppUrl,
   getContactTopic,
   type ContactProfile,
+  type ContactTopicId,
 } from "@/lib/contactIntake";
 
 type ContactMode = "chat" | "whatsapp";
@@ -31,8 +32,8 @@ export default function ContactLauncher() {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<ContactMode>("chat");
   const [profile, setProfile] = useState<ContactProfile>(EMPTY_CONTACT_PROFILE);
-  const [topicId, setTopicId] = useState(CONTACT_TOPICS[0].id);
-  const [message, setMessage] = useState(CONTACT_TOPICS[0].prompt);
+  const [topicId, setTopicId] = useState<ContactTopicId>(CONTACT_TOPICS[0].id);
+  const [message, setMessage] = useState<string>(CONTACT_TOPICS[0].prompt);
   const [status, setStatus] = useState<SubmitState>("idle");
   const [resultId, setResultId] = useState<string | null>(null);
 
@@ -70,7 +71,7 @@ export default function ContactLauncher() {
   }
 
   function updateTopic(nextTopicId: string) {
-    setTopicId(nextTopicId as typeof CONTACT_TOPICS[number]["id"]);
+    setTopicId(nextTopicId as ContactTopicId);
     setMessage(getContactTopic(nextTopicId).prompt);
   }
 
@@ -148,7 +149,12 @@ export default function ContactLauncher() {
       </div>
 
       {open && (
-        <div className="fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[440px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl md:left-auto md:right-8 md:mx-0">
+        <div
+          className={[
+            "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[440px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl md:mx-0",
+            mode === "whatsapp" ? "md:left-8 md:right-auto" : "md:left-auto md:right-8",
+          ].join(" ")}
+        >
           <div className="flex items-start justify-between border-b border-slate-100 bg-slate-950 px-5 py-4 text-white">
             <div>
               <p className="text-sm font-semibold">
@@ -176,8 +182,8 @@ export default function ContactLauncher() {
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 {mode === "whatsapp"
-                  ? "WhatsApp should open with your full message prefilled. We also saved this intent in the platform panel."
-                  : "Your live-chat request is now in the EduMyles platform panel for follow-up."}
+                  ? "WhatsApp should open with your full message prefilled. The EduMyles team will follow up from there."
+                  : "Your live-chat request has been received. The EduMyles team will follow up shortly."}
               </p>
               {resultId && <p className="mt-3 text-xs text-slate-500">Reference: {resultId}</p>}
               <button

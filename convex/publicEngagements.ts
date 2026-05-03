@@ -224,7 +224,7 @@ export const updateLandingEngagement = mutation({
       tenantId: admin.tenantId,
       actorId: admin.userId,
       actorEmail: admin.email,
-      action: "landing_engagement.updated",
+      action: "support.ticket.updated",
       entityType: "landingEngagement",
       entityId: args.engagementId,
       after: patch,
