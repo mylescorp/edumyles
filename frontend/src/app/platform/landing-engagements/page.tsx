@@ -178,7 +178,7 @@ export default function LandingEngagementsPage() {
   }
 
   if (isLoading || !rawStats || !rawEngagements) {
-    return <LoadingSkeleton title="Loading landing inbox" />;
+    return <LoadingSkeleton variant="page" />;
   }
 
   return (

@@ -39,9 +39,9 @@ const SOLUTIONS_LINKS = [
 // Partners column
 
 const PARTNERS_LINKS = [
-  { label: "Developers", href: "/apply/developer" },
-  { label: "Affiliates", href: "/apply/affiliate" },
-  { label: "Resellers", href: "/apply/reseller" },
+  { label: "Developers", href: "/developers" },
+  { label: "Affiliates", href: "/affiliate" },
+  { label: "Resellers", href: "/reseller" },
   { label: "Partner Program", href: "/partners" },
 ];
 

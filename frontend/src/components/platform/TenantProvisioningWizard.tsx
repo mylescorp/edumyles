@@ -379,6 +379,10 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   }, [formData.selectedModuleIds, publishedModules]);
 
   const websiteSubdomainValue = getWebsiteSubdomainValue(formData.websiteUrl);
+  const suggestedSubdomain =
+    subdomainAvailability?.suggestedSubdomain && subdomainAvailability.suggestedSubdomain !== formData.subdomain
+      ? subdomainAvailability.suggestedSubdomain
+      : null;
   const subdomainStatusTone =
     formData.subdomain.trim().length < 3
       ? "text-muted-foreground"
@@ -1425,9 +1429,22 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                       : subdomainAvailability === undefined
                         ? "Checking availability..."
                         : subdomainAvailability.available
-                          ? subdomainAvailability.reason
-                          : `${subdomainAvailability.reason} A unique fallback will be assigned automatically.`}
+                          ? `${subdomainAvailability.reason}: ${subdomainAvailability.subdomain}.${getRootDomain()}`
+                          : `${subdomainAvailability.reason} ${suggestedSubdomain ? `Next available: ${suggestedSubdomain}.${getRootDomain()}.` : "A unique fallback will be assigned automatically."}`}
                   </p>
+                  {suggestedSubdomain ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSubdomainEdited(true);
+                        setField("subdomain", suggestedSubdomain);
+                      }}
+                    >
+                      Use {suggestedSubdomain}.{getRootDomain()}
+                    </Button>
+                  ) : null}
                 </div>
                 {formErrors.subdomain && <p className="text-xs text-destructive">{formErrors.subdomain}</p>}
               </div>
@@ -1668,7 +1685,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
             <Globe className="mt-0.5 h-4 w-4 text-primary" />
             <div>
               <p className="font-medium">Canonical domain</p>
-              <p className="text-sm text-muted-foreground">Subdomains are generated against `{getRootDomain()}` and WorkOS org provisioning runs immediately after create.</p>
+              <p className="text-sm text-muted-foreground">Subdomains are generated against {getRootDomain()} and WorkOS org provisioning runs immediately after create.</p>
             </div>
           </CardContent>
         </Card>
