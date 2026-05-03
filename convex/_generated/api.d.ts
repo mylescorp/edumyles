@@ -450,6 +450,7 @@ import type * as platform_whiteLabel_index from "../platform/whiteLabel/index.js
 import type * as platform_whiteLabel_mutations from "../platform/whiteLabel/mutations.js";
 import type * as platform_whiteLabel_queries from "../platform/whiteLabel/queries.js";
 import type * as publicApplications from "../publicApplications.js";
+import type * as publicEngagements from "../publicEngagements.js";
 import type * as sessions from "../sessions.js";
 import type * as shared_permissions from "../shared/permissions.js";
 import type * as staffInvites from "../staffInvites.js";
@@ -908,6 +909,7 @@ declare const fullApi: ApiFromModules<{
   "platform/whiteLabel/mutations": typeof platform_whiteLabel_mutations;
   "platform/whiteLabel/queries": typeof platform_whiteLabel_queries;
   publicApplications: typeof publicApplications;
+  publicEngagements: typeof publicEngagements;
   sessions: typeof sessions;
   "shared/permissions": typeof shared_permissions;
   staffInvites: typeof staffInvites;

@@ -30,6 +30,7 @@ NEXT_PUBLIC_WORKOS_REDIRECT_URI=https://app.edumyles.com/auth/callback
 ### App Project
 
 - Domain: `app.edumyles.com`
+- Tenant wildcard domain: `*.edumyles.com`
 - Build command from `frontend/`: `cd .. && npm --workspace frontend run build`
 - Output directory: `.next`
 - Config file: `frontend/vercel.json`
@@ -54,8 +55,7 @@ Point the apex domain and app subdomain at Vercel:
 - `edumyles.com` should resolve to the landing Vercel project.
 - `www.edumyles.com` should resolve to Vercel and redirect to the apex.
 - `app.edumyles.com` should resolve to the frontend Vercel project.
-
-If tenant subdomains are enabled later, add `*.edumyles.com` to the frontend Vercel project and keep `edumyles.com` on the landing project.
+- `*.edumyles.com` should resolve to the frontend Vercel project so tenant onboarding can automatically allocate `school.edumyles.com` URLs.
 
 ## External Callback URLs
 

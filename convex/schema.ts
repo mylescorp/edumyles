@@ -4347,6 +4347,56 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_workos_user", ["workosUserId"]),
 
+  // ── Landing Contact Engagements ────────────────────────────────────────────
+  // Captures WhatsApp intents and live-chat submissions from the public landing
+  // site so platform staff can follow up from the master admin panel.
+  landingEngagements: defineTable({
+    channel: v.union(v.literal("live_chat"), v.literal("whatsapp")),
+    status: v.union(
+      v.literal("new"),
+      v.literal("open"),
+      v.literal("contacted"),
+      v.literal("qualified"),
+      v.literal("closed"),
+      v.literal("spam")
+    ),
+    priority: v.union(v.literal("normal"), v.literal("high")),
+    topic: v.string(),
+    name: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    schoolName: v.optional(v.string()),
+    role: v.optional(v.string()),
+    country: v.optional(v.string()),
+    message: v.string(),
+    composedWhatsAppMessage: v.optional(v.string()),
+    whatsappUrl: v.optional(v.string()),
+    pagePath: v.optional(v.string()),
+    referrer: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    marketingAttribution: v.optional(v.any()),
+    source: v.optional(v.string()),
+    assignedTo: v.optional(v.string()),
+    adminNotes: v.optional(
+      v.array(
+        v.object({
+          body: v.string(),
+          authorId: v.string(),
+          authorEmail: v.optional(v.string()),
+          createdAt: v.number(),
+        })
+      )
+    ),
+    lastContactedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status_created", ["status", "createdAt"])
+    .index("by_channel_created", ["channel", "createdAt"])
+    .index("by_created", ["createdAt"])
+    .index("by_email", ["email"])
+    .index("by_phone", ["phone"]),
+
   // ─── Library Fine System ──────────────────────────────────────────────────
   fineRules: defineTable({
     tenantId: v.string(),
