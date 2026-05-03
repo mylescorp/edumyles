@@ -1,5 +1,5 @@
 export function getAppBaseUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "https://app.edumyles.com";
 }
 
 export function getAppHref(path: string) {

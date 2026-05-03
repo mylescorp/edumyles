@@ -442,12 +442,47 @@ export const checkSubdomainAvailability = query({
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    const normalized = args.subdomain.trim().toLowerCase();
+    const normalized = args.subdomain
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .replace(/\..*$/, "")
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 63);
     if (!normalized) {
       return {
         subdomain: normalized,
         available: false,
         reason: "Enter a subdomain to check availability.",
+      };
+    }
+
+    const reserved = new Set([
+      "app",
+      "www",
+      "api",
+      "admin",
+      "auth",
+      "mail",
+      "email",
+      "support",
+      "help",
+      "status",
+      "cdn",
+      "static",
+      "assets",
+      "blog",
+      "docs",
+      "security",
+      "platform",
+    ]);
+
+    if (reserved.has(normalized)) {
+      return {
+        subdomain: normalized,
+        available: false,
+        reason: "This subdomain is reserved for EduMyles platform infrastructure.",
       };
     }
 

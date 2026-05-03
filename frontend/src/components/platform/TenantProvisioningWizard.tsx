@@ -232,6 +232,18 @@ function getWebsiteSubdomainValue(websiteUrl?: string) {
   }
 }
 
+function createSlugSuggestion(value: string) {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40) || ""
+  );
+}
+
 export function TenantProvisioningWizard({ className = "" }: { className?: string }) {
   const router = useRouter();
   const { sessionToken } = useAuth();
@@ -258,6 +270,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   const [geoError, setGeoError] = useState<string | null>(null);
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const [isLoadingRegions, setIsLoadingRegions] = useState(false);
+  const [subdomainEdited, setSubdomainEdited] = useState(false);
   const [formData, setFormData] = useState<WizardData>({
     organizationMode: "single_campus",
     networkName: "",
@@ -432,8 +445,8 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
         nextErrors.primaryCampusName = "Primary campus name is required";
       }
       for (const [index, campus] of additionalCampuses.entries()) {
-        if (!campus.campusName.trim() || !campus.subdomain.trim()) {
-          nextErrors[`additionalCampus-${index}`] = "Each additional campus needs a name and subdomain";
+        if (!campus.campusName.trim()) {
+          nextErrors[`additionalCampus-${index}`] = "Each additional campus needs a name";
         }
       }
       if (Object.keys(nextErrors).length > 0) {
@@ -444,11 +457,6 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
 
     if (currentStep === 3 && formData.customDomain && !["pro", "enterprise"].includes(formData.planId)) {
       setFormErrors((current) => ({ ...current, customDomain: "Custom domains require a Pro or Enterprise plan" }));
-      return false;
-    }
-
-    if (currentStep === 3 && formData.subdomain.trim().length >= 3 && subdomainAvailability && !subdomainAvailability.available) {
-      setFormErrors((current) => ({ ...current, subdomain: subdomainAvailability.reason }));
       return false;
     }
 
@@ -472,17 +480,12 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   };
 
   useEffect(() => {
-    if (!formData.schoolName || formData.subdomain.trim().length > 0) return;
-    const suggestion = formData.schoolName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-")
-      .slice(0, 40);
+    if (!formData.schoolName || subdomainEdited) return;
+    const suggestion = createSlugSuggestion(formData.schoolName);
     if (suggestion) {
       setFormData((current) => ({ ...current, subdomain: suggestion }));
     }
-  }, [formData.schoolName, formData.subdomain]);
+  }, [formData.schoolName, subdomainEdited]);
 
   useEffect(() => {
     if (formData.planId || planList.length === 0) {
@@ -680,13 +683,9 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   };
 
   const autoSuggestSubdomain = () => {
-    const suggestion = formData.schoolName
-      .toLowerCase()
-      .replace(/[^a-z0-9\\s-]/g, "")
-      .trim()
-      .replace(/\\s+/g, "-")
-      .slice(0, 40);
+    const suggestion = createSlugSuggestion(formData.schoolName);
     if (suggestion) {
+      setSubdomainEdited(false);
       setField("subdomain", suggestion);
     }
   };
@@ -765,7 +764,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
         additionalCampuses:
           formData.organizationMode === "multi_campus_network"
             ? additionalCampuses
-                .filter((campus) => campus.campusName.trim() && campus.subdomain.trim())
+                .filter((campus) => campus.campusName.trim())
                 .map((campus) => ({
                   campusName: campus.campusName.trim(),
                   campusCode: campus.campusCode.trim() || undefined,
@@ -1152,7 +1151,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                   <div className="flex items-center justify-between">
                     <div>
                       <Label>Additional campuses</Label>
-                      <p className="text-xs text-muted-foreground">Draft extra campuses now or add them immediately after provisioning.</p>
+                      <p className="text-xs text-muted-foreground">Draft extra campuses now. Each campus gets its own unique `{getRootDomain()}` subdomain automatically.</p>
                     </div>
                     <Button
                       type="button"
@@ -1198,17 +1197,21 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label>Campus subdomain</Label>
+                            <Label>Campus subdomain override</Label>
                             <Input
+                              placeholder={createSlugSuggestion(campus.schoolName || campus.campusName) || "auto-generated"}
                               value={campus.subdomain}
                               onChange={(e) =>
                                 setAdditionalCampuses((current) =>
                                   current.map((row, rowIndex) =>
-                                    rowIndex === index ? { ...row, subdomain: e.target.value.toLowerCase() } : row
+                                    rowIndex === index ? { ...row, subdomain: createSlugSuggestion(e.target.value) } : row
                                   )
                                 )
                               }
                             />
+                            <p className="text-xs text-muted-foreground">
+                              Leave blank to auto-create `{createSlugSuggestion(campus.schoolName || campus.campusName) || "campus"}.{getRootDomain()}`.
+                            </p>
                           </div>
                           <div className="space-y-2">
                             <Label>School name override</Label>
@@ -1401,19 +1404,29 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
           {currentStep === 3 && (
             <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Subdomain</Label>
+                <Label>Automatic school subdomain</Label>
                 <div className="flex gap-2">
-                  <Input value={formData.subdomain} onChange={(e) => setField("subdomain", e.target.value.toLowerCase())} />
+                  <Input
+                    value={formData.subdomain}
+                    onChange={(e) => {
+                      setSubdomainEdited(true);
+                      setField("subdomain", createSlugSuggestion(e.target.value));
+                    }}
+                  />
                   <Button type="button" variant="outline" onClick={autoSuggestSubdomain}>Suggest</Button>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Will resolve as `{formData.subdomain || "school"}.{getRootDomain()}`</p>
+                  <p className="text-xs text-muted-foreground">
+                    EduMyles provisions `{formData.subdomain || createSlugSuggestion(formData.schoolName) || "school"}.{getRootDomain()}` automatically. If the first choice is taken, the backend assigns the next available variant.
+                  </p>
                   <p className={`text-xs font-medium ${subdomainStatusTone}`}>
                     {formData.subdomain.trim().length < 3
-                      ? "Enter at least 3 characters to check availability."
+                      ? "A valid subdomain is generated from the school name before provisioning."
                       : subdomainAvailability === undefined
                         ? "Checking availability..."
-                        : subdomainAvailability.reason}
+                        : subdomainAvailability.available
+                          ? subdomainAvailability.reason
+                          : `${subdomainAvailability.reason} A unique fallback will be assigned automatically.`}
                   </p>
                 </div>
                 {formErrors.subdomain && <p className="text-xs text-destructive">{formErrors.subdomain}</p>}

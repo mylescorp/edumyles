@@ -357,15 +357,15 @@ export function EmailComposer({ className }: EmailComposerProps) {
                     name: 'John Doe',
                     role: 'Teacher',
                     schoolName: 'EduMyles School',
-                    loginUrl: 'https://edumyles.vercel.app/login',
+                    loginUrl: 'https://app.edumyles.com/auth/login',
                   } : value === 'password_reset' ? {
                     name: 'John Doe',
-                    resetUrl: 'https://edumyles.vercel.app/reset-password',
+                    resetUrl: 'https://app.edumyles.com/auth/password-reset',
                     expiryHours: 24,
                   } : value === 'general_notification' ? {
                     title: 'School Holiday',
                     message: 'School will be closed for holidays from next week.',
-                    actionUrl: 'https://edumyles.vercel.app',
+                    actionUrl: 'https://app.edumyles.com',
                     actionText: 'View Calendar',
                   } : {};
                   

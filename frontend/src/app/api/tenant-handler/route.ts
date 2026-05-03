@@ -43,7 +43,7 @@ function getAppUrl(origin: string) {
     return `${currentUrl.protocol}//${currentUrl.hostname}:3005`;
   }
 
-  return "https://edumyles-frontend.vercel.app";
+  return "https://app.edumyles.com";
 }
 
 // Handle tenant-specific routing

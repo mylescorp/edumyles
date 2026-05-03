@@ -53,7 +53,14 @@ function createInviteToken() {
 }
 
 function getAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL ?? "https://app.edumyles.com").replace(/\/$/, "");
+}
+
+function getRootDomain() {
+  return (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "edumyles.com")
+    .replace(/^https?:\/\//, "")
+    .replace(/\/+$/, "")
+    .toLowerCase();
 }
 
 function resolveTenantCurriculumSelection(args: {
@@ -146,6 +153,26 @@ async function ensureTenantModuleInstall(
   });
 }
 
+const RESERVED_SUBDOMAINS = new Set([
+  "app",
+  "www",
+  "api",
+  "admin",
+  "auth",
+  "mail",
+  "email",
+  "support",
+  "help",
+  "status",
+  "cdn",
+  "static",
+  "assets",
+  "blog",
+  "docs",
+  "security",
+  "platform",
+]);
+
 function slugifySchoolName(name: string) {
   return name
     .trim()
@@ -155,24 +182,45 @@ function slugifySchoolName(name: string) {
     .slice(0, 48) || "school";
 }
 
-async function generateUniqueSubdomain(ctx: any, schoolName: string) {
-  const base = slugifySchoolName(schoolName);
+function normalizeSubdomain(value?: string | null, fallbackName = "school") {
+  const candidate = slugifySchoolName(value?.trim() || fallbackName);
+  return RESERVED_SUBDOMAINS.has(candidate) ? `${candidate}-school` : candidate;
+}
+
+async function generateUniqueSubdomain(
+  ctx: any,
+  preferredValue: string,
+  fallbackName?: string,
+  taken: Set<string> = new Set()
+) {
+  const base = normalizeSubdomain(preferredValue, fallbackName);
   let candidate = base;
   let counter = 2;
 
   while (true) {
+    if (RESERVED_SUBDOMAINS.has(candidate) || taken.has(candidate)) {
+      candidate = `${base}-${counter}`;
+      counter += 1;
+      continue;
+    }
+
     const existing = await ctx.db
       .query("tenants")
       .withIndex("by_subdomain", (q: any) => q.eq("subdomain", candidate))
       .first();
 
     if (!existing) {
+      taken.add(candidate);
       return candidate;
     }
 
     candidate = `${base}-${counter}`;
     counter += 1;
   }
+}
+
+function buildTenantUrl(subdomain: string) {
+  return `https://${subdomain}.${getRootDomain()}`;
 }
 
 function generateNetworkId() {
@@ -363,20 +411,17 @@ async function createNetworkCampusRecord(ctx: any, args: {
   campusName: string;
   campusCode?: string;
   schoolName?: string;
-  subdomain: string;
+  subdomain?: string;
   schoolType?: string;
   county: string;
   country: string;
 }) {
   const { session, network, membership } = await requireNetworkManagementAccess(ctx, args);
-
-  const existingTenant = await ctx.db
-    .query("tenants")
-    .withIndex("by_subdomain", (q: any) => q.eq("subdomain", args.subdomain.trim().toLowerCase()))
-    .first();
-  if (existingTenant) {
-    throw new Error(`CONFLICT: Subdomain '${args.subdomain}' already taken`);
-  }
+  const subdomain = await generateUniqueSubdomain(
+    ctx,
+    args.subdomain ?? args.schoolName ?? args.campusName,
+    args.schoolName ?? args.campusName
+  );
 
   const primaryTenant = network.primaryTenantId
     ? await ctx.db.query("tenants").withIndex("by_tenantId", (q: any) => q.eq("tenantId", network.primaryTenantId!)).first()
@@ -431,7 +476,7 @@ async function createNetworkCampusRecord(ctx: any, args: {
     tenantId,
     workosOrgId: `edumyles-${tenantId}`,
     name: args.schoolName?.trim() || args.campusName.trim(),
-    subdomain: args.subdomain.trim().toLowerCase(),
+    subdomain,
     tier: primaryTenant.plan,
     isActive: true,
     createdAt: now,
@@ -444,7 +489,7 @@ async function createNetworkCampusRecord(ctx: any, args: {
     campusName: args.campusName.trim(),
     campusCode: args.campusCode,
     isPrimaryCampus: false,
-    subdomain: args.subdomain.trim().toLowerCase(),
+    subdomain,
     email: primaryTenant.email,
     phone: primaryTenant.phone,
     website: primaryTenant.website,
@@ -566,7 +611,7 @@ async function createNetworkCampusRecord(ctx: any, args: {
     after: {
       networkId: args.networkId,
       campusName: args.campusName,
-      subdomain: args.subdomain,
+      subdomain,
     },
   });
 
@@ -575,6 +620,8 @@ async function createNetworkCampusRecord(ctx: any, args: {
     tenantId,
     organizationId,
     networkId: args.networkId,
+    subdomain,
+    tenantUrl: buildTenantUrl(subdomain),
     accessibleTenantIds: currentSessionAccessibleTenantIds,
   };
 }
@@ -846,7 +893,7 @@ export const createTenant = mutation({
   args: {
     sessionToken: v.string(),
     name: v.string(),
-    subdomain: v.string(),
+    subdomain: v.optional(v.string()),
     email: v.string(),
     phone: v.string(),
     plan: planInputValidator,
@@ -855,15 +902,7 @@ export const createTenant = mutation({
   },
   handler: async (ctx, args) => {
     const tenantCtx = await requirePlatformSession(ctx, args);
-
-    const existing = await ctx.db
-      .query("tenants")
-      .withIndex("by_subdomain", (q) => q.eq("subdomain", args.subdomain))
-      .first();
-
-    if (existing) {
-      throw new Error(`CONFLICT: Subdomain '${args.subdomain}' already taken`);
-    }
+    const subdomain = await generateUniqueSubdomain(ctx, args.subdomain ?? args.name, args.name);
 
     const tenantId = generateTenantId();
     const now = Date.now();
@@ -873,7 +912,7 @@ export const createTenant = mutation({
     const id = await ctx.db.insert("tenants", {
       tenantId,
       name: args.name,
-      subdomain: args.subdomain,
+      subdomain,
       email: args.email,
       phone: args.phone,
       plan: normalizedPlan,
@@ -889,7 +928,7 @@ export const createTenant = mutation({
       tenantId,
       workosOrgId: `edumyles-${tenantId}`,
       name: args.name,
-      subdomain: args.subdomain,
+      subdomain,
       tier: normalizedPlan,
       isActive: true,
       createdAt: now,
@@ -915,13 +954,14 @@ export const createTenant = mutation({
       entityId: tenantId,
       after: {
         name: args.name,
-        subdomain: args.subdomain,
+        subdomain,
+        tenantUrl: buildTenantUrl(subdomain),
         plan: normalizedPlan,
         coreModulesInstalled: CORE_MODULE_IDS,
       },
     });
 
-    return { id, tenantId, organizationId: orgId };
+    return { id, tenantId, organizationId: orgId, subdomain, tenantUrl: buildTenantUrl(subdomain) };
   },
 });
 
@@ -950,7 +990,7 @@ export const provisionTenant = mutation({
     trialDays: v.number(),
     studentCountEstimate: v.optional(v.number()),
     paymentCollectionMode: v.union(v.literal("collect_now"), v.literal("prompt_later")),
-    subdomain: v.string(),
+    subdomain: v.optional(v.string()),
     customDomain: v.optional(v.string()),
     timezone: v.string(),
     displayCurrency: v.string(),
@@ -977,7 +1017,7 @@ export const provisionTenant = mutation({
       campusName: v.string(),
       campusCode: v.optional(v.string()),
       schoolName: v.optional(v.string()),
-      subdomain: v.string(),
+      subdomain: v.optional(v.string()),
       county: v.optional(v.string()),
       country: v.optional(v.string()),
       schoolType: v.optional(v.string()),
@@ -1002,40 +1042,37 @@ export const provisionTenant = mutation({
       primaryCurriculumCode: args.primaryCurriculumCode,
       activeCurriculumCodes: args.activeCurriculumCodes,
     });
+    const allocatedSubdomains = new Set<string>();
     const primaryCampus = {
       campusName: args.primaryCampus?.campusName?.trim() || args.schoolName,
       campusCode: args.primaryCampus?.campusCode,
       schoolName: args.primaryCampus?.schoolName?.trim() || args.schoolName,
-      subdomain: args.primaryCampus?.subdomain?.trim().toLowerCase() || args.subdomain.trim().toLowerCase(),
+      subdomain: await generateUniqueSubdomain(
+        ctx,
+        args.primaryCampus?.subdomain ?? args.subdomain ?? args.schoolName,
+        args.schoolName,
+        allocatedSubdomains
+      ),
       county: args.primaryCampus?.county?.trim() || args.county,
       country: args.primaryCampus?.country?.trim() || args.country,
       schoolType: args.primaryCampus?.schoolType?.trim() || args.schoolType,
     };
-    const additionalCampuses = (args.additionalCampuses ?? []).map((campus) => ({
-      ...campus,
-      campusName: campus.campusName.trim(),
-      schoolName: campus.schoolName?.trim(),
-      subdomain: campus.subdomain.trim().toLowerCase(),
-      county: campus.county?.trim(),
-      country: campus.country?.trim(),
-      schoolType: campus.schoolType?.trim(),
-    }));
-    const requestedSubdomains = [primaryCampus.subdomain, ...additionalCampuses.map((campus) => campus.subdomain)];
-    const duplicateSubdomain = requestedSubdomains.find(
-      (value, index) => requestedSubdomains.indexOf(value) !== index
-    );
-    if (duplicateSubdomain) {
-      throw new Error(`CONFLICT: Duplicate subdomain requested (${duplicateSubdomain})`);
-    }
-
-    for (const subdomain of requestedSubdomains) {
-      const existing = await ctx.db
-        .query("tenants")
-        .withIndex("by_subdomain", (q) => q.eq("subdomain", subdomain))
-        .first();
-      if (existing) {
-        throw new Error(`CONFLICT: Subdomain '${subdomain}' already taken`);
-      }
+    const additionalCampuses = [];
+    for (const campus of args.additionalCampuses ?? []) {
+      additionalCampuses.push({
+        ...campus,
+        campusName: campus.campusName.trim(),
+        schoolName: campus.schoolName?.trim(),
+        subdomain: await generateUniqueSubdomain(
+        ctx,
+        campus.subdomain || campus.schoolName || campus.campusName,
+          campus.schoolName || campus.campusName,
+          allocatedSubdomains
+        ),
+        county: campus.county?.trim(),
+        country: campus.country?.trim(),
+        schoolType: campus.schoolType?.trim(),
+      });
     }
 
     const trialEndsAt = args.trialDays > 0 ? now + args.trialDays * 24 * 60 * 60 * 1000 : undefined;
@@ -1441,6 +1478,8 @@ export const provisionTenant = mutation({
         organizationMode,
         networkId,
         provisionedCampusTenantIds,
+        subdomain: primaryCampus.subdomain,
+        tenantUrl: buildTenantUrl(primaryCampus.subdomain),
       },
     });
 
@@ -1454,6 +1493,8 @@ export const provisionTenant = mutation({
       organizationMode,
       networkId,
       provisionedCampusTenantIds,
+      subdomain: primaryCampus.subdomain,
+      tenantUrl: buildTenantUrl(primaryCampus.subdomain),
     };
   },
 });
@@ -1465,7 +1506,7 @@ export const createNetworkCampus = mutation({
     campusName: v.string(),
     campusCode: v.optional(v.string()),
     schoolName: v.optional(v.string()),
-    subdomain: v.string(),
+    subdomain: v.optional(v.string()),
     schoolType: v.optional(v.string()),
     county: v.string(),
     country: v.string(),
@@ -1482,7 +1523,7 @@ export const completeCampusProvisioningFromOnboarding = mutation({
     campusName: v.string(),
     campusCode: v.optional(v.string()),
     schoolName: v.optional(v.string()),
-    subdomain: v.string(),
+    subdomain: v.optional(v.string()),
     schoolType: v.optional(v.string()),
     county: v.string(),
     country: v.string(),

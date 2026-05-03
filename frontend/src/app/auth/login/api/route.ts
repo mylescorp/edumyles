@@ -15,14 +15,19 @@ function resolveRedirectUri(req: NextRequest): string {
   const configuredRedirectUri =
     process.env.WORKOS_REDIRECT_URI || process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI;
 
-  const approvedHosts = new Set(["edumyles-frontend.vercel.app", "edumyles.vercel.app"]);
+  const approvedHosts = new Set(
+    [
+      canonicalAppUrl ? new URL(canonicalAppUrl).host : null,
+      "app.edumyles.com",
+    ].filter((host): host is string => Boolean(host))
+  );
   const isPreviewHost =
     currentHost.endsWith(".vercel.app") && !approvedHosts.has(currentHost);
 
   if (isPreviewHost) {
     if (configuredRedirectUri) return configuredRedirectUri;
     if (canonicalAppUrl) return `${canonicalAppUrl}/auth/callback`;
-    return "https://edumyles-frontend.vercel.app/auth/callback";
+    return "https://app.edumyles.com/auth/callback";
   }
 
   return `${currentOrigin}/auth/callback`;
