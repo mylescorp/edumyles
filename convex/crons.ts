@@ -24,6 +24,13 @@ crons.interval(
   {}
 );
 
+crons.daily(
+  "apply finance late fines",
+  { hourUTC: 2, minuteUTC: 30 },
+  (internal as any).modules.finance.mutations.applyLateFines,
+  {}
+);
+
 crons.interval(
   "detect sla breaches",
   { hours: 1 },

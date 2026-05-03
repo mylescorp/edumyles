@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
 import { buildSubmissionAttribution, storeReferralClickId } from "@/lib/attribution";
+import { trackFormSubmission, trackLeadConversion } from "@/lib/analytics";
 
 type FormState = "idle" | "loading" | "error";
 
@@ -149,6 +150,11 @@ function SignUpPageContent() {
       });
       if (payload.alreadyExists) query.set("duplicate", "1");
 
+      trackFormSubmission("waitlist", true);
+      trackLeadConversion("waitlist", {
+        form_name: "waitlist",
+        already_exists: payload.alreadyExists ?? false,
+      });
       router.push(`/waitlist/success?${query.toString()}`);
     } catch (submitError) {
       setError(
@@ -156,6 +162,7 @@ function SignUpPageContent() {
           ? submitError.message
           : "We couldn't join the waitlist right now."
       );
+      trackFormSubmission("waitlist", false);
       setFormState("error");
     }
   }

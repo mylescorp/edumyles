@@ -34,6 +34,10 @@ export const createSession = mutation({
     serverSecret: v.string(),
     sessionToken: v.string(),
     tenantId: v.string(),
+    activeTenantId: v.optional(v.string()),
+    networkId: v.optional(v.string()),
+    identityId: v.optional(v.string()),
+    accessibleTenantIds: v.optional(v.array(v.string())),
     userId: v.string(),
     email: v.string(),
     role: v.string(),
@@ -60,6 +64,10 @@ export const createSession = mutation({
     return await ctx.db.insert("sessions", {
       sessionToken: args.sessionToken,
       tenantId: args.tenantId,
+      activeTenantId: args.activeTenantId ?? args.tenantId,
+      networkId: args.networkId,
+      identityId: args.identityId,
+      accessibleTenantIds: args.accessibleTenantIds,
       userId: args.userId,
       email: args.email,
       role: args.role,
@@ -95,6 +103,10 @@ export const getSession = query({
       _id: session._id,
       sessionToken: session.sessionToken,
       tenantId: session.tenantId,
+      activeTenantId: session.activeTenantId ?? session.tenantId,
+      networkId: session.networkId,
+      identityId: session.identityId,
+      accessibleTenantIds: session.accessibleTenantIds ?? [session.tenantId],
       userId: session.userId,
       email: session.email,
       role: session.role,
@@ -127,6 +139,10 @@ export const getCurrentSession = query({
       _id: session._id,
       sessionToken: session.sessionToken,
       tenantId: session.tenantId,
+      activeTenantId: session.activeTenantId ?? session.tenantId,
+      networkId: session.networkId,
+      identityId: session.identityId,
+      accessibleTenantIds: session.accessibleTenantIds ?? [session.tenantId],
       userId: session.userId,
       email: session.email,
       role: session.role,
@@ -157,6 +173,37 @@ export const deleteSession = mutation({
     if (session) {
       await ctx.db.delete(session._id);
     }
+  },
+});
+
+export const switchActiveCampus = mutation({
+  args: {
+    sessionToken: v.string(),
+    targetTenantId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const session = await getActiveSessionByToken(ctx, args.sessionToken);
+    const accessibleTenantIds = session.accessibleTenantIds ?? [session.tenantId];
+
+    if (!accessibleTenantIds.includes(args.targetTenantId)) {
+      throw new ConvexError({
+        code: "FORBIDDEN",
+        message: "Requested campus is not available in this session",
+      });
+    }
+
+    await ctx.db.patch(session._id, {
+      activeTenantId: args.targetTenantId,
+    });
+
+    return {
+      success: true,
+      tenantId: session.tenantId,
+      activeTenantId: args.targetTenantId,
+      accessibleTenantIds,
+      networkId: session.networkId,
+      identityId: session.identityId,
+    };
   },
 });
 

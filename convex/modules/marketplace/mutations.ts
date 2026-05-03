@@ -5,88 +5,236 @@ import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireRole } from "../../helpers/authorize";
 import { logAction } from "../../helpers/auditLog";
 import { getInstalledModules as getGuardInstalledModules } from "../../helpers/moduleGuard";
+import { runModuleOnInstallSetup, runModuleOnUninstallCleanup } from "../moduleRuntime";
 import { TIER_MODULES } from "./tierModules";
-import { isCoreModule, CORE_MODULE_IDS, ALL_MODULES, MODULE_DEPENDENCIES } from "./moduleDefinitions";
+import { ALL_MODULES } from "./moduleDefinitions";
+import {
+  getBuiltinDefinition,
+  getCanonicalDependencies,
+  getCanonicalTierModules,
+  isCoreModuleSlug,
+  normalizeModuleSlug,
+  toLegacyModuleId,
+} from "./moduleAliases";
 
-// Reverse dependency map — which modules depend on this module (derived from MODULE_DEPENDENCIES)
-const REVERSE_DEPENDENCIES: Record<string, string[]> = Object.entries(MODULE_DEPENDENCIES).reduce(
-  (acc, [moduleId, deps]) => {
-    for (const dep of deps) {
-      acc[dep] = acc[dep] ? [...acc[dep], moduleId] : [moduleId];
-    }
-    return acc;
-  },
-  {} as Record<string, string[]>
-);
+const MODULE_RUNTIME_SLUGS = new Set([
+  "mod_finance",
+  "mod_attendance",
+  "mod_academics",
+  "mod_admissions",
+  "mod_library",
+  "mod_transport",
+  "mod_hr",
+  "mod_communications",
+  "mod_ewallet",
+  "mod_ecommerce",
+  "mod_reports",
+  "mod_timetable",
+  "mod_advanced_analytics",
+  "mod_parent_portal",
+  "mod_alumni",
+  "mod_partner",
+  "mod_social",
+]);
 
-const LEGACY_MODULE_IDS_BY_SLUG: Record<string, string> = {
-  core_sis: "sis",
-  core_users: "users",
-  core_notifications: "communications",
-  mod_academics: "academics",
-  mod_attendance: "attendance",
-  mod_admissions: "admissions",
-  mod_finance: "finance",
-  mod_timetable: "timetable",
-  mod_library: "library",
-  mod_transport: "transport",
-  mod_hr: "hr",
-  mod_communications: "communications",
-  mod_ewallet: "ewallet",
-  mod_ecommerce: "ecommerce",
-  mod_reports: "reports",
-  mod_advanced_analytics: "analytics",
-  mod_parent_portal: "parent_portal",
-  mod_alumni: "alumni",
-  mod_partner: "partner",
-  mod_social: "social",
-};
-
-function toLegacyModuleId(moduleSlugOrId: string) {
-  return LEGACY_MODULE_IDS_BY_SLUG[moduleSlugOrId] ?? moduleSlugOrId;
-}
-
-async function hasActivePilotGrant(ctx: any, tenantId: string, moduleId: string) {
-  const [activeGrants, marketplaceModules] = await Promise.all([
-    ctx.db
-      .query("pilot_grants")
-      .withIndex("by_tenant_status", (q: any) =>
-        q.eq("tenantId", tenantId).eq("status", "active")
-      )
-      .collect(),
-    ctx.db.query("marketplace_modules").collect(),
-  ]);
-
-  const marketplaceSlugById = new Map<string, string>(
-    marketplaceModules.map((moduleRecord: any) => [String(moduleRecord._id), moduleRecord.slug])
-  );
-
-  return activeGrants.some((grant: any) => {
-    if (grant.endDate && grant.endDate < Date.now()) {
-      return false;
-    }
-
-    const grantedModuleId = toLegacyModuleId(
-      marketplaceSlugById.get(String(grant.moduleId)) ?? String(grant.moduleId)
-    );
-    return grantedModuleId === moduleId;
-  });
-}
-
-/**
- * Validate args.tenantId matches the authenticated session's tenantId.
- * Prevents cross-tenant spoofing via client-sent tenantId.
- */
 function assertTenantMatch(sessionTenantId: string, argsTenantId: string) {
   if (argsTenantId !== sessionTenantId) {
     throw new Error("UNAUTHORIZED: Cross-tenant access denied");
   }
 }
 
-/**
- * Install a module for a tenant.
- * Validates tier access, checks dependencies, creates install record.
- */
+type MarketplacePlan = "free" | "starter" | "pro" | "enterprise";
+
+function toMarketplacePlan(tier: string): MarketplacePlan {
+  if (tier === "free" || tier === "starter" || tier === "pro" || tier === "enterprise") {
+    return tier;
+  }
+  return "pro";
+}
+
+function buildMarketplacePayload(moduleSlug: string) {
+  const definition = getBuiltinDefinition(moduleSlug);
+  if (!definition) {
+    throw new Error("MODULE_NOT_FOUND: Module does not exist");
+  }
+
+  const now = Date.now();
+  return {
+    slug: moduleSlug,
+    name: definition.name,
+    tagline: definition.description.slice(0, 140),
+    description: definition.description,
+    category: definition.category,
+    status: "published" as const,
+    isFeatured: false,
+    isCore: definition.isCore,
+    minimumPlan: toMarketplacePlan(definition.tier),
+    dependencies: definition.dependencies.map(normalizeModuleSlug),
+    supportedRoles: ["school_admin", "principal"],
+    version: definition.version,
+    iconUrl: undefined,
+    screenshots: [],
+    documentationUrl: definition.documentation,
+    changelogUrl: undefined,
+    publishedAt: now,
+    averageRating: 0,
+    reviewCount: 0,
+    installCount: 0,
+    activeInstallCount: 0,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+async function getOrCreateMarketplaceModule(ctx: any, moduleSlugOrId: string) {
+  const moduleSlug = normalizeModuleSlug(moduleSlugOrId);
+  const existing = await ctx.db
+    .query("marketplace_modules")
+    .withIndex("by_slug", (q: any) => q.eq("slug", moduleSlug))
+    .first();
+
+  if (existing) return existing;
+
+  const payload = buildMarketplacePayload(moduleSlug);
+  const moduleId = await ctx.db.insert("marketplace_modules", payload);
+  return await ctx.db.get(moduleId);
+}
+
+async function getTenantPlan(ctx: any, tenantId: string) {
+  const [tenant, organization] = await Promise.all([
+    ctx.db.query("tenants").withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenantId)).first(),
+    ctx.db.query("organizations").withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId)).first(),
+  ]);
+  return organization?.tier ?? tenant?.plan ?? "free";
+}
+
+async function hasActivePilotGrant(ctx: any, tenantId: string, moduleRecord: any) {
+  const grants = await ctx.db
+    .query("pilot_grants")
+    .withIndex("by_moduleId_tenantId", (q: any) =>
+      q.eq("moduleId", moduleRecord._id).eq("tenantId", tenantId)
+    )
+    .collect();
+
+  return grants.some(
+    (grant: any) =>
+      (grant.status === "active" || grant.status === "extended") &&
+      (!grant.endDate || grant.endDate >= Date.now())
+  );
+}
+
+async function assertCanInstall(ctx: any, tenantId: string, moduleRecord: any) {
+  const plan = await getTenantPlan(ctx, tenantId);
+  const allowedModuleSlugs = getCanonicalTierModules(TIER_MODULES[plan] ?? TIER_MODULES.free ?? []);
+  const hasPilotAccess = await hasActivePilotGrant(ctx, tenantId, moduleRecord);
+
+  if (!isCoreModuleSlug(moduleRecord.slug) && !allowedModuleSlugs.includes(moduleRecord.slug) && !hasPilotAccess) {
+    throw new Error(
+      `TIER_RESTRICTED: Module '${toLegacyModuleId(moduleRecord.slug)}' is not available on '${plan}' tier. Upgrade required.`
+    );
+  }
+
+  const installed = await getGuardInstalledModules(ctx, tenantId);
+  for (const dependencySlug of getCanonicalDependencies(moduleRecord.slug)) {
+    const dependencyInstall = installed.find(
+      (install: any) => normalizeModuleSlug(String(install.moduleSlug ?? install.moduleId)) === dependencySlug
+    );
+    if (!dependencyInstall || dependencyInstall.status !== "active") {
+      throw new Error(
+        `DEPENDENCY_MISSING: Module '${toLegacyModuleId(moduleRecord.slug)}' requires '${toLegacyModuleId(dependencySlug)}' to be installed and active first.`
+      );
+    }
+  }
+
+  return { plan, installed };
+}
+
+async function findInstall(ctx: any, tenantId: string, moduleSlug: string) {
+  return await ctx.db
+    .query("module_installs")
+    .withIndex("by_tenantId_moduleSlug", (q: any) =>
+      q.eq("tenantId", tenantId).eq("moduleSlug", moduleSlug)
+    )
+    .first();
+}
+
+async function runInstallRuntime(ctx: any, moduleSlug: string, tenantId: string, updatedBy: string) {
+  if (isCoreModuleSlug(moduleSlug) || !MODULE_RUNTIME_SLUGS.has(moduleSlug)) return;
+  await runModuleOnInstallSetup(ctx, { moduleSlug: moduleSlug as any, tenantId, updatedBy });
+}
+
+async function runUninstallRuntime(ctx: any, moduleSlug: string, tenantId: string) {
+  if (isCoreModuleSlug(moduleSlug) || !MODULE_RUNTIME_SLUGS.has(moduleSlug)) return;
+  await runModuleOnUninstallCleanup(ctx, { moduleSlug: moduleSlug as any, tenantId });
+}
+
+async function installModuleForTenant(
+  ctx: any,
+  args: { tenantId: string; userId: string; userEmail: string; moduleId: string }
+) {
+  const moduleSlug = normalizeModuleSlug(args.moduleId);
+  const moduleRecord = await getOrCreateMarketplaceModule(ctx, moduleSlug);
+  if (!moduleRecord) throw new Error("MODULE_NOT_FOUND");
+  if (moduleRecord.status === "deprecated" || moduleRecord.status === "suspended" || moduleRecord.status === "banned") {
+    throw new Error("MODULE_NOT_AVAILABLE");
+  }
+
+  const existing = await findInstall(ctx, args.tenantId, moduleSlug);
+  if (existing?.status === "active") {
+    return { success: true, moduleId: toLegacyModuleId(moduleSlug), moduleSlug, alreadyInstalled: true };
+  }
+
+  const { plan } = await assertCanInstall(ctx, args.tenantId, moduleRecord);
+  const now = Date.now();
+  const payload = {
+    moduleId: moduleRecord._id,
+    moduleSlug,
+    tenantId: args.tenantId,
+    status: "installing" as const,
+    billingPeriod: "monthly" as const,
+    currentPriceKes: 0,
+    hasPriceOverride: false,
+    isFree: moduleRecord.isCore,
+    firstInstalledAt: existing?.firstInstalledAt ?? now,
+    billingStartsAt: now,
+    nextBillingDate: now,
+    installedAt: now,
+    installedBy: args.userId,
+    version: moduleRecord.version,
+    paymentFailureCount: 0,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+
+  const installId = existing
+    ? await (async () => {
+        await ctx.db.patch(existing._id, payload);
+        return existing._id;
+      })()
+    : await ctx.db.insert("module_installs", payload);
+
+  await runInstallRuntime(ctx, moduleSlug, args.tenantId, args.userId);
+  await ctx.db.patch(installId, { status: "active", updatedAt: Date.now() });
+
+  await ctx.db.patch(moduleRecord._id, {
+    installCount: (moduleRecord.installCount ?? 0) + (existing ? 0 : 1),
+    activeInstallCount: (moduleRecord.activeInstallCount ?? 0) + (existing?.status === "active" ? 0 : 1),
+    updatedAt: Date.now(),
+  });
+
+  await logAction(ctx, {
+    tenantId: args.tenantId,
+    actorId: args.userId,
+    actorEmail: args.userEmail,
+    action: "module.installed",
+    entityType: "marketplace_module",
+    entityId: moduleSlug,
+    after: { moduleSlug, plan },
+  });
+
+  return { success: true, moduleId: toLegacyModuleId(moduleSlug), moduleSlug, installId };
+}
+
 export const installModule = mutation({
   args: {
     sessionToken: v.string(),
@@ -94,127 +242,18 @@ export const installModule = mutation({
     moduleId: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantSession(ctx, args);
-    requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
-    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
-
-    const { tenantId } = tenantCtx;
-    const installedModules = await getGuardInstalledModules(ctx, tenantId);
-
-    // Verify the module exists in registry; fall back to static definitions if
-    // the registry hasn't been seeded yet so installs never silently fail.
-    const registryModule = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
-      .first();
-
-    if (!registryModule) {
-      // If no registry record, check whether the module exists in the static
-      // module catalog so the install can proceed without a prior seed.
-      const staticModule = ALL_MODULES.find((m) => m.moduleId === args.moduleId);
-      if (!staticModule) {
-        throw new Error("MODULE_NOT_FOUND: Module does not exist");
-      }
-      // Auto-seed this single module into the registry so future lookups work.
-      await ctx.db.insert("moduleRegistry", {
-        moduleId: staticModule.moduleId,
-        name: staticModule.name,
-        description: staticModule.description,
-        tier: staticModule.tier,
-        category: staticModule.category,
-        status: "published",
-        version: staticModule.version,
-        isCore: staticModule.isCore,
-      });
-    } else if (registryModule.status === "deprecated") {
-      throw new Error("MODULE_DEPRECATED: Cannot install a deprecated module");
-    }
-
-    // Check if already installed
-    const existing = installedModules.find((install: any) => {
-      const normalizedInstallId = toLegacyModuleId(
-        String(install.moduleSlug ?? install.moduleId)
-      );
-      return normalizedInstallId === args.moduleId;
-    });
-
-    if (existing?.status === "active") {
-      return {
-        success: true,
-        moduleId: args.moduleId,
-        alreadyInstalled: true,
-      };
-    }
-
-    // Check tier access
-    const tenant = await ctx.db
-      .query("tenants")
-      .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-      .first();
-
-    const org = await ctx.db
-      .query("organizations")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
-      .first();
-
-    const tier = org?.tier ?? tenant?.plan ?? "free";
-    const allowedModules = TIER_MODULES[tier] ?? TIER_MODULES["free"];
-    const hasPilotAccess = await hasActivePilotGrant(ctx, tenantId, args.moduleId);
-
-    if (!allowedModules!.includes(args.moduleId) && !hasPilotAccess) {
-      throw new Error(
-        `TIER_RESTRICTED: Module '${args.moduleId}' is not available on '${tier}' tier. Upgrade required.`
-      );
-    }
-
-    // Check dependencies
-    const deps = MODULE_DEPENDENCIES[args.moduleId] ?? [];
-    for (const dep of deps) {
-      const depInstalled = installedModules.find((install: any) => {
-        const normalizedInstallId = toLegacyModuleId(
-          String(install.moduleSlug ?? install.moduleId)
-        );
-        return normalizedInstallId === dep;
-      });
-
-      if (!depInstalled || depInstalled.status !== "active") {
-        throw new Error(
-          `DEPENDENCY_MISSING: Module '${args.moduleId}' requires '${dep}' to be installed and active first.`
-        );
-      }
-    }
-
-    // Install the module
-    const now = Date.now();
-    await ctx.db.insert("installedModules", {
-      tenantId,
+    const tenant = await requireTenantSession(ctx, args);
+    requireRole(tenant, "school_admin", "master_admin", "super_admin");
+    assertTenantMatch(tenant.tenantId, args.tenantId);
+    return await installModuleForTenant(ctx, {
+      tenantId: tenant.tenantId,
+      userId: tenant.userId,
+      userEmail: tenant.email,
       moduleId: args.moduleId,
-      installedAt: now,
-      installedBy: tenantCtx.userId,
-      config: {},
-      status: "active",
-      updatedAt: now,
     });
-
-    // Audit log
-    await logAction(ctx, {
-      tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email!,
-      action: "module.installed",
-      entityType: "module",
-      entityId: args.moduleId,
-      after: { moduleId: args.moduleId, tier },
-    });
-
-    return { success: true, moduleId: args.moduleId };
   },
 });
 
-/**
- * Uninstall a module from a tenant.
- * Checks reverse dependencies before allowing removal.
- */
 export const uninstallModule = mutation({
   args: {
     sessionToken: v.string(),
@@ -222,69 +261,66 @@ export const uninstallModule = mutation({
     moduleId: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantSession(ctx, args);
-    requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
-    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+    const tenant = await requireTenantSession(ctx, args);
+    requireRole(tenant, "school_admin", "master_admin", "super_admin");
+    assertTenantMatch(tenant.tenantId, args.tenantId);
 
-    const { tenantId } = tenantCtx;
+    const moduleSlug = normalizeModuleSlug(args.moduleId);
+    if (isCoreModuleSlug(moduleSlug)) {
+      throw new Error(`CORE_MODULE: Cannot uninstall '${toLegacyModuleId(moduleSlug)}' because it is required by the platform.`);
+    }
 
-    // Core modules cannot be uninstalled
-    if (isCoreModule(args.moduleId)) {
-      throw new Error(
-        `CORE_MODULE: Cannot uninstall '${args.moduleId}' — it is a core module required by the platform.`
+    const install = await findInstall(ctx, tenant.tenantId, moduleSlug);
+    if (!install) throw new Error("MODULE_NOT_INSTALLED");
+
+    const installed = await getGuardInstalledModules(ctx, tenant.tenantId);
+    for (const candidate of ALL_MODULES) {
+      const candidateSlug = normalizeModuleSlug(candidate.moduleId);
+      if (!getCanonicalDependencies(candidateSlug).includes(moduleSlug)) continue;
+      const dependentInstall = installed.find(
+        (record: any) => normalizeModuleSlug(String(record.moduleSlug ?? record.moduleId)) === candidateSlug
       );
-    }
-
-    // Check if installed
-    const installed = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
-      )
-      .first();
-
-    if (!installed) {
-      throw new Error("MODULE_NOT_INSTALLED: Module is not installed");
-    }
-
-    // Check reverse dependencies — are other installed modules depending on this one?
-    const reverseDeps = REVERSE_DEPENDENCIES[args.moduleId] ?? [];
-    for (const dep of reverseDeps) {
-      const depInstalled = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_module", (q) =>
-          q.eq("tenantId", tenantId).eq("moduleId", dep)
-        )
-        .first();
-
-      if (depInstalled && depInstalled.status === "active") {
+      if (dependentInstall?.status === "active") {
         throw new Error(
-          `DEPENDENCY_CONFLICT: Cannot uninstall '${args.moduleId}' because '${dep}' depends on it. Uninstall '${dep}' first.`
+          `DEPENDENCY_CONFLICT: Cannot uninstall '${toLegacyModuleId(moduleSlug)}' because '${candidate.moduleId}' depends on it.`
         );
       }
     }
 
-    // Remove the installed module record
-    await ctx.db.delete(installed._id);
-
-    // Audit log
-    await logAction(ctx, {
-      tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email!,
-      action: "module.uninstalled",
-      entityType: "module",
-      entityId: args.moduleId,
-      after: { moduleId: args.moduleId },
+    await runUninstallRuntime(ctx, moduleSlug, tenant.tenantId);
+    await ctx.db.patch(install._id, {
+      status: "uninstalled",
+      uninstalledAt: Date.now(),
+      uninstalledBy: tenant.userId,
+      dataRetentionEndsAt: Date.now() + 90 * 24 * 60 * 60 * 1000,
+      updatedAt: Date.now(),
     });
 
-    return { success: true, moduleId: args.moduleId };
+    const moduleRecord = await ctx.db
+      .query("marketplace_modules")
+      .withIndex("by_slug", (q) => q.eq("slug", moduleSlug))
+      .first();
+    if (moduleRecord?._id) {
+      await ctx.db.patch(moduleRecord._id, {
+        activeInstallCount: Math.max(0, (moduleRecord.activeInstallCount ?? 0) - 1),
+        updatedAt: Date.now(),
+      });
+    }
+
+    await logAction(ctx, {
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
+      action: "module.uninstalled",
+      entityType: "marketplace_module",
+      entityId: moduleSlug,
+      after: { moduleSlug },
+    });
+
+    return { success: true, moduleId: toLegacyModuleId(moduleSlug), moduleSlug };
   },
 });
 
-/**
- * Update configuration for an installed module.
- */
 export const updateModuleConfig = mutation({
   args: {
     sessionToken: v.string(),
@@ -293,47 +329,46 @@ export const updateModuleConfig = mutation({
     config: v.any(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantSession(ctx, args);
-    requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
-    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+    const tenant = await requireTenantSession(ctx, args);
+    requireRole(tenant, "school_admin", "master_admin", "super_admin");
+    assertTenantMatch(tenant.tenantId, args.tenantId);
 
-    const { tenantId } = tenantCtx;
+    const moduleSlug = normalizeModuleSlug(args.moduleId);
+    const moduleRecord = await getOrCreateMarketplaceModule(ctx, moduleSlug);
+    if (!moduleRecord) throw new Error("MODULE_NOT_FOUND");
 
-    const installed = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
+    const install = await findInstall(ctx, tenant.tenantId, moduleSlug);
+    if (!install && !isCoreModuleSlug(moduleSlug)) throw new Error("MODULE_NOT_INSTALLED");
+
+    const existing = await ctx.db
+      .query("module_access_config")
+      .withIndex("by_tenantId_moduleId", (q: any) =>
+        q.eq("tenantId", tenant.tenantId).eq("moduleId", moduleRecord._id)
       )
       .first();
+    const payload = {
+      moduleId: moduleRecord._id,
+      moduleSlug,
+      tenantId: tenant.tenantId,
+      roleAccess: args.config?.roleAccess ?? existing?.roleAccess ?? [],
+      config: JSON.stringify(args.config ?? {}),
+      updatedBy: tenant.userId,
+      updatedAt: Date.now(),
+    };
 
-    if (!installed && !isCoreModule(args.moduleId)) {
-      throw new Error("MODULE_NOT_INSTALLED");
-    }
-
-    if (installed) {
-      await ctx.db.patch(installed._id, {
-        config: args.config,
-        updatedAt: Date.now(),
-      });
+    if (existing) {
+      await ctx.db.patch(existing._id, payload);
     } else {
-      await ctx.db.insert("installedModules", {
-        tenantId,
-        moduleId: args.moduleId,
-        installedAt: Date.now(),
-        installedBy: tenantCtx.userId,
-        config: args.config,
-        status: "active",
-        updatedAt: Date.now(),
-      });
+      await ctx.db.insert("module_access_config", payload);
     }
 
     await logAction(ctx, {
-      tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email!,
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
       action: "module.config_updated",
-      entityType: "module",
-      entityId: args.moduleId,
+      entityType: "marketplace_module",
+      entityId: moduleSlug,
       after: { config: args.config },
     });
 
@@ -341,9 +376,6 @@ export const updateModuleConfig = mutation({
   },
 });
 
-/**
- * Request access to a module (used by non-admin users).
- */
 export const requestModuleAccess = mutation({
   args: {
     sessionToken: v.string(),
@@ -352,55 +384,45 @@ export const requestModuleAccess = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantSession(ctx, args);
-    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+    const tenant = await requireTenantSession(ctx, args);
+    assertTenantMatch(tenant.tenantId, args.tenantId);
 
-    const { tenantId } = tenantCtx;
+    const moduleSlug = normalizeModuleSlug(args.moduleId);
+    const moduleRecord = await getOrCreateMarketplaceModule(ctx, moduleSlug);
+    if (!moduleRecord) throw new Error("MODULE_NOT_FOUND");
 
-    // Check if module exists
-    const registryModule = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
-      .first();
-
-    if (!registryModule) {
-      throw new Error("MODULE_NOT_FOUND");
-    }
-
-    // Check for existing pending request
-    const existingRequest = await ctx.db
-      .query("moduleRequests")
-      .withIndex("by_tenant_status", (q) =>
-        q.eq("tenantId", tenantId).eq("status", "pending")
+    const pending = await ctx.db
+      .query("module_requests")
+      .withIndex("by_tenant_status", (q: any) => q.eq("tenantId", tenant.tenantId).eq("status", "submitted"))
+      .collect();
+    if (
+      pending.some(
+        (request: any) => request.requestedBy === tenant.userId && normalizeModuleSlug(request.moduleId ?? "") === moduleSlug
       )
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("userId"), tenantCtx.userId),
-          q.eq(q.field("moduleId"), args.moduleId)
-        )
-      )
-      .first();
-
-    if (existingRequest) {
+    ) {
       throw new Error("REQUEST_EXISTS: You already have a pending request for this module");
     }
 
-    await ctx.db.insert("moduleRequests", {
-      tenantId,
-      userId: tenantCtx.userId,
-      moduleId: args.moduleId,
-      reason: args.reason,
-      requestedAt: Date.now(),
-      status: "pending",
+    await ctx.db.insert("module_requests", {
+      tenantId: tenant.tenantId,
+      requestedBy: tenant.userId,
+      type: "rbac_restricted",
+      moduleId: moduleSlug,
+      name: moduleRecord.name,
+      description: args.reason,
+      useCase: args.reason,
+      status: "submitted",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
 
     await logAction(ctx, {
-      tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email!,
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
       action: "module.access_requested",
-      entityType: "module",
-      entityId: args.moduleId,
+      entityType: "marketplace_module",
+      entityId: moduleSlug,
       after: { reason: args.reason },
     });
 
@@ -408,109 +430,40 @@ export const requestModuleAccess = mutation({
   },
 });
 
-/**
- * Review a module access request (approve/reject).
- */
 export const reviewModuleRequest = mutation({
   args: {
     sessionToken: v.string(),
-    requestId: v.id("moduleRequests"),
+    requestId: v.id("module_requests"),
     status: v.union(v.literal("approved"), v.literal("rejected")),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantSession(ctx, args);
-    requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
+    const tenant = await requireTenantSession(ctx, args);
+    requireRole(tenant, "school_admin", "master_admin", "super_admin");
 
     const request = await ctx.db.get(args.requestId);
-    if (!request) {
-      throw new Error("REQUEST_NOT_FOUND");
-    }
-
-    // Ensure the request belongs to the caller's tenant
-    assertTenantMatch(tenantCtx.tenantId, request.tenantId);
-
-    if (request.status !== "pending") {
-      throw new Error("REQUEST_ALREADY_REVIEWED");
-    }
+    if (!request) throw new Error("REQUEST_NOT_FOUND");
+    assertTenantMatch(tenant.tenantId, request.tenantId);
 
     await ctx.db.patch(args.requestId, {
-      status: args.status,
-      reviewedBy: tenantCtx.userId,
-      reviewedAt: Date.now(),
-      notes: args.notes,
+      status: args.status === "approved" ? "approved_exception_granted" : "rejected",
+      resolution: args.notes,
+      updatedAt: Date.now(),
     });
 
-    if (args.status === "approved") {
-      const existing = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_module", (q) =>
-          q.eq("tenantId", request.tenantId).eq("moduleId", request.moduleId)
-        )
-        .first();
-
-      if (!existing && !isCoreModule(request.moduleId)) {
-        const registryModule = await ctx.db
-          .query("moduleRegistry")
-          .withIndex("by_module_id", (q) => q.eq("moduleId", request.moduleId))
-          .first();
-
-        if (!registryModule || registryModule.status === "deprecated") {
-          throw new Error("MODULE_NOT_AVAILABLE");
-        }
-
-        const tenant = await ctx.db
-          .query("tenants")
-          .withIndex("by_tenantId", (q) => q.eq("tenantId", request.tenantId))
-          .first();
-
-        const org = await ctx.db
-          .query("organizations")
-          .withIndex("by_tenant", (q) => q.eq("tenantId", request.tenantId))
-          .first();
-
-        const tier = org?.tier ?? tenant?.plan ?? "free";
-        const allowedModules = TIER_MODULES[tier] ?? TIER_MODULES["free"];
-
-        if (!allowedModules?.includes(request.moduleId)) {
-          throw new Error("TIER_RESTRICTED");
-        }
-
-        const deps = MODULE_DEPENDENCIES[request.moduleId] ?? [];
-        for (const dep of deps) {
-          if (isCoreModule(dep)) continue;
-
-          const depInstalled = await ctx.db
-            .query("installedModules")
-            .withIndex("by_tenant_module", (q) =>
-              q.eq("tenantId", request.tenantId).eq("moduleId", dep)
-            )
-            .first();
-
-          if (!depInstalled || depInstalled.status !== "active") {
-            throw new Error(`DEPENDENCY_MISSING: ${dep}`);
-          }
-        }
-
-        await ctx.db.insert("installedModules", {
-          tenantId: request.tenantId,
-          moduleId: request.moduleId,
-          installedAt: Date.now(),
-          installedBy: tenantCtx.userId,
-          config: {},
-          status: "active",
-          updatedAt: Date.now(),
-        });
-      }
+    if (args.status === "approved" && request.moduleId) {
+      await installModuleForTenant(ctx, {
+        tenantId: request.tenantId,
+        userId: tenant.userId,
+        userEmail: tenant.email,
+        moduleId: request.moduleId,
+      });
     }
 
     return { success: true, status: args.status };
   },
 });
 
-/**
- * Toggle module status (enable/disable) for a tenant.
- */
 export const toggleModuleStatus = mutation({
   args: {
     sessionToken: v.string(),
@@ -519,61 +472,48 @@ export const toggleModuleStatus = mutation({
     status: v.union(v.literal("active"), v.literal("inactive")),
   },
   handler: async (ctx, args) => {
-    const tenantCtx = await requireTenantSession(ctx, args);
-    requireRole(tenantCtx, "school_admin", "master_admin", "super_admin");
-    assertTenantMatch(tenantCtx.tenantId, args.tenantId);
+    const tenant = await requireTenantSession(ctx, args);
+    requireRole(tenant, "school_admin", "master_admin", "super_admin");
+    assertTenantMatch(tenant.tenantId, args.tenantId);
 
-    const { tenantId } = tenantCtx;
-
-    const installed = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", tenantId).eq("moduleId", args.moduleId)
-      )
-      .first();
-
-    if (!installed) {
-      throw new Error("MODULE_NOT_INSTALLED");
+    const moduleSlug = normalizeModuleSlug(args.moduleId);
+    if (args.status === "inactive" && isCoreModuleSlug(moduleSlug)) {
+      throw new Error(`CORE_MODULE: Cannot deactivate '${toLegacyModuleId(moduleSlug)}' because it is required by the platform.`);
     }
 
-    // Core modules cannot be deactivated
-    if (args.status === "inactive" && isCoreModule(args.moduleId)) {
-      throw new Error(
-        `CORE_MODULE: Cannot deactivate '${args.moduleId}' — it is a core module.`
-      );
-    }
+    const install = await findInstall(ctx, tenant.tenantId, moduleSlug);
+    if (!install) throw new Error("MODULE_NOT_INSTALLED");
 
-    // If deactivating, check that no active module depends on this one
     if (args.status === "inactive") {
-      const reverseDeps = REVERSE_DEPENDENCIES[args.moduleId] ?? [];
-      for (const dep of reverseDeps) {
-        const depInstalled = await ctx.db
-          .query("installedModules")
-          .withIndex("by_tenant_module", (q) =>
-            q.eq("tenantId", tenantId).eq("moduleId", dep)
-          )
-          .first();
-
-        if (depInstalled && depInstalled.status === "active") {
+      const installed = await getGuardInstalledModules(ctx, tenant.tenantId);
+      for (const candidate of ALL_MODULES) {
+        const candidateSlug = normalizeModuleSlug(candidate.moduleId);
+        if (!getCanonicalDependencies(candidateSlug).includes(moduleSlug)) continue;
+        const dependentInstall = installed.find(
+          (record: any) => normalizeModuleSlug(String(record.moduleSlug ?? record.moduleId)) === candidateSlug
+        );
+        if (dependentInstall?.status === "active") {
           throw new Error(
-            `DEPENDENCY_CONFLICT: Cannot disable '${args.moduleId}' because '${dep}' depends on it.`
+            `DEPENDENCY_CONFLICT: Cannot disable '${toLegacyModuleId(moduleSlug)}' because '${candidate.moduleId}' depends on it.`
           );
         }
       }
     }
 
-    await ctx.db.patch(installed._id, {
-      status: args.status,
+    await ctx.db.patch(install._id, {
+      status: args.status === "active" ? "active" : "disabled",
+      disabledAt: args.status === "inactive" ? Date.now() : undefined,
+      disabledBy: args.status === "inactive" ? tenant.userId : undefined,
       updatedAt: Date.now(),
     });
 
     await logAction(ctx, {
-      tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email!,
+      tenantId: tenant.tenantId,
+      actorId: tenant.userId,
+      actorEmail: tenant.email,
       action: "module.status_toggled",
-      entityType: "module",
-      entityId: args.moduleId,
+      entityType: "marketplace_module",
+      entityId: moduleSlug,
       after: { status: args.status },
     });
 
@@ -581,58 +521,34 @@ export const toggleModuleStatus = mutation({
   },
 });
 
-/**
- * Seed / re-sync moduleRegistry from the ALL_MODULES static definition.
- * Idempotent — safe to run multiple times. Existing records are updated.
- * Requires platform admin session so only platform staff can trigger it.
- */
-export const runSeedModuleRegistry = mutation({
+export const seedMarketplaceModules = mutation({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
     let created = 0;
     let updated = 0;
 
-    for (const mod of ALL_MODULES) {
+    for (const moduleDefinition of ALL_MODULES) {
+      const moduleSlug = normalizeModuleSlug(moduleDefinition.moduleId);
+      const payload = buildMarketplacePayload(moduleSlug);
       const existing = await ctx.db
-        .query("moduleRegistry")
-        .withIndex("by_module_id", (q) => q.eq("moduleId", mod.moduleId))
+        .query("marketplace_modules")
+        .withIndex("by_slug", (q: any) => q.eq("slug", moduleSlug))
         .first();
 
       if (existing) {
         await ctx.db.patch(existing._id, {
-          name: mod.name,
-          description: mod.description,
-          tier: mod.tier,
-          category: mod.category,
-          isCore: mod.isCore,
-          iconName: mod.iconName,
-          version: mod.version,
-          features: mod.features,
-          dependencies: mod.dependencies,
-          documentation: mod.documentation,
-          pricing: mod.pricing,
-          support: mod.support,
-          status: "published" as const,
+          ...payload,
+          installCount: existing.installCount ?? 0,
+          activeInstallCount: existing.activeInstallCount ?? 0,
+          reviewCount: existing.reviewCount ?? 0,
+          averageRating: existing.averageRating ?? 0,
+          createdAt: existing.createdAt,
+          updatedAt: Date.now(),
         });
         updated++;
       } else {
-        await ctx.db.insert("moduleRegistry", {
-          moduleId: mod.moduleId,
-          name: mod.name,
-          description: mod.description,
-          tier: mod.tier,
-          category: mod.category,
-          isCore: mod.isCore,
-          iconName: mod.iconName,
-          status: "published" as const,
-          version: mod.version,
-          pricing: mod.pricing,
-          features: mod.features,
-          dependencies: mod.dependencies,
-          documentation: mod.documentation,
-          support: mod.support,
-        });
+        await ctx.db.insert("marketplace_modules", payload);
         created++;
       }
     }

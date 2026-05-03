@@ -22,7 +22,10 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "https://app.edumyles.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL),
   title: {
     default: "EduMyles",
     template: "%s | EduMyles",
@@ -33,6 +36,17 @@ export const metadata: Metadata = {
     icon: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
     shortcut: "/logo-icon.svg",
+  },
+  alternates: {
+    canonical: "./",
+  },
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
   },
   manifest: "/site.webmanifest",
   other: {

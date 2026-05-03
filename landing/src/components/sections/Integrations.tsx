@@ -6,14 +6,14 @@ type Badge =
   | { isEmoji: false; icon: LucideIcon;  name: string; subtitle: string };
 
 const badges: Badge[] = [
-  { isEmoji: true,  icon: "🇰🇪", name: "M-Pesa Daraja",     subtitle: "Mobile Money" },
+  { isEmoji: true,  icon: "🇰🇪", name: "M-Pesa",            subtitle: "Mobile Money" },
   { isEmoji: true,  icon: "🌍",  name: "Airtel Money",       subtitle: "East Africa" },
-  { isEmoji: false, icon: Radio,    name: "Africa's Talking", subtitle: "SMS & USSD" },
-  { isEmoji: false, icon: CreditCard, name: "Stripe",         subtitle: "Card Payments" },
+  { isEmoji: false, icon: Radio,    name: "SMS & USSD",       subtitle: "Messaging" },
+  { isEmoji: false, icon: CreditCard, name: "Card Payments",  subtitle: "International" },
   { isEmoji: false, icon: Building2,  name: "NEMIS",          subtitle: "Kenya MoE" },
-  { isEmoji: false, icon: BookOpen,   name: "CBC / KICD",     subtitle: "Curriculum" },
-  { isEmoji: false, icon: KeyRound,   name: "WorkOS",         subtitle: "SSO & Auth" },
-  { isEmoji: false, icon: Zap,        name: "Convex",         subtitle: "Real-Time Sync" },
+  { isEmoji: false, icon: BookOpen,   name: "CBC, ACE, IGCSE, 8-4-4", subtitle: "Curricula" },
+  { isEmoji: false, icon: KeyRound,   name: "Single Sign-On", subtitle: "Secure Access" },
+  { isEmoji: false, icon: Zap,        name: "Live Sync",      subtitle: "Instant Updates" },
 ];
 
 export default function Integrations() {

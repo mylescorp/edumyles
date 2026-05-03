@@ -80,6 +80,18 @@ const DEFAULT_FORM = {
   country: "KE",
 };
 
+function createSlugSuggestion(value: string) {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40) || ""
+  );
+}
+
 type FormData = {
   name: string;
   subdomain: string;
@@ -103,6 +115,7 @@ export function TenantDialog({
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [subdomainEdited, setSubdomainEdited] = useState(false);
 
   const createTenant = useMutation(api.platform.tenants.mutations.createTenant);
   const updateTenant = useMutation(api.platform.tenants.mutations.updateTenant);
@@ -125,13 +138,19 @@ export function TenantDialog({
     }
     setErrors({});
     setServerError(null);
+    setSubdomainEdited(false);
   }, [mode, tenant, open]);
+
+  useEffect(() => {
+    if (mode !== "create" || subdomainEdited) return;
+    const suggestion = createSlugSuggestion(form.name);
+    setForm((current) => ({ ...current, subdomain: suggestion }));
+  }, [form.name, mode, subdomainEdited]);
 
   const validate = (): boolean => {
     const newErrors: Partial<FormData> = {};
     if (!form.name.trim()) newErrors.name = "School name is required";
-    if (mode === "create" && !form.subdomain.trim()) newErrors.subdomain = "Subdomain is required";
-    if (mode === "create" && !/^[a-z0-9-]+$/.test(form.subdomain)) {
+    if (mode === "create" && form.subdomain.trim() && !/^[a-z0-9-]+$/.test(form.subdomain)) {
       newErrors.subdomain = "Subdomain must be lowercase letters, numbers, or hyphens only";
     }
     if (!form.email.trim()) newErrors.email = "Email is required";
@@ -155,7 +174,7 @@ export function TenantDialog({
         await createTenant({
           sessionToken,
           name: form.name.trim(),
-          subdomain: form.subdomain.trim().toLowerCase(),
+          subdomain: form.subdomain.trim().toLowerCase() || undefined,
           email: form.email.trim(),
           phone: form.phone.trim(),
           plan: form.plan as "free" | "starter" | "growth" | "enterprise",
@@ -222,17 +241,23 @@ export function TenantDialog({
           {/* Subdomain — only shown when creating */}
           {mode === "create" && (
             <div className="space-y-1">
-              <Label htmlFor="subdomain">Subdomain <span className="text-destructive">*</span></Label>
+              <Label htmlFor="subdomain">Automatic subdomain</Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="subdomain"
-                  placeholder="sunshine"
+                  placeholder={createSlugSuggestion(form.name) || "auto-generated"}
                   value={form.subdomain}
-                  onChange={(e) => handleField("subdomain", e.target.value.toLowerCase())}
+                  onChange={(e) => {
+                    setSubdomainEdited(true);
+                    handleField("subdomain", createSlugSuggestion(e.target.value));
+                  }}
                   className={errors.subdomain ? "border-destructive" : ""}
                 />
                 <span className="text-sm text-muted-foreground whitespace-nowrap">.{getRootDomain()}</span>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Leave this as generated. If it is already taken, EduMyles assigns the next available variant.
+              </p>
               {errors.subdomain && <p className="text-xs text-destructive">{errors.subdomain}</p>}
             </div>
           )}

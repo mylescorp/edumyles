@@ -4,7 +4,10 @@ import { requirePlatformContext, requirePlatformSession } from "../../helpers/pl
 import { logAction } from "../../helpers/auditLog";
 import { generateTenantId } from "../../helpers/idGenerator";
 import { CORE_MODULE_IDS } from "../../modules/marketplace/moduleDefinitions";
+import { normalizeModuleSlug } from "../../modules/marketplace/moduleAliases";
 import { api, internal } from "../../_generated/api";
+import { normalizeSchoolCurriculumCodes } from "../../../shared/src/constants/curricula";
+import { tenantCurriculumSelectionSchema } from "../../../shared/src/validators";
 
 const planInputValidator = v.union(
   v.literal("free"),
@@ -50,7 +53,43 @@ function createInviteToken() {
 }
 
 function getAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL ?? "https://app.edumyles.com").replace(/\/$/, "");
+}
+
+function getRootDomain() {
+  return (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "edumyles.com")
+    .replace(/^https?:\/\//, "")
+    .replace(/\/+$/, "")
+    .toLowerCase();
+}
+
+function resolveTenantCurriculumSelection(args: {
+  curriculumMode?: "single" | "multi";
+  primaryCurriculumCode?: string;
+  activeCurriculumCodes?: string[];
+}) {
+  const normalizedActiveCurriculumCodes = normalizeSchoolCurriculumCodes(args.activeCurriculumCodes ?? []);
+  const hasCurriculumSelection =
+    !!args.curriculumMode ||
+    !!args.primaryCurriculumCode ||
+    normalizedActiveCurriculumCodes.length > 0;
+
+  if (!hasCurriculumSelection) {
+    return null;
+  }
+
+  const result = tenantCurriculumSelectionSchema.safeParse({
+    curriculumMode: args.curriculumMode,
+    primaryCurriculumCode: args.primaryCurriculumCode,
+    activeCurriculumCodes: normalizedActiveCurriculumCodes,
+  });
+
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    throw new Error(`INVALID_ARGUMENT: ${issue?.message ?? "Invalid curriculum selection"}`);
+  }
+
+  return result.data;
 }
 
 function buildSuggestedModules(studentCountEstimate?: number) {
@@ -63,11 +102,76 @@ function buildSuggestedModules(studentCountEstimate?: number) {
 
 const CORE_MARKETPLACE_MODULE_SLUGS = ["core_sis", "core_users", "core_notifications"] as const;
 
-const LEGACY_CORE_MODULE_MAP: Record<(typeof CORE_MARKETPLACE_MODULE_SLUGS)[number], string> = {
-  core_sis: "sis",
-  core_users: "users",
-  core_notifications: "communications",
-};
+async function ensureTenantModuleInstall(
+  ctx: any,
+  args: {
+    tenantId: string;
+    moduleId: string;
+    installedBy: string;
+    now: number;
+    isFree?: boolean;
+  }
+) {
+  const moduleSlug = normalizeModuleSlug(args.moduleId);
+  const moduleRecord = await ctx.db
+    .query("marketplace_modules")
+    .withIndex("by_slug", (q: any) => q.eq("slug", moduleSlug))
+    .first();
+  const existing = await ctx.db
+    .query("module_installs")
+    .withIndex("by_tenantId_moduleSlug", (q: any) =>
+      q.eq("tenantId", args.tenantId).eq("moduleSlug", moduleSlug)
+    )
+    .first();
+
+  if (existing) {
+    await ctx.db.patch(existing._id, {
+      status: "active",
+      updatedAt: args.now,
+    });
+    return existing._id;
+  }
+
+  return await ctx.db.insert("module_installs", {
+    tenantId: args.tenantId,
+    moduleId: moduleRecord?._id ?? moduleSlug,
+    moduleSlug,
+    status: "active",
+    billingPeriod: "monthly",
+    currentPriceKes: 0,
+    hasPriceOverride: false,
+    isFree: args.isFree ?? moduleSlug.startsWith("core_"),
+    firstInstalledAt: args.now,
+    billingStartsAt: args.now,
+    nextBillingDate: args.now,
+    installedAt: args.now,
+    installedBy: args.installedBy,
+    version: moduleRecord?.version ?? "1.0.0",
+    paymentFailureCount: 0,
+    createdAt: args.now,
+    updatedAt: args.now,
+  });
+}
+
+const RESERVED_SUBDOMAINS = new Set([
+  "app",
+  "www",
+  "api",
+  "admin",
+  "auth",
+  "mail",
+  "email",
+  "support",
+  "help",
+  "status",
+  "cdn",
+  "static",
+  "assets",
+  "blog",
+  "docs",
+  "security",
+  "platform",
+]);
 
 function slugifySchoolName(name: string) {
   return name
@@ -78,24 +182,448 @@ function slugifySchoolName(name: string) {
     .slice(0, 48) || "school";
 }
 
-async function generateUniqueSubdomain(ctx: any, schoolName: string) {
-  const base = slugifySchoolName(schoolName);
+function normalizeSubdomain(value?: string | null, fallbackName = "school") {
+  const candidate = slugifySchoolName(value?.trim() || fallbackName);
+  return RESERVED_SUBDOMAINS.has(candidate) ? `${candidate}-school` : candidate;
+}
+
+async function generateUniqueSubdomain(
+  ctx: any,
+  preferredValue: string,
+  fallbackName?: string,
+  taken: Set<string> = new Set()
+) {
+  const base = normalizeSubdomain(preferredValue, fallbackName);
   let candidate = base;
   let counter = 2;
 
   while (true) {
+    if (RESERVED_SUBDOMAINS.has(candidate) || taken.has(candidate)) {
+      candidate = `${base}-${counter}`;
+      counter += 1;
+      continue;
+    }
+
     const existing = await ctx.db
       .query("tenants")
       .withIndex("by_subdomain", (q: any) => q.eq("subdomain", candidate))
       .first();
 
     if (!existing) {
+      taken.add(candidate);
       return candidate;
     }
 
     candidate = `${base}-${counter}`;
     counter += 1;
   }
+}
+
+function buildTenantUrl(subdomain: string) {
+  return `https://${subdomain}.${getRootDomain()}`;
+}
+
+function generateNetworkId() {
+  return `NETWORK-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+}
+
+function dedupeStrings(values: Array<string | undefined | null>) {
+  return Array.from(new Set(values.filter((value): value is string => Boolean(value))));
+}
+
+function buildCampusDraftRows(
+  additionalCampuses: Array<{
+    campusName: string;
+    schoolName?: string;
+    schoolType?: string;
+    subdomain: string;
+    county?: string;
+    country?: string;
+    campusCode?: string;
+  }>,
+  fallback: { schoolType?: string; county: string; country: string }
+) {
+  return additionalCampuses.map((campus) => ({
+    campusName: campus.campusName,
+    schoolName: campus.schoolName ?? campus.campusName,
+    schoolType: campus.schoolType ?? fallback.schoolType,
+    subdomain: campus.subdomain,
+    county: campus.county ?? fallback.county,
+    country: campus.country ?? fallback.country,
+    campusCode: campus.campusCode,
+  }));
+}
+
+async function getSessionRecord(ctx: any, sessionToken: string) {
+  const session = await ctx.db
+    .query("sessions")
+    .withIndex("by_token", (q: any) => q.eq("sessionToken", sessionToken))
+    .first();
+
+  if (!session || session.expiresAt < Date.now()) {
+    throw new Error("UNAUTHENTICATED: Session not found");
+  }
+
+  return session;
+}
+
+function isPlatformActorSession(session: any) {
+  return (
+    session.tenantId === "PLATFORM" ||
+    ["master_admin", "super_admin", "platform_manager"].includes(session.role)
+  );
+}
+
+async function requireNetworkManagementAccess(
+  ctx: any,
+  args: { sessionToken: string; networkId: string },
+  allowedRoles: string[] = ["network_owner", "network_admin"]
+) {
+  const session = await getSessionRecord(ctx, args.sessionToken);
+  const network = await ctx.db
+    .query("tenant_networks")
+    .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+    .first();
+
+  if (!network) {
+    throw new Error("NOT_FOUND: Network not found");
+  }
+
+  const isPlatform = isPlatformActorSession(session);
+  const membership =
+    !isPlatform && session.identityId
+      ? await ctx.db
+          .query("network_memberships")
+          .withIndex("by_network_identity", (q: any) =>
+            q.eq("networkId", args.networkId).eq("identityId", session.identityId)
+          )
+          .first()
+      : null;
+
+  if (!isPlatform && !membership) {
+    throw new Error("FORBIDDEN: You do not have access to manage this network");
+  }
+
+  if (!isPlatform && membership && !allowedRoles.includes(membership.role)) {
+    throw new Error(`FORBIDDEN: Network role '${membership.role}' cannot manage this action`);
+  }
+
+  return { session, network, membership, isPlatform };
+}
+
+async function syncNetworkCampusState(ctx: any, args: {
+  networkId: string;
+  campusTenantId: string;
+  currentSessionId?: any;
+  now: number;
+}) {
+  const memberships = await ctx.db
+    .query("network_memberships")
+    .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+    .collect();
+
+  for (const membership of memberships) {
+    const nextAccessibleTenantIds = dedupeStrings([
+      ...(membership.accessibleTenantIds ?? []),
+      args.campusTenantId,
+    ]);
+
+    if (nextAccessibleTenantIds.length !== (membership.accessibleTenantIds ?? []).length) {
+      await ctx.db.patch(membership._id, {
+        accessibleTenantIds: nextAccessibleTenantIds,
+        updatedAt: args.now,
+      });
+    }
+  }
+
+  const identityIds = new Set(
+    memberships
+      .map((membership: any) => membership.identityId)
+      .filter((identityId: string | undefined): identityId is string => Boolean(identityId))
+  );
+
+  const sessions = await ctx.db.query("sessions").collect();
+  let currentSessionAccessibleTenantIds: string[] | null = null;
+
+  for (const session of sessions) {
+    if (
+      session.networkId !== args.networkId ||
+      !session.identityId ||
+      !identityIds.has(session.identityId) ||
+      session.expiresAt < Date.now()
+    ) {
+      continue;
+    }
+
+    const nextAccessibleTenantIds = dedupeStrings([
+      ...(session.accessibleTenantIds ?? [session.activeTenantId ?? session.tenantId]),
+      args.campusTenantId,
+    ]);
+
+    if (nextAccessibleTenantIds.length !== (session.accessibleTenantIds ?? [session.activeTenantId ?? session.tenantId]).length) {
+      await ctx.db.patch(session._id, {
+        accessibleTenantIds: nextAccessibleTenantIds,
+      });
+    }
+
+    if (String(session._id) === String(args.currentSessionId)) {
+      currentSessionAccessibleTenantIds = nextAccessibleTenantIds;
+    }
+  }
+
+  const campuses = await ctx.db
+    .query("network_campuses")
+    .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+    .collect();
+  const provisionedCampusTenantIds = campuses
+    .slice()
+    .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+    .map((campus: any) => campus.tenantId);
+  const networkTenants = await ctx.db
+    .query("tenants")
+    .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+    .collect();
+
+  for (const tenant of networkTenants) {
+    const onboarding = await ctx.db
+      .query("tenant_onboarding")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .first();
+
+    if (onboarding) {
+      await ctx.db.patch(onboarding._id, {
+        provisionedCampusTenantIds,
+        updatedAt: args.now,
+      });
+    }
+  }
+
+  return {
+    currentSessionAccessibleTenantIds:
+      currentSessionAccessibleTenantIds ?? provisionedCampusTenantIds,
+    provisionedCampusTenantIds,
+  };
+}
+
+async function createNetworkCampusRecord(ctx: any, args: {
+  sessionToken: string;
+  networkId: string;
+  campusName: string;
+  campusCode?: string;
+  schoolName?: string;
+  subdomain?: string;
+  schoolType?: string;
+  county: string;
+  country: string;
+}) {
+  const { session, network, membership } = await requireNetworkManagementAccess(ctx, args);
+  const subdomain = await generateUniqueSubdomain(
+    ctx,
+    args.subdomain ?? args.schoolName ?? args.campusName,
+    args.schoolName ?? args.campusName
+  );
+
+  const primaryTenant = network.primaryTenantId
+    ? await ctx.db.query("tenants").withIndex("by_tenantId", (q: any) => q.eq("tenantId", network.primaryTenantId!)).first()
+    : null;
+  if (!primaryTenant) {
+    throw new Error("CONFLICT: Network is missing its primary campus");
+  }
+
+  const primarySubscription = await ctx.db
+    .query("tenant_subscriptions")
+    .withIndex("by_tenantId", (q: any) => q.eq("tenantId", primaryTenant.tenantId))
+    .first();
+  if (!primarySubscription) {
+    throw new Error("CONFLICT: Primary campus subscription not found");
+  }
+
+  const activeModules = await ctx.db
+    .query("module_installs")
+    .withIndex("by_tenantId", (q: any) => q.eq("tenantId", primaryTenant.tenantId))
+    .collect();
+
+  const networkCampuses = await ctx.db
+    .query("network_campuses")
+    .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+    .collect();
+  const networkMemberships = await ctx.db
+    .query("network_memberships")
+    .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+    .collect();
+  const ownerMembership =
+    networkMemberships.find((entry: any) => entry.role === "network_owner") ??
+    networkMemberships.find((entry: any) => entry.role === "network_admin") ??
+    membership;
+  const ownerIdentity = ownerMembership
+    ? await ctx.db
+        .query("user_identities")
+        .withIndex("by_identityId", (q: any) => q.eq("identityId", ownerMembership.identityId))
+        .first()
+    : null;
+  const campusAdminEmail =
+    ownerIdentity?.email?.toLowerCase() ??
+    session.email?.toLowerCase() ??
+    primaryTenant.email.toLowerCase();
+  const campusAdminWorkosUserId =
+    ownerIdentity?.workosUserId ??
+    (session.email?.toLowerCase() === campusAdminEmail ? session.workosUserId : undefined);
+  const campusAdminIsActive = Boolean(campusAdminWorkosUserId);
+
+  const now = Date.now();
+  const tenantId = generateTenantId();
+  const organizationId = await ctx.db.insert("organizations", {
+    tenantId,
+    workosOrgId: `edumyles-${tenantId}`,
+    name: args.schoolName?.trim() || args.campusName.trim(),
+    subdomain,
+    tier: primaryTenant.plan,
+    isActive: true,
+    createdAt: now,
+  });
+
+  await ctx.db.insert("tenants", {
+    tenantId,
+    networkId: args.networkId,
+    name: args.schoolName?.trim() || args.campusName.trim(),
+    campusName: args.campusName.trim(),
+    campusCode: args.campusCode,
+    isPrimaryCampus: false,
+    subdomain,
+    email: primaryTenant.email,
+    phone: primaryTenant.phone,
+    website: primaryTenant.website,
+    logoUrl: primaryTenant.logoUrl,
+    plan: primaryTenant.plan,
+    status: primaryTenant.status,
+    schoolType: args.schoolType ?? primaryTenant.schoolType,
+    county: args.county,
+    country: args.country,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  await ctx.db.insert("tenant_subscriptions", {
+    tenantId,
+    planId: primarySubscription.planId,
+    status: primarySubscription.status,
+    currentPeriodStart: primarySubscription.currentPeriodStart,
+    currentPeriodEnd: primarySubscription.currentPeriodEnd,
+    cancelAtPeriodEnd: primarySubscription.cancelAtPeriodEnd,
+    studentCountAtBilling: primarySubscription.studentCountAtBilling,
+    paymentProvider: primarySubscription.paymentProvider,
+    paymentReference: primarySubscription.paymentReference,
+    customPriceMonthlyKes: primarySubscription.customPriceMonthlyKes,
+    customPriceAnnualKes: primarySubscription.customPriceAnnualKes,
+    customPricingNotes: `Inherited from primary network campus ${primaryTenant.tenantId}`,
+    nextPaymentDue: primarySubscription.nextPaymentDue,
+    trialEndsAt: primarySubscription.trialEndsAt,
+    cancelledAt: primarySubscription.cancelledAt,
+    cancellationReason: primarySubscription.cancellationReason,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  await ctx.db.insert("tenant_onboarding", {
+    tenantId,
+    wizardCompleted: false,
+    wizardCompletedAt: undefined,
+    currentStep: 1,
+    isActivated: false,
+    organizationMode: "multi_campus_network",
+    networkId: args.networkId,
+    steps: buildDefaultOnboardingSteps(activeModules.length),
+    healthScore: activeModules.length > 0 ? 8 : 5,
+    lastActivityAt: now,
+    stalled: false,
+    assignedAccountManager: undefined,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  for (const module of activeModules) {
+    await ensureTenantModuleInstall(ctx, {
+      tenantId,
+      moduleId: module.moduleSlug ?? String(module.moduleId),
+      installedBy: session.userId,
+      now,
+      isFree: module.isFree,
+    });
+  }
+
+  if (campusAdminEmail) {
+    await ctx.db.insert("users", {
+      tenantId,
+      eduMylesUserId: crypto.randomUUID(),
+      workosUserId: campusAdminWorkosUserId ?? `pending-${crypto.randomUUID()}`,
+      identityId: ownerMembership?.identityId ?? session.identityId,
+      email: campusAdminEmail,
+      firstName: ownerIdentity?.firstName,
+      lastName: ownerIdentity?.lastName,
+      role: "school_admin",
+      permissions: [],
+      organizationId,
+      isActive: campusAdminIsActive,
+      status: campusAdminIsActive ? "active" : "pending_invite",
+      phone: ownerIdentity?.phone,
+      createdAt: now,
+    });
+  }
+
+  await ctx.db.insert("network_campuses", {
+    networkId: args.networkId,
+    tenantId,
+    campusName: args.campusName.trim(),
+    campusCode: args.campusCode,
+    isPrimary: false,
+    lifecycleStatus: "active",
+    sortOrder: networkCampuses.length,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  const { currentSessionAccessibleTenantIds } = await syncNetworkCampusState(ctx, {
+    networkId: args.networkId,
+    campusTenantId: tenantId,
+    currentSessionId: session._id,
+    now,
+  });
+
+  if (ownerMembership?.identityId) {
+    const linkedUsers = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q: any) => q.eq("email", campusAdminEmail))
+      .collect();
+    for (const user of linkedUsers) {
+      if (user.identityId !== ownerMembership.identityId) {
+        await ctx.db.patch(user._id, { identityId: ownerMembership.identityId });
+      }
+    }
+  }
+
+  await logAction(ctx, {
+    tenantId: session.activeTenantId ?? session.tenantId,
+    actorId: session.userId,
+    actorEmail: session.email ?? "",
+    action: "tenant.created",
+    entityType: "network_campus",
+    entityId: tenantId,
+    after: {
+      networkId: args.networkId,
+      campusName: args.campusName,
+      subdomain,
+    },
+  });
+
+  return {
+    success: true,
+    tenantId,
+    organizationId,
+    networkId: args.networkId,
+    subdomain,
+    tenantUrl: buildTenantUrl(subdomain),
+    accessibleTenantIds: currentSessionAccessibleTenantIds,
+  };
 }
 
 export const createTenantFromInvite = internalMutation({
@@ -251,25 +779,6 @@ export const createTenantFromInvite = internalMutation({
         });
       }
 
-      const legacyModuleId = LEGACY_CORE_MODULE_MAP[moduleSlug];
-      const legacyInstall = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_module", (q: any) => q.eq("tenantId", tenantId).eq("moduleId", legacyModuleId))
-        .first();
-
-      if (!legacyInstall) {
-        await ctx.db.insert("installedModules", {
-          tenantId,
-          moduleId: legacyModuleId,
-          installedAt: now,
-          installedBy: eduMylesUserId,
-          config: {
-            provisionedBy: "tenant_invite_acceptance",
-          },
-          status: "active",
-          updatedAt: now,
-        });
-      }
     }
 
     await ctx.db.insert("tenant_onboarding", {
@@ -384,7 +893,7 @@ export const createTenant = mutation({
   args: {
     sessionToken: v.string(),
     name: v.string(),
-    subdomain: v.string(),
+    subdomain: v.optional(v.string()),
     email: v.string(),
     phone: v.string(),
     plan: planInputValidator,
@@ -393,15 +902,7 @@ export const createTenant = mutation({
   },
   handler: async (ctx, args) => {
     const tenantCtx = await requirePlatformSession(ctx, args);
-
-    const existing = await ctx.db
-      .query("tenants")
-      .withIndex("by_subdomain", (q) => q.eq("subdomain", args.subdomain))
-      .first();
-
-    if (existing) {
-      throw new Error(`CONFLICT: Subdomain '${args.subdomain}' already taken`);
-    }
+    const subdomain = await generateUniqueSubdomain(ctx, args.subdomain ?? args.name, args.name);
 
     const tenantId = generateTenantId();
     const now = Date.now();
@@ -411,7 +912,7 @@ export const createTenant = mutation({
     const id = await ctx.db.insert("tenants", {
       tenantId,
       name: args.name,
-      subdomain: args.subdomain,
+      subdomain,
       email: args.email,
       phone: args.phone,
       plan: normalizedPlan,
@@ -427,7 +928,7 @@ export const createTenant = mutation({
       tenantId,
       workosOrgId: `edumyles-${tenantId}`,
       name: args.name,
-      subdomain: args.subdomain,
+      subdomain,
       tier: normalizedPlan,
       isActive: true,
       createdAt: now,
@@ -435,14 +936,12 @@ export const createTenant = mutation({
 
     // 3. Auto-provision core modules (SIS, Communications, Users Management)
     for (const moduleId of CORE_MODULE_IDS) {
-      await ctx.db.insert("installedModules", {
+      await ensureTenantModuleInstall(ctx, {
         tenantId,
         moduleId,
-        installedAt: now,
         installedBy: tenantCtx.userId,
-        config: {},
-        status: "active",
-        updatedAt: now,
+        now,
+        isFree: true,
       });
     }
 
@@ -455,19 +954,22 @@ export const createTenant = mutation({
       entityId: tenantId,
       after: {
         name: args.name,
-        subdomain: args.subdomain,
+        subdomain,
+        tenantUrl: buildTenantUrl(subdomain),
         plan: normalizedPlan,
         coreModulesInstalled: CORE_MODULE_IDS,
       },
     });
 
-    return { id, tenantId, organizationId: orgId };
+    return { id, tenantId, organizationId: orgId, subdomain, tenantUrl: buildTenantUrl(subdomain) };
   },
 });
 
 export const provisionTenant = mutation({
   args: {
     sessionToken: v.string(),
+    organizationMode: v.optional(v.union(v.literal("single_campus"), v.literal("multi_campus_network"))),
+    networkName: v.optional(v.string()),
     schoolName: v.string(),
     schoolType: v.optional(v.string()),
     country: v.string(),
@@ -488,28 +990,41 @@ export const provisionTenant = mutation({
     trialDays: v.number(),
     studentCountEstimate: v.optional(v.number()),
     paymentCollectionMode: v.union(v.literal("collect_now"), v.literal("prompt_later")),
-    subdomain: v.string(),
+    subdomain: v.optional(v.string()),
     customDomain: v.optional(v.string()),
     timezone: v.string(),
     displayCurrency: v.string(),
     academicYearStartMonth: v.number(),
     termStructure: v.string(),
+    curriculumMode: v.optional(v.union(v.literal("single"), v.literal("multi"))),
+    primaryCurriculumCode: v.optional(v.string()),
+    activeCurriculumCodes: v.optional(v.array(v.string())),
     selectedModuleIds: v.array(v.string()),
     pilotGrantModuleIds: v.array(v.string()),
     welcomeTemplate: v.optional(v.string()),
     welcomeMessage: v.optional(v.string()),
     sendWelcomeImmediately: v.boolean(),
+    primaryCampus: v.optional(v.object({
+      campusName: v.optional(v.string()),
+      campusCode: v.optional(v.string()),
+      schoolName: v.optional(v.string()),
+      subdomain: v.optional(v.string()),
+      county: v.optional(v.string()),
+      country: v.optional(v.string()),
+      schoolType: v.optional(v.string()),
+    })),
+    additionalCampuses: v.optional(v.array(v.object({
+      campusName: v.string(),
+      campusCode: v.optional(v.string()),
+      schoolName: v.optional(v.string()),
+      subdomain: v.optional(v.string()),
+      county: v.optional(v.string()),
+      country: v.optional(v.string()),
+      schoolType: v.optional(v.string()),
+    }))),
   },
   handler: async (ctx, args) => {
     const platform = await requirePlatformSession(ctx, args);
-
-    const existing = await ctx.db
-      .query("tenants")
-      .withIndex("by_subdomain", (q) => q.eq("subdomain", args.subdomain))
-      .first();
-    if (existing) {
-      throw new Error(`CONFLICT: Subdomain '${args.subdomain}' already taken`);
-    }
 
     const plan = (await ctx.db.query("subscription_plans").collect()).find(
       (record) => record.name === args.planId
@@ -519,37 +1034,144 @@ export const provisionTenant = mutation({
     }
 
     const now = Date.now();
-    const tenantId = generateTenantId();
-    const normalizedPlan = normalizePlan(args.planId as any);
     const selectedModuleIds = Array.from(new Set(args.selectedModuleIds));
+    const normalizedPlan = normalizePlan(args.planId as any);
+    const organizationMode = args.organizationMode ?? "single_campus";
+    const curriculumSelection = resolveTenantCurriculumSelection({
+      curriculumMode: args.curriculumMode,
+      primaryCurriculumCode: args.primaryCurriculumCode,
+      activeCurriculumCodes: args.activeCurriculumCodes,
+    });
+    const allocatedSubdomains = new Set<string>();
+    const primaryCampus = {
+      campusName: args.primaryCampus?.campusName?.trim() || args.schoolName,
+      campusCode: args.primaryCampus?.campusCode,
+      schoolName: args.primaryCampus?.schoolName?.trim() || args.schoolName,
+      subdomain: await generateUniqueSubdomain(
+        ctx,
+        args.primaryCampus?.subdomain ?? args.subdomain ?? args.schoolName,
+        args.schoolName,
+        allocatedSubdomains
+      ),
+      county: args.primaryCampus?.county?.trim() || args.county,
+      country: args.primaryCampus?.country?.trim() || args.country,
+      schoolType: args.primaryCampus?.schoolType?.trim() || args.schoolType,
+    };
+    const additionalCampuses = [];
+    for (const campus of args.additionalCampuses ?? []) {
+      additionalCampuses.push({
+        ...campus,
+        campusName: campus.campusName.trim(),
+        schoolName: campus.schoolName?.trim(),
+        subdomain: await generateUniqueSubdomain(
+        ctx,
+        campus.subdomain || campus.schoolName || campus.campusName,
+          campus.schoolName || campus.campusName,
+          allocatedSubdomains
+        ),
+        county: campus.county?.trim(),
+        country: campus.country?.trim(),
+        schoolType: campus.schoolType?.trim(),
+      });
+    }
+
     const trialEndsAt = args.trialDays > 0 ? now + args.trialDays * 24 * 60 * 60 * 1000 : undefined;
     const billingCycleDays =
       args.billingCycle === "annual"
         ? 365
         : args.billingCycle === "quarterly"
-          ? 90
+        ? 90
           : 30;
     const currentPeriodEnd = trialEndsAt ?? now + billingCycleDays * 24 * 60 * 60 * 1000;
-
-    const tenantDocId = await ctx.db.insert("tenants", {
-      tenantId,
-      name: args.schoolName,
-      subdomain: args.subdomain,
-      email: args.adminEmail,
-      phone: args.adminPhone ?? "",
-      plan: normalizedPlan,
-      status: args.trialDays > 0 ? "trial" : "active",
+    const networkId =
+      organizationMode === "multi_campus_network" ? generateNetworkId() : undefined;
+    const campusDrafts = buildCampusDraftRows(additionalCampuses, {
+      schoolType: args.schoolType,
       county: args.county,
       country: args.country,
+    });
+
+    if (networkId) {
+      const networkName = args.networkName?.trim() || `${args.schoolName} Network`;
+      const existingNetwork = await ctx.db
+        .query("tenant_networks")
+        .withIndex("by_slug", (q: any) => q.eq("slug", slugifySchoolName(networkName)))
+        .first();
+      if (existingNetwork) {
+        throw new Error(`CONFLICT: Network '${networkName}' already exists`);
+      }
+
+      await ctx.db.insert("tenant_networks", {
+        networkId,
+        name: networkName,
+        slug: slugifySchoolName(networkName),
+        organizationMode,
+        status: "active",
+        billingMode: "standalone",
+        primaryTenantId: undefined,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      await ctx.db.insert("user_identities", {
+        identityId: `${networkId}-${args.adminEmail.toLowerCase()}`,
+        email: args.adminEmail.toLowerCase(),
+        workosUserId: undefined,
+        firstName: args.adminFirstName,
+        lastName: args.adminLastName,
+        phone: args.adminPhone,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    const tenantId = generateTenantId();
+    const tenantDocId = await ctx.db.insert("tenants", {
+      tenantId,
+      networkId,
+      name: primaryCampus.schoolName,
+      campusName: primaryCampus.campusName,
+      campusCode: primaryCampus.campusCode,
+      isPrimaryCampus: networkId ? true : undefined,
+      subdomain: primaryCampus.subdomain,
+      email: args.adminEmail,
+      phone: args.adminPhone ?? "",
+      website: args.websiteUrl,
+      logoUrl: args.logoUrl,
+      plan: normalizedPlan,
+      status: args.trialDays > 0 ? "trial" : "active",
+      schoolType: primaryCampus.schoolType,
+      primaryCurriculumCode: curriculumSelection?.primaryCurriculumCode,
+      activeCurriculumCodes: curriculumSelection?.activeCurriculumCodes,
+      curriculumMode: curriculumSelection?.curriculumMode,
+      curriculumConfiguredAt: curriculumSelection ? now : undefined,
+      curriculumConfiguredBy: curriculumSelection ? platform.userId : undefined,
+      county: primaryCampus.county,
+      country: primaryCampus.country,
       createdAt: now,
       updatedAt: now,
     });
 
+    if (curriculumSelection) {
+      for (const curriculumCode of curriculumSelection.activeCurriculumCodes) {
+        await ctx.db.insert("tenant_curricula", {
+          tenantId,
+          curriculumCode,
+          isPrimary: curriculumCode === curriculumSelection.primaryCurriculumCode,
+          isActive: true,
+          configuredFrom: "platform_onboarding",
+          notes: undefined,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    }
+
     const organizationId = await ctx.db.insert("organizations", {
       tenantId,
       workosOrgId: `edumyles-${tenantId}`,
-      name: args.schoolName,
-      subdomain: args.subdomain,
+      name: primaryCampus.schoolName,
+      subdomain: primaryCampus.subdomain,
       tier: normalizedPlan,
       isActive: true,
       createdAt: now,
@@ -568,7 +1190,7 @@ export const provisionTenant = mutation({
       customPriceMonthlyKes: args.customPriceMonthlyKes,
       customPriceAnnualKes: args.customPriceAnnualKes,
       customPricingNotes: [
-        args.schoolType ? `School type: ${args.schoolType}` : null,
+        primaryCampus.schoolType ? `School type: ${primaryCampus.schoolType}` : null,
         args.address ? `Address: ${args.address}` : null,
         args.websiteUrl ? `Website: ${args.websiteUrl}` : null,
         args.customDomain ? `Custom domain: ${args.customDomain}` : null,
@@ -577,7 +1199,12 @@ export const provisionTenant = mutation({
         `Display currency: ${args.displayCurrency}`,
         `Academic year start month: ${args.academicYearStartMonth}`,
         `Term structure: ${args.termStructure}`,
+        curriculumSelection
+          ? `Curricula: ${curriculumSelection.activeCurriculumCodes.join(", ")} | Primary: ${curriculumSelection.primaryCurriculumCode} | Mode: ${curriculumSelection.curriculumMode}`
+          : null,
         `Payment collection: ${args.paymentCollectionMode}`,
+        networkId ? `Network ID: ${networkId}` : null,
+        `Organization mode: ${organizationMode}`,
       ]
         .filter(Boolean)
         .join(" | "),
@@ -606,6 +1233,10 @@ export const provisionTenant = mutation({
       wizardCompletedAt: undefined,
       currentStep: 1,
       isActivated: false,
+      organizationMode,
+      networkId,
+      campusDrafts,
+      provisionedCampusTenantIds: [],
       steps: buildDefaultOnboardingSteps(selectedModuleIds.length),
       healthScore: selectedModuleIds.length > 0 ? 8 : 5,
       lastActivityAt: now,
@@ -617,17 +1248,11 @@ export const provisionTenant = mutation({
 
     const installedModuleIds = selectedModuleIds.length > 0 ? selectedModuleIds : CORE_MODULE_IDS;
     for (const moduleId of installedModuleIds) {
-      await ctx.db.insert("installedModules", {
+      await ensureTenantModuleInstall(ctx, {
         tenantId,
         moduleId,
-        installedAt: now,
         installedBy: platform.userId,
-        config: {
-          provisionedByPlatform: true,
-          provisioningSource: "platform_tenant_create",
-        },
-        status: "active",
-        updatedAt: now,
+        now,
       });
     }
 
@@ -655,6 +1280,7 @@ export const provisionTenant = mutation({
       tenantId,
       eduMylesUserId: crypto.randomUUID(),
       workosUserId: `pending-${crypto.randomUUID()}`,
+      identityId: networkId ? `${networkId}-${args.adminEmail.toLowerCase()}` : undefined,
       email: args.adminEmail,
       firstName: args.adminFirstName,
       lastName: args.adminLastName,
@@ -666,6 +1292,169 @@ export const provisionTenant = mutation({
       bio: args.adminJobTitle,
       createdAt: now,
     });
+
+    const provisionedCampusTenantIds = [tenantId];
+
+    if (networkId) {
+      const network = await ctx.db
+        .query("tenant_networks")
+        .withIndex("by_networkId", (q: any) => q.eq("networkId", networkId))
+        .first();
+
+      if (network) {
+        await ctx.db.patch(network._id, {
+          primaryTenantId: tenantId,
+          updatedAt: now,
+        });
+      }
+
+      await ctx.db.insert("network_campuses", {
+        networkId,
+        tenantId,
+        campusName: primaryCampus.campusName,
+        campusCode: primaryCampus.campusCode,
+        isPrimary: true,
+        lifecycleStatus: "active",
+        sortOrder: 0,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      for (const [index, campus] of additionalCampuses.entries()) {
+        const campusTenantId = generateTenantId();
+        const campusOrganizationId = await ctx.db.insert("organizations", {
+          tenantId: campusTenantId,
+          workosOrgId: `edumyles-${campusTenantId}`,
+          name: campus.schoolName ?? campus.campusName,
+          subdomain: campus.subdomain,
+          tier: normalizedPlan,
+          isActive: true,
+          createdAt: now,
+        });
+
+        await ctx.db.insert("tenants", {
+          tenantId: campusTenantId,
+          networkId,
+          name: campus.schoolName ?? campus.campusName,
+          campusName: campus.campusName,
+          campusCode: campus.campusCode,
+          isPrimaryCampus: false,
+          subdomain: campus.subdomain,
+          email: args.adminEmail,
+          phone: args.adminPhone ?? "",
+          website: args.websiteUrl,
+          logoUrl: args.logoUrl,
+          plan: normalizedPlan,
+          status: args.trialDays > 0 ? "trial" : "active",
+          schoolType: campus.schoolType ?? args.schoolType,
+          county: campus.county ?? args.county,
+          country: campus.country ?? args.country,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        await ctx.db.insert("tenant_subscriptions", {
+          tenantId: campusTenantId,
+          planId: args.planId,
+          status: args.trialDays > 0 ? "trialing" : "active",
+          currentPeriodStart: now,
+          currentPeriodEnd,
+          cancelAtPeriodEnd: false,
+          studentCountAtBilling: args.studentCountEstimate,
+          paymentProvider: undefined,
+          paymentReference: undefined,
+          customPriceMonthlyKes: args.customPriceMonthlyKes,
+          customPriceAnnualKes: args.customPriceAnnualKes,
+          customPricingNotes: `Organization mode: ${organizationMode} | Network ID: ${networkId}`,
+          nextPaymentDue: currentPeriodEnd,
+          trialEndsAt,
+          cancelledAt: undefined,
+          cancellationReason: undefined,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        await ctx.db.insert("tenant_onboarding", {
+          tenantId: campusTenantId,
+          wizardCompleted: false,
+          wizardCompletedAt: undefined,
+          currentStep: 1,
+          isActivated: false,
+          organizationMode,
+          networkId,
+          campusDrafts,
+          provisionedCampusTenantIds: [],
+          steps: buildDefaultOnboardingSteps(selectedModuleIds.length),
+          healthScore: selectedModuleIds.length > 0 ? 8 : 5,
+          lastActivityAt: now,
+          stalled: false,
+          assignedAccountManager: undefined,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        for (const moduleId of installedModuleIds) {
+          await ensureTenantModuleInstall(ctx, {
+            tenantId: campusTenantId,
+            moduleId,
+            installedBy: platform.userId,
+            now,
+          });
+        }
+
+        await ctx.db.insert("users", {
+          tenantId: campusTenantId,
+          eduMylesUserId: crypto.randomUUID(),
+          workosUserId: `pending-${crypto.randomUUID()}`,
+          identityId: `${networkId}-${args.adminEmail.toLowerCase()}`,
+          email: args.adminEmail,
+          firstName: args.adminFirstName,
+          lastName: args.adminLastName,
+          role: "school_admin",
+          permissions: [],
+          organizationId: campusOrganizationId,
+          isActive: false,
+          status: "pending_invite",
+          phone: args.adminPhone,
+          bio: args.adminJobTitle,
+          createdAt: now,
+        });
+
+        await ctx.db.insert("network_campuses", {
+          networkId,
+          tenantId: campusTenantId,
+          campusName: campus.campusName,
+          campusCode: campus.campusCode,
+          isPrimary: false,
+          lifecycleStatus: "active",
+          sortOrder: index + 1,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        provisionedCampusTenantIds.push(campusTenantId);
+      }
+
+      await ctx.db.insert("network_memberships", {
+        networkId,
+        identityId: `${networkId}-${args.adminEmail.toLowerCase()}`,
+        role: "network_owner",
+        accessibleTenantIds: provisionedCampusTenantIds,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      const onboardingRecord = await ctx.db
+        .query("tenant_onboarding")
+        .withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenantId))
+        .first();
+      if (onboardingRecord) {
+        await ctx.db.patch(onboardingRecord._id, {
+          provisionedCampusTenantIds,
+          updatedAt: now,
+        });
+      }
+    }
 
     await logAction(ctx, {
       tenantId: platform.tenantId,
@@ -686,6 +1475,11 @@ export const provisionTenant = mutation({
         sendMagicLink: args.sendMagicLink,
         invitationProvider: "workos",
         welcomeTemplate: args.welcomeTemplate,
+        organizationMode,
+        networkId,
+        provisionedCampusTenantIds,
+        subdomain: primaryCampus.subdomain,
+        tenantUrl: buildTenantUrl(primaryCampus.subdomain),
       },
     });
 
@@ -696,6 +1490,144 @@ export const provisionTenant = mutation({
       organizationId,
       pendingUserId,
       requiresOrgProvisioning: true,
+      organizationMode,
+      networkId,
+      provisionedCampusTenantIds,
+      subdomain: primaryCampus.subdomain,
+      tenantUrl: buildTenantUrl(primaryCampus.subdomain),
+    };
+  },
+});
+
+export const createNetworkCampus = mutation({
+  args: {
+    sessionToken: v.string(),
+    networkId: v.string(),
+    campusName: v.string(),
+    campusCode: v.optional(v.string()),
+    schoolName: v.optional(v.string()),
+    subdomain: v.optional(v.string()),
+    schoolType: v.optional(v.string()),
+    county: v.string(),
+    country: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await createNetworkCampusRecord(ctx, args);
+  },
+});
+
+export const completeCampusProvisioningFromOnboarding = mutation({
+  args: {
+    sessionToken: v.string(),
+    networkId: v.string(),
+    campusName: v.string(),
+    campusCode: v.optional(v.string()),
+    schoolName: v.optional(v.string()),
+    subdomain: v.optional(v.string()),
+    schoolType: v.optional(v.string()),
+    county: v.string(),
+    country: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const result = await createNetworkCampusRecord(ctx, args);
+    return {
+      ...result,
+      completedFrom: "tenant_onboarding",
+    };
+  },
+});
+
+export const inviteNetworkAdmin = mutation({
+  args: {
+    sessionToken: v.string(),
+    networkId: v.string(),
+    email: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
+    role: v.optional(v.union(
+      v.literal("network_owner"),
+      v.literal("network_admin"),
+      v.literal("network_finance"),
+      v.literal("network_academics"),
+      v.literal("network_viewer")
+    )),
+  },
+  handler: async (ctx, args) => {
+    const { session, network, isPlatform } = await requireNetworkManagementAccess(ctx, args);
+
+    const campuses = await ctx.db
+      .query("network_campuses")
+      .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+      .collect();
+
+    const identityId = `${args.networkId}-${args.email.toLowerCase()}`;
+    const now = Date.now();
+    const existingIdentity = await ctx.db
+      .query("user_identities")
+      .withIndex("by_identityId", (q: any) => q.eq("identityId", identityId))
+      .first();
+
+    if (existingIdentity) {
+      await ctx.db.patch(existingIdentity._id, {
+        firstName: args.firstName,
+        lastName: args.lastName,
+        updatedAt: now,
+      });
+    } else {
+      await ctx.db.insert("user_identities", {
+        identityId,
+        email: args.email.toLowerCase(),
+        workosUserId: undefined,
+        firstName: args.firstName,
+        lastName: args.lastName,
+        phone: undefined,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    const existingMembership = await ctx.db
+      .query("network_memberships")
+      .withIndex("by_network_identity", (q: any) =>
+        q.eq("networkId", args.networkId).eq("identityId", identityId)
+      )
+      .first();
+
+    if (existingMembership) {
+      await ctx.db.patch(existingMembership._id, {
+        role: args.role ?? existingMembership.role,
+        accessibleTenantIds: campuses.map((campus: any) => campus.tenantId),
+        updatedAt: now,
+      });
+    } else {
+      await ctx.db.insert("network_memberships", {
+        networkId: args.networkId,
+        identityId,
+        role: args.role ?? "network_admin",
+        accessibleTenantIds: campuses.map((campus: any) => campus.tenantId),
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    await logAction(ctx, {
+      tenantId: isPlatform ? "PLATFORM" : (session.activeTenantId ?? session.tenantId),
+      actorId: session.userId,
+      actorEmail: session.email ?? "",
+      action: "user.invited",
+      entityType: "network_admin",
+      entityId: args.email.toLowerCase(),
+      after: {
+        networkId: args.networkId,
+        role: args.role ?? "network_admin",
+      },
+    });
+
+    return {
+      success: true,
+      networkId: args.networkId,
+      identityId,
+      accessibleTenantIds: campuses.map((campus: any) => campus.tenantId),
     };
   },
 });
@@ -915,8 +1847,8 @@ export const deleteTenant = mutation({
     }
 
     const modules = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .query("module_installs")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
       .collect();
     for (const module of modules) {
       await ctx.db.delete(module._id);

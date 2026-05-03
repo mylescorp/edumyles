@@ -7,6 +7,7 @@ import { requirePlatformRole, requirePlatformSession } from "../../helpers/platf
 import { requirePublisherContext } from "../../helpers/publisherGuard";
 import { requireTenantContext } from "../../helpers/tenantGuard";
 import { CORE_MODULE_IDS, MODULE_DEPENDENCIES } from "./moduleDefinitions";
+import { normalizeModuleSlug } from "./moduleAliases";
 import { TIER_MODULES } from "./tierModules";
 
 async function getTenantPlan(ctx: any, tenantId: string) {
@@ -422,8 +423,21 @@ export const installModule = mutation({
     const now = Date.now();
     const module = await getModuleByDocOrSlug(ctx, args.moduleId);
     const resolvedModuleId = String(module?._id ?? args.moduleId);
+    const moduleSlug = normalizeModuleSlug(module?.slug ?? args.moduleId);
+    const existingInstall = await ctx.db
+      .query("module_installs")
+      .withIndex("by_tenantId_moduleSlug", (q: any) =>
+        q.eq("tenantId", tenant.tenantId).eq("moduleSlug", moduleSlug)
+      )
+      .first();
+
+    if (existingInstall && existingInstall.status !== "uninstalled") {
+      return { success: true, installId: existingInstall._id, status: "allowed" };
+    }
+
     const installId = await ctx.db.insert("module_installs", {
       moduleId: resolvedModuleId,
+      moduleSlug,
       versionId: undefined,
       tenantId: tenant.tenantId,
       status: "active",

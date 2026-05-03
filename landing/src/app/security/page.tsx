@@ -6,7 +6,7 @@ import type { LucideIcon } from "lucide-react";
 export const metadata: Metadata = {
   title: "Security & Privacy — EduMyles",
   description:
-    "How EduMyles protects student data and school information. SOC 2, encryption, GDPR and Kenya Data Protection Act compliance.",
+    "How EduMyles protects student data and school information with encryption, access controls, tenant isolation, and Kenya Data Protection Act-aware processes.",
 };
 
 const features: { icon: LucideIcon | string; title: string; body: string }[] = [
@@ -27,8 +27,8 @@ const features: { icon: LucideIcon | string; title: string; body: string }[] = [
   },
   {
     icon: ShieldCheck,
-    title: "SOC 2 Type I Certified",
-    body: "We have completed our SOC 2 Type I audit, covering security, availability, and confidentiality. Type II audit in progress.",
+    title: "Security Controls",
+    body: "Security, availability, and confidentiality controls are reviewed as part of our operating process.",
   },
   {
     icon: "🇰🇪",
@@ -37,8 +37,8 @@ const features: { icon: LucideIcon | string; title: string; body: string }[] = [
   },
   {
     icon: ClipboardCheck,
-    title: "GDPR Ready",
-    body: "For international schools with EU-connected families, we support GDPR data subject requests, deletion, and export.",
+    title: "Data Rights Workflows",
+    body: "For schools with international families, we support data access, deletion, and export workflows where required.",
   },
 ];
 
@@ -114,7 +114,7 @@ export default function SecurityPage() {
                 [
                   {
                     icon: <Lock className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />,
-                    label: "SOC 2 Type I",
+                    label: "Security Controls",
                   },
                   { icon: <span className="flex-shrink-0">🇰🇪</span>, label: "Kenya DPA Compliant" },
                   {

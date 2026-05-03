@@ -217,7 +217,7 @@ const integrations = [
   "M-Pesa (per campus)",
   "Bank Transfer",
   "NEMIS (per campus)",
-  "Africa's Talking",
+  "SMS Gateway",
   "WhatsApp",
   "Excel / Sheets",
   "Power BI",

@@ -16,7 +16,7 @@ export const getMyModules = query({
     const pageSize = args.pageSize || 25;
     const skip = (page - 1) * pageSize;
 
-    // Query modules from moduleRegistry where publisher is the owner
+// Query modules owned by the publisher.
     const modules = await ctx.db
       .query("modules")
       .withIndex("by_publisherId", q => q.eq("publisherId", publisher.publisherId))

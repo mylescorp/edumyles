@@ -90,24 +90,6 @@ const values: { icon: LucideIcon; title: string; desc: string }[] = [
   },
 ];
 
-const openRoles = [
-  {
-    title: "Senior Backend Engineer",
-    type: "Full-time · Remote",
-    href: "/contact?subject=careers-backend",
-  },
-  {
-    title: "School Success Manager (Uganda)",
-    type: "Full-time · Kampala",
-    href: "/contact?subject=careers-uganda",
-  },
-  {
-    title: "Marketing & Content Lead",
-    type: "Full-time · Nairobi",
-    href: "/contact?subject=careers-marketing",
-  },
-];
-
 export default function TeamPage() {
   return (
     <div style={{ color: "#212121" }}>
@@ -412,110 +394,6 @@ export default function TeamPage() {
                 </p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Open Roles ────────────────────────────────────── */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "#061A12" }}>
-        <div className="max-w-[1200px] mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-            <div>
-              <div
-                className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-4 py-1.5 rounded-[50px]"
-                style={{
-                  background: "rgba(232,160,32,0.12)",
-                  border: "1px solid #E8A020",
-                  color: "#E8A020",
-                }}
-              >
-                Careers
-              </div>
-              <h2
-                className="font-display font-bold leading-[1.2] mb-4"
-                style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
-              >
-                Join us in{" "}
-                <em className="italic" style={{ color: "#E8A020" }}>
-                  transforming schools
-                </em>
-              </h2>
-              <p
-                className="font-jakarta text-[16px] leading-[1.8] mb-6"
-                style={{ color: "#A8E6C3" }}
-              >
-                We are a small, high-impact team that moves fast and cares deeply. We offer
-                competitive pay, remote flexibility, and the chance to build something that
-                genuinely matters.
-              </p>
-              <div className="flex flex-col gap-3">
-                {[
-                  "Competitive salary in KES / USD",
-                  "Remote-first with optional Nairobi office",
-                  "Health insurance",
-                  "Learning & development budget",
-                  "Work that reaches thousands of students",
-                ].map((perk) => (
-                  <div key={perk} className="flex items-center gap-3">
-                    <span className="font-bold flex-shrink-0" style={{ color: "#26A65B" }}>
-                      ✓
-                    </span>
-                    <span
-                      className="font-jakarta text-[14px]"
-                      style={{ color: "rgba(255,255,255,0.8)" }}
-                    >
-                      {perk}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <h3 className="font-jakarta font-bold text-[16px] mb-2" style={{ color: "#6B9E83" }}>
-                OPEN ROLES
-              </h3>
-              {openRoles.map((role) => (
-                <a
-                  key={role.title}
-                  href={role.href}
-                  className="flex items-center justify-between gap-4 p-5 rounded-2xl no-underline group transition-all duration-200 hover:-translate-y-0.5"
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(232,160,32,0.2)",
-                  }}
-                >
-                  <div>
-                    <div
-                      className="font-jakarta font-bold text-[16px] group-hover:text-[#E8A020] transition-colors"
-                      style={{ color: "#ffffff" }}
-                    >
-                      {role.title}
-                    </div>
-                    <div className="font-jakarta text-[13px] mt-0.5" style={{ color: "#6B9E83" }}>
-                      {role.type}
-                    </div>
-                  </div>
-                  <span
-                    className="text-[20px] flex-shrink-0 group-hover:translate-x-1 transition-transform"
-                    style={{ color: "#E8A020" }}
-                  >
-                    →
-                  </span>
-                </a>
-              ))}
-
-              <p className="font-jakarta text-[13px] mt-2" style={{ color: "#6B9E83" }}>
-                Don&apos;t see your role?{" "}
-                <a
-                  href="/contact?subject=careers-general"
-                  className="underline"
-                  style={{ color: "#E8A020" }}
-                >
-                  Send us an open application →
-                </a>
-              </p>
-            </div>
           </div>
         </div>
       </section>

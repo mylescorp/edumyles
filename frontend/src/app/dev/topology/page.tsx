@@ -5,6 +5,7 @@ import { Boxes, Layers3, Network, Rows3 } from "lucide-react";
 import {
   DevConsoleShell,
   ErrorState,
+  ExternalOpenButton,
   formatTimestamp,
   LoadingState,
   MetricCard,
@@ -90,7 +91,15 @@ export default function DevTopologyPage() {
                         <div className="font-medium text-foreground">{bucket.label}</div>
                         <div className="text-xs text-muted-foreground">{bucket.featureCount} feature artifacts</div>
                       </div>
-                      <Badge variant="outline">{bucket.kind}</Badge>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline">{bucket.kind}</Badge>
+                        <Badge variant="secondary">{bucket.launchableFeatureCount} openable</Badge>
+                        {bucket.launchPath ? (
+                          <ExternalOpenButton href={bucket.launchPath} />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">No concrete launch route</span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="mt-4 grid gap-2">
@@ -102,13 +111,23 @@ export default function DevTopologyPage() {
                               <Badge variant="secondary">{feature.kind}</Badge>
                               {feature.moduleKey ? <Badge variant="outline">{feature.moduleKey}</Badge> : null}
                               {feature.isDynamic ? <Badge variant="secondary">dynamic</Badge> : null}
+                              {feature.isLaunchable ? <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">openable</Badge> : null}
                             </div>
                             <div className="mt-1 font-mono text-[11px] text-muted-foreground">
                               {feature.routePath} • {feature.relativePath}
                             </div>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            {formatTimestamp(feature.modifiedAt)}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <div className="text-xs text-muted-foreground">
+                              {formatTimestamp(feature.modifiedAt)}
+                            </div>
+                            {feature.launchPath ? (
+                              <ExternalOpenButton href={feature.launchPath} />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">
+                                {feature.isDynamic ? "Dynamic route" : "Not a page"}
+                              </span>
+                            )}
                           </div>
                         </div>
                       ))}

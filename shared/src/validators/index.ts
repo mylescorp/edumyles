@@ -2,6 +2,7 @@
 // EduMyles — Shared Zod Validators
 // ============================================================
 import { z } from "zod";
+import { SCHOOL_CURRICULUM_CODES } from "../constants";
 
 // ----------------------------------------------------------
 // Primitives
@@ -35,9 +36,86 @@ export const createTenantSchema = z.object({
   adminEmail: z.string().email("Invalid email address"),
   adminFirstName: z.string().min(1),
   adminLastName: z.string().min(1),
+  curriculumMode: z.enum(["single", "multi"]).optional(),
+  primaryCurriculumCode: z
+    .enum([
+      SCHOOL_CURRICULUM_CODES.CBC,
+      SCHOOL_CURRICULUM_CODES.ACE,
+      SCHOOL_CURRICULUM_CODES.IGCSE,
+      SCHOOL_CURRICULUM_CODES.KENYA_844,
+    ])
+    .optional(),
+  activeCurriculumCodes: z
+    .array(
+      z.enum([
+        SCHOOL_CURRICULUM_CODES.CBC,
+        SCHOOL_CURRICULUM_CODES.ACE,
+        SCHOOL_CURRICULUM_CODES.IGCSE,
+        SCHOOL_CURRICULUM_CODES.KENYA_844,
+      ])
+    )
+    .optional(),
 });
 
 export type CreateTenantInput = z.infer<typeof createTenantSchema>;
+
+export const tenantCurriculumSelectionSchema = z
+  .object({
+    curriculumMode: z.enum(["single", "multi"]),
+    primaryCurriculumCode: z.enum([
+      SCHOOL_CURRICULUM_CODES.CBC,
+      SCHOOL_CURRICULUM_CODES.ACE,
+      SCHOOL_CURRICULUM_CODES.IGCSE,
+      SCHOOL_CURRICULUM_CODES.KENYA_844,
+    ]),
+    activeCurriculumCodes: z
+      .array(
+        z.enum([
+          SCHOOL_CURRICULUM_CODES.CBC,
+          SCHOOL_CURRICULUM_CODES.ACE,
+          SCHOOL_CURRICULUM_CODES.IGCSE,
+          SCHOOL_CURRICULUM_CODES.KENYA_844,
+        ])
+      )
+      .min(1, "At least one curriculum is required"),
+  })
+  .superRefine((value, ctx) => {
+    const uniqueCodes = new Set(value.activeCurriculumCodes);
+
+    if (uniqueCodes.size !== value.activeCurriculumCodes.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["activeCurriculumCodes"],
+        message: "Curriculum codes must be unique",
+      });
+    }
+
+    if (!uniqueCodes.has(value.primaryCurriculumCode)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["primaryCurriculumCode"],
+        message: "Primary curriculum must be included in the active curriculum list",
+      });
+    }
+
+    if (value.curriculumMode === "single" && uniqueCodes.size !== 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["activeCurriculumCodes"],
+        message: "Single-curriculum mode must contain exactly one active curriculum",
+      });
+    }
+
+    if (value.curriculumMode === "multi" && uniqueCodes.size < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["activeCurriculumCodes"],
+        message: "Multi-curriculum mode must contain at least two active curricula",
+      });
+    }
+  });
+
+export type TenantCurriculumSelectionInput = z.infer<typeof tenantCurriculumSelectionSchema>;
 
 // ----------------------------------------------------------
 // User

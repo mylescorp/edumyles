@@ -334,7 +334,7 @@ export default function RoadmapPage() {
             className="font-jakarta font-light mb-8"
             style={{ fontSize: "17px", color: "#90CAF9" }}
           >
-            Join 50+ schools already running better with EduMyles.
+            Join schools already running better with EduMyles.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link

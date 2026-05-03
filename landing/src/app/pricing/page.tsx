@@ -4,7 +4,7 @@ import PricingContent from "./PricingContent";
 export const metadata: Metadata = {
   title: "Pricing — EduMyles School Management | Transparent KES Pricing",
   description:
-    "Simple, transparent pricing for EduMyles school management. From KES 12,900/month. M-Pesa payment. Trusted by 50+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
+    "Simple, transparent pricing for EduMyles school management. From KES 12,900/month. M-Pesa payment. Trusted by schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
 };
 
 export default function PricingPage() {

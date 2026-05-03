@@ -1,26 +1,23 @@
 "use client";
 
 import React, { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowRight,
   Building2,
   CheckCircle2,
   Code2,
   Globe2,
   Mail,
-  MessageSquareText,
   Phone,
   ShieldCheck,
-  Sparkles,
   UserRound,
   Users,
-  FileText,
   Briefcase,
   Zap,
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
+import { trackFormSubmission, trackLeadConversion } from "@/lib/analytics";
 
 type FormState = "idle" | "loading" | "error" | "success";
 
@@ -45,18 +42,19 @@ const COUNTRY_OPTIONS = [
 ];
 
 const POPULAR_MODULES = [
-  "Attendance Management",
-  "Fee Collection",
-  "Exam Management",
-  "Parent Communication",
-  "Timetable Generation",
-  "Library Management",
-  "Inventory Management",
-  "Transport Management",
-  "HR & Payroll",
-  "Report Cards",
-  "Admissions Management",
-  "Hostel Management",
+  "Student Information System",
+  "Admissions",
+  "Finance and Fees",
+  "Timetable",
+  "Academics",
+  "HR and Staff",
+  "Library",
+  "Transport",
+  "Communications",
+  "User Management",
+  "Support Tickets",
+  "eWallet",
+  "School Shop",
 ];
 
 const inputClass =
@@ -64,13 +62,18 @@ const inputClass =
 
 function PublisherApplicationContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const isDeveloperRoute = pathname.startsWith("/apply/developer");
+  const applicationBasePath = isDeveloperRoute ? "/apply/developer" : "/apply/publisher";
+  const programLabel = isDeveloperRoute ? "developer" : "publisher";
+  const programTitle = isDeveloperRoute ? "Developer" : "Publisher";
   const [formState, setFormState] = useState<FormState>("idle");
   const [error, setError] = useState("");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
 
   const [fields, setFields] = useState({
     businessName: "",
+    email: "",
     businessType: "individual" as "individual" | "company",
     businessDescription: "",
     website: "",
@@ -109,11 +112,14 @@ function PublisherApplicationContent() {
     setError("");
 
     try {
-      const response = await fetch("/api/publisher/apply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fields),
-      });
+      const response = await fetch(
+        isDeveloperRoute ? "/api/developer/apply" : "/api/publisher/apply",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(fields),
+        }
+      );
 
       const payload = (await response.json()) as {
         error?: string;
@@ -126,9 +132,14 @@ function PublisherApplicationContent() {
       }
 
       setFormState("success");
+      const conversionName = isDeveloperRoute
+        ? "developer_application"
+        : "publisher_application";
+      trackFormSubmission(conversionName, true);
+      trackLeadConversion(conversionName, { application_id: payload.applicationId });
       // Redirect to success page after a short delay
       setTimeout(() => {
-        router.push(`/apply/publisher/success?id=${payload.applicationId}`);
+        router.push(`${applicationBasePath}/success?id=${payload.applicationId}`);
       }, 2000);
     } catch (submitError) {
       setError(
@@ -136,6 +147,7 @@ function PublisherApplicationContent() {
           ? submitError.message
           : "We couldn't submit your application right now."
       );
+      trackFormSubmission(isDeveloperRoute ? "developer_application" : "publisher_application", false);
       setFormState("error");
     }
   }
@@ -151,8 +163,8 @@ function PublisherApplicationContent() {
             Application Submitted!
           </h1>
           <p className="font-jakarta text-[#5d6f66] mb-6">
-            Your publisher application has been submitted successfully. We&apos;ll review it and get
-            back to you within 3-5 business days.
+            Your {programLabel} application has been submitted successfully. We&apos;ll review it
+            and get back to you within 3-5 business days.
           </p>
           <div className="animate-spin w-6 h-6 border-2 border-[#0F4C2A] border-t-transparent rounded-full mx-auto"></div>
         </div>
@@ -178,15 +190,15 @@ function PublisherApplicationContent() {
           <div className="max-w-3xl pt-8 xl:pt-20">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#E8A020] bg-[rgba(232,160,32,0.12)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#E8A020]">
               <Code2 className="h-4 w-4" />
-              Publisher Program
+              Developer Program
             </div>
             <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
               Become an EduMyles
               <br />
-              Module Publisher
+              Module Developer
             </h1>
             <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
-              Develop and sell modules for the EduMyles platform. Reach thousands of schools across
+              Build and sell modules for the EduMyles platform. Reach thousands of schools across
               East Africa and earn recurring revenue from your innovations.
             </p>
           </div>
@@ -223,7 +235,9 @@ function PublisherApplicationContent() {
           </div>
 
           <div className="mt-12 rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
-            <h2 className="font-display text-[28px] font-bold text-white">Publisher Tiers</h2>
+            <h2 className="font-display text-[28px] font-bold text-white">
+              {programTitle} Tiers
+            </h2>
             <div className="mt-6 space-y-4">
               {[
                 {
@@ -277,7 +291,7 @@ function PublisherApplicationContent() {
           <div className="mx-auto w-full max-w-[620px]">
             <div className="mb-8 pb-6">
               <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
-                Publisher Application
+                Developer Application
               </p>
               <h2 className="mt-2 font-display text-[clamp(2rem,3vw,2.7rem)] font-bold text-[#061A12]">
                 Developer Information
@@ -314,6 +328,28 @@ function PublisherApplicationContent() {
                     className={inputClass}
                     placeholder="Tech Solutions Ltd"
                   />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  >
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      value={fields.email}
+                      onChange={handleChange}
+                      className={`${inputClass} pl-10`}
+                      placeholder="you@example.com"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -523,13 +559,14 @@ function PublisherApplicationContent() {
               >
                 {formState === "loading"
                   ? "Submitting Application..."
-                  : "Submit Publisher Application"}
+                  : `Submit ${programTitle} Application`}
               </button>
 
               <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
                 <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
-                  By submitting this application, you agree to our publisher terms and conditions.
-                  We&apos;ll review your application and contact you within 3-5 business days.
+                  By submitting this application, you agree to our {programLabel} terms and
+                  conditions. We&apos;ll review your application and contact you within 3-5 business
+                  days.
                 </p>
               </div>
             </form>

@@ -2,64 +2,74 @@ import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireTenantSession } from "../../helpers/tenantGuard";
-import { ALL_MODULES, CORE_MODULE_IDS } from "./moduleDefinitions";
+import { ALL_MODULES } from "./moduleDefinitions";
+import { normalizeModuleSlug } from "./moduleAliases";
 
-// SECURITY: Platform and tenant access in this file is enforced via
-// requirePlatformSession()/requireTenantSession() because these bootstrap flows
-// are called with explicit sessionToken args rather than Convex JWT auth.
+type MarketplacePlan = "free" | "starter" | "pro" | "enterprise";
 
-/**
- * Seed the moduleRegistry with all module definitions.
- * Platform admin only — idempotent.
- */
-export const seedModuleRegistry = mutation({
+function toMarketplacePlan(tier: string): MarketplacePlan {
+  if (tier === "free" || tier === "starter" || tier === "pro" || tier === "enterprise") {
+    return tier;
+  }
+  return "pro";
+}
+
+function buildPayload(moduleDefinition: (typeof ALL_MODULES)[number]) {
+  const now = Date.now();
+  return {
+    slug: normalizeModuleSlug(moduleDefinition.moduleId),
+    name: moduleDefinition.name,
+    tagline: moduleDefinition.description.slice(0, 140),
+    description: moduleDefinition.description,
+    category: moduleDefinition.category,
+    status: "published" as const,
+    isFeatured: false,
+    isCore: moduleDefinition.isCore,
+    minimumPlan: toMarketplacePlan(moduleDefinition.tier),
+    dependencies: moduleDefinition.dependencies.map(normalizeModuleSlug),
+    supportedRoles: ["school_admin", "principal"],
+    version: moduleDefinition.version,
+    iconUrl: undefined,
+    screenshots: [],
+    documentationUrl: moduleDefinition.documentation,
+    changelogUrl: undefined,
+    publishedAt: now,
+    averageRating: 0,
+    reviewCount: 0,
+    installCount: 0,
+    activeInstallCount: 0,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+export const seedMarketplaceModules = mutation({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
-
     let created = 0;
     let updated = 0;
 
-    for (const mod of ALL_MODULES) {
+    for (const moduleDefinition of ALL_MODULES) {
+      const payload = buildPayload(moduleDefinition);
       const existing = await ctx.db
-        .query("moduleRegistry")
-        .withIndex("by_module_id", (q) => q.eq("moduleId", mod.moduleId))
+        .query("marketplace_modules")
+        .withIndex("by_slug", (q) => q.eq("slug", payload.slug))
         .first();
 
       if (existing) {
         await ctx.db.patch(existing._id, {
-          name: mod.name,
-          description: mod.description,
-          tier: mod.tier,
-          category: mod.category,
-          isCore: mod.isCore,
-          iconName: mod.iconName,
-          version: mod.version,
-          features: mod.features,
-          dependencies: mod.dependencies,
-          documentation: mod.documentation,
-          pricing: mod.pricing,
-          support: mod.support,
-          status: "published" as const,
+          ...payload,
+          installCount: existing.installCount ?? 0,
+          activeInstallCount: existing.activeInstallCount ?? 0,
+          reviewCount: existing.reviewCount ?? 0,
+          averageRating: existing.averageRating ?? 0,
+          createdAt: existing.createdAt,
+          updatedAt: Date.now(),
         });
         updated++;
       } else {
-        await ctx.db.insert("moduleRegistry", {
-          moduleId: mod.moduleId,
-          name: mod.name,
-          description: mod.description,
-          tier: mod.tier,
-          category: mod.category,
-          isCore: mod.isCore,
-          iconName: mod.iconName,
-          status: "published" as const,
-          version: mod.version,
-          pricing: mod.pricing,
-          features: mod.features,
-          dependencies: mod.dependencies,
-          documentation: mod.documentation,
-          support: mod.support,
-        });
+        await ctx.db.insert("marketplace_modules", payload);
         created++;
       }
     }
@@ -68,41 +78,50 @@ export const seedModuleRegistry = mutation({
   },
 });
 
-/**
- * Ensure core modules are installed for ALL tenants.
- * Platform admin only — idempotent backfill.
- */
 export const ensureCoreModules = mutation({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
-
     const tenants = await ctx.db.query("tenants").collect();
     let totalInstalled = 0;
 
     for (const tenant of tenants) {
-      const tenantId = tenant.tenantId;
+      for (const moduleDefinition of ALL_MODULES.filter((moduleRecord) => moduleRecord.isCore)) {
+        const moduleSlug = normalizeModuleSlug(moduleDefinition.moduleId);
+        const moduleRecord = await ctx.db
+          .query("marketplace_modules")
+          .withIndex("by_slug", (q) => q.eq("slug", moduleSlug))
+          .first();
+        if (!moduleRecord) continue;
 
-      for (const coreModuleId of CORE_MODULE_IDS) {
         const existing = await ctx.db
-          .query("installedModules")
-          .withIndex("by_tenant_module", (q) =>
-            q.eq("tenantId", tenantId).eq("moduleId", coreModuleId)
+          .query("module_installs")
+          .withIndex("by_tenantId_moduleSlug", (q) =>
+            q.eq("tenantId", tenant.tenantId).eq("moduleSlug", moduleSlug)
           )
           .first();
+        if (existing) continue;
 
-        if (!existing) {
-          await ctx.db.insert("installedModules", {
-            tenantId,
-            moduleId: coreModuleId,
-            installedAt: Date.now(),
-            installedBy: "system",
-            config: {},
-            status: "active",
-            updatedAt: Date.now(),
-          });
-          totalInstalled++;
-        }
+        await ctx.db.insert("module_installs", {
+          tenantId: tenant.tenantId,
+          moduleId: moduleRecord._id,
+          moduleSlug,
+          status: "active",
+          billingPeriod: "monthly",
+          currentPriceKes: 0,
+          hasPriceOverride: false,
+          isFree: true,
+          firstInstalledAt: Date.now(),
+          billingStartsAt: Date.now(),
+          nextBillingDate: Date.now(),
+          installedAt: Date.now(),
+          installedBy: "system",
+          version: moduleRecord.version,
+          paymentFailureCount: 0,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+        totalInstalled++;
       }
     }
 
@@ -110,37 +129,48 @@ export const ensureCoreModules = mutation({
   },
 });
 
-/**
- * Ensure core modules are installed for the calling user's tenant.
- * Called on first login / tenant setup. Requires a valid tenant session.
- */
 export const ensureCoreModulesForTenant = mutation({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     const session = await requireTenantSession(ctx, args);
-    const tenantId = session.tenantId;
-
     let installed = 0;
-    for (const coreModuleId of CORE_MODULE_IDS) {
+
+    for (const moduleDefinition of ALL_MODULES.filter((moduleRecord) => moduleRecord.isCore)) {
+      const moduleSlug = normalizeModuleSlug(moduleDefinition.moduleId);
+      const moduleRecord = await ctx.db
+        .query("marketplace_modules")
+        .withIndex("by_slug", (q) => q.eq("slug", moduleSlug))
+        .first();
+      if (!moduleRecord) continue;
+
       const existing = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant_module", (q) =>
-          q.eq("tenantId", tenantId).eq("moduleId", coreModuleId)
+        .query("module_installs")
+        .withIndex("by_tenantId_moduleSlug", (q) =>
+          q.eq("tenantId", session.tenantId).eq("moduleSlug", moduleSlug)
         )
         .first();
+      if (existing) continue;
 
-      if (!existing) {
-        await ctx.db.insert("installedModules", {
-          tenantId,
-          moduleId: coreModuleId,
-          installedAt: Date.now(),
-          installedBy: "system",
-          config: {},
-          status: "active",
-          updatedAt: Date.now(),
-        });
-        installed++;
-      }
+      await ctx.db.insert("module_installs", {
+        tenantId: session.tenantId,
+        moduleId: moduleRecord._id,
+        moduleSlug,
+        status: "active",
+        billingPeriod: "monthly",
+        currentPriceKes: 0,
+        hasPriceOverride: false,
+        isFree: true,
+        firstInstalledAt: Date.now(),
+        billingStartsAt: Date.now(),
+        nextBillingDate: Date.now(),
+        installedAt: Date.now(),
+        installedBy: "system",
+        version: moduleRecord.version,
+        paymentFailureCount: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+      installed++;
     }
 
     return { installed };

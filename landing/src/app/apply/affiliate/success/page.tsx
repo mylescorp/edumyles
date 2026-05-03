@@ -1,15 +1,15 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Mail, Phone, Clock, FileText, Share2 } from "lucide-react";
-import Logo from "@/components/shared/Logo";
+import { CheckCircle2, Mail, Phone, Clock, FileText, Share2 } from "lucide-react";
+import { getAppHref } from "@/lib/appLinks";
 
 function AffiliateApplicationSuccessContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const applicationId = searchParams.get("id");
+  const affiliatePortalHref = getAppHref("/portal/affiliate");
 
   return (
     <main className="min-h-screen bg-[#EEF6F1] flex items-center justify-center px-4">
@@ -89,10 +89,10 @@ function AffiliateApplicationSuccessContent() {
           <div className="space-y-4">
             <div className="border-l-4 border-[#E8A020] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
-                15% Commission Rate
+                10% Commission Rate
               </h3>
               <p className="font-jakarta text-[14px] text-[#5d6f66]">
-                Earn 15% commission on every school subscription that comes through your referral
+                Earn 10% commission on every school subscription that comes through your referral
                 link.
               </p>
             </div>
@@ -136,12 +136,12 @@ function AffiliateApplicationSuccessContent() {
             >
               Back to Home
             </Link>
-            <Link
-              href="/contact"
+            <a
+              href={affiliatePortalHref}
               className="inline-flex items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-white px-8 py-3 font-jakarta text-[15px] font-bold text-[#0F4C2A] transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] hover:text-white"
             >
-              Contact Affiliate Team
-            </Link>
+              Affiliate Portal
+            </a>
           </div>
 
           <div className="flex items-center justify-center gap-6 text-sm text-[#6B9E83]">

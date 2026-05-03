@@ -33,6 +33,13 @@ export function getRoleDashboardPath(role: string): string {
       return "/portal/alumni";
     case "partner":
       return "/portal/partner";
+    case "affiliate":
+      return "/portal/affiliate";
+    case "reseller":
+      return "/portal/reseller";
+    case "developer":
+    case "publisher":
+      return "/portal/developer";
     default:
       return "/admin";
   }
@@ -76,7 +83,7 @@ export function getLandingRedirectUri(origin: string): string {
 }
 
 export function getAppBaseUrl(origin: string): string {
-  return origin.replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || origin).replace(/\/$/, "");
 }
 
 export function buildPostAuthRedirectUrl(params: {

@@ -20,9 +20,9 @@ export default function Stats() {
 
   const stats = [
     { value: "50+", label: "Schools Active", sub: "Across 5 countries" },
-    { value: "10,000+", label: "Students Managed", sub: "And growing weekly" },
+    { value: "Multi-campus", label: "Students Managed", sub: "And growing weekly" },
     { value: "5", label: "Countries", sub: "KE · UG · TZ · RW · ZM" },
-    { value: "KES 120M+", label: "Fees Processed", sub: "Fully reconciled" },
+    { value: "Automated", label: "Fees Processed", sub: "Fully reconciled" },
   ];
 
   const countries = [

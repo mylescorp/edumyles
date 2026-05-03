@@ -70,8 +70,8 @@ export const getSubscriptionDetails = query({
       .collect();
 
     const modules = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .query("module_installs")
+      .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
       .collect();
 
     return {

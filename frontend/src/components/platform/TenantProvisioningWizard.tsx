@@ -23,7 +23,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getRootDomain } from "@/lib/domains";
-import { slugSchema, phoneSchema } from "@shared/validators";
+import { slugSchema, phoneSchema, tenantCurriculumSelectionSchema } from "@shared/validators";
+import { DEFAULT_SCHOOL_CURRICULUM_CODE, SCHOOL_CURRICULA, type SchoolCurriculumCode } from "@shared/constants";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -39,8 +40,15 @@ import {
 } from "lucide-react";
 
 const wizardSchema = z.object({
+  organizationMode: z.enum(["single_campus", "multi_campus_network"]),
+  networkName: z.string().optional(),
   schoolName: z.string().min(2, "School name is required"),
+  primaryCampusName: z.string().optional(),
+  primaryCampusCode: z.string().optional(),
   schoolType: z.string().min(2, "School type is required"),
+  curriculumMode: z.enum(["single", "multi"]),
+  primaryCurriculumCode: z.string().min(1, "Primary curriculum is required"),
+  activeCurriculumCodes: z.array(z.string()).min(1, "Select at least one curriculum"),
   country: z.string().min(2, "Country is required"),
   county: z.string().min(2, "Region or county is required"),
   address: z.string().optional(),
@@ -99,7 +107,21 @@ const SHARED_SETUP_FLOW = [
 ] as const;
 
 const STEP_FIELDS: Array<Array<keyof WizardData>> = [
-  ["schoolName", "schoolType", "country", "county", "websiteUrl", "logoUrl"],
+  [
+    "organizationMode",
+    "networkName",
+    "schoolName",
+    "primaryCampusName",
+    "primaryCampusCode",
+    "schoolType",
+    "curriculumMode",
+    "primaryCurriculumCode",
+    "activeCurriculumCodes",
+    "country",
+    "county",
+    "websiteUrl",
+    "logoUrl",
+  ],
   ["adminFirstName", "adminLastName", "adminEmail", "adminPhone", "adminJobTitle"],
   [
     "planId",
@@ -158,10 +180,39 @@ type LocationOption = {
   value: string;
 };
 
+type AdditionalCampusDraft = {
+  campusName: string;
+  schoolName: string;
+  campusCode: string;
+  subdomain: string;
+  county: string;
+  country: string;
+  schoolType: string;
+};
+
 function toNumber(value: string | undefined) {
   if (!value) return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function normalizeList<T>(value: unknown, candidateKeys: string[] = []): T[] {
+  if (Array.isArray(value)) {
+    return value as T[];
+  }
+
+  if (!value || typeof value !== "object") {
+    return [];
+  }
+
+  for (const key of candidateKeys) {
+    const candidate = (value as Record<string, unknown>)[key];
+    if (Array.isArray(candidate)) {
+      return candidate as T[];
+    }
+  }
+
+  return [];
 }
 
 function getWebsiteSubdomainValue(websiteUrl?: string) {
@@ -179,6 +230,18 @@ function getWebsiteSubdomainValue(websiteUrl?: string) {
       .replace(new RegExp(`\\.${getRootDomain().replace(".", "\\.")}$`, "i"), "")
       .replace(/\/.*$/, "");
   }
+}
+
+function createSlugSuggestion(value: string) {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40) || ""
+  );
 }
 
 export function TenantProvisioningWizard({ className = "" }: { className?: string }) {
@@ -207,9 +270,17 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   const [geoError, setGeoError] = useState<string | null>(null);
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const [isLoadingRegions, setIsLoadingRegions] = useState(false);
+  const [subdomainEdited, setSubdomainEdited] = useState(false);
   const [formData, setFormData] = useState<WizardData>({
+    organizationMode: "single_campus",
+    networkName: "",
     schoolName: "",
+    primaryCampusName: "",
+    primaryCampusCode: "",
     schoolType: "",
+    curriculumMode: "single",
+    primaryCurriculumCode: DEFAULT_SCHOOL_CURRICULUM_CODE,
+    activeCurriculumCodes: [DEFAULT_SCHOOL_CURRICULUM_CODE],
     country: "Kenya",
     county: "",
     address: "",
@@ -240,6 +311,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     welcomeMessage: "",
     sendWelcomeImmediately: true,
   });
+  const [additionalCampuses, setAdditionalCampuses] = useState<AdditionalCampusDraft[]>([]);
   const subdomainAvailability = useQuery(
     api.platform.tenants.queries.checkSubdomainAvailability,
     sessionToken && formData.subdomain.trim().length >= 3
@@ -249,11 +321,24 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   );
 
   const planList = useMemo(
-    () => ((planCatalog as Array<any> | undefined) ?? (plans as Array<any> | undefined) ?? []),
+    () => {
+      const platformPlans = normalizeList<any>(planCatalog, ["plans", "items", "data"]);
+      if (platformPlans.length > 0 || planCatalog !== undefined) {
+        return platformPlans;
+      }
+
+      return normalizeList<any>(plans, ["plans", "items", "data"]);
+    },
     [planCatalog, plans]
   );
-  const publishedModules = useMemo(() => (modules as Array<any> | undefined) ?? [], [modules]);
-  const currencyOptions = useMemo(() => (currencies as Array<any> | undefined) ?? [], [currencies]);
+  const publishedModules = useMemo(
+    () => normalizeList<any>(modules, ["modules", "items", "data"]),
+    [modules]
+  );
+  const currencyOptions = useMemo(
+    () => normalizeList<any>(currencies, ["currencies", "items", "data"]),
+    [currencies]
+  );
 
   const selectedPlan = useMemo(
     () => planList.find((plan) => plan.name === formData.planId),
@@ -331,13 +416,47 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
       }
     }
 
-    if (currentStep === 3 && formData.customDomain && !["pro", "enterprise"].includes(formData.planId)) {
-      setFormErrors((current) => ({ ...current, customDomain: "Custom domains require a Pro or Enterprise plan" }));
-      return false;
+    if (currentStep === 0) {
+      const curriculumResult = tenantCurriculumSelectionSchema.safeParse({
+        curriculumMode: formData.curriculumMode,
+        primaryCurriculumCode: formData.primaryCurriculumCode,
+        activeCurriculumCodes: formData.activeCurriculumCodes,
+      });
+
+      if (!curriculumResult.success) {
+        const nextErrors: Record<string, string> = {};
+        for (const issue of curriculumResult.error.issues) {
+          const path = issue.path[0];
+          if (typeof path === "string" && !nextErrors[path]) {
+            nextErrors[path] = issue.message;
+          }
+        }
+        setFormErrors((current) => ({ ...current, ...nextErrors }));
+        return false;
+      }
     }
 
-    if (currentStep === 3 && formData.subdomain.trim().length >= 3 && subdomainAvailability && !subdomainAvailability.available) {
-      setFormErrors((current) => ({ ...current, subdomain: subdomainAvailability.reason }));
+    if (currentStep === 0 && formData.organizationMode === "multi_campus_network") {
+      const nextErrors: Record<string, string> = {};
+      if (!formData.networkName?.trim()) {
+        nextErrors.networkName = "Network name is required for multi-campus onboarding";
+      }
+      if (!formData.primaryCampusName?.trim()) {
+        nextErrors.primaryCampusName = "Primary campus name is required";
+      }
+      for (const [index, campus] of additionalCampuses.entries()) {
+        if (!campus.campusName.trim()) {
+          nextErrors[`additionalCampus-${index}`] = "Each additional campus needs a name";
+        }
+      }
+      if (Object.keys(nextErrors).length > 0) {
+        setFormErrors((current) => ({ ...current, ...nextErrors }));
+        return false;
+      }
+    }
+
+    if (currentStep === 3 && formData.customDomain && !["pro", "enterprise"].includes(formData.planId)) {
+      setFormErrors((current) => ({ ...current, customDomain: "Custom domains require a Pro or Enterprise plan" }));
       return false;
     }
 
@@ -361,17 +480,12 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
   };
 
   useEffect(() => {
-    if (!formData.schoolName || formData.subdomain.trim().length > 0) return;
-    const suggestion = formData.schoolName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-")
-      .slice(0, 40);
+    if (!formData.schoolName || subdomainEdited) return;
+    const suggestion = createSlugSuggestion(formData.schoolName);
     if (suggestion) {
       setFormData((current) => ({ ...current, subdomain: suggestion }));
     }
-  }, [formData.schoolName, formData.subdomain]);
+  }, [formData.schoolName, subdomainEdited]);
 
   useEffect(() => {
     if (formData.planId || planList.length === 0) {
@@ -500,14 +614,78 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     );
   };
 
+  const handleCurriculumModeChange = (value: WizardData["curriculumMode"]) => {
+    if (value === "single") {
+      setFormData((current) => ({
+        ...current,
+        curriculumMode: value,
+        activeCurriculumCodes: [current.primaryCurriculumCode],
+      }));
+      return;
+    }
+
+    setField("curriculumMode", value);
+  };
+
+  const handlePrimaryCurriculumChange = (value: string) => {
+    setFormData((current) => {
+      const nextPrimary = value as SchoolCurriculumCode;
+      const activeCurriculumCodes =
+        current.curriculumMode === "single"
+          ? [nextPrimary]
+          : current.activeCurriculumCodes.includes(nextPrimary)
+            ? current.activeCurriculumCodes
+            : [...current.activeCurriculumCodes, nextPrimary];
+
+      return {
+        ...current,
+        primaryCurriculumCode: nextPrimary,
+        activeCurriculumCodes,
+      };
+    });
+    setFormErrors((current) => {
+      const next = { ...current };
+      delete next.primaryCurriculumCode;
+      delete next.activeCurriculumCodes;
+      return next;
+    });
+  };
+
+  const toggleActiveCurriculumCode = (value: SchoolCurriculumCode) => {
+    setFormData((current) => {
+      if (current.curriculumMode === "single") {
+        return {
+          ...current,
+          primaryCurriculumCode: value,
+          activeCurriculumCodes: [value],
+        };
+      }
+
+      const isActive = current.activeCurriculumCodes.includes(value);
+      const nextActiveCurriculumCodes = isActive
+        ? current.activeCurriculumCodes.filter((code) => code !== value)
+        : [...current.activeCurriculumCodes, value];
+
+      return {
+        ...current,
+        activeCurriculumCodes: nextActiveCurriculumCodes,
+        primaryCurriculumCode: nextActiveCurriculumCodes.includes(current.primaryCurriculumCode)
+          ? current.primaryCurriculumCode
+          : (nextActiveCurriculumCodes[0] ?? current.primaryCurriculumCode),
+      };
+    });
+    setFormErrors((current) => {
+      const next = { ...current };
+      delete next.primaryCurriculumCode;
+      delete next.activeCurriculumCodes;
+      return next;
+    });
+  };
+
   const autoSuggestSubdomain = () => {
-    const suggestion = formData.schoolName
-      .toLowerCase()
-      .replace(/[^a-z0-9\\s-]/g, "")
-      .trim()
-      .replace(/\\s+/g, "-")
-      .slice(0, 40);
+    const suggestion = createSlugSuggestion(formData.schoolName);
     if (suggestion) {
+      setSubdomainEdited(false);
       setField("subdomain", suggestion);
     }
   };
@@ -534,8 +712,14 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
       setSubmitStage("Creating tenant workspace");
       const result = await provisionTenant({
         sessionToken,
+        organizationMode: formData.organizationMode,
+        networkName:
+          formData.organizationMode === "multi_campus_network" ? formData.networkName || undefined : undefined,
         schoolName: formData.schoolName,
         schoolType: formData.schoolType,
+        curriculumMode: formData.curriculumMode,
+        primaryCurriculumCode: formData.primaryCurriculumCode,
+        activeCurriculumCodes: formData.activeCurriculumCodes,
         country: formData.country,
         county: formData.county,
         address: formData.address || undefined,
@@ -565,6 +749,32 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
         welcomeTemplate: formData.welcomeTemplate,
         welcomeMessage: formData.welcomeMessage || undefined,
         sendWelcomeImmediately: formData.sendWelcomeImmediately,
+        primaryCampus:
+          formData.organizationMode === "multi_campus_network"
+            ? {
+                campusName: formData.primaryCampusName || formData.schoolName,
+                campusCode: formData.primaryCampusCode || undefined,
+                schoolName: formData.schoolName,
+                subdomain: formData.subdomain,
+                county: formData.county,
+                country: formData.country,
+                schoolType: formData.schoolType,
+              }
+            : undefined,
+        additionalCampuses:
+          formData.organizationMode === "multi_campus_network"
+            ? additionalCampuses
+                .filter((campus) => campus.campusName.trim())
+                .map((campus) => ({
+                  campusName: campus.campusName.trim(),
+                  campusCode: campus.campusCode.trim() || undefined,
+                  schoolName: campus.schoolName.trim() || campus.campusName.trim(),
+                  subdomain: campus.subdomain.trim().toLowerCase(),
+                  county: campus.county.trim() || formData.county,
+                  country: campus.country.trim() || formData.country,
+                  schoolType: campus.schoolType.trim() || formData.schoolType,
+                }))
+            : undefined,
       });
 
       setSubmitStage("Provisioning organization");
@@ -726,8 +936,41 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
         <CardContent className="space-y-6 p-6">
           {currentStep === 0 && (
             <div className="grid gap-5 md:grid-cols-2">
+              <div className="space-y-2 md:col-span-2">
+                <Label>Organization mode</Label>
+                <Select
+                  value={formData.organizationMode}
+                  onValueChange={(value: WizardData["organizationMode"]) => setField("organizationMode", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select organization mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="single_campus">Single Campus</SelectItem>
+                    <SelectItem value="multi_campus_network">Multi-Campus Network</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {formData.organizationMode === "multi_campus_network" && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Network name</Label>
+                    <Input value={formData.networkName || ""} onChange={(e) => setField("networkName", e.target.value)} />
+                    {formErrors.networkName && <p className="text-xs text-destructive">{formErrors.networkName}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Primary campus name</Label>
+                    <Input
+                      value={formData.primaryCampusName || ""}
+                      onChange={(e) => setField("primaryCampusName", e.target.value)}
+                      placeholder="Main Campus"
+                    />
+                    {formErrors.primaryCampusName && <p className="text-xs text-destructive">{formErrors.primaryCampusName}</p>}
+                  </div>
+                </>
+              )}
               <div className="space-y-2">
-                <Label>School name</Label>
+                <Label>{formData.organizationMode === "multi_campus_network" ? "Primary campus school name" : "School name"}</Label>
                 <Input value={formData.schoolName} onChange={(e) => setField("schoolName", e.target.value)} />
                 {formErrors.schoolName && <p className="text-xs text-destructive">{formErrors.schoolName}</p>}
               </div>
@@ -746,6 +989,75 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                   </SelectContent>
                 </Select>
                 {formErrors.schoolType && <p className="text-xs text-destructive">{formErrors.schoolType}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label>Curriculum mode</Label>
+                <Select value={formData.curriculumMode} onValueChange={handleCurriculumModeChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select curriculum mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="single">Single curriculum</SelectItem>
+                    <SelectItem value="multi">Multiple curricula</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formErrors.curriculumMode && <p className="text-xs text-destructive">{formErrors.curriculumMode}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label>Primary curriculum</Label>
+                <Select value={formData.primaryCurriculumCode} onValueChange={handlePrimaryCurriculumChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select primary curriculum" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SCHOOL_CURRICULA.map((curriculum) => (
+                      <SelectItem key={curriculum.code} value={curriculum.code}>
+                        {curriculum.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formErrors.primaryCurriculumCode && <p className="text-xs text-destructive">{formErrors.primaryCurriculumCode}</p>}
+              </div>
+              <div className="space-y-3 md:col-span-2">
+                <div className="space-y-1">
+                  <Label>Active curricula</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {formData.curriculumMode === "single"
+                      ? "Choose the single curriculum this school will operate."
+                      : "Select every curriculum this tenant needs at launch."}
+                  </p>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {SCHOOL_CURRICULA.map((curriculum) => {
+                    const checked = formData.activeCurriculumCodes.includes(curriculum.code);
+                    return (
+                      <label
+                        key={curriculum.code}
+                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 ${
+                          checked ? "border-primary bg-primary/5" : "border-border/60 bg-background"
+                        }`}
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={() => toggleActiveCurriculumCode(curriculum.code)}
+                        />
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">{curriculum.label}</span>
+                            {formData.primaryCurriculumCode === curriculum.code ? (
+                              <Badge variant="secondary">Primary</Badge>
+                            ) : null}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Default structure: {curriculum.defaultAcademicStructure} | Preset: {curriculum.defaultGradingPreset}
+                          </p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+                {formErrors.activeCurriculumCodes && <p className="text-xs text-destructive">{formErrors.activeCurriculumCodes}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Country</Label>
@@ -834,6 +1146,120 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                 <Input value={formData.logoUrl} onChange={(e) => setField("logoUrl", e.target.value)} placeholder="https://..." />
                 {formErrors.logoUrl && <p className="text-xs text-destructive">{formErrors.logoUrl}</p>}
               </div>
+              {formData.organizationMode === "multi_campus_network" && (
+                <div className="space-y-4 md:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Additional campuses</Label>
+                      <p className="text-xs text-muted-foreground">Draft extra campuses now. Each campus gets its own unique `{getRootDomain()}` subdomain automatically.</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setAdditionalCampuses((current) => [
+                          ...current,
+                          {
+                            campusName: "",
+                            schoolName: "",
+                            campusCode: "",
+                            subdomain: "",
+                            county: formData.county,
+                            country: formData.country,
+                            schoolType: formData.schoolType,
+                          },
+                        ])
+                      }
+                    >
+                      Add campus
+                    </Button>
+                  </div>
+                  <div className="space-y-3">
+                    {additionalCampuses.length === 0 ? (
+                      <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                        No extra campuses drafted yet.
+                      </div>
+                    ) : (
+                      additionalCampuses.map((campus, index) => (
+                        <div key={`${index}-${campus.subdomain}`} className="grid gap-3 rounded-xl border p-4 md:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label>Campus name</Label>
+                            <Input
+                              value={campus.campusName}
+                              onChange={(e) =>
+                                setAdditionalCampuses((current) =>
+                                  current.map((row, rowIndex) =>
+                                    rowIndex === index ? { ...row, campusName: e.target.value } : row
+                                  )
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Campus subdomain override</Label>
+                            <Input
+                              placeholder={createSlugSuggestion(campus.schoolName || campus.campusName) || "auto-generated"}
+                              value={campus.subdomain}
+                              onChange={(e) =>
+                                setAdditionalCampuses((current) =>
+                                  current.map((row, rowIndex) =>
+                                    rowIndex === index ? { ...row, subdomain: createSlugSuggestion(e.target.value) } : row
+                                  )
+                                )
+                              }
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Leave blank to auto-create `{createSlugSuggestion(campus.schoolName || campus.campusName) || "campus"}.{getRootDomain()}`.
+                            </p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>School name override</Label>
+                            <Input
+                              value={campus.schoolName}
+                              onChange={(e) =>
+                                setAdditionalCampuses((current) =>
+                                  current.map((row, rowIndex) =>
+                                    rowIndex === index ? { ...row, schoolName: e.target.value } : row
+                                  )
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Campus code</Label>
+                            <Input
+                              value={campus.campusCode}
+                              onChange={(e) =>
+                                setAdditionalCampuses((current) =>
+                                  current.map((row, rowIndex) =>
+                                    rowIndex === index ? { ...row, campusCode: e.target.value } : row
+                                  )
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="md:col-span-2 flex justify-end">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                setAdditionalCampuses((current) => current.filter((_, rowIndex) => rowIndex !== index))
+                              }
+                            >
+                              Remove campus
+                            </Button>
+                          </div>
+                          {formErrors[`additionalCampus-${index}`] && (
+                            <p className="md:col-span-2 text-xs text-destructive">{formErrors[`additionalCampus-${index}`]}</p>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -978,19 +1404,29 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
           {currentStep === 3 && (
             <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Subdomain</Label>
+                <Label>Automatic school subdomain</Label>
                 <div className="flex gap-2">
-                  <Input value={formData.subdomain} onChange={(e) => setField("subdomain", e.target.value.toLowerCase())} />
+                  <Input
+                    value={formData.subdomain}
+                    onChange={(e) => {
+                      setSubdomainEdited(true);
+                      setField("subdomain", createSlugSuggestion(e.target.value));
+                    }}
+                  />
                   <Button type="button" variant="outline" onClick={autoSuggestSubdomain}>Suggest</Button>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Will resolve as `{formData.subdomain || "school"}.{getRootDomain()}`</p>
+                  <p className="text-xs text-muted-foreground">
+                    EduMyles provisions `{formData.subdomain || createSlugSuggestion(formData.schoolName) || "school"}.{getRootDomain()}` automatically. If the first choice is taken, the backend assigns the next available variant.
+                  </p>
                   <p className={`text-xs font-medium ${subdomainStatusTone}`}>
                     {formData.subdomain.trim().length < 3
-                      ? "Enter at least 3 characters to check availability."
+                      ? "A valid subdomain is generated from the school name before provisioning."
                       : subdomainAvailability === undefined
                         ? "Checking availability..."
-                        : subdomainAvailability.reason}
+                        : subdomainAvailability.available
+                          ? subdomainAvailability.reason
+                          : `${subdomainAvailability.reason} A unique fallback will be assigned automatically.`}
                   </p>
                 </div>
                 {formErrors.subdomain && <p className="text-xs text-destructive">{formErrors.subdomain}</p>}
@@ -1150,6 +1586,9 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                     <p className="font-medium">{formData.schoolName || "School name not set"}</p>
                     <p className="text-muted-foreground">{formData.schoolType || "School type pending"}</p>
                     <p className="text-muted-foreground">{formData.country} / {formData.county}</p>
+                    <p className="text-muted-foreground">
+                      Mode: {formData.organizationMode === "multi_campus_network" ? "Multi-campus network" : "Single campus"}
+                    </p>
                   </div>
                   <div>
                     <p className="font-medium">{formData.adminFirstName} {formData.adminLastName}</p>
@@ -1165,6 +1604,11 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                     <p className="font-medium">{formData.subdomain || "subdomain"}.{getRootDomain()}</p>
                     <p className="text-muted-foreground">{formData.displayCurrency} / {formData.timezone}</p>
                     <p className="text-muted-foreground">{formData.selectedModuleIds.length} bundle modules, {formData.pilotGrantModuleIds.length} pilot grants</p>
+                    {formData.organizationMode === "multi_campus_network" ? (
+                      <p className="text-muted-foreground">
+                        {additionalCampuses.length} extra campus draft(s) linked to {formData.networkName || "network pending"}
+                      </p>
+                    ) : null}
                   </div>
                 </CardContent>
               </Card>
@@ -1172,7 +1616,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
               <Alert>
                 <Mail className="h-4 w-4" />
                 <AlertDescription>
-                  The current provisioning flow creates the tenant, WorkOS organization, subscription, onboarding record, selected installed modules, pilot grants, and a WorkOS-backed school-admin invitation.
+                  The current provisioning flow creates the tenant {formData.organizationMode === "multi_campus_network" ? "network, primary campus, optional additional campuses," : ""} WorkOS organization, subscription, onboarding record, selected installed modules, pilot grants, and a WorkOS-backed school-admin invitation.
                 </AlertDescription>
               </Alert>
             </div>

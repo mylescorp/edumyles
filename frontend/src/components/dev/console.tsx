@@ -448,6 +448,7 @@ export function DevConsoleShell({
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="outline">{systemMap?.summary.frontendPages ?? 0} pages</Badge>
+                  <Badge variant="outline">{systemMap?.summary.landingPages ?? 0} landing</Badge>
                   <Badge variant="outline">{systemMap?.summary.backendEndpoints ?? 0} endpoints</Badge>
                   <Badge variant="outline">{systemMap?.summary.panelCount ?? 0} panels</Badge>
                   <Badge variant="outline">{systemMap?.summary.portalCount ?? 0} portals</Badge>
@@ -465,7 +466,7 @@ export function DevConsoleShell({
             </CardContent>
           </Card>
 
-          {DEV_CONSOLE_NAV.slice(0, 2).map((item) => {
+          {DEV_CONSOLE_NAV.slice(0, 3).map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
@@ -489,7 +490,7 @@ export function DevConsoleShell({
           })}
         </div>
 
-        <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-9">
+        <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-10">
           {DEV_CONSOLE_NAV.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -549,23 +550,31 @@ export function ErrorState({ error }: { error: string }) {
 }
 
 export function OpenRouteButton({ routePath }: { routePath: string }) {
+  if (routePath.includes("[") || routePath.includes("]")) {
+    return <span className="text-xs text-muted-foreground">Dynamic route</span>;
+  }
+
   return (
     <Button asChild size="sm">
-      <Link href={routePath} target="_blank">
+      <a href={routePath} target="_blank" rel="noreferrer">
         Open
         <ChevronRight className="ml-2 h-3.5 w-3.5" />
-      </Link>
+      </a>
     </Button>
   );
 }
 
 export function ExternalOpenButton({ href }: { href: string }) {
+  if (href.includes("[") || href.includes("]")) {
+    return <span className="text-xs text-muted-foreground">Dynamic route</span>;
+  }
+
   return (
     <Button asChild variant="outline" size="sm">
-      <Link href={href} target="_blank">
+      <a href={href} target="_blank" rel="noreferrer">
         Open
         <ExternalLink className="ml-2 h-3.5 w-3.5" />
-      </Link>
+      </a>
     </Button>
   );
 }

@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = {
   title: "Reseller Programme — EduMyles | Resell & Earn",
   description:
-    "Join the EduMyles Reseller Programme. Resell Africa's leading school management platform and earn up to 30% recurring monthly commission. White-label available.",
+    "Join the EduMyles Reseller Programme. Resell Africa's leading school management platform and earn up to 35% recurring monthly commission. White-label available.",
 };
 
 const tiers = [
@@ -43,7 +43,7 @@ const tiers = [
     title: "Reseller Partner",
     forWho: "ICT firms, EdTech companies, school suppliers, system integrators",
     desc: "Bundle EduMyles with your products and services. White-label the platform under your brand. Get a dedicated partner manager, co-sell support, and reseller pricing.",
-    earn: "Up to 30% recurring + implementation fees",
+    earn: "Up to 35% recurring + implementation fees",
     features: [
       "White-label branding rights",
       "Dedicated partner success manager",
@@ -62,7 +62,7 @@ const tiers = [
     icon: Plug,
     title: "Integration Partner",
     forWho: "SaaS companies with complementary tools",
-    desc: "Build native integrations via our REST API. Get listed in the EduMyles marketplace and gain immediate distribution to 50+ schools on day one.",
+    desc: "Build native integrations via our REST API. Get listed in the EduMyles marketplace and gain immediate distribution to schools on day one.",
     earn: "Revenue share on referred upgrades",
     features: [
       "Full REST API access",
@@ -86,9 +86,9 @@ const resellerBenefits = [
   },
   {
     icon: Banknote,
-    title: "30% Recurring Commission",
+    title: "20-35% Recurring Commission",
     detail:
-      "Earn 30% of every monthly subscription — for as long as the school stays on the platform. No caps, no clawbacks.",
+      "Earn recurring commission based on your reseller tier — for as long as the school stays on the platform. No caps, no clawbacks.",
   },
   {
     icon: Users,
@@ -117,10 +117,10 @@ const resellerBenefits = [
 ];
 
 const earnings = [
-  { schools: "5 schools", plan: "Starter", monthly: "KES 19,350" },
-  { schools: "10 schools", plan: "Growth", monthly: "KES 64,500" },
-  { schools: "20 schools", plan: "Growth mix", monthly: "KES 129,000" },
-  { schools: "50 schools", plan: "Mixed plans", monthly: "KES 322,500+" },
+  { schools: "5 schools", plan: "Starter at 20%", monthly: "KES 12,900" },
+  { schools: "10 schools", plan: "Professional at 25%", monthly: "KES 97,250" },
+  { schools: "20 schools", plan: "Professional at 30%", monthly: "KES 233,400" },
+  { schools: "50 schools", plan: "Professional at 35%", monthly: "KES 680,750" },
 ];
 
 const steps = [
@@ -244,10 +244,10 @@ export default function ResellersPage() {
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               {[
-                "Up to 30% commission",
+                "Up to 35% commission",
                 "Monthly M-Pesa payouts",
                 "White-label ready",
-                "90-day cookie window",
+                "Tracked referrals",
               ].map((pill) => (
                 <span
                   key={pill}
@@ -481,7 +481,7 @@ export default function ResellersPage() {
                   "Dedicated partner Slack channel",
                   "Named partner success manager",
                   "Marketing asset library",
-                  "90-day cookie tracking window",
+                  "Tracked referral attribution",
                 ].map((item) => (
                   <li
                     key={item}
@@ -529,7 +529,7 @@ export default function ResellersPage() {
               </em>
             </h2>
             <p className="font-jakarta text-[15px] mt-3" style={{ color: "#5a5a5a" }}>
-              Based on 30% Reseller commission rate
+              Based on current Starter and Professional public pricing
             </p>
           </div>
           <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #e8f4ec" }}>
@@ -584,7 +584,7 @@ export default function ResellersPage() {
             </table>
           </div>
           <p className="font-jakarta text-[12px] mt-3 text-center" style={{ color: "#9ca3af" }}>
-            * Referral Partners earn 20% commission. Reseller Partners earn up to 30%.
+            * Reseller tiers earn 20%, 25%, 30%, or 35% based on approved tier.
           </p>
         </div>
       </section>

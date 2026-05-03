@@ -2,6 +2,12 @@ import { mutation, query } from "../../_generated/server";
 import { v } from "convex/values";
 import { logAction } from "../../helpers/auditLog";
 
+function assertTrustedServer(serverSecret?: string) {
+  if (!process.env.CONVEX_WEBHOOK_SECRET || serverSecret !== process.env.CONVEX_WEBHOOK_SECRET) {
+    throw new Error("FORBIDDEN: Trusted server credentials required");
+  }
+}
+
 async function resolveUserBySession(ctx: any, session: any) {
   const byEduMylesUserId = await ctx.db
     .query("users")
@@ -139,11 +145,14 @@ export const updatePasswordHash = mutation({
 
 export const createResetToken = mutation({
   args: {
+    serverSecret: v.string(),
     email: v.string(),
     token: v.string(),
     expiresAt: v.number(),
   },
   handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
     // Find user by email
     const user = await ctx.db
       .query("users")
@@ -175,8 +184,13 @@ export const createResetToken = mutation({
 });
 
 export const getResetToken = query({
-  args: { token: v.string() },
+  args: {
+    serverSecret: v.string(),
+    token: v.string(),
+  },
   handler: async (ctx, args) => {
+    assertTrustedServer(args.serverSecret);
+
     const resetToken = await ctx.db
       .query("passwordResetTokens")
       .withIndex("by_token", (q) => q.eq("token", args.token))
@@ -188,19 +202,33 @@ export const getResetToken = query({
 
 export const resetPasswordWithToken = mutation({
   args: {
+    serverSecret: v.string(),
     token: v.string(),
     userId: v.string(),
     passwordHash: v.string(),
   },
   handler: async (ctx, args) => {
-    // Mark token as used
+    assertTrustedServer(args.serverSecret);
+
     const resetToken = await ctx.db
       .query("passwordResetTokens")
       .withIndex("by_token", (q) => q.eq("token", args.token))
       .first();
 
-    if (resetToken) {
-      await ctx.db.patch(resetToken._id, { used: true });
+    if (!resetToken) {
+      throw new Error("Invalid reset token");
+    }
+
+    if (resetToken.used) {
+      throw new Error("This reset token has already been used");
+    }
+
+    if (resetToken.expiresAt < Date.now()) {
+      throw new Error("This reset token has expired");
+    }
+
+    if (resetToken.userId !== args.userId) {
+      throw new Error("Reset token does not match user");
     }
 
     // Update user password
@@ -209,6 +237,8 @@ export const resetPasswordWithToken = mutation({
       .withIndex("by_user_id", (q) => q.eq("eduMylesUserId", args.userId))
       .first();
     if (!user) throw new Error("User not found");
+
+    await ctx.db.patch(resetToken._id, { used: true });
 
     await ctx.db.patch(user._id, {
       passwordHash: args.passwordHash,

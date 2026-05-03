@@ -18,6 +18,7 @@ import {
   buildSubmissionAttribution,
   storeReferralClickId,
 } from "@/lib/attribution";
+import { trackFormSubmission, trackLeadConversion } from "@/lib/analytics";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -122,6 +123,11 @@ export default function BookDemoContent() {
         );
       }
 
+      trackFormSubmission("demo_request", true);
+      trackLeadConversion("demo_request", {
+        form_name: "demo_request",
+        captured_via_fallback: payload.capturedViaFallback ?? false,
+      });
       setFormState("success");
     } catch (submitError) {
       setError(
@@ -129,6 +135,7 @@ export default function BookDemoContent() {
           ? submitError.message
           : "We couldn't submit your demo request right now."
       );
+      trackFormSubmission("demo_request", false);
       setFormState("error");
     }
   }

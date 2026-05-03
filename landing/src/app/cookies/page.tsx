@@ -236,7 +236,7 @@ export default function CookiesPage() {
                   {
                     name: "em_auth_token",
                     purpose:
-                      "Stores your WorkOS authentication token so you stay logged in between browser sessions.",
+                      "Stores your authentication token so you stay logged in between browser sessions.",
                     duration: "7 days",
                     type: "Essential",
                     typeColor: "#0F4C2A",
@@ -261,9 +261,9 @@ export default function CookiesPage() {
                     typeBg: "rgba(26,122,74,0.1)",
                   },
                   {
-                    name: "_vercel_analytics",
+                    name: "_analytics",
                     purpose:
-                      "Anonymous, aggregated usage analytics provided by Vercel. No personal data is collected. Used to understand which features are most used.",
+                      "Anonymous, aggregated usage analytics. No personal data is collected. Used to understand which features are most used.",
                     duration: "30 days",
                     type: "Analytics",
                     typeColor: "#7A4A00",
@@ -389,7 +389,7 @@ export default function CookiesPage() {
                 information about usage patterns.
               </p>
               <ul className="flex flex-col gap-1.5 mt-3">
-                {["_vercel_analytics", "_ga"].map((c) => (
+                {["_analytics", "_ga"].map((c) => (
                   <li
                     key={c}
                     className="flex items-center gap-2 font-jakarta text-[12.5px]"
@@ -440,17 +440,16 @@ export default function CookiesPage() {
                     className="font-jakarta font-bold text-[13.5px] mb-1"
                     style={{ color: "#061A12" }}
                   >
-                    Vercel Analytics
+                    Analytics Cookies
                   </p>
                   <p
                     className="font-jakarta text-[13px] leading-[1.75]"
                     style={{ color: "#5a5a5a" }}
                   >
-                    Vercel Analytics collects <strong>fully anonymous</strong> usage data — page
+                    Analytics cookies collect <strong>fully anonymous</strong> usage data — page
                     views, navigation paths, and performance metrics. No IP address or user identity
                     is stored. Data is aggregated and used only by the EduMyles team to improve the
-                    platform. Vercel&apos;s analytics is privacy-first and does not use cross-site
-                    tracking.
+                    platform. Our analytics configuration does not use cross-site tracking.
                   </p>
                 </div>
               </div>

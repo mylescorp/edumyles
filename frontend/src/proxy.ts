@@ -75,6 +75,9 @@ const ROUTE_ROLE_MAP: Record<string, string[]> = {
   "/portal/parent": ["parent", "master_admin", "super_admin", "school_admin", "principal"],
   "/portal/alumni": ["alumni", "master_admin", "super_admin", "school_admin"],
   "/portal/partner": ["partner", "master_admin", "super_admin", "school_admin"],
+  "/portal/affiliate": ["affiliate", "master_admin", "super_admin"],
+  "/portal/reseller": ["reseller", "master_admin", "super_admin"],
+  "/portal/developer": ["developer", "master_admin", "super_admin"],
   "/student": ["student", "master_admin", "super_admin", "school_admin", "principal", "teacher"],
 };
 
@@ -133,6 +136,12 @@ function getRoleDashboard(role: string): string {
       return "/portal/alumni";
     case "partner":
       return "/portal/partner";
+    case "affiliate":
+      return "/portal/affiliate";
+    case "reseller":
+      return "/portal/reseller";
+    case "developer":
+      return "/portal/developer";
     default:
       return "/admin";
   }

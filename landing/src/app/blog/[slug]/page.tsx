@@ -519,7 +519,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             Ready to manage your school smarter?
           </h3>
           <p className="font-jakarta text-[14px] mb-6" style={{ color: "#A8E6C3" }}>
-            Join 50+ schools already running better with EduMyles. Free 30-day trial.
+            Join schools already running better with EduMyles. Free 30-day trial.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link

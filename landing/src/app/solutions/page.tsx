@@ -18,7 +18,7 @@ import {
 export const metadata: Metadata = {
   title: "Solutions — EduMyles | School Management for Every Institution",
   description:
-    "Complete school management solutions for primary schools, secondary schools, international schools, and school groups. CBC-ready, KCSE support, IGCSE & IB curriculum, and multi-campus management.",
+    "Complete school management solutions for primary schools, secondary schools, international schools, and school groups. CBC, ACE, IGCSE, 8-4-4, and multi-campus management.",
 };
 
 const solutions = [
@@ -39,9 +39,9 @@ const solutions = [
     color: "#0F4C2A",
     bgGradient: "from-green-50 to-emerald-50",
     stats: {
-      schools: "500+",
-      students: "150K+",
-      satisfaction: "98%",
+      schools: "CBC",
+      students: "Primary",
+      satisfaction: "Portals",
     },
   },
   {
@@ -61,19 +61,19 @@ const solutions = [
     color: "#1A7A4A",
     bgGradient: "from-emerald-50 to-teal-50",
     stats: {
-      schools: "300+",
-      students: "200K+",
-      satisfaction: "97%",
+      schools: "8-4-4",
+      students: "Secondary",
+      satisfaction: "Reports",
     },
   },
   {
     icon: Globe,
     title: "International Schools",
     description:
-      "IGCSE & IB curriculum support with SSO, white-label options, and global standards compliance.",
+      "IGCSE curriculum support with SSO, white-label options, and global standards compliance.",
     href: "/solutions/international-schools",
     features: [
-      "IGCSE & IB Curriculum",
+      "IGCSE Curriculum",
       "Single Sign-On (SSO)",
       "White-Label Options",
       "Multi-Language Support",
@@ -116,7 +116,7 @@ const benefits = [
   {
     icon: Shield,
     title: "Secure & Compliant",
-    description: "GDPR-compliant with enterprise-grade security and regular data backups",
+    description: "Kenya DPA-aware controls with enterprise-grade security and regular data backups",
   },
   {
     icon: Zap,
@@ -141,7 +141,7 @@ const benefits = [
   {
     icon: Star,
     title: "Proven Results",
-    description: "Trusted by 1000+ schools with 97% customer satisfaction rate",
+    description: "Built around the workflows schools use every day, from admissions to finance",
   },
 ];
 
@@ -181,7 +181,7 @@ export default function SolutionsPage() {
               community.
             </p>
             <div className="flex flex-wrap justify-center gap-4 mb-8">
-              {["CBC-Ready", "KCSE Support", "IGCSE & IB", "Multi-Campus"].map((badge) => (
+              {["CBC", "ACE", "IGCSE", "8-4-4", "Multi-Campus"].map((badge) => (
                 <span
                   key={badge}
                   className="inline-flex items-center font-jakarta font-semibold text-sm px-4 py-2 rounded-full"
@@ -260,52 +260,6 @@ export default function SolutionsPage() {
 
                 {/* Card Body */}
                 <div className="p-6">
-                  {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div
-                      className="text-center p-3 rounded-xl"
-                      style={{ background: "rgba(6,26,18,0.02)" }}
-                    >
-                      <div
-                        className="font-jakarta font-bold text-xl"
-                        style={{ color: solution.color }}
-                      >
-                        {solution.stats.schools}
-                      </div>
-                      <div className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
-                        Schools
-                      </div>
-                    </div>
-                    <div
-                      className="text-center p-3 rounded-xl"
-                      style={{ background: "rgba(6,26,18,0.02)" }}
-                    >
-                      <div
-                        className="font-jakarta font-bold text-xl"
-                        style={{ color: solution.color }}
-                      >
-                        {solution.stats.students}
-                      </div>
-                      <div className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
-                        Students
-                      </div>
-                    </div>
-                    <div
-                      className="text-center p-3 rounded-xl"
-                      style={{ background: "rgba(6,26,18,0.02)" }}
-                    >
-                      <div
-                        className="font-jakarta font-bold text-xl"
-                        style={{ color: solution.color }}
-                      >
-                        {solution.stats.satisfaction}
-                      </div>
-                      <div className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
-                        Satisfaction
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Features */}
                   <div className="space-y-3 mb-6">
                     {solution.features.slice(0, 3).map((feature) => (
@@ -419,8 +373,8 @@ export default function SolutionsPage() {
             Ready to Transform Your <span style={{ color: "#E8A020" }}>School Management?</span>
           </h2>
           <p className="font-jakarta text-lg mb-8" style={{ color: "#A8E6C3", lineHeight: "1.7" }}>
-            Join 1000+ schools across East Africa that have already streamlined their operations and
-            enhanced educational outcomes with EduMyles.
+            Streamline your school operations and give every team a clearer way to work with
+            EduMyles.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link

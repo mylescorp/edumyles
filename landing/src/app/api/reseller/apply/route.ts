@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       message: result.duplicate
         ? "Reseller application already exists and remains on file"
         : "Reseller application submitted successfully",
+      nextPath: `/apply/reseller/success?id=${result.applicationId}`,
     });
   } catch (error) {
     console.error("Reseller application error:", error);

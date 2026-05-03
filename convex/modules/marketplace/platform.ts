@@ -1,47 +1,44 @@
 import { mutation, query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { normalizeModuleSlug } from "./moduleAliases";
 
-// SECURITY: Platform-scoped functions in this file use requirePlatformSession()
-// because they are called with explicit sessionToken args rather than Convex JWT auth.
+const statusValidator = v.union(
+  v.literal("draft"),
+  v.literal("published"),
+  v.literal("deprecated"),
+  v.literal("suspended"),
+  v.literal("banned")
+);
 
-/**
- * Update a module's status in the registry (active/beta/deprecated).
- * Platform admin only.
- */
+async function getModuleBySlugOrThrow(ctx: any, moduleId: string) {
+  const moduleSlug = normalizeModuleSlug(moduleId);
+  const moduleRecord = await ctx.db
+    .query("marketplace_modules")
+    .withIndex("by_slug", (q: any) => q.eq("slug", moduleSlug))
+    .first();
+
+  if (!moduleRecord) {
+    throw new Error("MODULE_NOT_FOUND");
+  }
+
+  return moduleRecord;
+}
+
 export const updateModuleStatus = mutation({
   args: {
     sessionToken: v.string(),
     moduleId: v.string(),
-    status: v.union(
-      v.literal("published"),
-      v.literal("active"),
-      v.literal("beta"),
-      v.literal("deprecated")
-    ),
+    status: statusValidator,
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
-
-    const mod = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
-      .first();
-
-    if (!mod) {
-      throw new Error("MODULE_NOT_FOUND");
-    }
-
-    await ctx.db.patch(mod._id, { status: args.status });
-
+    const moduleRecord = await getModuleBySlugOrThrow(ctx, args.moduleId);
+    await ctx.db.patch(moduleRecord._id, { status: args.status, updatedAt: Date.now() });
     return { success: true };
   },
 });
 
-/**
- * Update a module's version in the registry.
- * Platform admin only.
- */
 export const updateModuleVersion = mutation({
   args: {
     sessionToken: v.string(),
@@ -50,68 +47,38 @@ export const updateModuleVersion = mutation({
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
-
-    const mod = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
-      .first();
-
-    if (!mod) {
-      throw new Error("MODULE_NOT_FOUND");
-    }
-
-    await ctx.db.patch(mod._id, { version: args.version });
-
+    const moduleRecord = await getModuleBySlugOrThrow(ctx, args.moduleId);
+    await ctx.db.patch(moduleRecord._id, { version: args.version, updatedAt: Date.now() });
     return { success: true };
   },
 });
 
-/**
- * Get full registry listing for platform admins (includes all statuses).
- * Platform admin only.
- */
 export const getFullRegistry = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
-
-    return await ctx.db.query("moduleRegistry").collect();
+    return await ctx.db.query("marketplace_modules").collect();
   },
 });
 
-/**
- * Update module metadata (name, description, tier, category).
- * Platform admin only.
- */
 export const updateModuleMetadata = mutation({
   args: {
     sessionToken: v.string(),
     moduleId: v.string(),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
-    tier: v.optional(v.string()),
+    tier: v.optional(v.union(v.literal("free"), v.literal("starter"), v.literal("pro"), v.literal("enterprise"))),
     category: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
-
-    const mod = await ctx.db
-      .query("moduleRegistry")
-      .withIndex("by_module_id", (q) => q.eq("moduleId", args.moduleId))
-      .first();
-
-    if (!mod) {
-      throw new Error("MODULE_NOT_FOUND");
-    }
-
-    const updates: Record<string, string> = {};
+    const moduleRecord = await getModuleBySlugOrThrow(ctx, args.moduleId);
+    const updates: Record<string, any> = { updatedAt: Date.now() };
     if (args.name) updates.name = args.name;
     if (args.description) updates.description = args.description;
-    if (args.tier) updates.tier = args.tier;
+    if (args.tier) updates.minimumPlan = args.tier;
     if (args.category) updates.category = args.category;
-
-    await ctx.db.patch(mod._id, updates);
-
+    await ctx.db.patch(moduleRecord._id, updates);
     return { success: true };
   },
 });

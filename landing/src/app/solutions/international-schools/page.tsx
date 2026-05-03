@@ -21,9 +21,9 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "EduMyles for International Schools — IGCSE, IB & Cambridge School Management",
+  title: "EduMyles for International Schools — IGCSE School Management",
   description:
-    "The premium school management platform for international and private schools in Africa. IGCSE, IB, Cambridge curricula, multi-currency fees, SSO, white-label options.",
+    "The premium school management platform for international and private schools in Africa. IGCSE curriculum, multi-currency fees, SSO, and white-label options.",
 };
 
 /* ─── Data ─────────────────────────────────────────────────────── */
@@ -39,7 +39,7 @@ const painPoints: { num: string; icon: LucideIcon; title: string; text: string }
     num: "02",
     icon: CreditCard,
     title: "Multi-currency fees with no unified reporting",
-    text: "Multi-currency fee collection — KES, USD, GBP, EUR — with international bank transfers, Stripe, and M-Pesa all needing unified reporting. Currently you're reconciling across three systems.",
+    text: "Multi-currency fee collection — KES, USD, GBP, EUR — with international bank transfers, card payments, and M-Pesa all needing unified reporting. Currently you're reconciling across three systems.",
   },
   {
     num: "03",
@@ -73,13 +73,13 @@ const howItWorks: { step: string; title: string; desc: string; when: string }[] 
 const modules: { icon: LucideIcon; title: string; desc: string }[] = [
   {
     icon: BookOpen,
-    title: "IGCSE / IB / Cambridge Gradebook",
-    desc: "Configure any international curriculum. Custom grade scales, predicted grades, internal assessment tracking, and examiner-ready reports.",
+    title: "IGCSE Gradebook",
+    desc: "Configure IGCSE subjects and grade scales, predicted grades, internal assessment tracking, and examiner-ready reports.",
   },
   {
     icon: Wallet,
     title: "Multi-Currency Fee Collection",
-    desc: "Accept KES, USD, GBP, EUR. Bank transfer reconciliation, M-Pesa, and Stripe. Unified fee dashboard across all currencies.",
+    desc: "Accept KES, USD, GBP, EUR. Bank transfer reconciliation, M-Pesa, and card payments. Unified fee dashboard across all currencies.",
   },
   {
     icon: Star,
@@ -89,7 +89,7 @@ const modules: { icon: LucideIcon; title: string; desc: string }[] = [
   {
     icon: KeyRound,
     title: "SSO & Enterprise Auth",
-    desc: "Google Workspace and Microsoft 365 SSO. MFA enforcement for all admin accounts. WorkOS-powered with SCIM provisioning.",
+    desc: "Google Workspace and Microsoft 365 SSO. MFA enforcement for administrator accounts, with provisioning workflows for larger schools.",
   },
   {
     icon: Bell,
@@ -99,7 +99,7 @@ const modules: { icon: LucideIcon; title: string; desc: string }[] = [
   {
     icon: FileText,
     title: "Audit Logs & Compliance",
-    desc: "Full activity audit trail. GDPR and Kenya DPA compliant. Data residency options. Annual Data Protection Impact Assessments.",
+    desc: "Full activity audit trail, Kenya DPA-aware controls, export workflows, and data residency options.",
   },
   {
     icon: Users,
@@ -115,10 +115,9 @@ const modules: { icon: LucideIcon; title: string; desc: string }[] = [
 
 const curricula = [
   "IGCSE (Grades 9–11)",
-  "AS / A Levels",
-  "IB PYP / MYP / Diploma",
-  "Cambridge Primary",
-  "American Curriculum (AP Courses)",
+  "ACE",
+  "CBC",
+  "8-4-4",
   "Kenya CBC / KCSE (mixed intake)",
 ];
 
@@ -157,13 +156,13 @@ const securityCards: { icon: LucideIcon; title: string; desc: string }[] = [
 const stats = [
   { value: "11 days", label: "avg. go-live" },
   { value: "98%", label: "parent portal adoption" },
-  { value: "99.9%", label: "uptime SLA" },
-  { value: "SOC 2", label: "Type I certified" },
+  { value: "Secure", label: "access controls" },
+  { value: "Audit", label: "activity logs" },
 ];
 
 const comparisonRows = [
   {
-    feature: "International curricula (IGCSE/IB)",
+    feature: "International curricula (IGCSE)",
     before: "Not supported",
     after: "Full support",
   },
@@ -201,7 +200,7 @@ const faqs: { q: string; a: string }[] = [
   },
   {
     q: "Which international curricula are supported?",
-    a: "IGCSE, A Levels, IB (PYP / MYP / Diploma), Cambridge Primary, and American AP. New curricula can be configured on request.",
+    a: "IGCSE is the supported international curriculum today. EduMyles also supports CBC, ACE, and 8-4-4 for schools with mixed programmes.",
   },
   {
     q: "Does it support multi-currency fee collection?",
@@ -212,8 +211,8 @@ const faqs: { q: string; a: string }[] = [
     a: "Yes — Google Workspace and Microsoft 365 SSO, plus custom SAML. Included in the Enterprise plan.",
   },
   {
-    q: "Is it GDPR compliant?",
-    a: "Yes — data is stored in Kenya and EU (Ireland). Data Processing Agreements available. Full GDPR and Kenya DPA compliance with annual DPIAs.",
+    q: "How do you handle data protection?",
+    a: "EduMyles supports Kenya DPA-aware controls, role-based access, export workflows, and data processing agreements for schools that require them.",
   },
   {
     q: "What support level is included?",
@@ -222,11 +221,11 @@ const faqs: { q: string; a: string }[] = [
 ];
 
 const integrations = [
-  "Stripe",
+  "Card Payments",
   "M-Pesa",
   "Google Workspace SSO",
   "Microsoft 365 SSO",
-  "Africa's Talking",
+  "SMS Gateway",
   "WhatsApp Business",
   "Excel / Sheets",
   "Power BI",
@@ -282,8 +281,8 @@ export default function InternationalSchoolsPage() {
             className="font-jakarta font-light leading-[1.8] mb-8 mx-auto"
             style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "660px" }}
           >
-            IGCSE, IB, and Cambridge curricula. Multi-currency fee collection. SSO and MFA.
-            White-label options so your school brand is always front and centre.
+            IGCSE curriculum support. Multi-currency fee collection. SSO and MFA. White-label
+            options so your school brand is always front and centre.
           </p>
           {/* CTAs */}
           <div className="flex flex-wrap justify-center gap-4 mb-10">
@@ -309,7 +308,7 @@ export default function InternationalSchoolsPage() {
           {/* badges */}
           <div className="flex flex-wrap justify-center gap-3 mb-10">
             {[
-              "IGCSE & IB Support",
+              "IGCSE Support",
               "Multi-Currency Fees",
               "SSO & MFA",
               "White-Label Available",
@@ -696,7 +695,7 @@ export default function InternationalSchoolsPage() {
                 icon: Network,
                 title: "Global Curriculum Support",
                 description:
-                  "Full support for IGCSE, IB, Cambridge, and custom curricula with flexible grading systems.",
+                  "Support for IGCSE alongside CBC, ACE, and 8-4-4 with flexible grading systems.",
               },
               {
                 icon: Users,

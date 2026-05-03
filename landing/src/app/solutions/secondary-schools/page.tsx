@@ -19,7 +19,7 @@ import {
 export const metadata: Metadata = {
   title: "EduMyles for Secondary Schools — KCSE, CBC Senior & Auto-Timetabling",
   description:
-    "School management software built for Kenyan secondary schools. KCSE & CBC Senior gradebook, auto-timetabling, M-Pesa fee collection, HR & payroll — all 11 modules included.",
+    "School management software built for Kenyan secondary schools. KCSE and CBC Senior workflows, auto-timetabling, M-Pesa fee collection, HR, payroll, and portal access.",
 };
 
 export default function SecondarySchoolsPage() {
@@ -126,7 +126,7 @@ export default function SecondarySchoolsPage() {
             {[
               { stat: "1,100", label: "avg students per school" },
               { stat: "< 1 hr", label: "timetable generation" },
-              { stat: "All 11", label: "modules included" },
+              { stat: "13", label: "production modules" },
             ].map(({ stat, label }) => (
               <div
                 key={stat}
@@ -295,7 +295,7 @@ export default function SecondarySchoolsPage() {
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
               style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A" }}
             >
-              All 11 Modules
+              13 Production Modules
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
@@ -802,7 +802,7 @@ export default function SecondarySchoolsPage() {
           <div className="flex flex-wrap justify-center gap-3">
             {[
               "M-Pesa",
-              "Africa's Talking SMS",
+              "SMS Gateway",
               "KCB Merchant",
               "NEMIS",
               "KNEC",
@@ -843,7 +843,7 @@ export default function SecondarySchoolsPage() {
               Transparent, all-inclusive pricing
             </h2>
             <p className="text-[16px] leading-[1.8]" style={{ color: "#5a5a5a" }}>
-              No module fees. No per-teacher charges. All 11 modules included in every plan.
+              Transparent school pricing with the production modules available by plan.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-6 mb-10">
@@ -874,7 +874,7 @@ export default function SecondarySchoolsPage() {
               </p>
               <ul className="space-y-2 text-[14px]" style={{ color: "#3d3d3d" }}>
                 {[
-                  "All 11 modules included",
+                  "13 production modules",
                   "HR & payroll (BOM staff)",
                   "KCSE & CBC Senior gradebook",
                   "Auto-timetabling",

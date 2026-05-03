@@ -2,6 +2,7 @@
 // EduMyles — Shared Constants
 // ============================================================
 import type { LegacyUserRoleAlias, Module, UserRole, TenantTier } from "../types/index.js";
+export * from "./curricula";
 
 // ----------------------------------------------------------
 // Roles — canonical names match convex/helpers/authorize.ts
@@ -93,6 +94,16 @@ export const MODULES: Record<Module, { label: string; icon: string; description:
     icon: "💬",
     description: "SMS, email, in-app messaging",
   },
+  users: {
+    label: "User Management",
+    icon: "🔐",
+    description: "Invites, roles, permissions, access control",
+  },
+  tickets: {
+    label: "Support Tickets",
+    icon: "🎫",
+    description: "Helpdesk, issue tracking, SLA workflows",
+  },
   ewallet: { label: "eWallet", icon: "👛", description: "Digital wallet for students & parents" },
   ecommerce: { label: "School Shop", icon: "🛒", description: "Uniform, books, supplies store" },
 };
@@ -101,7 +112,7 @@ export const MODULES: Record<Module, { label: string; icon: string; description:
 // Tiers & Feature Gates — canonical names match Convex billing
 // ----------------------------------------------------------
 export const TIER_MODULES: Record<TenantTier, Module[]> = {
-  starter: ["sis", "admissions", "finance", "communications"],
+  starter: ["sis", "admissions", "finance", "communications", "users", "tickets"],
   standard: [
     "sis",
     "admissions",
@@ -112,6 +123,8 @@ export const TIER_MODULES: Record<TenantTier, Module[]> = {
     "library",
     "transport",
     "communications",
+    "users",
+    "tickets",
   ],
   pro: [
     "sis",
@@ -123,6 +136,8 @@ export const TIER_MODULES: Record<TenantTier, Module[]> = {
     "library",
     "transport",
     "communications",
+    "users",
+    "tickets",
     "ewallet",
   ],
   enterprise: [
@@ -135,6 +150,8 @@ export const TIER_MODULES: Record<TenantTier, Module[]> = {
     "library",
     "transport",
     "communications",
+    "users",
+    "tickets",
     "ewallet",
     "ecommerce",
   ],

@@ -3,13 +3,13 @@ import Link from "next/link";
 import { School, GraduationCap, Globe, Building2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Customers — EduMyles School Management | 50+ Schools Across East Africa",
+  title: "Customers — EduMyles School Management | Regional Schools Across East Africa",
   description:
-    "50+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia trust EduMyles to manage students, fees, and staff. See who's using EduMyles today.",
+    "schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia trust EduMyles to manage students, fees, and staff. See who's using EduMyles today.",
 };
 
 const stats = [
-  { value: "KES 120M+", label: "Fees Processed" },
+  { value: "Automated", label: "Fees Processed" },
   { value: "94%", label: "Avg Attendance Improvement" },
   { value: "15 hrs/week", label: "Saved per Admin" },
   { value: "2 weeks", label: "Average Onboarding" },
@@ -145,10 +145,10 @@ export default function CustomersPage() {
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
             style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "580px" }}
           >
-            50+ schools across East Africa trust EduMyles to manage their students, fees, and staff.
+            schools across East Africa trust EduMyles to manage their students, fees, and staff.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            {["50+ Active Schools", "5 Countries", "10,000+ Students"].map((pill) => (
+            {["50+ Active Schools", "5 Countries", "Multi-Campus Students"].map((pill) => (
               <span
                 key={pill}
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full"
@@ -408,7 +408,7 @@ export default function CustomersPage() {
             className="font-display font-bold mb-4"
             style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
           >
-            Join 50+ schools already running better.
+            Join schools already running better.
           </h2>
           <p
             className="font-jakarta font-light mb-8"

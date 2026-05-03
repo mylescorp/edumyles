@@ -61,23 +61,23 @@ const milestones = [
   },
   {
     year: "2025",
-    title: "50+ Schools, 5 Countries",
-    desc: "Reached 50+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia. Launched all 11 modules. Processed over KES 120M in school fees.",
+    title: "Regional Schools, 5 Countries",
+    desc: "Expanded across Kenya, Uganda, Tanzania, Rwanda, and Zambia. Launched the full production module suite and deepened regional payment support.",
   },
   {
     year: "2026",
     title: "Platform Rebuild & Scale",
-    desc: "Rebuilt on a real-time architecture. Launched parent portal, teacher portal, and student portal. Now serving 10,000+ students daily.",
+    desc: "Launched parent, teacher, student, and partner portals with faster workflows for day-to-day school operations.",
   },
 ];
 
 const stats = [
-  { value: "50+", label: "Schools" },
-  { value: "10,000+", label: "Students" },
   { value: "5", label: "Countries" },
-  { value: "KES 120M+", label: "Fees Processed" },
-  { value: "11", label: "Modules" },
-  { value: "99.9%", label: "Uptime" },
+  { value: "13", label: "Modules" },
+  { value: "4", label: "Curricula" },
+  { value: "Live", label: "Status Monitoring" },
+  { value: "Multi", label: "Campus Ready" },
+  { value: "Secure", label: "Access Controls" },
 ];
 
 const team = [
@@ -238,12 +238,7 @@ export default function AboutPage() {
               </p>
               <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#6B9E83" }}>
                 EduMyles is a product of{" "}
-                <a
-                  href="https://mylesoft.vercel.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "#0F4C2A", fontWeight: 600, textDecoration: "none" }}
-                >
+                <a href="/about" style={{ color: "#0F4C2A", fontWeight: 600, textDecoration: "none" }}>
                   MylesCorp Technologies Ltd
                 </a>
               </p>
@@ -304,7 +299,7 @@ export default function AboutPage() {
             >
               From a WhatsApp group{" "}
               <em className="italic" style={{ color: "#E8A020" }}>
-                to 10,000+ students.
+                to students across multiple campuses.
               </em>
             </h2>
           </div>

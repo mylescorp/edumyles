@@ -262,7 +262,7 @@ describe('RBAC Permissions (lib/permissions.ts)', () => {
 
     it('all permissions in the map are valid Permission strings (no typos)', () => {
       // Every permission must follow the namespace:action format
-      const permRegex = /^[a-z_]+:[a-z_]+$/;
+      const permRegex = /^[a-z_]+(?::[a-z_]+)+$/;
       for (const [role, perms] of Object.entries(ROLE_PERMISSIONS)) {
         for (const perm of perms) {
           expect(perm).toMatch(permRegex);

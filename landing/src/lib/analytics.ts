@@ -59,6 +59,23 @@ export function trackFormSubmission(formName: string, success: boolean) {
   });
 }
 
+export function trackLeadConversion(conversionName: string, properties?: Record<string, unknown>) {
+  trackEvent("generate_lead", {
+    lead_type: conversionName,
+    page_location: window.location.pathname,
+    ...properties,
+  });
+
+  const adsSendTo = process.env.NEXT_PUBLIC_GOOGLE_ADS_LEAD_CONVERSION;
+  if (adsSendTo) {
+    trackEvent("conversion", {
+      send_to: adsSendTo,
+      lead_type: conversionName,
+      ...properties,
+    });
+  }
+}
+
 export function trackNavigationClick(destination: string) {
   trackEvent("navigation_click", {
     destination: destination,
