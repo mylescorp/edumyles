@@ -104,6 +104,13 @@ export const platformNavItems: NavItem[] = [
     permission: "demo_requests.view",
   },
   {
+    label: "Landing Inbox",
+    href: "/platform/landing-engagements",
+    icon: MessageSquare,
+    section: "Tenants",
+    permission: "support.view",
+  },
+  {
     label: "Onboarding",
     href: "/platform/onboarding",
     icon: Rocket,

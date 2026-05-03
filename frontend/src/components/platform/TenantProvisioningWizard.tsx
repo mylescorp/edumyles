@@ -1210,7 +1210,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                               }
                             />
                             <p className="text-xs text-muted-foreground">
-                              Leave blank to auto-create `{createSlugSuggestion(campus.schoolName || campus.campusName) || "campus"}.{getRootDomain()}`.
+                              Leave blank to auto-create {createSlugSuggestion(campus.schoolName || campus.campusName) || "campus"}.{getRootDomain()}.
                             </p>
                           </div>
                           <div className="space-y-2">
@@ -1417,7 +1417,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">
-                    EduMyles provisions `{formData.subdomain || createSlugSuggestion(formData.schoolName) || "school"}.{getRootDomain()}` automatically. If the first choice is taken, the backend assigns the next available variant.
+                    EduMyles provisions {formData.subdomain || createSlugSuggestion(formData.schoolName) || "school"}.{getRootDomain()} automatically. If the first choice is taken, the backend assigns the next available variant.
                   </p>
                   <p className={`text-xs font-medium ${subdomainStatusTone}`}>
                     {formData.subdomain.trim().length < 3
