@@ -20,6 +20,8 @@ import { getNavItemsForRole, getRoleDashboard, getRoleLabel } from "../routes";
 const FRONTEND_ROOT = process.cwd();
 const PROJECT_ROOT = path.resolve(FRONTEND_ROOT, "..");
 const APP_ROOT = path.join(FRONTEND_ROOT, "src", "app");
+const LANDING_ROOT = path.join(PROJECT_ROOT, "landing");
+const LANDING_APP_ROOT = path.join(LANDING_ROOT, "src", "app");
 const CONVEX_ROOT = path.join(PROJECT_ROOT, "convex");
 const ROUTES_FILE = path.join(FRONTEND_ROOT, "src", "lib", "routes.ts");
 
@@ -157,6 +159,39 @@ async function scanFrontend(navRoutes: Set<string>) {
   return artifacts.sort((a, b) => a.routePath.localeCompare(b.routePath) || a.kind.localeCompare(b.kind));
 }
 
+async function scanLandingPages() {
+  const artifacts: FrontendArtifact[] = [];
+
+  await walk(LANDING_APP_ROOT, async (filePath) => {
+    if (path.basename(filePath) !== "page.tsx") return;
+    const stats = await fs.stat(filePath);
+
+    const relativePath = normalizeSlashes(path.relative(PROJECT_ROOT, filePath));
+    const routeDir = path.dirname(path.relative(LANDING_APP_ROOT, filePath));
+    const routeSegments = routeDir === "." ? [] : routeDir.split(path.sep);
+    const routePath = toRoutePath(routeSegments);
+    const cleanRouteSegments = cleanSegments(routeSegments);
+    const topLevelSegment = cleanRouteSegments[0] ?? "home";
+
+    artifacts.push({
+      id: `landing:page:${routePath}:${relativePath}`,
+      kind: "page",
+      routePath,
+      area: `landing:${topLevelSegment}`,
+      family: `landing/${topLevelSegment}`,
+      moduleKey: null,
+      sourcePath: normalizeSlashes(filePath),
+      relativePath,
+      routeSegments: cleanRouteSegments,
+      isDynamic: routeSegments.some((segment) => segment.startsWith("[")),
+      isNavLinked: false,
+      modifiedAt: stats.mtime.toISOString(),
+    });
+  });
+
+  return artifacts.sort((a, b) => a.routePath.localeCompare(b.routePath));
+}
+
 function extractBackendEndpoints(source: string): BackendEndpoint[] {
   const matches = source.matchAll(
     /export const (\w+)\s*=\s*(mutation|query|action|internalMutation|internalQuery|internalAction|httpAction)\s*\(/g
@@ -260,19 +295,34 @@ function buildCoverage(frontend: FrontendArtifact[], navRoutes: string[]) {
 
 function toTopologyFeature(item: FrontendArtifact): DevTopologyFeature {
   const title = item.routePath === "/" ? "Root" : item.routePath.split("/").filter(Boolean).at(-1) ?? item.routePath;
+  const isLaunchable = item.kind === "page" && !item.isDynamic;
 
   return {
     id: item.id,
     title: titleize(title),
     routePath: item.routePath,
+    launchPath: isLaunchable ? item.routePath : null,
     kind: item.kind,
     area: item.area,
     family: item.family,
     moduleKey: item.moduleKey,
     relativePath: item.relativePath,
     isDynamic: item.isDynamic,
+    isLaunchable,
     modifiedAt: item.modifiedAt,
   };
+}
+
+function pickTopologyLaunchPath(items: FrontendArtifact[]) {
+  const launchablePages = items
+    .filter((item) => item.kind === "page" && !item.isDynamic)
+    .sort((left, right) => {
+      const segmentDelta = left.routeSegments.length - right.routeSegments.length;
+      if (segmentDelta !== 0) return segmentDelta;
+      return left.routePath.localeCompare(right.routePath);
+    });
+
+  return launchablePages[0]?.routePath ?? null;
 }
 
 function buildDetailedTopology(frontend: FrontendArtifact[]): DevTopologyBucket[] {
@@ -291,19 +341,25 @@ function buildDetailedTopology(frontend: FrontendArtifact[]): DevTopologyBucket[
       grouped.set(key, existing);
     }
 
-    return Array.from(grouped.entries()).map(([key, value]) => ({
-      key,
-      label: titleize(key.replace(/^portal:/, "").replace(/^api:/, "")),
-      kind,
-      featureCount: value.length,
-      features: value
+    return Array.from(grouped.entries()).map(([key, value]) => {
+      const features = value
         .slice()
         .sort((left, right) =>
           left.routePath.localeCompare(right.routePath) ||
           left.kind.localeCompare(right.kind)
         )
-        .map(toTopologyFeature),
-    }));
+        .map(toTopologyFeature);
+
+      return {
+        key,
+        label: titleize(key.replace(/^portal:/, "").replace(/^api:/, "")),
+        kind,
+        featureCount: value.length,
+        launchableFeatureCount: features.filter((feature) => feature.isLaunchable).length,
+        launchPath: pickTopologyLaunchPath(value),
+        features,
+      };
+    });
   };
 
   const panelBuckets = buildBuckets("panel", frontend, (item) => {
@@ -418,6 +474,7 @@ function buildRoleAccessSummaries(): DevRoleAccessSummary[] {
 export async function buildDevSystemMap(): Promise<DevSystemMap> {
   const navRoutes = await readNavRoutes();
   const frontend = await scanFrontend(new Set(navRoutes));
+  const landing = await scanLandingPages();
   const backend = await scanBackend();
   const coverage = buildCoverage(frontend, navRoutes);
   const pageArtifacts = frontend.filter((item) => item.kind === "page");
@@ -446,6 +503,7 @@ export async function buildDevSystemMap(): Promise<DevSystemMap> {
       generatedAt: new Date().toISOString(),
       frontendArtifacts: frontend.length,
       frontendPages: pageArtifacts.length,
+      landingPages: landing.length,
       apiRoutes: apiArtifacts.length,
       layouts: layoutArtifacts.length,
       backendFiles: backend.length,
@@ -456,6 +514,7 @@ export async function buildDevSystemMap(): Promise<DevSystemMap> {
       navCoveragePercent,
     },
     frontend,
+    landing,
     backend,
     coverage,
     panels,

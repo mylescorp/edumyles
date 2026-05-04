@@ -5,6 +5,7 @@ import { requireTenantSession } from "../../../helpers/tenantGuard";
 import { requirePlatformSession } from "../../../helpers/platformGuard";
 import { requireModule } from "../../../helpers/moduleGuard";
 import { logAction } from "../../../helpers/auditLog";
+import { normalizeModuleSlug } from "../../marketplace/moduleAliases";
 
 async function getStudentRecord(ctx: any, tenant: any) {
   const student = await ctx.db
@@ -22,11 +23,16 @@ export const installSISModule = mutation({
   handler: async (ctx, args) => {
     const tenant = await requirePlatformSession(ctx, { sessionToken: args.sessionToken });
     
-    // Check if SIS module is already installed
+    const moduleSlug = normalizeModuleSlug("sis");
+    const moduleRecord = await ctx.db
+      .query("marketplace_modules")
+      .withIndex("by_slug", (q) => q.eq("slug", moduleSlug))
+      .first();
+
     const existing = await ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant_module", (q) =>
-        q.eq("tenantId", tenant.tenantId).eq("moduleId", "sis")
+      .query("module_installs")
+      .withIndex("by_tenantId_moduleSlug", (q) =>
+        q.eq("tenantId", tenant.tenantId).eq("moduleSlug", moduleSlug)
       )
       .first();
     
@@ -35,14 +41,23 @@ export const installSISModule = mutation({
       return { success: true, alreadyInstalled: true };
     }
     
-    // Install SIS module
-    await ctx.db.insert("installedModules", {
+    await ctx.db.insert("module_installs", {
       tenantId: tenant.tenantId,
-      moduleId: "sis",
+      moduleId: moduleRecord?._id ?? moduleSlug,
+      moduleSlug,
+      status: "active",
+      billingPeriod: "monthly",
+      currentPriceKes: 0,
+      hasPriceOverride: false,
+      isFree: true,
+      firstInstalledAt: Date.now(),
+      billingStartsAt: Date.now(),
+      nextBillingDate: Date.now(),
       installedAt: Date.now(),
       installedBy: tenant.userId,
-      config: {},
-      status: "active",
+      version: moduleRecord?.version ?? "1.0.0",
+      paymentFailureCount: 0,
+      createdAt: Date.now(),
       updatedAt: Date.now(),
     });
     
@@ -51,9 +66,9 @@ export const installSISModule = mutation({
       actorId: tenant.userId,
       actorEmail: tenant.email,
       action: "module.installed",
-      entityType: "installedModule",
-      entityId: "sis",
-      after: { moduleId: "sis", status: "active" },
+      entityType: "module_install",
+      entityId: moduleSlug,
+      after: { moduleId: moduleSlug, status: "active" },
     });
     
     return { success: true, alreadyInstalled: false };

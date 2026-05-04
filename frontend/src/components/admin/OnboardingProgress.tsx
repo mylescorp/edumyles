@@ -56,6 +56,12 @@ export function OnboardingProgress() {
           ))}
         </div>
 
+        {(onboarding as any).organizationMode === "multi_campus_network" ? (
+          <p className="text-xs text-muted-foreground">
+            Network onboarding is active for {(onboarding as any).provisionedCampusTenantIds?.length ?? 1} campus workspace(s).
+          </p>
+        ) : null}
+
         <Button asChild size="sm">
           <Link href="/admin/setup">Continue Setup</Link>
         </Button>

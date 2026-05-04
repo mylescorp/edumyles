@@ -175,7 +175,7 @@ const comparisonRows = [
 
 const integrations = [
   { name: "M-Pesa (Safaricom)", tag: "Native", color: "#1A7A4A" },
-  { name: "Africa's Talking SMS", tag: "Native", color: "#1A7A4A" },
+  { name: "SMS Gateway", tag: "Native", color: "#1A7A4A" },
   { name: "WhatsApp Business", tag: "Native", color: "#1A7A4A" },
   { name: "NEMIS (Ministry of Education)", tag: "Native", color: "#1A7A4A" },
   { name: "Google Classroom", tag: "Beta", color: "#6366F1" },

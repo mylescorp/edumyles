@@ -38,6 +38,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, type: eventType, synced: false });
   }
 
+  const convexServerSecret = process.env.CONVEX_WEBHOOK_SECRET;
+  if (!convexServerSecret) {
+    console.error("[workos-webhook] CONVEX_WEBHOOK_SECRET not set — refusing privileged sync");
+    return NextResponse.json({ error: "Webhook sync not configured" }, { status: 500 });
+  }
+
   const convex = new ConvexHttpClient(convexUrl);
 
   try {
@@ -47,6 +53,7 @@ export async function POST(req: NextRequest) {
         const eduMylesUserId: string = data.id ?? "";
         if (eduMylesUserId) {
           await convex.mutation(api.users.syncFromWorkOS, {
+            serverSecret: convexServerSecret,
             eduMylesUserId,
             email: data.email ?? "",
             firstName: data.first_name ?? "",
@@ -58,7 +65,10 @@ export async function POST(req: NextRequest) {
       case "user.deleted": {
         const eduMylesUserId: string = event?.data?.id ?? "";
         if (eduMylesUserId) {
-          await convex.mutation(api.users.deactivateByWorkOSId, { eduMylesUserId });
+          await convex.mutation(api.users.deactivateByWorkOSId, {
+            serverSecret: convexServerSecret,
+            eduMylesUserId,
+          });
         }
         break;
       }
@@ -67,7 +77,7 @@ export async function POST(req: NextRequest) {
         if (sessionToken) {
           await convex.mutation(api.sessions.deleteSession, {
             sessionToken,
-            serverSecret: process.env.CONVEX_WEBHOOK_SECRET ?? "",
+            serverSecret: convexServerSecret,
           });
         }
         break;

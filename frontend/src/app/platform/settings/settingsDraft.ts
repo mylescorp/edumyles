@@ -198,6 +198,7 @@ export type SettingsDraft = {
     showLockoutReason: boolean;
     emailOnNewDeviceLogin: boolean;
     emailOnFailedLogin: boolean;
+    allowedDomains: string[];
     ipAllowlist: string[];
     geoBlockingMode: string;
     allowedCountries: string[];
@@ -237,6 +238,9 @@ export type SettingsDraft = {
     dataResidencyRegion: string;
   };
   integrations: {
+    paymentGateway: string;
+    smsProvider: string;
+    analyticsEnabled: boolean;
     workosApiKey: string;
     workosClientId: string;
     workosEnvironment: string;
@@ -258,6 +262,9 @@ export type SettingsDraft = {
     exchangeRateUpdateFrequency: string;
     exchangeRateFallbackMode: string;
     exchangeRateLastUpdatedAt: string;
+  };
+  operations: {
+    backupFrequency: string;
   };
   maintenance: {
     maintenanceMode: boolean;
@@ -530,6 +537,7 @@ export const DEFAULT_SETTINGS_DRAFT: SettingsDraft = {
     showLockoutReason: true,
     emailOnNewDeviceLogin: true,
     emailOnFailedLogin: false,
+    allowedDomains: [],
     ipAllowlist: [],
     geoBlockingMode: "allow_all",
     allowedCountries: [],
@@ -569,6 +577,9 @@ export const DEFAULT_SETTINGS_DRAFT: SettingsDraft = {
     dataResidencyRegion: "Convex Cloud",
   },
   integrations: {
+    paymentGateway: "Stripe",
+    smsProvider: "Africa's Talking",
+    analyticsEnabled: true,
     workosApiKey: "",
     workosClientId: "",
     workosEnvironment: "production",
@@ -590,6 +601,9 @@ export const DEFAULT_SETTINGS_DRAFT: SettingsDraft = {
     exchangeRateUpdateFrequency: "6hrs",
     exchangeRateFallbackMode: "use_last_known_rates",
     exchangeRateLastUpdatedAt: "",
+  },
+  operations: {
+    backupFrequency: "daily",
   },
   maintenance: {
     maintenanceMode: false,
@@ -638,6 +652,9 @@ function parseStringArray(value: string | undefined, fallback: string[]) {
       return parsed;
     }
   } catch {
+    if (value.trim().startsWith("{") || value.trim().startsWith("[")) {
+      return fallback;
+    }
     return value
       .split(/\r?\n|,/)
       .map((item) => item.trim())
@@ -669,11 +686,64 @@ function coerceValue<T>(value: string | undefined, fallback: T): T {
   return fallback;
 }
 
+const SETTING_ALLOWED_VALUES: Record<string, string[]> = {
+  "general.timezone": PLATFORM_TIMEZONES,
+  "general.language": PLATFORM_LANGUAGES,
+  "general.dateFormat": DATE_FORMATS,
+  "general.numberFormat": NUMBER_FORMATS,
+  "general.currencyDisplay": CURRENCY_DISPLAY_OPTIONS,
+  "general.weekStartsOn": WEEK_START_OPTIONS,
+  "general.announcementType": ANNOUNCEMENT_TYPES,
+  "branding.loginLayout": LOGIN_LAYOUTS,
+  "branding.loginBackgroundType": LOGIN_BACKGROUND_TYPES,
+  "branding.loginCardStyle": LOGIN_CARD_STYLES,
+  "branding.portalTheme": PORTAL_THEMES,
+  "domain.subdomainCollisionHandling": COLLISION_HANDLERS,
+  "domain.sslProvider": SSL_PROVIDERS,
+  "payments.mpesaEnvironment": PAYMENT_ENVIRONMENTS,
+  "payments.airtelEnvironment": PAYMENT_ENVIRONMENTS,
+  "payments.stripeEnvironment": PAYMENT_ENVIRONMENTS,
+  "security.mfaMasterAdmin": MFA_POLICY_OPTIONS,
+  "security.mfaSuperAdmin": MFA_POLICY_OPTIONS,
+  "security.mfaOtherRoles": MFA_POLICY_OPTIONS,
+  "security.geoBlockingMode": GEO_BLOCKING_OPTIONS,
+  "dataPrivacy.consentMode": CONSENT_MODES,
+  "dataPrivacy.dataExportFormat": EXPORT_FORMATS,
+  "dataPrivacy.exportDeliveryMethod": EXPORT_DELIVERY_METHODS,
+  "integrations.analyticsScope": ANALYTICS_SCOPES,
+  "integrations.exchangeRateUpdateFrequency": EXCHANGE_RATE_FREQUENCIES,
+  "integrations.exchangeRateFallbackMode": EXCHANGE_RATE_FALLBACKS,
+  "integrations.paymentGateway": ["Stripe", "M-Pesa", "Airtel Money", "Bank Transfer"],
+  "integrations.smsProvider": ["Africa's Talking", "Twilio", "Infobip"],
+  "operations.backupFrequency": ["hourly", "daily", "weekly", "monthly"],
+  "maintenance.convexStatus": HEALTH_STATUSES,
+  "maintenance.resendStatus": HEALTH_STATUSES,
+  "maintenance.africasTalkingStatus": HEALTH_STATUSES,
+  "maintenance.stripeStatus": HEALTH_STATUSES,
+  "maintenance.mpesaStatus": HEALTH_STATUSES,
+  "maintenance.workosStatus": HEALTH_STATUSES,
+};
+
+function validateSettingValue(section: string, key: string, value: unknown, fallback: unknown) {
+  const allowedValues = SETTING_ALLOWED_VALUES[`${section}.${key}`];
+  if (!allowedValues || typeof value !== "string") {
+    return value;
+  }
+  return allowedValues.includes(value) ? value : fallback;
+}
+
 export function serializeSettingValue(value: unknown) {
   if (Array.isArray(value) || (typeof value === "object" && value !== null)) {
     return JSON.stringify(value);
   }
   return String(value ?? "");
+}
+
+export function sectionToSettings(sectionValues: Record<string, unknown>) {
+  return Object.entries(sectionValues).map(([key, value]) => ({
+    key,
+    value: serializeSettingValue(value),
+  }));
 }
 
 export function getSectionEntries<K extends keyof SettingsDraft>(
@@ -695,7 +765,9 @@ export function applyDbSettings(
     const sectionValues = dbSettings[String(section)] ?? {};
     const sectionDraft = result[section] as Record<string, unknown>;
     Object.keys(sectionDraft).forEach((key) => {
-      sectionDraft[key] = coerceValue(sectionValues[key], sectionDraft[key]);
+      const fallback = sectionDraft[key];
+      const coerced = coerceValue(sectionValues[key], fallback);
+      sectionDraft[key] = validateSettingValue(String(section), key, coerced, fallback);
     });
   });
   return result;

@@ -41,7 +41,7 @@ export default function FinalCTA() {
         </h2>
 
         <p className="text-[18px] mb-8 leading-relaxed" style={{ color: "#90CAF9" }}>
-          Join 50+ schools already running on EduMyles. Setup is free. Support is local.
+          Join schools already running on EduMyles. Setup is free. Support is local.
         </p>
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center mb-4">

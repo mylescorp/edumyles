@@ -113,7 +113,7 @@ export default async function WelcomePage() {
             <strong> frontend app URL</strong> needs to be configured.
           </p>
           <p className="text-xs text-amber-600 mt-1">
-            In your Vercel project settings, set{" "}
+            In your hosting project settings, set{" "}
             <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">
               NEXT_PUBLIC_APP_URL
             </code>{" "}

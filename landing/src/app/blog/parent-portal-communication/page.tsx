@@ -714,7 +714,7 @@ export default function ParentPortalGuide() {
               Ready to Transform Parent Communication?
             </h2>
             <p className="font-jakarta text-lg mb-6" style={{ color: "#5a5a5a" }}>
-              Join 500+ schools saving KES 122,000+ monthly with the EduMyles Parent Portal.
+              Join schools saving KES 122,000+ monthly with the EduMyles Parent Portal.
             </p>
             <Link
               href="/book-demo"

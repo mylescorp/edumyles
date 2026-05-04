@@ -111,6 +111,16 @@ export const initiateMpesaPayment: any = action({
         externalId: response.CheckoutRequestID,
       });
 
+      await ctx.runMutation(internal.modules.finance.mutations.saveMpesaStkRequest, {
+        tenantId: args.tenantId,
+        invoiceId: args.invoiceId,
+        phoneNumber: formattedPhone,
+        amountKes: args.amount,
+        checkoutRequestId: response.CheckoutRequestID,
+        merchantRequestId: response.MerchantRequestID,
+        accountReference: args.invoiceId,
+      });
+
       return {
         success: response.ResponseCode === "0",
         checkoutRequestID: response.CheckoutRequestID,

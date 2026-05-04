@@ -278,17 +278,17 @@ export default function PrivacyPage() {
           <div className="grid sm:grid-cols-2 gap-3">
             {[
               { name: "Safaricom (M-Pesa/Daraja)", purpose: "Process school fee payments" },
-              { name: "Africa's Talking / Twilio", purpose: "SMS delivery to parents and staff" },
+              { name: "SMS provider", purpose: "SMS delivery to parents and staff" },
               {
                 name: "Amazon Web Services (AWS)",
                 purpose: "Cloud infrastructure and data storage",
               },
-              { name: "Vercel", purpose: "Platform hosting and edge delivery" },
+              { name: "Hosting provider", purpose: "Platform hosting and delivery" },
               {
                 name: "NEMIS / KNEC (Kenya Govt.)",
                 purpose: "Mandatory government reporting only",
               },
-              { name: "WorkOS", purpose: "Authentication and single sign-on" },
+              { name: "Authentication provider", purpose: "Authentication and single sign-on" },
             ].map((p) => (
               <div
                 key={p.name}
@@ -480,7 +480,7 @@ export default function PrivacyPage() {
               "Multi-factor authentication for admin accounts",
               "Role-based access control (teachers see only their classes)",
               "Regular penetration testing by third-party security firms",
-              "SOC 2 Type I certified processes",
+              "Documented security and access-control processes",
               "All staff undergo data protection training annually",
               "Automatic session timeout after inactivity",
             ].map((item) => (

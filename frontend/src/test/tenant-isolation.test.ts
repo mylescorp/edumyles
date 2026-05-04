@@ -29,6 +29,7 @@ interface TenantContext {
 
 interface SessionRecord {
   tenantId: string;
+  activeTenantId?: string;
   userId: string;
   role: string;
   email?: string;
@@ -46,7 +47,7 @@ function validateSession(session: SessionRecord | null): TenantContext {
     throw new Error('INVALID_TENANT: Malformed tenantId');
   }
   return {
-    tenantId: session.tenantId,
+    tenantId: session.activeTenantId ?? session.tenantId,
     userId: session.userId,
     role: session.role,
     email: session.email ?? '',
@@ -72,7 +73,7 @@ function validateIdentityAndSession(
     throw new Error('INVALID_TENANT: Malformed tenantId');
   }
   return {
-    tenantId: session.tenantId,
+    tenantId: session.activeTenantId ?? session.tenantId,
     userId: session.userId,
     role: session.role,
     email: session.email ?? '',
@@ -112,6 +113,16 @@ describe('requireTenantSession logic (tenantGuard.ts)', () => {
       };
       const ctx = validateSession(platformSession);
       expect(ctx.tenantId).toBe('PLATFORM');
+    });
+
+    it('prefers activeTenantId when a network session has switched campuses', () => {
+      const networkSession: SessionRecord = {
+        ...validSession,
+        tenantId: 'TENANT-network-primary',
+        activeTenantId: 'TENANT-network-campus-b',
+      };
+      const ctx = validateSession(networkSession);
+      expect(ctx.tenantId).toBe('TENANT-network-campus-b');
     });
 
     it('returns empty string when email is missing from session', () => {

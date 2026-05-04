@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WorkOS } from "@workos-inc/node";
 import crypto from "crypto";
+import {
+  canUseLocalDevAuth,
+  redirectWithLocalDevSession,
+} from "@/lib/devAuthRedirect";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +34,7 @@ export async function GET(req: NextRequest) {
     process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
     process.env.NODE_ENV !== "production"
   ) {
-    return NextResponse.redirect(new URL("/admin", req.url));
+    return redirectWithLocalDevSession(req);
   }
 
   const apiKey = process.env.WORKOS_API_KEY;
@@ -38,6 +42,13 @@ export async function GET(req: NextRequest) {
   const redirectUri = resolveRedirectUri(req);
 
   if (!apiKey || !clientId) {
+    if (canUseLocalDevAuth(req)) {
+      console.warn(
+        "[auth/login/api] WorkOS is not configured; using local development session."
+      );
+      return redirectWithLocalDevSession(req);
+    }
+
     console.error("[auth/login/api] Missing WORKOS_API_KEY or client ID");
     return NextResponse.redirect(new URL("/auth/error?reason=not_configured", req.url));
   }

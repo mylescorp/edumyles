@@ -10,6 +10,7 @@ import {
   XCircle,
   Scale,
 } from "lucide-react";
+import { PUBLIC_PRICING_PLANS, formatPublicKes } from "@edumyles/shared/constants/publicCatalog";
 
 export const metadata: Metadata = {
   title: "Terms of Service — EduMyles",
@@ -27,6 +28,8 @@ const sections = [
   { id: "termination", label: "Termination" },
   { id: "law", label: "Governing Law" },
 ];
+
+const schoolPricingPlans = PUBLIC_PRICING_PLANS;
 
 export default function TermsPage() {
   return (
@@ -217,7 +220,7 @@ export default function TermsPage() {
           </div>
           <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
             We reserve the right to modify, suspend, or discontinue any feature with reasonable
-            notice. We target 99.9% uptime and will communicate planned maintenance at least 48
+            notice. We target live status monitoring and will communicate planned maintenance at least 48
             hours in advance.
           </p>
         </section>
@@ -328,32 +331,35 @@ export default function TermsPage() {
                     className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
                     style={{ color: "#E8A020" }}
                   ></th>
-                  <th
-                    className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
-                    style={{ color: "#E8A020" }}
-                  >
-                    Starter
-                  </th>
-                  <th
-                    className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
-                    style={{ color: "#E8A020" }}
-                  >
-                    Growth
-                  </th>
-                  <th
-                    className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
-                    style={{ color: "#E8A020" }}
-                  >
-                    Enterprise
-                  </th>
+                  {schoolPricingPlans.map((plan) => (
+                    <th
+                      key={plan.key}
+                      className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
+                      style={{ color: "#E8A020" }}
+                    >
+                      {plan.name}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {[
-                  ["Monthly", "KES 12,900", "KES 21,500", "Custom"],
-                  ["Annual (save 20%)", "KES 123,840", "KES 206,400", "Custom"],
+                  [
+                    "Monthly",
+                    ...schoolPricingPlans.map((plan) =>
+                      plan.monthlyPriceKes === null ? "Custom" : formatPublicKes(plan.monthlyPriceKes)
+                    ),
+                  ],
+                  [
+                    "Annual (save 20%)",
+                    ...schoolPricingPlans.map((plan) =>
+                      plan.annualMonthlyPriceKes === null
+                        ? "Custom"
+                        : formatPublicKes(plan.annualMonthlyPriceKes * 12)
+                    ),
+                  ],
                   ["Free trial", "30 days", "30 days", "Custom demo"],
-                ].map(([label, starter, growth, enterprise], i) => (
+                ].map(([label, ...values], i) => (
                   <tr key={label} style={{ background: i % 2 === 0 ? "#ffffff" : "#F9FEFE" }}>
                     <td
                       className="font-jakarta font-semibold text-[13px] px-5 py-3"
@@ -361,15 +367,15 @@ export default function TermsPage() {
                     >
                       {label}
                     </td>
-                    <td className="font-jakarta text-[13px] px-5 py-3" style={{ color: "#374151" }}>
-                      {starter}
-                    </td>
-                    <td className="font-jakarta text-[13px] px-5 py-3" style={{ color: "#374151" }}>
-                      {growth}
-                    </td>
-                    <td className="font-jakarta text-[13px] px-5 py-3" style={{ color: "#6B9E83" }}>
-                      {enterprise}
-                    </td>
+                    {values.map((value) => (
+                      <td
+                        key={`${label}-${value}`}
+                        className="font-jakarta text-[13px] px-5 py-3"
+                        style={{ color: value === "Custom" ? "#6B9E83" : "#374151" }}
+                      >
+                        {value}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -381,7 +387,7 @@ export default function TermsPage() {
             {[
               "Billing is monthly or annual. Annual plans receive a 20% discount applied at checkout.",
               "30-day free trial available on all plans — no credit card required to start.",
-              "Payment accepted via M-Pesa (Lipa Na M-Pesa), bank transfer (KES), or card (Stripe).",
+              "Payment accepted via M-Pesa (Lipa Na M-Pesa), bank transfer (KES), or card payment.",
               "Subscriptions auto-renew unless cancelled at least 7 days before the renewal date.",
               "No refunds are issued for partial months or unused portions of annual subscriptions.",
               "Prices may change with 30 days' written notice to the account administrator.",

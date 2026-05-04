@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
       message: result.duplicate
         ? "Affiliate application already exists and remains on file"
         : "Affiliate application submitted successfully",
+      nextPath: `/apply/affiliate/success?id=${result.applicationId}`,
     });
   } catch (error) {
     console.error("Affiliate application error:", error);

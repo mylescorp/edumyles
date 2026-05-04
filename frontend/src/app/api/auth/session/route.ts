@@ -196,13 +196,13 @@ async function ensureDevTenantSession(convex: ConvexHttpClient, preferredTenantI
   }
 
   try {
-    await convex.mutation((api.modules.marketplace.seed as any).seedModuleRegistry, { sessionToken: platformSessionToken });
+    await convex.mutation((api.modules.marketplace.seed as any).seedMarketplaceModules, { sessionToken: platformSessionToken });
   } catch (error) {
-    console.warn("[api/auth/session] Failed to seed module registry via seed helper:", error);
+    console.warn("[api/auth/session] Failed to seed marketplace modules via seed helper:", error);
     try {
-      await convex.mutation((api.modules.marketplace.mutations as any).runSeedModuleRegistry, { sessionToken: platformSessionToken });
+      await convex.mutation((api.modules.marketplace.mutations as any).seedMarketplaceModules, { sessionToken: platformSessionToken });
     } catch (secondaryError) {
-      console.warn("[api/auth/session] Failed to seed module registry via fallback mutation:", secondaryError);
+      console.warn("[api/auth/session] Failed to seed marketplace modules via fallback mutation:", secondaryError);
     }
   }
 
@@ -244,12 +244,12 @@ async function ensureDevTenantSession(convex: ConvexHttpClient, preferredTenantI
   }
 
   try {
-    const registry = await convex.query((api.modules.marketplace.queries as any).getModuleRegistry, {
+    const marketplaceModules = await convex.query((api.modules.marketplace.queries as any).getMarketplaceModules, {
       sessionToken: tenantSessionToken,
     });
 
-    const moduleIds = Array.isArray(registry)
-      ? registry
+    const moduleIds = Array.isArray(marketplaceModules)
+      ? marketplaceModules
           .map((mod: any) => mod?.moduleId)
           .filter((moduleId: unknown): moduleId is string => typeof moduleId === "string")
       : [];
@@ -399,6 +399,8 @@ function setSessionCookies(
       role,
       tenantId,
       sessionToken,
+      activeTenantId: tenantId,
+      accessibleTenantIds: [tenantId],
     }),
     {
       httpOnly: false,
@@ -458,6 +460,10 @@ async function buildWorkspaceAdminResponse(
     session: {
       sessionToken: tenantSession.sessionToken,
       tenantId: tenantSession.tenantId,
+      activeTenantId: tenantSession.tenantId,
+      networkId: null,
+      identityId: null,
+      accessibleTenantIds: [tenantSession.tenantId],
       userId: tenantSession.userId,
       email: tenantSession.email,
       role: tenantSession.role,
@@ -508,6 +514,10 @@ async function buildWorkspacePlatformResponse(
     session: {
       sessionToken: session.sessionToken,
       tenantId: normalizedTenantId,
+      activeTenantId: session.activeTenantId ?? normalizedTenantId,
+      networkId: session.networkId ?? null,
+      identityId: session.identityId ?? null,
+      accessibleTenantIds: session.accessibleTenantIds ?? [normalizedTenantId],
       userId: session.userId,
       email: session.email,
       role: normalizedRole,
@@ -589,6 +599,10 @@ export async function GET(req: NextRequest) {
         session: {
           sessionToken: devSession.sessionToken,
           tenantId: devSession.tenantId,
+          activeTenantId: devSession.tenantId,
+          networkId: null,
+          identityId: null,
+          accessibleTenantIds: [devSession.tenantId],
           userId: devSession.userId,
           email: devSession.email,
           role: devSession.role,
@@ -696,6 +710,10 @@ export async function GET(req: NextRequest) {
           session: {
             sessionToken,
             tenantId: effectiveTenantId,
+            activeTenantId: user.activeTenantId ?? effectiveTenantId,
+            networkId: user.networkId ?? null,
+            identityId: user.identityId ?? null,
+            accessibleTenantIds: user.accessibleTenantIds ?? [effectiveTenantId],
             userId: user.userId || user.email,
             email: user.email,
             role: effectiveRole,
@@ -757,6 +775,10 @@ export async function GET(req: NextRequest) {
             session: {
               sessionToken: session.sessionToken,
               tenantId: normalizedTenantId,
+              activeTenantId: session.activeTenantId ?? normalizedTenantId,
+              networkId: session.networkId ?? null,
+              identityId: session.identityId ?? null,
+              accessibleTenantIds: session.accessibleTenantIds ?? [normalizedTenantId],
               userId: session.userId,
               email: session.email,
               role: normalizedRole,
@@ -824,6 +846,10 @@ export async function GET(req: NextRequest) {
           session: {
             sessionToken,
             tenantId: effectiveTenantId,
+            activeTenantId: user.activeTenantId ?? effectiveTenantId,
+            networkId: user.networkId ?? null,
+            identityId: user.identityId ?? null,
+            accessibleTenantIds: user.accessibleTenantIds ?? [effectiveTenantId],
             userId: user.email,
             email: user.email,
             role: effectiveRole,

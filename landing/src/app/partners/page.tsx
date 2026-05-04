@@ -153,8 +153,8 @@ export default function PartnersPage() {
                 {
                   title: "Market Leader",
                   description:
-                    "Trusted by 500+ schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
-                  stat: "500+ Schools",
+                    "Trusted by schools across Kenya, Uganda, Tanzania, Rwanda, and Zambia.",
+                  stat: "Regional Schools",
                 },
                 {
                   title: "Growing Market",

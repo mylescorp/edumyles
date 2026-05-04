@@ -2,6 +2,7 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { ALL_MODULES, CORE_MODULE_IDS } from "../../modules/marketplace/moduleDefinitions";
+import { normalizeModuleSlug } from "../../modules/marketplace/moduleAliases";
 import { TIER_MODULES } from "../../modules/marketplace/tierModules";
 
 const categoryValidator = v.union(
@@ -684,26 +685,29 @@ export const getTenantInstallations = query({
     let builtinInstallations: any[] = [];
     try {
       const installedModules = await ctx.db
-        .query("installedModules")
-        .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+        .query("module_installs")
+        .withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId))
         .collect();
 
       builtinInstallations = installedModules
         .filter((inst) => !args.status || inst.status === args.status)
         .map((inst) => {
-          const builtin = ALL_MODULES.find((entry) => entry.moduleId === inst.moduleId);
+          const moduleSlug = inst.moduleSlug ?? normalizeModuleSlug(String(inst.moduleId));
+          const builtin = ALL_MODULES.find(
+            (entry) => normalizeModuleSlug(entry.moduleId) === moduleSlug
+          );
           const summary = builtin ? buildBuiltinMarketplaceSummary(builtin) : null;
           return summary
             ? buildBuiltinInstallationSummary(summary, {
                 ...inst,
                 installedVersion: summary.version,
                 assignedRoles: [],
-                configuration: inst.config,
+                configuration: {},
               })
             : {
                 ...inst,
                 source: "builtin" as const,
-                moduleName: inst.moduleId,
+                moduleName: moduleSlug,
                 moduleCategory: undefined,
                 moduleVersion: undefined,
                 moduleIcon: undefined,
@@ -767,9 +771,11 @@ export const getAllInstallations = query({
 
     let builtinInstallations: any[] = [];
     try {
-      let installedModules = await ctx.db.query("installedModules").collect();
+      let installedModules = await ctx.db.query("module_installs").collect();
       if (args.moduleId) {
-        installedModules = installedModules.filter((inst) => inst.moduleId === args.moduleId);
+        installedModules = installedModules.filter(
+          (inst) => (inst.moduleSlug ?? normalizeModuleSlug(String(inst.moduleId))) === normalizeModuleSlug(args.moduleId!)
+        );
       }
       if (args.status) {
         installedModules = installedModules.filter((inst) => inst.status === args.status);
@@ -777,7 +783,10 @@ export const getAllInstallations = query({
 
       builtinInstallations = await Promise.all(
         installedModules.slice(0, args.limit || 100).map(async (inst) => {
-          const builtin = ALL_MODULES.find((entry) => entry.moduleId === inst.moduleId);
+          const moduleSlug = inst.moduleSlug ?? normalizeModuleSlug(String(inst.moduleId));
+          const builtin = ALL_MODULES.find(
+            (entry) => normalizeModuleSlug(entry.moduleId) === moduleSlug
+          );
           const summary = builtin ? buildBuiltinMarketplaceSummary(builtin) : null;
           const tenant = await ctx.db
             .query("tenants")
@@ -790,14 +799,14 @@ export const getAllInstallations = query({
                   ...inst,
                   installedVersion: summary.version,
                   assignedRoles: [],
-                  configuration: inst.config,
+                  configuration: {},
                 },
                 tenant?.name || "Unknown"
               )
             : {
                 ...inst,
                 source: "builtin" as const,
-                moduleName: inst.moduleId,
+                moduleName: moduleSlug,
                 tenantName: tenant?.name || "Unknown",
               };
         })
@@ -1006,7 +1015,7 @@ export const getMarketplaceOverview = query({
       []
     );
     const builtinInstallations = await safeQuery(
-      () => ctx.db.query("installedModules").collect(),
+      () => ctx.db.query("module_installs").collect(),
       []
     );
     const activeInstalls = installations.filter((i: any) => i.status === "active");

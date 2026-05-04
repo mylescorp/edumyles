@@ -51,6 +51,7 @@ export interface DevSystemMapSummary {
   generatedAt: string;
   frontendArtifacts: number;
   frontendPages: number;
+  landingPages: number;
   apiRoutes: number;
   layouts: number;
   backendFiles: number;
@@ -78,12 +79,14 @@ export interface DevTopologyFeature {
   id: string;
   title: string;
   routePath: string;
+  launchPath: string | null;
   kind: FrontendArtifactKind;
   area: string;
   family: string;
   moduleKey: string | null;
   relativePath: string;
   isDynamic: boolean;
+  isLaunchable: boolean;
   modifiedAt: string;
 }
 
@@ -92,6 +95,8 @@ export interface DevTopologyBucket {
   label: string;
   kind: "panel" | "portal" | "module";
   featureCount: number;
+  launchableFeatureCount: number;
+  launchPath: string | null;
   features: DevTopologyFeature[];
 }
 
@@ -177,6 +182,7 @@ export interface DevPrivilegedOpsData {
 export interface DevSystemMap {
   summary: DevSystemMapSummary;
   frontend: FrontendArtifact[];
+  landing: FrontendArtifact[];
   backend: BackendArtifact[];
   coverage: DevSystemMapCoverage;
   panels: DevSystemMapTopologyGroup[];

@@ -544,7 +544,7 @@ export default function ExcelAlternativesGuide() {
                 {
                   concern: "What if the system goes down?",
                   response:
-                    "We guarantee 99.9% uptime with automatic daily backups and disaster recovery.",
+                    "We guarantee live status monitoring with automatic daily backups and disaster recovery.",
                 },
                 {
                   concern: "It's too expensive",
@@ -632,7 +632,7 @@ export default function ExcelAlternativesGuide() {
               Ready to Leave Excel Behind?
             </h2>
             <p className="font-jakarta text-lg mb-6" style={{ color: "#5a5a5a" }}>
-              Join 1000+ schools that have transformed their operations with EduMyles.
+              Join schools that have transformed their operations with EduMyles.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link

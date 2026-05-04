@@ -1,18 +1,20 @@
 "use client";
 
-import { Activity, Boxes, Database, Gauge, LayoutDashboard, Network, Rows3 } from "lucide-react";
+import { Activity, Boxes, Database, Gauge, Globe2, LayoutDashboard, Network, Rows3 } from "lucide-react";
 import {
   DevConsoleShell,
   ErrorState,
   healthTone,
   LoadingState,
   MetricCard,
+  SourcePath,
   useDevSystemMapData,
   useRouteHealth,
 } from "@/components/dev/console";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getMarketingSitePath } from "@/lib/marketingSite";
 
 export default function DevOverviewPage() {
   const {
@@ -60,7 +62,7 @@ export default function DevOverviewPage() {
             <MetricCard
               title="Frontend Pages"
               value={systemMap.summary.frontendPages}
-              detail={`${systemMap.summary.apiRoutes} API routes in app router`}
+              detail={`${systemMap.summary.landingPages} landing pages tracked`}
               icon={LayoutDashboard}
             />
             <MetricCard
@@ -88,6 +90,51 @@ export default function DevOverviewPage() {
               icon={Gauge}
             />
           </div>
+
+          <Card className="border-border/70">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Globe2 className="h-4 w-4" />
+                Landing Pages
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {systemMap.landing
+                  .filter((item) => item.kind === "page")
+                  .map((item) => {
+                    const label =
+                      item.routePath === "/"
+                        ? "Home"
+                        : item.routeSegments.at(-1)?.replace(/[-_]/g, " ") ?? item.routePath;
+
+                    return (
+                      <div key={item.id} className="rounded-lg border border-border/70 bg-muted/25 p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="font-medium capitalize text-foreground">{label}</div>
+                            <div className="mt-1 font-mono text-xs text-muted-foreground">
+                              {item.routePath}
+                            </div>
+                          </div>
+                          {item.isDynamic ? <Badge variant="secondary">dynamic</Badge> : null}
+                        </div>
+                        <div className="mt-3 flex items-center justify-between gap-3">
+                          <SourcePath path={item.relativePath} />
+                          {!item.isDynamic ? (
+                            <Button asChild variant="outline" size="sm">
+                              <a href={getMarketingSitePath(item.routePath)} target="_blank" rel="noreferrer">
+                                Open
+                              </a>
+                            </Button>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="grid gap-4 xl:grid-cols-3">
             <Card className="border-border/70">

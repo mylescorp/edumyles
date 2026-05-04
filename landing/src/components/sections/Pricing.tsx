@@ -2,73 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { PUBLIC_PRICING_PLANS, formatPublicKes } from "@edumyles/shared/constants/publicCatalog";
 
-const plans = [
-  {
-    name: "Starter",
-    monthlyPrice: 12900,
-    annualPrice: 10320,
-    description: "Perfect for small schools getting started with digital management",
-    limit: "Up to 500 students",
-    features: [
-      "Student information system",
-      "Basic fee tracking",
-      "Parent communication (SMS)",
-      "Attendance management",
-      "Basic gradebook",
-      "Email support",
-      "1 campus",
-    ],
-    cta: "Get Started Free",
-    href: "/waitlist",
-    featured: false,
-  },
-  {
-    name: "Professional",
-    monthlyPrice: 38900,
-    annualPrice: 31120,
-    description: "For growing schools needing all modules and priority support",
-    limit: "501–2,000 students",
-    features: [
-      "All 11 modules included",
-      "M-Pesa & Airtel Money",
-      "Multi-campus support",
-      "Parent & teacher portals",
-      "Advanced analytics",
-      "Priority support & training",
-      "Unlimited admin users",
-      "CBC & 8-4-4 gradebook",
-      "NEMIS integration",
-    ],
-    cta: "Get Started",
-    href: "/waitlist",
-    featured: true,
-  },
-  {
-    name: "Enterprise",
-    monthlyPrice: null,
-    annualPrice: null,
-    description: "For large institutions and multi-school networks",
-    limit: "2,000+ students",
-    features: [
-      "Everything in Professional",
-      "Custom SLA agreement",
-      "Dedicated Customer Success Manager",
-      "API access & custom integrations",
-      "SSO / WorkOS",
-      "County & MoE reporting",
-      "White-label options",
-      "On-site training",
-    ],
-    cta: "Contact Sales",
-    href: "/contact?subject=enterprise",
-    featured: false,
-  },
-];
-
-function formatKES(n: number): string {
-  return "KES " + n.toLocaleString("en-KE");
-}
+const plans = PUBLIC_PRICING_PLANS;
 
 export default function Pricing() {
   const [annual, setAnnual] = useState(false);
@@ -160,11 +96,11 @@ export default function Pricing() {
                   plan.featured ? "text-white/60" : "text-mid-grey"
                 }`}
               >
-                {plan.limit}
+                {plan.studentLimitLabel} · {plan.campusLabel}
               </p>
 
               <div className="mb-4">
-                {plan.monthlyPrice === null ? (
+                {plan.monthlyPriceKes === null ? (
                   <div
                     className={`font-jakarta font-bold text-4xl ${
                       plan.featured ? "text-gold" : "text-navy"
@@ -179,7 +115,9 @@ export default function Pricing() {
                         plan.featured ? "text-gold" : "text-navy"
                       }`}
                     >
-                      {formatKES(annual ? plan.annualPrice! : plan.monthlyPrice)}
+                      {formatPublicKes(
+                        annual ? plan.annualMonthlyPriceKes! : plan.monthlyPriceKes
+                      )}
                     </div>
                     <div
                       className={`font-inter text-sm ${

@@ -5,6 +5,44 @@ import { requirePermission } from "../../helpers/authorize";
 import { requireModule } from "../../helpers/moduleGuard";
 import { requireTenantContext, requireTenantSession } from "../../helpers/tenantGuard";
 import { logAction } from "../../helpers/auditLog";
+import { publishEvent } from "../../eventBus";
+
+function kcseGrade(score: number) {
+  if (score >= 80) return "A";
+  if (score >= 75) return "A-";
+  if (score >= 70) return "B+";
+  if (score >= 65) return "B";
+  if (score >= 60) return "B-";
+  if (score >= 55) return "C+";
+  if (score >= 50) return "C";
+  if (score >= 45) return "C-";
+  if (score >= 40) return "D+";
+  if (score >= 35) return "D";
+  if (score >= 30) return "D-";
+  return "E";
+}
+
+function gradePoints(grade: string) {
+  const points: Record<string, number> = {
+    A: 12,
+    "A-": 11,
+    "B+": 10,
+    B: 9,
+    "B-": 8,
+    "C+": 7,
+    C: 6,
+    "C-": 5,
+    "D+": 4,
+    D: 3,
+    "D-": 2,
+    E: 1,
+  };
+  return points[grade] ?? 0;
+}
+
+function sanitizeText(value?: string) {
+  return value?.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "").trim();
+}
 
 /**
  * Bulk enter or update grades for students.
@@ -49,16 +87,200 @@ export const enterGrades = mutation({
       if (existing && (existing as any).tenantId === tenant.tenantId) {
         await ctx.db.patch(existing._id, {
           ...record,
+          grade: record.grade || kcseGrade(record.score),
+          remarks: sanitizeText(record.remarks),
           updatedAt: now,
         });
       } else if (!existing) {
         await ctx.db.insert("grades", {
           ...record,
+          grade: record.grade || kcseGrade(record.score),
+          remarks: sanitizeText(record.remarks),
           tenantId: tenant.tenantId,
           createdAt: now,
           updatedAt: now,
         });
       }
+    }
+    return { success: true, count: args.grades.length };
+  },
+});
+
+export const createSubject = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    name: v.string(),
+    code: v.string(),
+    type: v.optional(v.string()),
+    applicableLevels: v.optional(v.array(v.string())),
+    gradingSystemId: v.optional(v.string()),
+    isOptional: v.optional(v.boolean()),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+
+    const now = Date.now();
+    return await ctx.db.insert("subjects", {
+      tenantId: tenant.tenantId,
+      name: args.name,
+      code: args.code,
+      type: args.type ?? "core",
+      subjectType: args.type ?? "core",
+      applicableLevels: args.applicableLevels ?? [],
+      levelCodes: args.applicableLevels ?? [],
+      gradingSystemId: args.gradingSystemId,
+      isOptional: args.isOptional ?? false,
+      isDeleted: false,
+      description: sanitizeText(args.description),
+      createdAt: now,
+      updatedAt: now,
+    });
+  },
+});
+
+export const updateSubject = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    id: v.id("subjects"),
+    updates: v.object({
+      name: v.optional(v.string()),
+      code: v.optional(v.string()),
+      type: v.optional(v.string()),
+      applicableLevels: v.optional(v.array(v.string())),
+      gradingSystemId: v.optional(v.string()),
+      isOptional: v.optional(v.boolean()),
+      description: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const subject = await ctx.db.get(args.id);
+    if (!subject || subject.tenantId !== tenant.tenantId) throw new Error("Subject not found");
+    await ctx.db.patch(args.id, {
+      ...args.updates,
+      subjectType: args.updates.type,
+      levelCodes: args.updates.applicableLevels,
+      description: sanitizeText(args.updates.description),
+      updatedAt: Date.now(),
+    });
+    return { success: true };
+  },
+});
+
+export const deleteSubject = mutation({
+  args: { sessionToken: v.optional(v.string()), id: v.id("subjects") },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const subject = await ctx.db.get(args.id);
+    if (!subject || subject.tenantId !== tenant.tenantId) throw new Error("Subject not found");
+    await ctx.db.patch(args.id, { isDeleted: true, updatedAt: Date.now() });
+    return { success: true };
+  },
+});
+
+export const createExam = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    name: v.string(),
+    classId: v.optional(v.string()),
+    className: v.optional(v.string()),
+    subjectId: v.optional(v.string()),
+    termId: v.optional(v.string()),
+    academicYearId: v.optional(v.string()),
+    totalMarks: v.optional(v.number()),
+    weight: v.optional(v.number()),
+    examDate: v.optional(v.number()),
+    resultsPublishDate: v.optional(v.number()),
+    type: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const date = args.examDate ? new Date(args.examDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+    const id = await ctx.db.insert("examinations", {
+      tenantId: tenant.tenantId,
+      name: args.name,
+      classId: args.classId,
+      className: args.className,
+      subjectId: args.subjectId,
+      date,
+      totalMarks: args.totalMarks,
+      status: "scheduled",
+      createdBy: tenant.userId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    return id;
+  },
+});
+
+export const bulkEnterGrades = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    examId: v.id("examinations"),
+    grades: v.array(v.object({
+      studentId: v.string(),
+      marksAwarded: v.number(),
+      remarks: v.optional(v.string()),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const exam = await ctx.db.get(args.examId);
+    if (!exam || exam.tenantId !== tenant.tenantId) throw new Error("Exam not found");
+    const now = Date.now();
+    for (const entry of args.grades) {
+      const percentage = exam.totalMarks ? Math.round((entry.marksAwarded / exam.totalMarks) * 1000) / 10 : entry.marksAwarded;
+      const grade = kcseGrade(percentage);
+      const existing = await ctx.db
+        .query("grades")
+        .withIndex("by_student", (q) => q.eq("studentId", entry.studentId).eq("term", exam.date.slice(0, 4)))
+        .filter((q) => q.eq(q.field("subjectId"), exam.subjectId ?? "general"))
+        .first();
+      const payload = {
+        tenantId: tenant.tenantId,
+        studentId: entry.studentId,
+        classId: exam.classId ?? "unknown",
+        subjectId: exam.subjectId ?? "general",
+        term: exam.date.slice(0, 4),
+        academicYear: exam.date.slice(0, 4),
+        score: percentage,
+        grade,
+        remarks: sanitizeText(entry.remarks),
+        recordedBy: tenant.userId,
+        updatedAt: now,
+      };
+      if (existing && existing.tenantId === tenant.tenantId) {
+        await ctx.db.patch(existing._id, payload);
+      } else {
+        await ctx.db.insert("grades", { ...payload, createdAt: now });
+      }
+      await publishEvent(ctx, {
+        eventType: "academics.grade.posted",
+        publisherModule: "mod_academics",
+        tenantId: tenant.tenantId,
+        payload: { examId: args.examId, studentId: entry.studentId, grade, gradePoints: gradePoints(grade) },
+      });
     }
     return { success: true, count: args.grades.length };
   },
@@ -435,6 +657,221 @@ export const generateReportCard = mutation({
       attendanceSummary,
       totalStudentsInClass: averagesWithStudents.length
     };
+  },
+});
+
+export const generateReportCards = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    classId: v.string(),
+    termId: v.string(),
+    academicYearId: v.optional(v.string()),
+    includeAttendance: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+
+    const students = await ctx.db
+      .query("students")
+      .withIndex("by_tenant_class", (q) => q.eq("tenantId", tenant.tenantId).eq("classId", args.classId))
+      .collect();
+    const grades = await ctx.db
+      .query("grades")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+    const subjects = await ctx.db
+      .query("subjects")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+    const subjectById = new Map(subjects.map((subject) => [subject._id.toString(), subject]));
+    const now = Date.now();
+    const failed: Array<{ studentId: string; reason: string }> = [];
+    let generated = 0;
+
+    const studentAverages = students.map((student) => {
+      const studentGrades = grades.filter((grade) =>
+        grade.studentId === student._id.toString() &&
+        grade.classId === args.classId &&
+        grade.term === args.termId
+      );
+      const average = studentGrades.length
+        ? studentGrades.reduce((sum, grade) => sum + grade.score, 0) / studentGrades.length
+        : 0;
+      return { studentId: student._id.toString(), average };
+    }).sort((a, b) => b.average - a.average);
+
+    for (const student of students) {
+      try {
+        const studentId = student._id.toString();
+        const studentGrades = grades.filter((grade) =>
+          grade.studentId === studentId &&
+          grade.classId === args.classId &&
+          grade.term === args.termId
+        );
+        const outOf = studentGrades.length * 100;
+        const totalMarks = studentGrades.reduce((sum, grade) => sum + grade.score, 0);
+        const overallPercentage = studentGrades.length ? Math.round((totalMarks / studentGrades.length) * 10) / 10 : 0;
+        const meanGrade = kcseGrade(overallPercentage);
+        const classRank = studentAverages.findIndex((entry) => entry.studentId === studentId) + 1;
+        let attendanceSummary: any = undefined;
+        if (args.includeAttendance) {
+          const attendance = await ctx.db
+            .query("attendance")
+            .withIndex("by_student_date", (q) => q.eq("studentId", studentId))
+            .collect();
+          const termAttendance = attendance.filter((record) => record.tenantId === tenant.tenantId);
+          const presentDays = termAttendance.filter((record) => record.status === "present").length;
+          const absentDays = termAttendance.filter((record) => record.status === "absent").length;
+          const lateDays = termAttendance.filter((record) => record.status === "late").length;
+          const medicalDays = termAttendance.filter((record) => record.status === "medical").length;
+          const totalDays = presentDays + absentDays + lateDays + medicalDays;
+          attendanceSummary = {
+            presentDays,
+            absentDays,
+            lateDays,
+            medicalDays,
+            attendanceRatePct: totalDays ? Math.round((presentDays / totalDays) * 1000) / 10 : 0,
+          };
+        }
+        const existing = await ctx.db
+          .query("reportCards")
+          .withIndex("by_student_term", (q) => q.eq("studentId", studentId).eq("term", args.termId).eq("academicYear", args.academicYearId ?? new Date().getFullYear().toString()))
+          .first();
+        const payload = {
+          tenantId: tenant.tenantId,
+          studentId,
+          classId: args.classId,
+          term: args.termId,
+          termId: args.termId,
+          academicYear: args.academicYearId ?? new Date().getFullYear().toString(),
+          academicYearId: args.academicYearId,
+          subjects: studentGrades.map((grade) => {
+            const subject = subjectById.get(grade.subjectId);
+            return {
+              subjectId: grade.subjectId,
+              subjectName: subject?.name ?? "Unknown subject",
+              marksAwarded: grade.score,
+              totalMarks: 100,
+              percentageScore: grade.score,
+              grade: grade.grade,
+              gradePoints: gradePoints(grade.grade),
+              teacherRemarks: grade.remarks,
+              isMissing: false,
+            };
+          }),
+          totalMarks,
+          outOf,
+          overallPercentage,
+          meanGrade,
+          gpa: calculateGPA(overallPercentage, "KE_8_4_4"),
+          rank: classRank,
+          classRank,
+          classSize: students.length,
+          performanceGraphEnabled: true,
+          attendanceSummary,
+          status: "ready",
+          generatedAt: now,
+          createdAt: now,
+        };
+        if (existing && existing.tenantId === tenant.tenantId) {
+          await ctx.db.patch(existing._id, payload);
+        } else {
+          await ctx.db.insert("reportCards", payload);
+        }
+        generated += 1;
+      } catch (error) {
+        failed.push({ studentId: student._id.toString(), reason: error instanceof Error ? error.message : "Unknown error" });
+      }
+    }
+
+    return { generated, failed };
+  },
+});
+
+export const publishReportCards = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    termId: v.string(),
+    classIds: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const cards = await ctx.db
+      .query("reportCards")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+    let published = 0;
+    for (const card of cards) {
+      if (card.term !== args.termId || !args.classIds.includes(card.classId ?? "")) continue;
+      await ctx.db.patch(card._id, {
+        status: "published",
+        publishedAt: Date.now(),
+      });
+      await publishEvent(ctx, {
+        eventType: "academics.report_card.generated",
+        publisherModule: "mod_academics",
+        tenantId: tenant.tenantId,
+        payload: {
+          studentId: card.studentId,
+          termId: args.termId,
+          academicYearId: card.academicYearId ?? card.academicYear,
+          reportCardUrl: card.pdfUrl ?? card.fileUrl ?? `/api/documents/report-card/${card._id}`,
+        },
+      });
+      published += 1;
+    }
+    return { success: true, published };
+  },
+});
+
+export const addPrincipalRemarks = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    reportCardId: v.id("reportCards"),
+    remarks: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const card = await ctx.db.get(args.reportCardId);
+    if (!card || card.tenantId !== tenant.tenantId) throw new Error("Report card not found");
+    await ctx.db.patch(args.reportCardId, {
+      principalRemarks: sanitizeText(args.remarks),
+    });
+    return { success: true };
+  },
+});
+
+export const generateAIReportNarrative = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    studentId: v.string(),
+    termId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const grades = (await ctx.db
+      .query("grades")
+      .withIndex("by_student", (q) => q.eq("studentId", args.studentId).eq("term", args.termId))
+      .collect()).filter((grade) => grade.tenantId === tenant.tenantId);
+    const average = grades.length ? Math.round((grades.reduce((sum, grade) => sum + grade.score, 0) / grades.length) * 10) / 10 : 0;
+    const narrative = `The learner achieved an overall average of ${average}% with strongest performance reflected in ${grades.length} assessed subject(s). Review attendance, participation, and subject-specific feedback before publishing this narrative.`;
+    return { narrative };
   },
 });
 

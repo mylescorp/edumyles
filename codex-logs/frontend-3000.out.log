@@ -2,14 +2,11 @@
 - Local:         http://localhost:3000
 - Network:       http://10.90.97.247:3000
 - Environments: .env.local
-✓ Ready in 1479ms
+✓ Ready in 1015ms
 - Experiments (use with caution):
   · clientTraceMetadata
   · optimizePackageImports
   · serverActions
 
-○ Compiling /auth/login ...
- GET /auth/login 200 in 23.5s (next.js: 14.1s, application-code: 9.4s)
- HEAD /auth/login 200 in 762ms (next.js: 178ms, application-code: 584ms)
- GET /auth/login/api 307 in 390ms (next.js: 337ms, application-code: 53ms)
- GET /auth/error?reason=not_configured 200 in 399ms (next.js: 93ms, application-code: 306ms)
+ HEAD /auth/login 200 in 3.1s (next.js: 1652ms, application-code: 1426ms)
+ GET /auth/error?reason=not_configured 200 in 918ms (next.js: 532ms, application-code: 386ms)

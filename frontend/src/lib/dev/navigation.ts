@@ -4,6 +4,7 @@ import {
   FileCode2,
   Gauge,
   GitBranch,
+  Globe2,
   History,
   LayoutDashboard,
   Network,
@@ -30,6 +31,12 @@ export const DEV_CONSOLE_NAV: DevConsoleNavItem[] = [
     href: "/dev/frontend",
     description: "Pages, layouts, routes",
     icon: FileCode2,
+  },
+  {
+    title: "Landing",
+    href: "/dev/landing",
+    description: "Marketing pages",
+    icon: Globe2,
   },
   {
     title: "Backend",

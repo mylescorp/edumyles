@@ -1,67 +1,15 @@
 import { ConvexError } from "convex/values";
 import { MutationCtx, QueryCtx } from "../_generated/server";
-import { CORE_MODULE_IDS, MODULE_DEPENDENCIES } from "../modules/marketplace/moduleDefinitions";
+import { MODULE_DEPENDENCIES } from "../modules/marketplace/moduleDefinitions";
 import { TIER_MODULES } from "../modules/marketplace/tierModules";
+import {
+  getCanonicalDependencies,
+  getCanonicalTierModules,
+  isCoreModuleSlug,
+  normalizeModuleSlug,
+} from "../modules/marketplace/moduleAliases";
 
 type GuardCtx = QueryCtx | MutationCtx;
-
-const LEGACY_MODULE_IDS_BY_SLUG: Record<string, string> = {
-  core_sis: "sis",
-  core_users: "users",
-  core_notifications: "communications",
-  mod_academics: "academics",
-  mod_attendance: "attendance",
-  mod_admissions: "admissions",
-  mod_finance: "finance",
-  mod_timetable: "timetable",
-  mod_library: "library",
-  mod_transport: "transport",
-  mod_hr: "hr",
-  mod_communications: "communications",
-  mod_ewallet: "ewallet",
-  mod_ecommerce: "ecommerce",
-  mod_reports: "reports",
-  mod_advanced_analytics: "reports",
-  mod_parent_portal: "portal_parent",
-  mod_alumni: "portal_alumni",
-  mod_partner: "portal_partner",
-  mod_social: "social",
-};
-
-const SPEC_MODULE_SLUG_BY_LEGACY_ID: Record<string, string> = {
-  sis: "core_sis",
-  users: "core_users",
-  notifications: "core_notifications",
-  communications: "mod_communications",
-  academics: "mod_academics",
-  attendance: "mod_attendance",
-  admissions: "mod_admissions",
-  finance: "mod_finance",
-  timetable: "mod_timetable",
-  library: "mod_library",
-  transport: "mod_transport",
-  hr: "mod_hr",
-  ewallet: "mod_ewallet",
-  ecommerce: "mod_ecommerce",
-  reports: "mod_reports",
-  advanced_analytics: "mod_advanced_analytics",
-  analytics: "mod_advanced_analytics",
-  parent_portal: "mod_parent_portal",
-  alumni: "mod_alumni",
-  partner: "mod_partner",
-  social: "mod_social",
-  portal_parent: "mod_parent_portal",
-  portal_alumni: "mod_alumni",
-  portal_partner: "mod_partner",
-};
-
-function normalizeModuleSlug(moduleSlugOrId: string): string {
-  return SPEC_MODULE_SLUG_BY_LEGACY_ID[moduleSlugOrId] ?? moduleSlugOrId;
-}
-
-function getLegacyModuleId(moduleSlugOrId: string): string {
-  return LEGACY_MODULE_IDS_BY_SLUG[moduleSlugOrId] ?? moduleSlugOrId;
-}
 
 async function getMarketplaceModuleBySlug(ctx: GuardCtx, moduleSlugOrId: string) {
   const normalizedModuleSlug = normalizeModuleSlug(moduleSlugOrId);
@@ -89,38 +37,7 @@ async function getModuleInstallRecord(ctx: GuardCtx, tenantId: string, moduleSlu
     };
   }
 
-  const legacyModuleId = getLegacyModuleId(moduleSlugOrId);
-  const legacyInstall = await ctx.db
-    .query("installedModules")
-    .withIndex("by_tenant_module", (q) =>
-      q.eq("tenantId", tenantId).eq("moduleId", legacyModuleId)
-    )
-    .first();
-
-  if (!legacyInstall) {
-    return null;
-  }
-
-  return {
-    source: "installedModules" as const,
-    moduleSlug: normalizedModuleSlug,
-    install: {
-      ...legacyInstall,
-      moduleSlug: normalizedModuleSlug,
-      billingPeriod: "monthly" as const,
-      currentPriceKes: 0,
-      hasPriceOverride: false,
-      isFree: CORE_MODULE_IDS.includes(legacyModuleId),
-      firstInstalledAt: legacyInstall.installedAt,
-      billingStartsAt: legacyInstall.installedAt,
-      nextBillingDate: legacyInstall.updatedAt,
-      version: "legacy",
-      paymentFailureCount: 0,
-      installedBy: legacyInstall.installedBy,
-      installedAt: legacyInstall.installedAt,
-      updatedAt: legacyInstall.updatedAt,
-    },
-  };
+  return null;
 }
 
 function isReadableFeature(featureKey: string) {
@@ -139,7 +56,7 @@ export async function requireModuleAccess(
 ) {
   const normalizedModuleSlug = normalizeModuleSlug(moduleSlug);
 
-  if (normalizedModuleSlug.startsWith("core_")) {
+  if (isCoreModuleSlug(normalizedModuleSlug)) {
     return {
       install: {
         moduleSlug: normalizedModuleSlug,
@@ -174,7 +91,6 @@ export async function requireModuleAccess(
       uninstalling: "Module is being uninstalled.",
       uninstalled: "Module has been uninstalled for this tenant.",
       data_purged: "Module data has already been purged for this tenant.",
-      inactive: "Module is inactive for this tenant.",
     };
 
     throw new ConvexError({
@@ -265,14 +181,10 @@ export async function requireModuleFeatureAccess(
 }
 
 export async function getInstalledModules(ctx: GuardCtx, tenantId: string) {
-  const [marketplaceInstalls, legacyInstalls, marketplaceModules, accessConfigs] = await Promise.all([
+  const [marketplaceInstalls, marketplaceModules, accessConfigs] = await Promise.all([
     ctx.db
       .query("module_installs")
       .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-      .collect(),
-    ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
       .collect(),
     ctx.db.query("marketplace_modules").collect(),
     ctx.db
@@ -297,20 +209,6 @@ export async function getInstalledModules(ctx: GuardCtx, tenantId: string) {
     });
   }
 
-  for (const legacyInstall of legacyInstalls.filter((record) => record.status === "active")) {
-    const moduleSlug = normalizeModuleSlug(legacyInstall.moduleId);
-    if (results.has(moduleSlug)) {
-      continue;
-    }
-
-    results.set(moduleSlug, {
-      ...legacyInstall,
-      moduleSlug,
-      module: moduleBySlug.get(moduleSlug) ?? null,
-      accessConfig: accessConfigBySlug.get(moduleSlug) ?? null,
-    });
-  }
-
   return Array.from(results.values());
 }
 
@@ -327,16 +225,20 @@ export async function isModuleInstalled(
   }
 }
 
-/**
- * Legacy guard retained so the existing app remains functional while the
- * marketplace-specific guard system rolls out on `module_installs`.
- */
 export async function requireModule(
   ctx: GuardCtx,
   tenantId: string,
   moduleId: string
 ): Promise<void> {
-  await requireModuleAccess(ctx, normalizeModuleSlug(moduleId), tenantId);
+  const normalizedModuleId = normalizeModuleSlug(moduleId);
+  await requireModuleAccess(ctx, normalizedModuleId, tenantId);
+
+  if (isCoreModuleSlug(normalizedModuleId)) {
+    return;
+  }
+
+  await validateModuleTier(ctx, tenantId, normalizedModuleId);
+  await validateModuleDependencies(ctx, tenantId, normalizedModuleId);
 }
 
 export async function getInstalledModule(
@@ -369,16 +271,16 @@ async function validateModuleTier(
 
   const tier = organization?.tier || tenant.plan || "starter";
 
-  if (CORE_MODULE_IDS.includes(moduleId)) {
+  if (isCoreModuleSlug(moduleId)) {
     return;
   }
 
-  const availableModules = [
+  const availableModules = getCanonicalTierModules([
     ...(TIER_MODULES[tier as keyof typeof TIER_MODULES] ?? []),
     ...((tier as keyof typeof TIER_MODULES) === "starter" ? [] : (TIER_MODULES.starter ?? [])),
-  ];
+  ]);
 
-  if (!availableModules.includes(moduleId)) {
+  if (!availableModules.includes(normalizeModuleSlug(moduleId))) {
     throw new Error(
       `MODULE_NOT_AVAILABLE_FOR_TIER: Module '${moduleId}' is not available for tier '${tier}'`
     );
@@ -390,7 +292,7 @@ async function validateModuleDependencies(
   tenantId: string,
   moduleId: string
 ): Promise<void> {
-  const dependencies = MODULE_DEPENDENCIES[moduleId as keyof typeof MODULE_DEPENDENCIES];
+  const dependencies = getCanonicalDependencies(moduleId);
 
   if (!dependencies || dependencies.length === 0) {
     return;
@@ -467,12 +369,13 @@ export async function deactivateModule(
     );
   }
 
-  if (installed.status === "inactive") {
+  if (installed.status === "disabled") {
     return true;
   }
 
+  const normalizedModuleId = normalizeModuleSlug(moduleId);
   const dependentModules = Object.entries(MODULE_DEPENDENCIES)
-    .filter(([_, deps]) => deps.includes(moduleId))
+    .filter(([_, deps]) => deps.map(normalizeModuleSlug).includes(normalizedModuleId))
     .map(([dependentModuleId]) => dependentModuleId);
 
   for (const dependentModuleId of dependentModules) {
@@ -484,7 +387,7 @@ export async function deactivateModule(
     }
   }
 
-  await ctx.db.patch(installed._id, { status: "inactive" });
+  await ctx.db.patch(installed._id, { status: "disabled" });
 
   return true;
 }

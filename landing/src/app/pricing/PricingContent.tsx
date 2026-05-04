@@ -3,76 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Star } from "lucide-react";
+import { PUBLIC_PRICING_PLANS, formatPublicKes } from "@edumyles/shared/constants/publicCatalog";
 
-const plans = [
-  {
-    name: "Starter",
-    tagline: "Up to 500 students",
-    monthlyPrice: 12900,
-    annualPrice: 10320,
-    description: "Perfect for small schools getting started with digital management.",
-    features: [
-      "Student Information System",
-      "Basic fee tracking",
-      "Parent communication (SMS)",
-      "Attendance management",
-      "Basic gradebook",
-      "Email support",
-      "1 campus",
-    ],
-    notIncluded: ["M-Pesa / mobile money", "Multi-campus", "Advanced analytics", "API access"],
-    cta: "Start Free Trial",
-    href: "/waitlist",
-    featured: false,
-    highlight: null,
-  },
-  {
-    name: "Professional",
-    tagline: "501 – 2,000 students",
-    monthlyPrice: 38900,
-    annualPrice: 31120,
-    description: "For growing schools needing all modules, M-Pesa payments, and priority support.",
-    features: [
-      "All 11 modules included",
-      "M-Pesa & Airtel Money",
-      "Multi-campus support",
-      "Parent & teacher portals",
-      "Advanced analytics dashboard",
-      "Priority support & training",
-      "Unlimited admin users",
-      "CBC & 8-4-4 gradebook",
-      "NEMIS integration",
-    ],
-    notIncluded: [],
-    cta: "Start Free Trial",
-    href: "/waitlist",
-    featured: true,
-    highlight: "Most Popular",
-  },
-  {
-    name: "Enterprise",
-    tagline: "2,000+ students",
-    monthlyPrice: null,
-    annualPrice: null,
-    description:
-      "For large institutions, county networks, and multi-school groups needing custom SLAs.",
-    features: [
-      "Everything in Professional",
-      "Custom SLA agreement",
-      "Dedicated Customer Success Manager",
-      "API access & custom integrations",
-      "SSO / WorkOS enterprise auth",
-      "County & MoE reporting",
-      "White-label options",
-      "On-site training & setup",
-    ],
-    notIncluded: [],
-    cta: "Contact Sales",
-    href: "/contact?subject=enterprise",
-    featured: false,
-    highlight: null,
-  },
-];
+const plans = PUBLIC_PRICING_PLANS;
 
 const faqs = [
   {
@@ -85,7 +18,7 @@ const faqs = [
   },
   {
     q: "What payment methods do you accept?",
-    a: "We accept M-Pesa, Airtel Money, Stripe (credit/debit cards), and direct bank transfers. We'll work with whatever is easiest for your school.",
+    a: "We accept M-Pesa, Airtel Money, card payments, and direct bank transfers. We'll work with whatever is easiest for your school.",
   },
   {
     q: "Can I switch plans later?",
@@ -130,10 +63,6 @@ const comparisonRows = [
   { feature: "Dedicated CSM", starter: false, pro: false, enterprise: true },
   { feature: "Custom SLA", starter: false, pro: false, enterprise: true },
 ];
-
-function formatKES(n: number) {
-  return "KES " + n.toLocaleString("en-KE");
-}
 
 function Cell({ val }: { val: boolean | string }) {
   if (val === true) return <span style={{ color: "#26A65B", fontSize: 18 }}>✓</span>;
@@ -226,7 +155,7 @@ export default function PricingContent() {
                 </p>
 
                 <div className="mb-4">
-                  {plan.monthlyPrice === null ? (
+                  {plan.monthlyPriceKes === null ? (
                     <div
                       className="font-display font-bold text-[40px]"
                       style={{ color: plan.featured ? "#E8A020" : "#061A12" }}
@@ -239,7 +168,9 @@ export default function PricingContent() {
                         className="font-display font-bold text-[38px]"
                         style={{ color: plan.featured ? "#E8A020" : "#061A12" }}
                       >
-                        {formatKES(annual ? plan.annualPrice! : plan.monthlyPrice)}
+                        {formatPublicKes(
+                          annual ? plan.annualMonthlyPriceKes! : plan.monthlyPriceKes
+                        )}
                       </div>
                       <div
                         className="font-jakarta text-[13px]"

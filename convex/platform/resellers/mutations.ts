@@ -21,13 +21,13 @@ function getDefaultTier(applicantType: "reseller" | "affiliate") {
 function getDefaultCommissionRate(tier: "starter" | "silver" | "gold" | "platinum") {
   switch (tier) {
     case "platinum":
-      return 20;
+      return 35;
     case "gold":
-      return 15;
+      return 30;
     case "silver":
-      return 12;
+      return 25;
     default:
-      return 8;
+      return 20;
   }
 }
 
@@ -126,8 +126,8 @@ export const reviewResellerApplication = mutation({
           commission: {
             rate: commissionRate,
             tier,
-            holdDays: 30,
-            minPayout: 1000,
+            holdDays: 7,
+            minPayout: 500,
           },
           stats: {
             totalReferrals: 0,
@@ -165,6 +165,9 @@ export const reviewResellerApplication = mutation({
     return {
       success: true,
       resellerId,
+      role: application.businessType === "affiliate" ? "affiliate" : "reseller",
+      portalPath:
+        application.businessType === "affiliate" ? "/portal/affiliate" : "/portal/reseller",
     };
   },
 });

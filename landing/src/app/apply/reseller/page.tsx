@@ -22,6 +22,7 @@ import {
   Handshake,
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
+import { trackFormSubmission, trackLeadConversion } from "@/lib/analytics";
 
 type FormState = "idle" | "loading" | "error" | "success";
 
@@ -124,6 +125,8 @@ export default function ResellerApplicationPage() {
       }
 
       setFormState("success");
+      trackFormSubmission("reseller_application", true);
+      trackLeadConversion("reseller_application", { application_id: payload.applicationId });
       // Redirect to success page after a short delay
       setTimeout(() => {
         router.push(`/apply/reseller/success?id=${payload.applicationId}`);
@@ -134,6 +137,7 @@ export default function ResellerApplicationPage() {
           ? submitError.message
           : "We couldn't submit your application right now."
       );
+      trackFormSubmission("reseller_application", false);
       setFormState("error");
     }
   }
@@ -194,7 +198,7 @@ export default function ResellerApplicationPage() {
               {
                 icon: TrendingUp,
                 title: "Competitive Commissions",
-                body: "Earn up to 30% commission on school subscriptions with transparent tracking and timely payouts.",
+                body: "Earn up to 35% commission on school subscriptions with transparent tracking and timely payouts.",
               },
               {
                 icon: Target,
@@ -204,7 +208,7 @@ export default function ResellerApplicationPage() {
               {
                 icon: ShieldCheck,
                 title: "Trusted Platform",
-                body: "Represent a proven school management system trusted by 50+ schools across East Africa.",
+                body: "Represent a proven school management system trusted by schools across East Africa.",
               },
             ].map((item) => (
               <div
@@ -227,13 +231,13 @@ export default function ResellerApplicationPage() {
                 {
                   tier: "Starter",
                   description: "Perfect for individuals and small teams",
-                  commission: "15-20%",
+                  commission: "20%",
                   features: ["Up to 5 schools", "Basic marketing materials", "Email support"],
                 },
                 {
                   tier: "Silver",
                   description: "For growing resellers",
-                  commission: "20-25%",
+                  commission: "25%",
                   features: [
                     "Up to 15 schools",
                     "Advanced marketing kit",
@@ -244,7 +248,7 @@ export default function ResellerApplicationPage() {
                 {
                   tier: "Gold",
                   description: "For established resellers",
-                  commission: "25-30%",
+                  commission: "30%",
                   features: [
                     "Up to 30 schools",
                     "White-label options",
@@ -255,7 +259,7 @@ export default function ResellerApplicationPage() {
                 {
                   tier: "Platinum",
                   description: "For enterprise partners",
-                  commission: "30%+",
+                  commission: "35%",
                   features: [
                     "Unlimited schools",
                     "Full white-label",

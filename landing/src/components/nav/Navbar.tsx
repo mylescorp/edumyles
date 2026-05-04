@@ -14,7 +14,6 @@ const navLinks = [
   { label: "Solutions", href: "/solutions" },
   { label: "About", href: "/about" },
   { label: "Team", href: "/team" },
-  { label: "Careers", href: "/careers" },
   { label: "Pricing",  href: "/pricing" },
   { label: "Blog",     href: "/blog" },
   { label: "Contact",  href: "/contact" },
@@ -44,7 +43,7 @@ const solutionItems: SolutionItem[] = [
     icon: Globe,
     label: "International Schools",
     href: "/solutions/international-schools",
-    subtitle: "IGCSE & IB curriculum support with SSO and white-label options",
+    subtitle: "IGCSE support with SSO and white-label options",
   },
   {
     icon: Building2,

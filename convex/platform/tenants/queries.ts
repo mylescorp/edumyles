@@ -2,14 +2,11 @@ import { paginationOptsValidator } from "convex/server";
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { normalizeModuleSlug } from "../../modules/marketplace/moduleAliases";
 
 function normalizeTenantModuleKey(value?: string) {
   const raw = (value ?? "").trim().toLowerCase();
-  if (!raw) return "unknown";
-  if (raw === "sis") return "core_sis";
-  if (raw === "users") return "core_users";
-  if (raw === "communications" || raw === "notifications") return "core_notifications";
-  return raw;
+  return raw ? normalizeModuleSlug(raw) : "unknown";
 }
 
 function parseSubscriptionNotes(notes?: string) {
@@ -54,8 +51,8 @@ async function enrichTenant(ctx: any, tenant: any) {
       .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
       .collect(),
     ctx.db
-      .query("installedModules")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .query("module_installs")
+      .withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenant.tenantId))
       .collect(),
     ctx.db
       .query("tenant_usage_stats")
@@ -106,7 +103,7 @@ async function enrichTenant(ctx: any, tenant: any) {
     subscriptionStatus: subscription?.status ?? null,
     modules: installedModules
       .filter((module: any) => module.status === "active")
-      .map((module: any) => module.moduleId),
+      .map((module: any) => module.moduleSlug ?? normalizeTenantModuleKey(String(module.moduleId))),
   };
 }
 
@@ -175,6 +172,147 @@ export const getTenantById = query({
   },
 });
 
+export const listTenantNetworks = query({
+  args: {
+    sessionToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const networks = await ctx.db.query("tenant_networks").collect();
+    const campuses = await ctx.db.query("network_campuses").collect();
+
+    return networks.map((network: any) => {
+      const linkedCampuses = campuses.filter((campus: any) => campus.networkId === network.networkId);
+      return {
+        ...network,
+        campusCount: linkedCampuses.length,
+        campuses: linkedCampuses,
+      };
+    });
+  },
+});
+
+export const listNetworkCampuses = query({
+  args: {
+    sessionToken: v.string(),
+    networkId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const campuses = await ctx.db
+      .query("network_campuses")
+      .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+      .collect();
+
+    const rows = await Promise.all(
+      campuses.map(async (campus: any) => {
+        const tenant = await ctx.db
+          .query("tenants")
+          .withIndex("by_tenantId", (q: any) => q.eq("tenantId", campus.tenantId))
+          .first();
+        const onboarding = await ctx.db
+          .query("tenant_onboarding")
+          .withIndex("by_tenantId", (q: any) => q.eq("tenantId", campus.tenantId))
+          .first();
+
+        return {
+          ...campus,
+          tenantName: tenant?.name ?? campus.campusName,
+          subdomain: tenant?.subdomain ?? null,
+          tenantStatus: tenant?.status ?? null,
+          onboardingStep: onboarding?.currentStep ?? 1,
+          onboardingCompleted: onboarding?.wizardCompleted ?? false,
+        };
+      })
+    );
+
+    return rows.sort((a, b) => a.sortOrder - b.sortOrder);
+  },
+});
+
+export const getNetworkDashboard = query({
+  args: {
+    sessionToken: v.string(),
+    networkId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+
+    const network = await ctx.db
+      .query("tenant_networks")
+      .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+      .first();
+    if (!network) {
+      throw new Error("NOT_FOUND: Network not found");
+    }
+
+    const campuses = await ctx.db
+      .query("network_campuses")
+      .withIndex("by_networkId", (q: any) => q.eq("networkId", args.networkId))
+      .collect();
+
+    const campusTenantIds = campuses.map((campus: any) => campus.tenantId);
+    const [tenants, onboardings, stats] = await Promise.all([
+      ctx.db.query("tenants").collect(),
+      ctx.db.query("tenant_onboarding").collect(),
+      ctx.db.query("tenant_usage_stats").collect(),
+    ]);
+
+    const scopedTenants = tenants.filter((tenant: any) => campusTenantIds.includes(tenant.tenantId));
+    const scopedOnboardings = onboardings.filter((record: any) => campusTenantIds.includes(record.tenantId));
+    const scopedStats = stats.filter((entry: any) => campusTenantIds.includes(entry.tenantId));
+
+    const latestUsageByTenant = new Map<string, any>();
+    for (const entry of scopedStats) {
+      const existing = latestUsageByTenant.get(entry.tenantId);
+      if (!existing || entry.recordedAt > existing.recordedAt) {
+        latestUsageByTenant.set(entry.tenantId, entry);
+      }
+    }
+
+    return {
+      networkId: network.networkId,
+      name: network.name,
+      organizationMode: network.organizationMode,
+      billingMode: network.billingMode,
+      campusCount: campuses.length,
+      activeCampusCount: scopedTenants.filter((tenant: any) => tenant.status === "active" || tenant.status === "trial").length,
+      totalStudents: Array.from(latestUsageByTenant.values()).reduce(
+        (sum: number, row: any) => sum + (row.studentCount ?? 0),
+        0
+      ),
+      averageOnboardingHealth:
+        scopedOnboardings.length > 0
+          ? Math.round(
+              scopedOnboardings.reduce((sum: number, row: any) => sum + (row.healthScore ?? 0), 0) /
+                scopedOnboardings.length
+            )
+          : 0,
+      campuses: campuses
+        .map((campus: any) => {
+          const tenant = scopedTenants.find((entry: any) => entry.tenantId === campus.tenantId);
+          const onboarding = scopedOnboardings.find((entry: any) => entry.tenantId === campus.tenantId);
+          const usage = latestUsageByTenant.get(campus.tenantId);
+          return {
+            tenantId: campus.tenantId,
+            campusName: campus.campusName,
+            campusCode: campus.campusCode,
+            isPrimary: campus.isPrimary,
+            lifecycleStatus: campus.lifecycleStatus,
+            subdomain: tenant?.subdomain ?? null,
+            tenantStatus: tenant?.status ?? null,
+            studentCount: usage?.studentCount ?? 0,
+            onboardingHealth: onboarding?.healthScore ?? 0,
+            onboardingCompleted: onboarding?.wizardCompleted ?? false,
+          };
+        })
+        .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || a.campusName.localeCompare(b.campusName)),
+    };
+  },
+});
+
 export const getTenantDependencySummary = query({
   args: {
     sessionToken: v.string(),
@@ -197,7 +335,7 @@ export const getTenantDependencySummary = query({
       ctx.db.query("students").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("invoices").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("payments").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
-      ctx.db.query("installedModules").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+      ctx.db.query("module_installs").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("organizations").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
     ]);
 
@@ -388,8 +526,7 @@ export const getTenantModules = query({
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    const [legacyInstalls, marketplaceInstalls, marketplaceModules] = await Promise.all([
-      ctx.db.query("installedModules").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
+    const [marketplaceInstalls, marketplaceModules] = await Promise.all([
       ctx.db.query("module_installs").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("marketplace_modules").collect(),
     ]);
@@ -398,15 +535,6 @@ export const getTenantModules = query({
       marketplaceModules.map((module: any) => [String(module._id), module])
     );
     const rows = new Map<string, any>();
-
-    for (const install of legacyInstalls) {
-      const normalizedKey = normalizeTenantModuleKey(String(install.moduleId));
-      rows.set(normalizedKey, {
-        ...install,
-        moduleId: normalizedKey,
-        moduleSlug: normalizedKey,
-      });
-    }
 
     for (const install of marketplaceInstalls) {
       const lookupKey = normalizeTenantModuleKey(install.moduleSlug || String(install.moduleId));
@@ -451,7 +579,6 @@ export const getTenantDetailBundle = query({
       subscription,
       usageStats,
       users,
-      installedModules,
       marketplaceInstalledModules,
       moduleConfigs,
       pilotGrants,
@@ -475,7 +602,6 @@ export const getTenantDetailBundle = query({
         .withIndex("by_tenant_recordedAt", (q) => q.eq("tenantId", args.tenantId))
         .collect(),
       ctx.db.query("users").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
-      ctx.db.query("installedModules").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("module_installs").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("module_configs").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
       ctx.db.query("pilot_grants").withIndex("by_tenantId", (q) => q.eq("tenantId", args.tenantId)).collect(),
@@ -501,13 +627,9 @@ export const getTenantDetailBundle = query({
       : null;
     const subscriptionMetadata = parseSubscriptionNotes(subscription?.customPricingNotes);
 
-    const moduleRegistryEntries = await ctx.db.query("moduleRegistry").collect();
     const marketplaceEntries = await ctx.db.query("modules").collect();
     const marketplaceCatalog = await ctx.db.query("marketplace_modules").collect();
 
-    const moduleRegistryById = new Map(
-      moduleRegistryEntries.map((entry: any) => [entry.moduleId, entry])
-    );
     const marketplaceBySlug = new Map(
       marketplaceEntries.map((entry: any) => [entry.slug, entry])
     );
@@ -525,32 +647,6 @@ export const getTenantDetailBundle = query({
       usageStats.sort((a: any, b: any) => b.recordedAt - a.recordedAt)[0] ?? null;
 
     const moduleRowsByKey = new Map<string, any>();
-
-    for (const module of installedModules.slice().sort((a: any, b: any) => b.updatedAt - a.updatedAt)) {
-      const normalizedKey = normalizeTenantModuleKey(module.moduleId);
-      const registry = moduleRegistryById.get(module.moduleId);
-      const marketplace =
-        marketplaceCatalogBySlug.get(normalizedKey) ??
-        marketplaceBySlug.get(module.moduleId);
-      const config = configByModuleId.get(module.moduleId);
-      const relatedGrant = pilotGrants.find((grant: any) => grant.moduleId === module.moduleId);
-
-      moduleRowsByKey.set(normalizedKey, {
-        moduleId: normalizedKey,
-        moduleSlug: normalizedKey,
-        name: registry?.name ?? marketplace?.name ?? normalizedKey,
-        category: registry?.category ?? marketplace?.category ?? "general",
-        status: module.status,
-        installedAt: module.installedAt,
-        updatedAt: module.updatedAt,
-        configUpdatedAt: config?.updatedAt,
-        rolePermissions: config?.rolePermissions ?? {},
-        featureFlags: config?.featureFlags ?? {},
-        pilotGrantStatus: relatedGrant?.status ?? null,
-        pricingModel: marketplace?.pricingModel ?? null,
-        minimumPlan: marketplace?.minimumPlan ?? registry?.tier ?? null,
-      });
-    }
 
     for (const install of marketplaceInstalledModules.slice().sort((a: any, b: any) => b.updatedAt - a.updatedAt)) {
       const key = normalizeTenantModuleKey(String(install.moduleSlug ?? install.moduleId));

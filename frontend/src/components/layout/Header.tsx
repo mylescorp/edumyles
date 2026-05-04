@@ -19,6 +19,7 @@ import { usePathname } from "next/navigation";
 import { getInitials, formatName } from "@/lib/formatters";
 import { getRoleLabel } from "@/lib/routes";
 import Link from "next/link";
+import { CampusSwitcher } from "@/components/layout/CampusSwitcher";
 
 interface HeaderProps {
   onMobileMenuToggle?: () => void;
@@ -57,6 +58,7 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
             {getRoleLabel(role)}
           </Badge>
         )}
+        <CampusSwitcher />
       </div>
 
       {/* Right: notifications + user dropdown */}

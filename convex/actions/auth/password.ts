@@ -11,6 +11,14 @@ const KEY_LENGTH = 64;
 const ITERATIONS = 100000;
 const DIGEST = "sha512";
 
+function getTrustedServerSecret() {
+  const serverSecret = process.env.CONVEX_WEBHOOK_SECRET;
+  if (!serverSecret) {
+    throw new Error("Password reset is not configured");
+  }
+  return serverSecret;
+}
+
 function hashPassword(password: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const salt = crypto.randomBytes(SALT_LENGTH).toString("hex");
@@ -127,6 +135,7 @@ export const requestPasswordReset = action({
 
     // Store the token (this will also check if user exists)
     await ctx.runMutation(api.modules.auth.passwordHelpers.createResetToken, {
+      serverSecret: getTrustedServerSecret(),
       email: args.email,
       token,
       expiresAt,
@@ -153,6 +162,7 @@ export const resetPassword = action({
 
     // Validate token and get userId
     const resetToken = await ctx.runQuery(api.modules.auth.passwordHelpers.getResetToken, {
+      serverSecret: getTrustedServerSecret(),
       token: args.token,
     });
 
@@ -164,6 +174,7 @@ export const resetPassword = action({
 
     // Update password and mark token as used
     await ctx.runMutation(api.modules.auth.passwordHelpers.resetPasswordWithToken, {
+      serverSecret: getTrustedServerSecret(),
       token: args.token,
       userId: resetToken.userId,
       passwordHash: newHash,

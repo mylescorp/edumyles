@@ -1,15 +1,18 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Mail, Phone, Clock, FileText } from "lucide-react";
-import Logo from "@/components/shared/Logo";
+import { CheckCircle2, Mail, Phone, Clock, FileText } from "lucide-react";
+import { getAppHref } from "@/lib/appLinks";
 
 function PublisherApplicationSuccessContent() {
-  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const applicationId = searchParams.get("id");
+  const isDeveloperRoute = pathname.startsWith("/apply/developer");
+  const programLabel = isDeveloperRoute ? "developer" : "publisher";
+  const developerPortalHref = getAppHref("/portal/developer");
 
   return (
     <main className="min-h-screen bg-[#EEF6F1] flex items-center justify-center px-4">
@@ -22,7 +25,7 @@ function PublisherApplicationSuccessContent() {
             Application Submitted!
           </h1>
           <p className="font-jakarta text-[18px] leading-7 text-[#5d6f66] mb-2">
-            Your publisher application has been received successfully.
+            Your {programLabel} application has been received successfully.
           </p>
           <p className="font-jakarta text-[15px] text-[#6B9E83]">
             Application ID: <span className="font-mono">{applicationId}</span>
@@ -52,7 +55,7 @@ function PublisherApplicationSuccessContent() {
                 icon: CheckCircle2,
                 title: "Account Setup",
                 description:
-                  "If approved, we'll help you set up your publisher account and access.",
+                  "If approved, we'll help you set up your developer portal account and access.",
                 time: "Within 7 business days",
               },
               {
@@ -121,18 +124,18 @@ function PublisherApplicationSuccessContent() {
             >
               Back to Home
             </Link>
-            <Link
-              href="/contact"
+            <a
+              href={developerPortalHref}
               className="inline-flex items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-white px-8 py-3 font-jakarta text-[15px] font-bold text-[#0F4C2A] transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] hover:text-white"
             >
-              Contact Support
-            </Link>
+              Developer Portal
+            </a>
           </div>
 
           <div className="flex items-center justify-center gap-6 text-sm text-[#6B9E83]">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
-              <span>publishers@edumyles.com</span>
+              <span>developers@edumyles.com</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4" />

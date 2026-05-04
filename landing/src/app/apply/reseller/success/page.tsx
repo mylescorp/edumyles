@@ -4,10 +4,12 @@ import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, Mail, Phone, FileText, TrendingUp } from "lucide-react";
+import { getAppHref } from "@/lib/appLinks";
 
 function ResellerApplicationSuccessContent() {
   const searchParams = useSearchParams();
   const applicationId = searchParams.get("id");
+  const resellerPortalHref = getAppHref("/portal/reseller");
 
   return (
     <main className="min-h-screen bg-[#EEF6F1] flex items-center justify-center px-4">
@@ -123,12 +125,12 @@ function ResellerApplicationSuccessContent() {
             >
               Back to Home
             </Link>
-            <Link
-              href="/contact"
+            <a
+              href={resellerPortalHref}
               className="inline-flex items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-white px-8 py-3 font-jakarta text-[15px] font-bold text-[#0F4C2A] transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] hover:text-white"
             >
-              Contact Partnerships
-            </Link>
+              Reseller Portal
+            </a>
           </div>
 
           <div className="flex items-center justify-center gap-6 text-sm text-[#6B9E83]">

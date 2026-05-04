@@ -105,10 +105,12 @@ import type * as modules_attendance_configSchema from "../modules/attendance/con
 import type * as modules_attendance_eventHandlers from "../modules/attendance/eventHandlers.js";
 import type * as modules_attendance_features from "../modules/attendance/features.js";
 import type * as modules_attendance_index from "../modules/attendance/index.js";
+import type * as modules_attendance_mutations from "../modules/attendance/mutations.js";
 import type * as modules_attendance_notifications from "../modules/attendance/notifications.js";
 import type * as modules_attendance_onInstall from "../modules/attendance/onInstall.js";
 import type * as modules_attendance_onUninstall from "../modules/attendance/onUninstall.js";
 import type * as modules_attendance_publicApi from "../modules/attendance/publicApi.js";
+import type * as modules_attendance_queries from "../modules/attendance/queries.js";
 import type * as modules_auth_loginAttempts from "../modules/auth/loginAttempts.js";
 import type * as modules_auth_passwordHelpers from "../modules/auth/passwordHelpers.js";
 import type * as modules_auth_passwordPolicy from "../modules/auth/passwordPolicy.js";
@@ -186,6 +188,8 @@ import type * as modules_marketplace_analytics from "../modules/marketplace/anal
 import type * as modules_marketplace_billing from "../modules/marketplace/billing.js";
 import type * as modules_marketplace_flags from "../modules/marketplace/flags.js";
 import type * as modules_marketplace_installation from "../modules/marketplace/installation.js";
+import type * as modules_marketplace_migration from "../modules/marketplace/migration.js";
+import type * as modules_marketplace_moduleAliases from "../modules/marketplace/moduleAliases.js";
 import type * as modules_marketplace_moduleDefinitions from "../modules/marketplace/moduleDefinitions.js";
 import type * as modules_marketplace_modules from "../modules/marketplace/modules.js";
 import type * as modules_marketplace_mutations from "../modules/marketplace/mutations.js";
@@ -559,10 +563,12 @@ declare const fullApi: ApiFromModules<{
   "modules/attendance/eventHandlers": typeof modules_attendance_eventHandlers;
   "modules/attendance/features": typeof modules_attendance_features;
   "modules/attendance/index": typeof modules_attendance_index;
+  "modules/attendance/mutations": typeof modules_attendance_mutations;
   "modules/attendance/notifications": typeof modules_attendance_notifications;
   "modules/attendance/onInstall": typeof modules_attendance_onInstall;
   "modules/attendance/onUninstall": typeof modules_attendance_onUninstall;
   "modules/attendance/publicApi": typeof modules_attendance_publicApi;
+  "modules/attendance/queries": typeof modules_attendance_queries;
   "modules/auth/loginAttempts": typeof modules_auth_loginAttempts;
   "modules/auth/passwordHelpers": typeof modules_auth_passwordHelpers;
   "modules/auth/passwordPolicy": typeof modules_auth_passwordPolicy;
@@ -640,6 +646,8 @@ declare const fullApi: ApiFromModules<{
   "modules/marketplace/billing": typeof modules_marketplace_billing;
   "modules/marketplace/flags": typeof modules_marketplace_flags;
   "modules/marketplace/installation": typeof modules_marketplace_installation;
+  "modules/marketplace/migration": typeof modules_marketplace_migration;
+  "modules/marketplace/moduleAliases": typeof modules_marketplace_moduleAliases;
   "modules/marketplace/moduleDefinitions": typeof modules_marketplace_moduleDefinitions;
   "modules/marketplace/modules": typeof modules_marketplace_modules;
   "modules/marketplace/mutations": typeof modules_marketplace_mutations;

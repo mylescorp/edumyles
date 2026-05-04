@@ -6,7 +6,6 @@ import { useState } from "react";
 import {
   ShieldCheck,
   Lock,
-  TrendingUp,
   Mail,
   Phone,
   MapPin,
@@ -20,23 +19,11 @@ import type { LucideIcon } from "lucide-react";
 // Product column (with subtitles, like MylesCorp layout)
 
 const PRODUCT_LINKS = [
-  { label: "Student Information", sub: "Admissions & Profiles" },
-  { label: "Fee & Finance", sub: "M-Pesa, billing, receipts" },
-  { label: "Timetabling & HR", sub: "Staff, payroll & scheduling" },
-  { label: "Exams & Reporting", sub: "KCSE, CBC, custom reports" },
-  { label: "Parent Portal", sub: "Live updates & fee alerts" },
-  { label: "Integrations", sub: "Connect your favourite tools" },
-  { label: "Roadmap", sub: "What we're building next" },
-];
-
-const PRODUCT_HREFS = [
-  "/features",
-  "/features#fees",
-  "/features#hr",
-  "/features#exams",
-  "/portal/parent",
-  "/integrations",
-  "/roadmap",
+  { label: "Features", sub: "All 13 modules", href: "/features" },
+  { label: "Pricing", sub: "Plans and billing", href: "/pricing" },
+  { label: "Integrations", sub: "Payments, SMS, SSO", href: "/integrations" },
+  { label: "Security", sub: "Data protection", href: "/security" },
+  { label: "Status", sub: "Platform availability", href: "/status" },
 ];
 
 // Solutions column
@@ -55,7 +42,7 @@ const PARTNERS_LINKS = [
   { label: "Developers", href: "/apply/developer" },
   { label: "Affiliates", href: "/apply/affiliate" },
   { label: "Resellers", href: "/apply/reseller" },
-  { label: "Partner Portal", href: "/portal" },
+  { label: "Partner Program", href: "/partners" },
 ];
 
 // Company column
@@ -66,8 +53,6 @@ const COMPANY_LINKS = [
   { label: "Pricing", href: "/pricing" },
   { label: "Customers", href: "/customers" },
   { label: "Blog", href: "/blog" },
-  { label: "Careers", href: "/careers" },
-  { label: "Partners", href: "/partners" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -78,10 +63,9 @@ type TrustBadge =
   | { icon?: never; emoji: string; label: string };
 
 const TRUST_BADGES: TrustBadge[] = [
-  { icon: ShieldCheck, label: "SOC 2 Type I" },
-  { emoji: "??", label: "Kenya DPA Compliant" },
-  { icon: Lock, label: "256-bit Encrypted" },
-  { icon: TrendingUp, label: "99.9% Uptime" },
+  { icon: ShieldCheck, label: "Kenya DPA Compliant" },
+  { icon: Lock, label: "Encrypted Data" },
+  { icon: ShieldCheck, label: "Secure Access" },
 ];
 
 // Social SVG icons
@@ -432,7 +416,7 @@ export default function Footer() {
               {[
                 { Icon: Mail, text: "contact@edumyles.com" },
                 { Icon: Phone, text: "+254 743 993 715" },
-                { Icon: MapPin, text: "Nairobi, Kenya &middot; WesternHeights" },
+                { Icon: MapPin, text: "Nairobi, Kenya" },
                 { Icon: Globe, text: "www.edumyles.com", href: "https://edumyles.com" },
               ].map(({ Icon, text, href }) =>
                 href ? (
@@ -480,10 +464,10 @@ export default function Footer() {
               Products
             </h4>
             <ul className="list-none p-0 m-0 flex flex-col gap-3">
-              {PRODUCT_LINKS.map((item, i) => (
+              {PRODUCT_LINKS.map((item) => (
                 <li key={item.label}>
                   <Link
-                    href={PRODUCT_HREFS[i] ?? "/"}
+                    href={item.href}
                     className="group no-underline flex flex-col gap-0.5"
                   >
                     <span
@@ -657,10 +641,8 @@ export default function Footer() {
           {/* Copyright */}
           <p className="font-jakarta text-[11.5px] order-2 sm:order-1" style={{ color: "#4a6b58" }}>
             &copy; 2026{" "}
-            <a
-              href="https://mylesoft.vercel.app"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/about"
               className="transition-colors duration-200"
               style={{ color: "#6B9E83", textDecoration: "none" }}
               onMouseEnter={(e) => {
@@ -671,7 +653,7 @@ export default function Footer() {
               }}
             >
               MylesCorp Technologies Ltd
-            </a>{" "}
+            </Link>{" "}
             · All rights reserved.
           </p>
 

@@ -19,6 +19,7 @@
 [CONVEX M(modules/marketplace/seed:ensureCoreModules)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
 [CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
 [CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
+<<<<<<< HEAD
  GET /api/auth/session?workspace=admin 200 in 8.1s (next.js: 8ms, application-code: 8.1s)
  GET /admin/modules 200 in 1342ms (next.js: 95ms, proxy.ts: 1175ms, application-code: 72ms)
 [CONVEX Q(platform/tenants/queries:listAllTenants)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
@@ -89,3 +90,35 @@
 [CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
 [CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
  GET /api/auth/session?workspace=admin 200 in 8.0s (next.js: 6ms, application-code: 8.0s)
+=======
+ GET /api/auth/session?workspace=admin 200 in 8.0s (next.js: 12ms, application-code: 8.0s)
+ GET /admin/academics 200 in 1358ms (next.js: 166ms, proxy.ts: 1096ms, application-code: 96ms)
+○ Compiling /_not-found/page ...
+ GET /admin/academics/assignments 404 in 9.4s (next.js: 9.0s, proxy.ts: 350ms, application-code: 71ms)
+ GET /admin/academics/assignments 404 in 1046ms (next.js: 40ms, proxy.ts: 810ms, application-code: 196ms)
+✓ Compiled in 1953ms
+ GET /platform 200 in 11.8s (next.js: 211ms, proxy.ts: 10.9s, application-code: 752ms)
+[api/auth/session] Convex unavailable, trying fallback: [TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND warmhearted-hummingbird-522.convex.cloud
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'warmhearted-hummingbird-522.convex.cloud'
+  }
+}
+ GET /api/auth/session?workspace=platform 200 in 177ms (next.js: 20ms, application-code: 157ms)
+○ Compiling /platform/settings ...
+ GET /platform/settings 200 in 8.1s (next.js: 8.0s, proxy.ts: 19ms, application-code: 139ms)
+[api/auth/session] Convex unavailable, trying fallback: [TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND warmhearted-hummingbird-522.convex.cloud
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'warmhearted-hummingbird-522.convex.cloud'
+  }
+}
+ GET /api/auth/session?workspace=platform 200 in 44ms (next.js: 6ms, application-code: 37ms)
+[?25h
+>>>>>>> 28019b56 (feat: implement marketplace module and multi-currency support)
