@@ -918,6 +918,7 @@ export const markConversationRead = mutation({
 /** Update notification preferences */
 export const updateNotificationPreferences = mutation({
   args: {
+    sessionToken: v.optional(v.string()),
     emailEnabled: v.optional(v.boolean()),
     smsEnabled: v.optional(v.boolean()),
     pushEnabled: v.optional(v.boolean()),
@@ -935,8 +936,11 @@ export const updateNotificationPreferences = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const tenant = await requireTenantContext(ctx);
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
     const now = Date.now();
+    const { sessionToken: _sessionToken, ...updates } = args;
 
     const existing = await ctx.db
       .query("notificationPreferences")
@@ -944,7 +948,7 @@ export const updateNotificationPreferences = mutation({
       .first();
 
     if (existing) {
-      await ctx.db.patch(existing._id, { ...args, updatedAt: now });
+      await ctx.db.patch(existing._id, { ...updates, updatedAt: now });
       await logAction(ctx, {
         tenantId: tenant.tenantId,
         actorId: tenant.userId,
@@ -953,19 +957,19 @@ export const updateNotificationPreferences = mutation({
         entityType: "notificationPreferences",
         entityId: existing._id.toString(),
         before: existing,
-        after: { ...existing, ...args, updatedAt: now },
+        after: { ...existing, ...updates, updatedAt: now },
       });
     } else {
       const preferenceId = await ctx.db.insert("notificationPreferences", {
         tenantId: tenant.tenantId,
         userId: tenant.userId,
-        emailEnabled: args.emailEnabled ?? true,
-        smsEnabled: args.smsEnabled ?? true,
-        pushEnabled: args.pushEnabled ?? true,
-        inAppEnabled: args.inAppEnabled ?? true,
-        quietHoursStart: args.quietHoursStart,
-        quietHoursEnd: args.quietHoursEnd,
-        categories: args.categories,
+        emailEnabled: updates.emailEnabled ?? true,
+        smsEnabled: updates.smsEnabled ?? true,
+        pushEnabled: updates.pushEnabled ?? true,
+        inAppEnabled: updates.inAppEnabled ?? true,
+        quietHoursStart: updates.quietHoursStart,
+        quietHoursEnd: updates.quietHoursEnd,
+        categories: updates.categories,
         createdAt: now,
         updatedAt: now,
       });
@@ -977,13 +981,13 @@ export const updateNotificationPreferences = mutation({
         entityType: "notificationPreferences",
         entityId: preferenceId.toString(),
         after: {
-          emailEnabled: args.emailEnabled ?? true,
-          smsEnabled: args.smsEnabled ?? true,
-          pushEnabled: args.pushEnabled ?? true,
-          inAppEnabled: args.inAppEnabled ?? true,
-          quietHoursStart: args.quietHoursStart,
-          quietHoursEnd: args.quietHoursEnd,
-          categories: args.categories,
+          emailEnabled: updates.emailEnabled ?? true,
+          smsEnabled: updates.smsEnabled ?? true,
+          pushEnabled: updates.pushEnabled ?? true,
+          inAppEnabled: updates.inAppEnabled ?? true,
+          quietHoursStart: updates.quietHoursStart,
+          quietHoursEnd: updates.quietHoursEnd,
+          categories: updates.categories,
         },
       });
     }

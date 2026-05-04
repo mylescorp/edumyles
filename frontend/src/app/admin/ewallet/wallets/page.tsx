@@ -26,6 +26,8 @@ type WalletSummary = {
     updatedAt: number;
 };
 
+const EMPTY_WALLETS: WalletSummary[] = [];
+
 export default function WalletsPage() {
     const { isLoading, sessionToken } = useAuth();
     const { toast } = useToast();
@@ -47,6 +49,12 @@ export default function WalletsPage() {
     const adminAdjustWallet = useMutation(api.modules.ewallet.mutations.adminAdjustWallet);
     const freezeWallet = useMutation(api.modules.ewallet.mutations.freezeWallet);
     const unfreezeWallet = useMutation(api.modules.ewallet.mutations.unfreezeWallet);
+    const walletList = (wallets as WalletSummary[] | undefined) ?? EMPTY_WALLETS;
+    const summary = useMemo(() => ({
+        active: walletList.filter((wallet) => !wallet.frozen).length,
+        frozen: walletList.filter((wallet) => wallet.frozen).length,
+        totalBalanceCents: walletList.reduce((sum, wallet) => sum + wallet.balanceCents, 0),
+    }), [walletList]);
 
     const handleTopUp = async () => {
         if (!sessionToken || !selectedWallet) return;
@@ -177,13 +185,6 @@ export default function WalletsPage() {
     };
 
     if (isLoading || walletsStatus === "LoadingFirstPage") return <LoadingSkeleton variant="page" />;
-
-    const walletList = (wallets ?? []) as WalletSummary[];
-    const summary = useMemo(() => ({
-        active: walletList.filter((wallet) => !wallet.frozen).length,
-        frozen: walletList.filter((wallet) => wallet.frozen).length,
-        totalBalanceCents: walletList.reduce((sum, wallet) => sum + wallet.balanceCents, 0),
-    }), [walletList]);
 
     const columns: Column<WalletSummary>[] = [
         {

@@ -5,18 +5,19 @@ import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
+import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
 import { 
   Building2, 
   Globe, 
   Mail, 
   Phone, 
-  BookOpen, 
-  Calendar,
   Settings,
   Bell,
   Shield,
@@ -24,24 +25,64 @@ import {
   Users,
   Activity
 } from "lucide-react";
-import { useState } from "react";
 import Link from "next/link";
 
 export default function SchoolSettingsPage() {
-    const { isLoading } = useAuth();
+    const { isLoading, sessionToken } = useAuth();
     const { tenant, organization, tier } = useTenant();
-    
-    const [notificationSettings, setNotificationSettings] = useState({
-        emailNotifications: true,
-        smsNotifications: true,
-        pushNotifications: false,
-        parentNotifications: true,
-    });
 
-    if (isLoading) return <LoadingSkeleton variant="page" />;
+    const notificationPreferences = useQuery(
+        api.modules.communications.queries.getMyNotificationPreferences,
+        sessionToken ? { sessionToken } : "skip"
+    ) as
+        | {
+              emailEnabled?: boolean;
+              smsEnabled?: boolean;
+              pushEnabled?: boolean;
+              inAppEnabled?: boolean;
+              categories?: {
+                  announcements?: boolean;
+                  academic?: boolean;
+                  finance?: boolean;
+                  system?: boolean;
+                  marketing?: boolean;
+              };
+          }
+        | null
+        | undefined;
 
-    const handleNotificationChange = (key: string, value: boolean) => {
-        setNotificationSettings(prev => ({ ...prev, [key]: value }));
+    const updateNotificationPreferences = useMutation(
+        (api as any).modules.communications.mutations.updateNotificationPreferences
+    );
+
+    const handleNotificationChange = async (
+        key: "emailEnabled" | "smsEnabled" | "pushEnabled" | "parentAnnouncements",
+        value: boolean
+    ) => {
+        if (!sessionToken) return;
+        try {
+            if (key === "parentAnnouncements") {
+                await updateNotificationPreferences({
+                    sessionToken,
+                    categories: {
+                        announcements: value,
+                        academic: notificationPreferences?.categories?.academic ?? true,
+                        finance: notificationPreferences?.categories?.finance ?? true,
+                        system: notificationPreferences?.categories?.system ?? true,
+                        marketing: notificationPreferences?.categories?.marketing ?? true,
+                    },
+                });
+            } else {
+                await updateNotificationPreferences({ sessionToken, [key]: value });
+            }
+            toast({ title: "Notification settings saved" });
+        } catch (error) {
+            toast({
+                title: "Unable to save settings",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
     };
 
     // System stats derived from real tenant data
@@ -51,6 +92,8 @@ export default function SchoolSettingsPage() {
         uptime: "99.9%",
         lastBackup: "—",
     };
+
+    if (isLoading || notificationPreferences === undefined) return <LoadingSkeleton variant="page" />;
 
     return (
         <div className="space-y-6">
@@ -157,7 +200,9 @@ export default function SchoolSettingsPage() {
                             <InfoRow icon={Building2} label="Organization" value={organization.name} />
                         )}
                         <div className="pt-2">
-                            <Button className="w-full">Upgrade Plan</Button>
+                            <Button asChild className="w-full">
+                                <Link href="/admin/settings/billing">Manage Plan</Link>
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
@@ -177,8 +222,8 @@ export default function SchoolSettingsPage() {
                             </div>
                             <Switch
                                 id="emailNotifications"
-                                checked={notificationSettings.emailNotifications}
-                                onCheckedChange={(checked) => handleNotificationChange('emailNotifications', checked)}
+                                checked={notificationPreferences?.emailEnabled ?? true}
+                                onCheckedChange={(checked) => void handleNotificationChange("emailEnabled", checked)}
                             />
                         </div>
                         
@@ -189,8 +234,8 @@ export default function SchoolSettingsPage() {
                             </div>
                             <Switch
                                 id="smsNotifications"
-                                checked={notificationSettings.smsNotifications}
-                                onCheckedChange={(checked) => handleNotificationChange('smsNotifications', checked)}
+                                checked={notificationPreferences?.smsEnabled ?? true}
+                                onCheckedChange={(checked) => void handleNotificationChange("smsEnabled", checked)}
                             />
                         </div>
                         
@@ -201,8 +246,8 @@ export default function SchoolSettingsPage() {
                             </div>
                             <Switch
                                 id="pushNotifications"
-                                checked={notificationSettings.pushNotifications}
-                                onCheckedChange={(checked) => handleNotificationChange('pushNotifications', checked)}
+                                checked={notificationPreferences?.pushEnabled ?? true}
+                                onCheckedChange={(checked) => void handleNotificationChange("pushEnabled", checked)}
                             />
                         </div>
                         
@@ -213,8 +258,8 @@ export default function SchoolSettingsPage() {
                             </div>
                             <Switch
                                 id="parentNotifications"
-                                checked={notificationSettings.parentNotifications}
-                                onCheckedChange={(checked) => handleNotificationChange('parentNotifications', checked)}
+                                checked={notificationPreferences?.categories?.announcements ?? true}
+                                onCheckedChange={(checked) => void handleNotificationChange("parentAnnouncements", checked)}
                             />
                         </div>
                     </CardContent>

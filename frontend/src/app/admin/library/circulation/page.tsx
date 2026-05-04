@@ -42,14 +42,18 @@ type Book = {
     author: string;
 };
 
+const EMPTY_BORROWS: Borrow[] = [];
+const EMPTY_BOOKS: Book[] = [];
+const EMPTY_PEOPLE: any[] = [];
+
 function formatCurrency(cents?: number): string {
     if (!cents) return "KES 0.00";
     return `KES ${(cents / 100).toFixed(2)}`;
 }
 
-function calculateSuggestedFine(dueDate: number): number {
-    if (dueDate >= Date.now()) return 0;
-    const daysOverdue = Math.ceil((Date.now() - dueDate) / (24 * 60 * 60 * 1000));
+function calculateSuggestedFine(dueDate: number, currentTime: number): number {
+    if (dueDate >= currentTime) return 0;
+    const daysOverdue = Math.ceil((currentTime - dueDate) / (24 * 60 * 60 * 1000));
     return daysOverdue * 10;
 }
 
@@ -68,6 +72,7 @@ function BorrowsTable({
     returningId,
     emptyTitle,
     emptyDescription,
+    currentTime,
 }: {
     borrows: Borrow[];
     books: Book[];
@@ -75,6 +80,7 @@ function BorrowsTable({
     returningId: string | null;
     emptyTitle: string;
     emptyDescription: string;
+    currentTime: number;
 }) {
     const bookMap = new Map(books.map((b) => [b._id as string, b]));
 
@@ -122,7 +128,7 @@ function BorrowsTable({
             key: "status",
             header: "Status",
             cell: (row) => {
-                const isOverdue = row.dueDate < Date.now() && row.status !== "returned";
+                const isOverdue = row.dueDate < currentTime && row.status !== "returned";
                 return isOverdue ? (
                     <Badge variant="destructive" className="gap-1">
                         <AlertCircle className="h-3 w-3" />
@@ -181,6 +187,7 @@ export default function CirculationPage() {
     const [fineMode, setFineMode] = useState<"auto" | "manual" | "waive">("auto");
     const [manualFine, setManualFine] = useState("");
     const [issuing, setIssuing] = useState(false);
+    const [currentTime] = useState(() => Date.now());
     const [borrowForm, setBorrowForm] = useState({
         bookId: "",
         borrowerId: "",
@@ -279,27 +286,27 @@ export default function CirculationPage() {
         }
     };
 
-    if (isLoading) return <LoadingSkeleton variant="page" />;
-
-    const borrowsList = (activeBorrows as Borrow[] | undefined) ?? [];
-    const overdueList = (overdueBorrows as Borrow[] | undefined) ?? [];
-    const returnedList = (borrowHistory as Borrow[] | undefined) ?? [];
-    const booksList = (books as Book[] | undefined) ?? [];
+    const borrowsList = (activeBorrows as Borrow[] | undefined) ?? EMPTY_BORROWS;
+    const overdueList = (overdueBorrows as Borrow[] | undefined) ?? EMPTY_BORROWS;
+    const returnedList = (borrowHistory as Borrow[] | undefined) ?? EMPTY_BORROWS;
+    const booksList = (books as Book[] | undefined) ?? EMPTY_BOOKS;
     const availableBooks = booksList.filter((book: any) => (book.availableQuantity ?? 0) > 0);
     const borrowerOptions = borrowForm.borrowerType === "student"
-        ? ((students as any[]) ?? []).map((entry) => ({
+        ? ((students as any[] | undefined) ?? EMPTY_PEOPLE).map((entry) => ({
             id: entry._id as string,
             label: `${entry.firstName} ${entry.lastName} (${entry.admissionNumber})`,
         }))
-        : ((staff as any[]) ?? []).map((entry) => ({
+        : ((staff as any[] | undefined) ?? EMPTY_PEOPLE).map((entry) => ({
             id: entry._id as string,
             label: `${entry.firstName} ${entry.lastName} (${entry.employeeId})`,
         }));
     const selectedSuggestedFine = useMemo(
-        () => (selectedReturnBorrow ? calculateSuggestedFine(selectedReturnBorrow.dueDate) : 0),
-        [selectedReturnBorrow]
+        () => (selectedReturnBorrow ? calculateSuggestedFine(selectedReturnBorrow.dueDate, currentTime) : 0),
+        [currentTime, selectedReturnBorrow]
     );
     const parsedManualFine = manualFine.trim() === "" ? 0 : Math.round(Number(manualFine) * 100);
+
+    if (isLoading) return <LoadingSkeleton variant="page" />;
 
     return (
         <div className="space-y-6">
@@ -363,11 +370,12 @@ export default function CirculationPage() {
                                 const borrow = borrowsList.find((entry) => entry._id === borrowId);
                                 if (borrow) {
                                     setSelectedReturnBorrow(borrow);
-                                    setFineMode(calculateSuggestedFine(borrow.dueDate) > 0 ? "auto" : "waive");
+                                    setFineMode(calculateSuggestedFine(borrow.dueDate, currentTime) > 0 ? "auto" : "waive");
                                     setManualFine("");
                                 }
                             }}
                             returningId={returningId}
+                            currentTime={currentTime}
                             emptyTitle="No active borrows"
                             emptyDescription="There are currently no books checked out."
                         />
@@ -390,6 +398,7 @@ export default function CirculationPage() {
                                 }
                             }}
                             returningId={returningId}
+                            currentTime={currentTime}
                             emptyTitle="No overdue borrows"
                             emptyDescription="All borrowed books are within their due dates."
                         />

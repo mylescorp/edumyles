@@ -43,6 +43,8 @@ const ROLE_OPTIONS = [
     "student",
 ];
 
+const EMPTY_USERS: UserRecord[] = [];
+
 export default function UsersPage() {
     const { isLoading, sessionToken, user } = useAuth();
     const { tenantId } = useTenant();
@@ -66,6 +68,12 @@ export default function UsersPage() {
     );
 
     const updateTenantUser = useMutation(api.users.updateTenantUser);
+    const userList = (users as UserRecord[] | undefined) ?? EMPTY_USERS;
+    const summary = useMemo(() => ({
+        total: userList.length,
+        active: userList.filter((entry) => entry.isActive).length,
+        inactive: userList.filter((entry) => !entry.isActive).length,
+    }), [userList]);
 
     const openEditor = (record: UserRecord) => {
         setSelectedUser(record);
@@ -106,13 +114,6 @@ export default function UsersPage() {
     };
 
     if (isLoading) return <LoadingSkeleton variant="page" />;
-
-    const userList = (users as UserRecord[]) ?? [];
-    const summary = useMemo(() => ({
-        total: userList.length,
-        active: userList.filter((entry) => entry.isActive).length,
-        inactive: userList.filter((entry) => !entry.isActive).length,
-    }), [userList]);
 
     const columns: Column<UserRecord>[] = [
         {

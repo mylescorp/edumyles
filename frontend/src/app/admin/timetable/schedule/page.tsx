@@ -47,6 +47,10 @@ type StaffMember = {
   role: string;
 };
 
+const EMPTY_SLOTS: TimetableSlot[] = [];
+const EMPTY_CLASSES: SchoolClass[] = [];
+const EMPTY_TEACHERS: StaffMember[] = [];
+
 export default function SchedulePage() {
   const { isLoading, sessionToken } = useAuth();
   const [dayFilter, setDayFilter] = useState<string>("all");
@@ -81,12 +85,11 @@ export default function SchedulePage() {
   ) as StaffMember[] | undefined;
 
   const createSlot = useMutation(api.modules.timetable.mutations.createSlot);
-
-  if (isLoading) return <LoadingSkeleton variant="page" />;
-
-  const allSlots = (slots as TimetableSlot[]) ?? [];
-  const classMap = new Map((classes ?? []).map((item) => [item._id, item.name]));
-  const teacherMap = new Map((teachers ?? []).map((item) => [item._id, `${item.firstName} ${item.lastName}`.trim()]));
+  const allSlots = (slots as TimetableSlot[] | undefined) ?? EMPTY_SLOTS;
+  const classList = classes ?? EMPTY_CLASSES;
+  const teacherList = teachers ?? EMPTY_TEACHERS;
+  const classMap = new Map(classList.map((item) => [item._id, item.name]));
+  const teacherMap = new Map(teacherList.map((item) => [item._id, `${item.firstName} ${item.lastName}`.trim()]));
 
   const stats = {
     totalSlots: allSlots.length,
@@ -108,6 +111,8 @@ export default function SchedulePage() {
     }
     return grouped;
   }, [allSlots]);
+
+  if (isLoading) return <LoadingSkeleton variant="page" />;
 
   const columns: Column<TimetableSlot>[] = [
     {
@@ -221,7 +226,7 @@ export default function SchedulePage() {
                     <SelectValue placeholder="Select class" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(classes ?? []).map((schoolClass) => (
+                    {classList.map((schoolClass) => (
                       <SelectItem key={schoolClass._id} value={schoolClass._id}>
                         {schoolClass.name}
                       </SelectItem>
@@ -237,7 +242,7 @@ export default function SchedulePage() {
                     <SelectValue placeholder="Select teacher" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(teachers ?? []).map((teacher) => (
+                    {teacherList.map((teacher) => (
                       <SelectItem key={teacher._id} value={teacher._id}>
                         {teacherMap.get(teacher._id)}
                       </SelectItem>

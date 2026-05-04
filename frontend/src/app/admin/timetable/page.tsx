@@ -16,6 +16,9 @@ import { AlertTriangle, Calendar, Clock, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const EMPTY_CLASSES: Array<{ _id: string; name: string }> = [];
+const EMPTY_SCHEDULE: TimetableSlot[] = [];
+const EMPTY_CONFLICTS: Conflict[] = [];
 
 type TimetableSlot = {
   _id: string;
@@ -55,13 +58,12 @@ export default function TimetablePage() {
     sessionToken ? { dayOfWeek: Number(checkConflictsDay) } : "skip"
   ) as Conflict[] | undefined;
 
-  if (isLoading) return <LoadingSkeleton variant="page" />;
-
-  const currentSchedule = schedule ?? [];
-  const currentConflicts = conflicts ?? [];
+  const classList = classes ?? EMPTY_CLASSES;
+  const currentSchedule = schedule ?? EMPTY_SCHEDULE;
+  const currentConflicts = conflicts ?? EMPTY_CONFLICTS;
 
   const stats = {
-    totalClasses: (classes ?? []).length,
+    totalClasses: classList.length,
     selectedClassSlots: currentSchedule.length,
     conflictCount: currentConflicts.length,
     roomsUsed: new Set(currentSchedule.filter((slot) => slot.room).map((slot) => slot.room)).size,
@@ -122,6 +124,8 @@ export default function TimetablePage() {
     return grouped;
   }, [currentSchedule]);
 
+  if (isLoading) return <LoadingSkeleton variant="page" />;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -162,7 +166,7 @@ export default function TimetablePage() {
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(classes ?? []).map((schoolClass) => (
+                  {classList.map((schoolClass) => (
                     <SelectItem key={schoolClass._id} value={schoolClass._id}>
                       {schoolClass.name}
                     </SelectItem>
