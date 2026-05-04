@@ -411,8 +411,8 @@ export function DevConsoleShell({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(214,228,255,0.28),_transparent_36%),linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(247,248,250,0.98))]">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#eef2f6_100%)]">
+      <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8">
         <PageHeader
           title={title}
           description={description}
@@ -442,55 +442,24 @@ export function DevConsoleShell({
           }
         />
 
-        <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <Card className="border-border/70 bg-background/90 shadow-sm xl:col-span-2">
-            <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="space-y-2">
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline">{systemMap?.summary.frontendPages ?? 0} pages</Badge>
-                  <Badge variant="outline">{systemMap?.summary.landingPages ?? 0} landing</Badge>
-                  <Badge variant="outline">{systemMap?.summary.backendEndpoints ?? 0} endpoints</Badge>
-                  <Badge variant="outline">{systemMap?.summary.panelCount ?? 0} panels</Badge>
-                  <Badge variant="outline">{systemMap?.summary.portalCount ?? 0} portals</Badge>
-                </div>
-                <p className="max-w-2xl text-sm text-muted-foreground">
-                  Dedicated developer views for inventory, coverage, access, operations, and smoke testing across the full EduMyles stack.
-                </p>
-              </div>
-              <div className="rounded-xl border border-border/70 bg-muted/40 px-4 py-3 text-sm">
-                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Last generated</div>
-                <div className="mt-1 font-medium text-foreground">
-                  {systemMap ? formatTimestamp(systemMap.summary.generatedAt) : "Loading"}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <Card className="mb-4 border-border/70 bg-background/95 shadow-sm">
+          <CardContent className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="grid gap-2 sm:grid-cols-3 lg:flex lg:flex-wrap">
+              <Badge variant="outline">{systemMap?.summary.frontendPages ?? 0} pages</Badge>
+              <Badge variant="outline">{systemMap?.summary.landingPages ?? 0} landing</Badge>
+              <Badge variant="outline">{systemMap?.summary.backendEndpoints ?? 0} endpoints</Badge>
+              <Badge variant="outline">{systemMap?.summary.panelCount ?? 0} panels</Badge>
+              <Badge variant="outline">{systemMap?.summary.portalCount ?? 0} portals</Badge>
+              <Badge variant="outline">{systemMap?.summary.moduleCount ?? 0} modules</Badge>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Last generated: <span className="font-medium text-foreground">{systemMap ? formatTimestamp(systemMap.summary.generatedAt) : "Loading"}</span>
+            </div>
+          </CardContent>
+        </Card>
 
-          {DEV_CONSOLE_NAV.slice(0, 3).map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link key={item.href} href={item.href}>
-                <Card className={cn(
-                  "h-full border-border/70 bg-background/90 transition-all hover:border-border hover:shadow-sm",
-                  isActive && "border-blue-300 bg-blue-50/70"
-                )}>
-                  <CardContent className="flex h-full items-start gap-3 p-4">
-                    <div className={cn("rounded-lg border p-2.5", isActive ? "border-blue-200 bg-white text-blue-700" : "border-border/70 bg-muted/40 text-muted-foreground")}>
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-medium text-foreground">{item.title}</div>
-                      <div className="mt-1 text-sm text-muted-foreground">{item.description}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-
-        <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-10">
+        <div className="sticky top-0 z-20 mb-6 overflow-x-auto rounded-xl border border-border/70 bg-background/95 p-2 shadow-sm backdrop-blur">
+          <div className="flex min-w-max gap-2">
           {DEV_CONSOLE_NAV.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -498,24 +467,19 @@ export function DevConsoleShell({
               <Link key={item.href} href={item.href}>
                 <div
                   className={cn(
-                    "flex h-full min-h-[92px] flex-col justify-between rounded-xl border px-4 py-3 transition-all",
+                    "flex h-12 items-center gap-2 rounded-lg border px-3 text-sm transition-all",
                     isActive
-                      ? "border-blue-300 bg-blue-50 text-blue-900 shadow-sm"
-                      : "border-border/70 bg-background/85 text-foreground hover:border-border hover:bg-background"
+                      ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                      : "border-transparent bg-transparent text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
                   )}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <Icon className={cn("h-4 w-4", isActive ? "text-blue-700" : "text-muted-foreground")} />
-                    {isActive ? <Badge className="border-blue-200 bg-white text-blue-700">Active</Badge> : null}
-                  </div>
-                  <div>
-                    <div className="font-medium">{item.title}</div>
-                    <div className="mt-1 text-xs text-muted-foreground">{item.description}</div>
-                  </div>
+                  <Icon className="h-4 w-4" />
+                  <span className="whitespace-nowrap font-medium">{item.title}</span>
                 </div>
               </Link>
             );
           })}
+          </div>
         </div>
 
         {children}

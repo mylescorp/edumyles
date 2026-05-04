@@ -35,7 +35,7 @@ export const sendInviteEmail = action({
     }
 
     const from = process.env.RESEND_FROM_EMAIL ?? "EduMyles <noreply@edumyles.com>";
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.mylescorptech.com";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.edumyles.com";
     const loginUrl = `${appUrl}/auth/login/api`;
     const roleLabel = ROLE_LABELS[args.role] ?? args.role;
 

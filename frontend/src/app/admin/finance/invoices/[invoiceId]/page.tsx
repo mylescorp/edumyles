@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ArrowLeft, Printer, Receipt, User, Calendar, DollarSign } from "lucide-react";
+import { ArrowLeft, Printer, Receipt, Calendar, DollarSign, FileWarning } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
@@ -74,6 +74,7 @@ export default function InvoiceDetailPage() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
   const { isLoading, sessionToken } = useAuth();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [generatingNotice, setGeneratingNotice] = useState(false);
 
   const invoice = useQuery(
     api.modules.finance.queries.getInvoice,
@@ -86,6 +87,7 @@ export default function InvoiceDetailPage() {
   ) as any;
 
   const generateReceipt = useMutation(api.modules.finance.mutations.generateReceipt);
+  const generateDemandNotice = useMutation(api.modules.finance.mutations.generateDemandNotice);
 
   if (isLoading || invoice === undefined || paymentStatus === undefined) return <LoadingSkeleton variant="page" />;
 
@@ -115,6 +117,30 @@ export default function InvoiceDetailPage() {
     }
   };
 
+  const handleGenerateDemandNotice = async () => {
+    setGeneratingNotice(true);
+    try {
+      const result = await generateDemandNotice({ studentIds: [invoice.studentId] }) as any;
+      const notice = result?.notices?.[0];
+      if (!notice?.pdfUrl) {
+        throw new Error("No outstanding balance found for this student.");
+      }
+      window.open(notice.pdfUrl, "_blank", "noopener,noreferrer");
+      toast({
+        title: "Demand notice generated",
+        description: "The notice opened in a new tab for printing or saving.",
+      });
+    } catch (err) {
+      toast({
+        title: "Could not generate demand notice",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingNotice(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -125,9 +151,22 @@ export default function InvoiceDetailPage() {
           title={`Invoice · ${invoice._id.slice(-6).toUpperCase()}`}
           description={`Issued ${formatDate(invoice.issuedAt)}${invoice.dueDate ? ` · Due ${formatDate(invoice.dueDate)}` : ""}`}
           actions={
-            <Badge variant={statusColors[invoice.status] ?? "outline"} className="text-sm px-3 py-1">
-              {invoice.status?.replace("_", " ")}
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              {(paymentStatus?.balance ?? 0) > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateDemandNotice}
+                  disabled={generatingNotice}
+                >
+                  <FileWarning className="mr-2 h-4 w-4" />
+                  {generatingNotice ? "Generating..." : "Demand Notice"}
+                </Button>
+              )}
+              <Badge variant={statusColors[invoice.status] ?? "outline"} className="text-sm px-3 py-1">
+                {invoice.status?.replace("_", " ")}
+              </Badge>
+            </div>
           }
         />
       </div>

@@ -5,6 +5,7 @@ import { logAction } from "../../helpers/auditLog";
 import { generateTenantId } from "../../helpers/idGenerator";
 import { CORE_MODULE_IDS } from "../../modules/marketplace/moduleDefinitions";
 import { normalizeModuleSlug } from "../../modules/marketplace/moduleAliases";
+import { TIER_MODULES } from "../../modules/marketplace/tierModules";
 import { api, internal } from "../../_generated/api";
 import { normalizeSchoolCurriculumCodes } from "../../../shared/src/constants/curricula";
 import { tenantCurriculumSelectionSchema } from "../../../shared/src/validators";
@@ -101,6 +102,10 @@ function buildSuggestedModules(studentCountEstimate?: number) {
 }
 
 const CORE_MARKETPLACE_MODULE_SLUGS = ["core_sis", "core_users", "core_notifications"] as const;
+
+function getDefaultModuleIdsForPlan(plan: string) {
+  return TIER_MODULES[plan] ?? CORE_MODULE_IDS;
+}
 
 async function ensureTenantModuleInstall(
   ctx: any,
@@ -221,6 +226,18 @@ async function generateUniqueSubdomain(
 
 function buildTenantUrl(subdomain: string) {
   return `https://${subdomain}.${getRootDomain()}`;
+}
+
+function buildTenantInviteUrl(inviteToken: string) {
+  return `${getAppUrl()}/invite/accept?token=${encodeURIComponent(inviteToken)}`;
+}
+
+function formatEmailDate(timestamp: number) {
+  return new Date(timestamp).toLocaleDateString("en-KE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 function generateNetworkId() {
@@ -934,8 +951,10 @@ export const createTenant = mutation({
       createdAt: now,
     });
 
-    // 3. Auto-provision core modules (SIS, Communications, Users Management)
-    for (const moduleId of CORE_MODULE_IDS) {
+    const defaultModuleIds = getDefaultModuleIdsForPlan(normalizedPlan);
+
+    // 3. Auto-provision core modules plus the modules included in the plan.
+    for (const moduleId of defaultModuleIds) {
       await ensureTenantModuleInstall(ctx, {
         tenantId,
         moduleId,
@@ -958,6 +977,7 @@ export const createTenant = mutation({
         tenantUrl: buildTenantUrl(subdomain),
         plan: normalizedPlan,
         coreModulesInstalled: CORE_MODULE_IDS,
+        planModulesInstalled: defaultModuleIds,
       },
     });
 
@@ -1246,7 +1266,9 @@ export const provisionTenant = mutation({
       updatedAt: now,
     });
 
-    const installedModuleIds = selectedModuleIds.length > 0 ? selectedModuleIds : CORE_MODULE_IDS;
+    const installedModuleIds = Array.from(
+      new Set([...getDefaultModuleIdsForPlan(normalizedPlan), ...selectedModuleIds])
+    );
     for (const moduleId of installedModuleIds) {
       await ensureTenantModuleInstall(ctx, {
         tenantId,
@@ -2021,12 +2043,37 @@ export const inviteTenantAdmin = mutation({
       },
     });
 
+    const inviteUrl = buildTenantInviteUrl(inviteToken);
+    const tenantUrl = buildTenantUrl(tenant.subdomain);
+    await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      to: [args.email],
+      subject: `Your EduMyles admin invite for ${tenant.name}`,
+      template: "tenant_invite",
+      data: {
+        firstName: args.firstName,
+        schoolName: tenant.name,
+        role: args.role,
+        inviteUrl,
+        tenantUrl,
+        setupUrl: `${getAppUrl()}/admin/setup`,
+        appUrl: getAppUrl(),
+        expiryDate: formatEmailDate(expiresAt),
+        personalMessage: args.personalMessage,
+      },
+    });
+
     return {
       success: true,
       email: args.email,
       role: args.role,
       tenantName: tenant.name,
       subdomain: tenant.subdomain,
+      tenantUrl,
+      inviteToken,
+      inviteUrl,
       workosOrgId: org.workosOrgId,
       organizationId: org._id,
     };

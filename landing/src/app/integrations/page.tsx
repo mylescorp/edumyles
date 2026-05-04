@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Native integrations with M-Pesa, SMS, NEMIS, learning tools, and more. Built for East African schools.",
 };
 
-type StatusType = "Native" | "Beta" | "Coming Soon";
+type StatusType = "Native" | "Beta" | "Planned";
 
 interface Integration {
   name: string;
@@ -27,7 +27,7 @@ interface Category {
 const statusStyles: Record<StatusType, { bg: string; color: string }> = {
   Native: { bg: "#dcfce7", color: "#166534" },
   Beta: { bg: "#dbeafe", color: "#1e40af" },
-  "Coming Soon": { bg: "#f3f4f6", color: "#6b7280" },
+  Planned: { bg: "#f3f4f6", color: "#6b7280" },
 };
 
 const categories: Category[] = [
@@ -51,7 +51,7 @@ const categories: Category[] = [
       {
         name: "KCB Merchant",
         description: "KCB school fee collection portal integration.",
-        status: "Coming Soon",
+        status: "Planned",
       },
     ],
   },
@@ -111,12 +111,12 @@ const categories: Category[] = [
       {
         name: "Microsoft Teams",
         description: "Class scheduling and parent communication sync.",
-        status: "Coming Soon",
+        status: "Planned",
       },
       {
         name: "Zoom",
         description: "Schedule and launch online classes directly from EduMyles timetable.",
-        status: "Coming Soon",
+        status: "Planned",
       },
     ],
   },

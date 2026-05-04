@@ -3,17 +3,7 @@ import { WorkOS } from "@workos-inc/node";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import crypto from "crypto";
-
-function resolveRedirectUri(req: NextRequest): string {
-  const configured =
-    process.env.WORKOS_REDIRECT_URI || process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI;
-
-  if (configured) {
-    return configured;
-  }
-
-  return `${req.nextUrl.origin}/auth/callback`;
-}
+import { resolveWorkOSRedirectUri } from "@/lib/workos-redirect";
 
 export function getWorkOSClientFromEnv() {
   const apiKey = process.env.WORKOS_API_KEY;
@@ -41,7 +31,7 @@ export function buildWorkOSSignUpUrl(req: NextRequest, email: string, returnTo?:
 
   return workos.userManagement.getAuthorizationUrl({
     clientId,
-    redirectUri: resolveRedirectUri(req),
+    redirectUri: resolveWorkOSRedirectUri(req),
     provider: "authkit",
     screenHint: "sign-up",
     loginHint: email,

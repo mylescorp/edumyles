@@ -9,10 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, FileText, TrendingUp, Users, Printer, ClipboardList } from "lucide-react";
+import { BookOpen, FileText, TrendingUp, Users, Printer, ClipboardList, Wand2, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
-import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { useQuery, useMutation, useAction } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { toast } from "@/components/ui/use-toast";
 
@@ -38,6 +38,8 @@ export default function AdminAcademicReportsPage() {
   const [selectedYear, setSelectedYear] = useState(ACADEMIC_YEARS[0]);
   const [includeAttendance, setIncludeAttendance] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [generatingNarrative, setGeneratingNarrative] = useState(false);
+  const [narrative, setNarrative] = useState("");
   const [reportCard, setReportCard] = useState<ReportCardResult | null>(null);
 
   const stats = usePlatformQuery(
@@ -55,9 +57,12 @@ export default function AdminAcademicReportsPage() {
     api.modules.sis.queries.listStudents,
     sessionToken ? { sessionToken, status: "active" } : "skip"
   );
-  const students = studentsResult?.data;
+  const students = studentsResult?.data ?? studentsResult;
 
   const generateReportCard = useMutation(api.modules.academics.mutations.generateReportCard);
+  const generateNarrative = useAction(
+    (api as any)["modules/academics/actions"].generateAIReportNarrativeWithOpenRouter
+  );
 
   if (isLoading || !stats) return <LoadingSkeleton variant="page" />;
 
@@ -75,6 +80,7 @@ export default function AdminAcademicReportsPage() {
         includeAttendance,
       });
       setReportCard(result as ReportCardResult);
+      setNarrative("");
     } catch (err) {
       toast({ title: "Failed to generate", description: err instanceof Error ? err.message : "Please try again.", variant: "destructive" });
     } finally {
@@ -84,6 +90,32 @@ export default function AdminAcademicReportsPage() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadReportCard = () => {
+    if (!reportCard?.reportCardId) return;
+    window.open(`/api/documents/report-card/${reportCard.reportCardId}`, "_blank", "noopener,noreferrer");
+  };
+
+  const handleGenerateNarrative = async () => {
+    if (!sessionToken || !selectedStudentId || !selectedTerm) return;
+    setGeneratingNarrative(true);
+    try {
+      const result = await generateNarrative({
+        sessionToken,
+        studentId: selectedStudentId,
+        termId: selectedTerm,
+      }) as { narrative?: string; source?: string };
+      setNarrative(result.narrative ?? "");
+      toast({
+        title: result.source === "openrouter" ? "AI narrative generated" : "Narrative generated",
+        description: result.source === "openrouter" ? "OpenRouter returned the report comment." : "Using the built-in fallback until OpenRouter is configured.",
+      });
+    } catch (err) {
+      toast({ title: "Narrative failed", description: err instanceof Error ? err.message : "Please try again.", variant: "destructive" });
+    } finally {
+      setGeneratingNarrative(false);
+    }
   };
 
   return (
@@ -113,7 +145,7 @@ export default function AdminAcademicReportsPage() {
                   <SelectValue placeholder="Select student..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {(students.data ?? []).map((s: any) => (
+                  {((students as any[]) ?? []).map((s: any) => (
                     <SelectItem key={s._id} value={s._id}>
                       {s.firstName} {s.lastName}
                       {s.admissionNumber ? ` — ${s.admissionNumber}` : ""}
@@ -183,10 +215,20 @@ export default function AdminAcademicReportsPage() {
                 {reportCard.student?.admissionNumber && ` · Adm: ${reportCard.student.admissionNumber}`}
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={handlePrint} className="print:hidden">
-              <Printer className="mr-2 h-4 w-4" />
-              Print
-            </Button>
+            <div className="flex flex-wrap justify-end gap-2 print:hidden">
+              <Button variant="outline" size="sm" onClick={handlePrint}>
+                <Printer className="mr-2 h-4 w-4" />
+                Print
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleDownloadReportCard}>
+                <Download className="mr-2 h-4 w-4" />
+                PDF View
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleGenerateNarrative} disabled={generatingNarrative}>
+                <Wand2 className="mr-2 h-4 w-4" />
+                {generatingNarrative ? "Writing..." : "AI Remarks"}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Summary Row */}
@@ -258,6 +300,12 @@ export default function AdminAcademicReportsPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+            {narrative && (
+              <div className="rounded-lg border p-4">
+                <h3 className="font-semibold mb-2">Teacher Narrative</h3>
+                <p className="text-sm leading-6 text-muted-foreground">{narrative}</p>
               </div>
             )}
           </CardContent>

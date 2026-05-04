@@ -40,7 +40,7 @@ export default function LandingPage() {
         <ROICalculator />
         {/* Testimonial — Mary K. quote */}
         <Testimonial />
-        {/* Mobile-first teaser with phone mockup */}
+        {/* Mobile-first teaser with phone preview */}
         <MobileTeaser />
         {/* Pricing plans */}
         <Pricing />

@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { normalizeModuleSlug } from "@/lib/moduleSlugs";
 import { useAuth } from "./useAuth";
 
-const CORE_MODULE_IDS = ["sis", "communications", "users"];
+const CORE_MODULE_IDS = ["core"];
 
 type AccessibleNavItem = {
   href: string;

@@ -747,7 +747,7 @@ export function PlatformAdminInviteForm({
 
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Sample inherited permissions
+              Inherited permissions preview
             </p>
             <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1">
               {previewPermissions.length > 0 ? (

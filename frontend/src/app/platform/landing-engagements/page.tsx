@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
-import { CheckCircle2, MessageCircle, MessagesSquare, PhoneCall, SearchX } from "lucide-react";
+import { CheckCircle2, MessageCircle, MessagesSquare, PhoneCall, SearchX, Send, UserCheck } from "lucide-react";
 
 type EngagementStatus = "new" | "open" | "contacted" | "qualified" | "closed" | "spam";
 type EngagementChannel = "live_chat" | "whatsapp";
@@ -39,6 +39,14 @@ type LandingEngagement = {
   pagePath?: string;
   referrer?: string;
   assignedTo?: string;
+  chatStatus?: "waiting" | "active" | "ended";
+  agentName?: string;
+  messages?: Array<{
+    sender: "visitor" | "agent" | "system";
+    body: string;
+    authorName?: string;
+    createdAt: number;
+  }>;
   adminNotes?: Array<{ body: string; authorEmail?: string; createdAt: number }>;
   lastContactedAt?: number;
   createdAt: number;
@@ -106,6 +114,7 @@ export default function LandingEngagementsPage() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<LandingEngagement | null>(null);
   const [note, setNote] = useState("");
+  const [agentReply, setAgentReply] = useState("");
   const [saving, setSaving] = useState(false);
 
   const rawStats = usePlatformQuery(
@@ -128,6 +137,8 @@ export default function LandingEngagementsPage() {
   ) as LandingEngagement[] | undefined;
 
   const updateEngagement = useMutation(api.publicEngagements.updateLandingEngagement);
+  const joinLandingChat = useMutation(api.publicEngagements.joinLandingChat);
+  const sendAgentChatMessage = useMutation(api.publicEngagements.sendAgentChatMessage);
 
   const engagements = useMemo(() => (Array.isArray(rawEngagements) ? rawEngagements : []), [rawEngagements]);
   const filtered = useMemo(() => {
@@ -139,6 +150,10 @@ export default function LandingEngagementsPage() {
         .some((value) => value!.toLowerCase().includes(needle))
     );
   }, [engagements, search]);
+  const selectedLive = useMemo(
+    () => (selected ? engagements.find((item) => item._id === selected._id) ?? selected : null),
+    [engagements, selected]
+  );
 
   async function changeStatus(engagement: LandingEngagement, status: EngagementStatus) {
     if (!sessionToken) return;
@@ -172,6 +187,39 @@ export default function LandingEngagementsPage() {
       setSelected(null);
     } catch (error) {
       toast({ title: "Unable to add note", description: String(error), variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function joinChat() {
+    if (!sessionToken || !selectedLive) return;
+    setSaving(true);
+    try {
+      await joinLandingChat({ sessionToken, engagementId: selectedLive._id as never });
+      toast({ title: "You joined the live chat" });
+    } catch (error) {
+      toast({ title: "Unable to join chat", description: String(error), variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function sendReply() {
+    if (!sessionToken || !selectedLive || !agentReply.trim()) return;
+    const message = agentReply.trim();
+    setAgentReply("");
+    setSaving(true);
+    try {
+      await sendAgentChatMessage({
+        sessionToken,
+        engagementId: selectedLive._id as never,
+        message,
+      });
+      toast({ title: "Reply sent" });
+    } catch (error) {
+      toast({ title: "Unable to send reply", description: String(error), variant: "destructive" });
+      setAgentReply(message);
     } finally {
       setSaving(false);
     }
@@ -258,6 +306,11 @@ export default function LandingEngagementsPage() {
                           {labelize(engagement.channel)}
                         </Badge>
                         {engagement.priority === "high" && <Badge variant="destructive">High priority</Badge>}
+                        {engagement.channel === "live_chat" && (
+                          <Badge variant="outline" className="border-emerald-500/20 bg-emerald-500/10 text-emerald-700">
+                            {engagement.chatStatus === "active" ? "Agent joined" : "Waiting"}
+                          </Badge>
+                        )}
                       </div>
                       <h2 className="mt-3 text-base font-semibold">{engagement.name}</h2>
                       <p className="mt-1 text-sm text-muted-foreground">
@@ -295,31 +348,93 @@ export default function LandingEngagementsPage() {
 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="max-w-2xl">
-          {selected && (
+          {selectedLive && (
             <>
               <DialogHeader>
-                <DialogTitle>{selected.name}</DialogTitle>
+                <DialogTitle>{selectedLive.name}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid gap-3 rounded-lg border p-4 text-sm sm:grid-cols-2">
-                  <p><span className="font-medium">Email:</span> {selected.email || "Not provided"}</p>
-                  <p><span className="font-medium">Phone:</span> {selected.phone || "Not provided"}</p>
-                  <p><span className="font-medium">School:</span> {selected.schoolName || "Not provided"}</p>
-                  <p><span className="font-medium">Role:</span> {selected.role || "Not provided"}</p>
-                  <p><span className="font-medium">Country:</span> {selected.country || "Not provided"}</p>
-                  <p><span className="font-medium">Created:</span> {formatDateTime(selected.createdAt)}</p>
+                  <p><span className="font-medium">Email:</span> {selectedLive.email || "Not provided"}</p>
+                  <p><span className="font-medium">Phone:</span> {selectedLive.phone || "Not provided"}</p>
+                  <p><span className="font-medium">School:</span> {selectedLive.schoolName || "Not provided"}</p>
+                  <p><span className="font-medium">Role:</span> {selectedLive.role || "Not provided"}</p>
+                  <p><span className="font-medium">Country:</span> {selectedLive.country || "Not provided"}</p>
+                  <p><span className="font-medium">Created:</span> {formatDateTime(selectedLive.createdAt)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Message</p>
-                  <p className="mt-2 whitespace-pre-wrap rounded-lg bg-muted p-3 text-sm leading-6">{selected.message}</p>
+                  <p className="mt-2 whitespace-pre-wrap rounded-lg bg-muted p-3 text-sm leading-6">{selectedLive.message}</p>
                 </div>
-                {selected.pagePath && (
+                {selectedLive.channel === "live_chat" && (
+                  <div className="rounded-xl border bg-slate-50">
+                    <div className="flex items-center justify-between border-b bg-white px-4 py-3">
+                      <div>
+                        <p className="text-sm font-semibold">Live chat thread</p>
+                        <p className="text-xs text-muted-foreground">
+                          {selectedLive.chatStatus === "active"
+                            ? `${selectedLive.agentName ?? "An EduMyles specialist"} has joined`
+                            : "Visitor is waiting for a team member"}
+                        </p>
+                      </div>
+                      <Button size="sm" variant="outline" disabled={saving || selectedLive.chatStatus === "active"} onClick={joinChat}>
+                        <UserCheck className="mr-2 h-4 w-4" />
+                        Join chat
+                      </Button>
+                    </div>
+                    <div className="max-h-72 space-y-3 overflow-y-auto p-4">
+                      {(selectedLive.messages ?? []).map((item, index) => (
+                        <div
+                          key={`${item.createdAt}-${index}`}
+                          className={[
+                            "flex",
+                            item.sender === "visitor" ? "justify-start" : item.sender === "agent" ? "justify-end" : "justify-center",
+                          ].join(" ")}
+                        >
+                          {item.sender === "system" ? (
+                            <p className="max-w-[90%] rounded-full bg-white px-3 py-1.5 text-center text-xs text-muted-foreground ring-1 ring-border">
+                              {item.body}
+                            </p>
+                          ) : (
+                            <div
+                              className={[
+                                "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
+                                item.sender === "agent"
+                                  ? "rounded-br-sm bg-emerald-700 text-white"
+                                  : "rounded-bl-sm border bg-white text-foreground",
+                              ].join(" ")}
+                            >
+                              <p className="mb-1 text-[11px] font-semibold opacity-70">
+                                {item.sender === "agent" ? item.authorName ?? "EduMyles" : selectedLive.name}
+                              </p>
+                              <p className="whitespace-pre-wrap">{item.body}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="border-t bg-white p-3">
+                      <div className="flex items-end gap-2">
+                        <Textarea
+                          value={agentReply}
+                          onChange={(event) => setAgentReply(event.target.value)}
+                          placeholder="Reply to the visitor..."
+                          className="min-h-11"
+                        />
+                        <Button className="h-11" disabled={saving || !agentReply.trim()} onClick={sendReply}>
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {selectedLive.pagePath && (
                   <p className="text-sm text-muted-foreground">
-                    Source page: <span className="font-medium text-foreground">{selected.pagePath}</span>
+                    Source page: <span className="font-medium text-foreground">{selectedLive.pagePath}</span>
                   </p>
                 )}
                 <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                  <Select value={selected.status} onValueChange={(value) => changeStatus(selected, value as EngagementStatus)}>
+                  <Select value={selectedLive.status} onValueChange={(value) => changeStatus(selectedLive, value as EngagementStatus)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -331,9 +446,9 @@ export default function LandingEngagementsPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {selected.whatsappUrl && (
+                  {selectedLive.whatsappUrl && (
                     <Button asChild>
-                      <a href={selected.whatsappUrl} target="_blank" rel="noreferrer">Open WhatsApp</a>
+                      <a href={selectedLive.whatsappUrl} target="_blank" rel="noreferrer">Open WhatsApp</a>
                     </Button>
                   )}
                 </div>

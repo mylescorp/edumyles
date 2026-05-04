@@ -119,7 +119,7 @@ export default async function WelcomePage() {
             </code>{" "}
             to the URL of the deployed frontend app (e.g.{" "}
             <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">
-              https://app.mylescorptech.com
+              https://app.edumyles.com
             </code>
             ), then redeploy.
           </p>

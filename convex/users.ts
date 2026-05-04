@@ -666,6 +666,73 @@ export const getPendingUserInvitationByEmail = query({
   },
 });
 
+export const getTenantUserForAuthContext = query({
+  args: {
+    email: v.string(),
+    workosUserId: v.string(),
+    tenantSlug: v.string(),
+    sessionToken: v.optional(v.string()),
+    serverSecret: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      await requirePlatformSession(ctx, { sessionToken: args.sessionToken ?? "" });
+    }
+
+    const normalizedEmail = args.email.trim().toLowerCase();
+    const normalizedSlug = args.tenantSlug.trim().toLowerCase();
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_subdomain", (q) => q.eq("subdomain", normalizedSlug))
+      .first();
+
+    if (!tenant) return null;
+
+    const userByWorkosId = await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
+      .first();
+
+    const user =
+      userByWorkosId?.tenantId === tenant.tenantId
+        ? userByWorkosId
+        : await ctx.db
+            .query("users")
+            .withIndex("by_tenant_email", (q) =>
+              q.eq("tenantId", tenant.tenantId).eq("email", normalizedEmail)
+            )
+            .first();
+
+    if (!user) {
+      return {
+        tenantId: tenant.tenantId,
+        tenantName: tenant.name,
+        tenantSubdomain: tenant.subdomain,
+        user: null,
+      };
+    }
+
+    return {
+      tenantId: tenant.tenantId,
+      tenantName: tenant.name,
+      tenantSubdomain: tenant.subdomain,
+      user: {
+        _id: user._id,
+        tenantId: user.tenantId,
+        eduMylesUserId: user.eduMylesUserId,
+        organizationId: user.organizationId,
+        workosUserId: user.workosUserId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        permissions: user.permissions,
+        isActive: user.isActive,
+      },
+    };
+  },
+});
+
 export const updateTenantUser = mutation({
   args: {
     sessionToken: v.string(),

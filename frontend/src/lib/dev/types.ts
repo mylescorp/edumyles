@@ -179,6 +179,60 @@ export interface DevPrivilegedOpsData {
   portalLaunchers: DevPortalLauncher[];
 }
 
+export interface DevRbacPermissionDefinition {
+  key: string;
+  label: string;
+  description: string;
+  group: string;
+}
+
+export interface DevRbacRole {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  baseRole?: string;
+  isSystem: boolean;
+  isActive: boolean;
+  color?: string;
+  icon?: string;
+  permissions: string[];
+  userCount: number;
+  updatedAt?: number;
+}
+
+export interface DevRbacUser {
+  id: string;
+  userId?: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role: string;
+  status?: string;
+  department?: string;
+  addedPermissions?: string[];
+  removedPermissions?: string[];
+  updatedAt?: number;
+}
+
+export interface DevRbacAuditEntry {
+  id: string;
+  targetUserId?: string;
+  changedBy?: string;
+  changeType?: string;
+  changeSummary?: string;
+  permissionKey?: string;
+  roleSlug?: string;
+  createdAt: number;
+}
+
+export interface DevRbacData {
+  roles: DevRbacRole[];
+  users: DevRbacUser[];
+  permissions: DevRbacPermissionDefinition[];
+  audit: DevRbacAuditEntry[];
+}
+
 export interface DevSystemMap {
   summary: DevSystemMapSummary;
   frontend: FrontendArtifact[];

@@ -137,7 +137,7 @@ export default function DeveloperApplicationsPage() {
               <h2 className="text-lg font-semibold">{application.businessName}</h2>
               <p className="text-sm text-muted-foreground">
                 Your publisher application has already been approved, so this area now reflects the
-                live publisher account instead of mock review data.
+                current publisher account and marketplace review status.
               </p>
             </div>
             <div className="flex gap-2">

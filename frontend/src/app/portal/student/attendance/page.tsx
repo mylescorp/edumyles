@@ -1,12 +1,16 @@
 "use client";
 
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@/hooks/useSSRSafeConvex";
+import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 import {
   CheckCircle,
   XCircle,
@@ -43,13 +47,44 @@ const STATUS_CONFIG = {
 } as const;
 
 export default function StudentAttendancePage() {
-  const { isLoading } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const [scanning, setScanning] = useState(false);
 
   const records = useQuery(api.modules.portal.student.queries.getMyAttendance, {});
+  const profile = useQuery(
+    api.modules.portal.student.queries.getMyProfile,
+    sessionToken ? { sessionToken } : "skip",
+    !!sessionToken
+  ) as any;
+  const markByQrToken = useMutation(api.modules.attendance.mutations.markAttendanceByQrToken);
 
-  if (isLoading || records === undefined) {
+  if (isLoading || records === undefined || (token && profile === undefined)) {
     return <LoadingSkeleton variant="page" />;
   }
+
+  const handleMarkByQrToken = async () => {
+    if (!token || !profile?._id || !sessionToken) return;
+    setScanning(true);
+    try {
+      await markByQrToken({
+        sessionToken,
+        token,
+        studentId: profile._id,
+        status: "present",
+      });
+      toast({ title: "Attendance marked", description: "You have been marked present for this session." });
+    } catch (error) {
+      toast({
+        title: "QR attendance failed",
+        description: error instanceof Error ? error.message : "Please ask your teacher for a new code.",
+        variant: "destructive",
+      });
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const stats = {
     present: records.filter((r: any) => r.status === "present").length,
@@ -77,6 +112,22 @@ export default function StudentAttendancePage() {
       />
 
       <div className="space-y-6">
+        {token && (
+          <Card>
+            <CardHeader>
+              <CardTitle>QR Attendance</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                Mark yourself present for the active class session.
+              </p>
+              <Button onClick={handleMarkByQrToken} disabled={scanning || !profile?._id}>
+                {scanning ? "Marking..." : "Mark Present"}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Summary Stats */}
         <div className="grid gap-4 md:grid-cols-4">
           {(["present", "absent", "late", "excused"] as const).map((status) => {

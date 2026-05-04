@@ -64,6 +64,7 @@ import type * as helpers_tenantGuard from "../helpers/tenantGuard.js";
 import type * as http from "../http.js";
 import type * as index from "../index.js";
 import type * as lib_encryption from "../lib/encryption.js";
+import type * as modules_academics_actions from "../modules/academics/actions.js";
 import type * as modules_academics_assignments from "../modules/academics/assignments.js";
 import type * as modules_academics_configSchema from "../modules/academics/configSchema.js";
 import type * as modules_academics_eventHandlers from "../modules/academics/eventHandlers.js";
@@ -523,6 +524,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   index: typeof index;
   "lib/encryption": typeof lib_encryption;
+  "modules/academics/actions": typeof modules_academics_actions;
   "modules/academics/assignments": typeof modules_academics_assignments;
   "modules/academics/configSchema": typeof modules_academics_configSchema;
   "modules/academics/eventHandlers": typeof modules_academics_eventHandlers;

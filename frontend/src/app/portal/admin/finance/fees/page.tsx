@@ -88,6 +88,10 @@ export default function FeeStructuresPage() {
       academicYear: selectedYear === "all" ? undefined : selectedYear
     } : "skip"
   );
+  const students = useQuery(
+    api.modules.sis.queries.listStudents,
+    user ? { sessionToken: sessionToken ?? undefined, status: "active" } : "skip"
+  );
 
   const createFeeStructure = useMutation(api.modules.finance.mutations.createFeeStructure);
   const generateInvoices = useMutation(api.modules.finance.mutations.bulkGenerateInvoices);
@@ -117,21 +121,41 @@ export default function FeeStructuresPage() {
 
   const handleBulkGenerateInvoices = async () => {
     try {
-      // This would typically get selected students
-      const sampleItems = [
-        {
-          studentId: "student-1",
-          feeStructureId: feeStructures?.[0]?._id || "",
-          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          issuedAt: new Date().toISOString().split('T')[0],
-        }
-      ];
+      const targetStructure = filteredStructures[0] ?? (feeStructures as FeeStructure[] | undefined)?.[0];
+      const activeStudents = (students as Array<{ _id: string }> | undefined) ?? [];
 
-      await generateInvoices({ items: sampleItems });
+      if (!targetStructure) {
+        toast({
+          title: "No fee structure selected",
+          description: "Create or filter to a fee structure before generating invoices.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (activeStudents.length === 0) {
+        toast({
+          title: "No active students found",
+          description: "Add active students before generating fee invoices.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      const issuedAt = new Date().toISOString().split("T")[0];
+      const invoiceItems = activeStudents.map((student) => ({
+        studentId: student._id,
+        feeStructureId: targetStructure._id,
+        dueDate,
+        issuedAt,
+      }));
+
+      await generateInvoices({ items: invoiceItems });
 
       toast({
         title: "Success",
-        description: "Invoices generated successfully",
+        description: `${invoiceItems.length} invoices generated successfully`,
       });
     } catch (error) {
       toast({

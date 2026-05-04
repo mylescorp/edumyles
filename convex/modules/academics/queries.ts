@@ -231,6 +231,39 @@ export const getReportCard = query({
   },
 });
 
+export const getReportCardById = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    reportCardId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:read");
+
+    const reportCardId = ctx.db.normalizeId("reportCards", args.reportCardId);
+    if (!reportCardId) return null;
+
+    const reportCard = await ctx.db.get(reportCardId);
+    if (!reportCard || reportCard.tenantId !== tenant.tenantId) return null;
+
+    const studentId = ctx.db.normalizeId("students", reportCard.studentId);
+    const classId = reportCard.classId ? ctx.db.normalizeId("classes", reportCard.classId) : null;
+    const [student, classRecord] = await Promise.all([
+      studentId ? ctx.db.get(studentId) : null,
+      classId ? ctx.db.get(classId) : null,
+    ]);
+
+    return {
+      reportCard,
+      student: student && student.tenantId === tenant.tenantId ? student : null,
+      classRecord: classRecord && classRecord.tenantId === tenant.tenantId ? classRecord : null,
+    };
+  },
+});
+
 export const getClassReportCards = query({
   args: {
     sessionToken: v.optional(v.string()),
@@ -277,6 +310,73 @@ export const getStudentsNeedingCounselling = query({
       })
       .filter((student) => student.averagePct < args.thresholdPct)
       .sort((a, b) => a.averagePct - b.averagePct);
+  },
+});
+
+export const getClassSubjectAssignments = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    classId: v.string(),
+    academicYearId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:read");
+    const [assignments, subjects, staff] = await Promise.all([
+      ctx.db.query("classSubjectAssignments").withIndex("by_tenant_class", (q) => q.eq("tenantId", tenant.tenantId).eq("classId", args.classId)).collect(),
+      ctx.db.query("subjects").withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId)).collect(),
+      ctx.db.query("staff").withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId)).collect(),
+    ]);
+    return assignments
+      .filter((assignment) => assignment.academicYearId === args.academicYearId && assignment.isActive)
+      .map((assignment) => ({
+        ...assignment,
+        subject: subjects.find((subject) => subject._id.toString() === assignment.subjectId) ?? null,
+        teacher: staff.find((member) => member._id.toString() === assignment.teacherId || member.userId === assignment.teacherId) ?? null,
+      }));
+  },
+});
+
+export const getLessonPlans = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    teacherId: v.optional(v.string()),
+    termId: v.string(),
+    weekNumber: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:read");
+    const teacherId = args.teacherId ?? tenant.userId;
+    return (await ctx.db
+      .query("lessonPlans")
+      .withIndex("by_teacher_term", (q) => q.eq("teacherId", teacherId).eq("termId", args.termId))
+      .collect())
+      .filter((plan) => plan.tenantId === tenant.tenantId)
+      .filter((plan) => args.weekNumber === undefined || plan.weekNumber === args.weekNumber)
+      .sort((a, b) => a.weekNumber - b.weekNumber || a.sessionNumber - b.sessionNumber);
+  },
+});
+
+export const getStudentAchievements = query({
+  args: { sessionToken: v.optional(v.string()), studentId: v.string() },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:read");
+    return (await ctx.db
+      .query("studentAchievements")
+      .withIndex("by_tenant_student", (q) => q.eq("tenantId", tenant.tenantId).eq("studentId", args.studentId))
+      .collect())
+      .sort((a, b) => b.date - a.date);
   },
 });
 

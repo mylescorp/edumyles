@@ -193,7 +193,7 @@ export default function RoadmapPage() {
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
             style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "560px" }}
           >
-            Our public roadmap. Shipped, in progress, and coming soon. Updated quarterly.
+            Our public roadmap. Shipped, in progress, and planned. Updated quarterly.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <span

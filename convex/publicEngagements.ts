@@ -44,6 +44,7 @@ export const submitLandingEngagement = mutation({
     userAgent: v.optional(v.string()),
     marketingAttribution: v.optional(v.any()),
     source: v.optional(v.string()),
+    visitorToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -90,6 +91,24 @@ export const submitLandingEngagement = mutation({
       return { success: true, engagementId: duplicate!._id, alreadyExists: true };
     }
 
+    const initialMessages =
+      args.channel === "live_chat"
+        ? [
+            {
+              sender: "visitor" as const,
+              body: message,
+              authorName: clean(args.name) ?? "Visitor",
+              createdAt: now,
+            },
+            {
+              sender: "system" as const,
+              body: "Thanks. Your message is in the queue and an EduMyles specialist can join this chat shortly.",
+              authorName: "EduMyles",
+              createdAt: now + 1,
+            },
+          ]
+        : undefined;
+
     const engagementId = await ctx.db.insert("landingEngagements", {
       channel: args.channel,
       status: "new",
@@ -109,6 +128,9 @@ export const submitLandingEngagement = mutation({
       userAgent: clean(args.userAgent),
       marketingAttribution: args.marketingAttribution,
       source: clean(args.source) ?? "landing_contact_widget",
+      visitorToken: clean(args.visitorToken),
+      chatStatus: args.channel === "live_chat" ? "waiting" : undefined,
+      messages: initialMessages,
       createdAt: now,
       updatedAt: now,
     });
@@ -137,6 +159,76 @@ export const submitLandingEngagement = mutation({
     }
 
     return { success: true, engagementId, alreadyExists: false };
+  },
+});
+
+export const getVisitorChatThread = query({
+  args: {
+    engagementId: v.id("landingEngagements"),
+    visitorToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const engagement = await ctx.db.get(args.engagementId);
+    if (!engagement || engagement.channel !== "live_chat") {
+      throw new Error("CHAT_NOT_FOUND");
+    }
+    if (!engagement.visitorToken || engagement.visitorToken !== args.visitorToken) {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    return {
+      engagementId: engagement._id,
+      status: engagement.status,
+      chatStatus: engagement.chatStatus ?? "waiting",
+      agentName: engagement.agentName,
+      messages: engagement.messages ?? [],
+      updatedAt: engagement.updatedAt,
+    };
+  },
+});
+
+export const sendVisitorChatMessage = mutation({
+  args: {
+    engagementId: v.id("landingEngagements"),
+    visitorToken: v.string(),
+    message: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const engagement = await ctx.db.get(args.engagementId);
+    if (!engagement || engagement.channel !== "live_chat") {
+      throw new Error("CHAT_NOT_FOUND");
+    }
+    if (!engagement.visitorToken || engagement.visitorToken !== args.visitorToken) {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    const body = clean(args.message);
+    if (!body) throw new Error("MESSAGE_REQUIRED");
+
+    const now = Date.now();
+    const messages = [
+      ...(engagement.messages ?? []),
+      {
+        sender: "visitor" as const,
+        body,
+        authorName: engagement.name,
+        createdAt: now,
+      },
+    ];
+
+    await ctx.db.patch(args.engagementId, {
+      message: body,
+      messages,
+      status: engagement.status === "new" ? "open" : engagement.status,
+      updatedAt: now,
+    });
+
+    return {
+      success: true,
+      messages,
+      chatStatus: engagement.chatStatus ?? "waiting",
+      agentName: engagement.agentName,
+    };
   },
 });
 
@@ -231,5 +323,91 @@ export const updateLandingEngagement = mutation({
     });
 
     return { success: true };
+  },
+});
+
+export const joinLandingChat = mutation({
+  args: {
+    sessionToken: v.string(),
+    engagementId: v.id("landingEngagements"),
+  },
+  handler: async (ctx, args) => {
+    const admin = await requirePlatformRole(
+      ctx,
+      { sessionToken: args.sessionToken },
+      PLATFORM_REVIEW_ROLES
+    );
+    const engagement = await ctx.db.get(args.engagementId);
+    if (!engagement || engagement.channel !== "live_chat") throw new Error("CHAT_NOT_FOUND");
+
+    const now = Date.now();
+    const agentName = admin.email?.split("@")[0] || "EduMyles specialist";
+    const messages = [
+      ...(engagement.messages ?? []),
+      {
+        sender: "system" as const,
+        body: `${agentName} has joined the chat.`,
+        authorName: "EduMyles",
+        authorId: admin.userId,
+        createdAt: now,
+      },
+    ];
+
+    await ctx.db.patch(args.engagementId, {
+      chatStatus: "active",
+      status: "contacted",
+      assignedTo: admin.userId,
+      agentName,
+      agentJoinedAt: now,
+      lastContactedAt: now,
+      messages,
+      updatedAt: now,
+    });
+
+    return { success: true, agentName, messages };
+  },
+});
+
+export const sendAgentChatMessage = mutation({
+  args: {
+    sessionToken: v.string(),
+    engagementId: v.id("landingEngagements"),
+    message: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const admin = await requirePlatformRole(
+      ctx,
+      { sessionToken: args.sessionToken },
+      PLATFORM_REVIEW_ROLES
+    );
+    const engagement = await ctx.db.get(args.engagementId);
+    if (!engagement || engagement.channel !== "live_chat") throw new Error("CHAT_NOT_FOUND");
+    const body = clean(args.message);
+    if (!body) throw new Error("MESSAGE_REQUIRED");
+
+    const now = Date.now();
+    const agentName = engagement.agentName || admin.email?.split("@")[0] || "EduMyles specialist";
+    const messages = [
+      ...(engagement.messages ?? []),
+      {
+        sender: "agent" as const,
+        body,
+        authorName: agentName,
+        authorId: admin.userId,
+        createdAt: now,
+      },
+    ];
+
+    await ctx.db.patch(args.engagementId, {
+      chatStatus: "active",
+      status: "contacted",
+      assignedTo: engagement.assignedTo ?? admin.userId,
+      agentName,
+      messages,
+      updatedAt: now,
+      lastContactedAt: now,
+    });
+
+    return { success: true, messages };
   },
 });

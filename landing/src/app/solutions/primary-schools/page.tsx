@@ -673,7 +673,7 @@ export default function PrimarySchoolsPage() {
                   className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
                   style={{ background: "#1A7A4A", color: "#ffffff" }}
                 >
-                  See a sample report card <ArrowRight className="w-4 h-4" />
+                  Preview a report card <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
             </div>

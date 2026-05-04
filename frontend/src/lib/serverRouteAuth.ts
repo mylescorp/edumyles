@@ -17,12 +17,15 @@ export async function ensureProtectedRouteSession() {
   };
 }
 
-export async function ensureAuthorizedRouteSession(allowedRoles: readonly string[]) {
+export async function ensureAuthorizedRouteSession(
+  allowedRoles: readonly string[],
+  fallbackHref = "/dashboard"
+) {
   const session = await ensureProtectedRouteSession();
   const normalizedRole = normalizeDevRole(session.role);
 
   if (!normalizedRole || !allowedRoles.includes(normalizedRole)) {
-    redirect("/platform");
+    redirect(fallbackHref);
   }
 
   return {
