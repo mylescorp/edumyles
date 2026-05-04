@@ -16,10 +16,14 @@ import { WorkOS } from "@workos-inc/node";
 import { saveSession } from "@workos-inc/authkit-nextjs";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { getSharedCookieDomain, getTenantHostFromRequestHost, getTenantSubdomainFromHost } from "@/lib/tenant-host";
 import crypto from "crypto";
 
 const MASTER_ADMIN_EMAILS = (
-  process.env.MASTER_ADMIN_EMAILS?.split(",").map((e) => e.trim()) ?? []
+  [
+    ...(process.env.MASTER_ADMIN_EMAILS?.split(",") ?? []),
+    process.env.MASTER_ADMIN_EMAIL,
+  ].map((e) => e?.trim()) ?? []
 )
   .filter((value): value is string => Boolean(value))
   .map((value) => value.toLowerCase());
@@ -81,6 +85,34 @@ function decodeState(raw: string | null): Record<string, string> {
   } catch {
     return {};
   }
+}
+
+function getTenantAuthContext(stateData: Record<string, string>) {
+  const tenantSlugFromHost = getTenantSubdomainFromHost(stateData.tenantHost);
+  const tenantSlug = tenantSlugFromHost ?? stateData.tenantSlug;
+  const tenantHost = tenantSlugFromHost ? getTenantHostFromRequestHost(stateData.tenantHost) : null;
+
+  if (!tenantSlug || !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(tenantSlug)) {
+    return null;
+  }
+
+  return {
+    tenantSlug,
+    tenantOrigin: tenantHost ? `https://${tenantHost}` : null,
+  };
+}
+
+function resolveTenantReturnUrl(
+  req: NextRequest,
+  stateData: Record<string, string>,
+  tenantOrigin?: string | null
+) {
+  const returnTo =
+    stateData.returnTo && stateData.returnTo.startsWith("/")
+      ? stateData.returnTo
+      : "/admin";
+
+  return new URL(returnTo, tenantOrigin ?? req.url);
 }
 
 function authError(req: NextRequest, reason: string): NextResponse {
@@ -193,8 +225,112 @@ export async function GET(req: NextRequest) {
     // Decode state to know whether this originated from sign-up or sign-in.
     const stateData = decodeState(returnedState);
     const isSignUp = stateData.mode === "sign-up";
+    const tenantAuthContext = getTenantAuthContext(stateData);
 
     const isProduction = process.env.NODE_ENV === "production";
+
+    // Tenant subdomain sign-ins must create tenant sessions even when the same
+    // email also has platform access. The WorkOS callback is canonicalized to
+    // app.edumyles.com, so the original school host travels in signed state.
+    if (tenantAuthContext) {
+      let tenantAccess: {
+        tenantId: string;
+        tenantName: string;
+        tenantSubdomain: string;
+        user: {
+          tenantId: string;
+          eduMylesUserId: string;
+          organizationId: string;
+          workosUserId: string;
+          email: string;
+          firstName?: string;
+          lastName?: string;
+          role: string;
+          permissions: string[];
+          isActive: boolean;
+        } | null;
+      } | null = null;
+
+      try {
+        tenantAccess = await convex.query(api.users.getTenantUserForAuthContext, {
+          workosUserId: user.id,
+          email: user.email.toLowerCase(),
+          tenantSlug: tenantAuthContext.tenantSlug,
+          serverSecret,
+        });
+      } catch (error) {
+        console.warn("[auth/callback] Tenant auth-context lookup failed:", error);
+      }
+
+      if (!tenantAccess) {
+        return authError(req, "unknown_tenant");
+      }
+
+      let tenantUser = tenantAccess.user;
+
+      if (tenantUser?.workosUserId.startsWith("pending-")) {
+        if (!tenantUser.organizationId) {
+          throw new Error("Pending tenant user is missing organization context");
+        }
+
+        await convex.mutation(api.users.upsertUser, {
+          tenantId: tenantUser.tenantId,
+          eduMylesUserId: tenantUser.eduMylesUserId,
+          workosUserId: user.id,
+          email: user.email,
+          firstName: user.firstName ?? tenantUser.firstName ?? undefined,
+          lastName: user.lastName ?? tenantUser.lastName ?? undefined,
+          role: tenantUser.role,
+          permissions: tenantUser.permissions ?? [],
+          organizationId: tenantUser.organizationId,
+        });
+
+        tenantUser = {
+          ...tenantUser,
+          workosUserId: user.id,
+          email: user.email,
+          firstName: user.firstName ?? tenantUser.firstName,
+          lastName: user.lastName ?? tenantUser.lastName,
+          isActive: true,
+        };
+      }
+
+      if (!tenantUser) {
+        console.warn(
+          `[auth/callback] ⛔ Tenant login without tenant membership: ${user.email} → ${tenantAuthContext.tenantSlug}`
+        );
+        return authError(req, "not_authorized");
+      }
+
+      if (!tenantUser.isActive) {
+        console.warn(`[auth/callback] ⛔ Inactive tenant user attempted login: ${user.email}`);
+        return authError(req, "account_inactive");
+      }
+
+      const role = normalizeRole(tenantUser.role);
+      const tenantId = tenantUser.tenantId;
+      const sessionToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+      await convex.mutation(api.sessions.createSession, {
+        serverSecret: serverSecret ?? "",
+        sessionToken,
+        tenantId,
+        userId: user.id,
+        email: user.email,
+        role,
+        expiresAt,
+      });
+
+      const returnUrl = resolveTenantReturnUrl(req, stateData, tenantAuthContext.tenantOrigin);
+
+      console.log(
+        `[auth/callback] ✅ tenant ${user.email} → ${tenantAuthContext.tenantSlug} → ${returnUrl.pathname}`
+      );
+      await saveSession({ accessToken, refreshToken, user, impersonator }, req);
+      const res = NextResponse.redirect(returnUrl);
+      setSessionCookies(res, sessionToken, user, role, tenantId, isProduction, req.headers.get("host"));
+      return res;
+    }
 
     // ── 1. Master admin fast-path ────────────────────────────────────────────
     if (isMasterAdmin(user.email)) {
@@ -238,7 +374,7 @@ export async function GET(req: NextRequest) {
       console.log(`[auth/callback] ✅ master_admin ${user.email} → ${returnTo}`);
       await saveSession({ accessToken, refreshToken, user, impersonator }, req);
       const res = NextResponse.redirect(new URL(returnTo, req.url));
-      setSessionCookies(res, sessionToken, user, role, tenantId, isProduction);
+      setSessionCookies(res, sessionToken, user, role, tenantId, isProduction, req.headers.get("host"));
       return res;
     }
 
@@ -344,7 +480,7 @@ export async function GET(req: NextRequest) {
       console.log(`[auth/callback] ✅ platform staff ${user.email} → ${role} → ${returnTo}`);
       await saveSession({ accessToken, refreshToken, user, impersonator }, req);
       const res = NextResponse.redirect(new URL(returnTo, req.url));
-      setSessionCookies(res, sessionToken, user, role, tenantId, isProduction);
+      setSessionCookies(res, sessionToken, user, role, tenantId, isProduction, req.headers.get("host"));
       return res;
     }
 
@@ -447,7 +583,7 @@ export async function GET(req: NextRequest) {
         console.log(`[auth/callback] ✅ first-user auto-promoted to master_admin: ${user.email}`);
         await saveSession({ accessToken, refreshToken, user, impersonator }, req);
         const res = NextResponse.redirect(new URL(returnTo, req.url));
-        setSessionCookies(res, sessionToken, user, role, tenantId, isProduction);
+        setSessionCookies(res, sessionToken, user, role, tenantId, isProduction, req.headers.get("host"));
         return res;
       }
     }
@@ -484,7 +620,7 @@ export async function GET(req: NextRequest) {
       console.log(`[auth/callback] ✅ ${user.email} → ${role} → ${returnTo}`);
       await saveSession({ accessToken, refreshToken, user, impersonator }, req);
       const res = NextResponse.redirect(new URL(returnTo, req.url));
-      setSessionCookies(res, sessionToken, user, role, tenantId, isProduction);
+      setSessionCookies(res, sessionToken, user, role, tenantId, isProduction, req.headers.get("host"));
       return res;
     }
 
@@ -544,14 +680,17 @@ function setSessionCookies(
   user: { email: string; firstName?: string | null; lastName?: string | null },
   role: string,
   tenantId: string,
-  isProduction: boolean
+  isProduction: boolean,
+  requestHost?: string | null
 ): void {
+  const domain = getSharedCookieDomain(requestHost);
   response.cookies.set("edumyles_session", sessionToken, {
     httpOnly: true,
     secure: isProduction,
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
+    domain,
   });
 
   response.cookies.set(
@@ -570,6 +709,7 @@ function setSessionCookies(
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
+      domain,
     }
   );
 
@@ -579,8 +719,9 @@ function setSessionCookies(
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
+    domain,
   });
 
   // Clear CSRF state cookie
-  response.cookies.set("workos_state", "", { maxAge: 0, path: "/" });
+  response.cookies.set("workos_state", "", { maxAge: 0, path: "/", domain });
 }

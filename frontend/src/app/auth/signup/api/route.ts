@@ -5,6 +5,7 @@ import {
   canUseLocalDevAuth,
   redirectWithLocalDevSession,
 } from "@/lib/devAuthRedirect";
+import { getSharedCookieDomain, getTenantHostFromRequestHost, getTenantSubdomainFromHost } from "@/lib/tenant-host";
 import { resolveWorkOSRedirectUri } from "@/lib/workos-redirect";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,9 @@ export async function GET(req: NextRequest) {
   }
 
   const email = req.nextUrl.searchParams.get("email") ?? undefined;
+  const host = req.headers.get("host");
+  const tenantHost = getTenantHostFromRequestHost(host);
+  const tenantSlug = getTenantSubdomainFromHost(host);
   const state = Buffer.from(
     JSON.stringify({
       nonce: crypto.randomBytes(16).toString("hex"),
@@ -42,6 +46,8 @@ export async function GET(req: NextRequest) {
       returnTo: req.nextUrl.searchParams.get("returnTo")?.startsWith("/")
         ? req.nextUrl.searchParams.get("returnTo") ?? undefined
         : undefined,
+      tenantHost: tenantHost ?? undefined,
+      tenantSlug: tenantSlug ?? undefined,
     })
   ).toString("base64url");
 
@@ -62,6 +68,7 @@ export async function GET(req: NextRequest) {
     sameSite: "lax",
     maxAge: 600,
     path: "/",
+    domain: getSharedCookieDomain(host),
   });
   return response;
 }
