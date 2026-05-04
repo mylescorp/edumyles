@@ -1,5 +1,6 @@
 import { authkit, handleAuthkitHeaders } from "@workos-inc/authkit-nextjs";
 import { NextRequest, NextResponse } from "next/server";
+import { getSharedCookieDomain, getTenantSubdomainFromHost } from "@/lib/tenant-host";
 
 // ── Route Classification ──────────────────────────────────────
 const PROTECTED_ROUTES = ["/admin", "/dashboard", "/portal", "/platform", "/student", "/support"];
@@ -214,6 +215,9 @@ export async function proxy(request: NextRequest) {
 
   const session = request.cookies.get("edumyles_session");
   let role = request.cookies.get("edumyles_role")?.value;
+  const host = request.headers.get("host");
+  const tenantSlug = getTenantSubdomainFromHost(host);
+  let cookieTenantId: string | undefined;
   if (role === "platform_admin") {
     role = "super_admin";
   }
@@ -224,7 +228,8 @@ export async function proxy(request: NextRequest) {
     const userCookie = request.cookies.get("edumyles_user")?.value;
     if (userCookie) {
       const user = JSON.parse(userCookie);
-      if (isMasterAdminEmail(user?.email)) {
+      cookieTenantId = typeof user?.tenantId === "string" ? user.tenantId : undefined;
+      if (!tenantSlug && isMasterAdminEmail(user?.email)) {
         role = "master_admin";
       }
     }
@@ -234,6 +239,8 @@ export async function proxy(request: NextRequest) {
 
   const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
   const hasServerSession = Boolean(workosSession.user);
+  const hasPlatformCookieOnTenantHost =
+    Boolean(tenantSlug) && Boolean(session) && cookieTenantId === "PLATFORM";
 
   // Normalize legacy student routes to the canonical portal path.
   if (pathname === "/student" || pathname.startsWith("/student/")) {
@@ -260,9 +267,30 @@ export async function proxy(request: NextRequest) {
   // 1. Unauthenticated → WorkOS login. Legacy cookie-only sessions are allowed
   // temporarily while existing users cycle through the updated callback flow.
   if (isProtected && !hasServerSession && !session) {
+    if (tenantSlug) {
+      const loginUrl = new URL("/auth/login/api", request.url);
+      loginUrl.searchParams.set("returnTo", pathname || "/admin");
+      return NextResponse.redirect(loginUrl);
+    }
+
     return applyAuthResponse(request, authkitHeaders, {
       redirect: authorizationUrl ?? new URL("/auth/login", request.nextUrl.origin),
     });
+  }
+
+  if (isProtected && hasPlatformCookieOnTenantHost) {
+    const loginUrl = new URL("/auth/login/api", request.url);
+    loginUrl.searchParams.set("returnTo", pathname || "/admin");
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    const domain = getSharedCookieDomain(host);
+    for (const cookieName of ["edumyles_session", "edumyles_user", "edumyles_role"]) {
+      redirectResponse.cookies.set(cookieName, "", {
+        maxAge: 0,
+        path: "/",
+        domain,
+      });
+    }
+    return redirectResponse;
   }
 
   // 1b. Auth pages should not remain accessible once a session exists.
@@ -270,6 +298,12 @@ export async function proxy(request: NextRequest) {
     (session || hasServerSession) &&
     AUTH_PAGES.some((route) => pathname === route || pathname.startsWith(`${route}/`))
   ) {
+    if (tenantSlug) {
+      return applyAuthResponse(request, authkitHeaders, {
+        redirect: new URL("/admin", request.url),
+      });
+    }
+
     return applyAuthResponse(request, authkitHeaders, {
       redirect: new URL(getRoleDashboard(role ?? "school_admin"), request.url),
     });
@@ -303,8 +337,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // 4. Tenant slug from subdomain
-  const host = request.headers.get("host") ?? "";
-  const parts = host.split(".");
+  const parts = (host ?? "").split(".");
   const firstPart = parts[0] ?? "";
 
   const response = applyAuthResponse(request, authkitHeaders);
