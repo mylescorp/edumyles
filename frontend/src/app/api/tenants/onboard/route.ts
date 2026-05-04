@@ -170,7 +170,11 @@ export async function POST(req: NextRequest) {
             "The tenant admin invite record was created, but the WorkOS email invitation could not be sent because WorkOS is not configured."
           );
         } else {
-          throw error;
+          warnings.push(
+            `The tenant admin invite record was created, but WorkOS could not send its organization invitation: ${
+              error?.message ?? "unknown WorkOS error"
+            }`
+          );
         }
       }
     }

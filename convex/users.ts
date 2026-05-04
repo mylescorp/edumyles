@@ -688,6 +688,11 @@ export const getTenantUserForAuthContext = query({
 
     if (!tenant) return null;
 
+    const organization = await ctx.db
+      .query("organizations")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .first();
+
     const userByWorkosId = await ctx.db
       .query("users")
       .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
@@ -708,6 +713,7 @@ export const getTenantUserForAuthContext = query({
         tenantId: tenant.tenantId,
         tenantName: tenant.name,
         tenantSubdomain: tenant.subdomain,
+        organizationId: organization?._id,
         user: null,
       };
     }
@@ -716,11 +722,12 @@ export const getTenantUserForAuthContext = query({
       tenantId: tenant.tenantId,
       tenantName: tenant.name,
       tenantSubdomain: tenant.subdomain,
+      organizationId: organization?._id,
       user: {
         _id: user._id,
         tenantId: user.tenantId,
         eduMylesUserId: user.eduMylesUserId,
-        organizationId: user.organizationId,
+        organizationId: user.organizationId ?? organization?._id,
         workosUserId: user.workosUserId,
         email: user.email,
         firstName: user.firstName,
