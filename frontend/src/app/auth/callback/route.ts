@@ -16,6 +16,7 @@ import { WorkOS } from "@workos-inc/node";
 import { saveSession } from "@workos-inc/authkit-nextjs";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { getSharedCookieDomain, getTenantHostFromRequestHost, getTenantSubdomainFromHost } from "@/lib/tenant-host";
 import crypto from "crypto";
 
@@ -240,7 +241,7 @@ export async function GET(req: NextRequest) {
         user: {
           tenantId: string;
           eduMylesUserId: string;
-          organizationId: string;
+          organizationId?: Id<"organizations">;
           workosUserId: string;
           email: string;
           firstName?: string;
