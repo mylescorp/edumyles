@@ -28,7 +28,9 @@ export default async function RootPage() {
   const headersList = await headers();
   const sessionCookie = cookieStore.get("edumyles_session");
   const role = cookieStore.get("edumyles_role")?.value;
-  const tenantSlug = getTenantSubdomainFromHost(headersList.get("host"));
+  const tenantSlug = getTenantSubdomainFromHost(
+    headersList.get("x-forwarded-host") ?? headersList.get("host")
+  );
 
   if (sessionCookie?.value) {
     if (tenantSlug) {
