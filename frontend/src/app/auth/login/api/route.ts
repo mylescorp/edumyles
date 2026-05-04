@@ -5,33 +5,9 @@ import {
   canUseLocalDevAuth,
   redirectWithLocalDevSession,
 } from "@/lib/devAuthRedirect";
+import { resolveWorkOSRedirectUri } from "@/lib/workos-redirect";
 
 export const dynamic = "force-dynamic";
-
-function resolveRedirectUri(req: NextRequest): string {
-  const currentOrigin = req.nextUrl.origin;
-  const currentHost = req.nextUrl.host;
-  const canonicalAppUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
-  const configuredRedirectUri =
-    process.env.WORKOS_REDIRECT_URI || process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI;
-
-  const approvedHosts = new Set(
-    [
-      canonicalAppUrl ? new URL(canonicalAppUrl).host : null,
-      "app.edumyles.com",
-    ].filter((host): host is string => Boolean(host))
-  );
-  const isPreviewHost =
-    currentHost.endsWith(".vercel.app") && !approvedHosts.has(currentHost);
-
-  if (isPreviewHost) {
-    if (configuredRedirectUri) return configuredRedirectUri;
-    if (canonicalAppUrl) return `${canonicalAppUrl}/auth/callback`;
-    return "https://app.edumyles.com/auth/callback";
-  }
-
-  return `${currentOrigin}/auth/callback`;
-}
 
 export async function GET(req: NextRequest) {
   // Dev bypass — only permitted outside production to prevent redirect loops
@@ -44,7 +20,7 @@ export async function GET(req: NextRequest) {
 
   const apiKey = process.env.WORKOS_API_KEY;
   const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
-  const redirectUri = resolveRedirectUri(req);
+  const redirectUri = resolveWorkOSRedirectUri(req);
 
   if (!apiKey || !clientId) {
     if (canUseLocalDevAuth(req)) {

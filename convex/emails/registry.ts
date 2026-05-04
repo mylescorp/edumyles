@@ -133,9 +133,18 @@ export function renderManagedEmailTemplate(template: string, data: Record<string
           intro: `You’ve been invited to create the school-admin workspace for ${data.schoolName ?? "your school"}. Use the secure link below to create your admin account and begin the 12-step school setup flow.`,
           sections: [
             ...(data.personalMessage ? [{ title: "Personal note", body: String(data.personalMessage) }] : []),
+            {
+              title: "Your school workspace",
+              body: `School: ${data.schoolName ?? "Your school"}\nRole: ${data.role ?? "school_admin"}\nTenant URL: ${data.tenantUrl ?? "Your EduMyles school subdomain"}`,
+            },
+            {
+              title: "What is included",
+              body: "Your invitation includes the school admin account, WorkOS organization membership, the setup wizard, core SIS modules, and the live tenant workspace.",
+            },
             { title: "Invitation expiry", body: `This invitation stays active until ${data.expiryDate ?? "soon"}.` },
           ],
           action: { label: "Create My School Admin Account", href: data.inviteUrl ?? defaultInviteUrl },
+          outro: `After creating the account, continue setup at ${data.setupUrl ?? defaultSetupUrl}. If the tenant subdomain is still waiting for HTTPS activation, use ${data.appUrl ?? defaultDashboardUrl} and sign in with this email.`,
         },
         `Your EduMyles invitation is ready, ${data.firstName ?? "there"}!`
       );

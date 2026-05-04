@@ -6,6 +6,7 @@ import {
   ensureTenantWorkOSOrganization,
   getWorkOSClientFromEnv,
 } from "@/lib/workos-invitations";
+import { ensureFrontendDomain } from "@/lib/vercel-domains";
 
 export async function POST(req: NextRequest) {
   let tenantId: string | undefined;
@@ -77,6 +78,14 @@ export async function POST(req: NextRequest) {
     });
 
     tenantId = provisionResult.tenantId;
+
+    stage = "provisioning_frontend_domain";
+    let domainProvisioning: Awaited<ReturnType<typeof ensureFrontendDomain>> | null = null;
+    try {
+      domainProvisioning = await ensureFrontendDomain(provisionResult.tenantUrl?.replace(/^https?:\/\//, ""));
+    } catch (error: any) {
+      warnings.push(error?.message ?? "The tenant was created, but the frontend domain could not be registered automatically.");
+    }
 
     stage = "provisioning_workos_organization";
     let organization: {
@@ -175,12 +184,14 @@ export async function POST(req: NextRequest) {
       invitationId,
       inviteToken: (inviteRecord as any).inviteToken ?? null,
       inviteRecordId: (inviteRecord as any).tenantInviteId ?? null,
+      inviteUrl: (inviteRecord as any).inviteUrl ?? null,
       signUpUrl,
       invitationQueued: Boolean(invitationId),
       warnings,
       tenantName: payload.schoolName,
       subdomain: provisionResult.subdomain,
       tenantUrl: provisionResult.tenantUrl,
+      domainProvisioning,
     });
   } catch (error: any) {
     console.error("[tenants/onboard] Error:", error);

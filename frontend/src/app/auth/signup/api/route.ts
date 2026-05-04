@@ -5,6 +5,7 @@ import {
   canUseLocalDevAuth,
   redirectWithLocalDevSession,
 } from "@/lib/devAuthRedirect";
+import { resolveWorkOSRedirectUri } from "@/lib/workos-redirect";
 
 export const dynamic = "force-dynamic";
 
@@ -19,8 +20,7 @@ export async function GET(req: NextRequest) {
 
   const apiKey = process.env.WORKOS_API_KEY;
   const clientId = process.env.WORKOS_CLIENT_ID || process.env.NEXT_PUBLIC_WORKOS_CLIENT_ID;
-  const redirectUri =
-    process.env.WORKOS_REDIRECT_URI || `${req.nextUrl.origin}/auth/callback`;
+  const redirectUri = resolveWorkOSRedirectUri(req);
 
   if (!apiKey || !clientId) {
     if (canUseLocalDevAuth(req)) {
@@ -39,6 +39,9 @@ export async function GET(req: NextRequest) {
     JSON.stringify({
       nonce: crypto.randomBytes(16).toString("hex"),
       mode: "sign-up",
+      returnTo: req.nextUrl.searchParams.get("returnTo")?.startsWith("/")
+        ? req.nextUrl.searchParams.get("returnTo") ?? undefined
+        : undefined,
     })
   ).toString("base64url");
 

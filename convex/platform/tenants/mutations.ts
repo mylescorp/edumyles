@@ -223,6 +223,18 @@ function buildTenantUrl(subdomain: string) {
   return `https://${subdomain}.${getRootDomain()}`;
 }
 
+function buildTenantInviteUrl(inviteToken: string) {
+  return `${getAppUrl()}/invite/accept?token=${encodeURIComponent(inviteToken)}`;
+}
+
+function formatEmailDate(timestamp: number) {
+  return new Date(timestamp).toLocaleDateString("en-KE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 function generateNetworkId() {
   return `NETWORK-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 }
@@ -2021,12 +2033,37 @@ export const inviteTenantAdmin = mutation({
       },
     });
 
+    const inviteUrl = buildTenantInviteUrl(inviteToken);
+    const tenantUrl = buildTenantUrl(tenant.subdomain);
+    await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
+      tenantId: tenantCtx.tenantId,
+      actorId: tenantCtx.userId,
+      actorEmail: tenantCtx.email,
+      to: [args.email],
+      subject: `Your EduMyles admin invite for ${tenant.name}`,
+      template: "tenant_invite",
+      data: {
+        firstName: args.firstName,
+        schoolName: tenant.name,
+        role: args.role,
+        inviteUrl,
+        tenantUrl,
+        setupUrl: `${getAppUrl()}/admin/setup`,
+        appUrl: getAppUrl(),
+        expiryDate: formatEmailDate(expiresAt),
+        personalMessage: args.personalMessage,
+      },
+    });
+
     return {
       success: true,
       email: args.email,
       role: args.role,
       tenantName: tenant.name,
       subdomain: tenant.subdomain,
+      tenantUrl,
+      inviteToken,
+      inviteUrl,
       workosOrgId: org.workosOrgId,
       organizationId: org._id,
     };

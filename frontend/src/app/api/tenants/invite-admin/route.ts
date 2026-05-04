@@ -73,6 +73,8 @@ export async function POST(req: NextRequest) {
       emailSent: true,
       signUpUrl,
       tenantName: inviteResult.tenantName,
+      inviteUrl: (inviteResult as any).inviteUrl ?? null,
+      tenantUrl: (inviteResult as any).tenantUrl ?? null,
     });
   } catch (error: any) {
     const message = error?.message ?? "Failed to send tenant invite";
