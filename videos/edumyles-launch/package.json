@@ -1,0 +1,22 @@
+{
+  "name": "edumyles-launch-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts EduMylesLaunch out/edumyles-launch.mp4",
+    "still": "remotion still src/index.ts EduMylesLaunch out/preview.png --frame=180",
+    "still:final": "remotion still src/index.ts EduMylesLaunch out/final-frame.png --frame=1320"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.386",
+    "@remotion/media-utils": "^4.0.386",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.386"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.4.0"
+  }
+}

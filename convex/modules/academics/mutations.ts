@@ -191,6 +191,168 @@ export const deleteSubject = mutation({
   },
 });
 
+export const createGradingSystem = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    name: v.string(),
+    type: v.string(),
+    grades: v.array(v.object({
+      grade: v.string(),
+      minPct: v.number(),
+      maxPct: v.number(),
+      points: v.number(),
+      description: v.string(),
+    })),
+    isDefault: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    if (args.isDefault) {
+      const existingDefaults = await ctx.db
+        .query("gradingSystems")
+        .withIndex("by_tenant_default", (q) => q.eq("tenantId", tenant.tenantId).eq("isDefault", true))
+        .collect();
+      for (const system of existingDefaults) await ctx.db.patch(system._id, { isDefault: false });
+    }
+    return await ctx.db.insert("gradingSystems", {
+      tenantId: tenant.tenantId,
+      name: args.name,
+      type: args.type,
+      grades: args.grades,
+      isDefault: args.isDefault ?? false,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+export const updateGradingSystem = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    id: v.id("gradingSystems"),
+    updates: v.object({
+      name: v.optional(v.string()),
+      type: v.optional(v.string()),
+      grades: v.optional(v.array(v.object({
+        grade: v.string(),
+        minPct: v.number(),
+        maxPct: v.number(),
+        points: v.number(),
+        description: v.string(),
+      }))),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const system = await ctx.db.get(args.id);
+    if (!system || system.tenantId !== tenant.tenantId) throw new Error("Grading system not found");
+    await ctx.db.patch(args.id, { ...args.updates, updatedAt: Date.now() });
+    return { success: true };
+  },
+});
+
+export const setDefaultGradingSystem = mutation({
+  args: { sessionToken: v.optional(v.string()), gradingSystemId: v.id("gradingSystems") },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const selected = await ctx.db.get(args.gradingSystemId);
+    if (!selected || selected.tenantId !== tenant.tenantId) throw new Error("Grading system not found");
+    const systems = await ctx.db
+      .query("gradingSystems")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+    for (const system of systems) {
+      await ctx.db.patch(system._id, { isDefault: system._id === args.gradingSystemId, updatedAt: Date.now() });
+    }
+    return { success: true };
+  },
+});
+
+export const assignSubjectToClass = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    classId: v.string(),
+    subjectId: v.string(),
+    teacherId: v.string(),
+    academicYearId: v.string(),
+    termId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const existing = await ctx.db
+      .query("classSubjectAssignments")
+      .withIndex("by_tenant_class", (q) => q.eq("tenantId", tenant.tenantId).eq("classId", args.classId))
+      .collect();
+    const match = existing.find((assignment) =>
+      assignment.subjectId === args.subjectId &&
+      assignment.academicYearId === args.academicYearId &&
+      assignment.termId === args.termId
+    );
+    const payload = {
+      tenantId: tenant.tenantId,
+      classId: args.classId,
+      subjectId: args.subjectId,
+      teacherId: args.teacherId,
+      academicYearId: args.academicYearId,
+      termId: args.termId,
+      isActive: true,
+      updatedAt: Date.now(),
+    };
+    if (match) {
+      await ctx.db.patch(match._id, payload);
+      return match._id;
+    }
+    return await ctx.db.insert("classSubjectAssignments", { ...payload, createdAt: Date.now() });
+  },
+});
+
+export const studentOptOutOfSubject = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    studentId: v.string(),
+    subjectId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const existing = await ctx.db
+      .query("studentSubjectOpts")
+      .withIndex("by_tenant_student", (q) => q.eq("tenantId", tenant.tenantId).eq("studentId", args.studentId))
+      .collect();
+    const match = existing.find((opt) => opt.subjectId === args.subjectId);
+    if (match) {
+      await ctx.db.patch(match._id, { isOptedOut: true, approvedBy: tenant.userId });
+      return match._id;
+    }
+    return await ctx.db.insert("studentSubjectOpts", {
+      tenantId: tenant.tenantId,
+      studentId: args.studentId,
+      subjectId: args.subjectId,
+      isOptedOut: true,
+      approvedBy: tenant.userId,
+      createdAt: Date.now(),
+    });
+  },
+});
+
 export const createExam = mutation({
   args: {
     sessionToken: v.optional(v.string()),
@@ -612,17 +774,48 @@ export const generateReportCard = mutation({
       };
     }
 
+    const reportSubjects = grades.map(grade => {
+      const subject = subjects.find(s => s?._id === grade.subjectId);
+      return {
+        subjectId: grade.subjectId,
+        subjectName: (subject as any)?.name || "Unknown",
+        subjectCode: (subject as any)?.code || "",
+        score: grade.score,
+        marksAwarded: grade.score,
+        totalMarks: 100,
+        percentageScore: grade.score,
+        grade: grade.grade,
+        gradePoints: gradePoints(grade.grade),
+        remarks: grade.remarks,
+        teacherRemarks: grade.remarks,
+        isMissing: false,
+      };
+    });
+
     // Create report card record
     const reportCardId = await ctx.db.insert("reportCards", {
       tenantId: tenant.tenantId,
       studentId: args.studentId,
+      classId: (student as any).classId,
       term: args.term,
       academicYear: args.academicYear,
+      subjects: reportSubjects,
+      totalMarks: totalScore,
+      outOf: grades.length * 100,
+      overallPercentage: Math.round(averageScore * 10) / 10,
+      meanGrade: kcseGrade(averageScore),
       gpa,
       rank,
+      classRank: rank,
+      classSize: averagesWithStudents.length,
+      attendanceSummary,
+      performanceGraphEnabled: true,
       status: "ready",
       generatedAt: now,
       createdAt: now,
+    });
+    await ctx.db.patch(reportCardId, {
+      pdfUrl: `/api/documents/report-card/${reportCardId}`,
     });
 
     await logAction(ctx, {
@@ -643,14 +836,7 @@ export const generateReportCard = mutation({
     return {
       reportCardId,
       student,
-      grades: grades.map(grade => {
-        const subject = subjects.find(s => s?._id === grade.subjectId);
-        return {
-          ...grade,
-          subjectName: (subject as any)?.name || "Unknown",
-          subjectCode: (subject as any)?.code || ""
-        };
-      }),
+      grades: reportSubjects,
       gpa,
       rank,
       averageScore,
@@ -872,6 +1058,143 @@ export const generateAIReportNarrative = mutation({
     const average = grades.length ? Math.round((grades.reduce((sum, grade) => sum + grade.score, 0) / grades.length) * 10) / 10 : 0;
     const narrative = `The learner achieved an overall average of ${average}% with strongest performance reflected in ${grades.length} assessed subject(s). Review attendance, participation, and subject-specific feedback before publishing this narrative.`;
     return { narrative };
+  },
+});
+
+export const createLessonPlan = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    classId: v.string(),
+    subjectId: v.string(),
+    termId: v.string(),
+    weekNumber: v.number(),
+    sessionNumber: v.number(),
+    topic: v.string(),
+    learningObjectives: v.array(v.string()),
+    activities: v.optional(v.string()),
+    resources: v.optional(v.array(v.string())),
+    duration: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    return await ctx.db.insert("lessonPlans", {
+      tenantId: tenant.tenantId,
+      teacherId: tenant.userId,
+      classId: args.classId,
+      subjectId: args.subjectId,
+      termId: args.termId,
+      weekNumber: args.weekNumber,
+      sessionNumber: args.sessionNumber,
+      topic: args.topic,
+      learningObjectives: args.learningObjectives,
+      activities: sanitizeText(args.activities),
+      resources: args.resources ?? [],
+      duration: args.duration,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+export const updateLessonPlan = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    lessonPlanId: v.id("lessonPlans"),
+    updates: v.object({
+      topic: v.optional(v.string()),
+      learningObjectives: v.optional(v.array(v.string())),
+      activities: v.optional(v.string()),
+      resources: v.optional(v.array(v.string())),
+      duration: v.optional(v.number()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const lesson = await ctx.db.get(args.lessonPlanId);
+    if (!lesson || lesson.tenantId !== tenant.tenantId) throw new Error("Lesson plan not found");
+    await ctx.db.patch(args.lessonPlanId, {
+      ...args.updates,
+      activities: sanitizeText(args.updates.activities),
+      updatedAt: Date.now(),
+    });
+    return { success: true };
+  },
+});
+
+export const markLessonCompleted = mutation({
+  args: { sessionToken: v.optional(v.string()), lessonPlanId: v.id("lessonPlans") },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:write");
+    const lesson = await ctx.db.get(args.lessonPlanId);
+    if (!lesson || lesson.tenantId !== tenant.tenantId) throw new Error("Lesson plan not found");
+    await ctx.db.patch(args.lessonPlanId, { completedAt: Date.now(), updatedAt: Date.now() });
+    return { success: true };
+  },
+});
+
+export const logStudentAchievement = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    studentId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    date: v.number(),
+    category: v.string(),
+    evidenceUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:read");
+    return await ctx.db.insert("studentAchievements", {
+      tenantId: tenant.tenantId,
+      studentId: args.studentId,
+      title: args.title,
+      description: sanitizeText(args.description) ?? "",
+      date: args.date,
+      category: args.category,
+      evidenceUrl: args.evidenceUrl,
+      loggedBy: tenant.userId,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+export const flagStudentForCounselling = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    studentId: v.string(),
+    termId: v.string(),
+    reason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = args.sessionToken
+      ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+      : await requireTenantContext(ctx);
+    await requireModule(ctx, tenant.tenantId, "academics");
+    requirePermission(tenant, "grades:read");
+    return await ctx.db.insert("counsellingFlags", {
+      tenantId: tenant.tenantId,
+      studentId: args.studentId,
+      termId: args.termId,
+      reason: sanitizeText(args.reason) ?? "",
+      status: "open",
+      flaggedBy: tenant.userId,
+      flaggedAt: Date.now(),
+    });
   },
 });
 

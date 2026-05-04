@@ -6,6 +6,7 @@ import {
   GitBranch,
   Globe2,
   History,
+  KeyRound,
   LayoutDashboard,
   Network,
   ShieldCheck,
@@ -61,6 +62,12 @@ export const DEV_CONSOLE_NAV: DevConsoleNavItem[] = [
     href: "/dev/access",
     description: "Role visibility matrix",
     icon: ShieldCheck,
+  },
+  {
+    title: "RBAC",
+    href: "/dev/rbac",
+    description: "Role and user permissions",
+    icon: KeyRound,
   },
   {
     title: "Operations",

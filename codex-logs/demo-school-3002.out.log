@@ -19,7 +19,6 @@
 [CONVEX M(modules/marketplace/seed:ensureCoreModules)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
 [CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
 [CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
-<<<<<<< HEAD
  GET /api/auth/session?workspace=admin 200 in 8.1s (next.js: 8ms, application-code: 8.1s)
  GET /admin/modules 200 in 1342ms (next.js: 95ms, proxy.ts: 1175ms, application-code: 72ms)
 [CONVEX Q(platform/tenants/queries:listAllTenants)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
@@ -90,7 +89,6 @@
 [CONVEX M(modules/marketplace/seed:seedModuleRegistry)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
 [CONVEX Q(platform/tenants/queries:getTenantUsers)] [WARN] '[platformGuard] Master admin resolved by email — set MASTER_ADMIN_WORKOS_USER_ID for immutable ID-based resolution'
  GET /api/auth/session?workspace=admin 200 in 8.0s (next.js: 6ms, application-code: 8.0s)
-=======
  GET /api/auth/session?workspace=admin 200 in 8.0s (next.js: 12ms, application-code: 8.0s)
  GET /admin/academics 200 in 1358ms (next.js: 166ms, proxy.ts: 1096ms, application-code: 96ms)
 ○ Compiling /_not-found/page ...
@@ -121,4 +119,3 @@
 }
  GET /api/auth/session?workspace=platform 200 in 44ms (next.js: 6ms, application-code: 37ms)
 [?25h
->>>>>>> 28019b56 (feat: implement marketplace module and multi-currency support)

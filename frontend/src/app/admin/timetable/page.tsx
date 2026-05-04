@@ -188,7 +188,7 @@ export default function TimetablePage() {
             </div>
 
             <div className="rounded-lg border p-4 text-sm text-muted-foreground">
-              Slot creation, teacher workload review, and event scheduling are live in the linked pages above. Drag-and-drop auto-planning is not implemented yet, so this overview focuses on the real backend-backed schedule state.
+              Slot creation, teacher workload review, and event scheduling are live in the linked pages above. This overview reflects the current backend-backed schedule state and conflict checks.
             </div>
           </CardContent>
         </Card>

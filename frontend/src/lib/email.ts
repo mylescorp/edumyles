@@ -124,7 +124,7 @@ export class EmailService {
     template: T,
     data: EmailTemplate[T]
   ): { subject: string; html: string } {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.mylescorptech.com';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.edumyles.com';
 
     switch (template) {
       case 'fee_reminder':

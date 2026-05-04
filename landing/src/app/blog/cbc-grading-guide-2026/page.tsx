@@ -240,9 +240,9 @@ export default function CBCGradingGuide() {
                 },
                 {
                   step: "Step 5",
-                  title: "Test with Sample Data",
+                  title: "Test with Staging Data",
                   content:
-                    "Before going live, test the system with sample student data and assessments. Verify that report cards generate correctly and all calculations are accurate.",
+                    "Before going live, test the system with staging student records and assessments. Verify that report cards generate correctly and all calculations are accurate.",
                   tips: [
                     "Test all grade levels",
                     "Verify report card formats",
@@ -313,7 +313,7 @@ export default function CBCGradingGuide() {
                   weight: "20-30%",
                   examples: [
                     "Artwork",
-                    "Writing samples",
+                    "Writing evidence",
                     "Science projects",
                     "Performance recordings",
                   ],

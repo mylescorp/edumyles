@@ -442,6 +442,41 @@ export const getArrearsReport = query({
     },
 });
 
+export const getDemandNotice = query({
+    args: {
+        sessionToken: v.optional(v.string()),
+        noticeIdOrNumber: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const tenant = args.sessionToken
+            ? await requireTenantSession(ctx, { sessionToken: args.sessionToken })
+            : await requireTenantContext(ctx);
+        await requireModule(ctx, tenant.tenantId, "finance");
+        requirePermission(tenant, "finance:read");
+
+        const notices = await ctx.db
+            .query("financeDemandNotices")
+            .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+            .collect();
+        const notice = notices.find((entry) =>
+            entry._id.toString() === args.noticeIdOrNumber ||
+            entry.noticeNumber === args.noticeIdOrNumber
+        );
+        if (!notice) return null;
+
+        const [student, invoices] = await Promise.all([
+            ctx.db.get(notice.studentId as any),
+            Promise.all(notice.invoiceIds.map((invoiceId) => ctx.db.get(invoiceId as any))),
+        ]);
+
+        return {
+            notice,
+            student,
+            invoices: invoices.filter(Boolean),
+        };
+    },
+});
+
 export const getFinancialReport = query({
     args: { sessionToken: v.optional(v.string()) },
     handler: async (ctx, args) => {

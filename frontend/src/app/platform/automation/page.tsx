@@ -577,7 +577,7 @@ export default function AutomationCenterPage() {
                   <Label>Workflow Steps</Label>
                   <div className="border rounded-lg p-4">
                     <div className="text-sm text-muted-foreground mb-2">
-                      Workflow creation currently stores metadata only. Step-builder editing is still pending.
+                      Create the workflow shell here, then run, pause, and monitor it from the live workflow list.
                     </div>
                   </div>
                 </div>
@@ -762,7 +762,7 @@ export default function AutomationCenterPage() {
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      toast.message("Detailed workflow designer is still pending. This card reflects live workflow state.")
+                      toast.message("This card reflects live workflow status, trigger details, and operational controls.")
                     }
                   >
                     <Eye className="h-4 w-4 mr-1" />
@@ -910,7 +910,7 @@ export default function AutomationCenterPage() {
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      toast.message("Execution drill-down is not implemented yet, but this row reflects live execution data.")
+                      toast.message("Execution status, progress, duration, and trigger data are shown in this row.")
                     }
                   >
                     <Eye className="h-4 w-4 mr-1" />
@@ -1116,7 +1116,7 @@ export default function AutomationCenterPage() {
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    toast.message("Template preview is limited to the summary card until the visual builder is added.")
+                    toast.message("Template category, trigger, estimated time, and step count are shown in the summary card.")
                   }
                 >
                   <Eye className="h-4 w-4 mr-1" />

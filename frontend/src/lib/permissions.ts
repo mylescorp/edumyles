@@ -23,7 +23,8 @@ export type Role =
   | "transport_manager"
   | "board_member"
   | "alumni"
-  | "partner";
+  | "partner"
+  | "receptionist";
 
 export type Permission =
   | "students:read"
@@ -43,13 +44,23 @@ export type Permission =
   | "payroll:approve"
   | "library:read"
   | "library:write"
+  | "library:delete"
   | "transport:read"
   | "transport:write"
+  | "transport:delete"
+  | "timetable:read"
+  | "timetable:write"
   | "reports:read"
   | "settings:read"
   | "settings:write"
   | "users:manage"
   | "platform:admin"
+  | "ewallet:read"
+  | "ewallet:write"
+  | "ewallet:approve"
+  | "ecommerce:read"
+  | "ecommerce:write"
+  | "ecommerce:approve"
   | "communications:read"
   | "communications:write"
   | "communications:broadcast"
@@ -97,8 +108,18 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "payroll:approve",
     "library:read",
     "library:write",
+    "library:delete",
     "transport:read",
     "transport:write",
+    "transport:delete",
+    "timetable:read",
+    "timetable:write",
+    "ewallet:read",
+    "ewallet:write",
+    "ewallet:approve",
+    "ecommerce:read",
+    "ecommerce:write",
+    "ecommerce:approve",
     "reports:read",
     "communications:read",
     "communications:write",
@@ -108,6 +129,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "communications:messaging",
     "communications:analytics",
     "communications:platform_broadcast",
+    "ewallet:approve",
+    "ecommerce:approve",
     "platform:users:read",
     "platform:users:write",
     "platform:users:invite",
@@ -204,6 +227,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "communications:templates",
     "communications:messaging",
     "communications:analytics",
+    "ewallet:approve",
+    "ecommerce:approve",
   ],
   principal: [
     "students:read",
@@ -247,6 +272,11 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "finance:read",
     "finance:write",
     "finance:approve",
+    "ewallet:read",
+    "ewallet:write",
+    "ewallet:approve",
+    "ecommerce:read",
+    "ecommerce:approve",
     "reports:read",
     "communications:read",
     "communications:messaging",
@@ -264,6 +294,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   librarian: [
     "library:read",
     "library:write",
+    "library:delete",
     "students:read",
     "communications:read",
     "communications:messaging",
@@ -271,6 +302,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   transport_manager: [
     "transport:read",
     "transport:write",
+    "transport:delete",
     "students:read",
     "communications:read",
     "communications:messaging",
@@ -291,6 +323,11 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "students:read",
     "finance:read",
     "reports:read",
+    "communications:read",
+    "communications:messaging",
+  ],
+  receptionist: [
+    "students:read",
     "communications:read",
     "communications:messaging",
   ],

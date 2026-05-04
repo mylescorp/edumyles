@@ -1038,6 +1038,50 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_code", ["tenantId", "code"]),
 
+  gradingSystems: defineTable({
+    tenantId: v.string(),
+    name: v.string(),
+    type: v.string(),
+    grades: v.array(v.object({
+      grade: v.string(),
+      minPct: v.number(),
+      maxPct: v.number(),
+      points: v.number(),
+      description: v.string(),
+    })),
+    isDefault: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_default", ["tenantId", "isDefault"]),
+
+  classSubjectAssignments: defineTable({
+    tenantId: v.string(),
+    classId: v.string(),
+    subjectId: v.string(),
+    teacherId: v.string(),
+    academicYearId: v.string(),
+    termId: v.optional(v.string()),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_tenant_class", ["tenantId", "classId"])
+    .index("by_teacher", ["teacherId"])
+    .index("by_tenant_subject", ["tenantId", "subjectId"]),
+
+  studentSubjectOpts: defineTable({
+    tenantId: v.string(),
+    studentId: v.string(),
+    subjectId: v.string(),
+    isOptedOut: v.boolean(),
+    approvedBy: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant_student", ["tenantId", "studentId"])
+    .index("by_subject", ["subjectId"]),
+
   assignments: defineTable({
     tenantId: v.string(),
     classId: v.string(),
@@ -1144,6 +1188,21 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_class_date", ["classId", "date"])
     .index("by_status", ["status"]),
+
+  attendanceQrTokens: defineTable({
+    tenantId: v.string(),
+    sessionId: v.string(),
+    classId: v.string(),
+    date: v.string(),
+    token: v.string(),
+    expiresAt: v.number(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    revokedAt: v.optional(v.number()),
+  })
+    .index("by_token", ["token"])
+    .index("by_session", ["sessionId"])
+    .index("by_tenant", ["tenantId"]),
 
   attendanceAlerts: defineTable({
     tenantId: v.string(),
@@ -1538,6 +1597,54 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_student_term", ["studentId", "term", "academicYear"]),
+
+  lessonPlans: defineTable({
+    tenantId: v.string(),
+    teacherId: v.string(),
+    classId: v.string(),
+    subjectId: v.string(),
+    termId: v.string(),
+    weekNumber: v.number(),
+    sessionNumber: v.number(),
+    topic: v.string(),
+    learningObjectives: v.array(v.string()),
+    activities: v.optional(v.string()),
+    resources: v.array(v.string()),
+    duration: v.number(),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_teacher_term", ["teacherId", "termId"])
+    .index("by_class_term", ["classId", "termId"]),
+
+  studentAchievements: defineTable({
+    tenantId: v.string(),
+    studentId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    date: v.number(),
+    category: v.string(),
+    evidenceUrl: v.optional(v.string()),
+    loggedBy: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_tenant_student", ["tenantId", "studentId"])
+    .index("by_category", ["category"]),
+
+  counsellingFlags: defineTable({
+    tenantId: v.string(),
+    studentId: v.string(),
+    termId: v.string(),
+    reason: v.string(),
+    status: v.string(),
+    flaggedBy: v.string(),
+    flaggedAt: v.number(),
+    resolvedAt: v.optional(v.number()),
+    resolvedBy: v.optional(v.string()),
+  })
+    .index("by_tenant_student", ["tenantId", "studentId"])
+    .index("by_status", ["status"]),
 
   // Workflow Management System
   workflows: defineTable({
@@ -4376,6 +4483,23 @@ export default defineSchema({
     userAgent: v.optional(v.string()),
     marketingAttribution: v.optional(v.any()),
     source: v.optional(v.string()),
+    visitorToken: v.optional(v.string()),
+    chatStatus: v.optional(
+      v.union(v.literal("waiting"), v.literal("active"), v.literal("ended"))
+    ),
+    agentName: v.optional(v.string()),
+    agentJoinedAt: v.optional(v.number()),
+    messages: v.optional(
+      v.array(
+        v.object({
+          sender: v.union(v.literal("visitor"), v.literal("agent"), v.literal("system")),
+          body: v.string(),
+          authorName: v.optional(v.string()),
+          authorId: v.optional(v.string()),
+          createdAt: v.number(),
+        })
+      )
+    ),
     assignedTo: v.optional(v.string()),
     adminNotes: v.optional(
       v.array(

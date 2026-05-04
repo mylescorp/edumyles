@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { z } from "zod";
+import { randomUUID } from "node:crypto";
 import { api } from "../../../../../convex/_generated/api";
 import { getLandingConvexClient } from "@/lib/server/convex";
 
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
 
     const data = parsed.data;
     let engagementId: string | null = null;
+    const visitorToken = randomUUID();
 
     try {
       const convex = getLandingConvexClient();
@@ -63,6 +65,7 @@ export async function POST(req: NextRequest) {
         userAgent: data.userAgent,
         marketingAttribution: data.marketingAttribution,
         source: "landing_live_chat",
+        visitorToken,
       });
       engagementId = String(result.engagementId);
     } catch (error) {
@@ -73,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     if (!resend) {
       console.warn("Chat message received but RESEND_API_KEY is not configured");
-      return NextResponse.json({ success: true, queued: false, engagementId });
+      return NextResponse.json({ success: true, queued: false, engagementId, visitorToken });
     }
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || "EduMyles <noreply@edumyles.com>";
@@ -108,6 +111,7 @@ export async function POST(req: NextRequest) {
       queued: true,
       id: result.data?.id ?? null,
       engagementId,
+      visitorToken,
     });
   } catch (error) {
     console.error("Chat error:", error);

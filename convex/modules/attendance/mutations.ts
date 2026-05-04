@@ -222,6 +222,97 @@ export const closeAttendanceSession = mutation({
   },
 });
 
+export const createQrAttendanceToken = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    sessionId: v.id("attendanceSessions"),
+    expiresInMinutes: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await tenantFromArgs(ctx, args.sessionToken);
+    await requireModule(ctx, tenant.tenantId, "attendance");
+    requirePermission(tenant, "attendance:write");
+
+    const session = await ctx.db.get(args.sessionId);
+    if (!session || session.tenantId !== tenant.tenantId) {
+      throw new Error("Attendance session not found");
+    }
+    if (session.status !== "open") {
+      throw new Error("Attendance session must be open before creating a QR token");
+    }
+
+    const now = Date.now();
+    const token = `att_${args.sessionId}_${Math.random().toString(36).slice(2)}_${now.toString(36)}`;
+    const tokenId = await ctx.db.insert("attendanceQrTokens", {
+      tenantId: tenant.tenantId,
+      sessionId: args.sessionId.toString(),
+      classId: session.classId,
+      date: session.date,
+      token,
+      expiresAt: now + (args.expiresInMinutes ?? 15) * 60 * 1000,
+      createdBy: tenant.userId,
+      createdAt: now,
+    });
+
+    return {
+      tokenId,
+      token,
+      expiresAt: now + (args.expiresInMinutes ?? 15) * 60 * 1000,
+    };
+  },
+});
+
+export const markAttendanceByQrToken = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    token: v.string(),
+    studentId: v.string(),
+    status: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await tenantFromArgs(ctx, args.sessionToken);
+    await requireModule(ctx, tenant.tenantId, "attendance");
+    requirePermission(tenant, "attendance:write");
+
+    const qrToken = await ctx.db
+      .query("attendanceQrTokens")
+      .withIndex("by_token", (q) => q.eq("token", args.token))
+      .first();
+    if (!qrToken || qrToken.tenantId !== tenant.tenantId || qrToken.revokedAt) {
+      throw new Error("QR token is invalid");
+    }
+    if (qrToken.expiresAt < Date.now()) {
+      throw new Error("QR token has expired");
+    }
+
+    return await writeClassAttendance(ctx, {
+      sessionToken: args.sessionToken,
+      classId: qrToken.classId,
+      date: qrToken.date,
+      records: [{ studentId: args.studentId, status: args.status ?? "present" }],
+    });
+  },
+});
+
+export const revokeQrAttendanceToken = mutation({
+  args: {
+    sessionToken: v.optional(v.string()),
+    tokenId: v.id("attendanceQrTokens"),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await tenantFromArgs(ctx, args.sessionToken);
+    await requireModule(ctx, tenant.tenantId, "attendance");
+    requirePermission(tenant, "attendance:write");
+
+    const qrToken = await ctx.db.get(args.tokenId);
+    if (!qrToken || qrToken.tenantId !== tenant.tenantId) {
+      throw new Error("QR token not found");
+    }
+    await ctx.db.patch(args.tokenId, { revokedAt: Date.now() });
+    return { success: true };
+  },
+});
+
 export const markStudentAttendance = mutation({
   args: {
     sessionToken: v.optional(v.string()),

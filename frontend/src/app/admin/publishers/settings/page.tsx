@@ -1,809 +1,337 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Settings,
-  Save,
-  DollarSign,
-  Award,
-  Users,
-  FileText,
-  Shield,
-  Bell,
-  Mail,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  TrendingUp,
-  Target,
-  Code,
-  Globe,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { Bell, Code2, DollarSign, FileText, Save, ShieldCheck } from "lucide-react";
+
+type PublisherProgramSettings = {
+  commission: {
+    levels: Record<string, { revenueSharePct: number; featuredPlacement: boolean; supportHours: number }>;
+    minimumPayoutCents: number;
+    payoutSchedule: string;
+    taxWithholdingPct: number;
+  };
+  applications: {
+    autoApproveLevel: string;
+    reviewProcess: string;
+    probationDays: number;
+    requiredDocuments: string[];
+    technicalAssessment: boolean;
+    codeReviewRequired: boolean;
+    welcomeEmail: boolean;
+    onboardingMaterials: boolean;
+  };
+  modules: {
+    approvalProcess: string;
+    updateFrequency: string;
+    checks: Record<string, boolean>;
+  };
+  support: {
+    responseHours: Record<string, number>;
+    supportChannels: string[];
+    escalationPolicy: boolean;
+  };
+  notifications: Record<string, boolean>;
+};
+
+const DOCUMENTS = [
+  "business_registration",
+  "technical_portfolio",
+  "code_samples",
+  "business_plan",
+  "financial_statements",
+  "references",
+];
+
+const CHANNELS = ["email", "chat", "video", "technical_consulting", "phone"];
+
+function titleize(value: string) {
+  return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 export default function PlatformPublisherSettings() {
-  const [activeTab, setActiveTab] = useState("commission");
-  const [hasChanges, setHasChanges] = useState(false);
+  const { isLoading, sessionToken } = useAuth();
+  const settings = useQuery(
+    api.platform.marketplace.queries.getPublisherProgramSettings,
+    sessionToken ? { sessionToken } : "skip"
+  ) as PublisherProgramSettings | undefined;
+  const updateSettings = useMutation(api.platform.marketplace.mutations.updatePublisherProgramSettings);
+  const [draft, setDraft] = useState<PublisherProgramSettings | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  // Mock data - in real app this would come from Convex
-  const commissionSettings = {
-    tiers: {
-      bronze: {
-        rate: 15,
-        minRevenue: 0,
-        benefits: ["Basic support", "Standard commission", "Email support", "Module marketplace access"],
-        requirements: ["Valid business registration", "Basic technical capability", "Code quality review"],
-      },
-      silver: {
-        rate: 20,
-        minRevenue: 50000,
-        benefits: ["Priority support", "Enhanced commission", "Marketing materials", "Monthly reports", "Analytics dashboard"],
-        requirements: ["Valid business registration", "Proven technical capability", "Code quality review", "3 months operation"],
-      },
-      gold: {
-        rate: 25,
-        minRevenue: 150000,
-        benefits: ["Dedicated support", "Premium commission", "Advanced marketing", "Advanced analytics", "Co-branding opportunities", "Featured placement"],
-        requirements: ["Valid business registration", "Advanced technical capability", "Code quality review", "1 year operation", "Minimum 10 modules"],
-      },
-      platinum: {
-        rate: 30,
-        minRevenue: 500000,
-        benefits: ["24/7 support", "Maximum commission", "Full marketing suite", "Enterprise analytics", "Exclusive leads", "Partnership programs", "Custom integrations"],
-        requirements: ["Valid business registration", "Enterprise technical capability", "Code quality review", "2 years operation", "Minimum 25 modules", "Proven track record"],
-      },
-      premium: {
-        rate: 35,
-        minRevenue: 1000000,
-        benefits: ["White-glove support", "Maximum commission", "Custom marketing", "Enterprise analytics", "Exclusive territory", "Revenue sharing", "Strategic partnership", "API access"],
-        requirements: ["Valid business registration", "Enterprise technical capability", "Code quality review", "3 years operation", "Minimum 50 modules", "Industry leadership", "Strategic alignment"],
-      },
-    },
-    paymentSchedule: "monthly",
-    minimumPayout: 25000,
-    paymentMethod: "bank_transfer",
-    taxWithholding: 5,
-    revenueSplit: {
-      publisher: 70,
-      platform: 30,
-    },
-  };
+  useEffect(() => {
+    if (settings) setDraft(settings);
+  }, [settings]);
 
-  const applicationSettings = {
-    autoApproveThreshold: "silver",
-    requiredDocuments: ["business_registration", "technical_portfolio", "code_samples", "business_plan"],
-    reviewProcess: "manual",
-    codeReviewRequired: true,
-    technicalAssessment: true,
-    welcomeEmail: true,
-    onboardingMaterials: true,
-    probationPeriod: 90,
-  };
+  const dirty = useMemo(() => {
+    if (!settings || !draft) return false;
+    return JSON.stringify(settings) !== JSON.stringify(draft);
+  }, [draft, settings]);
 
-  const moduleSettings = {
-    approvalProcess: "manual",
-    codeQualityCheck: true,
-    securityReview: true,
-    performanceTesting: true,
-    categoryValidation: true,
-    marketplaceListing: true,
-    versionControl: true,
-    updateFrequency: "biweekly",
-  };
+  if (isLoading || !draft) return <LoadingSkeleton variant="page" />;
 
-  const supportSettings = {
-    responseTime: {
-      bronze: "48 hours",
-      silver: "24 hours",
-      gold: "12 hours",
-      platinum: "4 hours",
-      premium: "1 hour",
-    },
-    supportChannels: ["email", "phone", "chat", "video"],
-    escalationPolicy: true,
-    knowledgeBase: true,
-    trainingMaterials: true,
-    technicalConsulting: true,
-  };
+  async function save() {
+    if (!sessionToken || !draft) return;
+    setSaving(true);
+    try {
+      await updateSettings({ sessionToken, settings: draft });
+      toast.success("Publisher program settings saved.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to save publisher settings.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
-  const notificationSettings = {
-    newApplications: true,
-    commissionPayouts: true,
-    tierUpgrades: true,
-    moduleApprovals: true,
-    performanceReports: true,
-    systemMaintenance: true,
-    complianceAlerts: true,
-    codeQualityIssues: true,
-  };
+  function update(path: (string | number)[], value: unknown) {
+    setDraft((current) => {
+      if (!current) return current;
+      const next = structuredClone(current) as any;
+      let cursor = next;
+      for (const key of path.slice(0, -1)) cursor = cursor[key];
+      if (path.length === 0) return current;
+      const lastKey = path[path.length - 1] as string | number;
+      cursor[lastKey] = value;
+      return next;
+    });
+  }
 
-  const handleSave = () => {
-    // In real app, save to Convex
-    setHasChanges(false);
-    console.log("Saving publisher settings...");
-  };
-
-  const handleSettingChange = () => {
-    setHasChanges(true);
-  };
+  function toggleArray(path: string[], item: string, checked: boolean) {
+    const current = path.reduce((cursor: any, key) => cursor[key], draft) as string[];
+    update(path, checked ? Array.from(new Set([...current, item])) : current.filter((value) => value !== item));
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Publisher Settings</h1>
-          <p className="text-gray-600">Configure publisher program settings and policies</p>
-        </div>
-        {hasChanges && (
-          <button
-            onClick={handleSave}
-            className="flex items-center px-4 py-2 bg-[#0F4C2A] text-white rounded-lg hover:bg-[#061A12] transition-colors"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save Changes
-          </button>
-        )}
-      </div>
+      <PageHeader
+        title="Publisher Settings"
+        description="Configure live publisher revenue share, application, module review, support, and notification policy."
+        actions={
+          <Button onClick={save} disabled={!dirty || saving}>
+            <Save className="mr-2 h-4 w-4" />
+            {saving ? "Saving..." : "Save Changes"}
+          </Button>
+        }
+      />
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: "commission", label: "Commission", icon: DollarSign },
-            { id: "tiers", label: "Tier Management", icon: Award },
-            { id: "applications", label: "Applications", icon: FileText },
-            { id: "modules", label: "Module Management", icon: Code },
-            { id: "support", label: "Support", icon: Users },
-            { id: "notifications", label: "Notifications", icon: Bell },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                py-2 px-1 border-b-2 font-medium text-sm flex items-center
-                ${activeTab === tab.id
-                  ? "border-[#0F4C2A] text-[#0F4C2A]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }
-              `}
-            >
-              <tab.icon className="h-4 w-4 mr-2" />
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <Tabs defaultValue="commission">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="commission">Revenue</TabsTrigger>
+          <TabsTrigger value="applications">Applications</TabsTrigger>
+          <TabsTrigger value="modules">Modules</TabsTrigger>
+          <TabsTrigger value="support">Support</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        </TabsList>
 
-      {/* Commission Settings */}
-      {activeTab === "commission" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Commission Structure</h2>
-            <div className="space-y-6">
-              {Object.entries(commissionSettings.tiers).map(([tier, settings]) => (
-                <div key={tier} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <Award className="h-5 w-5 text-gray-400" />
-                      <h3 className="font-medium text-gray-900 capitalize">{tier} Tier</h3>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <label className="block text-sm font-medium text-gray-700">Commission Rate</label>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="number"
-                            value={settings.rate}
-                            onChange={handleSettingChange}
-                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
-                            min="0"
-                            max="100"
-                          />
-                          <span className="text-sm text-gray-600">%</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <label className="block text-sm font-medium text-gray-700">Min Revenue</label>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-gray-600">KES</span>
-                          <input
-                            type="number"
-                            value={settings.minRevenue}
-                            onChange={handleSettingChange}
-                            className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
-                            min="0"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
-                      <div className="space-y-1">
-                        {settings.benefits.map((benefit, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <CheckCircle className="h-3 w-3 text-green-500" />
-                            <span className="text-sm text-gray-600">{benefit}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
-                      <div className="space-y-1">
-                        {settings.requirements.map((requirement, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <Target className="h-3 w-3 text-blue-500" />
-                            <span className="text-sm text-gray-600">{requirement}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Revenue Split Configuration</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Publisher Share (%)</label>
-                <input
-                  type="number"
-                  value={commissionSettings.revenueSplit.publisher}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  min="0"
-                  max="100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Platform Share (%)</label>
-                <input
-                  type="number"
-                  value={commissionSettings.revenueSplit.platform}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  min="0"
-                  max="100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tax Withholding (%)</label>
-                <input
-                  type="number"
-                  value={commissionSettings.taxWithholding}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  min="0"
-                  max="100"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Settings</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Schedule</label>
-                <select
-                  value={commissionSettings.paymentSchedule}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                >
-                  <option value="weekly">Weekly</option>
-                  <option value="biweekly">Bi-weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="quarterly">Quarterly</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Payout (KES)</label>
-                <input
-                  type="number"
-                  value={commissionSettings.minimumPayout}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
-                <select
-                  value={commissionSettings.paymentMethod}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                >
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="mpesa">M-Pesa</option>
-                  <option value="paypal">PayPal</option>
-                  <option value="check">Check</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tier Management */}
-      {activeTab === "tiers" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Tier Upgrade Rules</h2>
-            <div className="space-y-4">
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-2">Automatic Upgrade Criteria</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      defaultChecked
-                      onChange={handleSettingChange}
-                      className="rounded border-gray-300"
-                    />
-                    <label className="text-sm text-gray-700">Upgrade based on revenue achievement</label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      defaultChecked
-                      onChange={handleSettingChange}
-                      className="rounded border-gray-300"
-                    />
-                    <label className="text-sm text-gray-700">Upgrade based on module count</label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      onChange={handleSettingChange}
-                      className="rounded border-gray-300"
-                    />
-                    <label className="text-sm text-gray-700">Upgrade based on user ratings</label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      defaultChecked
-                      onChange={handleSettingChange}
-                      className="rounded border-gray-300"
-                    />
-                    <label className="text-sm text-gray-700">Manual review for all upgrades</label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-2">Downgrade Policy</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      defaultChecked
-                      onChange={handleSettingChange}
-                      className="rounded border-gray-300"
-                    />
-                    <label className="text-sm text-gray-700">Grace period of 3 months before downgrade</label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      onChange={handleSettingChange}
-                      className="rounded border-gray-300"
-                    />
-                    <label className="text-sm text-gray-700">Automatic downgrade for non-performance</label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      defaultChecked
-                      onChange={handleSettingChange}
-                      className="rounded border-gray-300"
-                    />
-                    <label className="text-sm text-gray-700">Warning notifications before downgrade</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Tier Benefits Management</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h3 className="font-medium text-blue-900 mb-2">Marketing Support</h3>
+        <TabsContent value="commission" className="space-y-4">
+          <div className="grid gap-4 xl:grid-cols-3">
+            {Object.entries(draft.commission.levels).map(([level, levelSettings]) => (
+              <Card key={level}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <DollarSign className="h-4 w-4" />
+                    {titleize(level)}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" defaultChecked className="rounded border-gray-300" />
-                      <label className="text-sm text-blue-800">Co-branded materials</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" defaultChecked className="rounded border-gray-300" />
-                      <label className="text-sm text-blue-800">Featured marketplace placement</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" className="rounded border-gray-300" />
-                      <label className="text-sm text-blue-800">Advertising budget</label>
-                    </div>
+                    <Label>Publisher Revenue Share (%)</Label>
+                    <Input type="number" value={levelSettings.revenueSharePct} onChange={(e) => update(["commission", "levels", level, "revenueSharePct"], Number(e.target.value))} />
                   </div>
-                </div>
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <h3 className="font-medium text-green-900 mb-2">Technical Support</h3>
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" defaultChecked className="rounded border-gray-300" />
-                      <label className="text-sm text-green-800">24/7 support for premium tiers</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" defaultChecked className="rounded border-gray-300" />
-                      <label className="text-sm text-green-800">Dedicated technical consultant</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" className="rounded border-gray-300" />
-                      <label className="text-sm text-green-800">Priority bug fixes</label>
-                    </div>
+                    <Label>Support SLA (hours)</Label>
+                    <Input type="number" value={levelSettings.supportHours} onChange={(e) => update(["commission", "levels", level, "supportHours"], Number(e.target.value))} />
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Applications */}
-      {activeTab === "applications" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Application Processing</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Auto-Approve Threshold</label>
-                <select
-                  value={applicationSettings.autoApproveThreshold}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                >
-                  <option value="none">No auto-approval</option>
-                  <option value="bronze">Bronze and above</option>
-                  <option value="silver">Silver and above</option>
-                  <option value="gold">Gold and above</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Review Process</label>
-                <select
-                  value={applicationSettings.reviewProcess}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                >
-                  <option value="manual">Manual review</option>
-                  <option value="automated">Automated review</option>
-                  <option value="hybrid">Hybrid approach</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Probation Period (days)</label>
-                <input
-                  type="number"
-                  value={applicationSettings.probationPeriod}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                  min="0"
-                  max="365"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Required Documents</h2>
-            <div className="space-y-3">
-              {[
-                { id: "business_registration", label: "Business Registration Certificate", required: true },
-                { id: "technical_portfolio", label: "Technical Portfolio", required: true },
-                { id: "code_samples", label: "Code Samples", required: true },
-                { id: "business_plan", label: "Business Plan", required: false },
-                { id: "financial_statements", label: "Financial Statements", required: false },
-                { id: "references", label: "Technical References", required: false },
-              ].map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <FileText className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-900">{doc.label}</span>
-                    {doc.required && <span className="text-xs text-red-600">Required</span>}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      defaultChecked={applicationSettings.requiredDocuments.includes(doc.id)}
-                      onChange={handleSettingChange}
-                      className="rounded border-gray-300"
-                    />
-                    <label className="text-sm text-gray-700">Required</label>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Technical Assessment</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Code Review Required</p>
-                  <p className="text-sm text-gray-500">All applicants must pass code quality review</p>
-                </div>
-                <button
-                  onClick={handleSettingChange}
-                  className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                    applicationSettings.codeReviewRequired ? "bg-[#0F4C2A]" : "bg-gray-200"
-                  }`}
-                >
-                  <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                    applicationSettings.codeReviewRequired ? "translate-x-5" : ""
-                  }`}></span>
-                </button>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Technical Assessment</p>
-                  <p className="text-sm text-gray-500">Evaluate technical capabilities and expertise</p>
-                </div>
-                <button
-                  onClick={handleSettingChange}
-                  className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                    applicationSettings.technicalAssessment ? "bg-[#0F4C2A]" : "bg-gray-200"
-                  }`}
-                >
-                  <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                    applicationSettings.technicalAssessment ? "translate-x-5" : ""
-                  }`}></span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Onboarding Settings</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Welcome Email</p>
-                  <p className="text-sm text-gray-500">Send automatic welcome email to approved publishers</p>
-                </div>
-                <button
-                  onClick={handleSettingChange}
-                  className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                    applicationSettings.welcomeEmail ? "bg-[#0F4C2A]" : "bg-gray-200"
-                  }`}
-                >
-                  <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                    applicationSettings.welcomeEmail ? "translate-x-5" : ""
-                  }`}></span>
-                </button>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Onboarding Materials</p>
-                  <p className="text-sm text-gray-500">Provide access to developer resources and documentation</p>
-                </div>
-                <button
-                  onClick={handleSettingChange}
-                  className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                    applicationSettings.onboardingMaterials ? "bg-[#0F4C2A]" : "bg-gray-200"
-                  }`}
-                >
-                  <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                    applicationSettings.onboardingMaterials ? "translate-x-5" : ""
-                  }`}></span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Module Management */}
-      {activeTab === "modules" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Module Approval Process</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Approval Process</label>
-                <select
-                  value={moduleSettings.approvalProcess}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                >
-                  <option value="manual">Manual review</option>
-                  <option value="automated">Automated approval</option>
-                  <option value="hybrid">Hybrid approach</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Update Frequency</label>
-                <select
-                  value={moduleSettings.updateFrequency}
-                  onChange={handleSettingChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#0F4C2A] focus:border-[#0F4C2A]"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="biweekly">Bi-weekly</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quality Assurance</h2>
-            <div className="space-y-4">
-              {[
-                { id: "codeQualityCheck", label: "Code Quality Check", description: "Automated code quality analysis" },
-                { id: "securityReview", label: "Security Review", description: "Security vulnerability assessment" },
-                { id: "performanceTesting", label: "Performance Testing", description: "Load and performance testing" },
-                { id: "categoryValidation", label: "Category Validation", description: "Ensure proper categorization" },
-                { id: "marketplaceListing", label: "Marketplace Listing", description: "Automatic marketplace placement" },
-                { id: "versionControl", label: "Version Control", description: "Version management and rollback" },
-              ].map((check) => (
-                <div key={check.id} className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">{check.label}</p>
-                    <p className="text-sm text-gray-500">{check.description}</p>
-                  </div>
-                  <button
-                    onClick={handleSettingChange}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      moduleSettings[check.id as keyof typeof moduleSettings] ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      moduleSettings[check.id as keyof typeof moduleSettings] ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Support */}
-      {activeTab === "support" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Support Level Agreements</h2>
-            <div className="space-y-4">
-              {Object.entries(supportSettings.responseTime).map(([tier, responseTime]) => (
-                <div key={tier} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <Award className="h-4 w-4 text-gray-400" />
-                    <span className="font-medium text-gray-900 capitalize">{tier} Tier</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600">Response Time:</span>
-                    <input
-                      type="text"
-                      value={responseTime}
-                      onChange={handleSettingChange}
-                      className="w-32 px-2 py-1 border border-gray-300 rounded text-sm"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Support Channels</h2>
-            <div className="space-y-3">
-              {[
-                { id: "email", label: "Email Support", icon: Mail },
-                { id: "phone", label: "Phone Support", icon: Users },
-                { id: "chat", label: "Live Chat", icon: Users },
-                { id: "video", label: "Video Support", icon: Users },
-                { id: "technical_consulting", label: "Technical Consulting", icon: Code },
-              ].map((channel) => (
-                <div key={channel.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <channel.icon className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-900">{channel.label}</span>
-                  </div>
-                  <button
-                    onClick={handleSettingChange}
-                    className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                      supportSettings.supportChannels.includes(channel.id) ? "bg-[#0F4C2A]" : "bg-gray-200"
-                    }`}
-                  >
-                    <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                      supportSettings.supportChannels.includes(channel.id) ? "translate-x-5" : ""
-                    }`}></span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Support Policies</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">Escalation Policy</p>
-                  <p className="text-sm text-gray-500">Enable automatic escalation for unresolved issues</p>
-                </div>
-                <button
-                  onClick={handleSettingChange}
-                  className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                    supportSettings.escalationPolicy ? "bg-[#0F4C2A]" : "bg-gray-200"
-                  }`}
-                >
-                  <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                    supportSettings.escalationPolicy ? "translate-x-5" : ""
-                  }`}></span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Notifications */}
-      {activeTab === "notifications" && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Notification Settings</h2>
-          <div className="space-y-4">
-            {[
-              { id: "newApplications", label: "New Publisher Applications", description: "Notify when new applications are submitted" },
-              { id: "commissionPayouts", label: "Commission Payouts", description: "Notify about upcoming and completed payouts" },
-              { id: "tierUpgrades", label: "Tier Upgrades", description: "Notify when publishers upgrade or downgrade tiers" },
-              { id: "moduleApprovals", label: "Module Approvals", description: "Notify about module submissions and approvals" },
-              { id: "performanceReports", label: "Performance Reports", description: "Send monthly performance summaries" },
-              { id: "systemMaintenance", label: "System Maintenance", description: "Notify about scheduled maintenance" },
-              { id: "complianceAlerts", label: "Compliance Alerts", description: "Alert about compliance issues or expirations" },
-              { id: "codeQualityIssues", label: "Code Quality Issues", description: "Alert about code quality problems" },
-            ].map((notification) => (
-              <div key={notification.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">{notification.label}</p>
-                  <p className="text-sm text-gray-500">{notification.description}</p>
-                </div>
-                <button
-                  onClick={handleSettingChange}
-                  className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-gray-300 rounded-full cursor-pointer transition-colors ${
-                    notificationSettings[notification.id as keyof typeof notificationSettings] ? "bg-[#0F4C2A]" : "bg-gray-200"
-                  }`}
-                >
-                  <span className={`translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition-transform ${
-                    notificationSettings[notification.id as keyof typeof notificationSettings] ? "translate-x-5" : ""
-                  }`}></span>
-                </button>
-              </div>
+                  <label className="flex items-center justify-between rounded-md border p-3 text-sm">
+                    <span>Featured marketplace placement</span>
+                    <Switch checked={levelSettings.featuredPlacement} onCheckedChange={(checked) => update(["commission", "levels", level, "featuredPlacement"], checked)} />
+                  </label>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </div>
-      )}
 
-      {/* Info Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start space-x-3">
-          <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-blue-900">Settings Impact</h3>
-            <p className="text-sm text-blue-800 mt-1">
-              Changes to publisher settings will affect all current and future publishers. Commission changes will be applied prospectively.
-              Tier changes may impact existing publishers based on current performance metrics and module quality.
-            </p>
-          </div>
-        </div>
-      </div>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Payout Policy</CardTitle></CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label>Minimum Payout (KES)</Label>
+                <Input type="number" value={draft.commission.minimumPayoutCents / 100} onChange={(e) => update(["commission", "minimumPayoutCents"], Number(e.target.value) * 100)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Payout Schedule</Label>
+                <Select value={draft.commission.payoutSchedule} onValueChange={(value) => update(["commission", "payoutSchedule"], value)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="biweekly">Bi-weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Tax Withholding (%)</Label>
+                <Input type="number" value={draft.commission.taxWithholdingPct} onChange={(e) => update(["commission", "taxWithholdingPct"], Number(e.target.value))} />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="applications" className="space-y-4">
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><FileText className="h-4 w-4" />Application Rules</CardTitle></CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label>Auto-Approve Level</Label>
+                <Select value={draft.applications.autoApproveLevel} onValueChange={(value) => update(["applications", "autoApproveLevel"], value)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No auto approval</SelectItem>
+                    {Object.keys(draft.commission.levels).map((level) => <SelectItem key={level} value={level}>{titleize(level)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Review Process</Label>
+                <Select value={draft.applications.reviewProcess} onValueChange={(value) => update(["applications", "reviewProcess"], value)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="automated">Automated</SelectItem>
+                    <SelectItem value="hybrid">Hybrid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Probation Days</Label>
+                <Input type="number" value={draft.applications.probationDays} onChange={(e) => update(["applications", "probationDays"], Number(e.target.value))} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="text-base">Required Documents</CardTitle></CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2">
+              {DOCUMENTS.map((document) => (
+                <label key={document} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                  <span>{titleize(document)}</span>
+                  <Switch checked={draft.applications.requiredDocuments.includes(document)} onCheckedChange={(checked) => toggleArray(["applications", "requiredDocuments"], document, checked)} />
+                </label>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="text-base">Assessment and Onboarding</CardTitle></CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2">
+              {(["technicalAssessment", "codeReviewRequired", "welcomeEmail", "onboardingMaterials"] as const).map((key) => (
+                <label key={key} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                  <span>{titleize(key)}</span>
+                  <Switch checked={draft.applications[key]} onCheckedChange={(checked) => update(["applications", key], checked)} />
+                </label>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="modules" className="space-y-4">
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Code2 className="h-4 w-4" />Module Review</CardTitle></CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Approval Process</Label>
+                <Select value={draft.modules.approvalProcess} onValueChange={(value) => update(["modules", "approvalProcess"], value)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="automated">Automated</SelectItem>
+                    <SelectItem value="hybrid">Hybrid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Update Review Frequency</Label>
+                <Select value={draft.modules.updateFrequency} onValueChange={(value) => update(["modules", "updateFrequency"], value)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="biweekly">Bi-weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Quality Gates</CardTitle></CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2">
+              {Object.entries(draft.modules.checks).map(([key, enabled]) => (
+                <label key={key} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                  <span>{titleize(key)}</span>
+                  <Switch checked={enabled} onCheckedChange={(checked) => update(["modules", "checks", key], checked)} />
+                </label>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="support" className="space-y-4">
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><ShieldCheck className="h-4 w-4" />Support SLAs</CardTitle></CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-3">
+              {Object.entries(draft.support.responseHours).map(([level, hours]) => (
+                <div key={level} className="space-y-2">
+                  <Label>{titleize(level)} Hours</Label>
+                  <Input type="number" value={hours} onChange={(e) => update(["support", "responseHours", level], Number(e.target.value))} />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Support Channels</CardTitle></CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2">
+              {CHANNELS.map((channel) => (
+                <label key={channel} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                  <span>{titleize(channel)}</span>
+                  <Switch checked={draft.support.supportChannels.includes(channel)} onCheckedChange={(checked) => toggleArray(["support", "supportChannels"], channel, checked)} />
+                </label>
+              ))}
+              <label className="flex items-center justify-between rounded-md border p-3 text-sm">
+                <span>Escalation policy</span>
+                <Switch checked={draft.support.escalationPolicy} onCheckedChange={(checked) => update(["support", "escalationPolicy"], checked)} />
+              </label>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Bell className="h-4 w-4" />Notifications</CardTitle></CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2">
+              {Object.entries(draft.notifications).map(([key, enabled]) => (
+                <label key={key} className="flex items-center justify-between rounded-md border p-3 text-sm">
+                  <span>{titleize(key)}</span>
+                  <Switch checked={enabled} onCheckedChange={(checked) => update(["notifications", key], checked)} />
+                </label>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

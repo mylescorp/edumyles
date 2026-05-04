@@ -148,6 +148,28 @@ export const getAttendanceSessions = query({
   },
 });
 
+export const getQrAttendanceTokens = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+    sessionId: v.optional(v.string()),
+    includeExpired: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await tenantFromArgs(ctx, args.sessionToken);
+    await requireModule(ctx, tenant.tenantId, "attendance");
+    requirePermission(tenant, "attendance:read");
+
+    const now = Date.now();
+    return (await ctx.db
+      .query("attendanceQrTokens")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant.tenantId))
+      .collect())
+      .filter((token) => !args.sessionId || token.sessionId === args.sessionId)
+      .filter((token) => args.includeExpired || token.expiresAt >= now)
+      .sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
 export const getAttendanceAlerts = query({
   args: {
     sessionToken: v.optional(v.string()),
