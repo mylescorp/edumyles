@@ -44,6 +44,59 @@ function formatBillingCycleLabel(value?: string) {
   }
 }
 
+const RESERVED_SUBDOMAINS = new Set([
+  "app",
+  "www",
+  "api",
+  "admin",
+  "auth",
+  "mail",
+  "email",
+  "support",
+  "help",
+  "status",
+  "cdn",
+  "static",
+  "assets",
+  "blog",
+  "docs",
+  "security",
+  "platform",
+]);
+
+function normalizeSubdomainInput(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\..*$/, "")
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 63);
+}
+
+async function findNextAvailableSubdomain(ctx: any, base: string) {
+  const normalizedBase = RESERVED_SUBDOMAINS.has(base) ? `${base}-school` : base;
+  let candidate = normalizedBase;
+  let counter = 2;
+
+  while (true) {
+    if (!RESERVED_SUBDOMAINS.has(candidate)) {
+      const existing = await ctx.db
+        .query("tenants")
+        .withIndex("by_subdomain", (q: any) => q.eq("subdomain", candidate))
+        .first();
+
+      if (!existing) {
+        return candidate;
+      }
+    }
+
+    candidate = `${normalizedBase}-${counter}`;
+    counter += 1;
+  }
+}
+
 async function enrichTenant(ctx: any, tenant: any) {
   const [users, installedModules, usageStats, subscription] = await Promise.all([
     ctx.db
@@ -442,47 +495,23 @@ export const checkSubdomainAvailability = query({
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
 
-    const normalized = args.subdomain
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:\/\//, "")
-      .replace(/\..*$/, "")
-      .replace(/[^a-z0-9-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 63);
+    const normalized = normalizeSubdomainInput(args.subdomain);
     if (!normalized) {
       return {
         subdomain: normalized,
         available: false,
         reason: "Enter a subdomain to check availability.",
+        suggestedSubdomain: null,
       };
     }
 
-    const reserved = new Set([
-      "app",
-      "www",
-      "api",
-      "admin",
-      "auth",
-      "mail",
-      "email",
-      "support",
-      "help",
-      "status",
-      "cdn",
-      "static",
-      "assets",
-      "blog",
-      "docs",
-      "security",
-      "platform",
-    ]);
-
-    if (reserved.has(normalized)) {
+    if (RESERVED_SUBDOMAINS.has(normalized)) {
+      const suggestedSubdomain = await findNextAvailableSubdomain(ctx, normalized);
       return {
         subdomain: normalized,
         available: false,
         reason: "This subdomain is reserved for EduMyles platform infrastructure.",
+        suggestedSubdomain,
       };
     }
 
@@ -491,10 +520,15 @@ export const checkSubdomainAvailability = query({
       .withIndex("by_subdomain", (q) => q.eq("subdomain", normalized))
       .first();
 
+    const suggestedSubdomain = existing
+      ? await findNextAvailableSubdomain(ctx, normalized)
+      : normalized;
+
     return {
       subdomain: normalized,
       available: !existing,
       reason: existing ? "This subdomain is already in use." : "Available",
+      suggestedSubdomain,
     };
   },
 });

@@ -72,44 +72,48 @@ export default function PartnersPage() {
             {[
               {
                 icon: Handshake,
-                title: "Technology Partners",
+                title: "Developer Partners",
                 description:
-                  "Integrate your tools with EduMyles and reach thousands of schools across East Africa.",
+                  "Build integrations, school workflow modules, and implementation services for the EduMyles ecosystem.",
                 benefits: [
-                  "API access and documentation",
-                  "Co-marketing opportunities",
-                  "Joint customer success",
-                  "Revenue sharing models",
+                  "Curated sandbox access",
+                  "Module review pathway",
+                  "Marketplace and co-sell options",
+                  "Security and launch guidance",
                 ],
+                href: "/developers",
               },
               {
                 icon: Globe,
-                title: "Reseller Partners",
+                title: "Affiliate Partners",
                 description:
-                  "Sell EduMyles to schools in your region and earn competitive commissions.",
+                  "Refer schools through trusted audiences, school communities, content, and direct introductions.",
                 benefits: [
-                  "Generous commission structure",
-                  "Sales training and support",
-                  "Marketing materials",
-                  "Lead generation support",
+                  "Tracked referral links",
+                  "Share-ready messaging",
+                  "Monthly payout reporting",
+                  "No implementation burden",
                 ],
+                href: "/affiliate",
               },
               {
                 icon: Users,
-                title: "Implementation Partners",
+                title: "Reseller Partners",
                 description:
-                  "Help schools implement EduMyles and provide ongoing support services.",
+                  "Sell, implement, and support EduMyles locally with recurring commission and partner enablement.",
                 benefits: [
-                  "Implementation training",
-                  "Technical certification",
-                  "Customer referrals",
-                  "Partnership discounts",
+                  "Reseller sales kit",
+                  "Co-sell support",
+                  "White-label discussion path",
+                  "Implementation fee opportunity",
                 ],
+                href: "/reseller",
               },
             ].map((partner) => (
-              <div
+              <Link
                 key={partner.title}
-                className="p-6 rounded-xl"
+                href={partner.href}
+                className="p-6 rounded-xl no-underline transition-transform duration-200 hover:-translate-y-1"
                 style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
               >
                 <div className="flex items-center gap-3 mb-4">
@@ -139,7 +143,7 @@ export default function PartnersPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -272,7 +276,7 @@ export default function PartnersPage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="/resellers"
+                href="/reseller"
                 className="inline-flex items-center gap-2 font-jakarta font-semibold text-[16px] px-8 py-4 rounded-xl no-underline"
                 style={{ background: "transparent", color: "#061A12", border: "2px solid #061A12" }}
               >

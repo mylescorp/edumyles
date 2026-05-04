@@ -4,8 +4,7 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/nav/Navbar";
 import Footer from "@/components/footer/Footer";
-import WhatsAppFAB from "@/components/ui/WhatsAppFAB";
-import LiveChat from "@/components/ui/LiveChat";
+import ContactLauncher from "@/components/ui/ContactLauncher";
 import ProgressBar from "@/components/ui/ProgressBar";
 import CookieBanner from "@/components/ui/CookieBanner";
 
@@ -25,8 +24,7 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
       </Suspense>
       <main>{children}</main>
       <Footer />
-      <LiveChat />
-      <WhatsAppFAB />
+      <ContactLauncher />
       <CookieBanner />
     </>
   );

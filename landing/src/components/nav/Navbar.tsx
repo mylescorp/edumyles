@@ -70,19 +70,19 @@ const partnerItems: PartnerItem[] = [
   {
     icon: Code,
     label: "Developers",
-    href: "/apply/developer",
+    href: "/developers",
     subtitle: "Build and sell educational modules on our marketplace",
   },
   {
     icon: Users,
     label: "Affiliates",
-    href: "/apply/affiliate",
+    href: "/affiliate",
     subtitle: "Earn commissions by referring schools to EduMyles",
   },
   {
     icon: Award,
     label: "Resellers",
-    href: "/apply/reseller",
+    href: "/reseller",
     subtitle: "Sell EduMyles solutions and earn recurring revenue",
   },
 ];
@@ -225,6 +225,7 @@ export default function Navbar() {
                 className="flex items-center gap-1 text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020] bg-transparent border-none cursor-pointer p-0"
                 style={
                   partnersOpen ||
+                  ["partners", "developers", "affiliate", "reseller", "resellers"].includes(activeLink) ||
                   activeLink.startsWith("apply")
                     ? { color: "#E8A020" }
                     : {}
@@ -479,7 +480,7 @@ export default function Navbar() {
               Case Studies
             </Link>
             <Link
-              href="/resellers"
+              href="/reseller"
               onClick={() => setMobileOpen(false)}
               className="text-sm text-gray-500 no-underline hover:text-[#061A12] transition-colors"
             >
