@@ -16,6 +16,7 @@ import { WorkOS } from "@workos-inc/node";
 import { saveSession } from "@workos-inc/authkit-nextjs";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { getSharedCookieDomain, getTenantHostFromRequestHost, getTenantSubdomainFromHost } from "@/lib/tenant-host";
 import crypto from "crypto";
 
@@ -240,7 +241,7 @@ export async function GET(req: NextRequest) {
         user: {
           tenantId: string;
           eduMylesUserId: string;
-          organizationId: string;
+          organizationId?: Id<"organizations">;
           workosUserId: string;
           email: string;
           firstName?: string;
@@ -269,7 +270,8 @@ export async function GET(req: NextRequest) {
       let tenantUser = tenantAccess.user;
 
       if (tenantUser?.workosUserId.startsWith("pending-")) {
-        if (!tenantUser.organizationId) {
+        const organizationId = tenantUser.organizationId;
+        if (!organizationId) {
           throw new Error("Pending tenant user is missing organization context");
         }
 
@@ -282,7 +284,7 @@ export async function GET(req: NextRequest) {
           lastName: user.lastName ?? tenantUser.lastName ?? undefined,
           role: tenantUser.role,
           permissions: tenantUser.permissions ?? [],
-          organizationId: tenantUser.organizationId,
+          organizationId,
         });
 
         tenantUser = {
