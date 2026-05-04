@@ -238,6 +238,7 @@ export async function GET(req: NextRequest) {
         tenantId: string;
         tenantName: string;
         tenantSubdomain: string;
+        organizationId?: Id<"organizations">;
         user: {
           tenantId: string;
           eduMylesUserId: string;
@@ -270,8 +271,14 @@ export async function GET(req: NextRequest) {
       let tenantUser = tenantAccess.user;
 
       if (tenantUser?.workosUserId.startsWith("pending-")) {
-        if (!tenantUser.organizationId) {
-          throw new Error("Pending tenant user is missing organization context");
+        const organizationId = tenantUser.organizationId ?? tenantAccess.organizationId;
+        if (!organizationId) {
+          console.error("[auth/callback] Pending tenant user is missing organization context", {
+            tenantId: tenantAccess.tenantId,
+            tenantSubdomain: tenantAccess.tenantSubdomain,
+            email: user.email,
+          });
+          return authError(req, "tenant_organization_missing");
         }
 
         await convex.mutation(api.users.upsertUser, {
@@ -283,7 +290,7 @@ export async function GET(req: NextRequest) {
           lastName: user.lastName ?? tenantUser.lastName ?? undefined,
           role: tenantUser.role,
           permissions: tenantUser.permissions ?? [],
-          organizationId: tenantUser.organizationId,
+          organizationId,
         });
 
         tenantUser = {
