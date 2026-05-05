@@ -28,43 +28,55 @@ export const upsertUser = mutation({
     organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
-    // ── 1. Try to find an existing record by real WorkOS ID ──────────────────
-    const existing = await ctx.db
+    const normalizedEmail = args.email.trim().toLowerCase();
+
+    // Prefer tenant-scoped matches first. A single WorkOS identity can be
+    // invited into both platform and tenant scopes, so a global first() lookup
+    // must not block linking the pending record for the current tenant.
+    const existingWithSameWorkosId = await ctx.db
       .query("users")
       .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.workosUserId))
-      .first();
+      .collect();
 
-    if (existing) {
-      if (existing.tenantId !== args.tenantId) {
-        throw new Error("Tenant mismatch — access denied");
-      }
-      await ctx.db.patch(existing._id, {
+    const existingForTenant = existingWithSameWorkosId.find(
+      (existing) => existing.tenantId === args.tenantId
+    );
+
+    if (existingForTenant) {
+      await ctx.db.patch(existingForTenant._id, {
         email: args.email,
         firstName: args.firstName,
         lastName: args.lastName,
         role: args.role,
         permissions: args.permissions,
+        organizationId: args.organizationId,
+        isActive: true,
       });
-      return existing._id;
+      return existingForTenant._id;
     }
 
-    // ── 2. Check for a pending invite record with the same email ─────────────
+    // ── 2. Check for a tenant-scoped record with the same email ──────────────
     // When an admin is invited via createPlatformAdmin / inviteTenantUser the
     // record is written with workosUserId = "pending-<eduMylesUserId>".  On
     // first sign-in through WorkOS we arrive here with the real WorkOS user ID
     // but the pending record has not been linked yet — so we find it by email
     // and upgrade it in-place instead of creating a duplicate.
-    const pendingByEmail = await ctx.db
+    const existingByEmail = await ctx.db
       .query("users")
-      .withIndex("by_tenant_email", (q) => q.eq("tenantId", args.tenantId).eq("email", args.email))
+      .withIndex("by_tenant_email", (q) =>
+        q.eq("tenantId", args.tenantId).eq("email", normalizedEmail)
+      )
       .first();
 
-    if (pendingByEmail && pendingByEmail.workosUserId.startsWith("pending-")) {
-      await ctx.db.patch(pendingByEmail._id, {
+    if (existingByEmail?.workosUserId.startsWith("pending-")) {
+      await ctx.db.patch(existingByEmail._id, {
         workosUserId: args.workosUserId,
-        firstName: args.firstName ?? pendingByEmail.firstName,
-        lastName: args.lastName ?? pendingByEmail.lastName,
+        email: normalizedEmail,
+        firstName: args.firstName ?? existingByEmail.firstName,
+        lastName: args.lastName ?? existingByEmail.lastName,
+        role: args.role,
         permissions: args.permissions,
+        organizationId: args.organizationId,
         isActive: true,
       });
 
@@ -89,7 +101,7 @@ export const upsertUser = mutation({
         .first();
 
       if (onboarding) {
-        const shouldCountAsStaff = pendingByEmail.role !== "school_admin";
+        const shouldCountAsStaff = existingByEmail.role !== "school_admin";
         const existingStaffAdded = onboarding.steps.staffAdded ?? {
           completed: false,
           completedAt: undefined,
@@ -114,7 +126,21 @@ export const upsertUser = mutation({
         });
       }
 
-      return pendingByEmail._id;
+      return existingByEmail._id;
+    }
+
+    if (existingByEmail) {
+      await ctx.db.patch(existingByEmail._id, {
+        workosUserId: args.workosUserId,
+        email: normalizedEmail,
+        firstName: args.firstName ?? existingByEmail.firstName,
+        lastName: args.lastName ?? existingByEmail.lastName,
+        role: args.role,
+        permissions: args.permissions,
+        organizationId: args.organizationId,
+        isActive: true,
+      });
+      return existingByEmail._id;
     }
 
     // ── 3. Brand-new user — create a fresh record ────────────────────────────
@@ -122,7 +148,7 @@ export const upsertUser = mutation({
       tenantId: args.tenantId,
       eduMylesUserId: args.eduMylesUserId,
       workosUserId: args.workosUserId,
-      email: args.email,
+      email: normalizedEmail,
       firstName: args.firstName,
       lastName: args.lastName,
       role: args.role,
