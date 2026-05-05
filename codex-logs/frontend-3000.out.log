@@ -1,12 +1,30 @@
 ▲ Next.js 16.2.2 (Turbopack)
 - Local:         http://localhost:3000
-- Network:       http://10.90.97.247:3000
-- Environments: .env.local
-✓ Ready in 1015ms
+- Network:       http://10.69.235.247:3000
+✓ Ready in 1074ms
 - Experiments (use with caution):
   · clientTraceMetadata
   · optimizePackageImports
   · serverActions
 
- HEAD /auth/login 200 in 3.1s (next.js: 1652ms, application-code: 1426ms)
- GET /auth/error?reason=not_configured 200 in 918ms (next.js: 532ms, application-code: 386ms)
+○ Compiling /admin ...
+ GET /admin?error=unauthorized 200 in 6.8s (next.js: 4.1s, proxy.ts: 1060ms, application-code: 1641ms)
+ GET /api/auth/session?workspace=admin 200 in 2.7s (next.js: 1297ms, application-code: 1449ms)
+ GET /admin 200 in 11.5s (next.js: 11ms, proxy.ts: 11.3s, application-code: 182ms)
+ GET /api/auth/session?workspace=admin 200 in 2.8s (next.js: 6ms, application-code: 2.7s)
+ GET /auth/login 200 in 450ms (next.js: 85ms, application-code: 366ms)
+ GET /auth/login/api 307 in 681ms (next.js: 665ms, application-code: 15ms)
+○ Compiling /platform ...
+ GET /platform 200 in 11.5s (next.js: 4.8s, proxy.ts: 6.0s, application-code: 715ms)
+ GET /api/auth/session?workspace=platform 200 in 40ms (next.js: 13ms, application-code: 27ms)
+ GET /api/auth/session?workspace=platform 200 in 27ms (next.js: 16ms, application-code: 11ms)
+ GET /api/auth/session?workspace=platform 200 in 18ms (next.js: 7ms, application-code: 11ms)
+ GET /admin 200 in 3.3s (next.js: 30ms, proxy.ts: 2.5s, application-code: 798ms)
+ GET /api/auth/session?workspace=admin 200 in 2.1s (next.js: 6ms, application-code: 2.1s)
+✓ Compiled in 834ms
+ GET /admin 200 in 3.1s (next.js: 307ms, proxy.ts: 2.5s, application-code: 354ms)
+ GET /admin 200 in 3.1s (next.js: 23ms, proxy.ts: 3.0s, application-code: 140ms)
+ GET /admin 200 in 920ms (next.js: 13ms, proxy.ts: 724ms, application-code: 184ms)
+ GET /admin 200 in 1070ms (next.js: 78ms, proxy.ts: 875ms, application-code: 116ms)
+ GET /admin 200 in 850ms (next.js: 7ms, proxy.ts: 671ms, application-code: 172ms)
+ GET /admin 200 in 841ms (next.js: 21ms, proxy.ts: 732ms, application-code: 88ms)

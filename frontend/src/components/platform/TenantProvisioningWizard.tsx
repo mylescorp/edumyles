@@ -1675,7 +1675,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
             <Mail className="mt-0.5 h-4 w-4 text-primary" />
             <div>
               <p className="font-medium">Invite-ready admin account</p>
-              <p className="text-sm text-muted-foreground">The school admin is staged for first login and receives a WorkOS invitation linked to the tenant organization.</p>
+              <p className="text-sm text-muted-foreground">The school admin is staged for first login and receives an EduMyles invitation email, while the tenant organization is still linked in WorkOS for auth and membership.</p>
             </div>
           </CardContent>
         </Card>

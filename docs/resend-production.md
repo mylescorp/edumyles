@@ -101,3 +101,7 @@ Production now includes `frontend/src/app/api/webhooks/resend/route.ts`. In Rese
 3. Copy the webhook signing secret into `RESEND_WEBHOOK_SECRET` in the frontend Vercel project.
 
 The route verifies the raw payload signature and forwards verified events into Convex so `messageRecords` can reflect actual delivery outcomes.
+
+## Current boundary
+
+EduMyles-owned transactional and invite emails now use Resend. WorkOS still owns authentication-provider emails such as account verification and password reset, because those flows depend on WorkOS-managed auth tokens and screens.
