@@ -79,3 +79,6 @@ opensrc/
 .codex-logs/
 
 .codex-logs/
+
+# ------ Agent Skills ------
+.agents/skills/agent-browser/
