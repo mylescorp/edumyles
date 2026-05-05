@@ -67,12 +67,13 @@ export function DataTable<T>({
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const safeData = Array.isArray(data) ? data : [];
 
   const filtered = useMemo(() => {
-    if (!search || !searchKey) return data;
+    if (!search || !searchKey) return safeData;
     const lower = search.toLowerCase();
-    return data.filter((row) => searchKey(row).toLowerCase().includes(lower));
-  }, [data, search, searchKey]);
+    return safeData.filter((row) => searchKey(row).toLowerCase().includes(lower));
+  }, [safeData, search, searchKey]);
 
   const sorted = useMemo(() => {
     if (!sortKey) return filtered;

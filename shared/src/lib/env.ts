@@ -8,6 +8,20 @@ export function readFirstEnv(...keys: string[]): string | undefined {
   return undefined;
 }
 
+function parseEmailAddress(value: string | undefined): { email?: string; name?: string } {
+  if (!value) return {};
+
+  const match = value.match(/^\s*(?:"?([^"<]*)"?\s*)?<([^<>@\s]+@[^<>@\s]+)>\s*$/);
+  if (match) {
+    return {
+      email: match[2]?.trim(),
+      name: match[1]?.trim() || undefined,
+    };
+  }
+
+  return { email: value.trim() };
+}
+
 export function resolveMpesaConfig() {
   return {
     consumerKey: readFirstEnv("MPESA_CONSUMER_KEY", "CONVEX_MPESA_CONSUMER_KEY"),
@@ -30,10 +44,11 @@ export function resolveAirtelConfig() {
 }
 
 export function resolveResendConfig() {
+  const from = parseEmailAddress(readFirstEnv("RESEND_FROM_EMAIL"));
   return {
     apiKey: readFirstEnv("RESEND_API_KEY"),
-    fromEmail: readFirstEnv("RESEND_FROM_EMAIL"),
-    fromName: readFirstEnv("RESEND_FROM_NAME") ?? "EduMyles",
+    fromEmail: from.email,
+    fromName: readFirstEnv("RESEND_FROM_NAME") ?? from.name ?? "EduMyles",
   };
 }
 

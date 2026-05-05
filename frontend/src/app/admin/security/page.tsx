@@ -33,7 +33,7 @@ export default function SecurityPage() {
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
 
-  const logs = (auditLogs as any[]) ?? [];
+  const logs = Array.isArray(auditLogs) ? auditLogs : [];
   const securityEvents = logs.filter(
     (l) =>
       l.action.includes("login") ||

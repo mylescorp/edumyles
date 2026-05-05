@@ -175,6 +175,7 @@ export default function AdminProfilePage() {
     api.sessions.listUserSessions,
     sessionToken ? { sessionToken } : "skip"
   );
+  const activeSessions = Array.isArray(sessions) ? sessions : [];
 
   if (isLoading) return <LoadingSkeleton variant="page" />;
   if (!user) return null;
@@ -417,13 +418,13 @@ export default function AdminProfilePage() {
             <CardContent>
               {!sessions ? (
                 <LoadingSkeleton variant="list" />
-              ) : (sessions as any[]).length === 0 ? (
+              ) : activeSessions.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">
                   No active sessions found.
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {(sessions as any[]).map((session: any) => (
+                  {activeSessions.map((session: any) => (
                     <div
                       key={session._id}
                       className="flex items-center justify-between p-3 border rounded-lg"

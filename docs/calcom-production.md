@@ -10,6 +10,8 @@ EduMyles uses Cal.com for live demo scheduling on `https://edumyles.com/book-dem
 4. Cal.com posts booking lifecycle events to `/api/webhooks/cal/demo`.
 5. The webhook verifies `x-cal-signature-256`, then updates the matching Convex demo request by `demoRequestId` first and email as a fallback.
 
+If Convex is temporarily unavailable, the landing API sends the request by fallback email and returns a captured state. The page does not show the inline Cal.com scheduler in that path, because there is no Convex request id for the later webhook to update.
+
 ## Required production variables
 
 Set these in the **landing Vercel project**:
@@ -25,6 +27,17 @@ CALCOM_WEBHOOK_SECRET=generate-a-long-random-secret
 ```
 
 Use a live Cal.com API key for production. Cal.com API keys are bearer tokens, and Cal.com documents that live keys use the `cal_live_` prefix.
+
+The frontend app only needs the public Cal.com link values if it displays or links to booking surfaces:
+
+```env
+NEXT_PUBLIC_CALCOM_ORIGIN=https://cal.com
+NEXT_PUBLIC_CALCOM_EMBED_ORIGIN=https://app.cal.com
+NEXT_PUBLIC_CALCOM_DEMO_LINK=edumyles/demo
+NEXT_PUBLIC_CALCOM_DEMO_NAMESPACE=edumyles-demo
+```
+
+Do not add `CALCOM_API_KEY` or `CALCOM_WEBHOOK_SECRET` to public/client-exposed environments.
 
 ## Webhook setup
 
