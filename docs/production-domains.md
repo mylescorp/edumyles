@@ -46,7 +46,13 @@ NEXT_PUBLIC_CONVEX_URL=https://<deployment>.convex.cloud
 WORKOS_REDIRECT_URI=https://app.edumyles.com/auth/callback
 NEXT_PUBLIC_WORKOS_REDIRECT_URI=https://app.edumyles.com/auth/callback
 CONVEX_WEBHOOK_SECRET=<shared secret>
+RESEND_API_KEY=<production Resend API key>
+RESEND_FROM_EMAIL=EduMyles <no-reply@edumyles.com>
+RESEND_FROM_NAME=EduMyles
+RESEND_SUPPORT_EMAIL=support@edumyles.com
 ```
+
+Set the same `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and `RESEND_FROM_NAME` values in the production Convex deployment because Convex actions send tenant communications through Resend.
 
 ## DNS
 

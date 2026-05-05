@@ -258,6 +258,118 @@ export const createNotification = mutation({
   },
 });
 
+export const recordTransactionalEmailDispatch = internalMutation({
+  args: {
+    tenantId: v.string(),
+    recipients: v.array(v.string()),
+    subject: v.string(),
+    content: v.string(),
+    externalId: v.optional(v.string()),
+    sentAt: v.number(),
+    status: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const normalizedRecipients = Array.from(
+      new Set(
+        args.recipients
+          .map((recipient) => recipient.trim().toLowerCase())
+          .filter(Boolean)
+      )
+    );
+
+    for (const recipientEmail of normalizedRecipients) {
+      await ctx.db.insert("messageRecords", {
+        tenantId: args.tenantId,
+        campaignId: undefined,
+        channel: "email",
+        recipientId: recipientEmail,
+        recipientEmail,
+        recipientPhone: undefined,
+        subject: args.subject,
+        content: args.content,
+        status: args.status ?? "sent",
+        externalId: args.externalId,
+        errorMessage: undefined,
+        sentAt: args.sentAt,
+        deliveredAt: undefined,
+        openedAt: undefined,
+        clickedAt: undefined,
+        createdAt: now,
+      });
+    }
+
+    return { success: true, count: normalizedRecipients.length };
+  },
+});
+
+export const applyEmailWebhookEvent = internalMutation({
+  args: {
+    externalId: v.string(),
+    eventType: v.string(),
+    recipientEmails: v.optional(v.array(v.string())),
+    occurredAt: v.number(),
+    errorMessage: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const records = await ctx.db
+      .query("messageRecords")
+      .withIndex("by_external_id", (q) => q.eq("externalId", args.externalId))
+      .collect();
+
+    if (records.length === 0) {
+      return { success: true, updated: 0 };
+    }
+
+    const recipientEmails = new Set(
+      (args.recipientEmails ?? [])
+        .map((recipient) => recipient.trim().toLowerCase())
+        .filter(Boolean)
+    );
+
+    const eventStatusMap: Record<string, string> = {
+      "email.sent": "sent",
+      "email.delivered": "delivered",
+      "email.opened": "opened",
+      "email.clicked": "clicked",
+      "email.bounced": "bounced",
+      "email.complained": "failed",
+      "email.failed": "failed",
+      "email.suppressed": "failed",
+      "email.delivery_delayed": "failed",
+    };
+
+    const nextStatus = eventStatusMap[args.eventType];
+    if (!nextStatus) {
+      return { success: true, updated: 0 };
+    }
+
+    let updated = 0;
+    for (const record of records) {
+      const recordRecipient = record.recipientEmail?.trim().toLowerCase();
+      if (recipientEmails.size > 0 && (!recordRecipient || !recipientEmails.has(recordRecipient))) {
+        continue;
+      }
+
+      const patch: Record<string, unknown> = {
+        status: nextStatus,
+      };
+
+      if (nextStatus === "delivered") patch.deliveredAt = args.occurredAt;
+      if (nextStatus === "opened") patch.openedAt = args.occurredAt;
+      if (nextStatus === "clicked") patch.clickedAt = args.occurredAt;
+      if (nextStatus === "bounced" || nextStatus === "failed") {
+        patch.errorMessage = args.errorMessage ?? args.eventType;
+      }
+
+      await ctx.db.patch(record._id, patch);
+      updated += 1;
+    }
+
+    return { success: true, updated };
+  },
+});
+
 // ─── Campaigns (Tenant-scoped) ──────────────────────────────────────
 
 /** Create a tenant-level campaign */

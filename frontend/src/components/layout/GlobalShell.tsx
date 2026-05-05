@@ -968,7 +968,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
   const router = useRouter();
   const { user, role, logout, sessionToken } = useAuth();
   const { tenant } = useTenant();
-  const { isModuleInstalled } = useInstalledModules();
+  const { isModuleInstalled, installedModules } = useInstalledModules();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [footerPanel, setFooterPanel] = useState<"chats" | "channels" | "contacts" | null>(null);
@@ -1066,6 +1066,42 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     router.refresh();
     window.setTimeout(() => setIsRefreshing(false), 900);
   };
+  const tenantStatus = safeRenderText(tenant?.status, "active");
+  const tenantPlan = safeRenderText(tenant?.plan, "starter");
+  const tenantSubdomain = safeRenderText(tenant?.subdomain, "");
+  const tenantTrialEndsAt = Number(tenant?.trialEndsAt ?? 0);
+  const hasActiveTrial = tenantStatus === "trial" && tenantTrialEndsAt > Date.now();
+  const trialDaysLeft = hasActiveTrial
+    ? Math.max(0, Math.ceil((tenantTrialEndsAt - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 0;
+  const visibleModuleCount = installedModules.length;
+  const workspaceHealthTone =
+    tenantStatus === "active"
+      ? "bg-emerald-500"
+      : tenantStatus === "trial"
+        ? "bg-amber-500"
+        : "bg-rose-500";
+  const workspaceHealthLabel =
+    tenantStatus === "active"
+      ? "Workspace active"
+      : tenantStatus === "trial"
+        ? "Trial in progress"
+        : "Needs review";
+  const workspaceTitle = isPlatformRoute ? "Master Admin Command Center" : "School Admin Command Center";
+  const workspaceBadgeLabel = isPlatformRoute
+    ? "Live"
+    : hasActiveTrial
+      ? `${trialDaysLeft}d trial`
+      : tenantPlan;
+  const workspaceDescriptor = isPlatformRoute
+    ? "Platform-wide operations, oversight, and queue health."
+    : tenantSubdomain
+      ? `${safeTenantName} on ${tenantSubdomain}.edumyles.com`
+      : `${safeTenantName} workspace operations and school controls.`;
+  const footerPrimaryHref = isPlatformRoute ? settingsHref : "/admin/settings";
+  const footerPrimaryLabel = isPlatformRoute ? "Platform settings" : "School settings";
+  const footerSecondaryHref = isPlatformRoute ? supportHref : "/admin/modules";
+  const footerSecondaryLabel = isPlatformRoute ? "Support" : "Marketplace";
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -1175,76 +1211,75 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {isPlatformRoute ? (
-              <div className="hidden min-w-0 flex-1 items-center justify-between gap-4 px-2 lg:flex">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-semibold text-white">
-                      Master Admin Command Center
-                    </p>
-                    <Badge className="h-5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 text-[10px] font-semibold text-emerald-300 shadow-none">
-                      Live
-                    </Badge>
+            <div className="hidden min-w-0 flex-1 items-center justify-between gap-4 px-2 lg:flex">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-semibold text-white">{workspaceTitle}</p>
+                  <Badge
+                    className={cn(
+                      "h-5 rounded-full px-2 text-[10px] font-semibold shadow-none",
+                      isPlatformRoute
+                        ? "border border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+                        : hasActiveTrial
+                          ? "border border-amber-400/20 bg-amber-400/10 text-amber-200"
+                          : "border border-white/12 bg-white/8 text-white/80"
+                    )}
+                  >
+                    {workspaceBadgeLabel}
+                  </Badge>
+                </div>
+                <p className="mt-1 truncate text-xs text-white/45">{workspaceDescriptor}</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
+                  <div className="flex items-center gap-2 text-[11px] text-white/55">
+                    <span className={cn("h-2.5 w-2.5 rounded-full", isPlatformRoute ? shellHealthTone : workspaceHealthTone)} />
+                    <span className="uppercase tracking-[0.18em]">
+                      {isPlatformRoute ? "Platform status" : "Workspace status"}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-4 text-xs text-white/85">
+                    <span className="font-semibold">
+                      {isPlatformRoute ? shellHealthLabel : workspaceHealthLabel}
+                    </span>
+                    <span>
+                      {isPlatformRoute
+                        ? `${safeRenderNumber(normalizedShellHealth?.responseTime, 0)}ms avg`
+                        : `${visibleModuleCount} modules live`}
+                    </span>
+                    <span>
+                      {isPlatformRoute
+                        ? `${safeRenderNumber(normalizedShellHealth?.errorRate, 0).toFixed(1)}% errors`
+                        : hasActiveTrial
+                          ? `${trialDaysLeft} days left`
+                          : tenantPlan}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                    <div className="flex items-center gap-2 text-[11px] text-white/55">
-                      <span className={cn("h-2.5 w-2.5 rounded-full", shellHealthTone)} />
-                      <span className="uppercase tracking-[0.18em]">Platform status</span>
-                    </div>
-                    <div className="mt-1 flex items-center gap-4 text-xs text-white/85">
-                      <span className="font-semibold">{shellHealthLabel}</span>
-                      <span>{safeRenderNumber(normalizedShellHealth?.responseTime, 0)}ms avg</span>
-                      <span>{safeRenderNumber(normalizedShellHealth?.errorRate, 0).toFixed(1)}% errors</span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">Queue</p>
-                    <div className="mt-1 flex items-center gap-3 text-xs text-white/80">
-                      <span>{safeRenderNumber(normalizedShellHealth?.pendingReviews, 0)} reviews</span>
-                      <span>{safeRenderNumber(normalizedShellHealth?.activeFlags, 0)} flags</span>
-                      <span>{normalizedUnreadCount} unread</span>
-                    </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+                    {isPlatformRoute ? "Queue" : "Readiness"}
+                  </p>
+                  <div className="mt-1 flex items-center gap-3 text-xs text-white/80">
+                    {isPlatformRoute ? (
+                      <>
+                        <span>{safeRenderNumber(normalizedShellHealth?.pendingReviews, 0)} reviews</span>
+                        <span>{safeRenderNumber(normalizedShellHealth?.activeFlags, 0)} flags</span>
+                        <span>{normalizedUnreadCount} unread</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{visibleModuleCount} modules</span>
+                        <span>{normalizedUnreadCount} unread</span>
+                        <span className="capitalize">{tenantStatus}</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
-            ) : (
-              <>
-                <div className="hidden md:block w-px h-5 bg-white/10 mx-0.5" />
-                <nav className="hidden md:flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-none mx-1">
-                  {groups.map((group) => {
-                    if (group.href && !group.items?.length) {
-                      const isActive =
-                        pathname === group.href ||
-                        (group.href.length > 1 && pathname.startsWith(group.href + "/"));
-                      return (
-                        <Link
-                          key={group.href}
-                          href={group.href}
-                          className={cn(
-                            "relative px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap",
-                            isActive
-                              ? "text-white bg-[var(--topnav-active-bg)]"
-                              : "text-white/56 hover:text-white/88 hover:bg-white/8"
-                          )}
-                        >
-                          {group.label}
-                          {isActive && (
-                            <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[var(--em-gold)]" />
-                          )}
-                        </Link>
-                      );
-                    }
-                    return (
-                      <NavGroupDropdown key={group.label} group={group} pathname={pathname ?? ""} />
-                    );
-                  })}
-                </nav>
-              </>
-            )}
+            </div>
 
             {/* ── Right controls ── */}
             <div className="ml-auto flex items-center gap-1.5">
@@ -1532,148 +1567,51 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
         )}
 
         {/* ══ Footer ══════════════════════════════ */}
-        {isPlatformRoute ? (
-          <footer
-            className="sticky bottom-0 z-40 flex-shrink-0 border-t border-white/12 bg-[var(--topnav-bg)] px-4 py-2.5 shadow-[0_-16px_40px_rgba(3,12,8,0.38)]"
-            style={{
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.09), 0 -16px 40px rgba(3,12,8,0.38)",
-            }}
-          >
-            <div className="flex min-h-[44px] items-center justify-between gap-3 overflow-x-auto whitespace-nowrap">
-              <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
-                <Link
-                  href={settingsHref}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
-                >
-                  <Lock className="h-3.5 w-3.5" />
-                  Platform settings
-                </Link>
-              </div>
-
-              <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-[11px] text-white/55">
-                <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                  Powered by{" "}
-                  <a
-                    href="https://mylesoft.vercel.app"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="ml-1 font-semibold text-[var(--em-gold)] hover:underline"
-                  >
-                    MylesCorp Technologies
-                  </a>
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
-                <Link
-                  href={supportHref}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
-                >
-                  <HelpCircle className="h-3.5 w-3.5" />
-                  Support
-                </Link>
-                <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold text-[var(--em-gold)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                  EduMyles 2026
-                </span>
-              </div>
-            </div>
-          </footer>
-        ) : (
-          <footer
-            className="flex-shrink-0 flex items-center justify-between px-3 h-[44px] text-xs border-t gap-2"
-            style={{
-              background: "var(--topnav-bg)",
-              borderColor: "var(--topnav-border)",
-            }}
-          >
-            <div className="flex items-center gap-0.5 shrink-0">
-              <button
-                onClick={() => toggleFooterPanel("chats")}
-                className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
-                  footerPanel === "chats"
-                    ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
-                    : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
-                )}
-              >
-                <MessageCircle className="h-3.5 w-3.5" />
-                <span className="hidden sm:block">Chats</span>
-              </button>
-              <button
-                onClick={() => toggleFooterPanel("channels")}
-                className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
-                  footerPanel === "channels"
-                    ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
-                    : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
-                )}
-              >
-                <Hash className="h-3.5 w-3.5" />
-                <span className="hidden sm:block">Channels</span>
-              </button>
-              <button
-                onClick={() => toggleFooterPanel("contacts")}
-                className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
-                  footerPanel === "contacts"
-                    ? "text-[var(--em-gold)] bg-[var(--sidebar-accent-hover)]"
-                    : "text-white/55 hover:text-[var(--em-gold)] hover:bg-white/8"
-                )}
-              >
-                <Users2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:block">Contacts</span>
-              </button>
-            </div>
-
-            <button
-              className="mx-2 flex h-7 max-w-[360px] flex-1 items-center gap-2 rounded-md border border-white/12 bg-white/8 px-3 text-white/40 transition-all duration-150 hover:border-[var(--sidebar-border)] hover:bg-white/10 hover:text-white/70"
-              title="Smart Chat (Ctrl+Space)"
-            >
-              <Zap className="h-3.5 w-3.5 shrink-0 text-[var(--em-gold)]" />
-              <span className="truncate text-left text-[11px]">Here is your Smart Chat</span>
-              <kbd className="ml-auto hidden shrink-0 rounded bg-white/8 px-1 font-mono text-[9px] sm:block">
-                Ctrl+Space
-              </kbd>
-            </button>
-
-            <div className="flex items-center gap-1 shrink-0">
+        <footer
+          className="sticky bottom-0 z-40 flex-shrink-0 border-t border-white/12 bg-[var(--topnav-bg)] px-4 py-2.5 shadow-[0_-16px_40px_rgba(3,12,8,0.38)]"
+          style={{
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.09), 0 -16px 40px rgba(3,12,8,0.38)",
+          }}
+        >
+          <div className="flex min-h-[44px] items-center justify-between gap-3 overflow-x-auto whitespace-nowrap">
+            <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
               <Link
-                href={notificationsHref}
-                className="relative flex h-7 w-7 items-center justify-center rounded-md text-white/55 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
-                title="Notifications"
-              >
-                <Bell className="h-3.5 w-3.5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white border border-[var(--topnav-bg)]">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </Link>
-
-              <div className="h-3.5 w-px bg-white/10" />
-
-              <Link
-                href={sectionHref("tickets")}
-                className="flex items-center gap-1 rounded-md px-2 py-1 text-white/55 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
-              >
-                <HelpCircle className="h-3.5 w-3.5" />
-                <span className="hidden sm:block">Need Support?</span>
-              </Link>
-
-              <span className="hidden md:flex items-center h-5 px-1.5 rounded text-[9px] font-mono font-semibold bg-[var(--sidebar-accent)] text-[var(--em-gold)] border border-[var(--sidebar-border)]">
-                EduMyles 2026
-              </span>
-
-              <Link
-                href={settingsHref}
-                className="flex h-7 w-7 items-center justify-center rounded-md text-white/30 transition-all duration-150 hover:bg-white/8 hover:text-[var(--em-gold)]"
-                title="Settings"
+                href={footerPrimaryHref}
+                className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
               >
                 <Lock className="h-3.5 w-3.5" />
+                {footerPrimaryLabel}
               </Link>
             </div>
-          </footer>
-        )}
+
+            <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-[11px] text-white/55">
+              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                Powered by{" "}
+                <a
+                  href="https://mylesoft.vercel.app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="ml-1 font-semibold text-[var(--em-gold)] hover:underline"
+                >
+                  MylesCorp Technologies
+                </a>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 text-[11px] text-white shrink-0">
+              <Link
+                href={footerSecondaryHref}
+                className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition-all duration-150 hover:bg-white/[0.09]"
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
+                {footerSecondaryLabel}
+              </Link>
+              <span className="inline-flex h-8 items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold text-[var(--em-gold)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                EduMyles 2026
+              </span>
+            </div>
+          </div>
+        </footer>
       </div>
     </TooltipProvider>
   );

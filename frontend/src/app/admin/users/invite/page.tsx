@@ -59,7 +59,7 @@ export default function InviteUserPage() {
 
             toast({
                 title: "User invited",
-                description: "A WorkOS invitation has been sent to the user.",
+                description: "A Resend invitation has been sent to the user.",
             });
             router.push("/admin/users");
         } catch (err) {

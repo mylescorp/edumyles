@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -19,6 +19,7 @@ import {
   storeReferralClickId,
 } from "@/lib/attribution";
 import { trackFormSubmission, trackLeadConversion } from "@/lib/analytics";
+import CalDemoEmbed from "@/components/booking/CalDemoEmbed";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -28,6 +29,7 @@ export default function BookDemoContent() {
   const [formState, setFormState] = useState<FormState>("idle");
   const [error, setError] = useState("");
   const [fallbackNotice, setFallbackNotice] = useState("");
+  const [demoRequestId, setDemoRequestId] = useState("");
   const [fields, setFields] = useState({
     firstName: "",
     lastName: "",
@@ -80,15 +82,6 @@ export default function BookDemoContent() {
     }));
   }
 
-  const calendarHref = useMemo(() => {
-    const url = new URL("https://cal.com/edumyles/demo");
-    const fullName = [fields.firstName, fields.lastName].filter(Boolean).join(" ").trim();
-    if (fullName) url.searchParams.set("name", fullName);
-    if (fields.email) url.searchParams.set("email", fields.email);
-    if (fields.schoolName) url.searchParams.set("guests", "");
-    return url.toString();
-  }, [fields.email, fields.firstName, fields.lastName, fields.schoolName]);
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormState("loading");
@@ -111,6 +104,7 @@ export default function BookDemoContent() {
       const payload = (await response.json()) as {
         error?: string;
         capturedViaFallback?: boolean;
+        demoRequestId?: string;
       };
 
       if (!response.ok) {
@@ -128,6 +122,7 @@ export default function BookDemoContent() {
         form_name: "demo_request",
         captured_via_fallback: payload.capturedViaFallback ?? false,
       });
+      setDemoRequestId(payload.demoRequestId ?? "");
       setFormState("success");
     } catch (submitError) {
       setError(
@@ -239,7 +234,8 @@ export default function BookDemoContent() {
                   </div>
                   <p className="mt-4 font-jakarta text-[14px] leading-7 text-[#5a5a5a]">
                     We saved your request for {fields.schoolName || "your school"} and pushed it
-                    into our backend pipeline for follow-up.
+                    into our backend pipeline. Choose a time below and Cal.com will sync the
+                    confirmed meeting back into Demo Ops.
                   </p>
                   {fallbackNotice ? (
                     <p className="mt-3 rounded-xl bg-[#FFF8E8] px-4 py-3 font-jakarta text-[13px] leading-6 text-[#8C5A00]">
@@ -247,15 +243,6 @@ export default function BookDemoContent() {
                     </p>
                   ) : null}
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                    <a
-                      href={calendarHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-jakarta font-bold text-[15px] no-underline text-center px-6 py-3 rounded-[10px]"
-                      style={{ background: "#061A12", color: "#ffffff" }}
-                    >
-                      Continue to Calendar
-                    </a>
                     <Link
                       href="/"
                       className="font-jakarta font-semibold text-[15px] no-underline text-center px-6 py-3 rounded-[10px]"
@@ -263,6 +250,15 @@ export default function BookDemoContent() {
                     >
                       Back to Home
                     </Link>
+                  </div>
+                  <div className="mt-6">
+                    <CalDemoEmbed
+                      fullName={[fields.firstName, fields.lastName].filter(Boolean).join(" ").trim()}
+                      email={fields.email}
+                      phone={fields.phone}
+                      schoolName={fields.schoolName}
+                      demoRequestId={demoRequestId}
+                    />
                   </div>
                 </div>
               ) : (

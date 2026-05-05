@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
@@ -8,20 +7,6 @@ import ConditionalLayout from "@/components/ConditionalLayout";
 import AttributionTracker from "@/components/ui/AttributionTracker";
 import PerformanceTracker from "@/components/ui/PerformanceTracker";
 import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/seo";
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-jakarta",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -155,7 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${jakarta.variable} font-sans antialiased bg-white text-dark-grey`}
+        className="font-sans antialiased bg-white text-dark-grey"
       >
         <Suspense fallback={null}>
           <AttributionTracker />

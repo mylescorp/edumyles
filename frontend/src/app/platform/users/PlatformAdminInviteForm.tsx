@@ -96,7 +96,6 @@ export function PlatformAdminInviteForm({
     token: string;
     signUpUrl: string;
     emailSent: boolean;
-    workosError?: string;
   } | null>(null);
 
   const roles = usePlatformQuery(
@@ -206,7 +205,6 @@ export function PlatformAdminInviteForm({
         token: payload.token,
         signUpUrl: payload.signUpUrl,
         emailSent: Boolean(payload.emailSent),
-        workosError: payload.workosError,
       });
       onComplete?.();
       toast.success(
@@ -277,7 +275,6 @@ export function PlatformAdminInviteForm({
             <span>
               Invite record was created for <strong>{result.invitedEmail}</strong>, but the email
               could not be confirmed.
-              {result.workosError ? ` ${result.workosError}` : ""}
             </span>
           </div>
         )}

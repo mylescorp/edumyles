@@ -1187,6 +1187,7 @@ export const ingestCalendarBookingWebhook = mutation({
     endTime: v.optional(v.string()),
     meetingUrl: v.optional(v.string()),
     eventTypeTitle: v.optional(v.string()),
+    demoRequestId: v.optional(v.string()),
     attendeeName: v.optional(v.string()),
     attendeeEmail: v.string(),
     attendeeNotes: v.optional(v.string()),
@@ -1194,14 +1195,21 @@ export const ingestCalendarBookingWebhook = mutation({
   },
   handler: async (ctx, args) => {
     const email = normalizeEmail(args.attendeeEmail);
-    const allRequests = await ctx.db
-      .query("demo_requests")
-      .withIndex("by_email", (q: any) => q.eq("email", email))
-      .collect();
-
-    const request = allRequests
-      .filter((item: any) => !item.deletedAt)
-      .sort((left: any, right: any) => right.updatedAt - left.updatedAt)[0];
+    const normalizedDemoRequestId = args.demoRequestId
+      ? ctx.db.normalizeId("demo_requests", args.demoRequestId)
+      : null;
+    const requestById = normalizedDemoRequestId ? await ctx.db.get(normalizedDemoRequestId) : null;
+    const request =
+      requestById && !requestById.deletedAt
+        ? requestById
+        : (
+            await ctx.db
+              .query("demo_requests")
+              .withIndex("by_email", (q: any) => q.eq("email", email))
+              .collect()
+          )
+            .filter((item: any) => !item.deletedAt)
+            .sort((left: any, right: any) => right.updatedAt - left.updatedAt)[0];
 
     if (!request) {
       return { matched: false };

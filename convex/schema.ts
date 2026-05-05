@@ -3097,6 +3097,7 @@ export default defineSchema({
     .index("by_tenant", ["tenantId", "createdAt"])
     .index("by_campaign", ["campaignId", "status"])
     .index("by_recipient", ["recipientId", "createdAt"])
+    .index("by_external_id", ["externalId", "createdAt"])
     .index("by_channel_status", ["channel", "status"])
     .index("by_status", ["status", "createdAt"]),
 

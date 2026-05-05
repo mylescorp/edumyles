@@ -58,11 +58,13 @@ export async function POST(request: NextRequest) {
       const { to, template, data } = sendTemplatedEmailSchema.parse(body);
       
       // Send templated email
-      const result = await convex.action((api as any).actions.communications.email.sendEmail, {
+      const result = await convex.action((api as any)["modules/communications/email"].sendEmail, {
+        webhookSecret: serverSecret,
+        tenantId: session.activeTenantId ?? session.tenantId,
         to: [to],
         subject: template.replaceAll('_', ' '),
-        template,
-        data,
+        templateId: template,
+        templateVariables: data,
       });
       
       if (!result.success) {
@@ -86,10 +88,11 @@ export async function POST(request: NextRequest) {
       
       // Send custom email
       const recipients = Array.isArray(emailData.to) ? emailData.to : [emailData.to];
-      const result = await convex.action((api as any).actions.communications.email.sendEmail, {
+      const result = await convex.action((api as any)["modules/communications/email"].sendEmail, {
+        webhookSecret: serverSecret,
+        tenantId: session.activeTenantId ?? session.tenantId,
         to: recipients,
         subject: emailData.subject,
-        body: emailData.text ?? emailData.html,
         html: emailData.html,
         text: emailData.text,
       });

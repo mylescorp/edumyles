@@ -1,23 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
-import {
-  buildWorkOSSignUpUrl,
-  ensureTenantWorkOSOrganization,
-  getWorkOSClientFromEnv,
-} from "@/lib/workos-invitations";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      sessionToken,
-      tenantId,
-      email,
-      firstName,
-      lastName,
-      role,
-    } = body as {
+    const { sessionToken, tenantId, email, firstName, lastName, role } = body as {
       sessionToken: string;
       tenantId: string;
       email: string;
@@ -52,26 +40,11 @@ export async function POST(req: NextRequest) {
       role,
     });
 
-    const { workos } = getWorkOSClientFromEnv();
-    const org = await ensureTenantWorkOSOrganization({
-      convex,
-      tenantId,
-      sessionToken,
-    });
-
-    const invitation = await workos.userManagement.sendInvitation({
-      email: email.trim().toLowerCase(),
-      organizationId: org.workosOrgId,
-      expiresInDays: 7,
-    });
-
-    const signUpUrl = buildWorkOSSignUpUrl(req, email.trim().toLowerCase());
-
     return NextResponse.json({
       success: true,
-      invitationId: invitation.id,
+      invitationId: null,
       emailSent: true,
-      signUpUrl,
+      signUpUrl: (inviteResult as any).inviteUrl ?? null,
       tenantName: inviteResult.tenantName,
       inviteUrl: (inviteResult as any).inviteUrl ?? null,
       tenantUrl: (inviteResult as any).tenantUrl ?? null,

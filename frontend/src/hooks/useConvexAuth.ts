@@ -8,14 +8,9 @@ import { useQuery as useConvexQuery, useMutation as useConvexMutation, useAction
  */
 export function useQuery(query: any, args?: any) {
   const { sessionToken } = useAuth();
-  
-  // Only execute query if we have a session token, otherwise skip
-  if (!sessionToken && args !== "skip") {
-    return "skip";
-  }
-  
+
   const useConvexQuerySafe = useConvexQuery as (queryFn: any, queryArgs?: any) => any;
-  return useConvexQuerySafe(query, args);
+  return useConvexQuerySafe(query, !sessionToken && args !== "skip" ? "skip" : args);
 }
 
 /**
