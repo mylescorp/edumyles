@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get("x-cal-signature-256");
 
     if (!secret && process.env.NODE_ENV === "production") {
-      return NextResponse.json({ error: "Cal.com webhook secret is not configured" }, { status: 500 });
+      return NextResponse.json({ error: "Calendar webhook secret is not configured" }, { status: 500 });
     }
 
     if (secret && !verifyCalSignature(rawBody, signature, secret)) {

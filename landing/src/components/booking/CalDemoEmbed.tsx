@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, CalendarDays, ExternalLink } from "lucide-react";
-import { CALCOM_EMBED_ORIGIN, CAL_CONFIG, buildCalBookingUrl } from "@/lib/cal";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, CalendarCheck2, CalendarDays, Loader2, Mail, Phone } from "lucide-react";
+import { CALCOM_EMBED_ORIGIN, CAL_CONFIG } from "@/lib/cal";
 import { trackEvent, trackLeadConversion } from "@/lib/analytics";
 
 type CalDemoEmbedProps = {
@@ -34,13 +34,12 @@ function loadCalEmbedScript() {
   if (window.Cal?.loaded) return Promise.resolve();
 
   return new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[src="https://app.cal.com/embed/embed.js"]'
-    );
+    const scriptSrc = `${CALCOM_EMBED_ORIGIN}/embed/embed.js`;
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${scriptSrc}"]`);
 
     if (existing) {
       existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Cal.com embed failed to load")), {
+      existing.addEventListener("error", () => reject(new Error("Calendar embed failed to load")), {
         once: true,
       });
       return;
@@ -54,10 +53,10 @@ function loadCalEmbedScript() {
           cal.ns = cal.ns ?? {};
           cal.q = cal.q ?? [];
           const script = document.createElement("script");
-          script.src = `${CALCOM_EMBED_ORIGIN}/embed/embed.js`;
+          script.src = scriptSrc;
           script.async = true;
           script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Cal.com embed failed to load"));
+          script.onerror = () => reject(new Error("Calendar embed failed to load"));
           document.head.appendChild(script);
           cal.loaded = true;
         }
@@ -94,19 +93,6 @@ export default function CalDemoEmbed({
 }: CalDemoEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error" | "booked">("loading");
-
-  const externalUrl = useMemo(
-    () =>
-      buildCalBookingUrl({
-        name: fullName,
-        email,
-        phone,
-        schoolName,
-        demoRequestId,
-        source: "landing_book_demo",
-      }),
-    [demoRequestId, email, fullName, phone, schoolName]
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -162,7 +148,7 @@ export default function CalDemoEmbed({
             if (!cancelled) setStatus("booked");
             const data = event.detail?.data ?? {};
             trackLeadConversion("demo_booking_scheduled", {
-              form_name: "calcom_demo_booking",
+          form_name: "demo_calendar_booking",
               booking_uid: data.uid,
               demo_request_id: demoRequestId,
             });
@@ -172,7 +158,7 @@ export default function CalDemoEmbed({
           action: "linkFailed",
           callback: (event: CustomEvent) => {
             setStatus("error");
-            trackEvent("calcom_embed_failed", {
+            trackEvent("demo_calendar_embed_failed", {
               demo_request_id: demoRequestId,
               error_code: event.detail?.data?.code,
               error_message: event.detail?.data?.msg,
@@ -181,9 +167,9 @@ export default function CalDemoEmbed({
         });
       } catch (error) {
         if (!cancelled) setStatus("error");
-        trackEvent("calcom_embed_failed", {
+        trackEvent("demo_calendar_embed_failed", {
           demo_request_id: demoRequestId,
-          error_message: error instanceof Error ? error.message : "Unknown Cal.com embed error",
+          error_message: error instanceof Error ? error.message : "Unknown calendar embed error",
         });
       }
     }
@@ -196,51 +182,79 @@ export default function CalDemoEmbed({
   }, [demoRequestId, email, fullName, phone, schoolName]);
 
   return (
-    <div className="rounded-2xl border border-[#d4eade] bg-white p-4 shadow-sm">
+    <div className="overflow-hidden rounded-[12px] border border-[#d4eade] bg-white shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#F3FBF6]">
-            <CalendarDays className="h-5 w-5 text-[#0F4C2A]" />
+        <div className="flex items-center gap-3 px-4 pt-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#F3FBF6]">
+            {status === "booked" ? (
+              <CalendarCheck2 className="h-5 w-5 text-[#0F4C2A]" />
+            ) : (
+              <CalendarDays className="h-5 w-5 text-[#0F4C2A]" />
+            )}
           </div>
           <div>
             <h3 className="font-jakarta text-[16px] font-bold text-[#061A12]">
-              Pick your live demo time
+              {status === "booked" ? "Demo time confirmed" : "Pick your live demo time"}
             </h3>
             <p className="font-jakarta text-[13px] leading-5 text-[#5a5a5a]">
-              Your school details are already attached to this booking.
+              {status === "booked"
+                ? "The meeting details will attach to your demo request."
+                : "Your school details are already attached to this booking."}
             </p>
           </div>
         </div>
-        <a
-          href={externalUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-[8px] border border-[#d4eade] px-3 py-2 font-jakarta text-[13px] font-semibold text-[#061A12] no-underline"
-        >
-          Open in Cal.com
-          <ExternalLink className="h-4 w-4" />
-        </a>
+        <div className="mx-4 flex flex-wrap gap-2">
+          <a
+            href="tel:+254743993715"
+            className="inline-flex items-center gap-2 rounded-[8px] border border-[#d4eade] px-3 py-2 font-jakarta text-[13px] font-semibold text-[#061A12] no-underline transition-colors hover:border-[#0F4C2A] hover:bg-[#F3FBF6]"
+          >
+            <Phone className="h-4 w-4" />
+            Call
+          </a>
+          <a
+            href="mailto:demo@edumyles.com"
+            className="inline-flex items-center gap-2 rounded-[8px] border border-[#d4eade] px-3 py-2 font-jakarta text-[13px] font-semibold text-[#061A12] no-underline transition-colors hover:border-[#0F4C2A] hover:bg-[#F3FBF6]"
+          >
+            <Mail className="h-4 w-4" />
+            Email
+          </a>
+        </div>
       </div>
 
       {status === "error" ? (
-        <div className="mb-4 flex gap-3 rounded-xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
+        <div className="mx-4 mb-4 flex gap-3 rounded-xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
           <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-          Cal.com could not load inline. Use the Cal.com link above to finish scheduling.
+          The embedded calendar could not load. Please call or email our team and we will schedule
+          the walkthrough manually.
         </div>
       ) : null}
 
       {status === "booked" ? (
-        <div className="mb-4 rounded-xl bg-[#F3FBF6] px-4 py-3 font-jakarta text-sm font-semibold text-[#0F4C2A]">
-          Booking confirmed. We will sync the final meeting details into Demo Ops through the Cal.com
-          webhook.
+        <div className="mx-4 mb-4 rounded-xl bg-[#F3FBF6] px-4 py-3 font-jakarta text-sm font-semibold text-[#0F4C2A]">
+          Booking confirmed. The final meeting details will sync into your demo request.
         </div>
       ) : null}
 
-      <div
-        ref={containerRef}
-        className="min-h-[660px] overflow-hidden rounded-xl border border-[#edf4ef]"
-        aria-busy={status === "loading"}
-      />
+      <div className="relative border-t border-[#edf4ef] bg-white">
+        {status === "loading" ? (
+          <div className="absolute inset-x-0 top-0 z-10 flex min-h-[320px] items-center justify-center bg-white/85 px-6 text-center backdrop-blur-sm">
+            <div>
+              <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin text-[#0F4C2A]" />
+              <p className="font-jakarta text-sm font-semibold text-[#061A12]">
+                Loading available demo slots
+              </p>
+              <p className="mt-1 font-jakarta text-xs text-[#6B9E83]">
+                The scheduling calendar is preparing times in your browser.
+              </p>
+            </div>
+          </div>
+        ) : null}
+        <div
+          ref={containerRef}
+          className="min-h-[620px] overflow-hidden sm:min-h-[660px]"
+          aria-busy={status === "loading"}
+        />
+      </div>
     </div>
   );
 }

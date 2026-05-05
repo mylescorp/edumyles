@@ -1,0 +1,305 @@
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <Head>
+      <__next_root_layout_boundary__>
+        <SegmentViewNode type="layout" pagePath="layout.tsx">
+          <SegmentTrieNode>
+          <link>
+          <script>
+          <script>
+          <script>
+          <RootLayout>
+            <html lang="en" suppressHydrationWarning={true}>
+              <head>
+              <body suppressHydrationWarning={true} className="font-sans ...">
+                <Suspense>
+                <PerformanceTracker>
+                <ConditionalLayout>
+                  <ProgressBar>
+                  <Suspense>
+                  ...
+                    <div id="main-content">
+                      <Hero>
+                      <Stats>
+                      <Features>
+                      <Modules>
+                      <section>
+                      <Benefits>
+                      <section>
+                      <HowItWorks>
+                      <section>
+                      <ROICalculator>
+                        <section id="roi-calcul..." className="py-16 px-4..." aria-label="ROI Calcul...">
+                          <div className="max-w-[120...">
+                            <div>
+                            <div className="grid md:gr...">
+                              <div className="flex flex-...">
+                                <div>
+                                  <div>
+                                  <input
+                                    type="range"
+                                    min={50}
+                                    max={3000}
+                                    step={50}
+                                    value={500}
+                                    onChange={function onChange}
+                                    className="w-full h-2 rounded-full appearance-none accent-[#061A12] cursor-pointer"
+                                    style={{
++                                     background: "linear-gradient(to right, #061A12 15.254237288135593%, #e5e7eb 15.2..."
+-                                     background-image: "linear-gradient(to right, rgb(6, 26, 18) 15.2542%, rgb(229, 2..."
+-                                     background-position-x: "initial"
+-                                     background-position-y: "initial"
+-                                     background-size: "initial"
+-                                     background-repeat: "initial"
+-                                     background-attachment: "initial"
+-                                     background-origin: "initial"
+-                                     background-clip: "initial"
+-                                     background-color: "initial"
+-                                     caret-color: "transparent"
+                                    }}
+                                    aria-label="Number of students"
+                                  >
+                                  ...
+                                <div>
+                                  <div>
+                                  <input
+                                    type="range"
+                                    min={1}
+                                    max={20}
+                                    step={1}
+                                    value={5}
+                                    onChange={function onChange}
+                                    className="w-full h-2 rounded-full appearance-none accent-[#061A12] cursor-pointer"
+                                    style={{
++                                     background: "linear-gradient(to right, #061A12 21.052631578947366%, #e5e7eb 21.0..."
+-                                     background-image: "linear-gradient(to right, rgb(6, 26, 18) 21.0526%, rgb(229, 2..."
+-                                     background-position-x: "initial"
+-                                     background-position-y: "initial"
+-                                     background-size: "initial"
+-                                     background-repeat: "initial"
+-                                     background-attachment: "initial"
+-                                     background-origin: "initial"
+-                                     background-clip: "initial"
+-                                     background-color: "initial"
+-                                     caret-color: "transparent"
+                                    }}
+                                    aria-label="Number of administrative staff"
+                                  >
+                                  ...
+                                <div>
+                                  <div>
+                                  <input
+                                    type="range"
+                                    min={200}
+                                    max={1000}
+                                    step={50}
+                                    value={400}
+                                    onChange={function onChange}
+                                    className="w-full h-2 rounded-full appearance-none accent-[#061A12] cursor-pointer"
+                                    style={{
++                                     background: "linear-gradient(to right, #061A12 25%, #e5e7eb 25%)"
+-                                     background-image: "linear-gradient(to right, rgb(6, 26, 18) 25%, rgb(229, 231, 2..."
+-                                     background-position-x: "initial"
+-                                     background-position-y: "initial"
+-                                     background-size: "initial"
+-                                     background-repeat: "initial"
+-                                     background-attachment: "initial"
+-                                     background-origin: "initial"
+-                                     background-clip: "initial"
+-                                     background-color: "initial"
+-                                     caret-color: "transparent"
+                                    }}
+                                    aria-label="Average admin hourly rate in KES"
+                                  >
+                                  ...
+                              ...
+                      ...
+                  <Footer>
+                    <footer role="contentinfo" className="font-jakarta" style={{...}}>
+                      <div>
+                      <div>
+                      <div>
+                      <NewsletterStrip>
+                        <div className="max-w-[120..." style={{...}}>
+                          <div className="flex flex-...">
+                            <div>
+                            <div className="flex flex-...">
+                              <form onSubmit={function handleSubmit} className="flex gap-2...">
+                                <div className="relative f..." style={{...}}>
+                                  <Mail>
+                                  <input
+                                    type="email"
+                                    required={true}
+                                    value=""
+                                    onChange={function onChange}
+                                    onFocus={function onFocus}
+                                    onBlur={function onBlur}
+                                    placeholder="your@email.com"
+                                    className="w-full font-jakarta text-[13px] pl-9 pr-4 py-[11px] rounded-[8px] outli..."
+                                    style={{
++                                     background: "rgba(255,255,255,0.05)"
++                                     border: "1px solid rgba(255,255,255,0.10)"
++                                     color: "#ffffff"
+-                                     color: "rgb(255, 255, 255)"
++                                     transition: "border-color 0.2s"
+-                                     background-image: "initial"
+-                                     background-position-x: "initial"
+-                                     background-position-y: "initial"
+-                                     background-size: "initial"
+-                                     background-repeat: "initial"
+-                                     background-attachment: "initial"
+-                                     background-origin: "initial"
+-                                     background-clip: "initial"
+-                                     background-color: "rgba(255, 255, 255, 0.05)"
+-                                     border-top-width: "1px"
+-                                     border-right-width: "1px"
+-                                     border-bottom-width: "1px"
+-                                     border-left-width: "1px"
+-                                     border-top-style: "solid"
+-                                     border-right-style: "solid"
+-                                     border-bottom-style: "solid"
+-                                     border-left-style: "solid"
+-                                     border-top-color: "rgba(255, 255, 255, 0.1)"
+-                                     border-right-color: "rgba(255, 255, 255, 0.1)"
+-                                     border-bottom-color: "rgba(255, 255, 255, 0.1)"
+-                                     border-left-color: "rgba(255, 255, 255, 0.1)"
+-                                     border-image-source: "initial"
+-                                     border-image-slice: "initial"
+-                                     border-image-width: "initial"
+-                                     border-image-outset: "initial"
+-                                     border-image-repeat: "initial"
+-                                     transition-behavior: "normal"
+-                                     transition-duration: "0.2s"
+-                                     transition-timing-function: "ease"
+-                                     transition-delay: "0s"
+-                                     transition-property: "border-color"
+-                                     caret-color: "transparent"
+                                    }}
+                                  >
+                                ...
+                              ...
+                      ...
+                  ...
+                ...
+      ...
+ 
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+⚠ Blocked cross-origin request to Next.js dev resource /_next/webpack-hmr from "127.0.0.1".
+Cross-origin access to Next.js dev resources is blocked by default for safety.
+
+To allow this host in development, add it to "allowedDevOrigins" in next.config.js and restart the dev server:
+
+// next.config.js
+module.exports = {
+  allowedDevOrigins: ['127.0.0.1'],
+}
+
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <InnerLayoutRouter url={"/book-de..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+        <SegmentViewNode type="page" pagePath="book-demo/...">
+          <SegmentTrieNode>
+          <BookDemoPage>
+            <Suspense fallback={null}>
+              <BookDemoContent>
+                <div className="bg-[#F3FBF...">
+                  <section>
+                  <section className="px-4 py-12...">
+                    <div className="mx-auto gr...">
+                      <div className="order-2 lg...">
+                        <div className="rounded-[1...">
+                          <div>
+                          <form className="space-y-5" onSubmit={function handleSubmit} noValidate={true}>
+                            <div className="grid gap-5...">
+                              <label className="block">
+-                               <div
+-                                 data-lastpass-icon-root=""
+-                                 style={{position:"relative",height:"0px",width:"0px",display:"initial",float:"left"}}
+-                               >
+                              ...
+                            ...
+                      ...
+                  ...
+        ...
+      ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at label (<anonymous>)
+    at BookDemoContent (src/app/book-demo/BookDemoContent.tsx:356:21)
+    at BookDemoPage (src\app\book-demo\page.tsx:23:7)
+  354 |                 <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+  355 |                   <div className="grid gap-5 sm:grid-cols-2">
+> 356 |                     <label className="block">
+      |                     ^
+  357 |                       <span className="mb-2 block font-jakarta text-[13px] font-bold text...
+  358 |                         First name *
+  359 |                       </span>
+[browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior

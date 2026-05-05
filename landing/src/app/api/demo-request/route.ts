@@ -106,9 +106,9 @@ export async function POST(request: NextRequest) {
         ? parsedStudentCount
         : undefined;
 
-    if (!fullName || !email || !schoolName) {
+    if (!fullName || !email || !phone || !schoolName || !schoolType || !jobTitle) {
       return NextResponse.json(
-        { error: "Please complete your name, work email, and school name." },
+        { error: "Please complete your name, work email, phone number, school name, school type, and role." },
         { status: 400 }
       );
     }
@@ -158,11 +158,10 @@ export async function POST(request: NextRequest) {
       );
       return NextResponse.json(
         {
-          error:
-            "We captured your request for manual follow-up, but live scheduling is temporarily unavailable. Please try again shortly.",
+          success: true,
           capturedViaFallback: true,
         },
-        { status: 503 }
+        { status: 202 }
       );
     }
   } catch (error) {

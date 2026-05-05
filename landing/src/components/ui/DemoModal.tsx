@@ -45,9 +45,7 @@ export default function DemoModal({ open, onClose }: DemoModalProps) {
             <p className="font-jakarta font-semibold text-xl text-white mb-2">EduMyles Product Demo</p>
             <p className="font-inter text-sm">Full demo video coming soon. Book a live personalised demo instead.</p>
             <a
-              href="https://cal.com/edumyles/demo"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/book-demo"
               className="inline-block mt-6 bg-gold hover:bg-gold-dark text-white font-inter font-semibold px-6 py-3 rounded-full transition-colors"
             >
               Book Live Demo
