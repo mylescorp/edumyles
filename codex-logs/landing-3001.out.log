@@ -1,9 +1,12 @@
+
+> landing@1.0.0 dev
+> next dev --port 3001
+
 ▲ Next.js 16.2.2 (Turbopack)
 - Local:         http://localhost:3001
-- Network:       http://10.69.235.247:3001
-✓ Ready in 1023ms
+- Network:       http://10.90.97.247:3001
+✓ Ready in 1472ms
 
- HEAD / 200 in 3.1s (next.js: 1085ms, application-code: 1996ms)
- HEAD / 200 in 624ms (next.js: 9ms, application-code: 614ms)
-✓ Compiled in 362ms
- GET /book-demo 200 in 1991ms (next.js: 1614ms, application-code: 377ms)
+○ Compiling / ...
+ HEAD / 200 in 9.1s (next.js: 7.8s, application-code: 1272ms)
+ HEAD / 200 in 804ms (next.js: 23ms, application-code: 782ms)
