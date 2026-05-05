@@ -340,6 +340,81 @@ async function getRoleDefinition(ctx: any, slug: string) {
   };
 }
 
+function getPlatformAppUrl() {
+  return (
+    process.env.NEXT_PUBLIC_PLATFORM_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    "http://localhost:3000"
+  ).replace(/\/$/, "");
+}
+
+function formatPlatformInviteExpiry(expiresAt: number) {
+  return new Date(expiresAt).toUTCString();
+}
+
+function buildPlatformInviteEmail(args: {
+  email: string;
+  firstName?: string;
+  roleName: string;
+  department?: string;
+  invitedByEmail?: string;
+  inviteUrl: string;
+  expiresAt: number;
+  personalMessage?: string;
+  reminderStage?: "day1" | "day2";
+}) {
+  const firstName = args.firstName?.trim() || "there";
+  const department = args.department?.trim() || "Platform Administration";
+  const expiryDate = formatPlatformInviteExpiry(args.expiresAt);
+  const supportEmail = args.invitedByEmail || "support@edumyles.com";
+  const reminderCopy =
+    args.reminderStage === "day2"
+      ? {
+          subject: `Final reminder: your EduMyles platform invite expires soon`,
+          intro: `Your EduMyles platform invitation is still waiting. This is the final reminder before the invite link expires on ${expiryDate}.`,
+        }
+      : args.reminderStage === "day1"
+        ? {
+            subject: `Reminder: your EduMyles platform invite is waiting`,
+            intro: `Your EduMyles platform invitation is still active. Use the link below before it expires on ${expiryDate}.`,
+          }
+        : {
+            subject: `You're invited to join EduMyles Platform`,
+            intro: `You've been invited to join the EduMyles platform as ${args.roleName}. Use the secure link below to activate your platform access.`,
+          };
+
+  const personalNoteHtml = args.personalMessage
+    ? `<p><strong>Personal note:</strong> ${args.personalMessage}</p>`
+    : "";
+  const personalNoteText = args.personalMessage
+    ? `Personal note: ${args.personalMessage}\n\n`
+    : "";
+
+  return {
+    subject: reminderCopy.subject,
+    html: [
+      `<p>Hello ${firstName},</p>`,
+      `<p>${reminderCopy.intro}</p>`,
+      personalNoteHtml,
+      `<p><strong>Role:</strong> ${args.roleName}<br/><strong>Department:</strong> ${department}</p>`,
+      `<p><a href="${args.inviteUrl}">Accept your platform invitation</a></p>`,
+      `<p>This invite expires on ${expiryDate}.</p>`,
+      `<p>If you have questions, reply to ${supportEmail}.</p>`,
+    ]
+      .filter(Boolean)
+      .join(""),
+    text:
+      `Hello ${firstName},\n\n` +
+      `${reminderCopy.intro}\n\n` +
+      personalNoteText +
+      `Role: ${args.roleName}\n` +
+      `Department: ${department}\n` +
+      `Accept your platform invitation: ${args.inviteUrl}\n\n` +
+      `This invite expires on ${expiryDate}.\n` +
+      `If you have questions, reply to ${supportEmail}.`,
+  };
+}
+
 async function getPlatformUserBySubject(ctx: any, subject: string) {
   return await ctx.db
     .query("platform_users")
@@ -623,6 +698,7 @@ export const createPlatformInviteRecord = async (
   }
 
   const inviteToken = crypto.randomUUID();
+  const expiresAt = Date.now() + PLATFORM_INVITE_EXPIRY_MS;
   const inviteId = await ctx.db.insert("platform_user_invites", {
     email: normalizedEmail,
     firstName: args.firstName?.trim() || undefined,
@@ -639,7 +715,7 @@ export const createPlatformInviteRecord = async (
     workosInvitationToken: undefined,
     token: inviteToken,
     status: "pending",
-    expiresAt: Date.now() + PLATFORM_INVITE_EXPIRY_MS,
+    expiresAt,
     acceptedAt: undefined,
     notifyInviter: args.notifyInviter ?? true,
     personalMessage: args.personalMessage?.trim() || undefined,
@@ -666,17 +742,26 @@ export const createPlatformInviteRecord = async (
     after: { email: normalizedEmail, role: args.role, department: args.department },
   });
 
-  // Send invitation email - simplified logging for now
-  const inviteUrl = `${process.env.NEXT_PUBLIC_PLATFORM_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/platform/invite/accept?token=${inviteToken}`;
-  const templateType = args.isExistingUser ? "existing_user" : "new_user";
-  
-  console.log("Platform invite email would be sent:", {
-    to: normalizedEmail,
-    templateType,
+  const inviteUrl = `${getPlatformAppUrl()}/platform/invite/accept?token=${inviteToken}`;
+  const emailContent = buildPlatformInviteEmail({
+    email: normalizedEmail,
+    firstName: args.firstName,
     roleName: role.name,
-    department: args.department || "Platform Administration",
-    invitedBy: actor.email,
+    department: args.department,
+    invitedByEmail: actor.email,
     inviteUrl,
+    expiresAt,
+    personalMessage: args.personalMessage,
+  });
+
+  await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
+    tenantId: "PLATFORM",
+    actorId: actor.userId,
+    actorEmail: actor.email || "support@edumyles.com",
+    to: [normalizedEmail],
+    subject: emailContent.subject,
+    html: emailContent.html,
+    text: emailContent.text,
   });
 
   return {
@@ -1359,6 +1444,36 @@ export const sendInviteReminder = internalMutation({
     const invite = await ctx.db.get(args.inviteId);
     if (!invite) return;
     if (invite.status !== "pending" || invite.expiresAt < Date.now()) return;
+
+    const role = await getRoleDefinition(ctx, invite.role);
+    const inviter =
+      (await ctx.db
+        .query("platform_users")
+        .withIndex("by_userId", (q: any) => q.eq("userId", invite.invitedBy))
+        .unique()) ?? null;
+    const inviteUrl = `${getPlatformAppUrl()}/platform/invite/accept?token=${invite.token}`;
+    const reminderStage = (invite.remindersSent ?? 0) >= 1 ? "day2" : "day1";
+    const emailContent = buildPlatformInviteEmail({
+      email: invite.email,
+      firstName: invite.firstName,
+      roleName: role?.name ?? invite.role,
+      department: invite.department,
+      invitedByEmail: inviter?.email,
+      inviteUrl,
+      expiresAt: invite.expiresAt,
+      personalMessage: invite.personalMessage,
+      reminderStage,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
+      tenantId: "PLATFORM",
+      actorId: invite.invitedBy,
+      actorEmail: inviter?.email ?? "support@edumyles.com",
+      to: [invite.email],
+      subject: emailContent.subject,
+      html: emailContent.html,
+      text: emailContent.text,
+    });
 
     await ctx.db.patch(args.inviteId, {
       remindersSent: (invite.remindersSent ?? 0) + 1,

@@ -106,6 +106,7 @@ export default function AuditLogPage() {
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
     const [searchTerm, setSearchTerm] = useState("");
     const [dateRange, setDateRange] = useState<string>("7");
+    const [currentTime] = useState(() => Date.now());
 
     const auditLogs = useQuery(
         api.platform.audit.queries.listTenantAuditLogs,
@@ -160,7 +161,7 @@ export default function AuditLogPage() {
                 <div>
                     <p className="text-sm font-medium">{formatDateTime(row.timestamp)}</p>
                     <p className="text-xs text-muted-foreground">
-                        {Math.floor((Date.now() - row.timestamp) / (1000 * 60))} minutes ago
+                        {Math.floor((currentTime - row.timestamp) / (1000 * 60))} minutes ago
                     </p>
                 </div>
             ),

@@ -26,6 +26,8 @@ type Route = {
   updatedAt?: number;
 };
 
+const EMPTY_ROUTES: Route[] = [];
+
 export default function TransportRoutesPage() {
   const { isLoading, sessionToken } = useAuth();
   const { toast } = useToast();
@@ -39,14 +41,13 @@ export default function TransportRoutesPage() {
     sessionToken ? { sessionToken } : "skip"
   );
   const updateRoute = useMutation(api.modules.transport.mutations.updateRoute);
-
-  if (isLoading) return <LoadingSkeleton variant="page" />;
-
-  const routeList: Route[] = (routes as any[]) || [];
+  const routeList: Route[] = (routes as Route[] | undefined) ?? EMPTY_ROUTES;
   const routeSummary = useMemo(() => ({
     totalStops: routeList.reduce((sum, route) => sum + route.stops.length, 0),
     active: routeList.filter((r) => r.stops.length > 0).length,
   }), [routeList]);
+
+  if (isLoading) return <LoadingSkeleton variant="page" />;
 
   const openEditDialog = (route: Route) => {
     setSelectedRoute(route);

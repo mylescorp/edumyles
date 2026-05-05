@@ -68,7 +68,13 @@ async function sendEmailViaResend(args: {
     throw new Error(result.error ?? "Resend API error");
   }
 
-  return { id: result.messageId, recipients: result.recipients };
+  return {
+    id: result.messageId,
+    recipients: result.recipients ?? valid,
+    subject,
+    text: text ?? body,
+    html: html ?? body.replace(/\n/g, "<br/>"),
+  };
 }
 
 /**
@@ -104,6 +110,16 @@ export const sendEmail = action({
       after: { to: args.to, subject: args.subject, template: args.template, recipients: data.recipients ?? [] },
     });
 
+    await ctx.runMutation(internal.modules.communications.mutations.recordTransactionalEmailDispatch, {
+      tenantId: tenant.tenantId,
+      recipients: data.recipients ?? args.to,
+      subject: data.subject,
+      content: data.text,
+      externalId: data.id,
+      sentAt: Date.now(),
+      status: "sent",
+    });
+
     return {
       success: true,
       id: data.id,
@@ -137,6 +153,16 @@ export const sendEmailInternal = internalAction({
       entityType: "email",
       entityId: data.id ?? "unknown",
       after: { to: args.to, subject: args.subject, template: args.template, recipients: data.recipients ?? [] },
+    });
+
+    await ctx.runMutation(internal.modules.communications.mutations.recordTransactionalEmailDispatch, {
+      tenantId: args.tenantId,
+      recipients: data.recipients ?? args.to,
+      subject: data.subject,
+      content: data.text,
+      externalId: data.id,
+      sentAt: Date.now(),
+      status: "sent",
     });
 
     return {

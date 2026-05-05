@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
+import {
   BarChart3, 
   TrendingUp, 
   BookOpen, 
@@ -22,6 +22,7 @@ import {
   Activity
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { buildCsv } from "@/lib/csv";
 import { formatPercentage } from "@/lib/formatters";
 
 type PopularCategory = {
@@ -50,6 +51,19 @@ type BorrowerStat = {
   color: string;
 };
 
+const EMPTY_CIRCULATION: CirculationPoint[] = [];
+const EMPTY_CATEGORIES: PopularCategory[] = [];
+const EMPTY_BORROWER_STATS: BorrowerStat[] = [];
+const EMPTY_TOP_BOOKS: TopBook[] = [];
+const EMPTY_STATS = {
+  totalBooks: 0,
+  activeBorrowers: 0,
+  monthlyCirculation: 0,
+  collectionEfficiency: 0,
+  averageReadingTime: null as number | null,
+  overdueRate: 0,
+};
+
 export default function LibraryReportsPage() {
   const { isLoading, sessionToken } = useAuth();
   const [reportPeriod, setReportPeriod] = useState("monthly");
@@ -61,9 +75,11 @@ export default function LibraryReportsPage() {
     !!sessionToken
   );
 
-  if (isLoading || !reports) return <LoadingSkeleton variant="page" />;
-
-  const { stats, circulationData, popularCategories, borrowerStats, topBooks } = reports;
+  const stats = reports?.stats ?? EMPTY_STATS;
+  const circulationData = reports?.circulationData ?? EMPTY_CIRCULATION;
+  const popularCategories = reports?.popularCategories ?? EMPTY_CATEGORIES;
+  const borrowerStats = reports?.borrowerStats ?? EMPTY_BORROWER_STATS;
+  const topBooks = reports?.topBooks ?? EMPTY_TOP_BOOKS;
   const latestCirculation = circulationData[circulationData.length - 1];
   const inventorySummary = useMemo(() => {
     const borrowedNow = latestCirculation?.borrowed ?? 0;
@@ -83,6 +99,55 @@ export default function LibraryReportsPage() {
 
   const peakBorrowerType = borrowerStats[0];
 
+  const downloadCsv = () => {
+    const csvContent = buildCsv([
+      ["Metric", "Value"],
+      ["Report period", reportPeriod],
+      ["Report type", reportType],
+      ["Total books", stats.totalBooks],
+      ["Active borrowers", stats.activeBorrowers],
+      ["Monthly circulation", stats.monthlyCirculation],
+      ["Collection efficiency", `${stats.collectionEfficiency}%`],
+      ["Average reading time", stats.averageReadingTime ?? "Not enough data"],
+      ["Overdue rate", `${stats.overdueRate}%`],
+      [],
+      ["Circulation"],
+      ["Period", "Borrowed", "Returned", "Overdue"],
+      ...circulationData.map((entry: CirculationPoint) => [
+        entry.name,
+        entry.borrowed,
+        entry.returned,
+        entry.overdue,
+      ]),
+      [],
+      ["Popular categories"],
+      ["Category", "Share"],
+      ...popularCategories.map((entry: PopularCategory) => [entry.name, `${entry.value}%`]),
+      [],
+      ["Top books"],
+      ["Title", "Author", "Borrows", "Rating"],
+      ...topBooks.map((book: TopBook) => [
+        book.title,
+        book.author,
+        book.borrows,
+        book.rating ?? "Borrow data only",
+      ]),
+    ]);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `library-${reportType}-${reportPeriod}-report.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const printReport = () => {
+    window.print();
+  };
+
+  if (isLoading || !reports) return <LoadingSkeleton variant="page" />;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -90,13 +155,13 @@ export default function LibraryReportsPage() {
         description="Comprehensive analytics and insights for library management"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" className="gap-2" disabled>
+            <Button variant="outline" className="gap-2" onClick={downloadCsv}>
               <Download className="h-4 w-4" />
-              Export CSV Soon
+              Export CSV
             </Button>
-            <Button className="gap-2" disabled>
+            <Button className="gap-2" onClick={printReport}>
               <FileText className="h-4 w-4" />
-              PDF Export Soon
+              Print / PDF
             </Button>
           </div>
         }
@@ -143,7 +208,6 @@ export default function LibraryReportsPage() {
           </div>
           <p className="text-xs text-muted-foreground">
             Reports currently show live Convex analytics for circulation, categories, borrower mix, and top books.
-            File export actions are intentionally disabled until the export pipeline is wired.
           </p>
         </CardContent>
       </Card>

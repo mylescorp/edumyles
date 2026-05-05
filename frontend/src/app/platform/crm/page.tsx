@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import { CrmAdminRail } from "@/components/platform/CrmAdminRail";
 import { PermissionGate } from "@/components/platform/PermissionGate";
@@ -95,6 +95,7 @@ function formatKes(amount: number) {
 export default function PlatformCrmDashboardPage() {
   const { sessionToken } = useAuth();
   const { can } = usePlatformPermissions();
+  const [currentTime] = useState(() => Date.now());
 
   const stats = usePlatformQuery(
     api.modules.platform.crm.getCRMStats,
@@ -125,9 +126,9 @@ export default function PlatformCrmDashboardPage() {
   const dueToday = useMemo(
     () =>
       leadRows.filter(
-        (lead) => Boolean(lead.nextFollowUpAt && lead.nextFollowUpAt <= Date.now() + 24 * 60 * 60 * 1000)
+        (lead) => Boolean(lead.nextFollowUpAt && lead.nextFollowUpAt <= currentTime + 24 * 60 * 60 * 1000)
       ),
-    [leadRows]
+    [currentTime, leadRows]
   );
   const stageCards = pipeline?.stages ?? [];
 

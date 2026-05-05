@@ -23,6 +23,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 const STATUS_DOTS: Record<string, string> = {
   active: "bg-[#26A65B]",
@@ -34,6 +35,7 @@ const STATUS_DOTS: Record<string, string> = {
 export default function AdminDashboard() {
   const { isLoading, user, sessionToken } = useAuth();
   const { format: formatCurrency } = useCurrency();
+  const [currentTime] = useState(() => Date.now());
 
   const students = useQuery(
     api.modules.sis.queries.listStudents,
@@ -122,7 +124,7 @@ export default function AdminDashboard() {
     type: "application_submitted" as const,
     title: `Admission: ${app.firstName ?? ""} ${app.lastName ?? ""}`.trim() || "New Application",
     description: app.grade ? `Grade ${app.grade} application` : "Application received",
-    timestamp: app.createdAt ?? Date.now(),
+    timestamp: app.createdAt ?? currentTime,
     href: `/admin/admissions/${app._id}`,
   }));
 

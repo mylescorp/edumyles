@@ -65,13 +65,14 @@ export async function POST(req: NextRequest) {
 
     // Send email via Convex action
     const result = await convex.action((api as any)["modules/communications/email"].sendEmail, {
+      webhookSecret: serverSecret,
+      tenantId: session.activeTenantId ?? session.tenantId,
       to,
       subject,
-      body: text ?? html,
       html,
       text,
-      template: templateId,
-      data: templateVariables,
+      templateId,
+      templateVariables,
     });
 
     if (!result.success) {

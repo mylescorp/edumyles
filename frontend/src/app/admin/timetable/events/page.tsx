@@ -22,6 +22,7 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
   meeting:   "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
   other:     "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
 };
+const EMPTY_EVENTS: any[] = [];
 
 export default function TimetableEventsPage() {
   const { isLoading, sessionToken } = useAuth();
@@ -34,8 +35,8 @@ export default function TimetableEventsPage() {
     sessionToken ? {} : "skip"
   );
 
-  const now = Date.now();
-  const allEvents = (events ?? []) as any[];
+  const [now] = useState(() => Date.now());
+  const allEvents = (events as any[] | undefined) ?? EMPTY_EVENTS;
 
   const filtered = useMemo(() => {
     return allEvents.filter((e) => {

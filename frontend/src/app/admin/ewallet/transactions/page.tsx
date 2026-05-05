@@ -35,6 +35,9 @@ const typeColors: Record<string, "default" | "secondary" | "destructive" | "outl
     transfer: "outline",
 };
 
+const EMPTY_TRANSACTIONS: WalletTransaction[] = [];
+const EMPTY_WALLETS: WalletSummary[] = [];
+
 export default function TransactionsPage() {
     const { isLoading, sessionToken } = useAuth();
     const [typeFilter, setTypeFilter] = useState("all");
@@ -48,11 +51,13 @@ export default function TransactionsPage() {
         sessionToken ? { sessionToken, limit: 250 } : "skip"
     );
 
-    if (isLoading) return <LoadingSkeleton variant="page" />;
-
-    const walletMap = new Map(((wallets as WalletSummary[]) ?? []).map((wallet) => [wallet._id, wallet]));
+    const walletList = (wallets as WalletSummary[] | undefined) ?? EMPTY_WALLETS;
+    const allTransactions = (transactions as WalletTransaction[] | undefined) ?? EMPTY_TRANSACTIONS;
+    const walletMap = useMemo(
+        () => new Map(walletList.map((wallet) => [wallet._id, wallet])),
+        [walletList]
+    );
     const filteredTransactions = useMemo(() => {
-        const allTransactions = (transactions as WalletTransaction[]) ?? [];
         if (typeFilter === "all") return allTransactions;
         if (typeFilter === "credit") {
             return allTransactions.filter((tx) => tx.amountCents > 0);
@@ -61,7 +66,9 @@ export default function TransactionsPage() {
             return allTransactions.filter((tx) => tx.amountCents < 0);
         }
         return allTransactions.filter((tx) => tx.type === typeFilter);
-    }, [transactions, typeFilter]);
+    }, [allTransactions, typeFilter]);
+
+    if (isLoading) return <LoadingSkeleton variant="page" />;
 
     const columns: Column<WalletTransaction>[] = [
         {

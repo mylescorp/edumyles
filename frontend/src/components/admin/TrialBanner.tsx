@@ -6,11 +6,12 @@ import { useTenant } from "@/hooks/useTenant";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 
-function getUrgency(trialEndsAt: number | null | undefined) {
+function getUrgency(trialEndsAt: number | null | undefined, currentTime: number) {
   if (!trialEndsAt) return { tone: "info" as const, daysLeft: null };
   const dayMs = 24 * 60 * 60 * 1000;
-  const daysLeft = Math.ceil((trialEndsAt - Date.now()) / dayMs);
+  const daysLeft = Math.ceil((trialEndsAt - currentTime) / dayMs);
   if (daysLeft < 3) return { tone: "critical" as const, daysLeft };
   if (daysLeft < 7) return { tone: "warning" as const, daysLeft };
   return { tone: "info" as const, daysLeft };
@@ -18,12 +19,13 @@ function getUrgency(trialEndsAt: number | null | undefined) {
 
 export function TrialBanner() {
   const { tenant } = useTenant();
+  const [currentTime] = useState(() => Date.now());
 
   if (!tenant || (tenant.status !== "trial" && tenant.status !== "trial_expired")) {
     return null;
   }
 
-  const urgency = getUrgency(tenant.trialEndsAt);
+  const urgency = getUrgency(tenant.trialEndsAt, currentTime);
 
   if (tenant.status === "trial_expired") {
     return (

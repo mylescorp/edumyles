@@ -24,6 +24,9 @@ type AuditLog = {
   createdAt: number;
 };
 
+const EMPTY_LOGS: AuditLog[] = [];
+const EMPTY_ACTION_TYPES: string[] = [];
+
 function getActionBadgeVariant(action: string): "default" | "secondary" | "destructive" | "outline" {
   if (action.includes("deleted") || action.includes("failed") || action.includes("suspended")) return "destructive";
   if (action.includes("created") || action.includes("enrolled")) return "default";
@@ -34,6 +37,7 @@ function getActionBadgeVariant(action: string): "default" | "secondary" | "destr
 export default function AuditReportsPage() {
   const { isLoading, sessionToken } = useAuth();
   const [actionFilter, setActionFilter] = useState("all");
+  const [currentTime] = useState(() => Date.now());
 
   const logs = useQuery(
     api.platform.audit.queries.listTenantAuditLogs,
@@ -47,15 +51,13 @@ export default function AuditReportsPage() {
     sessionToken ? { sessionToken } : "skip"
   );
 
-  if (isLoading) return <LoadingSkeleton variant="page" />;
-
-  const logList = (logs.data as any[]) ?? [];
-  const actionTypeList: string[] = (actionTypes.data as any[]) ?? [];
+  const logList = (logs?.data as AuditLog[] | undefined) ?? EMPTY_LOGS;
+  const actionTypeList = (actionTypes?.data as string[] | undefined) ?? EMPTY_ACTION_TYPES;
 
   // Summary stats
   const stats = useMemo(() => {
-    const today = Date.now() - 24 * 60 * 60 * 1000;
-    const week = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const today = currentTime - 24 * 60 * 60 * 1000;
+    const week = currentTime - 7 * 24 * 60 * 60 * 1000;
     const uniqueUsers = new Set(logList.map((l: any) => l.actorId)).size;
     return {
       total: logList.length,
@@ -63,7 +65,9 @@ export default function AuditReportsPage() {
       thisWeek: logList.filter((l: any) => l.createdAt > week).length,
       uniqueUsers,
     };
-  }, [logList]);
+  }, [currentTime, logList]);
+
+  if (isLoading) return <LoadingSkeleton variant="page" />;
 
   const columns: Column<AuditLog>[] = [
     {

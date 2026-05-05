@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation, useQuery } from "@/hooks/useSSRSafeConvex";
+import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -258,8 +258,6 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
     api.modules.platform.currency.getSupportedCurrencies,
     sessionToken ? { sessionToken } : "skip"
   );
-  const provisionTenant = useMutation(api.platform.tenants.mutations.provisionTenant);
-
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -713,105 +711,88 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
 
     setIsSubmitting(true);
     try {
-      setSubmitStage("Creating tenant workspace");
-      const result = await provisionTenant({
-        sessionToken,
-        organizationMode: formData.organizationMode,
-        networkName:
-          formData.organizationMode === "multi_campus_network" ? formData.networkName || undefined : undefined,
-        schoolName: formData.schoolName,
-        schoolType: formData.schoolType,
-        curriculumMode: formData.curriculumMode,
-        primaryCurriculumCode: formData.primaryCurriculumCode,
-        activeCurriculumCodes: formData.activeCurriculumCodes,
-        country: formData.country,
-        county: formData.county,
-        address: formData.address || undefined,
-        websiteUrl: formData.websiteUrl || undefined,
-        logoUrl: formData.logoUrl || undefined,
-        adminFirstName: formData.adminFirstName,
-        adminLastName: formData.adminLastName,
-        adminEmail: formData.adminEmail,
-        adminPhone: formData.adminPhone || undefined,
-        adminJobTitle: formData.adminJobTitle,
-        sendMagicLink: formData.sendMagicLink,
-        planId: formData.planId,
-        billingCycle: formData.billingCycle,
-        customPriceMonthlyKes: toNumber(formData.customPriceMonthlyKes),
-        customPriceAnnualKes: toNumber(formData.customPriceAnnualKes),
-        trialDays: Number(formData.trialDays),
-        studentCountEstimate: toNumber(formData.studentCountEstimate),
-        paymentCollectionMode: formData.paymentCollectionMode,
-        subdomain: formData.subdomain,
-        customDomain: formData.customDomain || undefined,
-        timezone: formData.timezone,
-        displayCurrency: formData.displayCurrency,
-        academicYearStartMonth: Number(formData.academicYearStartMonth),
-        termStructure: formData.termStructure,
-        selectedModuleIds: formData.selectedModuleIds,
-        pilotGrantModuleIds: formData.pilotGrantModuleIds,
-        welcomeTemplate: formData.welcomeTemplate,
-        welcomeMessage: formData.welcomeMessage || undefined,
-        sendWelcomeImmediately: formData.sendWelcomeImmediately,
-        primaryCampus:
-          formData.organizationMode === "multi_campus_network"
-            ? {
-                campusName: formData.primaryCampusName || formData.schoolName,
-                campusCode: formData.primaryCampusCode || undefined,
-                schoolName: formData.schoolName,
-                subdomain: formData.subdomain,
-                county: formData.county,
-                country: formData.country,
-                schoolType: formData.schoolType,
-              }
-            : undefined,
-        additionalCampuses:
-          formData.organizationMode === "multi_campus_network"
-            ? additionalCampuses
-                .filter((campus) => campus.campusName.trim())
-                .map((campus) => ({
-                  campusName: campus.campusName.trim(),
-                  campusCode: campus.campusCode.trim() || undefined,
-                  schoolName: campus.schoolName.trim() || campus.campusName.trim(),
-                  subdomain: campus.subdomain.trim().toLowerCase(),
-                  county: campus.county.trim() || formData.county,
-                  country: campus.country.trim() || formData.country,
-                  schoolType: campus.schoolType.trim() || formData.schoolType,
-                }))
-            : undefined,
-      });
-
-      setSubmitStage("Provisioning organization");
-      const orgResponse = await fetch("/api/tenants/provision-org", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionToken, tenantId: result.tenantId }),
-      });
-      const orgPayload = await orgResponse.json().catch(() => ({}));
-      if (!orgResponse.ok) {
-        throw new Error(orgPayload.error ?? "Failed to provision WorkOS organization");
-      }
-
-      setSubmitStage("Sending WorkOS invitation");
-      const inviteResponse = await fetch("/api/tenants/invite-admin", {
+      setSubmitStage("Creating tenant, domain, organization, and admin invite");
+      const onboardResponse = await fetch("/api/tenants/onboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionToken,
-          tenantId: result.tenantId,
-          email: formData.adminEmail,
-          firstName: formData.adminFirstName,
-          lastName: formData.adminLastName,
-          role: "school_admin",
+          organizationMode: formData.organizationMode,
+          networkName:
+            formData.organizationMode === "multi_campus_network" ? formData.networkName || undefined : undefined,
+          schoolName: formData.schoolName,
+          schoolType: formData.schoolType,
+          curriculumMode: formData.curriculumMode,
+          primaryCurriculumCode: formData.primaryCurriculumCode,
+          activeCurriculumCodes: formData.activeCurriculumCodes,
+          country: formData.country,
+          county: formData.county,
+          address: formData.address || undefined,
+          websiteUrl: formData.websiteUrl || undefined,
+          logoUrl: formData.logoUrl || undefined,
+          adminFirstName: formData.adminFirstName,
+          adminLastName: formData.adminLastName,
+          adminEmail: formData.adminEmail,
+          adminPhone: formData.adminPhone || undefined,
+          adminJobTitle: formData.adminJobTitle,
+          sendMagicLink: formData.sendMagicLink,
+          planId: formData.planId,
+          billingCycle: formData.billingCycle,
+          customPriceMonthlyKes: toNumber(formData.customPriceMonthlyKes),
+          customPriceAnnualKes: toNumber(formData.customPriceAnnualKes),
+          trialDays: Number(formData.trialDays),
+          studentCountEstimate: toNumber(formData.studentCountEstimate),
+          paymentCollectionMode: formData.paymentCollectionMode,
+          subdomain: formData.subdomain,
+          customDomain: formData.customDomain || undefined,
+          timezone: formData.timezone,
+          displayCurrency: formData.displayCurrency,
+          academicYearStartMonth: Number(formData.academicYearStartMonth),
+          termStructure: formData.termStructure,
+          selectedModuleIds: formData.selectedModuleIds,
+          pilotGrantModuleIds: formData.pilotGrantModuleIds,
+          welcomeTemplate: formData.welcomeTemplate,
+          welcomeMessage: formData.welcomeMessage || undefined,
+          sendWelcomeImmediately: formData.sendWelcomeImmediately,
+          primaryCampus:
+            formData.organizationMode === "multi_campus_network"
+              ? {
+                  campusName: formData.primaryCampusName || formData.schoolName,
+                  campusCode: formData.primaryCampusCode || undefined,
+                  schoolName: formData.schoolName,
+                  subdomain: formData.subdomain,
+                  county: formData.county,
+                  country: formData.country,
+                  schoolType: formData.schoolType,
+                }
+              : undefined,
+          additionalCampuses:
+            formData.organizationMode === "multi_campus_network"
+              ? additionalCampuses
+                  .filter((campus) => campus.campusName.trim())
+                  .map((campus) => ({
+                    campusName: campus.campusName.trim(),
+                    campusCode: campus.campusCode.trim() || undefined,
+                    schoolName: campus.schoolName.trim() || campus.campusName.trim(),
+                    subdomain: campus.subdomain.trim().toLowerCase(),
+                    county: campus.county.trim() || formData.county,
+                    country: campus.country.trim() || formData.country,
+                    schoolType: campus.schoolType.trim() || formData.schoolType,
+                  }))
+              : undefined,
         }),
       });
-      const invitePayload = await inviteResponse.json().catch(() => ({}));
-      if (!inviteResponse.ok) {
-        throw new Error(invitePayload.error ?? "Failed to send WorkOS invitation");
+      const onboardPayload = await onboardResponse.json().catch(() => ({}));
+      if (!onboardResponse.ok) {
+        throw new Error(
+          onboardPayload.stage
+            ? `${onboardPayload.error ?? "Tenant onboarding failed"} (${onboardPayload.stage})`
+            : onboardPayload.error ?? "Tenant onboarding failed"
+        );
       }
 
       setSubmitStage("Redirecting to tenant profile");
-      router.push(`/platform/tenants/${result.tenantId}`);
+      router.push(`/platform/tenants/${onboardPayload.tenantId}`);
     } catch (submitError: any) {
       setError(submitError?.message ?? "Failed to provision tenant");
     } finally {
@@ -1694,7 +1675,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
             <Mail className="mt-0.5 h-4 w-4 text-primary" />
             <div>
               <p className="font-medium">Invite-ready admin account</p>
-              <p className="text-sm text-muted-foreground">The school admin is staged for first login and receives a WorkOS invitation linked to the tenant organization.</p>
+              <p className="text-sm text-muted-foreground">The school admin is staged for first login and receives an EduMyles invitation email, while the tenant organization is still linked in WorkOS for auth and membership.</p>
             </div>
           </CardContent>
         </Card>

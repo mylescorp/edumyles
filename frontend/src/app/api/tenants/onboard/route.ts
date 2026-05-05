@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
-import {
-  buildWorkOSSignUpUrl,
-  ensureTenantWorkOSOrganization,
-  getWorkOSClientFromEnv,
-} from "@/lib/workos-invitations";
+import { ensureTenantWorkOSOrganization } from "@/lib/workos-invitations";
 import { ensureFrontendDomain } from "@/lib/vercel-domains";
 
 export async function POST(req: NextRequest) {
@@ -104,7 +100,7 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
       if (error?.message?.includes("WORKOS_NOT_CONFIGURED")) {
         warnings.push(
-          "WorkOS is not configured yet. The tenant was provisioned with a placeholder organization and the admin invite email was not sent."
+          "WorkOS is not configured yet. The tenant was provisioned with a placeholder organization, but the admin invite email still uses the EduMyles Resend flow."
         );
         const existingOrganization = await convex.query(api.organizations.getOrgByTenantId, {
           tenantId,
@@ -139,41 +135,8 @@ export async function POST(req: NextRequest) {
       expiresInDays: 7,
     });
 
-    let invitationId: string | null = null;
-    let signUpUrl: string | null = null;
-
-    try {
-      signUpUrl = buildWorkOSSignUpUrl(req, String(adminEmail).trim().toLowerCase());
-    } catch (error: any) {
-      if (error?.message?.includes("WORKOS_NOT_CONFIGURED")) {
-        warnings.push(
-          "WorkOS sign-up links are unavailable until WorkOS environment variables are configured."
-        );
-      } else {
-        throw error;
-      }
-    }
-
-    if (sendWelcomeImmediately !== false && organization) {
-      try {
-        stage = "sending_workos_invitation";
-        const { workos } = getWorkOSClientFromEnv();
-        const invitation = await workos.userManagement.sendInvitation({
-          email: String(adminEmail).trim().toLowerCase(),
-          organizationId: organization.workosOrgId,
-          expiresInDays: 7,
-        });
-        invitationId = invitation.id;
-      } catch (error: any) {
-        if (error?.message?.includes("WORKOS_NOT_CONFIGURED")) {
-          warnings.push(
-            "The tenant admin invite record was created, but the WorkOS email invitation could not be sent because WorkOS is not configured."
-          );
-        } else {
-          throw error;
-        }
-      }
-    }
+    const signUpUrl = (inviteRecord as any).inviteUrl ?? null;
+    const invitationQueued = sendWelcomeImmediately !== false;
 
     return NextResponse.json({
       success: true,
@@ -181,12 +144,12 @@ export async function POST(req: NextRequest) {
       tenantDocId: provisionResult.tenantDocId,
       organizationId: organization?.organizationId ?? null,
       workosOrgId: organization?.workosOrgId ?? null,
-      invitationId,
+      invitationId: null,
       inviteToken: (inviteRecord as any).inviteToken ?? null,
       inviteRecordId: (inviteRecord as any).tenantInviteId ?? null,
       inviteUrl: (inviteRecord as any).inviteUrl ?? null,
       signUpUrl,
-      invitationQueued: Boolean(invitationId),
+      invitationQueued,
       warnings,
       tenantName: payload.schoolName,
       subdomain: provisionResult.subdomain,

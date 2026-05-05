@@ -13,50 +13,73 @@ function verifyCalSignature(rawBody: string, signatureHeader: string | null, sec
   }
 }
 
-function normalizeBookingPayload(payload: any) {
-  const wrapperPayload = payload?.payload ?? payload ?? {};
+type CalWebhookPayload = Record<string, unknown>;
+
+function normalizeBookingPayload(payload: CalWebhookPayload) {
+  const wrapperPayload = isRecord(payload.payload) ? payload.payload : payload;
+  const responses = isRecord(wrapperPayload.responses) ? wrapperPayload.responses : {};
+  const metadata = isRecord(wrapperPayload.metadata) ? wrapperPayload.metadata : {};
+  const attendeeFromList = Array.isArray(wrapperPayload.attendees)
+    ? wrapperPayload.attendees.find(isRecord)
+    : undefined;
   const attendee =
-    wrapperPayload?.attendees?.[0] ??
-    (wrapperPayload?.responses?.email
+    attendeeFromList ??
+    (responses.email
       ? {
-          email:
-            typeof wrapperPayload.responses.email === "string"
-              ? wrapperPayload.responses.email
-              : wrapperPayload.responses.email?.value,
-          name:
-            typeof wrapperPayload.responses.name === "string"
-              ? wrapperPayload.responses.name
-              : wrapperPayload.responses.name?.value,
-          notes:
-            typeof wrapperPayload.responses.notes === "string"
-              ? wrapperPayload.responses.notes
-              : wrapperPayload.responses.notes?.value,
+          email: responseValue(responses.email),
+          name: responseValue(responses.name),
+          notes: responseValue(responses.notes),
         }
       : undefined);
 
-  const firstReference = wrapperPayload?.references?.[0];
+  const firstReference = Array.isArray(wrapperPayload.references)
+    ? wrapperPayload.references.find(isRecord)
+    : undefined;
 
   return {
-    triggerEvent: payload?.triggerEvent ?? wrapperPayload?.triggerEvent,
-    createdAt: payload?.createdAt,
-    bookingUid: wrapperPayload?.bookingUid ?? wrapperPayload?.uid,
-    bookingId: wrapperPayload?.bookingId ?? wrapperPayload?.id,
-    startTime: wrapperPayload?.startTime ?? payload?.startTime,
-    endTime: wrapperPayload?.endTime ?? payload?.endTime,
+    triggerEvent: stringValue(payload.triggerEvent) ?? stringValue(wrapperPayload.triggerEvent),
+    createdAt: stringValue(payload.createdAt),
+    bookingUid: stringValue(wrapperPayload.bookingUid) ?? stringValue(wrapperPayload.uid),
+    bookingId:
+      stringValue(wrapperPayload.bookingId) ??
+      numberValue(wrapperPayload.bookingId) ??
+      stringValue(wrapperPayload.id) ??
+      numberValue(wrapperPayload.id),
+    startTime: stringValue(wrapperPayload.startTime) ?? stringValue(payload.startTime),
+    endTime: stringValue(wrapperPayload.endTime) ?? stringValue(payload.endTime),
     meetingUrl:
-      firstReference?.meetingUrl ??
-      wrapperPayload?.location ??
-      wrapperPayload?.metadata?.meetingUrl,
-    eventTypeTitle: wrapperPayload?.eventTypeTitle ?? wrapperPayload?.title,
-    attendeeName: attendee?.name,
-    attendeeEmail: attendee?.email,
+      stringValue(firstReference?.meetingUrl) ??
+      stringValue(wrapperPayload.location) ??
+      stringValue(metadata.meetingUrl),
+    eventTypeTitle: stringValue(wrapperPayload.eventTypeTitle) ?? stringValue(wrapperPayload.title),
+    demoRequestId:
+      stringValue(metadata.demoRequestId) ??
+      stringValue(metadata.demo_request_id) ??
+      stringValue(isRecord(payload.metadata) ? payload.metadata.demoRequestId : undefined),
+    attendeeName: isRecord(attendee) ? stringValue(attendee.name) : undefined,
+    attendeeEmail: isRecord(attendee) ? stringValue(attendee.email) : undefined,
     attendeeNotes:
-      attendee?.notes ??
-      (typeof wrapperPayload?.responses?.notes === "string"
-        ? wrapperPayload.responses.notes
-        : wrapperPayload?.responses?.notes?.value),
+      (isRecord(attendee) ? stringValue(attendee.notes) : undefined) ?? responseValue(responses.notes),
     rawPayload: payload,
   };
+}
+
+function isRecord(value: unknown): value is CalWebhookPayload {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function stringValue(value: unknown) {
+  return typeof value === "string" ? value : undefined;
+}
+
+function numberValue(value: unknown) {
+  return typeof value === "number" ? value : undefined;
+}
+
+function responseValue(value: unknown) {
+  if (typeof value === "string") return value;
+  if (isRecord(value) && typeof value.value === "string") return value.value;
+  return undefined;
 }
 
 export async function POST(request: NextRequest) {
@@ -65,6 +88,10 @@ export async function POST(request: NextRequest) {
   try {
     const secret = process.env.CALCOM_WEBHOOK_SECRET?.trim();
     const signature = request.headers.get("x-cal-signature-256");
+
+    if (!secret && process.env.NODE_ENV === "production") {
+      return NextResponse.json({ error: "Cal.com webhook secret is not configured" }, { status: 500 });
+    }
 
     if (secret && !verifyCalSignature(rawBody, signature, secret)) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
@@ -77,10 +104,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ignored: true, reason: "Missing attendee email or trigger event" });
     }
 
+    const bookingUpdate = {
+      ...normalized,
+      triggerEvent: normalized.triggerEvent,
+      attendeeEmail: normalized.attendeeEmail,
+    };
+
     const convex = getLandingConvexClient();
     const result = await convex.mutation(
       api.modules.platform.demoRequests.ingestCalendarBookingWebhook,
-      normalized
+      bookingUpdate
     );
 
     return NextResponse.json({ success: true, ...result });

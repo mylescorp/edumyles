@@ -25,27 +25,6 @@ export default function DevAuditPage() {
     loadSystemMap,
   } = useDevSystemMapData();
   const [query, setQuery] = useState("");
-
-  if (isLoading && !systemMap) {
-    return (
-      <DevConsoleShell
-        title="Development Audit Trail"
-        description="Timestamped development history across frontend features, backend services, and scan events."
-        systemMap={null}
-        isRefreshing={isRefreshing}
-        autoRefresh={autoRefresh}
-        setAutoRefresh={setAutoRefresh}
-        onRefresh={() => void loadSystemMap("refresh")}
-      >
-        <LoadingState />
-      </DevConsoleShell>
-    );
-  }
-
-  const frontendEntries = systemMap?.auditTrail.filter((entry) => entry.scope === "frontend").length ?? 0;
-  const backendEntries = systemMap?.auditTrail.filter((entry) => entry.scope === "backend").length ?? 0;
-  const runtimeEntries = systemMap?.auditTrail.filter((entry) => entry.category === "runtime").length ?? 0;
-  const lastScanDate = systemMap ? new Date(systemMap.summary.generatedAt).toLocaleDateString("en-KE", { dateStyle: "medium" }) : "-";
   const filteredAudit = useMemo(() => {
     if (!systemMap) return [];
     const needle = query.trim().toLowerCase();
@@ -67,6 +46,27 @@ export default function DevAuditPage() {
         .includes(needle)
     );
   }, [query, systemMap]);
+
+  if (isLoading && !systemMap) {
+    return (
+      <DevConsoleShell
+        title="Development Audit Trail"
+        description="Timestamped development history across frontend features, backend services, and scan events."
+        systemMap={null}
+        isRefreshing={isRefreshing}
+        autoRefresh={autoRefresh}
+        setAutoRefresh={setAutoRefresh}
+        onRefresh={() => void loadSystemMap("refresh")}
+      >
+        <LoadingState />
+      </DevConsoleShell>
+    );
+  }
+
+  const frontendEntries = systemMap?.auditTrail.filter((entry) => entry.scope === "frontend").length ?? 0;
+  const backendEntries = systemMap?.auditTrail.filter((entry) => entry.scope === "backend").length ?? 0;
+  const runtimeEntries = systemMap?.auditTrail.filter((entry) => entry.category === "runtime").length ?? 0;
+  const lastScanDate = systemMap ? new Date(systemMap.summary.generatedAt).toLocaleDateString("en-KE", { dateStyle: "medium" }) : "-";
 
   return (
     <DevConsoleShell

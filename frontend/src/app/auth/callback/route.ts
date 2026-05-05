@@ -238,6 +238,7 @@ export async function GET(req: NextRequest) {
         tenantId: string;
         tenantName: string;
         tenantSubdomain: string;
+        organizationId?: Id<"organizations">;
         user: {
           tenantId: string;
           eduMylesUserId: string;
@@ -270,22 +271,38 @@ export async function GET(req: NextRequest) {
       let tenantUser = tenantAccess.user;
 
       if (tenantUser?.workosUserId.startsWith("pending-")) {
-        const organizationId = tenantUser.organizationId;
+        const organizationId = tenantUser.organizationId ?? tenantAccess.organizationId;
         if (!organizationId) {
-          throw new Error("Pending tenant user is missing organization context");
+          console.error("[auth/callback] Pending tenant user is missing organization context", {
+            tenantId: tenantAccess.tenantId,
+            tenantSubdomain: tenantAccess.tenantSubdomain,
+            email: user.email,
+          });
+          return authError(req, "tenant_organization_missing");
         }
 
-        await convex.mutation(api.users.upsertUser, {
-          tenantId: tenantUser.tenantId,
-          eduMylesUserId: tenantUser.eduMylesUserId,
-          workosUserId: user.id,
-          email: user.email,
-          firstName: user.firstName ?? tenantUser.firstName ?? undefined,
-          lastName: user.lastName ?? tenantUser.lastName ?? undefined,
-          role: tenantUser.role,
-          permissions: tenantUser.permissions ?? [],
-          organizationId,
-        });
+        try {
+          await convex.mutation(api.users.upsertUser, {
+            tenantId: tenantUser.tenantId,
+            eduMylesUserId: tenantUser.eduMylesUserId,
+            workosUserId: user.id,
+            email: user.email,
+            firstName: user.firstName ?? tenantUser.firstName ?? undefined,
+            lastName: user.lastName ?? tenantUser.lastName ?? undefined,
+            role: tenantUser.role,
+            permissions: tenantUser.permissions ?? [],
+            organizationId,
+          });
+        } catch (error) {
+          console.error("[auth/callback] Pending tenant invite link failed:", {
+            tenantId: tenantUser.tenantId,
+            tenantSlug: tenantAuthContext.tenantSlug,
+            email: user.email,
+            pendingUserId: tenantUser.eduMylesUserId,
+            error,
+          });
+          return authError(req, "tenant_membership_link_failed");
+        }
 
         tenantUser = {
           ...tenantUser,
@@ -313,22 +330,43 @@ export async function GET(req: NextRequest) {
       const tenantId = tenantUser.tenantId;
       const sessionToken = crypto.randomBytes(32).toString("hex");
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
-      await convex.mutation(api.sessions.createSession, {
-        serverSecret: serverSecret ?? "",
-        sessionToken,
-        tenantId,
-        userId: user.id,
-        email: user.email,
-        role,
-        expiresAt,
-      });
+      try {
+        await convex.mutation(api.sessions.createSession, {
+          serverSecret: serverSecret ?? "",
+          sessionToken,
+          tenantId,
+          userId: user.id,
+          email: user.email,
+          role,
+          expiresAt,
+        });
+      } catch (error) {
+        console.error("[auth/callback] Tenant session creation failed:", {
+          tenantId,
+          tenantSlug: tenantAuthContext.tenantSlug,
+          email: user.email,
+          error,
+        });
+        return authError(req, "tenant_session_failed");
+      }
 
       const returnUrl = resolveTenantReturnUrl(req, stateData, tenantAuthContext.tenantOrigin);
 
       console.log(
         `[auth/callback] ✅ tenant ${user.email} → ${tenantAuthContext.tenantSlug} → ${returnUrl.pathname}`
       );
-      await saveSession({ accessToken, refreshToken, user, impersonator }, req);
+      try {
+        await saveSession({ accessToken, refreshToken, user, impersonator }, req);
+      } catch (error) {
+        console.error("[auth/callback] WorkOS session save failed:", {
+          tenantId,
+          tenantSlug: tenantAuthContext.tenantSlug,
+          email: user.email,
+          callbackHost: req.headers.get("host"),
+          error,
+        });
+        return authError(req, "session_cookie_failed");
+      }
       const res = NextResponse.redirect(returnUrl);
       setSessionCookies(res, sessionToken, user, role, tenantId, isProduction, req.headers.get("host"));
       return res;

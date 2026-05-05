@@ -58,6 +58,7 @@ export default function PilotGrantsPage() {
   const [extendReason, setExtendReason] = useState("");
   const [extendDate, setExtendDate] = useState("");
   const [revokeReason, setRevokeReason] = useState("");
+  const [currentTime] = useState(() => Date.now());
 
   const data = usePlatformQuery(
     marketplacePlatformApi.getPlatformPilotGrantsData,
@@ -85,10 +86,10 @@ export default function PilotGrantsPage() {
     return {
       total: rows.length,
       active: rows.filter((grant: any) => grant.status === "active" || grant.status === "extended").length,
-      expiringSoon: rows.filter((grant: any) => grant.endDate && grant.endDate < Date.now() + 7 * 24 * 60 * 60 * 1000).length,
+      expiringSoon: rows.filter((grant: any) => grant.endDate && grant.endDate < currentTime + 7 * 24 * 60 * 60 * 1000).length,
       converted: rows.filter((grant: any) => grant.status === "converted").length,
     };
-  }, [data]);
+  }, [currentTime, data]);
 
   if (isLoading || data === undefined) {
     return <LoadingSkeleton variant="page" />;

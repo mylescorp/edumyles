@@ -9,12 +9,16 @@ export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    try {
-      setVisible(!window.localStorage.getItem("em-cookies"));
-    } catch {
-      setVisible(true);
-    }
+    const timer = window.setTimeout(() => {
+      setMounted(true);
+      try {
+        setVisible(!window.localStorage.getItem("em-cookies"));
+      } catch {
+        setVisible(true);
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   function accept() {

@@ -1,11 +1,8 @@
 "use client";
 
 import { ReactNode } from "react";
-import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
-import { GlobalShell } from "@/components/layout/GlobalShell";
 import { TrialBanner } from "@/components/admin/TrialBanner";
-import { RoleGuard } from "@/components/shared/RoleGuard";
-import { ModuleAccessGuard } from "@/components/shared/ModuleAccessGuard";
+import { AppShellBase } from "@/components/layout/shells/AppShellBase";
 import { adminNavItems } from "@/lib/routes";
 
 const ADMIN_ROLES = [
@@ -21,19 +18,16 @@ const ADMIN_ROLES = [
 
 export function AdminShell({ children }: { children: ReactNode }) {
   return (
-    <ConvexAuthProvider>
-      <RoleGuard allowedRoles={ADMIN_ROLES}>
-        <GlobalShell navItems={adminNavItems}>
-          <ModuleAccessGuard fallbackHref="/admin/modules">
-            <div className="p-4 md:p-6">
-              <div className="mx-auto max-w-[1400px] space-y-4">
-                <TrialBanner />
-                {children}
-              </div>
-            </div>
-          </ModuleAccessGuard>
-        </GlobalShell>
-      </RoleGuard>
-    </ConvexAuthProvider>
+    <AppShellBase
+      allowedRoles={ADMIN_ROLES}
+      navItems={adminNavItems}
+      useModuleAccessGuard
+      fallbackHref="/admin/modules"
+    >
+      <div className="space-y-4">
+        <TrialBanner />
+        {children}
+      </div>
+    </AppShellBase>
   );
 }

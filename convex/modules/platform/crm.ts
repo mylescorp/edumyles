@@ -1821,8 +1821,18 @@ export const convertLeadToTenant = mutation({
       actorEmail: actor.email,
       to: [lead.email],
       subject: `Your EduMyles invitation is ready, ${names.firstName}!`,
-      html: `<p>Hello ${lead.contactName},</p><p>Your EduMyles onboarding invite is ready.</p><p><a href="${inviteUrl}">Accept invitation</a></p>`,
-      text: `Accept your EduMyles invite here: ${inviteUrl}`,
+      template: "tenant_invite",
+      data: {
+        firstName: names.firstName,
+        schoolName: lead.schoolName,
+        role: "school_admin",
+        inviteUrl,
+        tenantUrl: getAppUrl(),
+        setupUrl: `${getAppUrl()}/admin/setup`,
+        appUrl: getAppUrl(),
+        expiryDate: new Date(invitePayload.expiresAt).toUTCString(),
+        personalMessage: invitePayload.personalMessage,
+      },
     });
 
     await ctx.db.patch(args.leadId, {
