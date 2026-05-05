@@ -175,3 +175,15 @@
  GET / 200 in 521ms (next.js: 45ms, application-code: 476ms)
  GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 200 in 60ms (next.js: 6ms, application-code: 54ms)
  POST /api/demo-request 200 in 1001ms (next.js: 5ms, application-code: 996ms)
+✓ Compiled in 643ms
+○ Compiling /_error ...
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 500 in 4.4s (next.js: 4.0s, application-code: 392ms)
+ GET /reseller 500 in 4.4s (next.js: 4.4s, application-code: 41ms)
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 500 in 766ms (next.js: 283ms, application-code: 483ms)
+ GET /reseller 500 in 760ms (next.js: 376ms, application-code: 384ms)
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 500 in 751ms (next.js: 469ms, application-code: 282ms)
+ GET /reseller 500 in 748ms (next.js: 557ms, application-code: 192ms)
+ GET /reseller 500 in 18ms
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 500 in 115ms (next.js: 90ms, application-code: 25ms)
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 500 in 116ms (next.js: 87ms, application-code: 29ms)
+✓ Compiled in 1574ms

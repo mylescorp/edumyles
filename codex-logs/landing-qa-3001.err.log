@@ -303,3 +303,1212 @@ https://react.dev/link/hydration-mismatch
   359 |                       </span>
 [browser] Image with src "http://localhost:3001/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
 [browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+⨯ ./landing/src/app/book-demo/BookDemoContent.tsx:290:2
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m  [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:4
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m    [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m      [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:3:1
+Merge conflict marker encountered.
+  [90m1 |[0m [32m"use client"[0m;
+  [90m2 |[0m
+[31m[1m>[0m [90m3 |[0m <<<<<<< [33mHEAD[0m
+  [90m  |[0m [31m[1m^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m { useEffect, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-rea...[0m
+  [90m6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:7:1
+Merge conflict marker encountered.
+  [90m 5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-re...[0m
+  [90m 6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m 7 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { useEffect, useMemo, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:11:1
+Merge conflict marker encountered.
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m11 |[0m >>>>>>> f64cd1a91be76107760fe960c0fc53a6df562a22
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m12 |[0m [36mimport[0m { trackEvent, trackLeadConversion } [36mfrom[0m [32m"@/lib/analytics"[0m;
+  [90m13 |[0m
+  [90m14 |[0m [36mtype[0m [33mCalDemoEmbedProps[0m = {
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:43:1
+Merge conflict marker encountered.
+  [90m41 |[0m
+  [90m42 |[0m   [36mreturn[0m [36mnew[0m [33mPromise[0m<[36mvoid[0m>((resolve, reject) => {
+[31m[1m>[0m [90m43 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m44 |[0m     [36mconst[0m scriptSrc = [32m`[0m${[33mCALCOM_EMBED_ORIGIN[0m[32m}/embed/embed.js`[0m;
+  [90m45 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>([32m`script[src="[0m${scriptSrc[32m}"]`[0m);
+  [90m46 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:50:1
+Merge conflict marker encountered.
+  [90m48 |[0m       existing.addEventListener([32m"load"[0m, () => resolve(), { once: [36mtrue[0m });
+  [90m49 |[0m       existing.addEventListener([32m"error"[0m, () => reject([36mnew[0m [33mError[0m([32m"Calendar embed failed to ...[0m
+[31m[1m>[0m [90m50 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m51 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>(
+  [90m52 |[0m       [32m'script[src="https://app.cal.com/embed/embed.js"]'[0m
+  [90m53 |[0m     );
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+⨯ ./landing/src/app/book-demo/BookDemoContent.tsx:290:2
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m  [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:4
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m    [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m      [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:3:1
+Merge conflict marker encountered.
+  [90m1 |[0m [32m"use client"[0m;
+  [90m2 |[0m
+[31m[1m>[0m [90m3 |[0m <<<<<<< [33mHEAD[0m
+  [90m  |[0m [31m[1m^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m { useEffect, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-rea...[0m
+  [90m6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:7:1
+Merge conflict marker encountered.
+  [90m 5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-re...[0m
+  [90m 6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m 7 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { useEffect, useMemo, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:11:1
+Merge conflict marker encountered.
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m11 |[0m >>>>>>> f64cd1a91be76107760fe960c0fc53a6df562a22
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m12 |[0m [36mimport[0m { trackEvent, trackLeadConversion } [36mfrom[0m [32m"@/lib/analytics"[0m;
+  [90m13 |[0m
+  [90m14 |[0m [36mtype[0m [33mCalDemoEmbedProps[0m = {
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:43:1
+Merge conflict marker encountered.
+  [90m41 |[0m
+  [90m42 |[0m   [36mreturn[0m [36mnew[0m [33mPromise[0m<[36mvoid[0m>((resolve, reject) => {
+[31m[1m>[0m [90m43 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m44 |[0m     [36mconst[0m scriptSrc = [32m`[0m${[33mCALCOM_EMBED_ORIGIN[0m[32m}/embed/embed.js`[0m;
+  [90m45 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>([32m`script[src="[0m${scriptSrc[32m}"]`[0m);
+  [90m46 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:50:1
+Merge conflict marker encountered.
+  [90m48 |[0m       existing.addEventListener([32m"load"[0m, () => resolve(), { once: [36mtrue[0m });
+  [90m49 |[0m       existing.addEventListener([32m"error"[0m, () => reject([36mnew[0m [33mError[0m([32m"Calendar embed failed to ...[0m
+[31m[1m>[0m [90m50 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m51 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>(
+  [90m52 |[0m       [32m'script[src="https://app.cal.com/embed/embed.js"]'[0m
+  [90m53 |[0m     );
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+⨯ ./landing/src/app/book-demo/BookDemoContent.tsx:290:2
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m  [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:4
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m    [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m      [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:3:1
+Merge conflict marker encountered.
+  [90m1 |[0m [32m"use client"[0m;
+  [90m2 |[0m
+[31m[1m>[0m [90m3 |[0m <<<<<<< [33mHEAD[0m
+  [90m  |[0m [31m[1m^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m { useEffect, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-rea...[0m
+  [90m6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:7:1
+Merge conflict marker encountered.
+  [90m 5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-re...[0m
+  [90m 6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m 7 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { useEffect, useMemo, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:11:1
+Merge conflict marker encountered.
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m11 |[0m >>>>>>> f64cd1a91be76107760fe960c0fc53a6df562a22
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m12 |[0m [36mimport[0m { trackEvent, trackLeadConversion } [36mfrom[0m [32m"@/lib/analytics"[0m;
+  [90m13 |[0m
+  [90m14 |[0m [36mtype[0m [33mCalDemoEmbedProps[0m = {
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:43:1
+Merge conflict marker encountered.
+  [90m41 |[0m
+  [90m42 |[0m   [36mreturn[0m [36mnew[0m [33mPromise[0m<[36mvoid[0m>((resolve, reject) => {
+[31m[1m>[0m [90m43 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m44 |[0m     [36mconst[0m scriptSrc = [32m`[0m${[33mCALCOM_EMBED_ORIGIN[0m[32m}/embed/embed.js`[0m;
+  [90m45 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>([32m`script[src="[0m${scriptSrc[32m}"]`[0m);
+  [90m46 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:50:1
+Merge conflict marker encountered.
+  [90m48 |[0m       existing.addEventListener([32m"load"[0m, () => resolve(), { once: [36mtrue[0m });
+  [90m49 |[0m       existing.addEventListener([32m"error"[0m, () => reject([36mnew[0m [33mError[0m([32m"Calendar embed failed to ...[0m
+[31m[1m>[0m [90m50 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m51 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>(
+  [90m52 |[0m       [32m'script[src="https://app.cal.com/embed/embed.js"]'[0m
+  [90m53 |[0m     );
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+⨯ ./landing/src/app/book-demo/BookDemoContent.tsx:290:2
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m  [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:4
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m    [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m      [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:3:1
+Merge conflict marker encountered.
+  [90m1 |[0m [32m"use client"[0m;
+  [90m2 |[0m
+[31m[1m>[0m [90m3 |[0m <<<<<<< [33mHEAD[0m
+  [90m  |[0m [31m[1m^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m { useEffect, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-rea...[0m
+  [90m6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:7:1
+Merge conflict marker encountered.
+  [90m 5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-re...[0m
+  [90m 6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m 7 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { useEffect, useMemo, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:11:1
+Merge conflict marker encountered.
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m11 |[0m >>>>>>> f64cd1a91be76107760fe960c0fc53a6df562a22
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m12 |[0m [36mimport[0m { trackEvent, trackLeadConversion } [36mfrom[0m [32m"@/lib/analytics"[0m;
+  [90m13 |[0m
+  [90m14 |[0m [36mtype[0m [33mCalDemoEmbedProps[0m = {
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:43:1
+Merge conflict marker encountered.
+  [90m41 |[0m
+  [90m42 |[0m   [36mreturn[0m [36mnew[0m [33mPromise[0m<[36mvoid[0m>((resolve, reject) => {
+[31m[1m>[0m [90m43 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m44 |[0m     [36mconst[0m scriptSrc = [32m`[0m${[33mCALCOM_EMBED_ORIGIN[0m[32m}/embed/embed.js`[0m;
+  [90m45 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>([32m`script[src="[0m${scriptSrc[32m}"]`[0m);
+  [90m46 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:50:1
+Merge conflict marker encountered.
+  [90m48 |[0m       existing.addEventListener([32m"load"[0m, () => resolve(), { once: [36mtrue[0m });
+  [90m49 |[0m       existing.addEventListener([32m"error"[0m, () => reject([36mnew[0m [33mError[0m([32m"Calendar embed failed to ...[0m
+[31m[1m>[0m [90m50 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m51 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>(
+  [90m52 |[0m       [32m'script[src="https://app.cal.com/embed/embed.js"]'[0m
+  [90m53 |[0m     );
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+⨯ ./landing/src/app/book-demo/BookDemoContent.tsx:290:2
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m  [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:4
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m    [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m      [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:3:1
+Merge conflict marker encountered.
+  [90m1 |[0m [32m"use client"[0m;
+  [90m2 |[0m
+[31m[1m>[0m [90m3 |[0m <<<<<<< [33mHEAD[0m
+  [90m  |[0m [31m[1m^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m { useEffect, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-rea...[0m
+  [90m6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:7:1
+Merge conflict marker encountered.
+  [90m 5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-re...[0m
+  [90m 6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m 7 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { useEffect, useMemo, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:11:1
+Merge conflict marker encountered.
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m11 |[0m >>>>>>> f64cd1a91be76107760fe960c0fc53a6df562a22
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m12 |[0m [36mimport[0m { trackEvent, trackLeadConversion } [36mfrom[0m [32m"@/lib/analytics"[0m;
+  [90m13 |[0m
+  [90m14 |[0m [36mtype[0m [33mCalDemoEmbedProps[0m = {
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:43:1
+Merge conflict marker encountered.
+  [90m41 |[0m
+  [90m42 |[0m   [36mreturn[0m [36mnew[0m [33mPromise[0m<[36mvoid[0m>((resolve, reject) => {
+[31m[1m>[0m [90m43 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m44 |[0m     [36mconst[0m scriptSrc = [32m`[0m${[33mCALCOM_EMBED_ORIGIN[0m[32m}/embed/embed.js`[0m;
+  [90m45 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>([32m`script[src="[0m${scriptSrc[32m}"]`[0m);
+  [90m46 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:50:1
+Merge conflict marker encountered.
+  [90m48 |[0m       existing.addEventListener([32m"load"[0m, () => resolve(), { once: [36mtrue[0m });
+  [90m49 |[0m       existing.addEventListener([32m"error"[0m, () => reject([36mnew[0m [33mError[0m([32m"Calendar embed failed to ...[0m
+[31m[1m>[0m [90m50 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m51 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>(
+  [90m52 |[0m       [32m'script[src="https://app.cal.com/embed/embed.js"]'[0m
+  [90m53 |[0m     );
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+⨯ ./landing/src/app/book-demo/BookDemoContent.tsx:290:2
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m  [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:4
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m    [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  [90m288 |[0m                     <[33mCheckCircle[0m className=[32m"h-6 w-6 text-[#0F4C2A]"[0m />
+  [90m289 |[0m                   </div>
+[31m[1m>[0m [90m290 |[0m <<<<<<< [33mHEAD[0m
+  [90m    |[0m      [31m[1m^^[0m
+  [90m291 |[0m                   <div>
+  [90m292 |[0m                     <h2 className=[32m"font-display text-[26px] font-bold text-[#061A12]"[0m>
+  [90m293 |[0m                       {fallbackNotice ? [32m"Request captured"[0m : [32m"Details saved"[0m}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:3:1
+Merge conflict marker encountered.
+  [90m1 |[0m [32m"use client"[0m;
+  [90m2 |[0m
+[31m[1m>[0m [90m3 |[0m <<<<<<< [33mHEAD[0m
+  [90m  |[0m [31m[1m^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m { useEffect, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-rea...[0m
+  [90m6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:7:1
+Merge conflict marker encountered.
+  [90m 5 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarCheck2[0m, [33mCalendarDays[0m, [33mLoader2[0m, [33mMail[0m, [33mPhone[0m } [36mfrom[0m [32m"lucide-re...[0m
+  [90m 6 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m 7 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { useEffect, useMemo, useRef, useState } [36mfrom[0m [32m"react"[0m;
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:11:1
+Merge conflict marker encountered.
+  [90m 9 |[0m [36mimport[0m { [33mAlertCircle[0m, [33mCalendarDays[0m, [33mExternalLink[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m10 |[0m [36mimport[0m { [33mCALCOM_EMBED_ORIGIN[0m, [33mCAL_CONFIG[0m, buildCalBookingUrl } [36mfrom[0m [32m"@/lib/cal"[0m;
+[31m[1m>[0m [90m11 |[0m >>>>>>> f64cd1a91be76107760fe960c0fc53a6df562a22
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m12 |[0m [36mimport[0m { trackEvent, trackLeadConversion } [36mfrom[0m [32m"@/lib/analytics"[0m;
+  [90m13 |[0m
+  [90m14 |[0m [36mtype[0m [33mCalDemoEmbedProps[0m = {
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:43:1
+Merge conflict marker encountered.
+  [90m41 |[0m
+  [90m42 |[0m   [36mreturn[0m [36mnew[0m [33mPromise[0m<[36mvoid[0m>((resolve, reject) => {
+[31m[1m>[0m [90m43 |[0m <<<<<<< [33mHEAD[0m
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m44 |[0m     [36mconst[0m scriptSrc = [32m`[0m${[33mCALCOM_EMBED_ORIGIN[0m[32m}/embed/embed.js`[0m;
+  [90m45 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>([32m`script[src="[0m${scriptSrc[32m}"]`[0m);
+  [90m46 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+
+./landing/src/components/booking/CalDemoEmbed.tsx:50:1
+Merge conflict marker encountered.
+  [90m48 |[0m       existing.addEventListener([32m"load"[0m, () => resolve(), { once: [36mtrue[0m });
+  [90m49 |[0m       existing.addEventListener([32m"error"[0m, () => reject([36mnew[0m [33mError[0m([32m"Calendar embed failed to ...[0m
+[31m[1m>[0m [90m50 |[0m =======
+  [90m   |[0m [31m[1m^^^^^^^[0m
+  [90m51 |[0m     [36mconst[0m existing = document.querySelector<[33mHTMLScriptElement[0m>(
+  [90m52 |[0m       [32m'script[src="https://app.cal.com/embed/embed.js"]'[0m
+  [90m53 |[0m     );
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component Browser]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./landing/src/components/booking/CalDemoEmbed.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Client Component SSR]
+    ./landing/src/app/book-demo/BookDemoContent.tsx [Server Component]
+    ./landing/src/app/book-demo/page.tsx [Server Component]
+
+
+[browser] Uncaught Error: ./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  288 |                     <CheckCircle className="h-6 w-6 text-[#0F4C2A]" />
+  289 |                   </div>
+> 290 | <<<<<<< HEAD
+      |      ^^
+  291 |                   <div>
+  292 |                     <h2 className="font-display text-[26px] font-bold text-[#061A12]">
+  293 |                       {fallbackNotice ? "Request captured" : "Details saved"}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+    at <unknown> (Error: ./landing/src/app/book-demo/BookDemoContent.tsx:290:6)
+    at <unknown> (Error: (./landing/src/app/book-demo/BookDemoContent.tsx:290:6)
+[browser] Uncaught Error: ./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  288 |                     <CheckCircle className="h-6 w-6 text-[#0F4C2A]" />
+  289 |                   </div>
+> 290 | <<<<<<< HEAD
+      |      ^^
+  291 |                   <div>
+  292 |                     <h2 className="font-display text-[26px] font-bold text-[#061A12]">
+  293 |                       {fallbackNotice ? "Request captured" : "Details saved"}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+    at <unknown> (Error: ./landing/src/app/book-demo/BookDemoContent.tsx:290:6)
+    at <unknown> (Error: (./landing/src/app/book-demo/BookDemoContent.tsx:290:6)
+[browser] Uncaught Error: ./landing/src/app/book-demo/BookDemoContent.tsx:290:6
+Expression expected
+  288 |                     <CheckCircle className="h-6 w-6 text-[#0F4C2A]" />
+  289 |                   </div>
+> 290 | <<<<<<< HEAD
+      |      ^^
+  291 |                   <div>
+  292 |                     <h2 className="font-display text-[26px] font-bold text-[#061A12]">
+  293 |                       {fallbackNotice ? "Request captured" : "Details saved"}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./landing/src/app/book-demo/BookDemoContent.tsx
+    ./landing/src/app/book-demo/page.tsx
+
+
+    at <unknown> (Error: ./landing/src/app/book-demo/BookDemoContent.tsx:290:6)
+    at <unknown> (Error: (./landing/src/app/book-demo/BookDemoContent.tsx:290:6)
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/client/index.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/client/index.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/client/index.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
