@@ -133,10 +133,11 @@ export async function POST(req: NextRequest) {
           ? welcomeMessage.trim()
           : undefined,
       expiresInDays: 7,
+      sendEmail: sendWelcomeImmediately !== false,
     });
 
     const signUpUrl = (inviteRecord as any).inviteUrl ?? null;
-    const invitationQueued = sendWelcomeImmediately !== false;
+    const invitationQueued = Boolean((inviteRecord as any).emailQueued);
 
     return NextResponse.json({
       success: true,

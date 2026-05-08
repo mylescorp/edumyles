@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 interface SessionRecord {
@@ -21,6 +23,14 @@ interface PasswordResetTokenRecord {
   userId: string;
   used: boolean;
   expiresAt: number;
+}
+
+function readRepoFile(path: string) {
+  const fromRepoRoot = resolve(process.cwd(), path);
+  if (existsSync(fromRepoRoot)) {
+    return readFileSync(fromRepoRoot, "utf8");
+  }
+  return readFileSync(resolve(process.cwd(), "..", path), "utf8");
 }
 
 interface PaymentTransactionRecord {
@@ -331,5 +341,26 @@ describe("WorkOS sync security contract", () => {
 
   it("allows sync only after the trusted webhook bridge provides the secret", () => {
     expect(validateTrustedServer("trusted-secret")).toBeUndefined();
+  });
+});
+
+describe("production admin onboarding guardrails", () => {
+  it("authorizes admin routes from the validated server session, not the visible role cookie", () => {
+    const source = readRepoFile("frontend/src/lib/serverRouteAuth.ts");
+
+    expect(source).toContain("getValidatedServerSession(session.sessionToken)");
+    expect(source).toContain("normalizeDevRole(validatedSession?.role)");
+    expect(source).not.toContain("normalizeDevRole(session.role)");
+  });
+
+  it("supports creating tenant admin invite records without immediately queuing email", () => {
+    const mutationSource = readRepoFile("convex/platform/tenants/mutations.ts");
+    const routeSource = readRepoFile("frontend/src/app/api/tenants/onboard/route.ts");
+
+    expect(mutationSource).toContain("sendEmail: v.optional(v.boolean())");
+    expect(mutationSource).toContain("const emailQueued = args.sendEmail ?? true");
+    expect(mutationSource).toContain("if (emailQueued)");
+    expect(routeSource).toContain("sendEmail: sendWelcomeImmediately !== false");
+    expect(routeSource).toContain("Boolean((inviteRecord as any).emailQueued)");
   });
 });

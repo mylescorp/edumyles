@@ -1,0 +1,31 @@
+
+> landing@1.0.0 dev
+> next dev --port 3001
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://10.79.169.247:3001
+✓ Ready in 1091ms
+
+○ Compiling /book-demo ...
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 200 in 6.3s (next.js: 4.6s, application-code: 1685ms)
+ GET /book-demo 200 in 407ms (next.js: 26ms, application-code: 381ms)
+ GET /book-demo 200 in 329ms (next.js: 7ms, application-code: 323ms)
+ GET /book-demo?firstName=Jane&lastName=Demo&email=jane%40school.ac.ke&phone=%2B254700000000&schoolName=Nairobi+Green+Academy&jobTitle=Principal&schoolType=primary&preferredDemoDate=&country=Kenya&county=&studentCount=&currentSystem=&needs= 200 in 205ms (next.js: 7ms, application-code: 198ms)
+ GET /book-demo 200 in 301ms (next.js: 8ms, application-code: 293ms)
+ GET /book-demo?firstName=Jane&lastName=Demo&email=jane%40school.ac.ke&phone=%2B254700000000&schoolName=Nairobi+Green+Academy&jobTitle=Principal&schoolType=primary&preferredDemoDate=&country=Kenya&county=&studentCount=&currentSystem=&needs= 200 in 173ms (next.js: 7ms, application-code: 165ms)
+ GET /book-demo 200 in 161ms (next.js: 7ms, application-code: 154ms)
+ GET /book-demo?firstName=Jane&lastName=Demo&email=jane%40school.ac.ke&phone=%2B254700000000&schoolName=Nairobi+Green+Academy&jobTitle=Principal&schoolType=primary&preferredDemoDate=&country=Kenya&county=&studentCount=&currentSystem=&needs= 200 in 211ms (next.js: 9ms, application-code: 202ms)
+ GET /book-demo 200 in 220ms (next.js: 6ms, application-code: 214ms)
+ GET /book-demo?firstName=Jane&lastName=Demo&email=jane%40school.ac.ke&phone=%2B254700000000&schoolName=Nairobi+Green+Academy&jobTitle=Principal&schoolType=primary&preferredDemoDate=&country=Kenya&county=&studentCount=&currentSystem=&needs= 200 in 187ms (next.js: 7ms, application-code: 180ms)
+✓ Compiled in 478ms
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 200 in 885ms (next.js: 297ms, application-code: 588ms)
+ GET /book-demo 200 in 309ms (next.js: 11ms, application-code: 299ms)
+ GET /book-demo 200 in 530ms (next.js: 22ms, application-code: 508ms)
+ POST /api/demo-request 200 in 6.9s (next.js: 377ms, application-code: 6.5s)
+ GET /book-demo 200 in 328ms (next.js: 9ms, application-code: 319ms)
+✓ Compiled in 925ms
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 200 in 1389ms (next.js: 596ms, application-code: 793ms)
+ POST /api/demo-request 200 in 3.3s (next.js: 21ms, application-code: 3.2s)
+ GET /book-demo 200 in 394ms (next.js: 44ms, application-code: 349ms)
+[?25h

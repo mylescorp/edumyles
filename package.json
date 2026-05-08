@@ -32,11 +32,17 @@
     "verify-master-admin": "node scripts/verify-master-admin.js",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test --project=chromium e2e/public-pages.spec.ts e2e/admin-dashboard.spec.ts e2e/platform-security.spec.ts e2e/student-portal.spec.ts",
+    "test:e2e:onboarding": "playwright test --project=chromium e2e/tenant-onboarding.spec.ts",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:update-snapshots": "playwright test --update-snapshots",
     "seed:dev": "node scripts/seed-cli.mjs",
     "marketplace:migrate": "node scripts/marketplace-migrate.mjs",
+    "production:check": "node scripts/production-readiness-check.mjs",
+    "production:verify": "npm run production:check && npm run type-check && npm run test:tenant-isolation && npm run test:e2e:onboarding",
+    "production:smoke": "npm run resend:smoke && npm run sms:smoke && npm run payments:smoke && npm run calcom:smoke",
     "resend:smoke": "node scripts/resend-smoke-check.mjs",
+    "sms:smoke": "node scripts/sms-smoke-check.mjs",
+    "payments:smoke": "node scripts/payments-smoke-check.mjs",
     "calcom:smoke": "node scripts/calcom-smoke-check.mjs"
   },
   "devDependencies": {

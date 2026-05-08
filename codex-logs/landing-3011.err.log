@@ -1,0 +1,15 @@
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3001
+- PID:          10812
+- Dir:          C:\Users\Admin\Projects\edumyles\landing
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 10812 /F to stop it.
+npm error Lifecycle script `dev` failed with error:
+npm error code 1
+npm error path C:\Users\Admin\Projects\edumyles\landing
+npm error workspace landing@1.0.0
+npm error location C:\Users\Admin\Projects\edumyles\landing
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next dev --port 3001 --port 3011

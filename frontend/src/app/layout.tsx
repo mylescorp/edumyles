@@ -7,6 +7,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { WebVitalsReporter } from "@/components/providers/WebVitalsReporter";
+import { ThemeProvider } from "@/hooks/useTheme";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,8 +23,7 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://app.edumyles.com";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://app.edumyles.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -72,11 +72,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         suppressHydrationWarning
         className={`${inter.variable} ${jakarta.variable} font-sans antialiased`}
       >
-        <ErrorBoundary>
-          <PostHogProvider>
-            <ConvexAuthProvider>{children}</ConvexAuthProvider>
-          </PostHogProvider>
-        </ErrorBoundary>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <PostHogProvider>
+              <ConvexAuthProvider>{children}</ConvexAuthProvider>
+            </PostHogProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
         <WebVitalsReporter />
         <Toaster />
         <SpeedInsights />

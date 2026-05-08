@@ -351,7 +351,14 @@ export default function BookDemoContent() {
                   </div>
                 </div>
 
-                <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+                <form
+                  className="space-y-5"
+                  action=""
+                  onSubmit={handleSubmit}
+                  noValidate
+                  data-lpignore="true"
+                  data-form-type="other"
+                >
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
                       <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
@@ -363,6 +370,9 @@ export default function BookDemoContent() {
                         onChange={handleChange}
                         type="text"
                         required
+                        autoComplete="given-name"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                         placeholder="John"
                       />
@@ -377,6 +387,9 @@ export default function BookDemoContent() {
                         onChange={handleChange}
                         type="text"
                         required
+                        autoComplete="family-name"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                         placeholder="Doe"
                       />
@@ -394,6 +407,9 @@ export default function BookDemoContent() {
                         onChange={handleChange}
                         type="email"
                         required
+                        autoComplete="email"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                         placeholder="john@school.ac.ke"
                       />
@@ -408,6 +424,9 @@ export default function BookDemoContent() {
                         onChange={handleChange}
                         type="tel"
                         required
+                        autoComplete="tel"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                         placeholder="+254 700 000 000"
                       />
@@ -425,6 +444,9 @@ export default function BookDemoContent() {
                         onChange={handleChange}
                         type="text"
                         required
+                        autoComplete="organization"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                         placeholder="Nairobi Green Academy"
                       />
@@ -439,6 +461,9 @@ export default function BookDemoContent() {
                         onChange={handleChange}
                         type="text"
                         required
+                        autoComplete="organization-title"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                         placeholder="Principal, Administrator, etc."
                       />
@@ -455,6 +480,9 @@ export default function BookDemoContent() {
                         value={fields.schoolType}
                         onChange={handleChange}
                         required
+                        autoComplete="off"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                       >
                         <option value="">Select school type</option>
@@ -474,6 +502,9 @@ export default function BookDemoContent() {
                         value={fields.preferredDemoDate}
                         onChange={handleChange}
                         type="date"
+                        autoComplete="off"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                       />
                     </label>
@@ -489,6 +520,9 @@ export default function BookDemoContent() {
                         value={fields.country}
                         onChange={handleChange}
                         type="text"
+                        autoComplete="country-name"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                       />
                     </label>
@@ -501,6 +535,9 @@ export default function BookDemoContent() {
                         value={fields.county}
                         onChange={handleChange}
                         type="text"
+                        autoComplete="address-level1"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                         placeholder="Nairobi"
                       />
@@ -518,6 +555,9 @@ export default function BookDemoContent() {
                         onChange={handleChange}
                         type="number"
                         min="0"
+                        autoComplete="off"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                         placeholder="650"
                       />
@@ -530,6 +570,9 @@ export default function BookDemoContent() {
                         name="currentSystem"
                         value={fields.currentSystem}
                         onChange={handleChange}
+                        autoComplete="off"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                       >
                         <option value="">Select current system</option>
@@ -550,6 +593,9 @@ export default function BookDemoContent() {
                       value={fields.needs}
                       onChange={handleChange}
                       rows={4}
+                      autoComplete="off"
+                      data-lpignore="true"
+                      data-form-type="other"
                       className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
                       style={{ resize: "vertical" }}
                       placeholder="What challenges are you looking to solve? What features interest you most?"
