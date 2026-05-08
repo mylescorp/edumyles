@@ -29,3 +29,13 @@
  GET /platform/security 200 in 2.2s (next.js: 65ms, proxy.ts: 1971ms, application-code: 186ms)
  GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 5ms, application-code: 8ms)
  GET /api/auth/session?workspace=platform 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /admin 200 in 2.3s (next.js: 342ms, proxy.ts: 1376ms, application-code: 547ms)
+ GET /platform/security 200 in 2.6s (next.js: 11ms, proxy.ts: 2.4s, application-code: 199ms)
+ GET /platform/impersonation 200 in 4.3s (next.js: 15ms, proxy.ts: 2.7s, application-code: 1574ms)
+ GET /platform/operations 200 in 4.3s (next.js: 195ms, proxy.ts: 2.7s, application-code: 1418ms)
+ GET /platform/users 200 in 4.8s (next.js: 268ms, proxy.ts: 3.0s, application-code: 1516ms)
+ GET /admin?error=unauthorized 200 in 7.1s (next.js: 196ms, proxy.ts: 1621ms, application-code: 5.3s)
+ GET /api/auth/session?workspace=platform 200 in 106ms (next.js: 45ms, application-code: 61ms)
+ GET /api/auth/session?workspace=platform 200 in 58ms (next.js: 14ms, application-code: 44ms)
+✓ Compiled in 7.5s
+✓ Compiled in 614ms

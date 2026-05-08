@@ -85,30 +85,49 @@ const ROUTE_ROLE_MAP: Record<string, string[]> = {
 // ── In-process blocked IP cache (refreshed every 60 s) ────────
 let blockedIPCache: Set<string> = new Set();
 let blockedIPCacheExpiry = 0;
+let blockedIPCacheLoaded = false;
 const BLOCKED_IP_CACHE_TTL_MS = 60_000;
+const BLOCKED_IP_FETCH_TIMEOUT_MS = 1_000;
 
 async function getBlockedIPs(): Promise<Set<string>> {
   const now = Date.now();
-  if (now < blockedIPCacheExpiry && blockedIPCache.size > 0) {
+  if (blockedIPCacheLoaded && now < blockedIPCacheExpiry) {
     return blockedIPCache;
   }
+
+  const cacheNextRefresh = () => {
+    blockedIPCacheLoaded = true;
+    blockedIPCacheExpiry = Date.now() + BLOCKED_IP_CACHE_TTL_MS;
+  };
+
   try {
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL ?? "";
-    if (!convexUrl) return blockedIPCache;
+    if (!convexUrl) {
+      cacheNextRefresh();
+      return blockedIPCache;
+    }
 
     // Derive the HTTP Actions URL from the Convex deployment URL.
     // Convex HTTP actions are served at the same domain as the deployment.
     const httpBase = convexUrl.replace(/\.cloud$/, ".site");
-    const res = await fetch(`${httpBase}/security/blocked-ips`, {
-      next: { revalidate: 60 },
-    });
-    if (res.ok) {
-      const data: { ips: string[] } = await res.json();
-      blockedIPCache = new Set(data.ips);
-      blockedIPCacheExpiry = now + BLOCKED_IP_CACHE_TTL_MS;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), BLOCKED_IP_FETCH_TIMEOUT_MS);
+    try {
+      const res = await fetch(`${httpBase}/security/blocked-ips`, {
+        next: { revalidate: 60 },
+        signal: controller.signal,
+      });
+      if (res.ok) {
+        const data: { ips: string[] } = await res.json();
+        blockedIPCache = new Set(data.ips);
+      }
+    } finally {
+      clearTimeout(timeout);
     }
   } catch {
     // Non-fatal — degrade gracefully (don't block legitimate traffic if Convex is unreachable)
+  } finally {
+    cacheNextRefresh();
   }
   return blockedIPCache;
 }
