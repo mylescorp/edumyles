@@ -6,46 +6,26 @@
 - Local:         http://localhost:3005
 - Network:       http://10.79.169.247:3005
 - Environments: .env.local
-✓ Ready in 1429ms
+✓ Ready in 1410ms
 - Experiments (use with caution):
   · clientTraceMetadata
   · optimizePackageImports
   · serverActions
 
-[api/auth/session] Convex unavailable, trying fallback: Error [ConvexError]: [Request ID: c47f413f5a5863eb] Server Error
-Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
-    at assertTrustedServer (../sessions.ts:8:6)
-    at handler (../sessions.ts:84:4)
-
-    at assertTrustedServer (../sessions.ts:8:6)
-    at handler (../sessions.ts:84:4)
-    at async getSessionCompat (src\app\api\auth\session\route.ts:102:10)
-    at async GET (src\app\api\auth\session\route.ts:735:25)
-  100 |   }
-  101 |
-> 102 |   return await convex.query(getSessionRef, { sessionToken });
-      |          ^
-  103 | }
-  104 |
-  105 | async function ensureDevTenantSession(convex: ConvexHttpClient, preferredTenantId?: strin... {
-  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
-}
- GET /api/auth/session?workspace=platform 200 in 2.4s (next.js: 638ms, application-code: 1738ms)
- GET /api/auth/session?workspace=platform 200 in 90ms (next.js: 69ms, application-code: 21ms)
- GET /admin 200 in 16.5s (next.js: 336ms, proxy.ts: 14.5s, application-code: 1660ms)
- GET /platform/operations 200 in 15.4s (next.js: 1434ms, proxy.ts: 13.4s, application-code: 576ms)
- GET /api/auth/session?workspace=platform 200 in 26ms (next.js: 9ms, application-code: 17ms)
- GET /api/auth/session?workspace=platform 200 in 21ms (next.js: 7ms, application-code: 14ms)
- GET /platform/impersonation 200 in 19.8s (next.js: 175ms, proxy.ts: 17.9s, application-code: 1735ms)
- GET /platform/security 200 in 19.7s (next.js: 776ms, proxy.ts: 17.8s, application-code: 1128ms)
- GET /api/auth/session?workspace=platform 200 in 44ms (next.js: 26ms, application-code: 17ms)
- GET /api/auth/session?workspace=platform 200 in 69ms (next.js: 45ms, application-code: 24ms)
- GET /api/auth/session?workspace=platform 200 in 91ms (next.js: 81ms, application-code: 10ms)
- GET /api/auth/session?workspace=platform 200 in 151ms (next.js: 81ms, application-code: 70ms)
- GET /platform/users 200 in 23.6s (next.js: 369ms, proxy.ts: 21.7s, application-code: 1441ms)
- GET /api/auth/session?workspace=platform 200 in 55ms (next.js: 23ms, application-code: 32ms)
- GET /api/auth/session?workspace=platform 200 in 46ms (next.js: 29ms, application-code: 17ms)
- GET /admin?error=unauthorized 200 in 20.0s (next.js: 24ms, proxy.ts: 18.7s, application-code: 1372ms)
- GET /platform/users 200 in 19.5s (next.js: 64ms, proxy.ts: 19.2s, application-code: 257ms)
- GET /api/auth/session?workspace=platform 200 in 26ms (next.js: 12ms, application-code: 13ms)
- GET /api/auth/session?workspace=platform 200 in 10ms (next.js: 4ms, application-code: 7ms)
+ GET /platform/users 200 in 7.8s (next.js: 1414ms, proxy.ts: 3.3s, application-code: 3.0s)
+ GET /api/auth/session?workspace=platform 200 in 571ms (next.js: 451ms, application-code: 120ms)
+ GET /api/auth/session?workspace=platform 200 in 64ms (next.js: 48ms, application-code: 16ms)
+ GET /api/auth/session?workspace=platform 200 in 29ms (next.js: 16ms, application-code: 13ms)
+ GET /platform/impersonation 200 in 16.8s (next.js: 72ms, proxy.ts: 16.5s, application-code: 166ms)
+ GET /api/auth/session?workspace=platform 200 in 21ms (next.js: 7ms, application-code: 13ms)
+ GET /api/auth/session?workspace=platform 200 in 16ms (next.js: 6ms, application-code: 11ms)
+ GET /platform/users 200 in 1385ms (next.js: 7ms, proxy.ts: 1238ms, application-code: 140ms)
+ GET /api/auth/session?workspace=platform 200 in 12ms (next.js: 4ms, application-code: 7ms)
+ GET /api/auth/session?workspace=platform 200 in 11ms (next.js: 4ms, application-code: 7ms)
+ GET /api/auth/session?workspace=platform 200 in 16ms (next.js: 5ms, application-code: 11ms)
+ GET /platform/operations 200 in 2.5s (next.js: 105ms, proxy.ts: 2.2s, application-code: 263ms)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /api/auth/session?workspace=platform 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /platform/security 200 in 2.2s (next.js: 65ms, proxy.ts: 1971ms, application-code: 186ms)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 5ms, application-code: 8ms)
+ GET /api/auth/session?workspace=platform 200 in 13ms (next.js: 4ms, application-code: 9ms)
