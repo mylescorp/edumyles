@@ -53,6 +53,24 @@ async function authenticateAsPlatformAdmin(context: import("@playwright/test").B
       secure: false,
       sameSite: "Lax",
     },
+    {
+      name: "edumyles_admin_workspace_mode",
+      value: "platform",
+      domain: "localhost",
+      path: "/",
+      httpOnly: false,
+      secure: false,
+      sameSite: "Lax",
+    },
+    {
+      name: "edumyles_dev_bootstrap",
+      value: "full-access-v2",
+      domain: "localhost",
+      path: "/",
+      httpOnly: false,
+      secure: false,
+      sameSite: "Lax",
+    },
   ]);
 }
 
@@ -74,9 +92,9 @@ test.describe("Platform security", () => {
 
     if (!(await gotoPlatformPage(page, "/platform/impersonation"))) return;
 
-    await expect(page.getByRole("heading", { name: "Impersonation" })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText("Active Tenant Contexts")).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText("No impersonation history")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: "Impersonation", exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("Start Impersonation").first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("Recent Impersonation History")).toBeVisible({ timeout: 20_000 });
   });
 
   test("platform users page exposes live management surface", async ({ page, context }) => {
@@ -84,8 +102,8 @@ test.describe("Platform security", () => {
 
     if (!(await gotoPlatformPage(page, "/platform/users"))) return;
 
-    await expect(page.getByRole("heading", { name: "Platform Users" })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole("heading", { name: "User Management" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: "Platform Users", exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: "User Management", exact: true })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("button", { name: /invite staff/i })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("tab", { name: /all staff/i })).toBeVisible({ timeout: 20_000 });
   });
@@ -107,10 +125,12 @@ test.describe("Platform security", () => {
 
     if (!(await gotoPlatformPage(page, "/platform/security"))) return;
 
-    await expect(page.getByRole("heading", { name: /advanced security dashboard/i })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole("tab", { name: /security/i })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole("tab", { name: /audit log/i })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(/blocked ips/i)).toBeVisible({ timeout: 20_000 });
+    const main = page.getByRole("main");
+    await expect(main.getByRole("heading", { name: /advanced security dashboard/i })).toBeVisible({ timeout: 20_000 });
+    await expect(main.getByRole("button", { name: /^security$/i })).toBeVisible({ timeout: 20_000 });
+    await expect(main.getByRole("button", { name: /audit log/i })).toBeVisible({ timeout: 20_000 });
+    await expect(main.getByRole("tab", { name: /threats/i })).toBeVisible({ timeout: 20_000 });
+    await expect(main.getByText(/blocked ips/i).first()).toBeVisible({ timeout: 20_000 });
   });
 });
 

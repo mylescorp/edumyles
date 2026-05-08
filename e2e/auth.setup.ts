@@ -69,6 +69,24 @@ setup("authenticate as school admin", async ({ page }) => {
       secure: false,
       sameSite: "Lax",
     },
+    {
+      name: "edumyles_admin_workspace_mode",
+      value: role === "master_admin" ? "platform" : "admin",
+      domain: "localhost",
+      path: "/",
+      httpOnly: false,
+      secure: false,
+      sameSite: "Lax",
+    },
+    {
+      name: "edumyles_dev_bootstrap",
+      value: "full-access-v2",
+      domain: "localhost",
+      path: "/",
+      httpOnly: false,
+      secure: false,
+      sameSite: "Lax",
+    },
   ]);
 
   await page.context().storageState({ path: authFile });
